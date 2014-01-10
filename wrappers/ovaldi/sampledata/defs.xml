@@ -1,0 +1,1417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oval_definitions xsi:schemaLocation="http://oval.mitre.org/XMLSchema/oval-definitions-5 oval-definitions-schema.xsd http://oval.mitre.org/XMLSchema/oval-definitions-5#linux linux-definitions-schema.xsd http://oval.mitre.org/XMLSchema/oval-common-5 oval-common-schema.xsd http://oval.mitre.org/XMLSchema/oval-definitions-5#unix unix-definitions-schema.xsd" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:oval="http://oval.mitre.org/XMLSchema/oval-common-5" xmlns:oval-def="http://oval.mitre.org/XMLSchema/oval-definitions-5">
+  <generator>
+    <oval:product_name>The OVAL Repository</oval:product_name>
+    <oval:schema_version>5.7</oval:schema_version>
+    <oval:timestamp>2013-11-26T16:53:39.905-05:00</oval:timestamp>
+  </generator>
+  <definitions>
+    <definition class="vulnerability" id="oval:org.mitre.oval:def:2092" version="2">
+      <metadata>
+        <title>mono-web ASP.net sourcecode disclosure</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+          <product>bytefx-data-mysql</product>
+          <product>ibm-data-db2</product>
+          <product>mono-basic</product>
+          <product>mono-core</product>
+          <product>mono-core-32bit</product>
+          <product>mono-data</product>
+          <product>mono-data-firebird</product>
+          <product>mono-data-oracle</product>
+          <product>mono-data-postgresql</product>
+          <product>mono-data-sqlite</product>
+          <product>mono-data-sybase</product>
+          <product>mono-devel</product>
+          <product>mono-extras</product>
+          <product>mono-jscript</product>
+          <product>mono-locale-extras</product>
+          <product>mono-nunit</product>
+          <product>mono-web</product>
+          <product>mono-winforms</product>
+        </affected>
+        <reference ref_id="CVE-2006-6104" ref_url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-6104" source="CVE"/>
+        <description>The System.Web class in the XSP for ASP.NET server 1.1 through 2.0 in Mono does not properly verify local pathnames, which allows remote attackers to (1) read source code by appending a space (%20) to a URI, and (2) read credentials via a request for Web.Config%20.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-08-09T08:17:54">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:27.453-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:30.226-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:43.914-04:00">ACCEPTED</status_change>
+            <modified comment="Set datatype to version on version element of ste:3584" date="2007-11-14T19:58:00.239-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <status_change date="2007-11-14T20:01:27.585-05:00">INTERIM</status_change>
+            <modified comment="Set datatype to version on version element of ste:3622" date="2007-11-14T19:58:00.248-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <modified comment="Set datatype to version on version element of ste:3682" date="2007-11-14T19:58:00.780-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <modified comment="The version/release child elements were changed to evr in order to better identify and compare the version/release of their respective packages." date="2007-11-21T11:06:00.027-05:00">
+              <contributor organization="Hewlett-Packard">Jeff Cheng</contributor>
+            </modified>
+            <modified comment="The version/release child elements were changed to evr in order to better identify and compare the version/release of their respective packages." date="2007-11-21T11:06:00.404-05:00">
+              <contributor organization="Hewlett-Packard">Jeff Cheng</contributor>
+            </modified>
+            <modified comment="The version/release child elements were changed to evr in order to better identify and compare the version/release of their respective packages." date="2007-11-21T11:06:00.984-05:00">
+              <contributor organization="Hewlett-Packard">Jeff Cheng</contributor>
+            </modified>
+            <status_change date="2007-12-10T04:00:05.181-05:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe://novell:opensuse:10.2</cpe>
+            <cpe>cpe://novell:suse_linux:10.1</cpe>
+            <cpe>cpe://novell:suse_linux_enterprise:10:desktop</cpe>
+            <cpe>cpe://novell:suse_linux_enterprise:10:server</cpe>
+            <cpe>cpe:///novell:bytefx-data-mysql</cpe>
+            <cpe>cpe:///novell:ibm-data-db2</cpe>
+            <cpe>cpe:///novell:mono-basic</cpe>
+            <cpe>cpe:///novell:mono-core</cpe>
+            <cpe>cpe:///novell:mono-core-32bit</cpe>
+            <cpe>cpe:///novell:mono-data</cpe>
+            <cpe>cpe:///novell:mono-data-firebird</cpe>
+            <cpe>cpe:///novell:mono-data-oracle</cpe>
+            <cpe>cpe:///novell:mono-data-postgresql</cpe>
+            <cpe>cpe:///novell:mono-data-sqlite</cpe>
+            <cpe>cpe:///novell:mono-data-sybase</cpe>
+            <cpe>cpe:///novell:mono-devel</cpe>
+            <cpe>cpe:///novell:mono-extras</cpe>
+            <cpe>cpe:///novell:mono-jscript</cpe>
+            <cpe>cpe:///novell:mono-locale-extras</cpe>
+            <cpe>cpe:///novell:mono-nunit</cpe>
+            <cpe>cpe:///novell:mono-web</cpe>
+            <cpe>cpe:///novell:mono-winforms</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria comment="Exploitable Vulnerability Exists" operator="OR">
+        <criteria comment="Exploitable openSUSE 10.2 Vulnerability Exists" operator="AND">
+          <criteria comment="Potential openSUSE 10.2 Vulnerability Exists" operator="AND">
+            <extend_definition comment="openSUSE 10.2 is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1170"/>
+            <criteria comment="Potential Architecture Vulnerability Exists" operator="OR">
+              <criterion comment="x86_64 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:1547"/>
+              <criterion comment="ix86 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:3152"/>
+              <criterion comment="ppc architecture" negate="false" test_ref="oval:org.mitre.oval:tst:4278"/>
+            </criteria>
+          </criteria>
+          <criteria comment="Potential Package Vulnerability Exists" operator="OR">
+            <criteria comment="Potential Package bytefx-data-mysql Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package bytefx-data-mysql is installed" negate="false" definition_ref="oval:org.mitre.oval:def:315"/>
+              <criterion comment="Package bytefx-data-mysql version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3563"/>
+            </criteria>
+            <criteria comment="Potential Package ibm-data-db2 Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package ibm-data-db2 is installed" negate="false" definition_ref="oval:org.mitre.oval:def:633"/>
+              <criterion comment="Package ibm-data-db2 version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3613"/>
+            </criteria>
+            <criteria comment="Potential Package mono-basic Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-basic is installed" negate="false" definition_ref="oval:org.mitre.oval:def:646"/>
+              <criterion comment="Package mono-basic version-release is less than 1.1.18-9.1" negate="false" test_ref="oval:org.mitre.oval:tst:3184"/>
+            </criteria>
+            <criteria comment="Potential Package mono-core Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-core is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1616"/>
+              <criterion comment="Package mono-core version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3848"/>
+            </criteria>
+            <criteria comment="Potential Package mono-core-32bit Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-core-32bit is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1233"/>
+              <criterion comment="Package mono-core-32bit version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3977"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1717"/>
+              <criterion comment="Package mono-data version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:4120"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-firebird Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-firebird is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2212"/>
+              <criterion comment="Package mono-data-firebird version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3601"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-oracle Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-oracle is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2227"/>
+              <criterion comment="Package mono-data-oracle version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3932"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-postgresql Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-postgresql is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2230"/>
+              <criterion comment="Package mono-data-postgresql version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3314"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-sqlite Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-sqlite is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2146"/>
+              <criterion comment="Package mono-data-sqlite version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3280"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-sybase Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-sybase is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1812"/>
+              <criterion comment="Package mono-data-sybase version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3221"/>
+            </criteria>
+            <criteria comment="Potential Package mono-devel Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-devel is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2042"/>
+              <criterion comment="Package mono-devel version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3542"/>
+            </criteria>
+            <criteria comment="Potential Package mono-extras Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-extras is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2175"/>
+              <criterion comment="Package mono-extras version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3671"/>
+            </criteria>
+            <criteria comment="Potential Package mono-jscript Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-jscript is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2218"/>
+              <criterion comment="Package mono-jscript version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:4162"/>
+            </criteria>
+            <criteria comment="Potential Package mono-locale-extras Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-locale-extras is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2066"/>
+              <criterion comment="Package mono-locale-extras version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3743"/>
+            </criteria>
+            <criteria comment="Potential Package mono-nunit Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-nunit is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2125"/>
+              <criterion comment="Package mono-nunit version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3596"/>
+            </criteria>
+            <criteria comment="Potential Package mono-web Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-web is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1554"/>
+              <criterion comment="Package mono-web version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3999"/>
+            </criteria>
+            <criteria comment="Potential Package mono-winforms Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-winforms is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2131"/>
+              <criterion comment="Package mono-winforms version-release is less than 1.1.18.1-12.2" negate="false" test_ref="oval:org.mitre.oval:tst:3496"/>
+            </criteria>
+          </criteria>
+        </criteria>
+        <criteria comment="Exploitable SUSE Linux 10.1 Vulnerability Exists" operator="AND">
+          <criteria comment="Potential SUSE Linux 10.1 Vulnerability Exists" operator="AND">
+            <extend_definition comment="SUSE Linux 10.1 is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2157"/>
+            <criteria comment="Potential Architecture Vulnerability Exists" operator="OR">
+              <criterion comment="x86_64 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:1547"/>
+              <criterion comment="ix86 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:3152"/>
+              <criterion comment="ppc architecture" negate="false" test_ref="oval:org.mitre.oval:tst:4278"/>
+            </criteria>
+          </criteria>
+          <criteria comment="Potential Package Vulnerability Exists" operator="OR">
+            <criteria comment="Potential Package bytefx-data-mysql Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package bytefx-data-mysql is installed" negate="false" definition_ref="oval:org.mitre.oval:def:315"/>
+              <criterion comment="Package bytefx-data-mysql version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3816"/>
+            </criteria>
+            <criteria comment="Potential Package ibm-data-db2 Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package ibm-data-db2 is installed" negate="false" definition_ref="oval:org.mitre.oval:def:633"/>
+              <criterion comment="Package ibm-data-db2 version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3476"/>
+            </criteria>
+            <criteria comment="Potential Package mono-basic Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-basic is installed" negate="false" definition_ref="oval:org.mitre.oval:def:646"/>
+              <criterion comment="Package mono-basic version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:4038"/>
+            </criteria>
+            <criteria comment="Potential Package mono-core Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-core is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1616"/>
+              <criterion comment="Package mono-core version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3511"/>
+            </criteria>
+            <criteria comment="Potential Package mono-core-32bit Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-core-32bit is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1233"/>
+              <criterion comment="Package mono-core-32bit version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:4108"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1717"/>
+              <criterion comment="Package mono-data version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:4044"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-firebird Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-firebird is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2212"/>
+              <criterion comment="Package mono-data-firebird version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3441"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-oracle Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-oracle is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2227"/>
+              <criterion comment="Package mono-data-oracle version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3299"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-postgresql Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-postgresql is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2230"/>
+              <criterion comment="Package mono-data-postgresql version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3406"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-sqlite Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-sqlite is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2146"/>
+              <criterion comment="Package mono-data-sqlite version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3741"/>
+            </criteria>
+            <criteria comment="Potential Package mono-data-sybase Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-data-sybase is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1812"/>
+              <criterion comment="Package mono-data-sybase version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3485"/>
+            </criteria>
+            <criteria comment="Potential Package mono-devel Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-devel is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2042"/>
+              <criterion comment="Package mono-devel version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3706"/>
+            </criteria>
+            <criteria comment="Potential Package mono-extras Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-extras is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2175"/>
+              <criterion comment="Package mono-extras version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:4032"/>
+            </criteria>
+            <criteria comment="Potential Package mono-jscript Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-jscript is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2218"/>
+              <criterion comment="Package mono-jscript version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3801"/>
+            </criteria>
+            <criteria comment="Potential Package mono-locale-extras Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-locale-extras is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2066"/>
+              <criterion comment="Package mono-locale-extras version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:4127"/>
+            </criteria>
+            <criteria comment="Potential Package mono-nunit Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-nunit is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2125"/>
+              <criterion comment="Package mono-nunit version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3165"/>
+            </criteria>
+            <criteria comment="Potential Package mono-web Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-web is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1554"/>
+              <criterion comment="Package mono-web version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3277"/>
+            </criteria>
+            <criteria comment="Potential Package mono-winforms Vulnerability Exists" operator="AND">
+              <extend_definition comment="Package mono-winforms is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2131"/>
+              <criterion comment="Package mono-winforms version-release is less than 1.1.13.8-2.15" negate="false" test_ref="oval:org.mitre.oval:tst:3411"/>
+            </criteria>
+          </criteria>
+        </criteria>
+        <criteria comment="Exploitable SUSE Linux Enterprise Desktop 10 or SUSE Linux Enterprise Server 10 Vulnerability Exists" operator="AND">
+          <criteria comment="Potential System Vulnerability Exists" operator="OR">
+            <criteria comment="Potential SUSE Linux Enterprise Desktop 10 Vulnerability Exists" operator="AND">
+              <extend_definition comment="SUSE Linux Enterprise Desktop 10 is installed" negate="false" definition_ref="oval:org.mitre.oval:def:2106"/>
+              <criteria comment="Potential Architecture Vulnerability Exists" operator="OR">
+                <criterion comment="x86_64 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:1547"/>
+                <criterion comment="ix86 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:3152"/>
+              </criteria>
+            </criteria>
+            <criteria comment="Potential SUSE Linux Enterprise Server 10 Vulnerability Exists" operator="AND">
+              <extend_definition comment="SUSE Linux Enterprise Server 10 is installed" negate="false" definition_ref="oval:org.mitre.oval:def:1368"/>
+              <criteria comment="Potential Architecture Vulnerability Exists" operator="OR">
+                <criterion comment="x86_64 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:1547"/>
+                <criterion comment="ix86 architecture" negate="false" test_ref="oval:org.mitre.oval:tst:3152"/>
+                <criterion comment="ppc architecture" negate="false" test_ref="oval:org.mitre.oval:tst:4278"/>
+              </criteria>
+            </criteria>
+          </criteria>
+          <criteria comment="Potential Package Vulnerability Exists" operator="OR">
+            <criterion comment="Package bytefx-data-mysql is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3161"/>
+            <criterion comment="Package ibm-data-db2 is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3447"/>
+            <criterion comment="Package mono-basic is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3595"/>
+            <criterion comment="Package mono-core is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3776"/>
+            <criterion comment="Package mono-core-32bit is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3308"/>
+            <criterion comment="Package mono-data is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3602"/>
+            <criterion comment="Package mono-data-firebird is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3169"/>
+            <criterion comment="Package mono-data-oracle is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3297"/>
+            <criterion comment="Package mono-data-postgresql is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3283"/>
+            <criterion comment="Package mono-data-sqlite is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3866"/>
+            <criterion comment="Package mono-data-sybase is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3718"/>
+            <criterion comment="Package mono-devel is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3766"/>
+            <criterion comment="Package mono-extras is installed" negate="false" test_ref="oval:org.mitre.oval:tst:4057"/>
+            <criterion comment="Package mono-jscript is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3444"/>
+            <criterion comment="Package mono-locale-extras is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3301"/>
+            <criterion comment="Package mono-nunit is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3632"/>
+            <criterion comment="Package mono-web is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3838"/>
+            <criterion comment="Package mono-winforms is installed" negate="false" test_ref="oval:org.mitre.oval:tst:3345"/>
+          </criteria>
+        </criteria>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:646" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-basic is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-basic"/>
+        <description>Package mono-basic is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:13">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:25.904-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:33.111-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:47.786-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-basic is installed" test_ref="oval:org.mitre.oval:tst:3595"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:633" version="1" class="inventory">
+      <metadata>
+        <title>Package ibm-data-db2 is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:ibm-data-db2"/>
+        <description>Package ibm-data-db2 is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T16:32:09">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:25.826-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:33.025-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:47.695-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="ibm-data-db2 is installed" test_ref="oval:org.mitre.oval:tst:3447"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:315" version="1" class="inventory">
+      <metadata>
+        <title>Package bytefx-data-mysql is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:bytefx-data-mysql"/>
+        <description>Package bytefx-data-mysql is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T12:24:51">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:25.761-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:32.941-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:47.608-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="bytefx-data-mysql is installed" test_ref="oval:org.mitre.oval:tst:3161"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2230" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-data-postgresql is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-data-postgresql"/>
+        <description>Package mono-data-postgresql is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:51">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.294-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:32.807-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:47.190-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-data-postgresql is installed" test_ref="oval:org.mitre.oval:tst:3283"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2227" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-data-oracle is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-data-oracle"/>
+        <description>Package mono-data-oracle is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:46">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.231-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:32.739-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:47.120-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-data-oracle is installed" test_ref="oval:org.mitre.oval:tst:3297"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2218" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-jscript is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.1</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-jscript"/>
+        <description>Package mono-jscript is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:07:43">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.590-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:32.557-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:46.823-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-jscript is installed" test_ref="oval:org.mitre.oval:tst:3444"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2212" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-data-firebird is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-data-firebird"/>
+        <description>Package mono-data-firebird is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:42">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.162-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:32.491-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:46.756-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-data-firebird is installed" test_ref="oval:org.mitre.oval:tst:3169"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2175" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-extras is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-extras"/>
+        <description>Package mono-extras is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:07:35">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.538-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:31.794-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:45.770-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-extras is installed" test_ref="oval:org.mitre.oval:tst:4057"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2157" version="4" class="inventory">
+      <metadata>
+        <title>SUSE Linux 10.1 is installed</title>
+        <affected family="unix">
+          <platform>SUSE Linux 10.1</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/o:novell:suse_linux:10.1"/>
+        <description>SUSE Linux 10.1 is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-06-28T06:18:50">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-07-10T21:08:30.381-04:00">DRAFT</status_change>
+            <modified comment="Removed unneeded platform information from the affected element and affected cpe list." date="2007-07-25T12:36:00.918-04:00">
+              <contributor organization="The MITRE Corporation">Jonathan Baker</contributor>
+            </modified>
+            <status_change date="2007-08-10T13:33:41.076-04:00">INTERIM</status_change>
+            <status_change date="2007-09-06T09:13:31.539-04:00">ACCEPTED</status_change>
+            <modified comment="Set datatype to version on version element of ste:3286" date="2007-11-14T19:58:00.803-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <status_change date="2007-11-14T20:00:08.214-05:00">INTERIM</status_change>
+            <status_change date="2007-12-03T04:00:07.896-05:00">ACCEPTED</status_change>
+            <modified comment="EDITED oval:org.mitre.oval:def:2157 - Fixed Definitions with missing platforms." date="2012-12-12T17:14:00.907-05:00">
+              <contributor organization="SecPod Technologies">Chandan S</contributor>
+            </modified>
+            <status_change date="2012-12-12T17:21:39.916-05:00">INTERIM</status_change>
+            <status_change date="2012-12-31T04:02:06.151-05:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="SUSE Linux 10.1 is installed" test_ref="oval:org.mitre.oval:tst:3940"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2146" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-data-sqlite is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-data-sqlite"/>
+        <description>Package mono-data-sqlite is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:57">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.368-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:31.290-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:45.190-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-data-sqlite is installed" test_ref="oval:org.mitre.oval:tst:3866"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2131" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-winforms is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-winforms"/>
+        <description>Package mono-winforms is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:08:08">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.816-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:31.113-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:44.998-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-winforms is installed" test_ref="oval:org.mitre.oval:tst:3345"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2125" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-nunit is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-nunit"/>
+        <description>Package mono-nunit is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:07:52">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.702-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:30.978-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:44.860-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-nunit is installed" test_ref="oval:org.mitre.oval:tst:3632"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2106" version="4" class="inventory">
+      <metadata>
+        <title>SUSE Linux Enterprise Desktop 10 is installed</title>
+        <affected family="unix">
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/o:novell:suse_linux:10::desktop"/>
+        <description>SUSE Linux Enterprise Desktop 10 is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-11T16:29:48">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-07-12T07:09:37.834-04:00">DRAFT</status_change>
+            <modified comment="Removed unneeded platform information from the affected element and affected cpe list." date="2007-07-25T12:36:00.029-04:00">
+              <contributor organization="The MITRE Corporation">Jonathan Baker</contributor>
+            </modified>
+            <status_change date="2007-08-10T13:33:41.021-04:00">INTERIM</status_change>
+            <status_change date="2007-09-06T09:13:30.742-04:00">ACCEPTED</status_change>
+            <modified comment="Set datatype to version on version element of ste:3857" date="2007-11-14T19:58:00.649-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <status_change date="2007-11-14T20:00:29.988-05:00">INTERIM</status_change>
+            <status_change date="2007-12-03T04:00:06.107-05:00">ACCEPTED</status_change>
+            <modified comment="EDITED oval:org.mitre.oval:def:2106 - Fixed Definitions with missing platforms." date="2012-12-12T17:14:00.907-05:00">
+              <contributor organization="SecPod Technologies">Chandan S</contributor>
+            </modified>
+            <status_change date="2012-12-12T17:21:14.550-05:00">INTERIM</status_change>
+            <status_change date="2012-12-31T04:02:05.837-05:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="SUSE Linux Enterprise Desktop 10 is installed" test_ref="oval:org.mitre.oval:tst:3588"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2066" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-locale-extras is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-locale-extras"/>
+        <description>Package mono-locale-extras is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:07:47">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.645-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:29.925-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:43.365-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-locale-extras is installed" test_ref="oval:org.mitre.oval:tst:3301"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:2042" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-devel is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-devel"/>
+        <description>Package mono-devel is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:07:15">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.485-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:29.804-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:43.298-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-devel is installed" test_ref="oval:org.mitre.oval:tst:3766"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1812" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-data-sybase is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-data-sybase"/>
+        <description>Package mono-data-sybase is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:07:02">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.426-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:28.587-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:42.059-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-data-sybase is installed" test_ref="oval:org.mitre.oval:tst:3718"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1717" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-data is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-data"/>
+        <description>Package mono-data is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:36">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.099-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:28.007-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:41.135-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-data is installed" test_ref="oval:org.mitre.oval:tst:3602"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1616" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-core is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-core"/>
+        <description>Package mono-core is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:23">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:25.971-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:27.539-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:40.671-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-core is installed" test_ref="oval:org.mitre.oval:tst:3776"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1554" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-web is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+          <platform>SUSE Linux Enterprise Desktop 10</platform>
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-web"/>
+        <description>Package mono-web is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:08:02">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.763-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:27.383-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:40.482-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::desktop</cpe>
+            <cpe>cpe:/o:novell:suse_linux_enterprise:10::server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-web is installed" test_ref="oval:org.mitre.oval:tst:3838"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1368" version="2" class="inventory">
+      <metadata>
+        <title>SUSE Linux Enterprise Server 10 is installed</title>
+        <affected family="unix">
+          <platform>SUSE Linux Enterprise Server 10</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/o:novell:suse_linux:10::server"/>
+        <description>SUSE Linux Enterprise Server 10 is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-11T16:29:48">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-07-12T07:09:38.141-04:00">DRAFT</status_change>
+            <status_change date="2007-08-01T22:26:14.016-04:00">INTERIM</status_change>
+            <status_change date="2007-08-20T08:04:38.503-04:00">ACCEPTED</status_change>
+            <modified comment="Set datatype to version on version element of ste:3857" date="2007-11-14T19:58:00.649-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <status_change date="2007-11-14T20:00:30.290-05:00">INTERIM</status_change>
+            <status_change date="2007-12-03T04:00:05.730-05:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:suse_linux:10:server</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="SUSE Linux Enterprise Server 10 is installed" test_ref="oval:org.mitre.oval:tst:3669"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1233" version="1" class="inventory">
+      <metadata>
+        <title>Package mono-core-32bit is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+          <platform>SUSE Linux 10.0</platform>
+          <platform>SUSE Linux 10.1</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/a:novell:mono-core-32bit"/>
+        <description>Package mono-core-32bit is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-07-07T21:06:29">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-08-10T13:32:26.041-04:00">DRAFT</status_change>
+            <status_change date="2007-09-06T09:13:26.600-04:00">INTERIM</status_change>
+            <status_change date="2007-09-27T08:57:39.118-04:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.0</cpe>
+            <cpe>cpe:/o:novell:suse_linux:10.1</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="mono-core-32bit is installed" test_ref="oval:org.mitre.oval:tst:3308"/>
+      </criteria>
+    </definition>
+    <definition id="oval:org.mitre.oval:def:1170" version="2" class="inventory">
+      <metadata>
+        <title>openSUSE 10.2 is installed</title>
+        <affected family="unix">
+          <platform>openSUSE 10.2</platform>
+        </affected>
+        <reference source="CPE" ref_id="cpe:/o:novell:opensuse:10.2"/>
+        <description>openSUSE 10.2 is installed.</description>
+        <oval_repository>
+          <dates>
+            <submitted date="2007-06-28T06:18:50">
+              <contributor organization="Maitreya Security">Thomas R. Jones</contributor>
+            </submitted>
+            <status_change date="2007-07-10T21:08:29.742-04:00">DRAFT</status_change>
+            <status_change date="2007-08-01T22:26:13.957-04:00">INTERIM</status_change>
+            <status_change date="2007-08-20T08:04:38.324-04:00">ACCEPTED</status_change>
+            <modified comment="Set datatype to version on version element of ste:3836" date="2007-11-14T19:58:00.824-05:00">
+              <contributor organization="Hewlett-Packard">Nicholas Hansen</contributor>
+            </modified>
+            <status_change date="2007-11-14T20:01:05.098-05:00">INTERIM</status_change>
+            <status_change date="2007-12-03T04:00:04.575-05:00">ACCEPTED</status_change>
+          </dates>
+          <status>ACCEPTED</status>
+          <affected_cpe_list>
+            <cpe>cpe:/o:novell:opensuse:10.2</cpe>
+          </affected_cpe_list>
+        </oval_repository>
+      </metadata>
+      <criteria operator="AND">
+        <criterion comment="openSUSE 10.2 is installed" test_ref="oval:org.mitre.oval:tst:3589"/>
+      </criteria>
+    </definition>
+  </definitions>
+  <tests>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3940" version="2" comment="SUSE Linux 10.1 is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1798"/>
+      <state state_ref="oval:org.mitre.oval:ste:3286"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3588" version="2" comment="SUSE Linux Enterprise Desktop 10 is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1903"/>
+      <state state_ref="oval:org.mitre.oval:ste:3857"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3669" version="2" comment="SUSE Linux Enterprise Server 10 is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2240"/>
+      <state state_ref="oval:org.mitre.oval:ste:3857"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3589" version="2" comment="openSUSE 10.2 is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2455"/>
+      <state state_ref="oval:org.mitre.oval:ste:3836"/>
+    </rpminfo_test>
+    <uname_test id="oval:org.mitre.oval:tst:4278" version="2" comment="ppc architecture" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix">
+      <object object_ref="oval:org.mitre.oval:obj:2759"/>
+      <state state_ref="oval:org.mitre.oval:ste:4167"/>
+    </uname_test>
+    <rpminfo_test check="all" comment="Package mono-jscript version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:4162" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2537"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-locale-extras version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:4127" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2666"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:4120" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2334"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-core-32bit version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:4108" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2670"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:4057" version="1" comment="mono-extras is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2211"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:4044" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2334"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-basic version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:4038" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1793"/>
+      <state state_ref="oval:org.mitre.oval:ste:3622"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-extras version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:4032" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2211"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-web version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3999" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2285"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-core-32bit version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3977" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2670"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-oracle version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3932" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2673"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3866" version="1" comment="mono-data-sqlite is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2117"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-core version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3848" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1917"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3838" version="1" comment="mono-web is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2285"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package bytefx-data-mysql version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3816" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:58"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-jscript version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3801" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2537"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3776" version="1" comment="mono-core is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1917"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3766" version="1" comment="mono-devel is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2553"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-locale-extras version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3743" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2666"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-sqlite version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3741" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2117"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3718" version="1" comment="mono-data-sybase is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2429"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-devel version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3706" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2553"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-extras version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3671" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2211"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3632" version="1" comment="mono-nunit is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2166"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package ibm-data-db2 version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3613" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:168"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3602" version="1" comment="mono-data is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2334"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-firebird version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3601" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2478"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-nunit version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3596" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2166"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3595" version="1" comment="mono-basic is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1793"/>
+      <state state_ref="oval:org.mitre.oval:ste:4668"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package bytefx-data-mysql version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3563" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:58"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-devel version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3542" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2553"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-core version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3511" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1917"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-winforms version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3496" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1992"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-sybase version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3485" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2429"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package ibm-data-db2 version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3476" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:168"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3447" version="1" comment="ibm-data-db2 is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:168"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3444" version="1" comment="mono-jscript is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2537"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-firebird version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3441" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2478"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-winforms version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3411" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1992"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-postgresql version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3406" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2546"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3345" version="1" comment="mono-winforms is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1992"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-postgresql version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3314" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2546"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3308" version="1" comment="mono-core-32bit is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2670"/>
+      <state state_ref="oval:org.mitre.oval:ste:2953"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3301" version="1" comment="mono-locale-extras is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2666"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-oracle version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3299" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2673"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3297" version="1" comment="mono-data-oracle is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2673"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3283" version="1" comment="mono-data-postgresql is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2546"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-sqlite version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3280" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2117"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-web version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3277" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2285"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-data-sybase version-release is less than 1.1.18.1-12.2" id="oval:org.mitre.oval:tst:3221" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2429"/>
+      <state state_ref="oval:org.mitre.oval:ste:3584"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-basic version-release is less than 1.1.18-9.1" id="oval:org.mitre.oval:tst:3184" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:1793"/>
+      <state state_ref="oval:org.mitre.oval:ste:3622"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3169" version="1" comment="mono-data-firebird is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2478"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <rpminfo_test check="all" comment="Package mono-nunit version-release is less than 1.1.13.8-2.15" id="oval:org.mitre.oval:tst:3165" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:2166"/>
+      <state state_ref="oval:org.mitre.oval:ste:3682"/>
+    </rpminfo_test>
+    <rpminfo_test id="oval:org.mitre.oval:tst:3161" version="1" comment="bytefx-data-mysql is installed" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <object object_ref="oval:org.mitre.oval:obj:58"/>
+      <state state_ref="oval:org.mitre.oval:ste:4566"/>
+    </rpminfo_test>
+    <uname_test id="oval:org.mitre.oval:tst:3152" version="1" comment="ix86 architecture" check_existence="at_least_one_exists" check="all" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix">
+      <object object_ref="oval:org.mitre.oval:obj:2759"/>
+      <state state_ref="oval:org.mitre.oval:ste:2948"/>
+    </uname_test>
+    <uname_test id="oval:org.mitre.oval:tst:1547" version="1" comment="ix86 architecture" check_existence="at_least_one_exists" check="at least one" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix">
+      <object object_ref="oval:org.mitre.oval:obj:2759"/>
+      <state state_ref="oval:org.mitre.oval:ste:1401"/>
+    </uname_test>
+  </tests>
+  <objects>
+    <rpminfo_object id="oval:org.mitre.oval:obj:1798" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>suse-release</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:1903" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>sled-release</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2240" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>sles-release</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2455" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>openSUSE-release</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2211" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-extras</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2334" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-data</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2553" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-devel</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:1917" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-core</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:168" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>ibm-data-db2</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2537" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-jscript</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:1992" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-winforms</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2670" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-core-32bit</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2666" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-locale-extras</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2673" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-data-oracle</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2546" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-data-postgresql</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2117" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-data-sqlite</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2285" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-web</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2429" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-data-sybase</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:1793" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-basic</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2478" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-data-firebird</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:2166" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>mono-nunit</name>
+    </rpminfo_object>
+    <rpminfo_object id="oval:org.mitre.oval:obj:58" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <name>bytefx-data-mysql</name>
+    </rpminfo_object>
+    <uname_object id="oval:org.mitre.oval:obj:2759" version="1" comment="The single uname object." xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix"/>
+  </objects>
+  <states>
+    <rpminfo_state id="oval:org.mitre.oval:ste:3286" version="2" operator="AND" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <arch operation="pattern match">(^i586$)|(^x86_64$)|(^ppc$)</arch>
+      <epoch>(none)</epoch>
+      <version datatype="version">10.1</version>
+      <signature_keyid>a84edae89c800aca</signature_keyid>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:3857" version="2" operator="AND" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <arch operation="pattern match">(^i586$)|(^x86_64$)</arch>
+      <epoch>(none)</epoch>
+      <version datatype="version">10</version>
+      <signature_keyid>a84edae89c800aca</signature_keyid>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:3836" version="2" operator="AND" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <arch operation="pattern match">(^i586$)|(^x86_64$)|(^ppc$)</arch>
+      <epoch>(none)</epoch>
+      <version datatype="version">10.2</version>
+      <signature_keyid>a84edae89c800aca</signature_keyid>
+    </rpminfo_state>
+    <uname_state id="oval:org.mitre.oval:ste:4167" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix">
+      <machine_class>ppc</machine_class>
+    </uname_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:4668" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <arch operation="pattern match">(^i586$)|(^x86_64$)|(^ppc$)|(^noarch$)</arch>
+      <epoch>(none)</epoch>
+      <signature_keyid>a84edae89c800aca</signature_keyid>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:2953" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <arch>x86_64</arch>
+      <epoch>(none)</epoch>
+      <signature_keyid>a84edae89c800aca</signature_keyid>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:3584" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <evr datatype="evr_string" operation="less than">0:1.1.18.1-12.2</evr>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:3622" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <evr datatype="evr_string" operation="less than">0:1.1.18-9.1</evr>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:3682" version="3" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <evr datatype="evr_string" operation="less than">0:1.1.13.8-2.15</evr>
+    </rpminfo_state>
+    <rpminfo_state id="oval:org.mitre.oval:ste:4566" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#linux">
+      <arch operation="pattern match">(^i586$)|(^x86_64$)|(^ppc$)</arch>
+      <epoch>(none)</epoch>
+      <signature_keyid>a84edae89c800aca</signature_keyid>
+    </rpminfo_state>
+    <uname_state id="oval:org.mitre.oval:ste:2948" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix">
+      <machine_class operation="pattern match">^i[3-6]86$</machine_class>
+    </uname_state>
+    <uname_state id="oval:org.mitre.oval:ste:1401" version="1" xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5#unix">
+      <machine_class>x86_64</machine_class>
+    </uname_state>
+  </states>
+</oval_definitions>

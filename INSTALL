@@ -1,0 +1,23 @@
+INSTALLATION INSTRUCTIONS FOR OSPD
+==================================
+
+Please note: The reference system used by most of the developers is Debian
+Debian GNU/Linux 'Wheezy' 7. The build might fail on any other systems.
+Also it is necessary to install dependent development packages.
+
+
+Prerequisites for OSPD
+----------------------
+
+Prerequisites:
+* python
+* python-pexpect: For running/interacting with w3af_console and remote-ovaldi.sh
+
+
+Building OSPD
+-------------
+
+It is planned to add a cmake environment for the build process.
+During prototype phase, the use instructions include direct
+ways of executing the daemons.
+

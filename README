@@ -1,0 +1,132 @@
+About OSPD
+----------
+
+===== ATTENTION: OSPD is in prototype status. It does not operate secure. The
+===== ATTENTION: protocol and features may get changed without notice.
+
+OSPD is a collection of scanner wrappers which share the same communication
+protocol: OSP (OpenVAS Scanner Protocol). OSP creates a unified interface for
+different security scanners and make their control flow and scan results
+consistently under the central OpenVAS Manager service.
+
+OSP is similar in many ways to OMP (OpenVAS Management Protocol): XML-based,
+stateless and non-permanent connection.
+
+Currently wrapped scanners: w3af (web application scanner) and ovaldi
+as a remotely controlled OVAL scanner. The design supports wrapping
+further scanners with same protocol OSP, sharing the core daemon
+options while adding scanner specific parameters and options.
+
+OSPD is licensed under GNU General Public License Version 2 or
+any later version.  Please see file COPYING for details.
+
+All parts of OSPD are Copyright (C) by Greenbone Networks GmbH
+(see http://www.greenbone.net).
+
+
+Module structure
+----------------
+
+* ospd/ospd.py: Core OSP Daemon class.
+* ospd/misc.py: Miscellaneous code and classes related to OSPD that don't fit
+                elsewhere.
+* wrappers/: Directory for various scanners wrappers. At the moment it contains:
+ - wrappers/ovaldi/ospd-ovaldi.py: OSP Daemon that runs remote-ovaldi.sh scanner.
+ - wrappers/w3af/ospd-w3af.py: OSP Daemon that runs w3af web scanner (cli mode).
+
+
+Howto use
+---------
+
+All scanner wrappers share the same set of command-line options (such as
+--help, --bind-address, --port, --key-file, --timeout etc,.) and some of the
+wrappers add their own specific options.
+
+For example to see the command line options you can run
+
+$ python wrappers/NAME/ospd-NAME.py --help
+
+where NAME can be "ovaldi" or "w3af".
+ 
+In case you do not have already a certificate to use, you may quickly
+create your own one (can be used for multiple ospd daemons):
+
+$ openssl req -new -x509 -days 365 -nodes -out /tmp/cert.pem -keyout /tmp/cert.pem
+
+Of course this is a coarse and insecure way of doing it and should be done
+adequately for a production use.
+
+
+To run a test instance of ospd-ovaldi on local port 1234 with sample data:
+
+$ python wrappers/ovaldi/ospd-ovaldi.py -k /tmp/cert.pem -c /tmp/cert.pem -D wrappers/ovaldi/sampledata/defs.xml -b 127.0.0.1 -p 1234 &
+
+Add "-d 2" to enable maximum debugging output.
+
+
+To run a test instance of ospd-w3af on local port 1235:
+
+$ python wrappers/w3af/ospd-w3af.py -k /tmp/cert.pem -c /tmp/cert.pem -b 127.0.0.1 -p 1235 &
+
+Add "-d 2" to enable maximum debugging output.
+
+
+Controlling a OSP daemon
+
+You can use command "omp" of the OpenVAS "omp-cli" module to send to and
+receive information from the scanners.
+
+All OSP scanners offer the command "help". They may answer
+with different capabilities (like for the start_scan command).
+
+With ospd-w3af.py listening on 127.0.0.1:1234:
+$ omp -u foo -w bar --xml="<help/>" -p 1234 -i
+
+<?xml version="1.0"?>
+<help_response status_text="OK" status="200">
+        get_version             Return various versions.
+        delete_scan             Delete a finished/stopped scan.
+         Attributes:
+          id                     Scan ID.
+        help                    Print the commands help.
+        start_scan              Start a new scan.
+         Attributes:
+          target                 Target host to scan
+         Elements:
+          profile                w3af scan profile
+        get_scans               List the scans in buffer.
+</help_response>
+
+With ospd-ovaldi.py listening on 127.0.0.1:1234:
+$ omp -u foo -w bar --xml="<help/>" -p 1234 -i
+
+<?xml version="1.0"?>
+<help_response status_text="OK" status="200">
+        get_version             Return various versions.
+        delete_scan             Delete a finished/stopped scan.
+         Attributes:
+          id                     Scan ID.
+        help                    Print the commands help.
+        start_scan              Start a new scan.
+         Attributes:
+          target                 Target host to scan
+         Elements:
+          username               SSH Username for remote-ovaldi.sh
+          password               SSH Password for remote-ovaldi.sh
+          port                   SSH Port for remote-ovaldi.sh
+        get_scans               List the scans in buffer.
+</help_response>
+
+
+Starting a scan with ospd-ovaldi:
+
+omp -u foo -w bar --xml="<start_scan target='127.0.0.1'><username>USERNAME</username><password>PASSWORT</password></start_scan>" -p 1234 -i
+
+Starting a scan with ospd-w3af:
+
+omp -u foo -w bar --xml="<start_scan target='www.example.com'></start_scan>" -p 1234 -i
+
+
+Show the list of scans, their status and results (any OSP Scanner):
+
+$ omp -u foo -w bar --xml="<get_scans/>" -p 1234 -i

@@ -1,0 +1,7 @@
+2014-01-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Starting module "ospd".
+
+	* COPYING, README, INSTALL, ospd/, ospd/__init__.py, wrappers/,
+	wrappers/ovaldi/, wrappers/ovaldi/sampledata/,
+	wrappers/ovaldi/sampledata/defs.xml, wrappers/w3af/: New.
