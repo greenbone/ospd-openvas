@@ -1,5 +1,12 @@
 2014-01-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: New.
+
+	* ospd/misc.py (create_args_parser, get_common_args): Adjust default
+	scanner timeout value.
+
+2014-01-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py, ospd/misc.py: New.
 
 2014-01-10  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>

@@ -179,7 +179,7 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
                         type=str, nargs=1, help='Public key file.'
                                                 ' (Default is cert.pem)')
     parser.add_argument('-t', '--timeout', dest='timeout', type=int, nargs=1,
-                        help='Ovaldi execution timeout. (Default is 10.)')
+                        help='Ovaldi execution timeout. (Default is 3600 seconds.)')
     parser.add_argument('-d', '--debug', dest='debug', type=int, nargs=1,
                         help='Debug level (Default is 0.)')
 
@@ -216,7 +216,7 @@ def get_common_args(parser, parentdir):
             parser.print_help()
             exit(1)
     else:
-        timeout = 120
+        timeout = 3600
 
     # Debug level.
     if options.debug:
