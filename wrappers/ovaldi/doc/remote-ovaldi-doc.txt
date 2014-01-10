@@ -1,0 +1,88 @@
+OVAL interpreter remote execution
+=================================
+
+Author(s):
+Timo Pollmeier <timo.pollmeier@greenbone.net>
+
+
+Files:
+------
+- remote-ovaldi-doc.txt
+  (This document)
+- remote-ovaldi.sh
+  (Script to be run locally)
+- remote-ovaldi-setup.sh
+  (Script copied and used by remote-ovaldi.sh, must be in same directory)
+
+# TODO: Specify directories, create separate directory for copied scripts.
+
+
+Local requirements
+------------------
+- remote-ovaldi.sh and remote-oval-setup.sh must be installed
+
+- remote-ovaldi.sh, ssh and scp must be exectuable for the current
+  user and shell.
+
+- the output directory (default: "./ovaldi-results") must exist and have
+  write permissions.
+
+
+Remote host requirements
+------------------------
+- ssh server must be running
+
+- read/write permissions for temporary directory (default: "/tmp")
+
+- OVAL interpreter must be executable. This requires either:
+  - the OVAL interpreter being correctly installed.
+  or
+  - all libraries required by ovaldi being installed
+    (PCRE, Xerces, Xalan, Libgcrypt, OpenLDAP)
+  - an ovaldi exectuable must be present on the target host.
+
+- Schematron files for ovaldi must be readable. This requires either:
+  - the OVAL interpreter being correctly installed.
+   or
+  - the Schematron files must be readable elsewhere on the target host.
+
+- permissions required for execution of the OVAL tests
+  (can depend on the definitions)
+
+
+Running the script
+------------------
+
+To run the script the following options must be provided:
+- The username (-u <username>)
+- The host name (-h <hostname>)
+- The OVAL definitions file (-o <filename>)
+
+Depending on the setup of the remote host and the requirements of the scan
+the following can also be necessary:
+- The port number (-p <port>)
+  if a different one than the default one (22) is used
+- An external variables file (-v <filename>)
+- A System Characteristics file (-i <filename>)
+
+Authentication
+--------------
+
+Authentication needed for running the script currently requires either a SSH
+key pair for the requested login installed on the local and remote system or
+the script must be run interactively for manual authentication for
+each ssh and scp command.
+
+# TODO: Add other auth options like sshpass, expect scripts?
+
+Results
+-------
+The script will tell the OVAL interpreter to generate the following files and
+copy them to the local results directory:
+
+- ovaldi.log      (The ovaldi log file)
+- result.html     (HTML report generated from result.xml)
+- result.xml      (The full results XML file)
+optionally:
+- oval_sychar.xml (System characteristics, only if none were provided before)
+
