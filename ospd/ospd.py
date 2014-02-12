@@ -158,7 +158,12 @@ class OSPDaemon(object):
         if stream is None:
             return
         while True:
-            data = stream.read()
+            try:
+                data = stream.read()
+            except AttributeError:
+                self.logger.debug(1, "Couldn't read client input.")
+                return
+
             if len(data) <= 0:
                 return
 
@@ -167,7 +172,10 @@ class OSPDaemon(object):
 
     def close_client_stream(self, client_stream):
         """ Closes provided client stream """
-        client_stream.shutdown(socket.SHUT_RDWR)
+        try:
+            client_stream.shutdown(socket.SHUT_RDWR)
+        except socket.error, msg:
+            self.logger.debug(1, msg)
         client_stream.close()
 
     def start_daemon(self):
@@ -398,10 +406,8 @@ class OSPDaemon(object):
             client_stream = self.new_client_stream()
             if client_stream is None:
                 continue
-            try:
-                self.handle_client_stream(client_stream)
-            finally:
-                self.close_client_stream(client_stream)
+            self.handle_client_stream(client_stream)
+            self.close_client_stream(client_stream)
 
     def create_scan(self, target, options):
         """ Creates a new scan.
