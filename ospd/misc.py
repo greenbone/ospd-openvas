@@ -104,7 +104,7 @@ class ScanCollection(object):
         if progress > 0 and progress <= 100:
             self.scans_table[scan_id]['progress'] = progress
         if progress == 100:
-            self.scans_table[scan_id]['end_time'] = datetime.datetime.now().time()
+            self.scans_table[scan_id]['end_time'] = datetime.datetime.now().strftime('%s')
 
     def results_iterator(self, scan_id):
         """ Returns an iterator over scan_id scan's results. """
@@ -124,7 +124,8 @@ class ScanCollection(object):
         scan_info['progress'] = 0
         scan_info['target'] = target
         scan_info['options'] = options
-        scan_info['start_time'] = datetime.datetime.now().time()
+        scan_info['start_time'] = datetime.datetime.now().strftime('%s')
+        scan_info['end_time'] = "0"
         scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
         self.scans_table[scan_id] = scan_info
@@ -144,6 +145,16 @@ class ScanCollection(object):
         """ Get a scan's current progress value. """
 
         return self.scans_table[scan_id]['progress']
+
+    def get_start_time(self, scan_id):
+        """ Get a scan's start time. """
+
+        return self.scans_table[scan_id]['start_time']
+
+    def get_end_time(self, scan_id):
+        """ Get a scan's end time. """
+
+        return self.scans_table[scan_id]['end_time']
 
     def get_target(self, scan_id):
         """ Get a scan's target. """

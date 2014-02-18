@@ -1,5 +1,17 @@
 2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (ScanCollection.set_progress): Set start_time and
+	end_time adequately.
+	(ScanCollection.get_start_time, ScanCollection.get_end_time): New
+	functions.
+
+	* ospd/ospd.py (OSPDaemon.get_scan_xml): Print start_time and end_time
+	scan element attributes.
+	(OSPDaemon.get_scan_start_time, OSPDaemon.get_scan_end_time): New
+	functions.
+
+2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (result_type): Delete instance.
 	(ResultType.get_str): New class method.
 	(ScanCollection): Use ResultType class instead of removed instance.

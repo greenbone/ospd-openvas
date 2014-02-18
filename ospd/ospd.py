@@ -338,9 +338,13 @@ class OSPDaemon(object):
         results_str = self.get_scan_results_xml(scan_id)
         options = self.get_scan_options(scan_id)
         options_str = self.create_response_string({'options' : options})
+        start_time = self.get_scan_start_time(scan_id)
+        end_time = self.get_scan_end_time(scan_id)
 
-        return '<scan id="{0}" target="{1}" progress="{2}">{3}{4}</scan>'\
-                .format(scan_id, target, progress, options_str, results_str)
+        return '<scan id="{0}" target="{1}" progress="{2}"'\
+               ' start_time="{3}" end_time="{4}">{5}{6}</scan>'\
+                .format(scan_id, target, progress, start_time, end_time,
+                        options_str, results_str)
 
     def handle_get_version_command(self, get_version_et):
         """ Handles <get_version> command.
@@ -437,6 +441,14 @@ class OSPDaemon(object):
     def get_scan_target(self, scan_id):
         """ Gives a scan's target. """
         return self.scan_collection.get_target(scan_id)
+
+    def get_scan_start_time(self, scan_id):
+        """ Gives a scan's start time. """
+        return self.scan_collection.get_start_time(scan_id)
+
+    def get_scan_end_time(self, scan_id):
+        """ Gives a scan's end time. """
+        return self.scan_collection.get_end_time(scan_id)
 
     def add_scan_log(self, scan_id, message):
         """ Adds a log result to scan_id scan. """
