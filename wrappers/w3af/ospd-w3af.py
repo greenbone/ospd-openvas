@@ -49,11 +49,12 @@ except:
 class OSPDw3af(OSPDaemon):
     """ Class for ospd-w3af daemon. """
 
-    def __init__(self, certfile, keyfile, timeout, debug, port, address):
+    def __init__(self, certfile, keyfile, cafile, timeout, debug, port,
+                 address):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
-                                       timeout=timeout, debug=debug, port=port,
-                                       address=address)
+                                       cafile=cafile, timeout=timeout,
+                                       debug=debug, port=port, address=address)
 
         self.version = "0.0.1"
         self.w3af_path = 'w3af_console'
@@ -197,12 +198,11 @@ if __name__ == '__main__':
     parser = create_args_parser("OSPD - w3af_console wrapper")
 
     # Common args
-    common_args = get_common_args(parser, ospdir)
-
-    ospd_w3af = OSPDw3af(port=common_args['port'], timeout=common_args['timeout'],
-                         keyfile=common_args['keyfile'], certfile=common_args['certfile'],
-                         debug=common_args['debug'],
-                         address=common_args['address'])
+    cargs = get_common_args(parser, ospdir)
+    ospd_w3af = OSPDw3af(port=cargs['port'], timeout=cargs['timeout'],
+                         keyfile=cargs['keyfile'], certfile=cargs['certfile'],
+                         cafile=cargs['cafile'], debug=cargs['debug'],
+                         address=cargs['address'])
 
     if not ospd_w3af.check():
         exit(1)

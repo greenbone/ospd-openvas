@@ -48,7 +48,7 @@ except:
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
 
-    def __init__(self, certfile, keyfile, timeout, debug, defsfile,
+    def __init__(self, certfile, keyfile, cafile, timeout, debug, defsfile,
                  rovaldi_path, port, address):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
@@ -277,7 +277,7 @@ if __name__ == '__main__':
                         help='remote-ovaldi.sh path.'
                              ' (Default is remote-ovaldi.sh)')
     # Common args
-    common_args = get_common_args(parser, ospdir)
+    cargs = get_common_args(parser, ospdir)
 
     # Check for Ovaldi definitions file
     options = parser.parse_args()
@@ -303,10 +303,11 @@ if __name__ == '__main__':
         parser.print_help()
         exit(1)
 
-    ospd_ovaldi = OSPDOvaldi(port=common_args['port'], timeout=common_args['timeout'],
-                             keyfile=common_args['keyfile'], certfile=common_args['certfile'],
-                             debug=common_args['debug'], defsfile=defsfile,
-                             rovaldi_path=rovaldi, address=common_args['address'])
+    ospd_ovaldi = OSPDOvaldi(port=cargs['port'], timeout=cargs['timeout'],
+                             keyfile=cargs['keyfile'], certfile=cargs['certfile'],
+                             cafile=cargs['cafile'],
+                             debug=cargs['debug'], defsfile=defsfile,
+                             rovaldi_path=rovaldi, address=cargs['address'])
     if not ospd_ovaldi.check():
         exit(1)
     ret = ospd_ovaldi.run()

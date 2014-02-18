@@ -49,12 +49,12 @@ class OSPDaemon(object):
     See OSPDw3af and OSPDOvaldi for wrappers examples.
     """
 
-    def __init__(self, certfile, keyfile, timeout, debug, port, address):
+    def __init__(self, certfile, keyfile, cafile, timeout, debug, port, address):
         """ Initializes the daemon's internal data. """
-        # Generate certificate for default params:
-        # openssl req -new -x509 -days 365 -nodes -out cert.pem -keyout cert.pem
+        # Generate certificate for default params with openvas-mkcert
         self.cert_file = certfile
         self.key_file = keyfile
+        self.ca_file = cafile
         self.port = port
         self.timeout = timeout
         self.scan_collection = ScanCollection()
@@ -143,13 +143,14 @@ class OSPDaemon(object):
 
         newsocket, fromaddr = self.socket.accept()
         try:
-            ssl_socket = ssl.wrap_socket(newsocket,
+            ssl_socket = ssl.wrap_socket(newsocket, cert_reqs=ssl.CERT_REQUIRED,
                                          server_side=True,
                                          certfile=self.cert_file,
                                          keyfile=self.key_file,
+                                         ca_certs=self.ca_file,
                                          ssl_version=ssl.PROTOCOL_TLSv1)
         except ssl.SSLError as err:
-            self.logger.error("Null client stream.")
+            self.logger.error(err)
             return None
         return ssl_socket
 
@@ -368,16 +369,13 @@ class OSPDaemon(object):
         try:
             tree = ET.fromstring(command)
         except ET.ParseError, e:
-            self.logger.debug(1, "Couldn't parse erroneous client input.")
+            self.logger.debug(1, "Erroneous client input: {0}".format(command))
             return "<osp_response status='400' status_text='Invalid data'/>"
 
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
             return "<osp_response status='400' status_text='Bogus command name'/>"
 
-        if tree.tag == "authenticate":
-            # OpenBar! status 200 as checked by omp-cli XXX
-            return "<authenticate_response status='200' status_text='OK'/>"
-        elif tree.tag == "get_version":
+        if tree.tag == "get_version":
             return self.handle_get_version_command(tree)
         elif tree.tag == "start_scan":
             return self.handle_start_scan_command(tree)

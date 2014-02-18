@@ -28,6 +28,13 @@ import datetime
 import argparse
 import os
 
+KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
+CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
+CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
+TIMEOUT = 3600
+PORT = 1234
+ADDRESS = "0.0.0.0"
+
 class OSPLogger():
     """ Class to handle outputting log, debug and error messages. """
 
@@ -169,19 +176,19 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
 
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('-p', '--port', dest='port', type=int, nargs=1,
-                        help='TCP Port to listen on (Default is 1234)')
-    parser.add_argument('-b', '--bind-address', dest='address', type=str,
-                        nargs=1, help='Address to listen on (Default is 0.0.0.0)')
-    parser.add_argument('-k', '--key-file', dest='keyfile',
-                        type=str, nargs=1, help='Private key file.'
-                                                ' (Default is cert.pem)')
-    parser.add_argument('-c', '--cert-file', dest='certfile',
-                        type=str, nargs=1, help='Public key file.'
-                                                ' (Default is cert.pem)')
+                        help='TCP Port to listen on. Default: {0}'.format(PORT))
+    parser.add_argument('-b', '--bind-address', dest='address', type=str, nargs=1,
+                        help='Address to listen on. Default: {0}'.format(ADDRESS))
+    parser.add_argument('-k', '--key-file', dest='keyfile', type=str, nargs=1,
+                        help='Server key file. Default: {0}'.format(KEY_FILE))
+    parser.add_argument('-c', '--cert-file', dest='certfile', type=str, nargs=1,
+                        help='Server cert file. Default: {0}'.format(CERT_FILE))
+    parser.add_argument('--ca-file', dest='cafile', type=str, nargs=1,
+                        help='CA cert file. Default: {0}'.format(CA_FILE))
     parser.add_argument('-t', '--timeout', dest='timeout', type=int, nargs=1,
-                        help='Ovaldi execution timeout. (Default is 3600 seconds.)')
+                        help='Scanner timeout. Default: {0}'.format(TIMEOUT))
     parser.add_argument('-d', '--debug', dest='debug', type=int, nargs=1,
-                        help='Debug level (Default is 0.)')
+                        help='Debug level. Default: 0')
 
     return parser
 
@@ -200,13 +207,13 @@ def get_common_args(parser, parentdir):
             parser.print_help()
             exit(1)
     else:
-        port = 1234
+        port = PORT
 
     # Network address to bind listener to
     if options.address:
         address = options.address[0]
     else:
-        address = ''
+        address = ADDRESS
 
     # Scanner timeout.
     if options.timeout:
@@ -216,7 +223,7 @@ def get_common_args(parser, parentdir):
             parser.print_help()
             exit(1)
     else:
-        timeout = 3600
+        timeout = TIMEOUT
 
     # Debug level.
     if options.debug:
@@ -228,29 +235,36 @@ def get_common_args(parser, parentdir):
     else:
         debug = 0
 
-    # Private key file.
+    # Server key path.
     if options.keyfile:
         keyfile = options.keyfile[0]
     else:
-        keyfile = "cert.pem".format(parentdir)
+        keyfile = KEY_FILE
     if not os.path.isfile(keyfile):
-        print "{0}: private key file not found.".format(keyfile)
-        print "You can generate one using:"
-        print " openssl req -new -x509 -days 365 -nodes -out cert.pem -keyout cert.pem"
-        print "\n"
+        print "{0}: Server key file not found.".format(keyfile)
+        print "You can generate one using openvas-mkcert."
         parser.print_help()
         exit(1)
 
-    # Public key file.
+    # Server cert path.
     if options.certfile:
         certfile = options.certfile[0]
     else:
-        certfile = "cert.pem".format(parentdir)
+        certfile = CERT_FILE
     if not os.path.isfile(certfile):
-        print "{0}: public key file not found.\n".format(certfile)
-        print "You can generate one using:"
-        print " openssl req -new -x509 -days 365 -nodes -out cert.pem -keyout cert.pem"
-        print "\n"
+        print "{0}: Server cert file not found.\n".format(certfile)
+        print "You can generate one using openvas-mkcert."
+        parser.print_help()
+        exit(1)
+
+    # CA cert path.
+    if options.cafile:
+        cafile = options.cafile[0]
+    else:
+        cafile = CA_FILE
+    if not os.path.isfile(cafile):
+        print "{0}: CA cert file not found.\n".format(cafile)
+        print "You can generate one using openvas-mkcert."
         parser.print_help()
         exit(1)
 
@@ -260,6 +274,7 @@ def get_common_args(parser, parentdir):
     common_args['timeout'] = timeout
     common_args['keyfile'] = keyfile
     common_args['certfile'] = certfile
+    common_args['cafile'] = cafile
     common_args['debug'] = debug
 
     return common_args

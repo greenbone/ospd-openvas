@@ -1,3 +1,28 @@
+2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add authentication with client certificates.
+
+	* ospd/misc.py: Add default values variables for various options.
+	(create_args_parser): Add --ca-file option. Update documentation.
+	Refactor to use default values variables.
+	(get_common_args): Parse ca-file option. Use default value variables.
+	Update certs files documentation to point to using openvas-mkcert to
+	generate server certificates instead.
+
+	* ospd/ospd.py (OSPDaemon.__init__): Add cafile argument.
+	(OSPDaemon.new_client_stream): Force usage of client certificates to
+	authenticate. Print failure error accordingly.
+	(OSPDaemon.handle_command): Adjust erroneous command debug message. Do
+	not handle authenticate command as authentication is now done with
+	client certificates.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.__init__): Add cafile
+	argument.
+	(main): Style upate.
+
+	* wrappers/w3af/ospd-w3af.py (OSPDw3af.__init__): Add cafile argument.
+	(main): Style upate.
+
 2014-02-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospy.py (OSPDaemon.handle_client_stream): Handle reading from
