@@ -26,7 +26,7 @@ import socket
 import ssl
 import thread
 import xml.etree.ElementTree as ET
-from misc import ScanCollection, OSPLogger
+from misc import ScanCollection, OSPLogger, ResultType
 
 OSP_VERSION = "0.0.1"
 
@@ -142,6 +142,8 @@ class OSPDaemon(object):
         """ Returns a new ssl client stream from bind_socket. """
 
         newsocket, fromaddr = self.socket.accept()
+        self.logger.debug(1, "New connection from"
+                             " {0}:{1}".format(fromaddr[0], fromaddr[1]))
         try:
             ssl_socket = ssl.wrap_socket(newsocket, cert_reqs=ssl.CERT_REQUIRED,
                                          server_side=True,
@@ -294,8 +296,11 @@ class OSPDaemon(object):
         """
         results_str = str()
         for result in self.scan_collection.results_iterator(scan_id):
-            results_str = ''.join([results_str, '<result type="{0}">'.format(result[0]),
-                                   str(result[1]), '</result>'])
+            result_type = ResultType.get_str(result[0])
+            results_str = ''.join([results_str,
+                                   '<result type="{0}">'.format(result_type),
+                                   str(result[1]),
+                                   '</result>'])
         return ''.join(['<results>', results_str, '</results>'])
 
     def create_response_string(self, data):

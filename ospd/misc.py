@@ -86,17 +86,17 @@ class ScanCollection(object):
     def add_alert(self, scan_id, msg):
         """ Add a result of type Alert to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((result_type.ALERT, msg))
+        self.scans_table[scan_id]['results'].append((ResultType.ALERT, msg))
 
     def add_log(self, scan_id, msg):
         """ Add a result of type Log to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((result_type.LOG, msg))
+        self.scans_table[scan_id]['results'].append((ResultType.LOG, msg))
 
     def add_error(self, scan_id, msg):
         """ Add a result of type Error to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((result_type.ERROR, msg))
+        self.scans_table[scan_id]['results'].append((ResultType.ERROR, msg))
 
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
@@ -169,7 +169,17 @@ class ResultType(object):
     ALERT = 0
     LOG = 1
     ERROR = 2
-result_type = ResultType()
+
+    @classmethod
+    def get_str(self, result_type):
+        if result_type == self.ALERT:
+            return "Alert"
+        elif result_type == self.LOG:
+            return "Log"
+        elif result_type == self.ERROR:
+            return "Error"
+        else:
+            return "Unknown"
 
 def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
     """ Create a command-line arguments parser for OSPD. """

@@ -1,5 +1,15 @@
 2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (result_type): Delete instance.
+	(ResultType.get_str): New class method.
+	(ScanCollection): Use ResultType class instead of removed instance.
+
+	* ospd/ospd.py: Import ResultType from misc.
+	(OSPDaemon.new_client_stream): Add debug message.
+	(OSPDaemon.get_scan_results_xml): Print result type's string value.
+
+2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Add authentication with client certificates.
 
 	* ospd/misc.py: Add default values variables for various options.
