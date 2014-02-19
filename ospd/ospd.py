@@ -22,10 +22,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 import socket
 import ssl
 import thread
-import xml.etree.ElementTree as ET
 from misc import ScanCollection, OSPLogger, ResultType
 
 OSP_VERSION = "0.0.1"
@@ -197,7 +200,9 @@ class OSPDaemon(object):
 
     def handle_timeout(self, scan_id):
         """ Handles scanner reaching timeout error. """
-        self.add_scan_error(scan_id, "{0} reached exec timeout.".format(self.get_scanner_name()))
+        self.add_scan_error(scan_id, name="Timeout",
+                            value="{0} exec timeout."\
+                                   .format(self.get_scanner_name()))
         self.set_scan_progress(scan_id, 100)
 
     def set_scan_progress(self, scan_id, progress):
@@ -296,12 +301,16 @@ class OSPDaemon(object):
         """
         results_str = str()
         for result in self.scan_collection.results_iterator(scan_id):
-            result_type = ResultType.get_str(result[0])
-            results_str = ''.join([results_str,
-                                   '<result type="{0}">'.format(result_type),
-                                   str(result[1]),
-                                   '</result>'])
+            result_str = self.get_result_xml(result)
+            results_str = ''.join([results_str, result_str])
         return ''.join(['<results>', results_str, '</results>'])
+
+    def get_result_xml(self, result):
+        """ Formats a scan result to XML format. """
+
+        result_type = ResultType.get_str(result[0])
+        return '<result name="{0}" type="{1}">{2}</result>'\
+                .format(result[1], result_type, result[2])
 
     def create_response_string(self, data):
         """ Creates a string in XML Format using the provided data structure.
@@ -450,14 +459,14 @@ class OSPDaemon(object):
         """ Gives a scan's end time. """
         return self.scan_collection.get_end_time(scan_id)
 
-    def add_scan_log(self, scan_id, message):
+    def add_scan_log(self, scan_id, name="", value=""):
         """ Adds a log result to scan_id scan. """
-        self.scan_collection.add_log(scan_id, message)
+        self.scan_collection.add_log(scan_id, name, value)
 
-    def add_scan_error(self, scan_id, message):
+    def add_scan_error(self, scan_id, name="", value=""):
         """ Adds an error result to scan_id scan. """
-        self.scan_collection.add_error(scan_id, message)
+        self.scan_collection.add_error(scan_id, name, value)
 
-    def add_scan_alert(self, scan_id, message):
+    def add_scan_alert(self, scan_id, name="", value=""):
         """ Adds an alert result to scan_id scan. """
-        self.scan_collection.add_alert(scan_id, message)
+        self.scan_collection.add_alert(scan_id, name, value)

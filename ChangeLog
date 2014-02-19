@@ -1,3 +1,25 @@
+2014-02-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py: Improt cElementTree.
+	(OSPDOvaldi.__init__): Use cafile parameter when initializing the parent
+	class.
+	(OSPDOvaldi.exec_scanner): Adjust add_scan_error method call.
+	(OSPDOvaldi.parse_ovaldi_log,parse_result_xml,parse_oval_syschar_xml):
+	New class methods.
+
+	* ospd/misc.py (ScanCollection.add_alert,add_log,add_error): Add name
+	argument. Rename msg argument to value.
+
+	* ospd/ospd.py: Import cElementTree when available.
+	(OSPDaemon.handle_timeout): Adjust add_scan_error method call.
+	(OSPDaemon.get_scan_results_xml): Call get_result_xml method.
+	(OSPDaemon.get_result_xml): New method.
+	(OSPDaemon.add_scan_log,add_scan_alert,add_scan_error): Add name
+	argument. Rename msg argument to value.
+
+	* wrappers/w3af/ospd-w3af.py: Remove unneeded import.
+	(OSPDw3af.store_scan_results): Adjust methods calls.
+
 2014-02-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection.set_progress): Set start_time and

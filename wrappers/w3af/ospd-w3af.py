@@ -24,7 +24,6 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import shutil
 import os
 import inspect
 from xml.dom.minidom import parse as xml_parse
@@ -180,17 +179,17 @@ class OSPDw3af(OSPDaemon):
         vulns = xmldoc.getElementsByTagName('vulnerability')
         for vuln in vulns:
             desc = vuln.getElementsByTagName('description')[0]
-            self.add_scan_alert(scan_id, desc.childNodes[0].nodeValue)
+            self.add_scan_alert(scan_id, value=desc.childNodes[0].nodeValue)
         # w3afrun/information => result_type.LOG
         information = xmldoc.getElementsByTagName('information')
         for info in information:
             desc = info.getElementsByTagName('description')[0]
-            self.add_scan_log(scan_id, desc.childNodes[0].nodeValue)
+            self.add_scan_log(scan_id, value=desc.childNodes[0].nodeValue)
         # w3afrun/error => result_type.ERROR
         errors = xmldoc.getElementsByTagName('error')
         for error in errors:
             # Error text is directly within node, not within <description>
-            self.add_scan_error(scan_id, error.childNodes[0].nodeValue)
+            self.add_scan_error(scan_id, value=error.childNodes[0].nodeValue)
 
 # Main starts here
 if __name__ == '__main__':

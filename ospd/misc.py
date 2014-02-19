@@ -83,20 +83,23 @@ class ScanCollection(object):
 
         self.scans_table = dict()
 
-    def add_alert(self, scan_id, msg):
+    def add_alert(self, scan_id, name="", value=""):
         """ Add a result of type Alert to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((ResultType.ALERT, msg))
+        self.scans_table[scan_id]['results'].append((ResultType.ALERT, name,
+                                                     value))
 
-    def add_log(self, scan_id, msg):
+    def add_log(self, scan_id, name="", value=""):
         """ Add a result of type Log to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((ResultType.LOG, msg))
+        self.scans_table[scan_id]['results'].append((ResultType.LOG, name,
+                                                     value))
 
-    def add_error(self, scan_id, msg):
+    def add_error(self, scan_id, name="", value=""):
         """ Add a result of type Error to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((ResultType.ERROR, msg))
+        self.scans_table[scan_id]['results'].append((ResultType.ERROR, name,
+                                                     value))
 
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """

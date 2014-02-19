@@ -27,6 +27,10 @@
 import shutil
 import os
 import inspect
+try:
+    import xml.etree.cElementTree as ET
+except ImportError:
+    import xml.etree.ElementTree as ET
 
 # Set OSPD Directory in syspaths, for imports
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -52,8 +56,9 @@ class OSPDOvaldi(OSPDaemon):
                  rovaldi_path, port, address):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
-                                         timeout=timeout, debug=debug,
-                                         port=port, address=address)
+                                         cafile=cafile, timeout=timeout,
+                                         debug=debug, port=port,
+                                         address=address)
 
         self.defs_path = defsfile
         self.version = "0.0.1"
@@ -151,7 +156,7 @@ class OSPDOvaldi(OSPDaemon):
             # SSH Connection failed.
             for line in output.before.split('\n'):
                 if "[ERROR]" in line:
-                    self.add_scan_error(scan_id, line)
+                    self.add_scan_error(scan_id, value=line)
                     self.set_scan_progress(scan_id, 100)
             self.set_scan_progress(scan_id, 100)
             try:
@@ -206,7 +211,7 @@ class OSPDOvaldi(OSPDaemon):
             return
         except pexpect.EOF:
             # Happens when ovaldi is not installed on remote host.
-            self.add_scan_error(scan_id, "ovaldi not present on remote host.")
+            self.add_scan_error(scan_id, value="ovaldi not installed.")
             self.set_scan_progress(scan_id, 100)
             # Delete empty results directory
             shutil.rmtree(results_dir)
@@ -239,30 +244,83 @@ class OSPDOvaldi(OSPDaemon):
             # results.
 
             # Get ovaldi.log
-            with open("{0}/ovaldi.log".format(results_dir), 'r') as f:
-                log_content = f.read()
-            self.add_scan_log(scan_id, log_content)
-
+            self.parse_ovaldi_log(results_dir, scan_id)
             # Get result.xml
-            with open("{0}/result.xml".format(results_dir), 'r') as f:
-                log_content = f.read()
-            self.add_scan_alert(scan_id, log_content)
+            self.parse_result_xml(results_dir, scan_id)
             # Get oval_syschar.xml
-            with open("{0}/oval_syschar.xml".format(results_dir), 'r') as f:
-                log_content = f.read()
-            self.add_scan_alert(scan_id, log_content)
+            self.parse_oval_syschar_xml(results_dir, scan_id)
         except IOError:
             # One case where *.xml files are missing: Definitions file doesn't
             # match ovaldi version or its schema is not valid, thus only
             # ovaldi.log was generated and no further scan occured.
             self.logger.debug(1, "Couldn't open results file in {0}".format(results_dir))
-            pass
 
         # Clean up the results folder etc,.
         shutil.rmtree(results_dir)
 
         # Set scan as finished
         self.set_scan_progress(scan_id, 100)
+
+    def parse_oval_syschar_xml(self, results_dir, scan_id):
+        """ Parses the content of oval_syschar.xml file to scan results """
+
+        file_path = "{0}/oval_syschar.xml".format(results_dir)
+        with open(file_path, 'r') as f:
+            file_content = f.read()
+
+        # Extract /oval_system_characteristcs/system_info
+        system_info = None
+        tree = ET.fromstring(file_content)
+        for child in tree:
+            if child.tag.endswith('system_info'):
+                system_info = child
+                break
+        if system_info is None:
+            self.logger.debug(1, "No <system_info> in {0}".format(file_path))
+            return
+
+        for child in system_info:
+            if not child.tag.endswith('interfaces'):
+                name = 'system_info:{0}'.format(child.tag.split('}')[1])
+                self.add_scan_log(scan_id, name=name, value=child.text)
+            else:
+                # Extract interfaces info from <sytem_info><interfaces>...
+                self.parse_system_info_interfaces(child, scan_id)
+
+        # XXX: Extract /oval_system_characteristcs/system_data/uname_item*
+
+    def parse_system_info_interfaces(self, interfaces, scan_id):
+        """ Parses interfaces information in ovaldi's system_info's interfaces
+        and insert it in scan results. """
+
+        for interface in interfaces:
+            name = str()
+            address = str()
+            mac = str()
+            for child in interface:
+                if child.tag.endswith('interface_name'):
+                    name = child.text
+                elif child.tag.endswith('ip_address'):
+                    address = child.text
+                elif child.tag.endswith('mac_address'):
+                    mac = child.text
+            result_str = '{0}|{1}|{2}'.format(name, address, mac)
+            self.add_scan_log(scan_id, 'system_info:interface',
+                              result_str)
+
+    def parse_result_xml(self, results_dir, scan_id):
+        """ Parses the content of result.xml file to scan results """
+
+        with open("{0}/result.xml".format(results_dir), 'r') as f:
+            file_content = f.read()
+        self.add_scan_alert(scan_id, value=file_content)
+
+    def parse_ovaldi_log(self, results_dir, scan_id):
+        """ Parses the content of ovaldi.log file to scan results """
+
+        with open("{0}/ovaldi.log".format(results_dir), 'r') as f:
+            file_content = f.read()
+        self.add_scan_log(scan_id, name="ovaldi.log", value=file_content)
 
 # Main starts here
 if __name__ == '__main__':
