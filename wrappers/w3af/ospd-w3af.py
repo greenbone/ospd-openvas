@@ -140,16 +140,15 @@ class OSPDw3af(OSPDaemon):
             f.close()
         return script_file
 
-    def exec_scanner(self, scan_id):
+    def exec_scan(self, scan_id):
         """ Starts the w3af scanner for scan_id scan. """
 
-        output_file = "{0}/w3af-scan-{1}".format(ospdir, scan_id)
+        output_file = "/tmp/w3af-scan-{1}".format(ospdir, scan_id)
         options = self.get_scan_options(scan_id)
         script_file = self.create_w3af_script(scan_id, output_file, options)
         # Spawn process
         output = pexpect.spawn('{0} -s {1}'.format(self.w3af_path, script_file))
         output.timeout = self.timeout
-        self.logger.debug(2, "w3af scan {0} started.".format(scan_id))
         try:
             output.expect("Scan finished in ")
             output.expect("w3af>>>")
@@ -159,7 +158,6 @@ class OSPDw3af(OSPDaemon):
             os.remove(script_file)
             output.close(True)
             return
-        self.logger.debug(2, "w3af scan {0} finished.".format(scan_id))
 
         # Now, parse output_file and make multiple results
         # Small delay.
@@ -169,7 +167,7 @@ class OSPDw3af(OSPDaemon):
         os.remove(output_file)
         os.remove(script_file)
         # Set scan as finished
-        self.set_scan_progress(scan_id, 100)
+        self.finish_scan(scan_id)
 
     def store_scan_results(self, scan_id, output_file):
         """ Stores scan results from the XML output_file """

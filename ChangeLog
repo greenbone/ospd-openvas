@@ -1,3 +1,20 @@
+2014-02-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.exec_scanner): Rename method to exec_scan.
+	(OSPDaemon.finish_scan): New method.
+	(OSPDaemon.start_scan): Add debug message for scan start.
+	(OSPDaemon.handle_timeout): Call finish_scan method.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scanner): Rename to
+	exec_scan. Adjust log messages and call finish_scan. Rename
+	handle_timeout calls.
+	(OSPDOvaldi.parse_oval_syschar_xml): Handle IOError when trying to
+	read oval_syschar.xml file.
+
+	* wrappers/w3af/ospd-w3af.py (OSPDw3af.exec_scanner): Rename to
+	exec_scan. Write scans output file in host temporary directory. Remove
+	extraneous debug messages. Finish with finish_scan method.
+
 2014-02-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py: Improt cElementTree.

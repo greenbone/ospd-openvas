@@ -41,7 +41,7 @@ class OSPDaemon(object):
     * Add any needed parameters in __init__.
     * Implement check() method which verifies scanner availability and other
       environment related conditions.
-    * Implement handle_start_scan_command and exec_scanner methods which are
+    * Implement handle_start_scan_command and exec_scan methods which are
       specific to handling the <start_scan> command, executing the wrapped
       scanner and storing the results.
     * Implement other methods that assert to False such as get_scanner_name,
@@ -116,9 +116,14 @@ class OSPDaemon(object):
         """ Asserts to False. Should be implemented by subclass. """
         assert False, 'handle_start_scan_command() not implemented.'
 
-    def exec_scanner(self):
+    def exec_scan(self):
         """ Asserts to False. Should be implemented by subclass. """
-        assert False, 'exec_scanner() not implemented.'
+        assert False, 'exec_scan() not implemented.'
+
+    def finish_scan(self, scan_id):
+        """ Sets a scan as finished. """
+        self.set_scan_progress(scan_id, 100)
+        self.logger.debug(2, "{0}: Scan finished.".format(scan_id))
 
     def get_daemon_name(self):
         """ Gives osp daemon's name. """
@@ -196,14 +201,16 @@ class OSPDaemon(object):
 
     def start_scan(self, scan_id):
         """ Starts the scan with scan_id. """
-        thread.start_new_thread (self.exec_scanner, (scan_id, ))
+
+        self.logger.debug(2, "{0}: Scan started.".format(scan_id))
+        thread.start_new_thread (self.exec_scan, (scan_id, ))
 
     def handle_timeout(self, scan_id):
         """ Handles scanner reaching timeout error. """
         self.add_scan_error(scan_id, name="Timeout",
                             value="{0} exec timeout."\
                                    .format(self.get_scanner_name()))
-        self.set_scan_progress(scan_id, 100)
+        self.finish_scan(scan_id)
 
     def set_scan_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """

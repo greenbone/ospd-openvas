@@ -128,7 +128,7 @@ class OSPDOvaldi(OSPDaemon):
                                             ' status_text="OK"' :
                                              {'id' : scan_id}})
 
-    def exec_scanner(self, scan_id):
+    def exec_scan(self, scan_id):
         """ Starts the ovaldi scanner for scan_id scan. """
         options = self.get_scan_options(scan_id)
         target = self.get_scan_target(scan_id)
@@ -148,7 +148,7 @@ class OSPDOvaldi(OSPDaemon):
         try:
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for temp dir creation prompt.")
+            self.logger.debug(1, "Timeout on temp dir creation prompt.")
             self.handle_timeout(scan_id)
             shutil.rmtree(results_dir)
             return
@@ -157,12 +157,11 @@ class OSPDOvaldi(OSPDaemon):
             for line in output.before.split('\n'):
                 if "[ERROR]" in line:
                     self.add_scan_error(scan_id, value=line)
-                    self.set_scan_progress(scan_id, 100)
-            self.set_scan_progress(scan_id, 100)
             try:
                 shutil.rmtree(results_dir)
             except OSError:
                 pass
+            self.finish_scan(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -170,8 +169,8 @@ class OSPDOvaldi(OSPDaemon):
         try:
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for scp to remote host prompt.")
-            self.handleTimeout(scan_id)
+            self.logger.debug(1, "Timeout on scp to remote host prompt.")
+            self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -179,8 +178,8 @@ class OSPDOvaldi(OSPDaemon):
         try:
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for making script executable prompt.")
-            self.handleTimeout(scan_id)
+            self.logger.debug(1, "Timeout on making script executable prompt.")
+            self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -188,8 +187,8 @@ class OSPDOvaldi(OSPDaemon):
         try:
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for running setup script prompt.")
-            self.handleTimeout(scan_id)
+            self.logger.debug(1, "Timeout on running setup script prompt.")
+            self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -197,8 +196,8 @@ class OSPDOvaldi(OSPDaemon):
         try:
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for copying input files prompt.")
-            self.handleTimeout(scan_id)
+            self.logger.debug(1, "Timeout waiting for copying input files prompt.")
+            self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -206,15 +205,15 @@ class OSPDOvaldi(OSPDaemon):
         try:
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for running ovaldi prompt.")
-            self.handleTimeout(scan_id)
+            self.logger.debug(1, "Timeout waiting for running ovaldi prompt.")
+            self.handle_timeout(scan_id)
             return
         except pexpect.EOF:
             # Happens when ovaldi is not installed on remote host.
             self.add_scan_error(scan_id, value="ovaldi not installed.")
-            self.set_scan_progress(scan_id, 100)
             # Delete empty results directory
             shutil.rmtree(results_dir)
+            self.finish_scan(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -223,7 +222,7 @@ class OSPDOvaldi(OSPDaemon):
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "ovaldi timeout waiting for results copying prompt.")
-            self.handleTimeout(scan_id)
+            self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
@@ -232,41 +231,38 @@ class OSPDOvaldi(OSPDaemon):
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "ovaldi timeout waiting for temp dir clean-up prompt.")
-            self.handleTimeout(scan_id)
+            self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
         # The end
         output.expect(pexpect.EOF)
 
-        try:
-            # XXX Extract/Reorganize/Filter/Trim files content to multiple
-            # results.
 
-            # Get ovaldi.log
-            self.parse_ovaldi_log(results_dir, scan_id)
-            # Get result.xml
-            self.parse_result_xml(results_dir, scan_id)
-            # Get oval_syschar.xml
-            self.parse_oval_syschar_xml(results_dir, scan_id)
-        except IOError:
-            # One case where *.xml files are missing: Definitions file doesn't
-            # match ovaldi version or its schema is not valid, thus only
-            # ovaldi.log was generated and no further scan occured.
-            self.logger.debug(1, "Couldn't open results file in {0}".format(results_dir))
+        # One case where *.xml files are missing: Definitions file doesn't
+        # match ovaldi version or its schema is not valid, thus only
+        # ovaldi.log was generated and no further scan occured.
+        # XXX: Extract/Reorganize files content into multiple results.
+        # Parse ovaldi.log
+        self.parse_ovaldi_log(results_dir, scan_id)
+        # Parse result.xml
+        self.parse_result_xml(results_dir, scan_id)
+        # Parse oval_syschar.xml
+        self.parse_oval_syschar_xml(results_dir, scan_id)
 
-        # Clean up the results folder etc,.
         shutil.rmtree(results_dir)
-
         # Set scan as finished
-        self.set_scan_progress(scan_id, 100)
+        self.finish_scan(scan_id)
 
     def parse_oval_syschar_xml(self, results_dir, scan_id):
         """ Parses the content of oval_syschar.xml file to scan results """
 
         file_path = "{0}/oval_syschar.xml".format(results_dir)
-        with open(file_path, 'r') as f:
-            file_content = f.read()
+        try:
+            with open(file_path, 'r') as f:
+                file_content = f.read()
+        except IOError:
+            self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
 
         # Extract /oval_system_characteristcs/system_info
         system_info = None
@@ -311,15 +307,25 @@ class OSPDOvaldi(OSPDaemon):
     def parse_result_xml(self, results_dir, scan_id):
         """ Parses the content of result.xml file to scan results """
 
-        with open("{0}/result.xml".format(results_dir), 'r') as f:
-            file_content = f.read()
+        file_path = "{0}/result.xml".format(results_dir)
+        try:
+            with open(file_path, 'r') as f:
+                file_content = f.read()
+        except IOError:
+            self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
+
         self.add_scan_alert(scan_id, value=file_content)
 
     def parse_ovaldi_log(self, results_dir, scan_id):
         """ Parses the content of ovaldi.log file to scan results """
 
-        with open("{0}/ovaldi.log".format(results_dir), 'r') as f:
-            file_content = f.read()
+        file_path = "{0}/ovaldi.log".format(results_dir)
+        try:
+            with open(file_path, 'r') as f:
+                file_content = f.read()
+        except IOError:
+            self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
+
         self.add_scan_log(scan_id, name="ovaldi.log", value=file_content)
 
 # Main starts here
