@@ -1,5 +1,13 @@
 2014-02-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPOvaldi.parse_oval_syschar_xml):
+	Parse system characteristics generator information.
+	(OSPDOvaldi.parse_result_xml): Extract individual results from the file
+	content and adequately add their values as scan results.
+	(OSPDOvaldi.parse_oval_definitions): New function.
+
+2014-02-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon.exec_scanner): Rename method to exec_scan.
 	(OSPDaemon.finish_scan): New method.
 	(OSPDaemon.start_scan): Add debug message for scan start.

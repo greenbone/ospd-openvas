@@ -270,10 +270,11 @@ class OSPDOvaldi(OSPDaemon):
         for child in tree:
             if child.tag.endswith('system_info'):
                 system_info = child
-                break
-        if system_info is None:
-            self.logger.debug(1, "No <system_info> in {0}".format(file_path))
-            return
+            elif child.tag.endswith('generator'):
+                generator = child
+        for child in generator:
+            name = 'syschar_generator:{0}'.format(child.tag.split('}')[1])
+            self.add_scan_log(scan_id, name=name, value=child.text)
 
         for child in system_info:
             if not child.tag.endswith('interfaces'):
@@ -314,7 +315,43 @@ class OSPDOvaldi(OSPDaemon):
         except IOError:
             self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
 
-        self.add_scan_alert(scan_id, value=file_content)
+        # Extract oval definitions results and other relevant information.
+        tree = ET.fromstring(file_content)
+        for child in tree:
+            if child.tag.endswith('generator'):
+                generator = child
+            elif child.tag.endswith('oval_definitions'):
+                oval_defs = child
+        for child in generator:
+            name = 'results_generator:{0}'.format(child.tag.split('}')[1])
+            self.add_scan_log(scan_id, name=name, value=child.text)
+        self.parse_oval_definitions(oval_defs, scan_id)
+
+    def parse_oval_definitions(self, oval_defs, scan_id):
+        """ Parses oval_definitions element from ovaldi results xml file. """
+
+        for child in oval_defs:
+            if child.tag.endswith('generator'):
+                generator = child
+            elif child.tag.endswith('definitions'):
+                definitions = child
+        for child in generator:
+            name = 'defs_generator:{0}'.format(child.tag.split('}')[1])
+            self.add_scan_log(scan_id, name=name, value=child.text)
+        for definition in definitions:
+            def_class = definition.attrib.get('class')
+            name = definition.attrib.get('id')
+            for child in definition:
+                if child.tag.endswith('metadata'):
+                    metadata = child
+                    break
+            for child in metadata:
+                if child.tag.endswith('title'):
+                    value = child.text
+            if def_class == 'vulnerability':
+                self.add_scan_alert(scan_id, name=name, value=value)
+            else:
+                self.add_scan_log(scan_id, name=name, value=value)
 
     def parse_ovaldi_log(self, results_dir, scan_id):
         """ Parses the content of ovaldi.log file to scan results """
