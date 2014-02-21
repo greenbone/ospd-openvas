@@ -1,3 +1,8 @@
+2014-02-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/oaldi/ospd-ovaldi.py (OSPOvaldi.exec_scan): Add debug
+	messages for various steps of the scan.
+
 2014-02-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPOvaldi.parse_oval_syschar_xml):

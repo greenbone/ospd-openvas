@@ -146,6 +146,7 @@ class OSPDOvaldi(OSPDaemon):
 
         # Provide password for temp dir creation.
         try:
+            self.logger.debug(2, "Waiting for temp dir prompt")
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "Timeout on temp dir creation prompt.")
@@ -167,15 +168,17 @@ class OSPDOvaldi(OSPDaemon):
 
         # Provide password for scp setup script to remote host
         try:
+            self.logger.debug(2, "Waiting for scp to target host prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout on scp to remote host prompt.")
+            self.logger.debug(1, "Timeout on scp to target host prompt.")
             self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
 
         # Provide password for making script executable
         try:
+            self.logger.debug(2, "Waiting for making script executable prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "Timeout on making script executable prompt.")
@@ -183,8 +186,9 @@ class OSPDOvaldi(OSPDaemon):
             return
         output.sendline("{0}".format(password))
 
-        # Provide password for running setup script on remote
+        # Provide password for running setup script on target
         try:
+            self.logger.debug(2, "Waiting for running setup script prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "Timeout on running setup script prompt.")
@@ -192,8 +196,9 @@ class OSPDOvaldi(OSPDaemon):
             return
         output.sendline("{0}".format(password))
 
-        # Provide password for copying input files to remote
+        # Provide password for copying input files to target
         try:
+            self.logger.debug(2, "Waiting for copying input files prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "Timeout waiting for copying input files prompt.")
@@ -201,15 +206,17 @@ class OSPDOvaldi(OSPDaemon):
             return
         output.sendline("{0}".format(password))
 
-        # Provide password for running ovaldi on remote host
+        # Provide password for running ovaldi on target host
         try:
+            self.logger.debug(2, "Waiting for running ovaldi prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "Timeout waiting for running ovaldi prompt.")
             self.handle_timeout(scan_id)
             return
         except pexpect.EOF:
-            # Happens when ovaldi is not installed on remote host.
+            # Happens when ovaldi is not installed on target host.
+            self.logger.debug(2, "Ovaldi not found on target host.")
             self.add_scan_error(scan_id, value="ovaldi not installed.")
             # Delete empty results directory
             shutil.rmtree(results_dir)
@@ -217,8 +224,9 @@ class OSPDOvaldi(OSPDaemon):
             return
         output.sendline("{0}".format(password))
 
-        # Provide password for copying results from remote host
+        # Provide password for copying results from target host
         try:
+            self.logger.debug(2, "Waiting for results copying prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
             self.logger.debug(1, "ovaldi timeout waiting for results copying prompt.")
@@ -228,9 +236,10 @@ class OSPDOvaldi(OSPDaemon):
 
         # Provide password for cleaning up temp directory
         try:
+            self.logger.debug(2, "Waiting for temp dir cleanup prompt.")
             output.expect("password:")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for temp dir clean-up prompt.")
+            self.logger.debug(1, "ovaldi timeout waiting for temp dir cleanup prompt.")
             self.handle_timeout(scan_id)
             return
         output.sendline("{0}".format(password))
