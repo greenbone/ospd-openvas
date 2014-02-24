@@ -1,3 +1,18 @@
+2014-02-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Correct comment
+	and fix function call.
+	(OSPDOvaldi.parse_result_xml): Rename to parse_results_xml. Fix path to
+	results file. Parse results element and call parse_oval_results instead
+	of parse_oval_definitions.
+	(OSPDOvaldi.parse_oval_definitions): Rename to parse_oval_results. Add
+	results argument. Add definitions results as scan results values instead
+	of definition titles.
+	(OSPDOvaldi.get_definition_result): New function.
+
+	* wrappers/ovaldi/remote-ovaldi.sh: Fix results file name to better
+	match default value.
+
 2014-02-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/oaldi/ospd-ovaldi.py (OSPOvaldi.exec_scan): Add debug

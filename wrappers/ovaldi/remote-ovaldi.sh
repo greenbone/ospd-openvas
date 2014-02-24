@@ -478,7 +478,7 @@ do_main () {
   esac
   log_info_verbose "Successfully copied input files."
 
-  OVALDI_OPTS="$OVALDI_OPTS -r $REMOTE_RESULTS_DIR/result.xml -x $REMOTE_RESULTS_DIR/result.html -y $REMOTE_RESULTS_DIR"
+  OVALDI_OPTS="$OVALDI_OPTS -r $REMOTE_RESULTS_DIR/results.xml -x $REMOTE_RESULTS_DIR/result.html -y $REMOTE_RESULTS_DIR"
   log_info_verbose "ovaldi options: $OVALDI_OPTS"
 
   log_info "Running $OVALDI_CMD on remote host via ssh..."

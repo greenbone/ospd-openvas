@@ -254,8 +254,8 @@ class OSPDOvaldi(OSPDaemon):
         # XXX: Extract/Reorganize files content into multiple results.
         # Parse ovaldi.log
         self.parse_ovaldi_log(results_dir, scan_id)
-        # Parse result.xml
-        self.parse_result_xml(results_dir, scan_id)
+        # Parse results.xml
+        self.parse_results_xml(results_dir, scan_id)
         # Parse oval_syschar.xml
         self.parse_oval_syschar_xml(results_dir, scan_id)
 
@@ -314,10 +314,10 @@ class OSPDOvaldi(OSPDaemon):
             self.add_scan_log(scan_id, 'system_info:interface',
                               result_str)
 
-    def parse_result_xml(self, results_dir, scan_id):
-        """ Parses the content of result.xml file to scan results """
+    def parse_results_xml(self, results_dir, scan_id):
+        """ Parses results file into scan results. """
 
-        file_path = "{0}/result.xml".format(results_dir)
+        file_path = "{0}/results.xml".format(results_dir)
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
@@ -331,13 +331,15 @@ class OSPDOvaldi(OSPDaemon):
                 generator = child
             elif child.tag.endswith('oval_definitions'):
                 oval_defs = child
+            elif child.tag.endswith('results'):
+                results = child
         for child in generator:
             name = 'results_generator:{0}'.format(child.tag.split('}')[1])
             self.add_scan_log(scan_id, name=name, value=child.text)
-        self.parse_oval_definitions(oval_defs, scan_id)
+        self.parse_oval_results(oval_defs, results, scan_id)
 
-    def parse_oval_definitions(self, oval_defs, scan_id):
-        """ Parses oval_definitions element from ovaldi results xml file. """
+    def parse_oval_results(self, oval_defs, results, scan_id):
+        """ Parses oval_definitions and results elements from results file. """
 
         for child in oval_defs:
             if child.tag.endswith('generator'):
@@ -349,18 +351,28 @@ class OSPDOvaldi(OSPDaemon):
             self.add_scan_log(scan_id, name=name, value=child.text)
         for definition in definitions:
             def_class = definition.attrib.get('class')
-            name = definition.attrib.get('id')
-            for child in definition:
-                if child.tag.endswith('metadata'):
-                    metadata = child
-                    break
-            for child in metadata:
-                if child.tag.endswith('title'):
-                    value = child.text
+            def_id = definition.attrib.get('id')
+            def_result = self.get_definition_result(def_id, results)
             if def_class == 'vulnerability':
-                self.add_scan_alert(scan_id, name=name, value=value)
+                self.add_scan_alert(scan_id, name=def_id, value=def_result)
             else:
-                self.add_scan_log(scan_id, name=name, value=value)
+                self.add_scan_log(scan_id, name=def_id, value=def_result)
+
+    def get_definition_result(self, def_id, results):
+        """ Gets an oval definition's result value in results element from
+        results xml file. """
+        for child in results:
+            if child.tag.endswith('system'):
+                system = child
+                break
+        for child in system:
+            if child.tag.endswith('definitions'):
+                definitions = child
+                break
+        for child in definitions:
+            if child.attrib.get('definition_id') == def_id:
+                return child.attrib.get('result')
+        return "Not found"
 
     def parse_ovaldi_log(self, results_dir, scan_id):
         """ Parses the content of ovaldi.log file to scan results """
