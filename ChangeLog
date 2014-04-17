@@ -1,3 +1,19 @@
+2014-04-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.handle_client_stream): Read all the client
+	input before trying to handle it, in order to better handle commands
+	with large content.
+
+	* ovaldi/ospd-ovaldi.py (OSPDOvaldi.__init__): Remove defsfile argument.
+	Add definitions element to start_scan command.
+	(OSPDOvaldi.handle_start_scan_command, OSPDOvaldi.exec_scan): Use
+	definitions file from client input instead of local file from path in
+	options.
+	(__main__): Remove --defs-file cli option.
+
+	* w3af/ospd-w3af.py (OSPDw3af.create_w3af_script): Delete duplicate file
+	close.
+
 2014-02-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Correct comment

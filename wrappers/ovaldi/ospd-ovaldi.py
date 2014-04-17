@@ -27,6 +27,7 @@
 import shutil
 import os
 import inspect
+import base64
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -52,20 +53,20 @@ except:
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, timeout, debug, defsfile,
-                 rovaldi_path, port, address):
+    def __init__(self, certfile, keyfile, cafile, timeout, debug, rovaldi_path,
+                 port, address):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
                                          cafile=cafile, timeout=timeout,
                                          debug=debug, port=port,
                                          address=address)
 
-        self.defs_path = defsfile
         self.version = "0.0.1"
         self.rovaldi_path = rovaldi_path
         self.set_command_elements("start_scan",
                                   {'username' : 'SSH Username for remote-ovaldi.',
                                    'password' : 'SSH Password for remote-ovaldi.',
+                                   'definitions' : 'Definitions file content in base64',
                                    'port' : 'SSH Port for remote-ovaldi.'})
 
     def check(self):
@@ -95,10 +96,13 @@ class OSPDOvaldi(OSPDaemon):
         username = scan_et.find('username')
         if username is None or username.text is None:
             return "<start_scan status='400' status_text='No username element'/>"
-
         password = scan_et.find('password')
         if password is None or password.text is None:
             return "<start_scan status='400' status_text='No password element'/>"
+        definitions = scan_et.find('definitions')
+        if definitions is None or definitions.text is None:
+            return "<start_scan status='400' status_text='No definitions element'/>"
+
         username = username.text
         password = password.text
 
@@ -116,6 +120,7 @@ class OSPDOvaldi(OSPDaemon):
         options['username'] = username
         options['password'] = password
         options['port'] = port
+        options['definitions'] = definitions.text
 
         # Create new Scan
         scan_id = self.create_scan(target, options)
@@ -133,15 +138,29 @@ class OSPDOvaldi(OSPDaemon):
         options = self.get_scan_options(scan_id)
         target = self.get_scan_target(scan_id)
         username = options['username']
-        port = options['port']
         password = options['password']
+        definitions = options['definitions']
+        port = options['port']
         results_dir = '/tmp/ovaldi-results-{0}'.format(scan_id)
+        os.mkdir(results_dir)
+        defs_file = '{0}/ovaldi-defs.xml'.format(results_dir)
+
+        # Write definitions to temporary file
+        with open(defs_file, 'w') as f:
+            try:
+                decoded = base64.b64decode(definitions)
+            except TypeError:
+                self.add_scan_error(scan_id, value="Invalid definitions file")
+                self.logger.debug(1, "Couldn't decode base64 definitions content.")
+                self.finish_scan(scan_id)
+                return
+            f.write(decoded)
 
         # Pexpect
         output = pexpect.spawn('{0} -u {1} -h {2} -p {3} -o {4}'
                                ' --results-dir {5}/'
                                 .format(self.rovaldi_path, username, target,
-                                        port, self.defs_path, results_dir))
+                                        port, defs_file, results_dir))
         output.timeout = self.timeout
 
         # Provide password for temp dir creation.
@@ -392,28 +411,13 @@ if __name__ == '__main__':
     parser = create_args_parser("OSPD - Remote Ovaldi wrapper")
 
     # ospd-ovaldi specific.
-    parser.add_argument('-D', '--defs-file', dest='defsfile', type=str, nargs=1,
-                        help='OVAL Definitions file.'
-                             ' (Default is definitions.xml)')
     parser.add_argument('--remote-ovaldi', dest='rovaldi', type=str, nargs=1,
                         help='remote-ovaldi.sh path.'
                              ' (Default is remote-ovaldi.sh)')
     # Common args
     cargs = get_common_args(parser, ospdir)
 
-    # Check for Ovaldi definitions file
     options = parser.parse_args()
-    if options.defsfile:
-        defsfile = options.defsfile[0]
-    else:
-        defsfile = "{0}/definitions.xml".format(ospdir)
-    if not os.path.isfile(defsfile):
-        print "{0}: ovaldi definitions file not found.".format(defsfile)
-        print "Some are available on http://oval.mitre.org/"
-        print "\n"
-        parser.print_help()
-        exit(1)
-
     # Check for Remote Ovaldi script
     if options.rovaldi:
         rovaldi = options.rovaldi[0]
@@ -427,8 +431,7 @@ if __name__ == '__main__':
 
     ospd_ovaldi = OSPDOvaldi(port=cargs['port'], timeout=cargs['timeout'],
                              keyfile=cargs['keyfile'], certfile=cargs['certfile'],
-                             cafile=cargs['cafile'],
-                             debug=cargs['debug'], defsfile=defsfile,
+                             cafile=cargs['cafile'], debug=cargs['debug'],
                              rovaldi_path=rovaldi, address=cargs['address'])
     if not ospd_ovaldi.check():
         exit(1)

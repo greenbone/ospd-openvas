@@ -137,7 +137,6 @@ class OSPDw3af(OSPDaemon):
             f.write("back\n")
             f.write("back\n")
             f.write("start\n")
-            f.close()
         return script_file
 
     def exec_scan(self, scan_id):

@@ -168,18 +168,21 @@ class OSPDaemon(object):
         """ Handles stream of data received from client. """
         if stream is None:
             return
+        data = ''
+        stream.settimeout(2)
         while True:
             try:
-                data = stream.read()
+                data = ''.join([data, stream.read(1024)])
             except AttributeError:
                 self.logger.debug(1, "Couldn't read client input.")
                 return
-
-            if len(data) <= 0:
-                return
-
-            response = self.handle_command(data)
-            stream.write(response)
+            except ssl.SSLError:
+                break
+        if len(data) <= 0:
+            self.logger.debug(1, "Empty client stream")
+            return
+        response = self.handle_command(data)
+        stream.write(response)
 
     def close_client_stream(self, client_stream):
         """ Closes provided client stream """
