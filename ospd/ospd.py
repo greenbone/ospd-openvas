@@ -232,9 +232,17 @@ class OSPDaemon(object):
         @return: Response string for <get_scans> command.
         """
         response = '<get_scans_response status="200" satus_text="OK">'
-        for scan_id in self.scan_collection.ids_iterator():
+        scan_id = scan_et.attrib.get('scan_id')
+        if scan_id and scan_id in self.scan_collection.ids_iterator():
             scan_str = self.get_scan_xml(scan_id)
             response = ''.join([response, scan_str])
+        elif scan_id:
+            return '<get_scans_repsonse status="404"\
+                    status_text="Failed to find \'{0}\' scan"/>'.format(scan_id)
+        else:
+            for scan_id in self.scan_collection.ids_iterator():
+                scan_str = self.get_scan_xml(scan_id)
+                response = ''.join([response, scan_str])
         response = ''.join([response, '</get_scans_response>'])
         return response
 
@@ -355,15 +363,13 @@ class OSPDaemon(object):
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
         results_str = self.get_scan_results_xml(scan_id)
-        options = self.get_scan_options(scan_id)
-        options_str = self.create_response_string({'options' : options})
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
 
         return '<scan id="{0}" target="{1}" progress="{2}"'\
-               ' start_time="{3}" end_time="{4}">{5}{6}</scan>'\
+               ' start_time="{3}" end_time="{4}">{5}</scan>'\
                 .format(scan_id, target, progress, start_time, end_time,
-                        options_str, results_str)
+                        results_str)
 
     def handle_get_version_command(self, get_version_et):
         """ Handles <get_version> command.

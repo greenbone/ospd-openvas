@@ -1,3 +1,11 @@
+2014-05-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Support scan_id
+	attribute usage for get_scans command to get one specific scan report.
+	(OSPDaemon.get_scan_xml): Don't send back options content as client
+	already has those and they may contain sensitive information like
+	passwords or have huge size like ovaldi definitions file.
+
 2014-04-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.handle_client_stream): Read all the client
