@@ -1,3 +1,15 @@
+2014-05-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospdy.py (OSPDaemon.get_commands_table): Document scan_id and
+	details attributes for get_scan command.
+	(OSPDaemon.handle_get_scans_command): Handle details attribute.
+	(OSPDaemon.get_scan_xml): Add detailed function argument, don't send
+	results when set to False.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.parse_oval_syschar_xml)
+	(OSPDOvaldi.parse_results_xml, OSPDOvaldi.parse_ovaldi_log): Only parse
+	file content when no exception was raised.
+
 2014-05-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Support scan_id

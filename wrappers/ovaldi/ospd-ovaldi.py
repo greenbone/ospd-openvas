@@ -289,30 +289,30 @@ class OSPDOvaldi(OSPDaemon):
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
+
+            # Extract /oval_system_characteristcs/system_info
+            system_info = None
+            tree = ET.fromstring(file_content)
+            for child in tree:
+                if child.tag.endswith('system_info'):
+                    system_info = child
+                elif child.tag.endswith('generator'):
+                    generator = child
+            for child in generator:
+                name = 'syschar_generator:{0}'.format(child.tag.split('}')[1])
+                self.add_scan_log(scan_id, name=name, value=child.text)
+
+            for child in system_info:
+                if not child.tag.endswith('interfaces'):
+                    name = 'system_info:{0}'.format(child.tag.split('}')[1])
+                    self.add_scan_log(scan_id, name=name, value=child.text)
+                else:
+                    # Extract interfaces info from <sytem_info><interfaces>...
+                    self.parse_system_info_interfaces(child, scan_id)
+
+            # XXX: Extract /oval_system_characteristcs/system_data/uname_item*
         except IOError:
             self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
-
-        # Extract /oval_system_characteristcs/system_info
-        system_info = None
-        tree = ET.fromstring(file_content)
-        for child in tree:
-            if child.tag.endswith('system_info'):
-                system_info = child
-            elif child.tag.endswith('generator'):
-                generator = child
-        for child in generator:
-            name = 'syschar_generator:{0}'.format(child.tag.split('}')[1])
-            self.add_scan_log(scan_id, name=name, value=child.text)
-
-        for child in system_info:
-            if not child.tag.endswith('interfaces'):
-                name = 'system_info:{0}'.format(child.tag.split('}')[1])
-                self.add_scan_log(scan_id, name=name, value=child.text)
-            else:
-                # Extract interfaces info from <sytem_info><interfaces>...
-                self.parse_system_info_interfaces(child, scan_id)
-
-        # XXX: Extract /oval_system_characteristcs/system_data/uname_item*
 
     def parse_system_info_interfaces(self, interfaces, scan_id):
         """ Parses interfaces information in ovaldi's system_info's interfaces
@@ -340,22 +340,21 @@ class OSPDOvaldi(OSPDaemon):
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
+            # Extract oval definitions results and other relevant information.
+            tree = ET.fromstring(file_content)
+            for child in tree:
+                if child.tag.endswith('generator'):
+                    generator = child
+                elif child.tag.endswith('oval_definitions'):
+                    oval_defs = child
+                elif child.tag.endswith('results'):
+                    results = child
+            for child in generator:
+                name = 'results_generator:{0}'.format(child.tag.split('}')[1])
+                self.add_scan_log(scan_id, name=name, value=child.text)
+            self.parse_oval_results(oval_defs, results, scan_id)
         except IOError:
             self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
-
-        # Extract oval definitions results and other relevant information.
-        tree = ET.fromstring(file_content)
-        for child in tree:
-            if child.tag.endswith('generator'):
-                generator = child
-            elif child.tag.endswith('oval_definitions'):
-                oval_defs = child
-            elif child.tag.endswith('results'):
-                results = child
-        for child in generator:
-            name = 'results_generator:{0}'.format(child.tag.split('}')[1])
-            self.add_scan_log(scan_id, name=name, value=child.text)
-        self.parse_oval_results(oval_defs, results, scan_id)
 
     def parse_oval_results(self, oval_defs, results, scan_id):
         """ Parses oval_definitions and results elements from results file. """
@@ -400,10 +399,9 @@ class OSPDOvaldi(OSPDaemon):
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
+            self.add_scan_log(scan_id, name="ovaldi.log", value=file_content)
         except IOError:
             self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
-
-        self.add_scan_log(scan_id, name="ovaldi.log", value=file_content)
 
 # Main starts here
 if __name__ == '__main__':

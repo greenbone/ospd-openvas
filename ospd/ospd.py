@@ -78,7 +78,10 @@ class OSPDaemon(object):
                            'attributes' : None,
                            'elements' : None },
                 'get_scans' : { 'description' : 'List the scans in buffer.',
-                                 'attributes' : None,
+                                 'attributes' :
+                                   { 'scan_id' : 'ID of a specific scan to get.',
+                                     'details' : 'Whether to return the full'
+                                                 ' scan report.' },
                                  'elements' : None },
                 'delete_scan' : { 'description' : 'Delete a finished/stopped scan.',
                                   'attributes' :
@@ -231,17 +234,23 @@ class OSPDaemon(object):
 
         @return: Response string for <get_scans> command.
         """
+
+        details = True
         response = '<get_scans_response status="200" satus_text="OK">'
         scan_id = scan_et.attrib.get('scan_id')
+        details = scan_et.attrib.get('details')
+        if details and details == '0':
+            details = False
+
         if scan_id and scan_id in self.scan_collection.ids_iterator():
-            scan_str = self.get_scan_xml(scan_id)
+            scan_str = self.get_scan_xml(scan_id, details)
             response = ''.join([response, scan_str])
         elif scan_id:
             return '<get_scans_repsonse status="404"\
                     status_text="Failed to find \'{0}\' scan"/>'.format(scan_id)
         else:
             for scan_id in self.scan_collection.ids_iterator():
-                scan_str = self.get_scan_xml(scan_id)
+                scan_str = self.get_scan_xml(scan_id, details)
                 response = ''.join([response, scan_str])
         response = ''.join([response, '</get_scans_response>'])
         return response
@@ -352,7 +361,7 @@ class OSPDaemon(object):
 
         return response
 
-    def get_scan_xml(self, scan_id):
+    def get_scan_xml(self, scan_id, detailed=True):
         """ Gets scan in XML format.
 
         @return: String of scan in xml format.
@@ -362,9 +371,12 @@ class OSPDaemon(object):
 
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
-        results_str = self.get_scan_results_xml(scan_id)
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
+        if detailed is False:
+            results_str = ""
+        else:
+            results_str = self.get_scan_results_xml(scan_id)
 
         return '<scan id="{0}" target="{1}" progress="{2}"'\
                ' start_time="{3}" end_time="{4}">{5}</scan>'\
