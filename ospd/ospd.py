@@ -495,6 +495,6 @@ class OSPDaemon(object):
         """ Adds an error result to scan_id scan. """
         self.scan_collection.add_error(scan_id, name, value)
 
-    def add_scan_alert(self, scan_id, name="", value=""):
-        """ Adds an alert result to scan_id scan. """
-        self.scan_collection.add_alert(scan_id, name, value)
+    def add_scan_alarm(self, scan_id, name="", value=""):
+        """ Adds an alarm result to scan_id scan. """
+        self.scan_collection.add_alarm(scan_id, name, value)

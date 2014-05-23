@@ -69,7 +69,7 @@ class ScanCollection(object):
     Each scan has meta-information such as scan ID, current progress (from 0 to
     100), start time, end time, scan target and options and a list of results.
 
-    There are 3 types of results: Alerts, Logs and Errors.
+    There are 3 types of results: Alarms, Logs and Errors.
 
     Todo:
     - Better checking for Scan ID existence and handling otherwise.
@@ -83,10 +83,10 @@ class ScanCollection(object):
 
         self.scans_table = dict()
 
-    def add_alert(self, scan_id, name="", value=""):
-        """ Add a result of type Alert to a scan in the table. """
+    def add_alarm(self, scan_id, name="", value=""):
+        """ Add a result of type Alarm to a scan in the table. """
 
-        self.scans_table[scan_id]['results'].append((ResultType.ALERT, name,
+        self.scans_table[scan_id]['results'].append((ResultType.ALARM, name,
                                                      value))
 
     def add_log(self, scan_id, name="", value=""):
@@ -180,14 +180,14 @@ class ScanCollection(object):
 class ResultType(object):
     """ Various scan results types values. """
 
-    ALERT = 0
+    ALARM = 0
     LOG = 1
     ERROR = 2
 
     @classmethod
     def get_str(self, result_type):
-        if result_type == self.ALERT:
-            return "Alert"
+        if result_type == self.ALARM:
+            return "Alarm"
         elif result_type == self.LOG:
             return "Log"
         elif result_type == self.ERROR:

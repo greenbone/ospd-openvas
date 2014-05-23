@@ -1,3 +1,10 @@
+2014-05-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py, wrappers/ovaldi/ospd-ovaldi.py,
+	wrappers/w3af/ospd-w3af.py, ospd/ospd.py: Replace Alert with Alarm for
+	all class methods, variables, strings and comments to match the change
+	in Manager.
+
 2014-05-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospdy.py (OSPDaemon.get_commands_table): Document scan_id and

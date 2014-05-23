@@ -372,7 +372,7 @@ class OSPDOvaldi(OSPDaemon):
             def_id = definition.attrib.get('id')
             def_result = self.get_definition_result(def_id, results)
             if def_class == 'vulnerability':
-                self.add_scan_alert(scan_id, name=def_id, value=def_result)
+                self.add_scan_alarm(scan_id, name=def_id, value=def_result)
             else:
                 self.add_scan_log(scan_id, name=def_id, value=def_result)
 

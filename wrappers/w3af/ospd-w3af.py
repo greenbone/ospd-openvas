@@ -172,11 +172,11 @@ class OSPDw3af(OSPDaemon):
         """ Stores scan results from the XML output_file """
 
         xmldoc = xml_parse(output_file)
-        # w3afrun/vulnerability => result_type.ALERT
+        # w3afrun/vulnerability => result_type.ALARM
         vulns = xmldoc.getElementsByTagName('vulnerability')
         for vuln in vulns:
             desc = vuln.getElementsByTagName('description')[0]
-            self.add_scan_alert(scan_id, value=desc.childNodes[0].nodeValue)
+            self.add_scan_alarm(scan_id, value=desc.childNodes[0].nodeValue)
         # w3afrun/information => result_type.LOG
         information = xmldoc.getElementsByTagName('information')
         for info in information:
