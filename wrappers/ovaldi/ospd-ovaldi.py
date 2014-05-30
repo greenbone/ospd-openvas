@@ -63,11 +63,12 @@ class OSPDOvaldi(OSPDaemon):
 
         self.version = "0.0.1"
         self.rovaldi_path = rovaldi_path
-        self.set_command_elements("start_scan",
-                                  {'username' : 'SSH Username for remote-ovaldi.',
-                                   'password' : 'SSH Password for remote-ovaldi.',
-                                   'definitions' : 'Definitions file content in base64',
-                                   'port' : 'SSH Port for remote-ovaldi.'})
+        self.set_command_elements\
+              ("start_scan",
+               {'username' : 'SSH Username for remote-ovaldi.',
+               'password' : 'SSH Password for remote-ovaldi.',
+               'definitions_file' : 'Definitions file content in base64',
+               'port' : 'SSH Port for remote-ovaldi.'})
 
     def check(self):
         """ Checks that remote-ovaldi.sh is found and is executable. """
@@ -99,9 +100,9 @@ class OSPDOvaldi(OSPDaemon):
         password = scan_et.find('password')
         if password is None or password.text is None:
             return "<start_scan status='400' status_text='No password element'/>"
-        definitions = scan_et.find('definitions')
+        definitions = scan_et.find('definitions_file')
         if definitions is None or definitions.text is None:
-            return "<start_scan status='400' status_text='No definitions element'/>"
+            return "<start_scan status='400' status_text='No definitions_file element'/>"
 
         username = username.text
         password = password.text
