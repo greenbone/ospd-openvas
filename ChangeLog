@@ -1,5 +1,10 @@
 2014-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi): Handle ssh permissions
+	denied case and report as scan error to client.
+
+2014-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi): Change definitions option
 	to definitions_file.
 

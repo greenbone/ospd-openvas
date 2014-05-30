@@ -206,6 +206,14 @@ class OSPDOvaldi(OSPDaemon):
             return
         output.sendline("{0}".format(password))
 
+        # Handle Wrong SSH credentials case.
+        if "Permission denied" in output.before:
+            self.logger.debug(2, "{0}: SSH Permission denied".format(scan_id))
+            self.add_scan_error(scan_id, value="SSH Permission denied.")
+            shutil.rmtree(results_dir)
+            self.finish_scan(scan_id)
+            return
+
         # Provide password for running setup script on target
         try:
             self.logger.debug(2, "Waiting for running setup script prompt.")
