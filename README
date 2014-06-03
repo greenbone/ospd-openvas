@@ -47,8 +47,9 @@ For example to see the command line options you can run
 $ python wrappers/NAME/ospd-NAME.py --help
 
 where NAME can be "ovaldi" or "w3af".
- 
-In case you do not have already a certificate to use, you may quickly
+
+By default, the certs generated for use by OpenVAS Scanner/Manager/GSA will be
+used. In case you do not have already a certificate to use, you may quickly
 create your own one (can be used for multiple ospd daemons):
 
 $ openssl req -new -x509 -days 365 -nodes -out /tmp/cert.pem -keyout /tmp/cert.pem
@@ -59,14 +60,14 @@ adequately for a production use.
 
 To run a test instance of ospd-ovaldi on local port 1234 with sample data:
 
-$ python wrappers/ovaldi/ospd-ovaldi.py -k /tmp/cert.pem -c /tmp/cert.pem -D wrappers/ovaldi/sampledata/defs.xml -b 127.0.0.1 -p 1234 &
+$ python wrappers/ovaldi/ospd-ovaldi.py -b 127.0.0.1 -p 1234 &
 
 Add "-d 2" to enable maximum debugging output.
 
 
 To run a test instance of ospd-w3af on local port 1235:
 
-$ python wrappers/w3af/ospd-w3af.py -k /tmp/cert.pem -c /tmp/cert.pem -b 127.0.0.1 -p 1235 &
+$ python wrappers/w3af/ospd-w3af.py -b 127.0.0.1 -p 1235 &
 
 Add "-d 2" to enable maximum debugging output.
 
@@ -80,9 +81,8 @@ All OSP scanners offer the command "help". They may answer
 with different capabilities (like for the start_scan command).
 
 With ospd-w3af.py listening on 127.0.0.1:1234:
-$ omp -u foo -w bar --xml="<help/>" -p 1234 -i
+$ omp --use-certs -p 1234 -i --xml="<help/>"
 
-<?xml version="1.0"?>
 <help_response status_text="OK" status="200">
         get_version             Return various versions.
         delete_scan             Delete a finished/stopped scan.
@@ -95,12 +95,15 @@ $ omp -u foo -w bar --xml="<help/>" -p 1234 -i
          Elements:
           profile                w3af scan profile
         get_scans               List the scans in buffer.
+         Attributes:
+          scan_id                ID of a specific scan to get.
+          details                Whether to return the full scan report.
 </help_response>
 
-With ospd-ovaldi.py listening on 127.0.0.1:1234:
-$ omp -u foo -w bar --xml="<help/>" -p 1234 -i
 
-<?xml version="1.0"?>
+With ospd-ovaldi.py listening on 127.0.0.1:1234:
+$ omp --use-certs -p 1234 -i --xml="<help/>"
+
 <help_response status_text="OK" status="200">
         get_version             Return various versions.
         delete_scan             Delete a finished/stopped scan.
@@ -111,22 +114,26 @@ $ omp -u foo -w bar --xml="<help/>" -p 1234 -i
          Attributes:
           target                 Target host to scan
          Elements:
-          username               SSH Username for remote-ovaldi.sh
-          password               SSH Password for remote-ovaldi.sh
-          port                   SSH Port for remote-ovaldi.sh
+          username               SSH Username for remote-ovaldi.
+          password               SSH Password for remote-ovaldi.
+          port                   SSH Port for remote-ovaldi.
+          definitions_file               Definitions file content in base64
         get_scans               List the scans in buffer.
+         Attributes:
+          scan_id                ID of a specific scan to get.
+          details                Whether to return the full scan report.
 </help_response>
 
 
 Starting a scan with ospd-ovaldi:
 
-omp -u foo -w bar --xml="<start_scan target='127.0.0.1'><username>USERNAME</username><password>PASSWORT</password></start_scan>" -p 1234 -i
+omp --use-certs --send-file=/tmp/definitions.xml --xml="<start_scan target='127.0.0.1'><username>USERNAME</username><password>PASSWORD</password><definitions_file>SENDFILE</definitions_file></start_scan>" -p 1234 -i
 
 Starting a scan with ospd-w3af:
 
-omp -u foo -w bar --xml="<start_scan target='www.example.com'></start_scan>" -p 1234 -i
+omp --use-certs --xml="<start_scan target='www.example.com'></start_scan>" -p 1234 -i
 
 
 Show the list of scans, their status and results (any OSP Scanner):
 
-$ omp -u foo -w bar --xml="<get_scans/>" -p 1234 -i
+$ omp --use-certs --xml="<get_scans/>" -p 1234 -i

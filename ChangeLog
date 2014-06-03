@@ -1,3 +1,9 @@
+2014-06-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* README: Update documentation. oval definitions are now part of the
+	scan config and certs are used for authentication. Update commands
+	output and command-line examples.
+
 2014-05-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi): Handle ssh permissions
