@@ -176,6 +176,9 @@ class OSPDaemon(object):
         while True:
             try:
                 data = ''.join([data, stream.read(1024)])
+                if len(data) == 0:
+                    self.logger.debug(1, "Empty client stream")
+                    return
             except AttributeError:
                 self.logger.debug(1, "Couldn't read client input.")
                 return

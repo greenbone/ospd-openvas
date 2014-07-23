@@ -1,3 +1,8 @@
+2014-07-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospdy.py (OSPDaemon.handle_client_stream): Fix error when client
+	closes the socket before sending any data.
+
 2014-06-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* README: Update documentation. oval definitions are now part of the
