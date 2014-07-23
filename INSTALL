@@ -17,7 +17,23 @@ Prerequisites:
 Building OSPD
 -------------
 
-It is planned to add a cmake environment for the build process.
-During prototype phase, the use instructions include direct
-ways of executing the daemons.
+To install OSPD into directory <prefix> run this command:
 
+python setup.py install --prefix=<prefix> --install-scripts=<prefix>/bin
+
+The default for <prefix> is /usr/local
+
+You may need to set the PYTHONPATH like this before running
+the install command (perhaps with another python version):
+
+export PYTHONPATH=<prefix>/lib/python2.7/site-packages/
+
+
+Creating a source archive
+-------------------------
+
+To create a .tar.gz file for the ospd module run this command:
+
+python setup.py sdist
+
+This will crwate the archive file in the subdirectory "dist".

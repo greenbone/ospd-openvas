@@ -44,7 +44,7 @@ wrappers add their own specific options.
 
 For example to see the command line options you can run
 
-$ python wrappers/NAME/ospd-NAME.py --help
+$ ospd-NAME.py --help
 
 where NAME can be "ovaldi" or "w3af".
 
@@ -60,14 +60,14 @@ adequately for a production use.
 
 To run a test instance of ospd-ovaldi on local port 1234 with sample data:
 
-$ python wrappers/ovaldi/ospd-ovaldi.py -b 127.0.0.1 -p 1234 &
+$ ospd-ovaldi.py -b 127.0.0.1 -p 1234 &
 
 Add "-d 2" to enable maximum debugging output.
 
 
 To run a test instance of ospd-w3af on local port 1235:
 
-$ python wrappers/w3af/ospd-w3af.py -b 127.0.0.1 -p 1235 &
+$ ospd-w3af.py -b 127.0.0.1 -p 1235 &
 
 Add "-d 2" to enable maximum debugging output.
 

@@ -1,3 +1,16 @@
+2014-07-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	First approach for a config/install methodology.
+
+	* setup.py: New. Not optimal yet, needs further attention to
+	fully suffice LFH, the python way and other deployment aspects.
+  
+	* INSTALL: Added sections on how to install ospd and ho to create
+	a source package.
+
+	* README: The daemons can now be called directly if installed
+	into a path-aware directory.
+
 2014-07-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospdy.py (OSPDaemon.handle_client_stream): Fix error when client
