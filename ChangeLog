@@ -1,3 +1,11 @@
+2014-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* INSTALL: Added sections about certificate creation and about
+	registering a OSP daemon at OpenVAS Manager.
+
+	* README: Removed text abuot certificates (now in INSTALL) and
+	apply some slight structural improvements.
+
 2014-07-23  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	First approach for a config/install methodology.

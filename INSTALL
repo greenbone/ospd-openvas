@@ -29,6 +29,58 @@ the install command (perhaps with another python version):
 export PYTHONPATH=<prefix>/lib/python2.7/site-packages/
 
 
+Creating certificates
+---------------------
+
+You need TLS certificates for each of your OSPD service. You may use
+the same certificates for all services if you like.
+
+By default those certificates are used which are also used by OpenVAS
+(see paths with "ospd-NAME.py --help"). Of course this works only
+if installed in the same environment.
+ 
+In case you do not have already a certificate to use, you may quickly
+create your own one (can be used for multiple ospd daemons):
+
+$ openssl req -new -x509 -days 365 -nodes -out /tmp/cert.pem -keyout /tmp/cert.pem
+
+Of course this is a coarse and insecure way of doing it and should be done
+adequately for a production use.
+
+
+Registering a OSP daemon at OpenVAS Manager
+-------------------------------------------
+
+The file REAME explains how to control a OSP daemon via command line.
+
+It is also possible to register a OSP daemon at the OpenVAS Manager
+and then use OMP clients to control the OSP daemon, for example the
+web interface GSA.
+
+You can register either via the GUI (Configuration->Scanners) and create
+a new Scanner there.
+
+Or you can create a scanner via openvasmd command line (adjust host,
+port, paths etc. for your daemon):
+
+$ openvasmd --create-scanner="OSP Remote Ovaldi" --scanner-host=127.0.0.1 --scanner-port=1234 \
+           --scanner-type="OSP Ovaldi" --scanner-ca-pub=/usr/var/lib/openvas/CA/cacert.pem \
+           --scanner-key-pub=/usr/var/lib/openvas/CA/clientcert.pem \
+           --scanner-key-priv=/usr/var/lib/openvas/private/CA/clientkey.pem 
+
+Check whether OpenVAS Manager can connect to the OSP daemon (needs to run of course):
+
+$ openvasmd --get-scanners
+08b69003-5fc2-4037-a479-93b440211c73  OpenVAS Default
+3566ddf1-cecf-4491-8bcc-5d62a87404c3  OSP Remote Ovaldi
+
+$ openvasmd --verify-scanner=3566ddf1-cecf-4491-8bcc-5d62a87404c3
+Scanner version: poc.
+
+Of course, using OMP via command line tool "omp" to register a
+OSP Scanner is also possible as a third option.
+
+
 Creating a source archive
 -------------------------
 
@@ -36,4 +88,4 @@ To create a .tar.gz file for the ospd module run this command:
 
 python setup.py sdist
 
-This will crwate the archive file in the subdirectory "dist".
+This will create the archive file in the subdirectory "dist".

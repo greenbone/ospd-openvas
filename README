@@ -35,8 +35,8 @@ Module structure
  - wrappers/w3af/ospd-w3af.py: OSP Daemon that runs w3af web scanner (cli mode).
 
 
-Howto use
----------
+Howto start a OSP daemon
+------------------------
 
 All scanner wrappers share the same set of command-line options (such as
 --help, --bind-address, --port, --key-file, --timeout etc,.) and some of the
@@ -47,15 +47,6 @@ For example to see the command line options you can run
 $ ospd-NAME.py --help
 
 where NAME can be "ovaldi" or "w3af".
-
-By default, the certs generated for use by OpenVAS Scanner/Manager/GSA will be
-used. In case you do not have already a certificate to use, you may quickly
-create your own one (can be used for multiple ospd daemons):
-
-$ openssl req -new -x509 -days 365 -nodes -out /tmp/cert.pem -keyout /tmp/cert.pem
-
-Of course this is a coarse and insecure way of doing it and should be done
-adequately for a production use.
 
 
 To run a test instance of ospd-ovaldi on local port 1234 with sample data:
@@ -73,6 +64,7 @@ Add "-d 2" to enable maximum debugging output.
 
 
 Controlling a OSP daemon
+------------------------
 
 You can use command "omp" of the OpenVAS "omp-cli" module to send to and
 receive information from the scanners.
