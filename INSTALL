@@ -42,10 +42,9 @@ if installed in the same environment.
 In case you do not have already a certificate to use, you may quickly
 create your own one (can be used for multiple ospd daemons):
 
-$ openssl req -new -x509 -days 365 -nodes -out /tmp/cert.pem -keyout /tmp/cert.pem
+$ openvas-manage-certs.sh -s
 
-Of course this is a coarse and insecure way of doing it and should be done
-adequately for a production use.
+And sign it with the CA checked for by the client.
 
 
 Registering a OSP daemon at OpenVAS Manager

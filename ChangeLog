@@ -1,3 +1,7 @@
+2014-07-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* INSTALL, README: Update documentation.
+
 2014-07-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* INSTALL: Added sections about certificate creation and about
@@ -12,7 +16,7 @@
 
 	* setup.py: New. Not optimal yet, needs further attention to
 	fully suffice LFH, the python way and other deployment aspects.
-  
+
 	* INSTALL: Added sections on how to install ospd and ho to create
 	a source package.
 

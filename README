@@ -1,8 +1,8 @@
 About OSPD
 ----------
 
-===== ATTENTION: OSPD is in prototype status. It does not operate secure. The
-===== ATTENTION: protocol and features may get changed without notice.
+===== ATTENTION: OSPD is in prototype status. It does not operate securely.
+===== ATTENTION: The protocol and features may get changed without notice.
 
 OSPD is a collection of scanner wrappers which share the same communication
 protocol: OSP (OpenVAS Scanner Protocol). OSP creates a unified interface for
