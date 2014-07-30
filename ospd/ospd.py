@@ -85,7 +85,7 @@ class OSPDaemon(object):
                                  'elements' : None },
                 'delete_scan' : { 'description' : 'Delete a finished/stopped scan.',
                                   'attributes' :
-                                   { 'id' : 'Scan ID.'},
+                                   { 'scan_id' : 'ID of scan to delete.'},
                                   'elements' : None },
                 'get_version' : { 'description' : 'Return various versions.',
                                   'attributes' : None,
@@ -301,9 +301,9 @@ class OSPDaemon(object):
 
         @return: Response string for <delete_scan> command.
         """
-        scan_id = scan_et.attrib.get('id')
+        scan_id = scan_et.attrib.get('scan_id')
         if scan_id is None:
-            return "<delete_scan status='400' status_text='No id attribute'/>"
+            return "<delete_scan status='400' status_text='No scan_id attribute'/>"
 
         if not self.scan_exists(scan_id):
             return self.create_response_string({'delete_scan_response'

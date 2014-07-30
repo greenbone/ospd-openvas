@@ -1,3 +1,8 @@
+2014-07-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon): Rename delete_scan id attribute to scan_id
+	for consistency.
+
 2014-07-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* INSTALL, README: Update documentation.
