@@ -24,6 +24,10 @@ python setup.py install --prefix=<prefix> --install-scripts=<prefix>/bin
 
 The default for <prefix> is /usr/local
 
+Be aware that this might automatically download and install missing
+Python packages. To prevent this, you should install the prerequisites
+first with the mechanism of your system (for example via apt or rpm).
+
 You may need to set the PYTHONPATH like this before running
 the install command (perhaps with another python version):
 
