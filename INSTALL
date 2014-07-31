@@ -11,7 +11,8 @@ Prerequisites for OSPD
 
 Prerequisites:
 * python
-* python-pexpect: For running/interacting with w3af_console and remote-ovaldi.sh
+* python-pexpect: For running/interacting with w3af_console.
+* Python-paramiko: For running ovaldi on the target over SSH.
 
 
 Building OSPD

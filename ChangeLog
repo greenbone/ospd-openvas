@@ -1,5 +1,27 @@
 2014-07-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	Remove unused remote-ovaldi.sh and related files.
+
+	* INSTALL: Add python-paramiko dependency.
+
+	* README: Adjust documentation for remote-ovaldi.sh removal.
+
+	* setup.py: Don't install removed files.
+
+	* wrappers/ovaldi/doc/remote-ovaldi-doc.txt,
+	wrappers/ovaldi/remote-ovaldi-setup.sh,
+	wrappers/ovaldi/remote-ovaldi.sh: Remove files.
+
+	* wrappers/ovaldi/ospd-ovaldi.py: Remove --remote-ovaldi cli argument
+	handling.
+	(OSPDOvaldi.__init__): Remove rovaldi_path parameter.
+	(OSPDOvaldi.get_scanner_name, OSPDOvaldi.get_scanner_version): Adjust
+	for scan method change.
+	(OSPDOvaldi.exec_scan): Use command -v which is more POSIX-compliant
+	instead of type.
+
+2014-07-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Replace remote-ovaldi.sh wrapping with code in ospd-ovaldi.py to check
 	for and run ovaldi over SSH directly.
 

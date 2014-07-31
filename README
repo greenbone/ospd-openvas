@@ -31,7 +31,7 @@ Module structure
 * ospd/misc.py: Miscellaneous code and classes related to OSPD that don't fit
                 elsewhere.
 * wrappers/: Directory for various scanners wrappers. At the moment it contains:
- - wrappers/ovaldi/ospd-ovaldi.py: OSP Daemon that runs remote-ovaldi.sh scanner.
+ - wrappers/ovaldi/ospd-ovaldi.py: OSP Daemon that runs ovaldi scanner.
  - wrappers/w3af/ospd-w3af.py: OSP Daemon that runs w3af web scanner (cli mode).
 
 
@@ -106,9 +106,9 @@ $ omp --use-certs -p 1234 -i --xml="<help/>"
          Attributes:
           target                 Target host to scan
          Elements:
-          username               SSH Username for remote-ovaldi.
-          password               SSH Password for remote-ovaldi.
-          port                   SSH Port for remote-ovaldi.
+          username               SSH Username.
+          password               SSH Password.
+          port                   SSH Port.
           definitions_file               Definitions file content in base64
         get_scans               List the scans in buffer.
          Attributes:

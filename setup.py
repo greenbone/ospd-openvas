@@ -104,8 +104,6 @@ setup(
     # sys.prefix/bin directory. You can define an alternative place for
     # installation by setting the --install-scripts option of setup.py
     scripts = ['wrappers/ovaldi/ospd-ovaldi.py',
-               'wrappers/ovaldi/remote-ovaldi.sh',
-               'wrappers/ovaldi/remote-ovaldi-setup.sh',
                'wrappers/w3af/ospd-w3af.py']
 
     # To provide executable scripts, use entry points in preference to the

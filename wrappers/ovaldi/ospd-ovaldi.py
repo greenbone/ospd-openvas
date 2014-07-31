@@ -2,7 +2,7 @@
 
 # $Id$
 # Description:
-# remote-ovaldi wrapper for OSPD.
+# ovaldi wrapper for OSPD.
 #
 # Authors:
 # Hani Benhabiles <hani.benhabiles@greenbone.net>
@@ -54,8 +54,8 @@ except:
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, timeout, debug, rovaldi_path,
-                 port, address):
+    def __init__(self, certfile, keyfile, cafile, timeout, debug, port,
+                 address):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
                                          cafile=cafile, timeout=timeout,
@@ -63,24 +63,23 @@ class OSPDOvaldi(OSPDaemon):
                                          address=address)
 
         self.version = "0.0.1"
-        self.rovaldi_path = rovaldi_path
         self.set_command_elements\
               ("start_scan",
-               {'username' : 'SSH Username for remote-ovaldi.',
-               'password' : 'SSH Password for remote-ovaldi.',
-               'definitions_file' : 'Definitions file content in base64',
-               'port' : 'SSH Port for remote-ovaldi.'})
+               { 'username' : 'SSH Username.',
+                 'password' : 'SSH Password.',
+                 'definitions_file' : 'Definitions file content in base64',
+                 'port' : 'SSH Port.'})
 
     def check(self):
         return True
 
     def get_scanner_name(self):
         """ Gives the used scanner's name. """
-        return "remote-ovaldi"
+        return "ovaldi"
 
     def get_scanner_version(self):
         """ Gives the used scanner's version. """
-        return "poc" # remote-ovaldi has no version.
+        return self.version # XXX: ovaldi is different on each target.
 
     def handle_start_scan_command(self, scan_et):
         """ Handles the OSP <start_scan> command element tree. """
@@ -176,7 +175,7 @@ class OSPDOvaldi(OSPDaemon):
 
         # Check for ovaldi on the target.
         chan = ssh.get_transport().open_session()
-        chan.exec_command("type ovaldi")
+        chan.exec_command("command -v ovaldi")
         if chan.recv_exit_status() != 0:
             err = "Ovaldi not found on target host."
             return self.finish_scan_with_err(scan_id, local_dir, err)
@@ -367,29 +366,14 @@ if __name__ == '__main__':
     # Common args parser.
     parser = create_args_parser("OSPD - Remote Ovaldi wrapper")
 
-    # ospd-ovaldi specific.
-    parser.add_argument('--remote-ovaldi', dest='rovaldi', type=str, nargs=1,
-                        help='remote-ovaldi.sh path.'
-                             ' (Default is remote-ovaldi.sh)')
     # Common args
     cargs = get_common_args(parser, ospdir)
 
     options = parser.parse_args()
-    # Check for Remote Ovaldi script
-    if options.rovaldi:
-        rovaldi = options.rovaldi[0]
-    else:
-        rovaldi = "{0}/wrappers/ovaldi/remote-ovaldi.sh".format(ospdir)
-    if not os.path.isfile(rovaldi):
-        print "{0}: script not found.".format(rovaldi)
-        print "\n"
-        parser.print_help()
-        exit(1)
-
     ospd_ovaldi = OSPDOvaldi(port=cargs['port'], timeout=cargs['timeout'],
                              keyfile=cargs['keyfile'], certfile=cargs['certfile'],
                              cafile=cargs['cafile'], debug=cargs['debug'],
-                             rovaldi_path=rovaldi, address=cargs['address'])
+                             address=cargs['address'])
     if not ospd_ovaldi.check():
         exit(1)
     ret = ospd_ovaldi.run()
