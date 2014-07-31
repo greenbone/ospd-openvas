@@ -1,3 +1,20 @@
+2014-07-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Replace remote-ovaldi.sh wrapping with code in ospd-ovaldi.py to check
+	for and run ovaldi over SSH directly.
+
+	* wrappers/ovaldi/ospd-ovaldi.py: Import paramiko. Don't import
+	psexpect.
+	(OSPDOvaldi.check): Remove check for remote-ovaldi.sh.
+	(OSPDOvaldi.finish_scan_with_err): New class method.
+	(OSPDOvaldi.exec_scan): Connect to the target with SSH instead of
+	executing remote-ovaldi.sh and parsing the output. Check for ovaldi's
+	presence on the target, create the temporary directory, copy the
+	definitions files, run the scan, get the results files and cleanup.
+	Improve handling of various errors.
+	(OSPDOvaldi.parse_oval_syschar_xml, OSPDOvaldi.parse_results_xml)
+	(OSPDOvaldi.parse_ovaldi_log): Take file path as method argument.
+
 2014-07-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon): Rename delete_scan id attribute to scan_id

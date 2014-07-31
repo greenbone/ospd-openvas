@@ -28,6 +28,7 @@ import shutil
 import os
 import inspect
 import base64
+import socket
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -43,10 +44,10 @@ from ospd.misc import create_args_parser, get_common_args
 
 # External modules.
 try:
-    import pexpect
+    import paramiko
 except:
-    print "pexpect not found."
-    print "# pip install pexpect. (Or apt-get install python-pexpect.)"
+    print "paramiko not found."
+    print "# pip install paramiko (Or apt-get install python-paramiko.)"
     exit(1)
 
 # ospd-ovaldi daemon class.
@@ -71,12 +72,6 @@ class OSPDOvaldi(OSPDaemon):
                'port' : 'SSH Port for remote-ovaldi.'})
 
     def check(self):
-        """ Checks that remote-ovaldi.sh is found and is executable. """
-        try:
-            output = pexpect.spawn(self.rovaldi_path)
-        except pexpect.ExceptionPexpect, message:
-            self.logger.error(message)
-            return False
         return True
 
     def get_scanner_name(self):
@@ -134,6 +129,18 @@ class OSPDOvaldi(OSPDaemon):
                                             ' status_text="OK"' :
                                              {'id' : scan_id}})
 
+    def finish_scan_with_err(self, scan_id, local_dir=None,
+                             err="Unknown error"):
+        """
+        Add an error message to a scan and finish it. Cleanup the results
+        dir if provided.
+        """
+        if local_dir:
+            shutil.rmtree(local_dir)
+        self.logger.debug(2, err)
+        self.add_scan_error(scan_id, value=err)
+        self.finish_scan(scan_id)
+
     def exec_scan(self, scan_id):
         """ Starts the ovaldi scanner for scan_id scan. """
         options = self.get_scan_options(scan_id)
@@ -142,159 +149,104 @@ class OSPDOvaldi(OSPDaemon):
         password = options['password']
         definitions = options['definitions']
         port = options['port']
-        results_dir = '/tmp/ovaldi-results-{0}'.format(scan_id)
-        os.mkdir(results_dir)
-        defs_file = '{0}/ovaldi-defs.xml'.format(results_dir)
+        local_dir = '/tmp/ovaldi-results-{0}'.format(scan_id)
+        os.mkdir(local_dir)
+        defs_file = '{0}/ovaldi-defs.xml'.format(local_dir)
 
         # Write definitions to temporary file
         with open(defs_file, 'w') as f:
             try:
                 decoded = base64.b64decode(definitions)
             except TypeError:
-                self.add_scan_error(scan_id, value="Invalid definitions file")
-                self.logger.debug(1, "Couldn't decode base64 definitions content.")
-                self.finish_scan(scan_id)
-                return
+                err = "Couldn't decode base64 definitions"
+                return self.finish_scan_with_err(scan_id, local_dir, err)
             f.write(decoded)
 
-        # Pexpect
-        output = pexpect.spawn('{0} -u {1} -h {2} -p {3} -o {4}'
-                               ' --results-dir {5}/'
-                                .format(self.rovaldi_path, username, target,
-                                        port, defs_file, results_dir))
-        output.timeout = self.timeout
-
-        # Provide password for temp dir creation.
+        # Connect to target
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            self.logger.debug(2, "Waiting for temp dir prompt")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout on temp dir creation prompt.")
-            self.handle_timeout(scan_id)
-            shutil.rmtree(results_dir)
-            return
-        except pexpect.EOF:
-            # SSH Connection failed.
-            for line in output.before.split('\n'):
-                if "[ERROR]" in line:
-                    self.add_scan_error(scan_id, value=line)
-            try:
-                shutil.rmtree(results_dir)
-            except OSError:
-                pass
-            self.finish_scan(scan_id)
-            return
-        output.sendline("{0}".format(password))
+            ssh.connect(hostname=target, username=username, password=password,
+                        timeout=10)
+        except (paramiko.ssh_exception.AuthenticationException,
+                socket.error), err:
+            # Errors: No route to host, connection timeout, authentication
+            # failure etc,.
+            return self.finish_scan_with_err(scan_id, local_dir, err)
 
-        # Provide password for scp setup script to remote host
-        try:
-            self.logger.debug(2, "Waiting for scp to target host prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout on scp to target host prompt.")
-            self.handle_timeout(scan_id)
-            return
-        output.sendline("{0}".format(password))
+        # Check for ovaldi on the target.
+        chan = ssh.get_transport().open_session()
+        chan.exec_command("type ovaldi")
+        if chan.recv_exit_status() != 0:
+            err = "Ovaldi not found on target host."
+            return self.finish_scan_with_err(scan_id, local_dir, err)
+        chan.close()
 
-        # Provide password for making script executable
-        try:
-            self.logger.debug(2, "Waiting for making script executable prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout on making script executable prompt.")
-            self.handle_timeout(scan_id)
-            return
-        output.sendline("{0}".format(password))
+        # Create temp dir
+        target_dir = "/tmp/{0}".format(scan_id)
+        chan = ssh.get_transport().open_session()
+        chan.exec_command("mkdir {0}".format(target_dir))
+        if chan.recv_exit_status() != 0:
+            err = "Couldn't create temporary directory {0}".format(target_dir)
+            ssh.close()
+            return self.finish_scan_with_err(scan_id, local_dir, err)
+        chan.close()
+        # Copy definitions file to target
+        target_defs_path = "{0}/definitions.xml".format(target_dir)
+        sftp = ssh.open_sftp()
+        sftp.put(defs_file, target_defs_path)
 
-        # Handle Wrong SSH credentials case.
-        if "Permission denied" in output.before:
-            self.logger.debug(2, "{0}: SSH Permission denied".format(scan_id))
-            self.add_scan_error(scan_id, value="SSH Permission denied.")
-            shutil.rmtree(results_dir)
-            self.finish_scan(scan_id)
-            return
-
-        # Provide password for running setup script on target
-        try:
-            self.logger.debug(2, "Waiting for running setup script prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout on running setup script prompt.")
-            self.handle_timeout(scan_id)
-            return
-        output.sendline("{0}".format(password))
-
-        # Provide password for copying input files to target
-        try:
-            self.logger.debug(2, "Waiting for copying input files prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout waiting for copying input files prompt.")
-            self.handle_timeout(scan_id)
-            return
-        output.sendline("{0}".format(password))
-
-        # Provide password for running ovaldi on target host
-        try:
-            self.logger.debug(2, "Waiting for running ovaldi prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "Timeout waiting for running ovaldi prompt.")
-            self.handle_timeout(scan_id)
-            return
-        except pexpect.EOF:
-            # Happens when ovaldi is not installed on target host.
-            self.logger.debug(2, "Ovaldi not found on target host.")
-            self.add_scan_error(scan_id, value="ovaldi not installed.")
-            # Delete empty results directory
-            shutil.rmtree(results_dir)
-            self.finish_scan(scan_id)
-            return
-        output.sendline("{0}".format(password))
-
-        # Provide password for copying results from target host
-        try:
-            self.logger.debug(2, "Waiting for results copying prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for results copying prompt.")
-            self.handle_timeout(scan_id)
-            return
-        output.sendline("{0}".format(password))
-
-        # Provide password for cleaning up temp directory
-        try:
-            self.logger.debug(2, "Waiting for temp dir cleanup prompt.")
-            output.expect("password:")
-        except pexpect.TIMEOUT:
-            self.logger.debug(1, "ovaldi timeout waiting for temp dir cleanup prompt.")
-            self.handle_timeout(scan_id)
-            return
-        output.sendline("{0}".format(password))
-
-        # The end
-        output.expect(pexpect.EOF)
-
-
+        # Run ovaldi
+        results_path = "{0}/results.xml".format(target_dir)
+        syschar_path = "{0}/oval_syschar.xml".format(target_dir)
+        log_path = "{0}/ovaldi.log".format(target_dir)
+        command = "ovaldi -m -s -r {0} -d {1} -o {2} -y {3}".format(results_path,
+            syschar_path, target_defs_path, target_dir)
+        stdin, stdout, stderr = ssh.exec_command(command)
+        # Flush stdout buffer, to continue execution.
+        stdout.readlines()
+        # Copy results from target
         # One case where *.xml files are missing: Definitions file doesn't
         # match ovaldi version or its schema is not valid, thus only
         # ovaldi.log was generated and no further scan occured.
         # XXX: Extract/Reorganize files content into multiple results.
-        # Parse ovaldi.log
-        self.parse_ovaldi_log(results_dir, scan_id)
-        # Parse results.xml
-        self.parse_results_xml(results_dir, scan_id)
-        # Parse oval_syschar.xml
-        self.parse_oval_syschar_xml(results_dir, scan_id)
-
-        shutil.rmtree(results_dir)
-        # Set scan as finished
+        # results.xml
+        try:
+            local_results = "{0}/results.xml".format(local_dir)
+            sftp.get(results_path, local_results)
+            self.parse_results_xml(local_results, scan_id)
+        except IOError, err:
+            msg = "Couldn't get results.xml: {0}".format(err)
+            self.logger.debug(2, msg)
+            self.add_scan_error(scan_id, value=msg)
+        # oval_syschar.xml
+        try:
+            local_syschar = "{0}/oval_syschar.xml".format(local_dir)
+            sftp.get(syschar_path, local_syschar)
+            self.parse_oval_syschar_xml(local_syschar, scan_id)
+        except IOError, err:
+            msg = "Couldn't get oval_syschar.xml: {0}".format(err)
+            self.logger.debug(2, msg)
+            self.add_scan_error(scan_id, value=msg)
+        # ovaldi.log
+        try:
+            local_log = "{0}/ovaldi.log".format(local_dir)
+            sftp.get(log_path, local_log)
+            self.parse_ovaldi_log(local_log, scan_id)
+        except IOError, err:
+            msg = "Couldn't get ovaldi.log: {0}".format(err)
+            self.logger.debug(2, msg)
+            self.add_scan_error(scan_id, value=msg)
+        # Cleanup temporary directories and close connection.
+        sftp.close()
+        ssh.exec_command("rm -rf {0}".format(target_dir))
+        ssh.close()
+        shutil.rmtree(local_dir)
         self.finish_scan(scan_id)
 
-    def parse_oval_syschar_xml(self, results_dir, scan_id):
+    def parse_oval_syschar_xml(self, file_path, scan_id):
         """ Parses the content of oval_syschar.xml file to scan results """
 
-        file_path = "{0}/oval_syschar.xml".format(results_dir)
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
@@ -342,10 +294,9 @@ class OSPDOvaldi(OSPDaemon):
             self.add_scan_log(scan_id, 'system_info:interface',
                               result_str)
 
-    def parse_results_xml(self, results_dir, scan_id):
+    def parse_results_xml(self, file_path, scan_id):
         """ Parses results file into scan results. """
 
-        file_path = "{0}/results.xml".format(results_dir)
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
@@ -401,10 +352,9 @@ class OSPDOvaldi(OSPDaemon):
                 return child.attrib.get('result')
         return "Not found"
 
-    def parse_ovaldi_log(self, results_dir, scan_id):
+    def parse_ovaldi_log(self, file_path, scan_id):
         """ Parses the content of ovaldi.log file to scan results """
 
-        file_path = "{0}/ovaldi.log".format(results_dir)
         try:
             with open(file_path, 'r') as f:
                 file_content = f.read()
