@@ -1,3 +1,8 @@
+2014-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Handle case
+	when sftp to the target is not possible and report the error correctly.
+
 2014-07-31  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* setup.py: Added paramiko to install_requires.

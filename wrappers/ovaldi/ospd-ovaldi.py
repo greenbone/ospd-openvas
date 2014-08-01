@@ -181,6 +181,14 @@ class OSPDOvaldi(OSPDaemon):
             return self.finish_scan_with_err(scan_id, local_dir, err)
         chan.close()
 
+        # Can we SFTP to the target ?
+        try:
+            sftp = ssh.open_sftp()
+        except paramiko.ssh_exception.SSHException, err:
+            err = "Couldn't SFTP to the target host."
+            ssh.close()
+            return self.finish_scan_with_err(scan_id, None, err)
+
         # Create temp dir
         target_dir = "/tmp/{0}".format(scan_id)
         chan = ssh.get_transport().open_session()
@@ -192,7 +200,6 @@ class OSPDOvaldi(OSPDaemon):
         chan.close()
         # Copy definitions file to target
         target_defs_path = "{0}/definitions.xml".format(target_dir)
-        sftp = ssh.open_sftp()
         sftp.put(defs_file, target_defs_path)
 
         # Run ovaldi
