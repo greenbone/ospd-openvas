@@ -184,21 +184,20 @@ class OSPDOvaldi(OSPDaemon):
         # Can we SFTP to the target ?
         try:
             sftp = ssh.open_sftp()
-        except paramiko.ssh_exception.SSHException, err:
+        except paramiko.ssh_exception.SSHException:
             err = "Couldn't SFTP to the target host."
             ssh.close()
             return self.finish_scan_with_err(scan_id, None, err)
 
-        # Create temp dir
+        # Create temp dir and copy definitions file.
         target_dir = "/tmp/{0}".format(scan_id)
-        chan = ssh.get_transport().open_session()
-        chan.exec_command("mkdir {0}".format(target_dir))
-        if chan.recv_exit_status() != 0:
-            err = "Couldn't create temporary directory {0}".format(target_dir)
+        try:
+            sftp.mkdir(target_dir)
+        except IOError, err:
+            err = "Failed to mkdir {0} on target: {1}".format(target_dir, err)
+            sftp.close()
             ssh.close()
-            return self.finish_scan_with_err(scan_id, local_dir, err)
-        chan.close()
-        # Copy definitions file to target
+            return self.finish_scan_with_err(scan_id, None, err)
         target_defs_path = "{0}/definitions.xml".format(target_dir)
         sftp.put(defs_file, target_defs_path)
 
@@ -208,6 +207,7 @@ class OSPDOvaldi(OSPDaemon):
         log_path = "{0}/ovaldi.log".format(target_dir)
         command = "ovaldi -m -s -r {0} -d {1} -o {2} -y {3}".format(results_path,
             syschar_path, target_defs_path, target_dir)
+        self.logger.debug(2, "Running command: {0}".format(command))
         stdin, stdout, stderr = ssh.exec_command(command)
         # Flush stdout buffer, to continue execution.
         stdout.readlines()
@@ -245,7 +245,11 @@ class OSPDOvaldi(OSPDaemon):
             self.add_scan_error(scan_id, value=msg)
         # Cleanup temporary directories and close connection.
         sftp.close()
-        ssh.exec_command("rm -rf {0}".format(target_dir))
+        if self.logger.get_level() < 1:
+            ssh.exec_command("rm -rf {0}".format(target_dir))
+        else:
+            self.logger.debug(2, "{0} not removed.".format(target_dir))
+
         ssh.close()
         shutil.rmtree(local_dir)
         self.finish_scan(scan_id)

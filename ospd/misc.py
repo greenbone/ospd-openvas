@@ -48,6 +48,10 @@ class OSPLogger():
 
 	self.level = level
 
+    def get_level(self):
+        """ Get the debugging level. """
+	return self.level
+
     def debug(self, level, message):
         """ Output a debug message if the provided level is equal or higher than
         the logger's.

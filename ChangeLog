@@ -1,5 +1,14 @@
 2014-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (OSPLogger.get_level): New method.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Use sftp
+	connection to create temporary directory and report error accordingly.
+	Add debug message for ovaldi command run on target. Do not remove
+	directory on target host when debugging is set.
+
+2014-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Handle case
 	when sftp to the target is not possible and report the error correctly.
 
