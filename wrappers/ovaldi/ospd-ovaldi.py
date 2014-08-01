@@ -63,6 +63,7 @@ class OSPDOvaldi(OSPDaemon):
                                          address=address)
 
         self.version = "0.0.1"
+        self.schema_dir = "/usr/share/ovaldi/xml"
         self.set_command_elements\
               ("start_scan",
                { 'username' : 'SSH Username.',
@@ -140,6 +141,27 @@ class OSPDOvaldi(OSPDaemon):
         self.add_scan_error(scan_id, value=err)
         self.finish_scan(scan_id)
 
+    def check_ovaldi(self, ssh, sftp):
+        """
+        Check that ovaldi and the required files are installed correctly on the
+        target.
+
+        return None if success, error string otherwise.
+        """
+        chan = ssh.get_transport().open_session()
+        chan.exec_command("which ovaldi")
+        status = chan.recv_exit_status()
+        chan.close()
+        if status != 0:
+            return "ovaldi not found on target host."
+
+        # Is oval schema directory present ?
+        try:
+            sftp.stat(self.schema_dir)
+        except IOError, err:
+            return "oval schema folder {0} not found.".format(self.schema_dir)
+        return None
+
     def exec_scan(self, scan_id):
         """ Starts the ovaldi scanner for scan_id scan. """
         options = self.get_scan_options(scan_id)
@@ -173,14 +195,6 @@ class OSPDOvaldi(OSPDaemon):
             # failure etc,.
             return self.finish_scan_with_err(scan_id, local_dir, err)
 
-        # Check for ovaldi on the target.
-        chan = ssh.get_transport().open_session()
-        chan.exec_command("command -v ovaldi")
-        if chan.recv_exit_status() != 0:
-            err = "Ovaldi not found on target host."
-            return self.finish_scan_with_err(scan_id, local_dir, err)
-        chan.close()
-
         # Can we SFTP to the target ?
         try:
             sftp = ssh.open_sftp()
@@ -188,6 +202,13 @@ class OSPDOvaldi(OSPDaemon):
             err = "Couldn't SFTP to the target host."
             ssh.close()
             return self.finish_scan_with_err(scan_id, None, err)
+
+        # Check for ovaldi on the target.
+        err = self.check_ovaldi(ssh, sftp)
+        if err:
+            sftp.close()
+            ssh.close()
+            return self.finish_scan_with_err(scan_id, local_dir, err)
 
         # Create temp dir and copy definitions file.
         target_dir = "/tmp/{0}".format(scan_id)
@@ -205,8 +226,9 @@ class OSPDOvaldi(OSPDaemon):
         results_path = "{0}/results.xml".format(target_dir)
         syschar_path = "{0}/oval_syschar.xml".format(target_dir)
         log_path = "{0}/ovaldi.log".format(target_dir)
-        command = "ovaldi -m -s -r {0} -d {1} -o {2} -y {3}".format(results_path,
-            syschar_path, target_defs_path, target_dir)
+        command = "ovaldi -m -s -r {0} -d {1} -o {2} -y {3} -a {4}"\
+                   .format(results_path, syschar_path, target_defs_path,
+                           target_dir, self.schema_dir)
         self.logger.debug(2, "Running command: {0}".format(command))
         stdin, stdout, stderr = ssh.exec_command(command)
         # Flush stdout buffer, to continue execution.

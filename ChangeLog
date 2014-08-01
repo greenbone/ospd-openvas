@@ -1,5 +1,12 @@
 2014-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.check_ovaldi): New method.
+	(OSPDOvaldi.exec_scan): Call new method to check for ovaldi binary on
+	target and the oval schema folder presence. Adjust command to
+	explicitly specify the schema folder.
+
+2014-08-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (OSPLogger.get_level): New method.
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Use sftp
