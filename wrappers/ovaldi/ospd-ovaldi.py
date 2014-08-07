@@ -292,7 +292,10 @@ class OSPDOvaldi(OSPDaemon):
                 elif child.tag.endswith('generator'):
                     generator = child
             for child in generator:
-                name = 'syschar_generator:{0}'.format(child.tag.split('}')[1])
+                value = child.tag
+                if '}' in child.tag:
+                    value = child.tag.split('}')[1]
+                name = 'syschar_generator:{0}'.format(value)
                 self.add_scan_log(scan_id, name=name, value=child.text)
 
             for child in system_info:
@@ -342,7 +345,10 @@ class OSPDOvaldi(OSPDaemon):
                 elif child.tag.endswith('results'):
                     results = child
             for child in generator:
-                name = 'results_generator:{0}'.format(child.tag.split('}')[1])
+                value = child.tag
+                if '}' in child.tag:
+                    value = child.tag.split('}')[1]
+                name = 'results_generator:{0}'.format(value)
                 self.add_scan_log(scan_id, name=name, value=child.text)
             self.parse_oval_results(oval_defs, results, scan_id)
         except IOError:
