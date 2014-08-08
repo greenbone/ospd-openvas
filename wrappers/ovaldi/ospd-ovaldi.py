@@ -188,7 +188,7 @@ class OSPDOvaldi(OSPDaemon):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(hostname=target, username=username, password=password,
-                        timeout=10)
+                        timeout=self.timeout)
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error), err:
             # Errors: No route to host, connection timeout, authentication

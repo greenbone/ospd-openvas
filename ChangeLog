@@ -1,3 +1,8 @@
+2014-08-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Use specified
+	time-out value when connecting to the target.
+
 2014-08-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.parse_results_xml)
