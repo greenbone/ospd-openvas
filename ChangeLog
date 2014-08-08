@@ -1,5 +1,12 @@
 2014-08-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.parse_oval_results): Only
+	add definitions evaluated as true as scan results. Don't add false,
+	error, unknown and not applicable definitions as they are only in the
+	ovaldi.log.
+
+2014-08-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan): Use specified
 	time-out value when connecting to the target.
 

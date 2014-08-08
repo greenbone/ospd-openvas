@@ -369,10 +369,9 @@ class OSPDOvaldi(OSPDaemon):
             def_class = definition.attrib.get('class')
             def_id = definition.attrib.get('id')
             def_result = self.get_definition_result(def_id, results)
-            if def_class == 'vulnerability':
-                self.add_scan_alarm(scan_id, name=def_id, value=def_result)
-            else:
-                self.add_scan_log(scan_id, name=def_id, value=def_result)
+            if def_result == 'true':
+                # Skip: false, error, unknown, not applicable.
+                self.add_scan_alarm(scan_id, name=def_id, value="")
 
     def get_definition_result(self, def_id, results):
         """ Gets an oval definition's result value in results element from
