@@ -90,13 +90,18 @@ class OSPDw3af(OSPDaemon):
 
         target = scan_et.attrib.get('target')
         if target is None:
-            return "<start_scan status='400' status_text='No target attribute'/>"
-
+            return self.simple_response_str('start_scan', 400,
+                                            'No target attribute')
+        scanner_params = scan_et.find('scanner_params')
+        if scanner_params is None:
+            return self.simple_response_str('start_scan', 400,
+                                            'No scanner_params element')
         options = dict()
-        profile = scan_et.find('profile')
-        if profile is None:
+        profile = scanner_params.find('profile')
+        if profile is None or profile.text is None:
             options['profile'] = 'fast_scan'
         else:
+            # XXX: Better validate profile value here.
             options['profile'] = profile.text
         # Create new Scan
         scan_id = self.create_scan(target, options)

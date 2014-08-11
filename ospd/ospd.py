@@ -201,12 +201,12 @@ class OSPDaemon(object):
     def start_daemon(self):
         """ Initialize the OSP daemon.
 
-        @return 1 if error, 0 otherwise.
+        @return True if success, False if error.
         """
         self.socket = self.bind_socket()
         if self.socket is None:
-            return 1
-        return 0
+            return False
+        return True
 
     def start_scan(self, scan_id):
         """ Starts the scan with scan_id. """
@@ -361,8 +361,24 @@ class OSPDaemon(object):
             response = ''.join([response,
                                 "<{0}>{1}</{2}>".format(tag, value,
                                                         tag.split()[0])])
-
         return response
+
+    def simple_response_str(self, command, status, status_text, content=""):
+        """ Creates an OSP response XML string.
+
+        @param: OSP Command to respond to.
+        @param: Status of the response.
+        @param: Status text of the response.
+        @param: Text part of the response XML element.
+
+        @return: String of response in xml format.
+        """
+        assert command
+        assert status
+        assert status_text
+        return '<{0}_response status="{1}" status_text="{2}">{3}'\
+               '</{0}_response>'.format(command, status, status_text, content)
+
 
     def get_scan_xml(self, scan_id, detailed=True):
         """ Gets scan in XML format.
@@ -444,10 +460,10 @@ class OSPDaemon(object):
     def run(self):
         """ Starts the Daemon, handling commands until interrupted.
 
-        @return 1 if error, 0 otherwise.
+        @return False if error. Runs indefinitely otherwise.
         """
-        if self.start_daemon():
-            return 1
+        if not self.start_daemon():
+            return False
 
         while True:
             client_stream = self.new_client_stream()

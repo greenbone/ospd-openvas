@@ -1,3 +1,21 @@
+2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.start_daemon): Return True or False for
+	consistency.
+	(OSPDaemon.simple_response_str): New method.
+	(OSPDaemon.run): Adjust start_daemon() call and return value.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.handle_start_scan_command):
+	Fetch the scan parameters from scanner_params element. Use new method
+	for consistent response strings. Decode base64 definitions file to catch
+	errors earlier.
+	(OSPDOvaldi.exec_scan): Don't decode definitions content as it is
+	already done.
+
+	* wrappers/w3af/ospd-w3af.py (OSPDOvaldi.handle_start_scan_command):
+	Fetch scan profile from scanner_params element. Use new method for
+	response string consistency.
+
 2014-08-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.parse_oval_results): Only

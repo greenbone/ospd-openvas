@@ -87,36 +87,49 @@ class OSPDOvaldi(OSPDaemon):
         # Validate scan information
         target = scan_et.attrib.get('target')
         if target is None:
-            return "<start_scan status='400' status_text='No target attribute'/>"
+            return self.simple_response_str('start_scan', 400,
+                                            'No target attribute')
+        scanner_params = scan_et.find('scanner_params')
+        if scanner_params is None:
+            return self.simple_response_str('start_scan', 400,
+                                            'No scanner_params element')
 
-        username = scan_et.find('username')
+        username = scanner_params.find('username')
         if username is None or username.text is None:
-            return "<start_scan status='400' status_text='No username element'/>"
-        password = scan_et.find('password')
+            return self.simple_response_str('start_scan', 400,
+                                            'No username element')
+        password = scanner_params.find('password')
         if password is None or password.text is None:
-            return "<start_scan status='400' status_text='No password element'/>"
-        definitions = scan_et.find('definitions_file')
+            return self.simple_response_str('start_scan', 400,
+                                            'No password element')
+        definitions = scanner_params.find('definitions_file')
         if definitions is None or definitions.text is None:
-            return "<start_scan status='400' status_text='No definitions_file element'/>"
+            return self.simple_response_str('start_scan', 400,
+                                            'No definitions_file element')
 
         username = username.text
         password = password.text
 
         # Default port: 22.
-        port = scan_et.find('port')
+        port = scanner_params.find('port')
         if port is None:
             port = 22
         else:
             try:
                 port = int(port.text)
             except ValueError:
-                return "<start_scan status='400' status_text='Invalid port value'/>"
+                return self.simple_response_str('start_scan', 400,
+                                                'Invalid port value')
 
         options = dict()
         options['username'] = username
         options['password'] = password
         options['port'] = port
-        options['definitions'] = definitions.text
+        try:
+            options['definitions'] = base64.b64decode(definitions.text)
+        except TypeError:
+            err = "Couldn't decode base64 definitions file"
+            return self.simple_response_str('start_scan', 400, err)
 
         # Create new Scan
         scan_id = self.create_scan(target, options)
@@ -176,12 +189,7 @@ class OSPDOvaldi(OSPDaemon):
 
         # Write definitions to temporary file
         with open(defs_file, 'w') as f:
-            try:
-                decoded = base64.b64decode(definitions)
-            except TypeError:
-                err = "Couldn't decode base64 definitions"
-                return self.finish_scan_with_err(scan_id, local_dir, err)
-            f.write(decoded)
+            f.write(definitions)
 
         # Connect to target
         ssh = paramiko.SSHClient()
