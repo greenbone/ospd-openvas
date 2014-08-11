@@ -136,11 +136,8 @@ class OSPDOvaldi(OSPDaemon):
 
         # Start Scan
         self.start_scan(scan_id)
-
-        # Return Response
-        return self.create_response_string({'start_scan_response status="200"'
-                                            ' status_text="OK"' :
-                                             {'id' : scan_id}})
+        text = '<id>{0}</id>'.format(scan_id)
+        return self.simple_response_str('start_scan', 200, 'OK', text)
 
     def finish_scan_with_err(self, scan_id, local_dir=None,
                              err="Unknown error"):

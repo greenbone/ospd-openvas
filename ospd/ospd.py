@@ -239,7 +239,7 @@ class OSPDaemon(object):
         """
 
         details = True
-        response = '<get_scans_response status="200" satus_text="OK">'
+        response = self.simple_response_str('get_scans', 200, 'OK')
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
         if details and details == '0':
@@ -249,8 +249,8 @@ class OSPDaemon(object):
             scan_str = self.get_scan_xml(scan_id, details)
             response = ''.join([response, scan_str])
         elif scan_id:
-            return '<get_scans_repsonse status="404"\
-                    status_text="Failed to find \'{0}\' scan"/>'.format(scan_id)
+            text = "Failed to find scan '{0}'".format(scan_id)
+            return self.simple_response_str('get_scans', 404, text)
         else:
             for scan_id in self.scan_collection.ids_iterator():
                 scan_str = self.get_scan_xml(scan_id, details)
@@ -266,15 +266,13 @@ class OSPDaemon(object):
         help_format = scan_et.attrib.get('format')
         if help_format is None:
             # Default help format is text.
-            return self.create_response_string({'help_response status="200" '
-                                                'status_text="OK"' :
-                                                 self.get_help_text()})
+            return self.simple_response_str('help', 200, 'OK',
+                                            self.get_help_text())
         elif help_format == "xml":
-            return self.create_response_string({'help_response status="200" '
-                                                'status_text="OK"' :
-                                                 self.commands})
+            text = self.get_xml_str(self.commands)
+            return self.simple_response_str('help', 200, 'OK', text)
         else:
-            return "<help_response status='400' status_text='Bogus help format'/>"
+            return self.simple_response_str('help', 400, 'Bogus help format')
 
     def get_help_text(self):
         """ Returns the help output in plain text format."""
@@ -303,19 +301,17 @@ class OSPDaemon(object):
         """
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is None:
-            return "<delete_scan status='400' status_text='No scan_id attribute'/>"
+            return self.simple_response_str('delete_scan', 404,
+                                            'No scan_id attribute')
 
         if not self.scan_exists(scan_id):
-            return self.create_response_string({'delete_scan_response'
-                                                ' status="404"'
-                                                ' status_text="Not Found"' :
-                                                'Scan {0} not found'.format(scan_id)})
+            text = "Failed to find scan '{0}'".format(scan_id)
+            return self.simple_response_str('delete_scan', 404, text)
         if self.delete_scan(scan_id):
-            return self.create_response_string({'delete_scan_response'
-                                                ' status="200"'
-                                                ' status_text="OK"' : ''})
-
-        return "<delete_scan status='400' status_text='Scan in progress'/>"
+            return self.simple_response_str('delete_scan', 200, 'OK')
+        else:
+            return self.simple_response_str('delete_scan', 400,
+                                            'Scan in progress')
 
     def delete_scan(self, scan_id):
         """ Deletes scan_id scan from collection.
@@ -342,7 +338,7 @@ class OSPDaemon(object):
         return '<result name="{0}" type="{1}">{2}</result>'\
                 .format(result[1], result_type, result[2])
 
-    def create_response_string(self, data):
+    def get_xml_str(self, data):
         """ Creates a string in XML Format using the provided data structure.
 
         @param: Dictionnary of xml tags and their elements.
@@ -353,7 +349,7 @@ class OSPDaemon(object):
         response = str()
         for tag, value in data.items():
             if type(value) == type(dict()):
-                value = self.create_response_string(value)
+                value = self.get_xml_str(value)
             elif type(value) == type(list()):
                 value = ', '.join([m for m in value])
             elif value is None:
@@ -386,7 +382,7 @@ class OSPDaemon(object):
         @return: String of scan in xml format.
         """
         if not scan_id:
-            return self.create_response_string({'scan': ''})
+            return self.get_xml_str({'scan': ''})
 
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
@@ -407,24 +403,21 @@ class OSPDaemon(object):
 
         @return: Response string for <get_version> command.
         """
-        protocol = self.create_response_string({'protocol' :
-                                                {'name' : 'OSP',
-                                                 'version' : OSP_VERSION}})
+        protocol = self.get_xml_str({'protocol' : {'name' : 'OSP',
+                                                   'version' : OSP_VERSION}})
 
         daemon_name = self.get_daemon_name()
         daemon_ver = self.get_daemon_version()
-        daemon = self.create_response_string({'daemon' :
-                                              {'name' : daemon_name,
+        daemon = self.get_xml_str({'daemon' : {'name' : daemon_name,
                                                'version' : daemon_ver}})
 
         scanner_name = self.get_scanner_name()
         scanner_ver = self.get_scanner_version()
-        scanner = self.create_response_string({'scanner' :
-                                               {'name' : scanner_name,
-                                                'version' : scanner_ver}})
+        scanner = self.get_xml_str({'scanner' : {'name' : scanner_name,
+                                                 'version' : scanner_ver}})
 
-        return ''.join(["<get_version_response status='200' status_text='OK'>",
-                        protocol, daemon, scanner, "</get_version_response>"])
+        text = ''.join([protocol, daemon, scanner])
+        return self.simple_response_str('get_version', 200, 'OK', text)
 
     def handle_command(self, command):
         """ Handles an osp command in a string.
@@ -435,10 +428,10 @@ class OSPDaemon(object):
             tree = ET.fromstring(command)
         except ET.ParseError, e:
             self.logger.debug(1, "Erroneous client input: {0}".format(command))
-            return "<osp_response status='400' status_text='Invalid data'/>"
+            return self.simple_response_str('osp', 400, 'Invalid data')
 
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
-            return "<osp_response status='400' status_text='Bogus command name'/>"
+            return self.simple_response_str('osp', 400, 'Bogus command name')
 
         if tree.tag == "get_version":
             return self.handle_get_version_command(tree)

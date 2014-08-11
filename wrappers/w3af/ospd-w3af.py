@@ -108,11 +108,8 @@ class OSPDw3af(OSPDaemon):
 
         # Start Scan
         self.start_scan(scan_id)
-
-        # Return Response
-        return self.create_response_string({'start_scan_response status="200"'
-                                            ' status_text="OK"' :
-                                             {'id' : scan_id}})
+        text = '<id>{0}</id>'.format(scan_id)
+        return self.simple_response_str('start_scan', 200, 'OK', text)
 
     def create_w3af_script(self, scan_id, output_file, options):
         """ Returns path to a w3af script file for the scan_id scan. """

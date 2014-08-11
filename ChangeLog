@@ -1,5 +1,19 @@
 2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon.handle_get_scans_command)
+	(OSPDaemon.handle_help_command, OSPDaemon.handle_delete_scan_command)
+	(OSPDaemon.handle_command, OSPDaemon.handle_get_version): Use
+	simple_response_str method for consistency. Fix and improve various
+	responses.
+	(OSPDaemon.create_response_string): Rename method to get_xml_str().
+	(OSPDaemon.get_scan_xml, OSPDaemon.handle_get_version): Call
+	get_xml_str() method adequately.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi.exec_scan),
+	wrappers/w3af/ospd-w3af.py (OSPDw3af.exec_scan): Use new method.
+
+2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon.start_daemon): Return True or False for
 	consistency.
 	(OSPDaemon.simple_response_str): New method.
