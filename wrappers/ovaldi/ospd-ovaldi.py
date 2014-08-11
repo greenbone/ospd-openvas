@@ -50,6 +50,58 @@ except:
     print "# pip install paramiko (Or apt-get install python-paramiko.)"
     exit(1)
 
+ospd_ovaldi_description = """
+This scanner runs the Open Source OVAL scanner 'ovaldi' being installed on the
+target systems. To do so, a SSH access is required. Note that the current
+version does not support Windows or other systems without SSH access.
+
+The OVAL Interpreter is a freely available reference implementation that
+demonstrates the evaluation of OVAL Definitions. Based on a set of Definitions
+the Interpreter collects system information, evaluates it, and generates a
+detailed OVAL Results file. It has been developed to demonstrate the usability
+of OVAL Definitions and to ensure correct syntax and adherence to the OVAL
+Schemas by definition writers.
+
+IMPORTANT: Please note that the OVAL Interpreter is not an enterprise scanning
+tool; it is a simplistic, command-line interface that has the ability to execute
+OVAL Content on an end system.
+
+For more see the homepage of ovaldi at MITRE:
+    https://oval.mitre.org/language/interpreter.html
+"""
+
+ospd_ovaldi_params = [
+    { 'id' : 'username',
+      'type' : 'string',
+      'name' : 'SSH Username',
+      'description' : 'The SSH username used to log into the target and to run'
+                      ' the ovaldi tool installed on that target.',
+    },
+    { 'id' : 'password',
+      'type' : 'password',
+      'name' : 'SSH Password',
+      'description' :
+       'The SSH password for the given username which is used to log into the '
+       'target and to run the ovaldi tool installed on that target. This should'
+       ' not be a privileged user like "root", a regular privileged user '
+       'account should be sufficient in most cases.'
+    },
+    { 'id' : 'port',
+      'type' : 'int',
+      'name' : 'SSH Port',
+      'description' :
+       'The SSH port which to use for logging in with the given'
+       ' username/password. the ovaldi tool installed on that target.',
+    },
+    { 'id' : 'definitions_file',
+      'type' : 'base64',
+      'name' : 'Oval Definitions',
+      'description' : 'OVAL definitions is a XML object containing many single'
+                      ' oval definition objects including also any required '
+                      'oval test and other objects.',
+    },
+]
+
 # ospd-ovaldi daemon class.
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
@@ -63,6 +115,8 @@ class OSPDOvaldi(OSPDaemon):
                                          address=address)
 
         self.version = "0.0.1"
+        self.description = ospd_ovaldi_description
+        self.scanner_params = ospd_ovaldi_params
         self.schema_dir = "/usr/share/ovaldi/xml"
         self.set_command_elements\
               ("start_scan",

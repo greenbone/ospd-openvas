@@ -1,5 +1,18 @@
 2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospdy.py (OSPDaemon.__init__): Set description and scanner_params
+	default values.
+	(OSPDaemon.get_commands_table): Add get_scanner_details command.
+	(OSPDaemon.get_scanner_description, OSPDaemon.get_scanner_params_xml)
+	(OSPDaemon.handle_get_scanner_details_command): New methods.
+	(OSPDaemon.handle_command): Handle get_scanner_details command.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (ospd_ovaldi_description)
+	(ospd_ovaldi_params): New variables.
+	(OSPDOvaldi.__init__): Set daemon description and scanner parameters.
+
+2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon.handle_get_scans_command)
 	(OSPDaemon.handle_help_command, OSPDaemon.handle_delete_scan_command)
 	(OSPDaemon.handle_command, OSPDaemon.handle_get_version): Use

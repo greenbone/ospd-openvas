@@ -65,6 +65,8 @@ class OSPDaemon(object):
         self.address = address
         self.name = "generic ospd"
         self.version = "generic version"
+        self.description = "No description"
+        self.scanner_params = dict()
         self.commands = self.get_commands_table()
 
     def get_commands_table(self):
@@ -89,7 +91,11 @@ class OSPDaemon(object):
                                   'elements' : None },
                 'get_version' : { 'description' : 'Return various versions.',
                                   'attributes' : None,
-                                  'elements' : None }}
+                                  'elements' : None },
+                'get_scanner_details' :
+                  { 'description' : 'Return scanner description and parameters',
+                    'attributes' : None,
+                    'elements' : None }}
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -135,6 +141,22 @@ class OSPDaemon(object):
     def get_daemon_version(self):
         """ Gives osp daemon's version. """
         return self.version
+
+    def get_scanner_description(self):
+        """ Returns the OSP Daemon's description. """
+        return self.description
+
+    def get_scanner_params_xml(self):
+        """ Returns the OSP Daemon's scanner params in xml format. """
+        params_str = ""
+        for param in self.scanner_params:
+            param_str = "<scanner_param id='{0}' type='{1}'>"\
+                        "<name>{2}</name><description>{3}</description>"\
+                        "</scanner_param>".format(param['id'], param['type'],
+                                                  param['name'],
+                                                  param['description'])
+            params_str = ''.join([params_str, param_str])
+        return "<scanner_params>{0}</scanner_params>".format(params_str)
 
     def bind_socket(self):
         """ Returns a socket bound on (address:port). """
@@ -398,6 +420,15 @@ class OSPDaemon(object):
                 .format(scan_id, target, progress, start_time, end_time,
                         results_str)
 
+    def handle_get_scanner_details_command(self, et):
+        """ """
+
+        description = self.get_scanner_description()
+        scanner_params = self.get_scanner_params_xml()
+        details = "<description>{0}</description>{1}".format(description,
+                                                             scanner_params)
+        return self.simple_response_str('get_scanner_details', 200, 'OK',
+                                        details)
     def handle_get_version_command(self, get_version_et):
         """ Handles <get_version> command.
 
@@ -443,6 +474,8 @@ class OSPDaemon(object):
             return self.handle_delete_scan_command(tree)
         elif tree.tag == "help":
             return self.handle_help_command(tree)
+        elif tree.tag == "get_scanner_details":
+            return self.handle_get_scanner_details_command(tree)
         else:
             assert False, "Unhandled command: {0}".format(tree.tag)
 
