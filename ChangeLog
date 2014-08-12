@@ -1,3 +1,8 @@
+2014-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Adjust code to
+	correctly close get_scans_response tag.
+
 2014-08-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospdy.py (OSPDaemon.__init__): Set description and scanner_params

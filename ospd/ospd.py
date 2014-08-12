@@ -261,12 +261,12 @@ class OSPDaemon(object):
         """
 
         details = True
-        response = self.simple_response_str('get_scans', 200, 'OK')
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
         if details and details == '0':
             details = False
 
+        response = ""
         if scan_id and scan_id in self.scan_collection.ids_iterator():
             scan_str = self.get_scan_xml(scan_id, details)
             response = ''.join([response, scan_str])
@@ -277,8 +277,7 @@ class OSPDaemon(object):
             for scan_id in self.scan_collection.ids_iterator():
                 scan_str = self.get_scan_xml(scan_id, details)
                 response = ''.join([response, scan_str])
-        response = ''.join([response, '</get_scans_response>'])
-        return response
+        return self.simple_response_str('get_scans', 200, 'OK', response)
 
     def handle_help_command(self, scan_et):
         """ Handles <help> command.
