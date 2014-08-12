@@ -149,10 +149,10 @@ class OSPDaemon(object):
     def get_scanner_params_xml(self):
         """ Returns the OSP Daemon's scanner params in xml format. """
         params_str = ""
-        for param in self.scanner_params:
+        for param_id, param in self.scanner_params.items():
             param_str = "<scanner_param id='{0}' type='{1}'>"\
                         "<name>{2}</name><description>{3}</description>"\
-                        "</scanner_param>".format(param['id'], param['type'],
+                        "</scanner_param>".format(param_id, param['type'],
                                                   param['name'],
                                                   param['description'])
             params_str = ''.join([params_str, param_str])
@@ -300,20 +300,34 @@ class OSPDaemon(object):
 
         txt = str('\n')
         for name, info in self.commands.iteritems():
-            command_txt = "\t{0: <10}\t\t{1}\n".format(name, info['description'])
+            command_txt = "\t{0: <22} {1}\n".format(name, info['description'])
             if info['attributes']:
                 command_txt = ''.join([command_txt, "\t Attributes:\n"])
                 for attrname, attrdesc in info['attributes'].iteritems():
-                    attr_txt = "\t  {0: <10}\t\t {1}\n".format(attrname, attrdesc)
+                    attr_txt = "\t  {0: <22} {1}\n".format(attrname, attrdesc)
                     command_txt = ''.join([command_txt, attr_txt])
             if info['elements']:
-                command_txt = ''.join([command_txt, "\t Elements:\n"])
-                for elename, eledesc in info['elements'].iteritems():
-                    ele_txt = "\t  {0: <10}\t\t {1}\n".format(elename, eledesc)
-                    command_txt = ''.join([command_txt, ele_txt])
+                command_txt = ''.join([command_txt, "\t Elements:\n",
+                                       self.elements_as_text(info['elements'])])
             txt = ''.join([txt, command_txt])
-
         return txt
+
+    def elements_as_text(self, elems, indent=2):
+        """ Returns the elems dictionnary as formatted plain text. """
+        assert elems
+        text = ""
+        for elename, eledesc in elems.iteritems():
+            if type(eledesc) == type(dict()):
+                desc_txt = self.elements_as_text(eledesc, indent + 2)
+                desc_txt = ''.join(['\n', desc_txt])
+            elif type(eledesc) == type(str()):
+                desc_txt = ''.join([eledesc, '\n'])
+            else:
+                assert False, "Only string or dictionnary"
+            ele_txt = "\t{0}{1: <22} {2}".format(' ' * indent, elename,
+                                                   desc_txt)
+            text = ''.join([text, ele_txt])
+        return text
 
     def handle_delete_scan_command(self, scan_et):
         """ Handles <delete_scan> command.

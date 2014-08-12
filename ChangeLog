@@ -1,5 +1,22 @@
 2014-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon.get_scanner_params_xml): Adjust to get
+	parameter identifier from the key value.
+	(OSPDaemon.get_help_text()): Improve formatting. Call elements_as_text
+	to handle composed values.
+	(OSPDaemon.elements_as_text): New method.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (ospd_ovaldi_params): Use parameters
+	id's as dictionnary's keys.
+	(OSPDOvaldi.__init__): Use scanner_params values when setting start_scan
+	command's elements.
+
+	* wrappers/w3af/ospd-w3af.py (ospd_w3af_description, ospd_w3af_params):
+	New variable.
+	(OSPDw3af.__init__): Set scanner description and parameters adequately.
+
+2014-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Adjust code to
 	correctly close get_scans_response tag.
 

@@ -70,37 +70,38 @@ For more see the homepage of ovaldi at MITRE:
     https://oval.mitre.org/language/interpreter.html
 """
 
-ospd_ovaldi_params = [
-    { 'id' : 'username',
-      'type' : 'string',
-      'name' : 'SSH Username',
-      'description' : 'The SSH username used to log into the target and to run'
-                      ' the ovaldi tool installed on that target.',
-    },
-    { 'id' : 'password',
-      'type' : 'password',
-      'name' : 'SSH Password',
-      'description' :
-       'The SSH password for the given username which is used to log into the '
-       'target and to run the ovaldi tool installed on that target. This should'
-       ' not be a privileged user like "root", a regular privileged user '
-       'account should be sufficient in most cases.'
-    },
-    { 'id' : 'port',
-      'type' : 'int',
-      'name' : 'SSH Port',
-      'description' :
-       'The SSH port which to use for logging in with the given'
-       ' username/password. the ovaldi tool installed on that target.',
-    },
-    { 'id' : 'definitions_file',
-      'type' : 'base64',
-      'name' : 'Oval Definitions',
-      'description' : 'OVAL definitions is a XML object containing many single'
-                      ' oval definition objects including also any required '
-                      'oval test and other objects.',
-    },
-]
+ospd_ovaldi_params = {
+  'username' :
+   { 'type' : 'string',
+     'name' : 'SSH Username',
+     'description' : 'The SSH username used to log into the target and to run'
+                     ' the ovaldi tool installed on that target.',
+   },
+  'password' :
+   { 'type' : 'password',
+     'name' : 'SSH Password',
+     'description' :
+      'The SSH password for the given username which is used to log into the '
+      'target and to run the ovaldi tool installed on that target. This should'
+      ' not be a privileged user like "root", a regular privileged user '
+      'account should be sufficient in most cases.'
+   },
+  'port' :
+   { 'type' : 'int',
+    'name' : 'SSH Port',
+    'description' :
+     'The SSH port which to use for logging in with the given'
+     ' username/password. the ovaldi tool installed on that target.',
+   },
+  'definitions_file' :
+   {
+    'type' : 'base64',
+    'name' : 'Oval Definitions',
+    'description' : 'OVAL definitions is a XML object containing many single'
+                    ' oval definition objects including also any required '
+                    'oval test and other objects.',
+  },
+}
 
 # ospd-ovaldi daemon class.
 class OSPDOvaldi(OSPDaemon):
@@ -120,10 +121,8 @@ class OSPDOvaldi(OSPDaemon):
         self.schema_dir = "/usr/share/ovaldi/xml"
         self.set_command_elements\
               ("start_scan",
-               { 'username' : 'SSH Username.',
-                 'password' : 'SSH Password.',
-                 'definitions_file' : 'Definitions file content in base64',
-                 'port' : 'SSH Port.'})
+               { "scanner_params" :
+                { k : v['name'] for k, v in self.scanner_params.items()}})
 
     def check(self):
         return True

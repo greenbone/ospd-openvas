@@ -44,6 +44,26 @@ except:
     print "# pip install pexpect. (Or apt-get install python-pexpect.)"
     exit(1)
 
+ospd_w3af_description = """
+This scanner runs the 'w3af' scanner installed on the local system.
+
+w3af is a Web Application Attack and Audit Framework. The project's goal is to
+create a framework to help you secure web applications by finding and exploiting
+all web application vulnerabilities.
+
+For more information, see the w3af website:
+    http://w3af.org/
+"""
+
+ospd_w3af_params = {
+  'profile' :
+   { 'type' : 'string',
+     'name' : 'Scan profile',
+     'description' : 'Scan profiles are predefined set of plugins and'
+                     ' customized configurations.',
+   },
+}
+
 # ospd-w3af class.
 class OSPDw3af(OSPDaemon):
     """ Class for ospd-w3af daemon. """
@@ -54,10 +74,14 @@ class OSPDw3af(OSPDaemon):
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile, timeout=timeout,
                                        debug=debug, port=port, address=address)
-
         self.version = "0.0.1"
+        self.description = ospd_w3af_description
+        self.scanner_params = ospd_w3af_params
         self.w3af_path = 'w3af_console'
-        self.set_command_elements("start_scan", {'profile': 'w3af scan profile'})
+        self.set_command_elements\
+              ("start_scan",
+               { "scanner_params" :
+                { k : v['name'] for k, v in self.scanner_params.items()}})
 
     def check(self):
         """ Checks that w3af_console is found and is executable. """
