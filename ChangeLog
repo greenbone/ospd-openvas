@@ -1,3 +1,8 @@
+2014-08-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ResultType): Adjust result types to match the used ones
+	by OpenVAS Manager.
+
 2014-08-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.get_scanner_params_xml): Adjust to get

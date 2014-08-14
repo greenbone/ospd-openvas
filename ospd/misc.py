@@ -193,11 +193,11 @@ class ResultType(object):
         if result_type == self.ALARM:
             return "Alarm"
         elif result_type == self.LOG:
-            return "Log"
+            return "Log Message"
         elif result_type == self.ERROR:
-            return "Error"
+            return "Error Message"
         else:
-            return "Unknown"
+            assert False, "Erroneous result type {0}.".format(result_type)
 
 def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
     """ Create a command-line arguments parser for OSPD. """
