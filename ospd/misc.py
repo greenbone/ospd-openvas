@@ -23,6 +23,8 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 #/
 
+""" Miscellaneous functions and utilities related to OSPD. """
+
 import uuid
 import datetime
 import argparse
@@ -35,36 +37,37 @@ TIMEOUT = 3600
 PORT = 1234
 ADDRESS = "0.0.0.0"
 
-class OSPLogger():
+class OSPLogger(object):
     """ Class to handle outputting log, debug and error messages. """
 
     def __init__(self, level=0):
         """ Initialize the instance. """
-
-	self.level = level
+        self.level = level
 
     def set_level(self, level):
         """ Set the debugging level. """
-
-	self.level = level
+        self.level = level
 
     def get_level(self):
         """ Get the debugging level. """
-	return self.level
+        return self.level
 
     def debug(self, level, message):
         """ Output a debug message if the provided level is equal or higher than
         the logger's.
 
         """
-
-	if self.level >= level:
-	    print 'DEBUG: {0}'.format(message)
+        if self.level >= level:
+            self.print_message('DEBUG: {0}'.format(message))
 
     def error(self, message):
         """ Output an error message. """
+        self.print_message('ERROR: {0}'.format(message))
 
-        print 'ERROR: {0}'.format(message)
+    def print_message(self, message):
+        """ Prints a message to stdout. """
+        assert message
+        print message
 
 class ScanCollection(object):
     """ Scans collection, managing scans and results read and write, exposing
@@ -111,7 +114,8 @@ class ScanCollection(object):
         if progress > 0 and progress <= 100:
             self.scans_table[scan_id]['progress'] = progress
         if progress == 100:
-            self.scans_table[scan_id]['end_time'] = datetime.datetime.now().strftime('%s')
+            self.scans_table[scan_id]['end_time']\
+             = datetime.datetime.now().strftime('%s')
 
     def results_iterator(self, scan_id):
         """ Returns an iterator over scan_id scan's results. """
@@ -189,15 +193,28 @@ class ResultType(object):
     ERROR = 2
 
     @classmethod
-    def get_str(self, result_type):
-        if result_type == self.ALARM:
+    def get_str(cls, result_type):
+        """ Return string name of a result type. """
+        if result_type == cls.ALARM:
             return "Alarm"
-        elif result_type == self.LOG:
+        elif result_type == cls.LOG:
             return "Log Message"
-        elif result_type == self.ERROR:
+        elif result_type == cls.ERROR:
             return "Error Message"
         else:
             assert False, "Erroneous result type {0}.".format(result_type)
+
+    @classmethod
+    def get_type(cls, result_name):
+        """ Return string name of a result type. """
+        if result_name == "Alarm":
+            return cls.ALARM
+        elif result_name == "Log Message":
+            return cls.LOG
+        elif result_name == "Error Message":
+            return cls.ERROR
+        else:
+            assert False, "Erroneous result name {0}.".format(result_name)
 
 def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
     """ Create a command-line arguments parser for OSPD. """
@@ -205,8 +222,9 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument('-p', '--port', dest='port', type=int, nargs=1,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
-    parser.add_argument('-b', '--bind-address', dest='address', type=str, nargs=1,
-                        help='Address to listen on. Default: {0}'.format(ADDRESS))
+    parser.add_argument('-b', '--bind-address', dest='address', type=str,
+                        nargs=1, help='Address to listen on.'\
+                                      ' Default: {0}'.format(ADDRESS))
     parser.add_argument('-k', '--key-file', dest='keyfile', type=str, nargs=1,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
     parser.add_argument('-c', '--cert-file', dest='certfile', type=str, nargs=1,
@@ -220,7 +238,7 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
 
     return parser
 
-def get_common_args(parser, parentdir):
+def get_common_args(parser):
     """ Return list of OSPD common command-line arguments from parser, after
     validating provided values or setting default ones.
 
@@ -228,46 +246,41 @@ def get_common_args(parser, parentdir):
 
     # TCP Port to listen on.
     options = parser.parse_args()
+    port = PORT
     if options.port:
         port = int(options.port[0])
         if port <= 0 or port > 65535:
             print "--port must be in ]0,65535] interval.\n"
             parser.print_help()
             exit(1)
-    else:
-        port = PORT
 
     # Network address to bind listener to
+    address = ADDRESS
     if options.address:
         address = options.address[0]
-    else:
-        address = ADDRESS
 
     # Scanner timeout.
+    timeout = TIMEOUT
     if options.timeout:
         timeout = int(options.timeout[0])
         if timeout <= 10:
             print "--timeout should be at least 10 seconds.\n"
             parser.print_help()
             exit(1)
-    else:
-        timeout = TIMEOUT
 
     # Debug level.
+    debug = 0
     if options.debug:
         debug = int(options.debug[0])
         if debug < 0 or debug > 2:
             print "--debug must be 0, 1 or 2.\n"
             parser.print_help()
             exit(1)
-    else:
-        debug = 0
 
     # Server key path.
+    keyfile = KEY_FILE
     if options.keyfile:
         keyfile = options.keyfile[0]
-    else:
-        keyfile = KEY_FILE
     if not os.path.isfile(keyfile):
         print "{0}: Server key file not found.".format(keyfile)
         print "You can generate one using openvas-mkcert."
@@ -275,10 +288,9 @@ def get_common_args(parser, parentdir):
         exit(1)
 
     # Server cert path.
+    certfile = CERT_FILE
     if options.certfile:
         certfile = options.certfile[0]
-    else:
-        certfile = CERT_FILE
     if not os.path.isfile(certfile):
         print "{0}: Server cert file not found.\n".format(certfile)
         print "You can generate one using openvas-mkcert."
@@ -286,10 +298,9 @@ def get_common_args(parser, parentdir):
         exit(1)
 
     # CA cert path.
+    cafile = CA_FILE
     if options.cafile:
         cafile = options.cafile[0]
-    else:
-        cafile = CA_FILE
     if not os.path.isfile(cafile):
         print "{0}: CA cert file not found.\n".format(cafile)
         print "You can generate one using openvas-mkcert."

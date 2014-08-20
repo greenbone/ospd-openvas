@@ -463,7 +463,7 @@ if __name__ == '__main__':
     parser = create_args_parser("OSPD - Remote Ovaldi wrapper")
 
     # Common args
-    cargs = get_common_args(parser, ospdir)
+    cargs = get_common_args(parser)
 
     options = parser.parse_args()
     ospd_ovaldi = OSPDOvaldi(port=cargs['port'], timeout=cargs['timeout'],

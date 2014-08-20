@@ -1,3 +1,11 @@
+2014-08-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py: Add module docstring and fix various warnings and errors
+	reported by pylint.
+
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: Adjust
+	get_common_args() calls.
+
 2014-08-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ResultType): Adjust result types to match the used ones

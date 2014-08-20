@@ -220,7 +220,7 @@ if __name__ == '__main__':
     parser = create_args_parser("OSPD - w3af_console wrapper")
 
     # Common args
-    cargs = get_common_args(parser, ospdir)
+    cargs = get_common_args(parser)
     ospd_w3af = OSPDw3af(port=cargs['port'], timeout=cargs['timeout'],
                          keyfile=cargs['keyfile'], certfile=cargs['certfile'],
                          cafile=cargs['cafile'], debug=cargs['debug'],
