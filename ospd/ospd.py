@@ -126,11 +126,11 @@ class OSPDaemon(object):
         """ Asserts to False. Should be implemented by subclass. """
         assert False, 'get_scanner_version() not implemented.'
 
-    def handle_start_scan_command(self):
+    def handle_start_scan_command(self, scan_et):
         """ Asserts to False. Should be implemented by subclass. """
         assert False, 'handle_start_scan_command() not implemented.'
 
-    def exec_scan(self):
+    def exec_scan(self, scan_id):
         """ Asserts to False. Should be implemented by subclass. """
         assert False, 'exec_scan() not implemented.'
 

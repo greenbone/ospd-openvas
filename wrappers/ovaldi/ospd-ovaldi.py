@@ -24,6 +24,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+""" ovaldi wrapper for OSPD. """
+
 import shutil
 import os
 import inspect
@@ -35,9 +37,9 @@ except ImportError:
     import xml.etree.ElementTree as ET
 
 # Set OSPD Directory in syspaths, for imports
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-ospdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, ospdir)
+CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
+                                                              currentframe())))
+os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon
 from ospd.misc import create_args_parser, get_common_args
@@ -45,12 +47,12 @@ from ospd.misc import create_args_parser, get_common_args
 # External modules.
 try:
     import paramiko
-except:
+except ImportError:
     print "paramiko not found."
     print "# pip install paramiko (Or apt-get install python-paramiko.)"
     exit(1)
 
-ospd_ovaldi_description = """
+OSPD_OVALDI_DESC = """
 This scanner runs the Open Source OVAL scanner 'ovaldi' being installed on the
 target systems. To do so, a SSH access is required. Note that the current
 version does not support Windows or other systems without SSH access.
@@ -70,37 +72,36 @@ For more see the homepage of ovaldi at MITRE:
     https://oval.mitre.org/language/interpreter.html
 """
 
-ospd_ovaldi_params = {
-  'username' :
-   { 'type' : 'string',
-     'name' : 'SSH Username',
-     'description' : 'The SSH username used to log into the target and to run'
-                     ' the ovaldi tool installed on that target.',
-   },
-  'password' :
-   { 'type' : 'password',
-     'name' : 'SSH Password',
-     'description' :
-      'The SSH password for the given username which is used to log into the '
-      'target and to run the ovaldi tool installed on that target. This should'
-      ' not be a privileged user like "root", a regular privileged user '
-      'account should be sufficient in most cases.'
-   },
-  'port' :
-   { 'type' : 'int',
-    'name' : 'SSH Port',
-    'description' :
-     'The SSH port which to use for logging in with the given'
-     ' username/password. the ovaldi tool installed on that target.',
-   },
-  'definitions_file' :
-   {
-    'type' : 'base64',
-    'name' : 'Oval Definitions',
-    'description' : 'OVAL definitions is a XML object containing many single'
-                    ' oval definition objects including also any required '
-                    'oval test and other objects.',
-  },
+OSPD_OVALDI_PARAMS = \
+{'username' :
+ {'type' : 'string',
+  'name' : 'SSH Username',
+  'description' : 'The SSH username used to log into the target and to run'
+                  ' the ovaldi tool installed on that target.',
+ },
+ 'password' :
+ {'type' : 'password',
+  'name' : 'SSH Password',
+  'description' :
+  'The SSH password for the given username which is used to log into the '
+  'target and to run the ovaldi tool installed on that target. This should'
+  ' not be a privileged user like "root", a regular privileged user '
+  'account should be sufficient in most cases.'
+ },
+ 'port' :
+ {'type' : 'int',
+  'name' : 'SSH Port',
+  'description' :
+  'The SSH port which to use for logging in with the given'
+  ' username/password. the ovaldi tool installed on that target.',
+ },
+ 'definitions_file' :
+ {'type' : 'base64',
+  'name' : 'Oval Definitions',
+  'description' :
+  'OVAL definitions is a XML object containing many single oval definition'
+  ' objects including also any required oval test and other objects.',
+ },
 }
 
 # ospd-ovaldi daemon class.
@@ -116,13 +117,13 @@ class OSPDOvaldi(OSPDaemon):
                                          address=address)
 
         self.version = "0.0.1"
-        self.description = ospd_ovaldi_description
-        self.scanner_params = ospd_ovaldi_params
+        self.description = OSPD_OVALDI_DESC
+        self.scanner_params = OSPD_OVALDI_PARAMS
         self.schema_dir = "/usr/share/ovaldi/xml"
         self.set_command_elements\
-              ("start_scan",
-               { "scanner_params" :
-                { k : v['name'] for k, v in self.scanner_params.items()}})
+              ('start_scan',
+               {'scanner_params' :
+                {k : v['name'] for k, v in self.scanner_params.items()}})
 
     def check(self):
         return True
@@ -221,7 +222,7 @@ class OSPDOvaldi(OSPDaemon):
         # Is oval schema directory present ?
         try:
             sftp.stat(self.schema_dir)
-        except IOError, err:
+        except IOError:
             return "oval schema folder {0} not found.".format(self.schema_dir)
         return None
 
@@ -229,24 +230,21 @@ class OSPDOvaldi(OSPDaemon):
         """ Starts the ovaldi scanner for scan_id scan. """
         options = self.get_scan_options(scan_id)
         target = self.get_scan_target(scan_id)
-        username = options['username']
-        password = options['password']
-        definitions = options['definitions']
-        port = options['port']
         local_dir = '/tmp/ovaldi-results-{0}'.format(scan_id)
         os.mkdir(local_dir)
-        defs_file = '{0}/ovaldi-defs.xml'.format(local_dir)
+        defs_path = '{0}/ovaldi-defs.xml'.format(local_dir)
 
         # Write definitions to temporary file
-        with open(defs_file, 'w') as f:
-            f.write(definitions)
+        with open(defs_path, 'w') as defs_file:
+            defs_file.write(options['definitions'])
 
         # Connect to target
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
-            ssh.connect(hostname=target, username=username, password=password,
-                        timeout=self.timeout)
+            ssh.connect(hostname=target, username=options['username'],
+                        password=options['password'], timeout=self.timeout,
+                        port=options['port'])
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error), err:
             # Errors: No route to host, connection timeout, authentication
@@ -278,7 +276,7 @@ class OSPDOvaldi(OSPDaemon):
             ssh.close()
             return self.finish_scan_with_err(scan_id, None, err)
         target_defs_path = "{0}/definitions.xml".format(target_dir)
-        sftp.put(defs_file, target_defs_path)
+        sftp.put(defs_path, target_defs_path)
 
         # Run ovaldi
         results_path = "{0}/results.xml".format(target_dir)
@@ -288,14 +286,10 @@ class OSPDOvaldi(OSPDaemon):
                    .format(results_path, syschar_path, target_defs_path,
                            target_dir, self.schema_dir)
         self.logger.debug(2, "Running command: {0}".format(command))
-        stdin, stdout, stderr = ssh.exec_command(command)
+        _, stdout, _ = ssh.exec_command(command)
         # Flush stdout buffer, to continue execution.
         stdout.readlines()
-        # Copy results from target
-        # One case where *.xml files are missing: Definitions file doesn't
-        # match ovaldi version or its schema is not valid, thus only
-        # ovaldi.log was generated and no further scan occured.
-        # XXX: Extract/Reorganize files content into multiple results.
+        # Get the results files from target.
         # results.xml
         try:
             local_results = "{0}/results.xml".format(local_dir)
@@ -338,8 +332,8 @@ class OSPDOvaldi(OSPDaemon):
         """ Parses the content of oval_syschar.xml file to scan results """
 
         try:
-            with open(file_path, 'r') as f:
-                file_content = f.read()
+            with open(file_path, 'r') as syschar_file:
+                file_content = syschar_file.read()
 
             # Extract /oval_system_characteristcs/system_info
             system_info = None
@@ -391,8 +385,8 @@ class OSPDOvaldi(OSPDaemon):
         """ Parses results file into scan results. """
 
         try:
-            with open(file_path, 'r') as f:
-                file_content = f.read()
+            with open(file_path, 'r') as results_file:
+                file_content = results_file.read()
             # Extract oval definitions results and other relevant information.
             tree = ET.fromstring(file_content)
             for child in tree:
@@ -424,7 +418,6 @@ class OSPDOvaldi(OSPDaemon):
             name = 'defs_generator:{0}'.format(child.tag.split('}')[1])
             self.add_scan_log(scan_id, name=name, value=child.text)
         for definition in definitions:
-            def_class = definition.attrib.get('class')
             def_id = definition.attrib.get('id')
             def_result = self.get_definition_result(def_id, results)
             if def_result == 'true':
@@ -451,9 +444,10 @@ class OSPDOvaldi(OSPDaemon):
         """ Parses the content of ovaldi.log file to scan results """
 
         try:
-            with open(file_path, 'r') as f:
-                file_content = f.read()
-            self.add_scan_log(scan_id, name="ovaldi.log", value=file_content)
+            with open(file_path, 'r') as log_file:
+                file_content = log_file.read()
+                self.add_scan_log(scan_id, name="ovaldi.log",
+                                  value=file_content)
         except IOError:
             self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
 
@@ -464,13 +458,10 @@ if __name__ == '__main__':
 
     # Common args
     cargs = get_common_args(parser)
-
-    options = parser.parse_args()
     ospd_ovaldi = OSPDOvaldi(port=cargs['port'], timeout=cargs['timeout'],
-                             keyfile=cargs['keyfile'], certfile=cargs['certfile'],
-                             cafile=cargs['cafile'], debug=cargs['debug'],
-                             address=cargs['address'])
+                             keyfile=cargs['keyfile'],
+                             certfile=cargs['certfile'], cafile=cargs['cafile'],
+                             debug=cargs['debug'], address=cargs['address'])
     if not ospd_ovaldi.check():
         exit(1)
-    ret = ospd_ovaldi.run()
-    exit(ret)
+    exit(ospd_ovaldi.run())
