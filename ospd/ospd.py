@@ -22,6 +22,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+""" OSP Daemon core class. """
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -52,7 +54,8 @@ class OSPDaemon(object):
     See OSPDw3af and OSPDOvaldi for wrappers examples.
     """
 
-    def __init__(self, certfile, keyfile, cafile, timeout, debug, port, address):
+    def __init__(self, certfile, keyfile, cafile, timeout, debug, port,
+                 address):
         """ Initializes the daemon's internal data. """
         # Generate certificate for default params with openvas-mkcert
         self.cert_file = certfile
@@ -68,34 +71,36 @@ class OSPDaemon(object):
         self.description = "No description"
         self.scanner_params = dict()
         self.commands = self.get_commands_table()
+        self.socket = None
 
     def get_commands_table(self):
         """ Initializes the supported commands and their info. """
 
-        return {'start_scan' : { 'description' : 'Start a new scan.',
+        return {'start_scan' : {'description' : 'Start a new scan.',
+                                'attributes' : {'target' :
+                                                'Target host to scan'},
+                                'elements' : None},
+                'help' : {'description' : 'Print the commands help.',
+                          'attributes' : None,
+                          'elements' : None},
+                'get_scans' : {'description' : 'List the scans in buffer.',
+                               'attributes' :
+                               {'scan_id' : 'ID of a specific scan to get.',
+                                'details' : 'Whether to return the full'\
+                                            ' scan report.'},
+                               'elements' : None},
+                'delete_scan' : {'description' : 'Delete a finished scan.',
                                  'attributes' :
-                                   { 'target' : 'Target host to scan'},
-                                 'elements' : None },
-                'help' : { 'description' : 'Print the commands help.',
-                           'attributes' : None,
-                           'elements' : None },
-                'get_scans' : { 'description' : 'List the scans in buffer.',
-                                 'attributes' :
-                                   { 'scan_id' : 'ID of a specific scan to get.',
-                                     'details' : 'Whether to return the full'
-                                                 ' scan report.' },
-                                 'elements' : None },
-                'delete_scan' : { 'description' : 'Delete a finished/stopped scan.',
-                                  'attributes' :
-                                   { 'scan_id' : 'ID of scan to delete.'},
-                                  'elements' : None },
-                'get_version' : { 'description' : 'Return various versions.',
-                                  'attributes' : None,
-                                  'elements' : None },
-                'get_scanner_details' :
-                  { 'description' : 'Return scanner description and parameters',
-                    'attributes' : None,
-                    'elements' : None }}
+                                 {'scan_id' : 'ID of scan to delete.'},
+                                 'elements' : None},
+                'get_version' : {'description' : 'Return various versions.',
+                                 'attributes' : None,
+                                 'elements' : None},
+                'get_scanner_details' : {'description' :
+                                         'Return scanner description and'\
+                                         ' parameters',
+                                         'attributes' : None,
+                                         'elements' : None}}
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -163,8 +168,8 @@ class OSPDaemon(object):
         bindsocket = socket.socket()
         try:
             bindsocket.bind((self.address, self.port))
-        except socket.error, e:
-            self.logger.error("Couldn't bind socket on {0}:{1}"
+        except socket.error:
+            self.logger.error("Couldn't bind socket on {0}:{1}"\
                                .format(self.address, self.port))
             return None
 
@@ -234,7 +239,7 @@ class OSPDaemon(object):
         """ Starts the scan with scan_id. """
 
         self.logger.debug(2, "{0}: Scan started.".format(scan_id))
-        thread.start_new_thread (self.exec_scan, (scan_id, ))
+        thread.start_new_thread(self.exec_scan, (scan_id, ))
 
     def handle_timeout(self, scan_id):
         """ Handles scanner reaching timeout error. """
@@ -325,7 +330,7 @@ class OSPDaemon(object):
             else:
                 assert False, "Only string or dictionnary"
             ele_txt = "\t{0}{1: <22} {2}".format(' ' * indent, elename,
-                                                   desc_txt)
+                                                 desc_txt)
             text = ''.join([text, ele_txt])
         return text
 
@@ -433,16 +438,18 @@ class OSPDaemon(object):
                 .format(scan_id, target, progress, start_time, end_time,
                         results_str)
 
-    def handle_get_scanner_details_command(self, et):
-        """ """
+    def handle_get_scanner_details(self):
+        """ Handles <get_scanner_details> command.
 
+        @return: Response string for <get_version> command.
+        """
         description = self.get_scanner_description()
         scanner_params = self.get_scanner_params_xml()
         details = "<description>{0}</description>{1}".format(description,
                                                              scanner_params)
         return self.simple_response_str('get_scanner_details', 200, 'OK',
                                         details)
-    def handle_get_version_command(self, get_version_et):
+    def handle_get_version_command(self):
         """ Handles <get_version> command.
 
         @return: Response string for <get_version> command.
@@ -470,7 +477,7 @@ class OSPDaemon(object):
         """
         try:
             tree = ET.fromstring(command)
-        except ET.ParseError, e:
+        except ET.ParseError:
             self.logger.debug(1, "Erroneous client input: {0}".format(command))
             return self.simple_response_str('osp', 400, 'Invalid data')
 
@@ -478,7 +485,7 @@ class OSPDaemon(object):
             return self.simple_response_str('osp', 400, 'Bogus command name')
 
         if tree.tag == "get_version":
-            return self.handle_get_version_command(tree)
+            return self.handle_get_version_command()
         elif tree.tag == "start_scan":
             return self.handle_start_scan_command(tree)
         elif tree.tag == "get_scans":
@@ -488,7 +495,7 @@ class OSPDaemon(object):
         elif tree.tag == "help":
             return self.handle_help_command(tree)
         elif tree.tag == "get_scanner_details":
-            return self.handle_get_scanner_details_command(tree)
+            return self.handle_get_scanner_details()
         else:
             assert False, "Unhandled command: {0}".format(tree.tag)
 

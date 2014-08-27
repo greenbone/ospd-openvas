@@ -1,3 +1,11 @@
+2014-08-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py: Add module docstring.
+	(OSPDaemon): Initialize socket variable in constructor.  Fix code
+	indentation and style. Remove unused variables and remove unused
+	function arguments.
+	(OSPDaemon.handle_get_scanner_details_command): Add method docstring.
+
 2014-08-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py: Add module docstring and fix various warnings and errors
