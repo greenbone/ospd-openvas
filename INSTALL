@@ -10,7 +10,7 @@ Prerequisites for OSPD
 ----------------------
 
 Prerequisites:
-* python
+* python >= 2.7
 * python-pexpect: For running/interacting with w3af_console.
 * Python-paramiko: For running ovaldi on the target over SSH.
 

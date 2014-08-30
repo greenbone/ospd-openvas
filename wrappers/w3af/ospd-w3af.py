@@ -74,7 +74,7 @@ class OSPDw3af(OSPDaemon):
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile, timeout=timeout,
                                        debug=debug, port=port, address=address)
-        self.version = "0.0.1"
+        self.version = "1.0+beta1"
         self.description = ospd_w3af_description
         self.scanner_params = ospd_w3af_params
         self.w3af_path = 'w3af_console'

@@ -1,9 +1,6 @@
 About OSPD
 ----------
 
-===== ATTENTION: OSPD is in prototype status. It does not operate securely.
-===== ATTENTION: The protocol and features may get changed without notice.
-
 OSPD is a collection of scanner wrappers which share the same communication
 protocol: OSP (OpenVAS Scanner Protocol). OSP creates a unified interface for
 different security scanners and make their control flow and scan results
@@ -76,17 +73,19 @@ With ospd-w3af.py listening on 127.0.0.1:1234:
 $ omp --use-certs -p 1234 -i --xml="<help/>"
 
 <help_response status_text="OK" status="200">
-        get_version             Return various versions.
-        delete_scan             Delete a finished/stopped scan.
+        delete_scan            Delete a finished scan.
          Attributes:
-          id                     Scan ID.
-        help                    Print the commands help.
-        start_scan              Start a new scan.
+          scan_id                ID of scan to delete.
+        help                   Print the commands help.
+        get_version            Return various versions.
+        get_scanner_details    Return scanner description and parameters
+        start_scan             Start a new scan.
          Attributes:
           target                 Target host to scan
          Elements:
-          profile                w3af scan profile
-        get_scans               List the scans in buffer.
+          scanner_params         
+            profile                Scan profile
+        get_scans              List the scans in buffer.
          Attributes:
           scan_id                ID of a specific scan to get.
           details                Whether to return the full scan report.
@@ -94,23 +93,25 @@ $ omp --use-certs -p 1234 -i --xml="<help/>"
 
 
 With ospd-ovaldi.py listening on 127.0.0.1:1234:
-$ omp --use-certs -p 1234 -i --xml="<help/>"
+$ omp --use-certs -p 1235 -i --xml="<help/>"
 
 <help_response status_text="OK" status="200">
-        get_version             Return various versions.
-        delete_scan             Delete a finished/stopped scan.
+        delete_scan            Delete a finished scan.
          Attributes:
-          id                     Scan ID.
-        help                    Print the commands help.
-        start_scan              Start a new scan.
+          scan_id                ID of scan to delete.
+        help                   Print the commands help.
+        get_version            Return various versions.
+        get_scanner_details    Return scanner description and parameters
+        start_scan             Start a new scan.
          Attributes:
           target                 Target host to scan
          Elements:
-          username               SSH Username.
-          password               SSH Password.
-          port                   SSH Port.
-          definitions_file               Definitions file content in base64
-        get_scans               List the scans in buffer.
+          scanner_params         
+            username               SSH Username
+            password               SSH Password
+            port                   SSH Port
+            definitions_file       Oval Definitions
+        get_scans              List the scans in buffer.
          Attributes:
           scan_id                ID of a specific scan to get.
           details                Whether to return the full scan report.
@@ -119,11 +120,12 @@ $ omp --use-certs -p 1234 -i --xml="<help/>"
 
 Starting a scan with ospd-ovaldi:
 
-omp --use-certs --send-file=/tmp/definitions.xml --xml="<start_scan target='127.0.0.1'><username>USERNAME</username><password>PASSWORD</password><definitions_file>SENDFILE</definitions_file></start_scan>" -p 1234 -i
+omp --use-certs --send-file=/tmp/definitions.xml --xml="<start_scan target='127.0.0.1'><scanner_params><username>USERNAME</username><password>PASSWORD</password><definitions_file>SENDFILE</definitions_file></scanner_params></start_scan>" -p 1234 -i
+
 
 Starting a scan with ospd-w3af:
 
-omp --use-certs --xml="<start_scan target='www.example.com'></start_scan>" -p 1234 -i
+omp --use-certs --xml="<start_scan target='www.intevation.de'><scanner_params><profile>fast</profile></scanner_params></start_scan>" -p 1235 -i
 
 
 Show the list of scans, their status and results (any OSP Scanner):

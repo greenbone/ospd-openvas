@@ -116,7 +116,7 @@ class OSPDOvaldi(OSPDaemon):
                                          debug=debug, port=port,
                                          address=address)
 
-        self.version = "0.0.1"
+        self.version = "1.0+beta1"
         self.description = OSPD_OVALDI_DESC
         self.scanner_params = OSPD_OVALDI_PARAMS
         self.schema_dir = "/usr/share/ovaldi/xml"

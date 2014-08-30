@@ -38,7 +38,7 @@ setup(
     # Versions should comply with PEP440. For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='0.0.1',
+    version='1.0+beta1',
 
     description=('OSPD is a collection of scanner wrappers which share the, ',
                  'same communication protocol: OSP (OpenVAS Scanner ',
@@ -61,7 +61,7 @@ setup(
         # 3 - Alpha
         # 4 - Beta
         # 5 - Production/Stable
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Alpha',
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
@@ -73,7 +73,6 @@ setup(
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.2',
@@ -95,8 +94,7 @@ setup(
     packages=find_packages(exclude=[]),
 
     # If there are data files included in your packages that need to be
-    # installed, specify them here. If using Python 2.6 or less, then these
-    # have to be included in MANIFEST.in as well.
+    # installed, specify them here.
     include_package_data = True,
     package_data={'': []},
 

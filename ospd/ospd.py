@@ -33,7 +33,7 @@ import ssl
 import thread
 from misc import ScanCollection, OSPLogger, ResultType
 
-OSP_VERSION = "0.0.1"
+OSP_VERSION = "0.1.0"
 
 class OSPDaemon(object):
     """ Daemon class for OSP traffic handling.

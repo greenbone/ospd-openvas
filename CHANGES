@@ -1,0 +1,16 @@
+ospd 1.0+beta1 (2014-08-30)
+
+This is the first public release of the ospd module for the Open
+Vulnerability Assessment System (OpenVAS).
+
+The ospd module consists of the ospd base class and in this version
+includes wrappers for these scanners (wrapper version):
+ovaldi (1.0+beta1, including remote control) and w3af (1.0+beta1).
+The actual scanners are not included and need to be installed separately.
+
+The scanners are wrapped with the OpenVAS Scanner Protocol (OSP) version
+0.1.0 for unified usage via OSP clients. The wrapped scanners can be executed
+via command line or fully integrated with web interface via OpenVAS Manager.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles and Jan-Oliver Wagner.
