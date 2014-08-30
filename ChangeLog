@@ -1,5 +1,11 @@
 2014-08-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	Post-release version bump.
+
+	* setup.py: Increased version to 1.0+beta2.
+
+2014-08-30  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Preparing the ospd 1.0+beta1 release.
 
 	* ospd/ospd.py (OSP_VERSION): Increased protocol version to 0.1.0.
