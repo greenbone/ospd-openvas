@@ -89,18 +89,19 @@ OSPD_OVALDI_PARAMS = \
   'account should be sufficient in most cases.'
  },
  'port' :
- {'type' : 'int',
+ {'type' : 'integer',
   'name' : 'SSH Port',
   'description' :
   'The SSH port which to use for logging in with the given'
   ' username/password. the ovaldi tool installed on that target.',
  },
  'definitions_file' :
- {'type' : 'base64',
+ {'type' : 'file',
   'name' : 'Oval Definitions',
   'description' :
   'OVAL definitions is a XML object containing many single oval definition'
-  ' objects including also any required oval test and other objects.',
+  ' objects including also any required oval test and other objects. Content'
+  ' should be base64 encoded.',
  },
 }
 

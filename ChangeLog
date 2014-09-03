@@ -1,3 +1,8 @@
+2014-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPD_OVALDI_PARAMS): Change port type
+	to integer. Change definitions_file type to file. Improve description.
+
 2014-09-02  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* setup.py, ospd/misc.py, ospd/ospd.py,
