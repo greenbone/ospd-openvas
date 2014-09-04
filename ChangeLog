@@ -1,3 +1,7 @@
+2014-09-04  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* INSTALL: Fix typo.
+
 2014-09-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPD_OVALDI_PARAMS): Change port type

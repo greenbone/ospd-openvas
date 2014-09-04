@@ -55,7 +55,7 @@ And sign it with the CA checked for by the client.
 Registering a OSP daemon at OpenVAS Manager
 -------------------------------------------
 
-The file REAME explains how to control a OSP daemon via command line.
+The file README explains how to control a OSP daemon via command line.
 
 It is also possible to register a OSP daemon at the OpenVAS Manager
 and then use OMP clients to control the OSP daemon, for example the
