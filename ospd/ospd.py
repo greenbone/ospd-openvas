@@ -54,15 +54,13 @@ class OSPDaemon(object):
     See OSPDw3af and OSPDOvaldi for wrappers examples.
     """
 
-    def __init__(self, certfile, keyfile, cafile, timeout, debug, port,
-                 address):
+    def __init__(self, certfile, keyfile, cafile, debug, port, address):
         """ Initializes the daemon's internal data. """
         # Generate certificate for default params with openvas-mkcert
         self.cert_file = certfile
         self.key_file = keyfile
         self.ca_file = cafile
         self.port = port
-        self.timeout = timeout
         self.scan_collection = ScanCollection()
         self.logger = OSPLogger(debug)
         self.address = address

@@ -103,18 +103,22 @@ OSPD_OVALDI_PARAMS = \
   ' objects including also any required oval test and other objects. Content'
   ' should be base64 encoded.',
  },
+ 'ssh_timeout' :
+ {'type' : 'integer',
+  'name' : 'SSH timeout',
+  'description' :
+  'Timeout when communicating with the target via SSH.',
+ },
 }
 
 # ospd-ovaldi daemon class.
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, timeout, debug, port,
-                 address):
+    def __init__(self, certfile, keyfile, cafile, debug, port, address):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
-                                         cafile=cafile, timeout=timeout,
-                                         debug=debug, port=port,
+                                         cafile=cafile, debug=debug, port=port,
                                          address=address)
 
         self.version = "1.0+beta1"
@@ -175,11 +179,22 @@ class OSPDOvaldi(OSPDaemon):
             except ValueError:
                 return self.simple_response_str('start_scan', 400,
                                                 'Invalid port value')
+        # Default SSH timeout: 30.
+        timeout = scanner_params.find('ssh_timeout')
+        if timeout is None:
+            timeout = 30
+        else:
+            try:
+                timeout = int(timeout.text)
+            except ValueError:
+                return self.simple_response_str('start_scan', 400,
+                                                'Invalid timeout value')
 
         options = dict()
         options['username'] = username
         options['password'] = password
         options['port'] = port
+        options['timeout'] = timeout
         try:
             options['definitions'] = base64.b64decode(definitions.text)
         except TypeError:
@@ -244,8 +259,8 @@ class OSPDOvaldi(OSPDaemon):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         try:
             ssh.connect(hostname=target, username=options['username'],
-                        password=options['password'], timeout=self.timeout,
-                        port=options['port'])
+                        password=options['password'],
+                        timeout=options['timeout'], port=options['port'])
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error), err:
             # Errors: No route to host, connection timeout, authentication
@@ -287,7 +302,7 @@ class OSPDOvaldi(OSPDaemon):
                    .format(results_path, syschar_path, target_defs_path,
                            target_dir, self.schema_dir)
         self.logger.debug(2, "Running command: {0}".format(command))
-        _, stdout, _ = ssh.exec_command(command)
+        _, stdout, _ = ssh.exec_command(command, timeout=options['timeout'])
         # Flush stdout buffer, to continue execution.
         stdout.readlines()
         # Get the results files from target.
@@ -459,8 +474,7 @@ if __name__ == '__main__':
 
     # Common args
     cargs = get_common_args(parser)
-    ospd_ovaldi = OSPDOvaldi(port=cargs['port'], timeout=cargs['timeout'],
-                             keyfile=cargs['keyfile'],
+    ospd_ovaldi = OSPDOvaldi(port=cargs['port'], keyfile=cargs['keyfile'],
                              certfile=cargs['certfile'], cafile=cargs['cafile'],
                              debug=cargs['debug'], address=cargs['address'])
     if not ospd_ovaldi.check():

@@ -56,24 +56,29 @@ For more information, see the w3af website:
 """
 
 ospd_w3af_params = {
-  'profile' :
-   { 'type' : 'string',
-     'name' : 'Scan profile',
-     'description' : 'Scan profiles are predefined set of plugins and'
-                     ' customized configurations.',
-   },
+ 'profile' :
+  { 'type' : 'string',
+    'name' : 'Scan profile',
+    'description' : 'Scan profiles are predefined set of plugins and'
+                    ' customized configurations.',
+  },
+ 'w3af_timeout' :
+ {'type' : 'integer',
+  'name' : 'w3af scan timeout',
+  'description' :
+  'Time to wait for the w3af scan to finish.',
+ },
 }
 
 # ospd-w3af class.
 class OSPDw3af(OSPDaemon):
     """ Class for ospd-w3af daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, timeout, debug, port,
-                 address):
+    def __init__(self, certfile, keyfile, cafile, debug, port, address):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
-                                       cafile=cafile, timeout=timeout,
-                                       debug=debug, port=port, address=address)
+                                       cafile=cafile, debug=debug, port=port,
+                                       address=address)
         self.version = "1.0+beta1"
         self.description = ospd_w3af_description
         self.scanner_params = ospd_w3af_params
@@ -127,6 +132,17 @@ class OSPDw3af(OSPDaemon):
         else:
             # XXX: Better validate profile value here.
             options['profile'] = profile.text
+        # Default timeout: 3600.
+        timeout = scanner_params.find('w3af_timeout')
+        if timeout is None:
+            timeout = 3600
+        else:
+            try:
+                timeout = int(timeout.text)
+            except ValueError:
+                return self.simple_response_str('start_scan', 400,
+                                                'Invalid timeout value')
+        options['timeout'] = timeout
         # Create new Scan
         scan_id = self.create_scan(target, options)
 
@@ -173,7 +189,7 @@ class OSPDw3af(OSPDaemon):
         script_file = self.create_w3af_script(scan_id, output_file, options)
         # Spawn process
         output = pexpect.spawn('{0} -s {1}'.format(self.w3af_path, script_file))
-        output.timeout = self.timeout
+        output.timeout = options['timeout']
         try:
             output.expect("Scan finished in ")
             output.expect("w3af>>>")
@@ -221,10 +237,9 @@ if __name__ == '__main__':
 
     # Common args
     cargs = get_common_args(parser)
-    ospd_w3af = OSPDw3af(port=cargs['port'], timeout=cargs['timeout'],
-                         keyfile=cargs['keyfile'], certfile=cargs['certfile'],
-                         cafile=cargs['cafile'], debug=cargs['debug'],
-                         address=cargs['address'])
+    ospd_w3af = OSPDw3af(port=cargs['port'], keyfile=cargs['keyfile'],
+                         certfile=cargs['certfile'], cafile=cargs['cafile'],
+                         debug=cargs['debug'], address=cargs['address'])
 
     if not ospd_w3af.check():
         exit(1)

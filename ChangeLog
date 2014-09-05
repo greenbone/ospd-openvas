@@ -1,3 +1,20 @@
+2014-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (create_args_parser, get_common_args): Remove timeout cli
+	argument.
+
+	* ospd/ospd.py (OSPDaemon): Remove timeout argument.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPD_OVALDI_PARAMS): Add ssh_timeout
+	scanner parameter.
+	(OSPOvaldi): Remove timeout argument. Use ssh_timeout scanner parameter
+	instead.
+
+	* wrappers/w3af/ospd-w3af.py (ospd_w3af_params): Add w3af_timeout
+	scanner parameter.
+	(OSPDw3af): Remote timeout argument. Use w3af_timeout scanner parameter
+	instead.
+
 2014-09-04  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* INSTALL: Fix typo.

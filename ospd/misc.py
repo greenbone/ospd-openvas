@@ -33,7 +33,6 @@ import os
 KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
 CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
 CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
-TIMEOUT = 3600
 PORT = 1234
 ADDRESS = "0.0.0.0"
 
@@ -231,8 +230,6 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
     parser.add_argument('--ca-file', dest='cafile', type=str, nargs=1,
                         help='CA cert file. Default: {0}'.format(CA_FILE))
-    parser.add_argument('-t', '--timeout', dest='timeout', type=int, nargs=1,
-                        help='Scanner timeout. Default: {0}'.format(TIMEOUT))
     parser.add_argument('-d', '--debug', dest='debug', type=int, nargs=1,
                         help='Debug level. Default: 0')
 
@@ -258,15 +255,6 @@ def get_common_args(parser):
     address = ADDRESS
     if options.address:
         address = options.address[0]
-
-    # Scanner timeout.
-    timeout = TIMEOUT
-    if options.timeout:
-        timeout = int(options.timeout[0])
-        if timeout <= 10:
-            print "--timeout should be at least 10 seconds.\n"
-            parser.print_help()
-            exit(1)
 
     # Debug level.
     debug = 0
@@ -310,7 +298,6 @@ def get_common_args(parser):
     common_args = dict()
     common_args['port'] = port
     common_args['address'] = address
-    common_args['timeout'] = timeout
     common_args['keyfile'] = keyfile
     common_args['certfile'] = certfile
     common_args['cafile'] = cafile
