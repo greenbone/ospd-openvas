@@ -59,14 +59,15 @@ ospd_w3af_params = {
  'profile' :
   { 'type' : 'string',
     'name' : 'Scan profile',
+    'default' : 'fast_scan',
     'description' : 'Scan profiles are predefined set of plugins and'
                     ' customized configurations.',
   },
  'w3af_timeout' :
  {'type' : 'integer',
   'name' : 'w3af scan timeout',
-  'description' :
-  'Time to wait for the w3af scan to finish.',
+  'default' : 3600,
+  'description' : 'Time to wait for the w3af scan to finish.',
  },
 }
 
@@ -128,14 +129,14 @@ class OSPDw3af(OSPDaemon):
         options = dict()
         profile = scanner_params.find('profile')
         if profile is None or profile.text is None:
-            options['profile'] = 'fast_scan'
+            options['profile'] = self.get_scanner_param_default('profile')
         else:
             # XXX: Better validate profile value here.
             options['profile'] = profile.text
         # Default timeout: 3600.
         timeout = scanner_params.find('w3af_timeout')
-        if timeout is None:
-            timeout = 3600
+        if timeout is None or timeout.text is None:
+            timeout = self.get_scanner_param_default('w3af_timeout')
         else:
             try:
                 timeout = int(timeout.text)

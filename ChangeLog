@@ -1,3 +1,15 @@
+2014-09-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.get_scanner_param_default): New method.
+	(OSPDaemon.get_scanner_params_xml): Add param value to the params xml.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPD_OVALDI_PARAMS): Add parameters
+	default values.
+	(OSPDOvaldi): Use params default values instead of hardcoded ones.
+
+	* wrappers/w3af/ospd-w3af.py (ospd_w3af_params): Add default values.
+	(OSPDw3af):  Use params default values instead of hardcoded ones.
+
 2014-09-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (create_args_parser, get_common_args): Remove timeout cli

@@ -76,12 +76,14 @@ OSPD_OVALDI_PARAMS = \
 {'username' :
  {'type' : 'string',
   'name' : 'SSH Username',
+  'default' : '',
   'description' : 'The SSH username used to log into the target and to run'
                   ' the ovaldi tool installed on that target.',
  },
  'password' :
  {'type' : 'password',
   'name' : 'SSH Password',
+  'default' : '',
   'description' :
   'The SSH password for the given username which is used to log into the '
   'target and to run the ovaldi tool installed on that target. This should'
@@ -91,6 +93,7 @@ OSPD_OVALDI_PARAMS = \
  'port' :
  {'type' : 'integer',
   'name' : 'SSH Port',
+  'default' : 22,
   'description' :
   'The SSH port which to use for logging in with the given'
   ' username/password. the ovaldi tool installed on that target.',
@@ -98,6 +101,7 @@ OSPD_OVALDI_PARAMS = \
  'definitions_file' :
  {'type' : 'file',
   'name' : 'Oval Definitions',
+  'default' : '',
   'description' :
   'OVAL definitions is a XML object containing many single oval definition'
   ' objects including also any required oval test and other objects. Content'
@@ -106,6 +110,7 @@ OSPD_OVALDI_PARAMS = \
  'ssh_timeout' :
  {'type' : 'integer',
   'name' : 'SSH timeout',
+  'default' : 30,
   'description' :
   'Timeout when communicating with the target via SSH.',
  },
@@ -169,20 +174,18 @@ class OSPDOvaldi(OSPDaemon):
         username = username.text
         password = password.text
 
-        # Default port: 22.
         port = scanner_params.find('port')
-        if port is None:
-            port = 22
+        if port is None or port.text is None:
+            port = self.get_scanner_param_default('port')
         else:
             try:
                 port = int(port.text)
             except ValueError:
                 return self.simple_response_str('start_scan', 400,
                                                 'Invalid port value')
-        # Default SSH timeout: 30.
         timeout = scanner_params.find('ssh_timeout')
-        if timeout is None:
-            timeout = 30
+        if timeout is None or timeout.text is None:
+            timeout = self.get_scanner_param_default('ssh_timeout')
         else:
             try:
                 timeout = int(timeout.text)

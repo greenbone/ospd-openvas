@@ -149,15 +149,20 @@ class OSPDaemon(object):
         """ Returns the OSP Daemon's description. """
         return self.description
 
+    def get_scanner_param_default(self, param):
+        """ Returns default value of a scanner param. """
+        assert type(param) is type(str())
+        return self.scanner_params[param]['default']
+
     def get_scanner_params_xml(self):
         """ Returns the OSP Daemon's scanner params in xml format. """
         params_str = ""
         for param_id, param in self.scanner_params.items():
             param_str = "<scanner_param id='{0}' type='{1}'>"\
                         "<name>{2}</name><description>{3}</description>"\
-                        "</scanner_param>".format(param_id, param['type'],
-                                                  param['name'],
-                                                  param['description'])
+                        "<default>{4}</default></scanner_param>"\
+                         .format(param_id, param['type'], param['name'],
+                                 param['description'], param['default'])
             params_str = ''.join([params_str, param_str])
         return "<scanner_params>{0}</scanner_params>".format(params_str)
 
