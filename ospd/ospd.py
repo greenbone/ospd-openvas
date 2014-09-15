@@ -54,22 +54,21 @@ class OSPDaemon(object):
     See OSPDw3af and OSPDOvaldi for wrappers examples.
     """
 
-    def __init__(self, certfile, keyfile, cafile, debug, port, address):
+    def __init__(self, certfile, keyfile, cafile, debug):
         """ Initializes the daemon's internal data. """
         # Generate certificate for default params with openvas-mkcert
-        self.cert_file = certfile
-        self.key_file = keyfile
-        self.ca_file = cafile
-        self.port = port
+        self.certs = dict()
+        self.certs['cert_file'] = certfile
+        self.certs['key_file'] = keyfile
+        self.certs['ca_file'] = cafile
         self.scan_collection = ScanCollection()
         self.logger = OSPLogger(debug)
-        self.address = address
-        self.name = "generic ospd"
-        self.version = "generic version"
-        self.description = "No description"
+        self.daemon_info = dict()
+        self.daemon_info['name'] = "generic ospd"
+        self.daemon_info['version'] = "generic version"
+        self.daemon_info['description'] = "No description"
         self.scanner_params = dict()
         self.commands = self.get_commands_table()
-        self.socket = None
 
     def get_commands_table(self):
         """ Initializes the supported commands and their info. """
@@ -126,10 +125,12 @@ class OSPDaemon(object):
 
     def handle_start_scan_command(self, scan_et):
         """ Asserts to False. Should be implemented by subclass. """
+        assert scan_et
         assert False, 'handle_start_scan_command() not implemented.'
 
     def exec_scan(self, scan_id):
         """ Asserts to False. Should be implemented by subclass. """
+        assert scan_id
         assert False, 'exec_scan() not implemented.'
 
     def finish_scan(self, scan_id):
@@ -139,15 +140,15 @@ class OSPDaemon(object):
 
     def get_daemon_name(self):
         """ Gives osp daemon's name. """
-        return self.name
+        return self.daemon_info['name']
 
     def get_daemon_version(self):
         """ Gives osp daemon's version. """
-        return self.version
+        return self.daemon_info['version']
 
     def get_scanner_description(self):
         """ Returns the OSP Daemon's description. """
-        return self.description
+        return self.daemon_info['description']
 
     def get_scanner_param_default(self, param):
         """ Returns default value of a scanner param. """
@@ -166,31 +167,35 @@ class OSPDaemon(object):
             params_str = ''.join([params_str, param_str])
         return "<scanner_params>{0}</scanner_params>".format(params_str)
 
-    def bind_socket(self):
+    def bind_socket(self, address, port):
         """ Returns a socket bound on (address:port). """
+
+        assert address
+        assert port
         bindsocket = socket.socket()
         try:
-            bindsocket.bind((self.address, self.port))
+            bindsocket.bind((address, port))
         except socket.error:
             self.logger.error("Couldn't bind socket on {0}:{1}"\
-                               .format(self.address, self.port))
+                               .format(address, port))
             return None
 
         bindsocket.listen(0)
         return bindsocket
 
-    def new_client_stream(self):
+    def new_client_stream(self, sock):
         """ Returns a new ssl client stream from bind_socket. """
 
-        newsocket, fromaddr = self.socket.accept()
+        assert sock
+        newsocket, fromaddr = sock.accept()
         self.logger.debug(1, "New connection from"
                              " {0}:{1}".format(fromaddr[0], fromaddr[1]))
         try:
             ssl_socket = ssl.wrap_socket(newsocket, cert_reqs=ssl.CERT_REQUIRED,
                                          server_side=True,
-                                         certfile=self.cert_file,
-                                         keyfile=self.key_file,
-                                         ca_certs=self.ca_file,
+                                         certfile=self.certs['cert_file'],
+                                         keyfile=self.certs['key_file'],
+                                         ca_certs=self.certs['ca_file'],
                                          ssl_version=ssl.PROTOCOL_TLSv1)
         except ssl.SSLError as err:
             self.logger.error(err)
@@ -228,15 +233,12 @@ class OSPDaemon(object):
             self.logger.debug(1, msg)
         client_stream.close()
 
-    def start_daemon(self):
+    def start_daemon(self, address, port):
         """ Initialize the OSP daemon.
 
         @return True if success, False if error.
         """
-        self.socket = self.bind_socket()
-        if self.socket is None:
-            return False
-        return True
+        return self.bind_socket(address, port)
 
     def start_scan(self, scan_id):
         """ Starts the scan with scan_id. """
@@ -506,16 +508,17 @@ class OSPDaemon(object):
         """ Asserts to False. Should be implemented by subclass. """
         assert False, 'check() not implemented.'
 
-    def run(self):
+    def run(self, address, port):
         """ Starts the Daemon, handling commands until interrupted.
 
         @return False if error. Runs indefinitely otherwise.
         """
-        if not self.start_daemon():
+        sock = self.start_daemon(address, port)
+        if sock is None:
             return False
 
         while True:
-            client_stream = self.new_client_stream()
+            client_stream = self.new_client_stream(sock)
             if client_stream is None:
                 continue
             self.handle_client_stream(client_stream)

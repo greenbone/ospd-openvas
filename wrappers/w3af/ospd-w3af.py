@@ -75,11 +75,10 @@ ospd_w3af_params = {
 class OSPDw3af(OSPDaemon):
     """ Class for ospd-w3af daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, debug, port, address):
+    def __init__(self, certfile, keyfile, cafile, debug):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
-                                       cafile=cafile, debug=debug, port=port,
-                                       address=address)
+                                       cafile=cafile, debug=debug)
         self.version = "1.0+beta1"
         self.description = ospd_w3af_description
         self.scanner_params = ospd_w3af_params
@@ -238,11 +237,9 @@ if __name__ == '__main__':
 
     # Common args
     cargs = get_common_args(parser)
-    ospd_w3af = OSPDw3af(port=cargs['port'], keyfile=cargs['keyfile'],
-                         certfile=cargs['certfile'], cafile=cargs['cafile'],
-                         debug=cargs['debug'], address=cargs['address'])
+    ospd_w3af = OSPDw3af(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
+                         cafile=cargs['cafile'], debug=cargs['debug'])
 
     if not ospd_w3af.check():
         exit(1)
-    ret = ospd_w3af.run()
-    exit(ret)
+    exit(ospd_w3af.run(cargs['address'], cargs['port']))

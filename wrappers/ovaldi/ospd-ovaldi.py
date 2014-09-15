@@ -120,11 +120,10 @@ OSPD_OVALDI_PARAMS = \
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, debug, port, address):
+    def __init__(self, certfile, keyfile, cafile, debug):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
-                                         cafile=cafile, debug=debug, port=port,
-                                         address=address)
+                                         cafile=cafile, debug=debug)
 
         self.version = "1.0+beta1"
         self.description = OSPD_OVALDI_DESC
@@ -477,9 +476,8 @@ if __name__ == '__main__':
 
     # Common args
     cargs = get_common_args(parser)
-    ospd_ovaldi = OSPDOvaldi(port=cargs['port'], keyfile=cargs['keyfile'],
-                             certfile=cargs['certfile'], cafile=cargs['cafile'],
-                             debug=cargs['debug'], address=cargs['address'])
+    ospd_ovaldi = OSPDOvaldi(keyfile=cargs['keyfile'], debug=cargs['debug'],
+                             certfile=cargs['certfile'], cafile=cargs['cafile'])
     if not ospd_ovaldi.check():
         exit(1)
-    exit(ospd_ovaldi.run())
+    exit(ospd_ovaldi.run(cargs['address'], cargs['port']))
