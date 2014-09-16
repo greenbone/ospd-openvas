@@ -220,13 +220,18 @@ class OSPDw3af(OSPDaemon):
         # w3afrun/vulnerability => result_type.ALARM
         vulns = xmldoc.getElementsByTagName('vulnerability')
         for vuln in vulns:
-            desc = vuln.getElementsByTagName('description')[0]
-            self.add_scan_alarm(scan_id, value=desc.childNodes[0].nodeValue)
+            vuln_name = vuln.getAttribute('name')
+            # XXX: Severity attribute
+            desc_elem = vuln.getElementsByTagName('description')[0]
+            vuln_desc = desc_elem.childNodes[0].nodeValue
+            self.add_scan_alarm(scan_id, name=vuln_name, value=vuln_desc)
         # w3afrun/information => result_type.LOG
         information = xmldoc.getElementsByTagName('information')
         for info in information:
-            desc = info.getElementsByTagName('description')[0]
-            self.add_scan_log(scan_id, value=desc.childNodes[0].nodeValue)
+            info_name = info.getAttribute('name')
+            desc_elem = info.getElementsByTagName('description')[0]
+            info_desc = desc_elem.childNodes[0].nodeValue
+            self.add_scan_log(scan_id, name=info_name, value=info_desc)
         # w3afrun/error => result_type.ERROR
         errors = xmldoc.getElementsByTagName('error')
         for error in errors:
