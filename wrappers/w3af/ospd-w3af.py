@@ -205,7 +205,10 @@ class OSPDw3af(OSPDaemon):
         self.store_scan_results(scan_id, output_file)
 
         # Cleanup
-        os.remove(output_file)
+        if self.logger.get_level() < 1:
+            os.remove(output_file)
+        else:
+            self.logger.debug(2, "{0} not removed.".format(output_file))
         os.remove(script_file)
         # Set scan as finished
         self.finish_scan(scan_id)

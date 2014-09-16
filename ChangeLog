@@ -1,3 +1,8 @@
+2014-09-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/w3af/ospd-w3af.py (OSPDw3af [exec_scan]): Don't remove output
+	file in debugging mode.
+
 2014-09-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [__init__]): Remove port and address as
