@@ -125,8 +125,6 @@ class OSPDOvaldi(OSPDaemon):
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
                                          cafile=cafile, debug=debug)
 
-        self.version = "1.0+beta1"
-        self.description = OSPD_OVALDI_DESC
         self.scanner_params = OSPD_OVALDI_PARAMS
         self.schema_dir = "/usr/share/ovaldi/xml"
         self.set_command_elements\
@@ -143,7 +141,11 @@ class OSPDOvaldi(OSPDaemon):
 
     def get_scanner_version(self):
         """ Gives the used scanner's version. """
-        return self.version # XXX: ovaldi is different on each target.
+        return "unknown" # XXX: ovaldi is different on each target.
+
+    def get_scanner_description(self):
+        """ Gives the used scanner's description. """
+        return OSPD_OVALDI_DESC
 
     def handle_start_scan_command(self, scan_et):
         """ Handles the OSP <start_scan> command element tree. """

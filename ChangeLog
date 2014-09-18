@@ -1,3 +1,12 @@
+2014-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon [get_scanner_description]): Add assert
+	failure when not implemented by subclass.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi),
+	wrappers/w3af/ospd-w3af.py (OSPw3af): Implement get_scanner_description
+	method. Remove useless class variables.
+
 2014-09-17  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/w3af/ospd-w3af.py (OSPDw3af [store_scan_results]): Add

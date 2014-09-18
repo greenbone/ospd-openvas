@@ -79,8 +79,6 @@ class OSPDw3af(OSPDaemon):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile, debug=debug)
-        self.version = "1.0+beta1"
-        self.description = ospd_w3af_description
         self.scanner_params = ospd_w3af_params
         self.w3af_path = 'w3af_console'
         self.set_command_elements\
@@ -113,6 +111,10 @@ class OSPDw3af(OSPDaemon):
     def get_scanner_version(self):
         """ Gives the used scanner's version. """
         return self.get_w3af_version()
+
+    def get_scanner_description(self):
+        """ Gives the used scanner's description. """
+        return ospd_w3af_description
 
     def handle_start_scan_command(self, scan_et):
         """ Handles the OSP <start_scan> command element tree. """

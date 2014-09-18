@@ -148,7 +148,7 @@ class OSPDaemon(object):
 
     def get_scanner_description(self):
         """ Returns the OSP Daemon's description. """
-        return self.daemon_info['description']
+        assert False, 'get_scanner_description() not implemented.'
 
     def get_scanner_param_default(self, param):
         """ Returns default value of a scanner param. """
@@ -454,6 +454,7 @@ class OSPDaemon(object):
                                                              scanner_params)
         return self.simple_response_str('get_scanner_details', 200, 'OK',
                                         details)
+
     def handle_get_version_command(self):
         """ Handles <get_version> command.
 
