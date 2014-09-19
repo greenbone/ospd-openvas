@@ -31,7 +31,7 @@ except ImportError:
 import socket
 import ssl
 import thread
-from misc import ScanCollection, OSPLogger, ResultType
+from misc import ScanCollection, ResultType
 
 OSP_VERSION = "0.1.0"
 
@@ -54,7 +54,7 @@ class OSPDaemon(object):
     See OSPDw3af and OSPDOvaldi for wrappers examples.
     """
 
-    def __init__(self, certfile, keyfile, cafile, debug):
+    def __init__(self, certfile, keyfile, cafile):
         """ Initializes the daemon's internal data. """
         # Generate certificate for default params with openvas-mkcert
         self.certs = dict()
@@ -62,13 +62,17 @@ class OSPDaemon(object):
         self.certs['key_file'] = keyfile
         self.certs['ca_file'] = cafile
         self.scan_collection = ScanCollection()
-        self.logger = OSPLogger(debug)
         self.daemon_info = dict()
         self.daemon_info['name'] = "generic ospd"
         self.daemon_info['version'] = "generic version"
         self.daemon_info['description'] = "No description"
         self.scanner_params = dict()
         self.commands = self.get_commands_table()
+
+    def set_logger(self, logger):
+        """ """
+        assert logger
+        self.logger = logger
 
     def get_commands_table(self):
         """ Initializes the supported commands and their info. """

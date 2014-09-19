@@ -1,3 +1,22 @@
+2014-09-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	Add --syslog option.
+
+	* ospd/misc.py (OSPLogger [print_message]): Make method private.
+	(SyslogLogger): New class.
+	(create_args_parser): Add --syslog option.
+
+	* ospd/ospd.py (OSPDaemon): Remove debug argument.
+	(OSPDaemon [set_logger]): New method.
+
+	* wrappers/ovaldi/ospd-ovaldi.py: Adjust OSPDOvaldi initialization and
+	use syslog logger accordingly.
+	(OSPDOvaldi):  Remove debug argument.
+
+	* wrappers/w3af/ospd-w3af.py: Adjust OSPDw3af initialization and
+	use syslog logger accordingly.
+	(OSPDw3af):  Remove debug argument.
+
 2014-09-18  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [get_scanner_description]): Add assert

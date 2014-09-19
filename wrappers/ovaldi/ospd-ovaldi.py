@@ -42,7 +42,8 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon
-from ospd.misc import create_args_parser, get_common_args
+from ospd.misc import create_args_parser, get_common_args, OSPLogger
+from ospd.misc import SyslogLogger
 
 # External modules.
 try:
@@ -120,10 +121,10 @@ OSPD_OVALDI_PARAMS = \
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, debug):
+    def __init__(self, certfile, keyfile, cafile):
         """ Initializes the ospd-ovaldi daemon's internal data. """
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
-                                         cafile=cafile, debug=debug)
+                                         cafile=cafile)
 
         self.scanner_params = OSPD_OVALDI_PARAMS
         self.schema_dir = "/usr/share/ovaldi/xml"
@@ -478,8 +479,14 @@ if __name__ == '__main__':
 
     # Common args
     cargs = get_common_args(parser)
-    ospd_ovaldi = OSPDOvaldi(keyfile=cargs['keyfile'], debug=cargs['debug'],
-                             certfile=cargs['certfile'], cafile=cargs['cafile'])
+    ospd_ovaldi = OSPDOvaldi(keyfile=cargs['keyfile'], cafile=cargs['cafile'],
+                             certfile=cargs['certfile'])
+    # Set the logger
+    if cargs['syslog']:
+        ospd_ovaldi.set_logger(SyslogLogger(cargs['debug']))
+    else:
+        ospd_ovaldi.set_logger(OSPLogger(cargs['debug']))
+
     if not ospd_ovaldi.check():
         exit(1)
     exit(ospd_ovaldi.run(cargs['address'], cargs['port']))

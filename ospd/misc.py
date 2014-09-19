@@ -29,6 +29,7 @@ import uuid
 import datetime
 import argparse
 import os
+import syslog
 
 KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
 CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
@@ -57,16 +58,32 @@ class OSPLogger(object):
 
         """
         if self.level >= level:
-            self.print_message('DEBUG: {0}'.format(message))
+            self.__print_message('DEBUG: {0}'.format(message))
 
     def error(self, message):
         """ Output an error message. """
-        self.print_message('ERROR: {0}'.format(message))
+        self.__print_message('ERROR: {0}'.format(message))
 
-    def print_message(self, message):
+    def __print_message(self, message):
         """ Prints a message to stdout. """
         assert message
         print message
+
+class SyslogLogger(OSPLogger):
+
+    def __init__(self, level=0):
+        """ Initializes the syslog logger object. """
+        super(SyslogLogger, self).__init__(level)
+        syslog.openlog(ident="ospd")
+
+    def debug(self, level, message):
+        """ Send a debug message to syslog if the level is adequate. """
+        if self.level >= level:
+            syslog.syslog(syslog.LOG_DEBUG, message)
+
+    def error(self, message):
+        """ Send an error message to syslog. """
+        syslog.syslog(syslog.LOG_ERR, message)
 
 class ScanCollection(object):
     """ Scans collection, managing scans and results read and write, exposing
@@ -232,6 +249,8 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
                         help='CA cert file. Default: {0}'.format(CA_FILE))
     parser.add_argument('-d', '--debug', dest='debug', type=int, nargs=1,
                         help='Debug level. Default: 0')
+    parser.add_argument('--syslog', dest='syslog', action='store_true',
+                        help='Use syslog for logging.')
 
     return parser
 
@@ -302,5 +321,6 @@ def get_common_args(parser):
     common_args['certfile'] = certfile
     common_args['cafile'] = cafile
     common_args['debug'] = debug
+    common_args['syslog'] = options.syslog
 
     return common_args

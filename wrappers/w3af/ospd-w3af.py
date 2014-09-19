@@ -34,7 +34,8 @@ ospdir = os.path.dirname(os.path.dirname(currentdir))
 os.sys.path.insert(0, ospdir)
 # Local imports
 from ospd.ospd import OSPDaemon
-from ospd.misc import create_args_parser, get_common_args
+from ospd.misc import create_args_parser, get_common_args, OSPLogger
+from ospd.misc import SyslogLogger
 
 # External modules.
 try:
@@ -75,10 +76,10 @@ ospd_w3af_params = {
 class OSPDw3af(OSPDaemon):
     """ Class for ospd-w3af daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, debug):
+    def __init__(self, certfile, keyfile, cafile):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
-                                       cafile=cafile, debug=debug)
+                                       cafile=cafile)
         self.scanner_params = ospd_w3af_params
         self.w3af_path = 'w3af_console'
         self.set_command_elements\
@@ -248,7 +249,11 @@ if __name__ == '__main__':
     # Common args
     cargs = get_common_args(parser)
     ospd_w3af = OSPDw3af(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
-                         cafile=cargs['cafile'], debug=cargs['debug'])
+                         cafile=cargs['cafile'])
+    if cargs['syslog']:
+        ospd_w3af.set_logger(SyslogLogger(cargs['debug']))
+    else:
+        ospd_w3af.set_logger(OSPLogger(cargs['debug']))
 
     if not ospd_w3af.check():
         exit(1)
