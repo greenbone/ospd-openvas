@@ -1,5 +1,10 @@
 2014-09-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py: Replace always false assertions with NotImplementedError
+	exception.
+
+2014-09-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	Add --syslog option.
 
 	* ospd/misc.py (OSPLogger [print_message]): Make method private.

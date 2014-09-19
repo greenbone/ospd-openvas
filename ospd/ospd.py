@@ -121,21 +121,21 @@ class OSPDaemon(object):
 
     def get_scanner_name(self):
         """ Asserts to False. Should be implemented by subclass. """
-        assert False, 'get_scanner_name() not implemented.'
+        raise NotImplementedError
 
     def get_scanner_version(self):
         """ Asserts to False. Should be implemented by subclass. """
-        assert False, 'get_scanner_version() not implemented.'
+        raise NotImplementedError
 
     def handle_start_scan_command(self, scan_et):
         """ Asserts to False. Should be implemented by subclass. """
         assert scan_et
-        assert False, 'handle_start_scan_command() not implemented.'
+        raise NotImplementedError
 
     def exec_scan(self, scan_id):
         """ Asserts to False. Should be implemented by subclass. """
         assert scan_id
-        assert False, 'exec_scan() not implemented.'
+        raise NotImplementedError
 
     def finish_scan(self, scan_id):
         """ Sets a scan as finished. """
@@ -152,7 +152,7 @@ class OSPDaemon(object):
 
     def get_scanner_description(self):
         """ Returns the OSP Daemon's description. """
-        assert False, 'get_scanner_description() not implemented.'
+        raise NotImplementedError
 
     def get_scanner_param_default(self, param):
         """ Returns default value of a scanner param. """
@@ -511,7 +511,7 @@ class OSPDaemon(object):
 
     def check(self):
         """ Asserts to False. Should be implemented by subclass. """
-        assert False, 'check() not implemented.'
+        raise NotImplementedError
 
     def run(self, address, port):
         """ Starts the Daemon, handling commands until interrupted.
