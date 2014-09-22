@@ -44,6 +44,13 @@ except:
     print "pexpect not found."
     print "# pip install pexpect. (Or apt-get install python-pexpect.)"
     exit(1)
+try:
+    from w3af.core.controllers.core_helpers.profiles import profile\
+    as w3af_profile
+except:
+    print "Couldn't import w3af: Path not found or version is < 1.6."
+    print "Try to use: PYTHONPATH=/path/to/w3af/ python ospd-python.py"
+    exit(1)
 
 ospd_w3af_description = """
 This scanner runs the 'w3af' scanner installed on the local system.
@@ -137,10 +144,15 @@ class OSPDw3af(OSPDaemon):
         options = dict()
         profile = scanner_params.find('profile')
         if profile is None or profile.text is None:
-            options['profile'] = self.get_scanner_param_default('profile')
+            profile = self.get_scanner_param_default('profile')
         else:
-            # XXX: Better validate profile value here.
-            options['profile'] = profile.text
+            profile = profile.text
+        try:
+            w3af_profile(profname=profile)
+            options['profile'] = profile
+        except:
+                return self.simple_response_str('start_scan', 400,
+                                                'Invalid profile value')
         timeout = scanner_params.find('w3af_timeout')
         if timeout is None or timeout.text is None:
             options['timeout'] = self.get_scanner_param_default('w3af_timeout')
@@ -174,25 +186,14 @@ class OSPDw3af(OSPDaemon):
     def create_w3af_script(self, scan_id, output_file, options):
         """ Returns path to a w3af script file for the scan_id scan. """
 
-        # XXX Maybe at init time, start w3af and query for available profiles ?
-        profiles = ["bruteforce", "audit_high_risk", "full_audit",
-                    "OWASP_TOP10", "fast_scan", "empty_profile",
-                    "web_infrastructure", "full_audit_spider_man",
-                    "sitemap"]
         profile = options.get('profile')
-        if profile not in profiles:
-            self.logger.debug(1, "Erroneous w3af profile {0}. Fall-back to fast_scan".format(profile))
-            profile = 'fast_scan'
-            self.set_scan_option(scan_id, 'profile', profile)
-        else:
-            self.logger.debug(2, "w3af scan using {0} profile.".format(profile))
-
+        self.logger.debug(2, "w3af scan using {0} profile.".format(profile))
         target = self.get_scan_target(scan_id)
         script_file = "/tmp/w3af-{0}".format(scan_id)
         port = options.get('port')
         with open(script_file, 'w') as f:
             f.write("profiles use {0}\n".format(profile))
-            target_url = 'https://{0}:{1}'.format(target, port)
+            target_url = 'http://{0}:{1}'.format(target, port)
             f.write("target set target {0}\n".format(target_url))
             f.write("plugins\n")
             f.write("output xml_file\n")

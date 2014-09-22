@@ -1,5 +1,12 @@
 2014-09-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/w3af/ospd-w3af.py: Output help message when not able to
+	import w3af.
+	(OSPDw3af [handle_start_scan_command, create_w3af_script]): Check
+	profile name dynamically, instead of using a hard-coded list.
+
+2014-09-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon [get_result_xml]): Escape xml result text.
 
 	* wrappers/w3af/ospd-w3af.py (ospd_w3af_params): Add target_port scanner
