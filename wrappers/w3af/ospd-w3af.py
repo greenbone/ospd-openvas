@@ -70,6 +70,12 @@ ospd_w3af_params = {
   'default' : 3600,
   'description' : 'Time to wait for the w3af scan to finish.',
  },
+ 'target_port' :
+ {'type' : 'integer',
+  'name' : 'Target port',
+  'default' : 80,
+  'description' : 'Port on target host to scan',
+ },
 }
 
 # ospd-w3af class.
@@ -135,17 +141,28 @@ class OSPDw3af(OSPDaemon):
         else:
             # XXX: Better validate profile value here.
             options['profile'] = profile.text
-        # Default timeout: 3600.
         timeout = scanner_params.find('w3af_timeout')
         if timeout is None or timeout.text is None:
-            timeout = self.get_scanner_param_default('w3af_timeout')
+            options['timeout'] = self.get_scanner_param_default('w3af_timeout')
         else:
             try:
-                timeout = int(timeout.text)
+                options['timeout'] = int(timeout.text)
+                if options['timeout'] < 0:
+                    raise ValueError
             except ValueError:
                 return self.simple_response_str('start_scan', 400,
                                                 'Invalid timeout value')
-        options['timeout'] = timeout
+        port = scanner_params.find('target_port')
+        if port is None or port.text is None:
+            options['port'] = self.get_scanner_param_default('target_port')
+        else:
+            try:
+                options['port'] = int(port.text)
+                if options['port'] <= 0 or options['port'] > 65535:
+                    raise ValueError
+            except ValueError:
+                return self.simple_response_str('start_scan', 400,
+                                                'Invalid target_port value')
         # Create new Scan
         scan_id = self.create_scan(target, options)
 
@@ -172,9 +189,11 @@ class OSPDw3af(OSPDaemon):
 
         target = self.get_scan_target(scan_id)
         script_file = "/tmp/w3af-{0}".format(scan_id)
+        port = options.get('port')
         with open(script_file, 'w') as f:
             f.write("profiles use {0}\n".format(profile))
-            f.write("target set target {0}\n".format(target))
+            target_url = 'https://{0}:{1}'.format(target, port)
+            f.write("target set target {0}\n".format(target_url))
             f.write("plugins\n")
             f.write("output xml_file\n")
             f.write("output config xml_file\n")

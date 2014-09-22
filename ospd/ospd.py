@@ -28,6 +28,7 @@ try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
+from xml.sax.saxutils import escape as xml_escape
 import socket
 import ssl
 import thread
@@ -385,7 +386,7 @@ class OSPDaemon(object):
 
         result_type = ResultType.get_str(result[0])
         return '<result name="{0}" type="{1}">{2}</result>'\
-                .format(result[1], result_type, result[2])
+                .format(result[1], result_type, xml_escape(result[2]))
 
     def get_xml_str(self, data):
         """ Creates a string in XML Format using the provided data structure.
