@@ -83,6 +83,12 @@ ospd_w3af_params = {
   'default' : 80,
   'description' : 'Port on target host to scan',
  },
+ 'use_https' :
+ {'type' : 'boolean',
+  'name' : 'Use HTTPS',
+  'default' : 0,
+  'description' : 'Whether the target application is running over HTTPS',
+ },
 }
 
 # ospd-w3af class.
@@ -175,6 +181,17 @@ class OSPDw3af(OSPDaemon):
             except ValueError:
                 return self.simple_response_str('start_scan', 400,
                                                 'Invalid target_port value')
+        use_https = scanner_params.find('use_https')
+        if use_https is None or use_https.text is None:
+            options['use_https'] = self.get_scanner_param_default('use_https')
+        else:
+            try:
+                options['use_https'] = int(use_https.text)
+                if options['use_https'] != 0 and options['use_https'] != 1:
+                    raise ValueError
+            except ValueError:
+                return self.simple_response_str('start_scan', 400,
+                                                'Invalid target_port value')
         # Create new Scan
         scan_id = self.create_scan(target, options)
 
@@ -193,7 +210,10 @@ class OSPDw3af(OSPDaemon):
         port = options.get('port')
         with open(script_file, 'w') as f:
             f.write("profiles use {0}\n".format(profile))
-            target_url = 'http://{0}:{1}'.format(target, port)
+            if options.get('use_https') == 0:
+                target_url = 'http://{0}:{1}'.format(target, port)
+            else:
+                target_url = 'https://{0}:{1}'.format(target, port)
             f.write("target set target {0}\n".format(target_url))
             f.write("plugins\n")
             f.write("output xml_file\n")
@@ -207,8 +227,13 @@ class OSPDw3af(OSPDaemon):
     def exec_scan(self, scan_id):
         """ Starts the w3af scanner for scan_id scan. """
 
-        output_file = "/tmp/w3af-scan-{1}".format(ospdir, scan_id)
         options = self.get_scan_options(scan_id)
+        assert options.has_key('port')
+        assert options.has_key('timeout')
+        assert options.has_key('use_https')
+        assert options.has_key('profile')
+
+        output_file = "/tmp/w3af-scan-{1}".format(ospdir, scan_id)
         script_file = self.create_w3af_script(scan_id, output_file, options)
         # Spawn process
         output = pexpect.spawn('{0} -s {1}'.format(self.w3af_path, script_file))
