@@ -1,5 +1,13 @@
 2014-09-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon [get_result_xml, simple_response_str]): Move
+	methods out to be independant functions. Adjust calls accordingly.
+
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: Adjust
+	simple_response_str() function calls.
+
+2014-09-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (SyslogLogger): Add class doc string.
 
 	* ospd/ospd.py (OSPDaemon [get_commands_table]): Move out method to be a

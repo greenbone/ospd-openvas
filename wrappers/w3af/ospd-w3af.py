@@ -35,7 +35,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
                                                               currentframe())))
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
-from ospd.ospd import OSPDaemon
+from ospd.ospd import OSPDaemon, simple_response_str
 from ospd.misc import create_args_parser, get_common_args, OSPLogger
 from ospd.misc import SyslogLogger
 
@@ -144,12 +144,11 @@ class OSPDw3af(OSPDaemon):
 
         target = scan_et.attrib.get('target')
         if target is None:
-            return self.simple_response_str('start_scan', 400,
-                                            'No target attribute')
+            return simple_response_str('start_scan', 400, 'No target attribute')
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
-            return self.simple_response_str('start_scan', 400,
-                                            'No scanner_params element')
+            return simple_response_str('start_scan', 400,
+                                       'No scanner_params element')
         options = dict()
         profile = scanner_params.find('profile')
         if profile is None or profile.text is None:
@@ -161,8 +160,8 @@ class OSPDw3af(OSPDaemon):
             options['profile'] = profile
         except BaseFrameworkException:
             self.logger.debug(1, "Erroneous profile name {0}.".format(profile))
-            return self.simple_response_str('start_scan', 400,
-                                            'Invalid profile value')
+            return simple_response_str('start_scan', 400,
+                                       'Invalid profile value')
         timeout = scanner_params.find('w3af_timeout')
         if timeout is None or timeout.text is None:
             options['timeout'] = self.get_scanner_param_default('w3af_timeout')
@@ -172,8 +171,8 @@ class OSPDw3af(OSPDaemon):
                 if options['timeout'] < 0:
                     raise ValueError
             except ValueError:
-                return self.simple_response_str('start_scan', 400,
-                                                'Invalid timeout value')
+                return simple_response_str('start_scan', 400,
+                                           'Invalid timeout value')
         port = scanner_params.find('target_port')
         if port is None or port.text is None:
             options['port'] = self.get_scanner_param_default('target_port')
@@ -183,8 +182,8 @@ class OSPDw3af(OSPDaemon):
                 if options['port'] <= 0 or options['port'] > 65535:
                     raise ValueError
             except ValueError:
-                return self.simple_response_str('start_scan', 400,
-                                                'Invalid target_port value')
+                return simple_response_str('start_scan', 400,
+                                           'Invalid target_port value')
         use_https = scanner_params.find('use_https')
         if use_https is None or use_https.text is None:
             options['use_https'] = self.get_scanner_param_default('use_https')
@@ -194,15 +193,15 @@ class OSPDw3af(OSPDaemon):
                 if options['use_https'] != 0 and options['use_https'] != 1:
                     raise ValueError
             except ValueError:
-                return self.simple_response_str('start_scan', 400,
-                                                'Invalid target_port value')
+                return simple_response_str('start_scan', 400,
+                                           'Invalid target_port value')
         # Create new Scan
         scan_id = self.create_scan(target, options)
 
         # Start Scan
         self.start_scan(scan_id)
         text = '<id>{0}</id>'.format(scan_id)
-        return self.simple_response_str('start_scan', 200, 'OK', text)
+        return simple_response_str('start_scan', 200, 'OK', text)
 
     def create_w3af_script(self, scan_id, output_file, options):
         """ Returns path to a w3af script file for the scan_id scan. """
@@ -237,7 +236,7 @@ class OSPDw3af(OSPDaemon):
         assert options.has_key('use_https')
         assert options.has_key('profile')
 
-        output_file = "/tmp/w3af-scan-{1}".format(scan_id)
+        output_file = "/tmp/w3af-scan-{0}".format(scan_id)
         script_file = self.create_w3af_script(scan_id, output_file, options)
         # Spawn process
         output = pexpect.spawn('{0} -s {1}'.format(self.w3af_path, script_file))
