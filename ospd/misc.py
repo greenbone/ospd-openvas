@@ -70,6 +70,7 @@ class OSPLogger(object):
         print message
 
 class SyslogLogger(OSPLogger):
+    """ Class to send log, debug and error messages to syslog. """
 
     def __init__(self, level=0):
         """ Initializes the syslog logger object. """

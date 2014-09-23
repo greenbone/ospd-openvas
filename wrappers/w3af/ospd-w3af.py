@@ -24,14 +24,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+""" w3af wrapper for OSPD. """
+
 import os
 import inspect
 from xml.dom.minidom import parse as xml_parse
 
 # Set OSPD Directory in syspaths, for imports
-currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-ospdir = os.path.dirname(os.path.dirname(currentdir))
-os.sys.path.insert(0, ospdir)
+CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
+                                                              currentframe())))
+os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon
 from ospd.misc import create_args_parser, get_common_args, OSPLogger
@@ -40,19 +42,20 @@ from ospd.misc import SyslogLogger
 # External modules.
 try:
     import pexpect
-except:
+except ImportError:
     print "pexpect not found."
     print "# pip install pexpect. (Or apt-get install python-pexpect.)"
     exit(1)
 try:
     from w3af.core.controllers.core_helpers.profiles import profile\
     as w3af_profile
-except:
+    from w3af.core.controllers.exceptions import BaseFrameworkException
+except ImportError:
     print "Couldn't import w3af: Path not found or version is < 1.6."
     print "Try to use: PYTHONPATH=/path/to/w3af/ python ospd-python.py"
     exit(1)
 
-ospd_w3af_description = """
+OSPD_W3AF_DESCRIPTION = """
 This scanner runs the 'w3af' scanner installed on the local system.
 
 w3af is a Web Application Attack and Audit Framework. The project's goal is to
@@ -63,14 +66,14 @@ For more information, see the w3af website:
     http://w3af.org/
 """
 
-ospd_w3af_params = {
- 'profile' :
-  { 'type' : 'string',
-    'name' : 'Scan profile',
-    'default' : 'fast_scan',
-    'description' : 'Scan profiles are predefined set of plugins and'
-                    ' customized configurations.',
-  },
+OSPD_W3AF_PARAMS = \
+{'profile' :
+ {'type' : 'string',
+  'name' : 'Scan profile',
+  'default' : 'fast_scan',
+  'description' : 'Scan profiles are predefined set of plugins and'
+                  ' customized configurations.',
+ },
  'w3af_timeout' :
  {'type' : 'integer',
   'name' : 'w3af scan timeout',
@@ -91,6 +94,15 @@ ospd_w3af_params = {
  },
 }
 
+def get_w3af_version():
+    """ Finds w3af scanner's version is executable """
+    output = pexpect.spawn('w3af_console --version')
+    output.expect(pexpect.EOF)
+    for line in output.before.split('\n'):
+        if line.startswith("Version: "):
+            return line.split()[1]
+    return "Parsing error."
+
 # ospd-w3af class.
 class OSPDw3af(OSPDaemon):
     """ Class for ospd-w3af daemon. """
@@ -99,30 +111,21 @@ class OSPDw3af(OSPDaemon):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile)
-        self.scanner_params = ospd_w3af_params
+        self.scanner_params = OSPD_W3AF_PARAMS
         self.w3af_path = 'w3af_console'
         self.set_command_elements\
-              ("start_scan",
-               { "scanner_params" :
-                { k : v['name'] for k, v in self.scanner_params.items()}})
+              ('start_scan',
+               {'scanner_params' :
+                {k : v['name'] for k, v in self.scanner_params.items()}})
 
     def check(self):
         """ Checks that w3af_console is found and is executable. """
         try:
-            output = pexpect.spawn('w3af_console')
+            pexpect.spawn('w3af_console')
         except pexpect.ExceptionPexpect, message:
             self.logger.error(message)
             return False
         return True
-
-    def get_w3af_version(self):
-        """ Finds w3af scanner's version is executable """
-        output = pexpect.spawn('w3af_console --version')
-        output.expect(pexpect.EOF)
-        for line in output.before.split('\n'):
-            if line.startswith("Version: "):
-                return line.split()[1]
-        return "Parsing error."
 
     def get_scanner_name(self):
         """ Gives the used scanner's name. """
@@ -130,11 +133,11 @@ class OSPDw3af(OSPDaemon):
 
     def get_scanner_version(self):
         """ Gives the used scanner's version. """
-        return self.get_w3af_version()
+        return get_w3af_version()
 
     def get_scanner_description(self):
         """ Gives the used scanner's description. """
-        return ospd_w3af_description
+        return OSPD_W3AF_DESCRIPTION
 
     def handle_start_scan_command(self, scan_et):
         """ Handles the OSP <start_scan> command element tree. """
@@ -156,9 +159,10 @@ class OSPDw3af(OSPDaemon):
         try:
             w3af_profile(profname=profile)
             options['profile'] = profile
-        except:
-                return self.simple_response_str('start_scan', 400,
-                                                'Invalid profile value')
+        except BaseFrameworkException:
+            self.logger.debug(1, "Erroneous profile name {0}.".format(profile))
+            return self.simple_response_str('start_scan', 400,
+                                            'Invalid profile value')
         timeout = scanner_params.find('w3af_timeout')
         if timeout is None or timeout.text is None:
             options['timeout'] = self.get_scanner_param_default('w3af_timeout')
@@ -206,23 +210,23 @@ class OSPDw3af(OSPDaemon):
         profile = options.get('profile')
         self.logger.debug(2, "w3af scan using {0} profile.".format(profile))
         target = self.get_scan_target(scan_id)
-        script_file = "/tmp/w3af-{0}".format(scan_id)
+        script_path = "/tmp/w3af-{0}".format(scan_id)
         port = options.get('port')
-        with open(script_file, 'w') as f:
-            f.write("profiles use {0}\n".format(profile))
+        with open(script_path, 'w') as file_path:
+            file_path.write("profiles use {0}\n".format(profile))
             if options.get('use_https') == 0:
                 target_url = 'http://{0}:{1}'.format(target, port)
             else:
                 target_url = 'https://{0}:{1}'.format(target, port)
-            f.write("target set target {0}\n".format(target_url))
-            f.write("plugins\n")
-            f.write("output xml_file\n")
-            f.write("output config xml_file\n")
-            f.write("set output_file {0}\n".format(output_file))
-            f.write("back\n")
-            f.write("back\n")
-            f.write("start\n")
-        return script_file
+            file_path.write("target set target {0}\n".format(target_url))
+            file_path.write("plugins\n")
+            file_path.write("output xml_file\n")
+            file_path.write("output config xml_file\n")
+            file_path.write("set output_file {0}\n".format(output_file))
+            file_path.write("back\n")
+            file_path.write("back\n")
+            file_path.write("start\n")
+        return script_path
 
     def exec_scan(self, scan_id):
         """ Starts the w3af scanner for scan_id scan. """
@@ -233,7 +237,7 @@ class OSPDw3af(OSPDaemon):
         assert options.has_key('use_https')
         assert options.has_key('profile')
 
-        output_file = "/tmp/w3af-scan-{1}".format(ospdir, scan_id)
+        output_file = "/tmp/w3af-scan-{1}".format(scan_id)
         script_file = self.create_w3af_script(scan_id, output_file, options)
         # Spawn process
         output = pexpect.spawn('{0} -s {1}'.format(self.w3af_path, script_file))

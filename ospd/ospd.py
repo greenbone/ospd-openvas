@@ -36,6 +36,35 @@ from misc import ScanCollection, ResultType
 
 OSP_VERSION = "0.1.0"
 
+def get_commands_table():
+    """ Initializes the supported commands and their info. """
+
+    return {'start_scan' : {'description' : 'Start a new scan.',
+                            'attributes' : {'target' :
+                                            'Target host to scan'},
+                            'elements' : None},
+            'help' : {'description' : 'Print the commands help.',
+                      'attributes' : None,
+                      'elements' : None},
+            'get_scans' : {'description' : 'List the scans in buffer.',
+                           'attributes' :
+                           {'scan_id' : 'ID of a specific scan to get.',
+                            'details' : 'Whether to return the full'\
+                                        ' scan report.'},
+                           'elements' : None},
+            'delete_scan' : {'description' : 'Delete a finished scan.',
+                             'attributes' :
+                             {'scan_id' : 'ID of scan to delete.'},
+                             'elements' : None},
+            'get_version' : {'description' : 'Return various versions.',
+                             'attributes' : None,
+                             'elements' : None},
+            'get_scanner_details' : {'description' :
+                                     'Return scanner description and'\
+                                     ' parameters',
+                                     'attributes' : None,
+                                     'elements' : None}}
+
 class OSPDaemon(object):
     """ Daemon class for OSP traffic handling.
 
@@ -68,41 +97,13 @@ class OSPDaemon(object):
         self.daemon_info['version'] = "generic version"
         self.daemon_info['description'] = "No description"
         self.scanner_params = dict()
-        self.commands = self.get_commands_table()
+        self.commands = get_commands_table()
+        self.logger = None
 
     def set_logger(self, logger):
         """ """
         assert logger
         self.logger = logger
-
-    def get_commands_table(self):
-        """ Initializes the supported commands and their info. """
-
-        return {'start_scan' : {'description' : 'Start a new scan.',
-                                'attributes' : {'target' :
-                                                'Target host to scan'},
-                                'elements' : None},
-                'help' : {'description' : 'Print the commands help.',
-                          'attributes' : None,
-                          'elements' : None},
-                'get_scans' : {'description' : 'List the scans in buffer.',
-                               'attributes' :
-                               {'scan_id' : 'ID of a specific scan to get.',
-                                'details' : 'Whether to return the full'\
-                                            ' scan report.'},
-                               'elements' : None},
-                'delete_scan' : {'description' : 'Delete a finished scan.',
-                                 'attributes' :
-                                 {'scan_id' : 'ID of scan to delete.'},
-                                 'elements' : None},
-                'get_version' : {'description' : 'Return various versions.',
-                                 'attributes' : None,
-                                 'elements' : None},
-                'get_scanner_details' : {'description' :
-                                         'Return scanner description and'\
-                                         ' parameters',
-                                         'attributes' : None,
-                                         'elements' : None}}
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """

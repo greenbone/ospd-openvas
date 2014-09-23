@@ -117,6 +117,22 @@ OSPD_OVALDI_PARAMS = \
  },
 }
 
+def get_definition_result(def_id, results):
+    """ Gets an oval definition's result value in results element from
+    results xml file. """
+    for child in results:
+        if child.tag.endswith('system'):
+            system = child
+            break
+    for child in system:
+        if child.tag.endswith('definitions'):
+            definitions = child
+            break
+    for child in definitions:
+        if child.attrib.get('definition_id') == def_id:
+            return child.attrib.get('result')
+    return "Not found"
+
 # ospd-ovaldi daemon class.
 class OSPDOvaldi(OSPDaemon):
     """ Class for ospd-ovaldi daemon. """
@@ -440,26 +456,10 @@ class OSPDOvaldi(OSPDaemon):
             self.add_scan_log(scan_id, name=name, value=child.text)
         for definition in definitions:
             def_id = definition.attrib.get('id')
-            def_result = self.get_definition_result(def_id, results)
+            def_result = get_definition_result(def_id, results)
             if def_result == 'true':
                 # Skip: false, error, unknown, not applicable.
                 self.add_scan_alarm(scan_id, name=def_id, value="")
-
-    def get_definition_result(self, def_id, results):
-        """ Gets an oval definition's result value in results element from
-        results xml file. """
-        for child in results:
-            if child.tag.endswith('system'):
-                system = child
-                break
-        for child in system:
-            if child.tag.endswith('definitions'):
-                definitions = child
-                break
-        for child in definitions:
-            if child.attrib.get('definition_id') == def_id:
-                return child.attrib.get('result')
-        return "Not found"
 
     def parse_ovaldi_log(self, file_path, scan_id):
         """ Parses the content of ovaldi.log file to scan results """

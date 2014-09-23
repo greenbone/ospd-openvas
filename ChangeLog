@@ -1,5 +1,22 @@
 2014-09-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (SyslogLogger): Add class doc string.
+
+	* ospd/ospd.py (OSPDaemon [get_commands_table]): Move out method to be a
+	function.
+	(OSPDaemon): Initialize class variable.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi [get_definition_result]):
+	Move out method to be a function.
+
+	* wrappers/w3af/ospd-w3af.py: Add module doc string, add exceptions
+	types, refactor code and fix code style for constant variables.
+	(OSPDw3af): Move out get_w3af_version() method to be a function, remove
+	unused variable and fix code style.
+	(OSPDw3af [handle_start_scan_command]): Add exception type.
+
+2014-09-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* wrappers/w3af/ospd-w3af.py (ospd_w3af_params): Add use_https scanner
 	parameter.
 	(OSPDw3af [handle_start_scan_command, create_w3af_script]): Handle
