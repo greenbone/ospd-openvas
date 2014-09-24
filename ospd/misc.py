@@ -261,13 +261,13 @@ def go_to_background(logger=None):
     """ Daemonize the running process. """
     try:
         if os.fork():
-            os._exit(0)
+            exit(0)
     except OSError, errmsg:
         if logger:
             logger.error('Fork failed: {0}'.format(errmsg))
         else:
             print 'Fork failed: {0}'.format(errmsg)
-        os._exit(1)
+        exit(1)
 
 def get_common_args(parser):
     """ Return list of OSPD common command-line arguments from parser, after

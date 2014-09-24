@@ -1,5 +1,16 @@
 2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (go_to_background): Call exit() directly.
+
+	* ospd/ospd.py (OSPDaemon [set_command_elements]): Rename to
+	init_scanner_params(). Adjust method accordingly.
+
+	* wrappers/w3af/ospd-w3af.py (OSPDOvaldi),
+	wrappers/ovaldi/ospd-ovaldi.py (OSPDw3af): Call init_scanner_params()
+	method to setup scanner specific parameters.
+
+2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (go_to_background): New function.
 	(create_args_parser, get_common_args): Add --background option.
 

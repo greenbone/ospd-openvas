@@ -134,11 +134,13 @@ class OSPDaemon(object):
             command = self.commands.get(name)
             command['attributes'] = attributes
 
-    def set_command_elements(self, name, elements):
-        """ Sets the xml subelements of a specified command. """
-        if self.command_exists(name):
-            command = self.commands.get(name)
-            command['elements'] = elements
+    def init_scanner_params(self, scanner_params):
+        """ Initializes the scanner's parameters. """
+
+        self.scanner_params = scanner_params
+        command = self.commands.get('start_scan')
+        command['elements']\
+         = {'scanner_params' : {k : v['name'] for k, v in scanner_params.items()}}
 
     def command_exists(self, name):
         """ Checks if a commands exists. """

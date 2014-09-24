@@ -111,12 +111,7 @@ class OSPDw3af(OSPDaemon):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile)
-        self.scanner_params = OSPD_W3AF_PARAMS
-        self.w3af_path = 'w3af_console'
-        self.set_command_elements\
-              ('start_scan',
-               {'scanner_params' :
-                {k : v['name'] for k, v in self.scanner_params.items()}})
+        self.init_scanner_params(OSPD_W3AF_PARAMS)
 
     def check(self):
         """ Checks that w3af_console is found and is executable. """
@@ -239,7 +234,7 @@ class OSPDw3af(OSPDaemon):
         output_file = "/tmp/w3af-scan-{0}".format(scan_id)
         script_file = self.create_w3af_script(scan_id, output_file, options)
         # Spawn process
-        output = pexpect.spawn('{0} -s {1}'.format(self.w3af_path, script_file))
+        output = pexpect.spawn('w3af_console -s {0}'.format(script_file))
         output.timeout = options['timeout']
         try:
             output.expect("Scan finished in ")

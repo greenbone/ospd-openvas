@@ -142,12 +142,8 @@ class OSPDOvaldi(OSPDaemon):
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
                                          cafile=cafile)
 
-        self.scanner_params = OSPD_OVALDI_PARAMS
+        self.init_scanner_params(OSPD_OVALDI_PARAMS)
         self.schema_dir = "/usr/share/ovaldi/xml"
-        self.set_command_elements\
-              ('start_scan',
-               {'scanner_params' :
-                {k : v['name'] for k, v in self.scanner_params.items()}})
 
     def check(self):
         return True
