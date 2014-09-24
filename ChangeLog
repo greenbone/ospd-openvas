@@ -1,3 +1,11 @@
+2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (go_to_background): New function.
+	(create_args_parser, get_common_args): Add --background option.
+
+	* wrappers/w3af/ospd-w3af.py, wrappers/ovaldi/ospd-ovaldi.py: Check for
+	and handle --background option.
+
 2014-09-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [get_result_xml, simple_response_str]): Move

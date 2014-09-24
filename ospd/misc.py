@@ -29,6 +29,7 @@ import uuid
 import datetime
 import argparse
 import os
+import sys
 import syslog
 
 KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
@@ -252,8 +253,21 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
                         help='Debug level. Default: 0')
     parser.add_argument('--syslog', dest='syslog', action='store_true',
                         help='Use syslog for logging.')
-
+    parser.add_argument('--background', dest='background', action='store_true',
+                        help='Run in background.')
     return parser
+
+def go_to_background(logger=None):
+    """ Daemonize the running process. """
+    try:
+        if os.fork():
+            os._exit(0)
+    except OSError, errmsg:
+        if logger:
+            logger.error('Fork failed: {0}'.format(errmsg))
+        else:
+            print 'Fork failed: {0}'.format(errmsg)
+        os._exit(1)
 
 def get_common_args(parser):
     """ Return list of OSPD common command-line arguments from parser, after
@@ -323,5 +337,6 @@ def get_common_args(parser):
     common_args['cafile'] = cafile
     common_args['debug'] = debug
     common_args['syslog'] = options.syslog
+    common_args['background'] = options.background
 
     return common_args

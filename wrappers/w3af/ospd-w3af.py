@@ -37,7 +37,7 @@ os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon, simple_response_str
 from ospd.misc import create_args_parser, get_common_args, OSPLogger
-from ospd.misc import SyslogLogger
+from ospd.misc import SyslogLogger, go_to_background
 
 # External modules.
 try:
@@ -302,6 +302,8 @@ if __name__ == '__main__':
         ospd_w3af.set_logger(SyslogLogger(cargs['debug']))
     else:
         ospd_w3af.set_logger(OSPLogger(cargs['debug']))
+    if cargs['background']:
+        go_to_background(ospd_w3af.logger)
 
     if not ospd_w3af.check():
         exit(1)
