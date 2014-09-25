@@ -68,9 +68,10 @@ def get_commands_table():
 def get_result_xml(result):
     """ Formats a scan result to XML format. """
 
-    result_type = ResultType.get_str(result[0])
-    return '<result name="{0}" type="{1}">{2}</result>'\
-            .format(result[1], result_type, xml_escape(result[2]))
+    result_type = ResultType.get_str(result['type'])
+    return '<result name="{0}" type="{1}" severity="{2}">{3}</result>'\
+            .format(result['name'], result_type, result['severity'],
+                    xml_escape(result['value']))
 
 def simple_response_str(command, status, status_text, content=""):
     """ Creates an OSP response XML string.
@@ -573,6 +574,6 @@ class OSPDaemon(object):
         """ Adds an error result to scan_id scan. """
         self.scan_collection.add_error(scan_id, name, value)
 
-    def add_scan_alarm(self, scan_id, name="", value=""):
+    def add_scan_alarm(self, scan_id, name='', value='', severity=''):
         """ Adds an alarm result to scan_id scan. """
-        self.scan_collection.add_alarm(scan_id, name, value)
+        self.scan_collection.add_alarm(scan_id, name, value, severity)

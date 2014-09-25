@@ -267,10 +267,22 @@ class OSPDw3af(OSPDaemon):
         vulns = xmldoc.getElementsByTagName('vulnerability')
         for vuln in vulns:
             vuln_name = vuln.getAttribute('name')
-            # XXX: Severity attribute
+            severity = vuln.getAttribute('severity').lower()
+            if severity == 'information':
+                vuln_sev = '0.0'
+            if severity == 'low':
+                vuln_sev = '2.5'
+            elif severity == 'medium':
+                vuln_sev = '5.0'
+            elif severity == 'high':
+                vuln_sev = '7.5'
+            else:
+                self.logger.debug(1, "Unknown severity {0}.".format(severity))
+                vuln_sev = ''
             desc_elem = vuln.getElementsByTagName('description')[0]
             vuln_desc = desc_elem.childNodes[0].nodeValue
-            self.add_scan_alarm(scan_id, name=vuln_name, value=vuln_desc)
+            self.add_scan_alarm(scan_id, name=vuln_name, value=vuln_desc,
+                                severity=vuln_sev)
         # w3afrun/information => result_type.LOG
         information = xmldoc.getElementsByTagName('information')
         for info in information:

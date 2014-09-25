@@ -1,3 +1,15 @@
+2014-09-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection [add_alarm, add_log, add_error): Make
+	result entries as dictionnaries instead of tuples. Add result severity.
+
+	* ospd/ospd.py (get_result_xml): Add result severity. Adjust for result
+	entries being dictionnaries.
+	(OSPDaemon [add_scan_alarm]): Add severity method parameter.
+
+	* wrappers/w3af/ospd-w3af.py (OSPDw3af [store_scan_results]): Extract
+	vulnerabilities severity values.
+
 2014-09-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (go_to_background): Call exit() directly.
