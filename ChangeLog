@@ -1,3 +1,9 @@
+2014-09-26  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (get_commands_table): Document help command's format
+	attribute.
+	(OSPDaemon [handle_help_command]): Handle text format type.
+
 2014-09-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection [add_alarm, add_log, add_error): Make

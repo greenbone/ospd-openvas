@@ -44,7 +44,8 @@ def get_commands_table():
                                             'Target host to scan'},
                             'elements' : None},
             'help' : {'description' : 'Print the commands help.',
-                      'attributes' : None,
+                      'attributes' :
+                      {'format' : 'Help format. Could be text or xml.'},
                       'elements' : None},
             'get_scans' : {'description' : 'List the scans in buffer.',
                            'attributes' :
@@ -327,7 +328,7 @@ class OSPDaemon(object):
         @return: Response string for <help> command.
         """
         help_format = scan_et.attrib.get('format')
-        if help_format is None:
+        if help_format is None or help_format == "text":
             # Default help format is text.
             return simple_response_str('help', 200, 'OK',
                                        self.get_help_text())
