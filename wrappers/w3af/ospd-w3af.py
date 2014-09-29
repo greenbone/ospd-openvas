@@ -46,14 +46,6 @@ except ImportError:
     print "pexpect not found."
     print "# pip install pexpect. (Or apt-get install python-pexpect.)"
     exit(1)
-try:
-    from w3af.core.controllers.core_helpers.profiles import profile\
-    as w3af_profile
-    from w3af.core.controllers.exceptions import BaseFrameworkException
-except ImportError:
-    print "Couldn't import w3af: Path not found or version is < 1.6."
-    print "Try to use: PYTHONPATH=/path/to/w3af/ python ospd-python.py"
-    exit(1)
 
 OSPD_W3AF_DESCRIPTION = """
 This scanner runs the 'w3af' scanner installed on the local system.
@@ -150,13 +142,14 @@ class OSPDw3af(OSPDaemon):
             profile = self.get_scanner_param_default('profile')
         else:
             profile = profile.text
-        try:
-            w3af_profile(profname=profile)
-            options['profile'] = profile
-        except BaseFrameworkException:
+        profiles = ["bruteforce", "audit_high_risk", "full_audit",
+                    "OWASP_TOP10", "fast_scan", "empty_profile",
+                    "web_infrastructure", "full_audit_spider_man", "sitemap"]
+        if profile not in profiles:
             self.logger.debug(1, "Erroneous profile name {0}.".format(profile))
             return simple_response_str('start_scan', 400,
                                        'Invalid profile value')
+        options['profile'] = profile
         timeout = scanner_params.find('w3af_timeout')
         if timeout is None or timeout.text is None:
             options['timeout'] = self.get_scanner_param_default('w3af_timeout')
