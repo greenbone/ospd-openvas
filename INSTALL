@@ -93,3 +93,12 @@ To create a .tar.gz file for the ospd module run this command:
 python setup.py sdist
 
 This will create the archive file in the subdirectory "dist".
+
+Documentation
+-------------------------
+
+To generate the OSP documentation in HTML format, run the script:
+
+./doc/generate
+
+This will create the osp.html file in the subdirectory "doc".

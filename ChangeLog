@@ -1,3 +1,10 @@
+2014-10-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* INSTALL: Add section on generating OSP documentation.
+
+	* ospd/doc/generate, ospd/doc/HTML.xsl, ospd/doc/OSP.xml: Move files to
+	doc/ directory.
+
 2014-09-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/doc/generate, ospd/doc/OSP.xml, ospd/doc/HTML.xsl: New
