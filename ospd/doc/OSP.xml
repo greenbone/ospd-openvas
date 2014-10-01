@@ -1,0 +1,481 @@
+<!--
+OSPD
+$Id$
+Description: OSP schema with embedded documentation, in OSP.
+
+Authors:
+Hani Benhabiles <hani.benhabiles@greenbone.de>
+
+Copyright:
+Copyright (C) 2014 Greenbone Networks GmbH
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+-->
+
+<protocol>
+  <name>OpenVAS Security Protocol</name>
+  <abbreviation>OSP</abbreviation>
+  <summary>The OpenVAS Security Protocol</summary>
+  <version>1.0</version>
+  <type>
+    <name>integer</name>
+    <summary>An integer</summary>
+  </type>
+  <type>
+    <name>string</name>
+    <summary>A string</summary>
+  </type>
+  <type>
+    <name>file</name>
+    <summary>A file's content that is base64 encoded</summary>
+  </type>
+  <type>
+    <name>boolean</name>
+    <summary>0 or 1</summary>
+  </type>
+  <type>
+    <name>uuid</name>
+    <summary>A Universally Unique Identifier (UUID)</summary>
+    <pattern>xsd:token { pattern = "[0-9abcdefABCDEF\-]{1,40}" }</pattern>
+  </type>
+  <type>
+    <name>epoch_time</name>
+    <summary>A date, in unix format</summary>
+    <pattern>integer</pattern>
+  </type>
+  <command>
+    <name>help</name>
+    <summary>Get the help text</summary>
+    <pattern>
+      <attrib>
+        <name>format</name>
+        <summary>Help format</summary>
+        <type>
+          <alts>
+            <alt>xml</alt>
+            <alt>text</alt>
+          </alts>
+        </type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>integer</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        text
+      </pattern>
+    </response>
+    <example>
+      <summary>Get the help text</summary>
+      <request>
+        <help format='xml'/>
+      </request>
+      <response>
+        <help_response status_text="OK" status="200">
+          <delete_scan>
+            <attributes>
+              <scan_id>ID of scan to delete</scan_id>
+            </attributes>
+            <elements></elements>
+            <description>Delete a finished scan</description>
+          </delete_scan>
+          <help>
+            <attributes>
+              <format>Help format. Could be text or xml</format>
+            </attributes>
+            <elements></elements>
+            <description>Print the commands help</description>
+          </help>
+          <get_version>
+            <attributes></attributes>
+            <elements></elements>
+            <description>Return various versions</description>
+          </get_version>
+          <get_scanner_details>
+            <attributes></attributes>
+            <elements></elements>
+            <description>Return scanner description and parameters</description>
+          </get_scanner_details>
+          <start_scan>
+            <attributes>
+              <target>Target host to scan</target>
+            </attributes>
+            <elements>
+              <scanner_params>
+                <profile>Scan profile</profile>
+                <target_port>Target port</target_port>
+                <use_https>Use HTTPS</use_https>
+                <w3af_timeout>w3af scan timeout</w3af_timeout>
+              </scanner_params>
+            </elements>
+            <description>Start a new scan</description>
+          </start_scan>
+          <get_scans>
+            <attributes>
+              <scan_id>ID of a specific scan to get</scan_id>
+              <details>Whether to return the full scan report</details>
+            </attributes>
+            <elements></elements>
+            <description>List the scans in buffer</description>
+          </get_scans>
+        </help_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>get_scans</name>
+    <summary>Get the stored scans</summary>
+    <pattern>
+      <attrib>
+        <name>scan_id</name>
+        <summary>Scan UUID</summary>
+        <type>uuid</type>
+      </attrib>
+      <attrib>
+        <name>details</name>
+        <summary>Whether to get full scan reports</summary>
+        <type>boolean</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <any><e>scan</e></any>
+      </pattern>
+      <ele>
+        <name>scan</name>
+        <pattern>
+          <attrib>
+            <name>id</name>
+            <type>uuid</type>
+          </attrib>
+          <attrib>
+            <name>target</name>
+            <type>string</type>
+          </attrib>
+          <attrib>
+            <name>start_time</name>
+            <type>epoch_time</type>
+          </attrib>
+          <attrib>
+            <name>end_time</name>
+            <type>epoch_time</type>
+          </attrib>
+          <attrib>
+            <name>progress</name>
+            <type>integer</type>
+          </attrib>
+          <ele>
+            <name>results</name>
+          </ele>
+        </pattern>
+      </ele>
+    </response>
+    <example>
+      <summary>Get a scan report summary</summary>
+      <request>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c"/>
+      </request>
+      <response>
+        <get_scans_response status_text="OK" status="200">
+          <scan id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" target="localhost" end_time="1411999321" progress="100" start_time="1411999316">
+            <results>
+              <result severity="" name="" type="Error Message">
+                ...
+              </result>
+            </results>
+          </scan>
+        </get_scans_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>delete_scan</name>
+    <summary>Delete a finished scan</summary>
+    <pattern>
+      <attrib>
+        <name>scan_id</name>
+        <summary>Scan UUID</summary>
+        <type>uuid</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
+    </response>
+    <example>
+      <summary>Delete a scan successfuly</summary>
+      <request>
+        <delete_scan scan_id="013587e3-b4d7-8e79-9ebb-90a2133c338c"/>
+      </request>
+      <response>
+        <delete_scan_response status_text="OK" status="200"></delete_scan_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>get_version</name>
+    <summary>Return various versions</summary>
+    <pattern/>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>protocol</e>
+        <e>daemon</e>
+        <e>scanner</e>
+      </pattern>
+      <ele>
+        <name>protocol</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+      </ele>
+      <ele>
+        <name>daemon</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+      </ele>
+      <ele>
+        <name>scanner</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Get protocol, scanner and daemon versions</summary>
+      <request>
+        <get_version/>
+      </request>
+      <response>
+        <get_version_response status_text="OK" status="200">
+          <protocol>
+            <version>0.1.0</version>
+            <name>OSP</name>
+          </protocol>
+          <daemon>
+            <version>generic version</version>
+            <name>generic ospd</name>
+          </daemon>
+          <scanner>
+            <version>1.6.0.4</version>
+            <name>w3af</name>
+          </scanner>
+        </get_version_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>get_scanner_details</name>
+    <summary>Return scanner description and parameters</summary>
+    <pattern/>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>description</e>
+        <e>scanner_params</e>
+      </pattern>
+      <ele>
+        <name>description</name>
+        <pattern></pattern>
+      </ele>
+      <ele>
+        <name>scanner_params</name>
+        <pattern>
+          <any><e>scanner_param</e></any>
+        </pattern>
+        <ele>
+          <name>scanner_param</name>
+          <pattern>
+            <attrib>
+              <name>id</name>
+              <type>string</type>
+            </attrib>
+            <attrib>
+              <name>type</name>
+              <type>string</type>
+            </attrib>
+            <e>name</e>
+            <e>description</e>
+            <e>default</e>
+          </pattern>
+          <ele>
+            <name>name</name>
+          </ele>
+          <ele>
+            <name>description</name>
+          </ele>
+          <ele>
+            <name>default</name>
+          </ele>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Get scanner details</summary>
+      <request>
+        <get_scanner_details/>
+      </request>
+      <response>
+        <get_scanner_details_response status_text="OK" status="200">
+          <description>
+            ...
+          </description>
+          <scanner_params>
+            <scanner_param id="profile" type="string">
+              <name>Scan profile</name>
+              <description>Scan profiles are predefined set of plugins and customized configurations.</description>
+              <default>fast_scan</default>
+            </scanner_param>
+            <scanner_param id="target_port" type="integer">
+              <name>Target port</name>
+              <description>Port on target host to scan</description>
+              <default>80</default>
+            </scanner_param>
+            <scanner_param id="use_https" type="boolean">
+              <name>Use HTTPS</name>
+              <description>Whether the target application is running over HTTPS</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="w3af_timeout" type="integer">
+              <name>w3af scan timeout</name>
+              <description>Time to wait for the w3af scan to finish</description>
+              <default>3600</default>
+            </scanner_param>
+          </scanner_params>
+        </get_scanner_details_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>start_scan</name>
+    <summary>Start a new scan</summary>
+    <pattern>
+      <attrib>
+        <name>target</name>
+        <summary>Target host to scan</summary>
+        <type>string</type>
+      </attrib>
+      <e>scanner_params</e>
+    </pattern>
+    <ele>
+      <name>scanner_params</name>
+      <summary>Contains elements that represent scanner specific parameters</summary>
+    </ele>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>integer</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>id</e>
+      </pattern>
+      <ele>
+        <name>id</name>
+        <summary>New scan's UUID</summary>
+      </ele>
+    </response>
+    <example>
+      <summary>Start a new scan</summary>
+      <request>
+        <start_scan target='localhost'>
+          <scanner_params>
+            <target_port>443</target_port>
+            <use_https>1</use_https>
+            <profile>fast_scan</profile>
+          </scanner_params>
+        </start_scan>
+      </request>
+      <response>
+        <start_scan_response status_text="OK" status="200">
+          <id>2f616d53-595f-4785-9b97-4395116ca118</id>
+        </start_scan_response>
+      </response>
+    </example>
+  </command>
+</protocol>

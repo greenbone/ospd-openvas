@@ -1,3 +1,8 @@
+2014-09-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/doc/generate, ospd/doc/OSP.xml, ospd/doc/HTML.xsl: New
+	OSP documentation files.
+
 2014-09-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/w3af/ospd-w3af.py: Check for profile name without importing
