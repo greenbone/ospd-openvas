@@ -38,7 +38,7 @@ setup(
     # Versions should comply with PEP440. For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # http://packaging.python.org/en/latest/tutorial.html#version
-    version='1.0+beta3',
+    version='1.0+beta4',
 
     description=('OSPD is a collection of scanner wrappers which share the, ',
                  'same communication protocol: OSP (OpenVAS Scanner ',
