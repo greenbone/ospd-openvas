@@ -1,3 +1,9 @@
+2014-10-15  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the ospd 1.0+beta3 release.
+
+	* CHANGES: Updated.
+
 2014-10-01  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* INSTALL: Add section on generating OSP documentation.
