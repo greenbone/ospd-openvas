@@ -108,9 +108,10 @@ class OSPDw3af(OSPDaemon):
     def check(self):
         """ Checks that w3af_console is found and is executable. """
         try:
-            pexpect.spawn('w3af_console')
+            output = pexpect.spawn('w3af_console')
+            output.expect("w3af>>>")
         except pexpect.ExceptionPexpect, message:
-            self.logger.error(message)
+            self.logger.error("Check for w3af_console failed")
             return False
         return True
 
