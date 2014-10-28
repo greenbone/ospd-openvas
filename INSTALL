@@ -68,7 +68,7 @@ Or you can create a scanner via openvasmd command line (adjust host,
 port, paths etc. for your daemon):
 
 $ openvasmd --create-scanner="OSP Remote Ovaldi" --scanner-host=127.0.0.1 --scanner-port=1234 \
-           --scanner-type="OSP Ovaldi" --scanner-ca-pub=/usr/var/lib/openvas/CA/cacert.pem \
+           --scanner-type="OSP" --scanner-ca-pub=/usr/var/lib/openvas/CA/cacert.pem \
            --scanner-key-pub=/usr/var/lib/openvas/CA/clientcert.pem \
            --scanner-key-priv=/usr/var/lib/openvas/private/CA/clientkey.pem 
 

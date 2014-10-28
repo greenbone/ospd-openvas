@@ -125,7 +125,7 @@ omp --use-certs --send-file=/tmp/definitions.xml --xml="<start_scan target='127.
 
 Starting a scan with ospd-w3af:
 
-omp --use-certs --xml="<start_scan target='www.intevation.de'><scanner_params><profile>fast</profile></scanner_params></start_scan>" -p 1235 -i
+omp --use-certs --xml="<start_scan target='www.example.com'><scanner_params><profile>fast_scan</profile></scanner_params></start_scan>" -p 1235 -i
 
 
 Show the list of scans, their status and results (any OSP Scanner):
