@@ -1,3 +1,9 @@
+2014-10-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi [exec_scan]): Use correct
+	error string in case of authentication failure error, and correctly
+	clean-up local directory on other errors.
+
 2014-10-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/w3af/ospd-w3af.py (OSPDw3af [check]): Improve check for

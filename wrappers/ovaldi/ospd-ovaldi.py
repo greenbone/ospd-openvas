@@ -279,7 +279,7 @@ class OSPDOvaldi(OSPDaemon):
                 socket.error), err:
             # Errors: No route to host, connection timeout, authentication
             # failure etc,.
-            return self.finish_scan_with_err(scan_id, local_dir, err)
+            return self.finish_scan_with_err(scan_id, local_dir, str(err))
 
         # Can we SFTP to the target ?
         try:
@@ -287,7 +287,7 @@ class OSPDOvaldi(OSPDaemon):
         except paramiko.ssh_exception.SSHException:
             err = "Couldn't SFTP to the target host."
             ssh.close()
-            return self.finish_scan_with_err(scan_id, None, err)
+            return self.finish_scan_with_err(scan_id, local_dir, err)
 
         # Check for ovaldi on the target.
         err = self.check_ovaldi(ssh, sftp)
@@ -304,7 +304,7 @@ class OSPDOvaldi(OSPDaemon):
             err = "Failed to mkdir {0} on target: {1}".format(target_dir, err)
             sftp.close()
             ssh.close()
-            return self.finish_scan_with_err(scan_id, None, err)
+            return self.finish_scan_with_err(scan_id, local_dir, err)
         target_defs_path = "{0}/definitions.xml".format(target_dir)
         sftp.put(defs_path, target_defs_path)
 
