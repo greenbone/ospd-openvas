@@ -316,7 +316,7 @@ class OSPDOvaldi(OSPDaemon):
                    .format(results_path, syschar_path, target_defs_path,
                            target_dir, self.schema_dir)
         self.logger.debug(2, "Running command: {0}".format(command))
-        _, stdout, _ = ssh.exec_command(command, timeout=options['timeout'])
+        _, stdout, _ = ssh.exec_command(command)
         # Flush stdout buffer, to continue execution.
         stdout.readlines()
         # Get the results files from target.
