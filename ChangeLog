@@ -1,3 +1,15 @@
+2014-10-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection [create_scan]): Initalize exec_thread's
+	value in scan_info.
+	(ScanCollection [get_thread, set_thread]): New class methods.
+
+	* ospd/ospd.py (OSPDaemon [start_scan]): Use threading module. Set the
+	scan's executing thread.
+	(OSPDaemon [check_scan_thread, get_scan_thread]): New methods.
+	(OSPDaemon [handle_get_scans_command, handle_delete_scan_command]):
+	Call check_scan_thread() method adequately.
+
 2014-10-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py (OSPdovaldi [exec_scan]): Don't provide

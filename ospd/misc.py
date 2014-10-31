@@ -169,6 +169,7 @@ class ScanCollection(object):
         scan_info['end_time'] = "0"
         scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
+        scan_info['exec_thread'] = None
         self.scans_table[scan_id] = scan_info
         return scan_id
 
@@ -186,6 +187,14 @@ class ScanCollection(object):
         """ Get a scan's current progress value. """
 
         return self.scans_table[scan_id]['progress']
+
+    def get_thread(self, scan_id):
+        """ Get a scan's executing thread. """
+        return self.scans_table[scan_id]['exec_thread']
+
+    def set_thread(self, scan_id, thread):
+        """ Set a scan's executing thread. """
+        self.scans_table[scan_id]['exec_thread'] = thread
 
     def get_start_time(self, scan_id):
         """ Get a scan's start time. """

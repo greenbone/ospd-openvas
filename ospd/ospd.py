@@ -31,7 +31,7 @@ except ImportError:
 from xml.sax.saxutils import escape as xml_escape
 import socket
 import ssl
-import thread
+import threading
 from misc import ScanCollection, ResultType
 
 OSP_VERSION = "0.1.0"
@@ -277,7 +277,9 @@ class OSPDaemon(object):
         """ Starts the scan with scan_id. """
 
         self.logger.debug(2, "{0}: Scan started.".format(scan_id))
-        thread.start_new_thread(self.exec_scan, (scan_id, ))
+        t = threading.Thread(target=self.exec_scan, args=(scan_id, ))
+        self.scan_collection.set_thread(scan_id, t)
+        t.start()
 
     def handle_timeout(self, scan_id):
         """ Handles scanner reaching timeout error. """
@@ -311,6 +313,7 @@ class OSPDaemon(object):
 
         response = ""
         if scan_id and scan_id in self.scan_collection.ids_iterator():
+            self.check_scan_thread(scan_id)
             scan_str = self.get_scan_xml(scan_id, details)
             response = ''.join([response, scan_str])
         elif scan_id:
@@ -318,6 +321,7 @@ class OSPDaemon(object):
             return simple_response_str('get_scans', 404, text)
         else:
             for scan_id in self.scan_collection.ids_iterator():
+                self.check_scan_thread(scan_id)
                 scan_str = self.get_scan_xml(scan_id, details)
                 response = ''.join([response, scan_str])
         return simple_response_str('get_scans', 200, 'OK', response)
@@ -385,6 +389,7 @@ class OSPDaemon(object):
         if not self.scan_exists(scan_id):
             text = "Failed to find scan '{0}'".format(scan_id)
             return simple_response_str('delete_scan', 404, text)
+        self.check_scan_thread(scan_id)
         if self.delete_scan(scan_id):
             return simple_response_str('delete_scan', 200, 'OK')
         else:
@@ -550,6 +555,19 @@ class OSPDaemon(object):
     def set_scan_option(self, scan_id, name, value):
         """ Sets a scan's option to a provided value. """
         return self.scan_collection.set_option(scan_id, name, value)
+
+    def check_scan_thread(self, scan_id):
+        """ Check the scan's thread, and terminate the scan if not alive. """
+        scan_thread = self.get_scan_thread(scan_id)
+        progress = self.get_scan_progress(scan_id)
+        if progress < 100 and not scan_thread.is_alive():
+            self.set_scan_progress(scan_id, 100)
+            self.add_scan_error(scan_id, "", "Scan thread failure.")
+            self.logger.debug(2, "{0}: Scan terminated.".format(scan_id))
+
+    def get_scan_thread(self, scan_id):
+        """ Gives a scan's current exec thread. """
+        return self.scan_collection.get_thread(scan_id)
 
     def get_scan_progress(self, scan_id):
         """ Gives a scan's current progress value. """
