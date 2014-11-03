@@ -230,8 +230,8 @@ class OSPDaemon(object):
                                          keyfile=self.certs['key_file'],
                                          ca_certs=self.certs['ca_file'],
                                          ssl_version=ssl.PROTOCOL_TLSv1)
-        except ssl.SSLError as err:
-            self.logger.error(err)
+        except (ssl.SSLError, socket.error) as message:
+            self.logger.error(message)
             return None
         return ssl_socket
 
@@ -247,8 +247,8 @@ class OSPDaemon(object):
                 if len(data) == 0:
                     self.logger.debug(1, "Empty client stream")
                     return
-            except AttributeError:
-                self.logger.debug(1, "Couldn't read client input.")
+            except (AttributeError, ValueError), message:
+                self.logger.error(message)
                 return
             except ssl.SSLError:
                 break
