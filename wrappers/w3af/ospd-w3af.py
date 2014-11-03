@@ -275,6 +275,7 @@ class OSPDw3af(OSPDaemon):
                 vuln_sev = ''
             desc_elem = vuln.getElementsByTagName('description')[0]
             vuln_desc = desc_elem.childNodes[0].nodeValue
+            vuln_desc = vuln_desc.split("This vulnerability was found in ")[0]
             self.add_scan_alarm(scan_id, name=vuln_name, value=vuln_desc,
                                 severity=vuln_sev)
         # w3afrun/information => result_type.LOG
@@ -283,6 +284,8 @@ class OSPDw3af(OSPDaemon):
             info_name = info.getAttribute('name')
             desc_elem = info.getElementsByTagName('description')[0]
             info_desc = desc_elem.childNodes[0].nodeValue
+            info_desc = info_desc.split("This vulnerability was found in ")[0]
+            info_desc = info_desc.split("This information was found in ")[0]
             self.add_scan_log(scan_id, name=info_name, value=info_desc)
         # w3afrun/error => result_type.ERROR
         errors = xmldoc.getElementsByTagName('error')
