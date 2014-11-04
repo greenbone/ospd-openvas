@@ -148,6 +148,24 @@ class OSPDaemon(object):
         """ Checks if a commands exists. """
         return name in self.commands.keys()
 
+    def get_scan_param(self, scanner_params, name, values):
+        """ Get a scan param value from a params tree and validate its value.
+
+        @param: Xml element containing scanner parameters.
+        @param: Name of scanner parameter to get.
+        @param: List of valid values for the parameter.
+
+        @return: Parameter value if found and valid, None otherwise.
+        """
+        param = scanner_params.find(name)
+        if param is None or param.text is None:
+            param = self.get_scanner_param_default(name)
+        else:
+            param = param.text
+        if values and param not in [str(x) for x in values]:
+            return None
+        return param
+
     def get_scanner_name(self):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError

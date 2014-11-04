@@ -1,5 +1,13 @@
 2014-11-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon [get_scan_param]): New method.
+
+	* wrappers/w3af/ospd-w3af.py (OSPDw3af [get_scan_params]): New method.
+	(OSPDw3af [handle_start_scan_command]): Use new method to get dict of
+	scanner parameters.
+
+2014-11-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* wrappers/w3af/ospd-w3af.py (OSPDw3af [store_scan_results]): Strip off
 	the vuln and info's http request internal ID as it is meaningless.
 

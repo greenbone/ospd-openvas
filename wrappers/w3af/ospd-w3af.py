@@ -127,6 +127,33 @@ class OSPDw3af(OSPDaemon):
         """ Gives the used scanner's description. """
         return OSPD_W3AF_DESCRIPTION
 
+    def get_scan_params(self, scanner_params):
+        """ Get scan parameters as a dictionnary. """
+        assert scanner_params
+
+        params = dict()
+        profiles = ["bruteforce", "audit_high_risk", "full_audit",
+                    "OWASP_TOP10", "fast_scan", "empty_profile",
+                    "web_infrastructure", "full_audit_spider_man", "sitemap"]
+        profile = self.get_scan_param(scanner_params, 'profile', profiles)
+        if not profile:
+            return None, 'Invalid profile value'
+        params['profile'] = profile
+        timeout = self.get_scan_param(scanner_params, 'w3af_timeout',
+                                      xrange(7200))
+        if not timeout:
+            return None, 'Invalid timeout value'
+        params['timeout'] = int(timeout)
+        port = self.get_scan_param(scanner_params, 'target_port', range(65535))
+        if not port:
+            return None, 'Invalid target_port value'
+        params['port'] = int(port)
+        use_https = self.get_scan_param(scanner_params, 'use_https', [0, 1])
+        if not use_https:
+            return None, 'Invalid use_https value'
+        params['use_https'] = int(use_https)
+        return params, None
+
     def handle_start_scan_command(self, scan_et):
         """ Handles the OSP <start_scan> command element tree. """
 
@@ -137,53 +164,9 @@ class OSPDw3af(OSPDaemon):
         if scanner_params is None:
             return simple_response_str('start_scan', 400,
                                        'No scanner_params element')
-        options = dict()
-        profile = scanner_params.find('profile')
-        if profile is None or profile.text is None:
-            profile = self.get_scanner_param_default('profile')
-        else:
-            profile = profile.text
-        profiles = ["bruteforce", "audit_high_risk", "full_audit",
-                    "OWASP_TOP10", "fast_scan", "empty_profile",
-                    "web_infrastructure", "full_audit_spider_man", "sitemap"]
-        if profile not in profiles:
-            self.logger.debug(1, "Erroneous profile name {0}.".format(profile))
-            return simple_response_str('start_scan', 400,
-                                       'Invalid profile value')
-        options['profile'] = profile
-        timeout = scanner_params.find('w3af_timeout')
-        if timeout is None or timeout.text is None:
-            options['timeout'] = self.get_scanner_param_default('w3af_timeout')
-        else:
-            try:
-                options['timeout'] = int(timeout.text)
-                if options['timeout'] < 0:
-                    raise ValueError
-            except ValueError:
-                return simple_response_str('start_scan', 400,
-                                           'Invalid timeout value')
-        port = scanner_params.find('target_port')
-        if port is None or port.text is None:
-            options['port'] = self.get_scanner_param_default('target_port')
-        else:
-            try:
-                options['port'] = int(port.text)
-                if options['port'] <= 0 or options['port'] > 65535:
-                    raise ValueError
-            except ValueError:
-                return simple_response_str('start_scan', 400,
-                                           'Invalid target_port value')
-        use_https = scanner_params.find('use_https')
-        if use_https is None or use_https.text is None:
-            options['use_https'] = self.get_scanner_param_default('use_https')
-        else:
-            try:
-                options['use_https'] = int(use_https.text)
-                if options['use_https'] != 0 and options['use_https'] != 1:
-                    raise ValueError
-            except ValueError:
-                return simple_response_str('start_scan', 400,
-                                           'Invalid target_port value')
+        options, err_str = self.get_scan_params(scanner_params)
+        if not options:
+            return simple_response_str('start_scan', 400, err_str)
         # Create new Scan
         scan_id = self.create_scan(target, options)
 
