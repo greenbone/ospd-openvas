@@ -96,6 +96,12 @@ OSPD_W3AF_PARAMS = \
   'default' : 0,
   'description' : 'Whether to show the HTTP request\'s headers in results',
  },
+ 'http_response_status' :
+ {'type' : 'boolean',
+  'name' : 'Show HTTP response status',
+  'default' : 0,
+  'description' : 'Whether to show the HTTP response\'s status in results',
+ },
 }
 
 def get_w3af_version():
@@ -174,6 +180,11 @@ class OSPDw3af(OSPDaemon):
         if not headers:
             return None, 'Invalid http_request_headers value'
         params['headers'] = int(headers)
+        res_status = self.get_scan_param(scanner_params, 'http_response_status',
+                                         [0, 1])
+        if not res_status:
+            return None, 'Invalid http_respnse_status value'
+        params['res_status'] = int(res_status)
         return params, None
 
     def handle_start_scan_command(self, scan_et):
@@ -231,6 +242,7 @@ class OSPDw3af(OSPDaemon):
         assert options.has_key('profile')
         assert options.has_key('status')
         assert options.has_key('headers')
+        assert options.has_key('res_status')
 
         output_file = "/tmp/w3af-scan-{0}".format(scan_id)
         script_file = self.create_w3af_script(scan_id, output_file, options)
@@ -250,7 +262,7 @@ class OSPDw3af(OSPDaemon):
         # Now, parse output_file and make multiple results
         # Small delay.
         self.store_scan_results(scan_id, output_file, options['status'],
-                                options['headers'])
+                                options['headers'], options['res_status'])
 
         # Cleanup
         if self.logger.get_level() < 1:
@@ -262,7 +274,7 @@ class OSPDw3af(OSPDaemon):
         self.finish_scan(scan_id)
 
     def store_scan_results(self, scan_id, output_file,
-                           req_status=1, req_headers=1):
+                           req_status=1, req_headers=1, res_status=1):
         """ Stores scan results from the XML output_file """
 
         xmldoc = xml_parse(output_file)
@@ -285,12 +297,13 @@ class OSPDw3af(OSPDaemon):
             desc_elem = vuln.getElementsByTagName('description')[0]
             vuln_desc = desc_elem.childNodes[0].nodeValue
             vuln_desc = vuln_desc.split("This vulnerability was found in ")[0]
+            request = vuln.getElementsByTagName('httprequest')[0]
             if req_status:
-                status = vuln.getElementsByTagName('status')[0]
+                status = request.getElementsByTagName('status')[0]
                 vuln_desc = ''.join([vuln_desc, '\n\nHTTP Request Status: ',
                                      status.childNodes[0].nodeValue, '\n'])
             if req_headers:
-                headers = vuln.getElementsByTagName('header')
+                headers = request.getElementsByTagName('header')
                 vuln_desc = ''.join([vuln_desc, '\nHTTP Request Headers:'])
                 h_str = str()
                 for header in headers:
@@ -298,6 +311,11 @@ class OSPDw3af(OSPDaemon):
                     content = header.getAttribute('content')
                     h_str = ''.join([h_str, '\n ', field, ': ', content])
                 vuln_desc = ''.join([vuln_desc, h_str])
+            response = vuln.getElementsByTagName('httpresponse')[0]
+            if res_status:
+                status = response.getElementsByTagName('status')[0]
+                vuln_desc = ''.join([vuln_desc, '\n\nHTTP Response Status: ',
+                                     status.childNodes[0].nodeValue, '\n'])
 
             self.add_scan_alarm(scan_id, name=vuln_name, value=vuln_desc,
                                 severity=vuln_sev)
@@ -309,12 +327,13 @@ class OSPDw3af(OSPDaemon):
             info_desc = desc_elem.childNodes[0].nodeValue
             info_desc = info_desc.split("This vulnerability was found in ")[0]
             info_desc = info_desc.split("This information was found in ")[0]
+            request = info.getElementsByTagName('httprequest')[0]
             if req_status:
-                status = info.getElementsByTagName('status')[0]
+                status = request.getElementsByTagName('status')[0]
                 info_desc = ''.join([info_desc, '\n\nHTTP Request Status: ',
                                      status.childNodes[0].nodeValue, '\n'])
             if req_headers:
-                headers = info.getElementsByTagName('header')
+                headers = request.getElementsByTagName('header')
                 info_desc = ''.join([info_desc, '\nHTTP Request Headers:'])
                 h_str = str()
                 for header in headers:
@@ -322,6 +341,11 @@ class OSPDw3af(OSPDaemon):
                     content = header.getAttribute('content')
                     h_str = ''.join([h_str, '\n ', field, ': ', content])
                 info_desc = ''.join([info_desc, h_str])
+            response = info.getElementsByTagName('httpresponse')[0]
+            if res_status:
+                status = response.getElementsByTagName('status')[0]
+                info_desc = ''.join([info_desc, '\n\nHTTP Response Status: ',
+                                     status.childNodes[0].nodeValue, '\n'])
 
             self.add_scan_log(scan_id, name=info_name, value=info_desc)
         # w3afrun/error => result_type.ERROR

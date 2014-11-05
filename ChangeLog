@@ -1,5 +1,16 @@
 2014-11-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* wrappers/w3af/ospd-w3af.py (OSPD_W3AF_PARAMS): Add
+	http_response_status scanner parameter.
+	(OSPDw3af [get_scan_params]): Get the new scanner parameter.
+	(OSPDw3af [exec_scan]): Adjust store_scan_results() method call. Add
+	assert.
+	(OSPDw3af [store_scan_results]): Add new method parameter to specify
+	whether to parse results reports for http response status. Correctly get
+	the httperquest element for the request status and headers.
+
+2014-11-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* wrappers/w3af/ospd-w3af.py (OSPD_W3AF_PARAMS): Add http_request_status
 	and http_request_headers scanner parameters.
 	(OSPDw3af [get_scan_params]): Get the new scanner parameters.
