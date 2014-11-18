@@ -28,6 +28,7 @@
 
 import os
 import inspect
+import logging
 import sys
 from xml.dom.minidom import parse as xml_parse
 
@@ -47,6 +48,8 @@ except ImportError:
     print "pexpect not found."
     print "# pip install pexpect. (Or apt-get install python-pexpect.)"
     sys.exit(1)
+
+logger = logging.getLogger(__name__)
 
 OSPD_W3AF_DESCRIPTION = """
 This scanner runs the 'w3af' scanner installed on the local system.
@@ -130,7 +133,7 @@ class OSPDw3af(OSPDaemon):
             output = pexpect.spawn('w3af_console')
             output.expect("w3af>>>")
         except pexpect.ExceptionPexpect, message:
-            self.logger.error("Check for w3af_console failed")
+            logger.error("Check for w3af_console failed")
             return False
         return True
 
@@ -213,7 +216,7 @@ class OSPDw3af(OSPDaemon):
         """ Returns path to a w3af script file for the scan_id scan. """
 
         profile = options.get('profile')
-        self.logger.debug(2, "w3af scan using {0} profile.".format(profile))
+        logger.info("w3af scan using {0} profile.".format(profile))
         target = self.get_scan_target(scan_id)
         script_path = "/tmp/w3af-{0}".format(scan_id)
         port = options.get('port')
@@ -254,7 +257,7 @@ class OSPDw3af(OSPDaemon):
             output.expect("Scan finished in ")
             output.expect("w3af>>>")
         except pexpect.TIMEOUT:
-            self.logger.debug(1, "w3af scan reached timeout.")
+            logger.debug("w3af scan reached timeout.")
             self.handle_timeout(scan_id)
             os.remove(script_file)
             output.close(True)
@@ -269,7 +272,7 @@ class OSPDw3af(OSPDaemon):
         if self.logger.get_level() < 1:
             os.remove(output_file)
         else:
-            self.logger.debug(2, "{0} not removed.".format(output_file))
+            logger.info("{0} not removed.".format(output_file))
         os.remove(script_file)
         # Set scan as finished
         self.finish_scan(scan_id)
@@ -293,7 +296,7 @@ class OSPDw3af(OSPDaemon):
             elif severity == 'high':
                 vuln_sev = '7.5'
             else:
-                self.logger.debug(1, "Unknown severity {0}.".format(severity))
+                logger.debug("Unknown severity {0}.".format(severity))
                 vuln_sev = ''
             desc_elem = vuln.getElementsByTagName('description')[0]
             vuln_desc = desc_elem.childNodes[0].nodeValue

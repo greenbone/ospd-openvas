@@ -1,5 +1,9 @@
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/w3af/ospd-w3af.py: Better use python standard logger
+
+2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py: Use the standard logger.
 
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
