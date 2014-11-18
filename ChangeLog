@@ -1,5 +1,10 @@
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* tests/testOSPDError.py, ospd/ospd.py: Make use of exceptions to
+	  throw OSPD errors
+
+2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* setup.py, tests/__init__.py: Add framework to host some unit-tests.
 
 2014-11-05  Hani Benhabiles <hani.benhabiles@greenbone.net>

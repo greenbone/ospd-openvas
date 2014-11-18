@@ -90,6 +90,19 @@ def simple_response_str(command, status, status_text, content=""):
     return '<{0}_response status="{1}" status_text="{2}">{3}'\
            '</{0}_response>'.format(command, status, status_text, content)
 
+
+class OSPDError(Exception):
+    """ This is an exception that will result in an error message to the
+    client """
+    def __init__(self, message, command='osp', status=400):
+        self.message = message
+        self.command = command
+        self.status = status
+
+    def asXML(self):
+        return simple_response_str(self.command, self.status, self.message)
+
+
 class OSPDaemon(object):
     """ Daemon class for OSP traffic handling.
 
@@ -265,7 +278,7 @@ class OSPDaemon(object):
                 if len(data) == 0:
                     self.logger.debug(1, "Empty client stream")
                     return
-            except (AttributeError, ValueError), message:
+            except (AttributeError, ValueError) as message:
                 self.logger.error(message)
                 return
             except ssl.SSLError:
@@ -273,7 +286,10 @@ class OSPDaemon(object):
         if len(data) <= 0:
             self.logger.debug(1, "Empty client stream")
             return
-        response = self.handle_command(data)
+        try:
+            response = self.handle_command(data)
+        except OSPDError as e:
+            response = e.asXML()
         stream.write(response)
 
     def close_client_stream(self, client_stream):
@@ -357,8 +373,7 @@ class OSPDaemon(object):
         elif help_format == "xml":
             text = self.get_xml_str(self.commands)
             return simple_response_str('help', 200, 'OK', text)
-        else:
-            return simple_response_str('help', 400, 'Bogus help format')
+        raise OSPDError('Bogus help format', 'help')
 
     def get_help_text(self):
         """ Returns the help output in plain text format."""
@@ -410,8 +425,7 @@ class OSPDaemon(object):
         self.check_scan_thread(scan_id)
         if self.delete_scan(scan_id):
             return simple_response_str('delete_scan', 200, 'OK')
-        else:
-            return simple_response_str('delete_scan', 400, 'Scan in progress')
+        raise OSPDError('Scan in progress', 'delete_scan')
 
     def delete_scan(self, scan_id):
         """ Deletes scan_id scan from collection.
@@ -516,10 +530,10 @@ class OSPDaemon(object):
             tree = ET.fromstring(command)
         except ET.ParseError:
             self.logger.debug(1, "Erroneous client input: {0}".format(command))
-            return simple_response_str('osp', 400, 'Invalid data')
+            raise OSPDError('Invalid data')
 
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
-            return simple_response_str('osp', 400, 'Bogus command name')
+            raise OSPDError('Bogus command name')
 
         if tree.tag == "get_version":
             return self.handle_get_version_command()
