@@ -1,6 +1,11 @@
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
 
-	* ospd/misc.py: Don;'t make the parser return array, we want only one
+	* ospd/misc.py: (parser) Don't explicitely set default values for
+	  dest and type.
+
+2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/misc.py: Don't make the parser return array, we want only one
 	  argument anyway.
 
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>

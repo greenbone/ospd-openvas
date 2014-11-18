@@ -262,22 +262,21 @@ def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
 
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('-p', '--port', dest='port', type=int,
+    parser.add_argument('-p', '--port', type=int,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
-    parser.add_argument('-b', '--bind-address', dest='address', type=str,
-                        help='Address to listen on.'\
-                                      ' Default: {0}'.format(ADDRESS))
-    parser.add_argument('-k', '--key-file', dest='keyfile', type=str,
+    parser.add_argument('-b', '--bind-address', dest='address',
+                        help='Address to listen on. Default: {0}'.format(ADDRESS))
+    parser.add_argument('-k', '--key-file', dest='keyfile',
                         help='Server key file. Default: {0}'.format(KEY_FILE))
-    parser.add_argument('-c', '--cert-file', dest='certfile', type=str,
+    parser.add_argument('-c', '--cert-file', dest='certfile',
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
-    parser.add_argument('--ca-file', dest='cafile', type=str,
+    parser.add_argument('--ca-file', dest='cafile',
                         help='CA cert file. Default: {0}'.format(CA_FILE))
-    parser.add_argument('-d', '--debug', dest='debug', type=int,
+    parser.add_argument('-d', '--debug', type=int,
                         help='Debug level. Default: 0')
-    parser.add_argument('--syslog', dest='syslog', action='store_true',
+    parser.add_argument('--syslog', action='store_true',
                         help='Use syslog for logging.')
-    parser.add_argument('--background', dest='background', action='store_true',
+    parser.add_argument('--background', action='store_true',
                         help='Run in background.')
     return parser
 
