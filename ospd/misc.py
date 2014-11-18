@@ -262,7 +262,14 @@ def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
 
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('-p', '--port', type=int,
+
+    def network_port(string):
+        value = int(string)
+        if value <= 0 or value > 65535:
+            raise argparse.ArgumentTypeError('port must be in ]0,65535] interval')
+        return value
+
+    parser.add_argument('-p', '--port', default=PORT, type=network_port,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
     parser.add_argument('-b', '--bind-address', dest='address',
                         help='Address to listen on. Default: {0}'.format(ADDRESS))
@@ -289,21 +296,15 @@ def go_to_background():
         logger.error('Fork failed: {0}'.format(errmsg))
         sys.exit('Fork failed')
 
-def get_common_args(parser):
+def get_common_args(parser, args=None):
     """ Return list of OSPD common command-line arguments from parser, after
     validating provided values or setting default ones.
 
     """
 
+    options = parser.parse_args(args)
     # TCP Port to listen on.
-    options = parser.parse_args()
-    port = PORT
-    if options.port:
-        port = int(options.port)
-        if port <= 0 or port > 65535:
-            print "--port must be in ]0,65535] interval.\n"
-            parser.print_help()
-            sys.exit('Invalid port')
+    port = options.port
 
     # Network address to bind listener to
     address = ADDRESS
