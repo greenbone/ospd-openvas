@@ -26,12 +26,14 @@
 
 """ ovaldi wrapper for OSPD. """
 
-import shutil
-import os
-import inspect
 import base64
+import inspect
+import logging
+import os
+import shutil
 import socket
 import sys
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -53,6 +55,8 @@ except ImportError:
     print "paramiko not found."
     print "# pip install paramiko (Or apt-get install python-paramiko.)"
     sys.exit(1)
+
+logger = logging.getLogger(__name__)
 
 OSPD_OVALDI_DESC = """
 This scanner runs the Open Source OVAL scanner 'ovaldi' being installed on the
@@ -232,7 +236,7 @@ class OSPDOvaldi(OSPDaemon):
         """
         if local_dir:
             shutil.rmtree(local_dir)
-        self.logger.debug(2, err)
+        logger.info(err)
         self.add_scan_error(scan_id, value=err)
         self.finish_scan(scan_id)
 
@@ -316,7 +320,7 @@ class OSPDOvaldi(OSPDaemon):
         command = "ovaldi -m -s -r {0} -d {1} -o {2} -y {3} -a {4}"\
                    .format(results_path, syschar_path, target_defs_path,
                            target_dir, self.schema_dir)
-        self.logger.debug(2, "Running command: {0}".format(command))
+        logger.info("Running command: {0}".format(command))
         _, stdout, _ = ssh.exec_command(command)
         # Flush stdout buffer, to continue execution.
         stdout.readlines()
@@ -328,7 +332,7 @@ class OSPDOvaldi(OSPDaemon):
             self.parse_results_xml(local_results, scan_id)
         except IOError, err:
             msg = "Couldn't get results.xml: {0}".format(err)
-            self.logger.debug(2, msg)
+            logger.info(msg)
             self.add_scan_error(scan_id, value=msg)
         # oval_syschar.xml
         try:
@@ -337,7 +341,7 @@ class OSPDOvaldi(OSPDaemon):
             self.parse_oval_syschar_xml(local_syschar, scan_id)
         except IOError, err:
             msg = "Couldn't get oval_syschar.xml: {0}".format(err)
-            self.logger.debug(2, msg)
+            logger.info(msg)
             self.add_scan_error(scan_id, value=msg)
         # ovaldi.log
         try:
@@ -346,14 +350,14 @@ class OSPDOvaldi(OSPDaemon):
             self.parse_ovaldi_log(local_log, scan_id)
         except IOError, err:
             msg = "Couldn't get ovaldi.log: {0}".format(err)
-            self.logger.debug(2, msg)
+            logger.info(msg)
             self.add_scan_error(scan_id, value=msg)
         # Cleanup temporary directories and close connection.
         sftp.close()
         if self.logger.get_level() < 1:
             ssh.exec_command("rm -rf {0}".format(target_dir))
         else:
-            self.logger.debug(2, "{0} not removed.".format(target_dir))
+            logger.info("{0} not removed.".format(target_dir))
 
         ssh.close()
         shutil.rmtree(local_dir)
@@ -391,7 +395,7 @@ class OSPDOvaldi(OSPDaemon):
 
             # XXX: Extract /oval_system_characteristcs/system_data/uname_item*
         except IOError:
-            self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
+            logger.debug("{0}: Couldn't open file.".format(file_path))
 
     def parse_system_info_interfaces(self, interfaces, scan_id):
         """ Parses interfaces information in ovaldi's system_info's interfaces
@@ -435,7 +439,7 @@ class OSPDOvaldi(OSPDaemon):
                 self.add_scan_log(scan_id, name=name, value=child.text)
             self.parse_oval_results(oval_defs, results, scan_id)
         except IOError:
-            self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
+            logger.debug("{0}: Couldn't open file.".format(file_path))
 
     def parse_oval_results(self, oval_defs, results, scan_id):
         """ Parses oval_definitions and results elements from results file. """
@@ -464,7 +468,7 @@ class OSPDOvaldi(OSPDaemon):
                 self.add_scan_log(scan_id, name="ovaldi.log",
                                   value=file_content)
         except IOError:
-            self.logger.debug(1, "{0}: Couldn't open file.".format(file_path))
+            logger.debug("{0}: Couldn't open file.".format(file_path))
 
 # Main starts here
 if __name__ == '__main__':
