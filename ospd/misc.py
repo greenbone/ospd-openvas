@@ -258,7 +258,7 @@ class ResultType(object):
         else:
             assert False, "Erroneous result name {0}.".format(result_name)
 
-def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
+def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
 
     parser = argparse.ArgumentParser(description=description)
