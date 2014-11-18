@@ -25,12 +25,15 @@
 
 """ Miscellaneous functions and utilities related to OSPD. """
 
-import uuid
-import datetime
 import argparse
+import datetime
+import logging
 import os
 import sys
 import syslog
+import uuid
+
+logger = logging.getLogger(__name__)
 
 KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
 CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
@@ -278,16 +281,13 @@ def create_args_parser(description="OpenVAS's OSP Ovaldi Daemon."):
                         help='Run in background.')
     return parser
 
-def go_to_background(logger=None):
+def go_to_background():
     """ Daemonize the running process. """
     try:
         if os.fork():
             sys.exit()
     except OSError, errmsg:
-        if logger:
-            logger.error('Fork failed: {0}'.format(errmsg))
-        else:
-            print 'Fork failed: {0}'.format(errmsg)
+        logger.error('Fork failed: {0}'.format(errmsg))
         sys.exit('Fork failed')
 
 def get_common_args(parser):

@@ -1,5 +1,9 @@
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/misc.py: Make use of the python standard logger
+
+2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: Remove
 	  (now) unused imports, use (previously) unused variables
 
