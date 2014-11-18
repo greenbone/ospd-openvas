@@ -39,7 +39,7 @@ os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon, simple_response_str
 from ospd.misc import create_args_parser, get_common_args, OSPLogger
-from ospd.misc import SyslogLogger, go_to_background
+from ospd.misc import SyslogLogger, go_to_background, main
 
 # External modules.
 try:
@@ -360,20 +360,4 @@ class OSPDw3af(OSPDaemon):
 
 # Main starts here
 if __name__ == '__main__':
-    # Common args parser.
-    parser = create_args_parser("OSPD - w3af_console wrapper")
-
-    # Common args
-    cargs = get_common_args(parser)
-    ospd_w3af = OSPDw3af(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
-                         cafile=cargs['cafile'])
-    if cargs['syslog']:
-        ospd_w3af.set_logger(SyslogLogger(cargs['debug']))
-    else:
-        ospd_w3af.set_logger(OSPLogger(cargs['debug']))
-    if cargs['background']:
-        go_to_background(ospd_w3af.logger)
-
-    if not ospd_w3af.check():
-        sys.exit(1)
-    sys.exit(ospd_w3af.run(cargs['address'], cargs['port']))
+    sys.exit(main("OSPD - w3af_console wrapper", OSPDw3af))

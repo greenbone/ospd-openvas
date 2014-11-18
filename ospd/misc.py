@@ -361,3 +361,22 @@ def get_common_args(parser):
     common_args['background'] = options.background
 
     return common_args
+
+def main(name, klass):
+    # Common args parser.
+    parser = create_args_parser(name)
+
+    # Common args
+    cargs = get_common_args(parser)
+    wrapper = klass(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
+                    cafile=cargs['cafile'])
+    if cargs['syslog']:
+        wrapper.set_logger(SyslogLogger(cargs['debug']))
+    else:
+        wrapper.set_logger(OSPLogger(cargs['debug']))
+    if cargs['background']:
+        go_to_background(wrapper.logger)
+
+    if not wrapper.check():
+        return 1
+    return wrapper.run(cargs['address'], cargs['port'])

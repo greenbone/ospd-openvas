@@ -46,7 +46,7 @@ os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon, simple_response_str
 from ospd.misc import create_args_parser, get_common_args, OSPLogger
-from ospd.misc import SyslogLogger, go_to_background
+from ospd.misc import SyslogLogger, go_to_background, main
 
 # External modules.
 try:
@@ -472,21 +472,4 @@ class OSPDOvaldi(OSPDaemon):
 
 # Main starts here
 if __name__ == '__main__':
-    # Common args parser.
-    parser = create_args_parser("OSPD - Remote Ovaldi wrapper")
-
-    # Common args
-    cargs = get_common_args(parser)
-    ospd_ovaldi = OSPDOvaldi(keyfile=cargs['keyfile'], cafile=cargs['cafile'],
-                             certfile=cargs['certfile'])
-    # Set the logger
-    if cargs['syslog']:
-        ospd_ovaldi.set_logger(SyslogLogger(cargs['debug']))
-    else:
-        ospd_ovaldi.set_logger(OSPLogger(cargs['debug']))
-    if cargs['background']:
-        go_to_background(ospd_ovaldi.logger)
-
-    if not ospd_ovaldi.check():
-        sys.exit(1)
-    sys.exit(ospd_ovaldi.run(cargs['address'], cargs['port']))
+    sys.exit(main("OSPD - Remote Ovaldi wrapper", OSPDOvaldi))
