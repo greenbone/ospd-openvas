@@ -45,8 +45,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon, simple_response_str
-from ospd.misc import create_args_parser, get_common_args, OSPLogger
-from ospd.misc import SyslogLogger, go_to_background, main
+from ospd.misc import main
 
 # External modules.
 try:

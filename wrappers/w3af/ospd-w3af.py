@@ -38,8 +38,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
 from ospd.ospd import OSPDaemon, simple_response_str
-from ospd.misc import create_args_parser, get_common_args, OSPLogger
-from ospd.misc import SyslogLogger, go_to_background, main
+from ospd.misc import main
 
 # External modules.
 try:
@@ -132,8 +131,8 @@ class OSPDw3af(OSPDaemon):
         try:
             output = pexpect.spawn('w3af_console')
             output.expect("w3af>>>")
-        except pexpect.ExceptionPexpect, message:
-            logger.error("Check for w3af_console failed")
+        except pexpect.ExceptionPexpect as message:
+            logger.error("Check for w3af_console failed: %s", message)
             return False
         return True
 
