@@ -262,18 +262,18 @@ def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
 
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('-p', '--port', dest='port', type=int, nargs=1,
+    parser.add_argument('-p', '--port', dest='port', type=int,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
     parser.add_argument('-b', '--bind-address', dest='address', type=str,
-                        nargs=1, help='Address to listen on.'\
+                        help='Address to listen on.'\
                                       ' Default: {0}'.format(ADDRESS))
-    parser.add_argument('-k', '--key-file', dest='keyfile', type=str, nargs=1,
+    parser.add_argument('-k', '--key-file', dest='keyfile', type=str,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
-    parser.add_argument('-c', '--cert-file', dest='certfile', type=str, nargs=1,
+    parser.add_argument('-c', '--cert-file', dest='certfile', type=str,
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
-    parser.add_argument('--ca-file', dest='cafile', type=str, nargs=1,
+    parser.add_argument('--ca-file', dest='cafile', type=str,
                         help='CA cert file. Default: {0}'.format(CA_FILE))
-    parser.add_argument('-d', '--debug', dest='debug', type=int, nargs=1,
+    parser.add_argument('-d', '--debug', dest='debug', type=int,
                         help='Debug level. Default: 0')
     parser.add_argument('--syslog', dest='syslog', action='store_true',
                         help='Use syslog for logging.')
@@ -300,7 +300,7 @@ def get_common_args(parser):
     options = parser.parse_args()
     port = PORT
     if options.port:
-        port = int(options.port[0])
+        port = int(options.port)
         if port <= 0 or port > 65535:
             print "--port must be in ]0,65535] interval.\n"
             parser.print_help()
@@ -309,12 +309,12 @@ def get_common_args(parser):
     # Network address to bind listener to
     address = ADDRESS
     if options.address:
-        address = options.address[0]
+        address = options.address
 
     # Debug level.
     debug = 0
     if options.debug:
-        debug = int(options.debug[0])
+        debug = int(options.debug)
         if debug < 0 or debug > 2:
             print "--debug must be 0, 1 or 2.\n"
             parser.print_help()
@@ -323,7 +323,7 @@ def get_common_args(parser):
     # Server key path.
     keyfile = KEY_FILE
     if options.keyfile:
-        keyfile = options.keyfile[0]
+        keyfile = options.keyfile
     if not os.path.isfile(keyfile):
         print "{0}: Server key file not found.".format(keyfile)
         print "You can generate one using openvas-mkcert."
@@ -333,7 +333,7 @@ def get_common_args(parser):
     # Server cert path.
     certfile = CERT_FILE
     if options.certfile:
-        certfile = options.certfile[0]
+        certfile = options.certfile
     if not os.path.isfile(certfile):
         print "{0}: Server cert file not found.\n".format(certfile)
         print "You can generate one using openvas-mkcert."
@@ -343,7 +343,7 @@ def get_common_args(parser):
     # CA cert path.
     cafile = CA_FILE
     if options.cafile:
-        cafile = options.cafile[0]
+        cafile = options.cafile
     if not os.path.isfile(cafile):
         print "{0}: CA cert file not found.\n".format(cafile)
         print "You can generate one using openvas-mkcert."
