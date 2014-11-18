@@ -102,7 +102,7 @@ setup(
     # sys.prefix/bin directory. You can define an alternative place for
     # installation by setting the --install-scripts option of setup.py
     scripts = ['wrappers/ovaldi/ospd-ovaldi.py',
-               'wrappers/w3af/ospd-w3af.py']
+               'wrappers/w3af/ospd-w3af.py'],
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
@@ -112,4 +112,6 @@ setup(
     #        'sample=sample:main',
     #    ],
     #},
+
+    test_suite="tests",
 )
