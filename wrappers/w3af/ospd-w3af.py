@@ -28,6 +28,7 @@
 
 import os
 import inspect
+import sys
 from xml.dom.minidom import parse as xml_parse
 
 # Set OSPD Directory in syspaths, for imports
@@ -45,7 +46,7 @@ try:
 except ImportError:
     print "pexpect not found."
     print "# pip install pexpect. (Or apt-get install python-pexpect.)"
-    exit(1)
+    sys.exit(1)
 
 OSPD_W3AF_DESCRIPTION = """
 This scanner runs the 'w3af' scanner installed on the local system.
@@ -371,5 +372,5 @@ if __name__ == '__main__':
         go_to_background(ospd_w3af.logger)
 
     if not ospd_w3af.check():
-        exit(1)
-    exit(ospd_w3af.run(cargs['address'], cargs['port']))
+        sys.exit(1)
+    sys.exit(ospd_w3af.run(cargs['address'], cargs['port']))

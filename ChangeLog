@@ -1,5 +1,10 @@
 2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py,
+	  ospd/misc.py: Use sys.exit instead of exit from the site module.
+
+2014-11-18  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* tests/testOSPDError.py, ospd/ospd.py: Make use of exceptions to
 	  throw OSPD errors
 

@@ -282,13 +282,13 @@ def go_to_background(logger=None):
     """ Daemonize the running process. """
     try:
         if os.fork():
-            exit(0)
+            sys.exit()
     except OSError, errmsg:
         if logger:
             logger.error('Fork failed: {0}'.format(errmsg))
         else:
             print 'Fork failed: {0}'.format(errmsg)
-        exit(1)
+        sys.exit('Fork failed')
 
 def get_common_args(parser):
     """ Return list of OSPD common command-line arguments from parser, after
@@ -304,7 +304,7 @@ def get_common_args(parser):
         if port <= 0 or port > 65535:
             print "--port must be in ]0,65535] interval.\n"
             parser.print_help()
-            exit(1)
+            sys.exit('Invalid port')
 
     # Network address to bind listener to
     address = ADDRESS
@@ -318,7 +318,7 @@ def get_common_args(parser):
         if debug < 0 or debug > 2:
             print "--debug must be 0, 1 or 2.\n"
             parser.print_help()
-            exit(1)
+            sys.exit('Invalid debug option')
 
     # Server key path.
     keyfile = KEY_FILE
@@ -328,7 +328,7 @@ def get_common_args(parser):
         print "{0}: Server key file not found.".format(keyfile)
         print "You can generate one using openvas-mkcert."
         parser.print_help()
-        exit(1)
+        sys.exit('Invalid server key')
 
     # Server cert path.
     certfile = CERT_FILE
@@ -338,7 +338,7 @@ def get_common_args(parser):
         print "{0}: Server cert file not found.\n".format(certfile)
         print "You can generate one using openvas-mkcert."
         parser.print_help()
-        exit(1)
+        sys.exit('Invalid server certificate')
 
     # CA cert path.
     cafile = CA_FILE
@@ -348,7 +348,7 @@ def get_common_args(parser):
         print "{0}: CA cert file not found.\n".format(cafile)
         print "You can generate one using openvas-mkcert."
         parser.print_help()
-        exit(1)
+        sys.exit('Invalid CA certificate')
 
     common_args = dict()
     common_args['port'] = port

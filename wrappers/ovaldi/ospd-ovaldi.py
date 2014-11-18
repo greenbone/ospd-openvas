@@ -31,6 +31,7 @@ import os
 import inspect
 import base64
 import socket
+import sys
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -51,7 +52,7 @@ try:
 except ImportError:
     print "paramiko not found."
     print "# pip install paramiko (Or apt-get install python-paramiko.)"
-    exit(1)
+    sys.exit(1)
 
 OSPD_OVALDI_DESC = """
 This scanner runs the Open Source OVAL scanner 'ovaldi' being installed on the
@@ -483,5 +484,5 @@ if __name__ == '__main__':
         go_to_background(ospd_ovaldi.logger)
 
     if not ospd_ovaldi.check():
-        exit(1)
-    exit(ospd_ovaldi.run(cargs['address'], cargs['port']))
+        sys.exit(1)
+    sys.exit(ospd_ovaldi.run(cargs['address'], cargs['port']))
