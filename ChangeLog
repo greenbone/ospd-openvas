@@ -1,5 +1,10 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/misc.py, tests/testArgumentsParser.py: Replace the --debug
+	  option with a --log-level one. Setup the logger accordingly.
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/misc.py: Fix call to go_to_background (remove logger)
 
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>

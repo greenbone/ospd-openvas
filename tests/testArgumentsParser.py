@@ -1,3 +1,4 @@
+import logging
 import unittest
 
 from ospd.misc import create_args_parser, get_common_args
@@ -32,3 +33,22 @@ class testArgumentParser(unittest.TestCase):
         args = get_common_args(self.parser,
                                '-b 1.2.3.4 -k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
         self.assertEqual('1.2.3.4', args['address'])
+
+    def testDefaultLogLevel(self):
+        args = get_common_args(self.parser,
+                               '-k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
+        self.assertEqual(logging.WARNING, args['log_level'])
+        
+    def testCorrectDCLogLevel(self):
+        args = get_common_args(self.parser,
+                               '-L error -k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
+        self.assertEqual(logging.ERROR, args['log_level'])
+
+    def testCorrectUCLogLevel(self):
+        args = get_common_args(self.parser,
+                               '-L INFO -k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
+        self.assertEqual(logging.INFO, args['log_level'])
+
+    def testinCorrectLogLevel(self):
+        self.assertRaises(SystemExit, get_common_args, self.parser,
+                         '-L blah -k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())

@@ -28,6 +28,7 @@
 import argparse
 import datetime
 import logging
+import logging.handlers
 import os
 import sys
 import syslog
@@ -265,8 +266,14 @@ def create_args_parser(description):
 
     def network_port(string):
         value = int(string)
-        if value <= 0 or value > 65535:
+        if not (0 < value <= 65535):
             raise argparse.ArgumentTypeError('port must be in ]0,65535] interval')
+        return value
+
+    def log_level(string):
+        value = getattr(logging, string.upper(), None)
+        if not isinstance(value, int):
+            raise argparse.ArgumentTypeError('log level must be one of {debug,info,warning,error,critical}')
         return value
 
     parser.add_argument('-p', '--port', default=PORT, type=network_port,
@@ -279,8 +286,8 @@ def create_args_parser(description):
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
     parser.add_argument('--ca-file', dest='cafile',
                         help='CA cert file. Default: {0}'.format(CA_FILE))
-    parser.add_argument('-d', '--debug', type=int,
-                        help='Debug level. Default: 0')
+    parser.add_argument('-L', '--log-level', default='warning', type=log_level,
+                        help='Wished level of logging. Default: WARNING')
     parser.add_argument('--syslog', action='store_true',
                         help='Use syslog for logging.')
     parser.add_argument('--background', action='store_true',
@@ -310,13 +317,7 @@ def get_common_args(parser, args=None):
     address = options.bind_address
 
     # Debug level.
-    debug = 0
-    if options.debug:
-        debug = int(options.debug)
-        if debug < 0 or debug > 2:
-            print "--debug must be 0, 1 or 2.\n"
-            parser.print_help()
-            sys.exit('Invalid debug option')
+    log_level = options.log_level
 
     # Server key path.
     keyfile = KEY_FILE
@@ -354,7 +355,7 @@ def get_common_args(parser, args=None):
     common_args['keyfile'] = keyfile
     common_args['certfile'] = certfile
     common_args['cafile'] = cafile
-    common_args['debug'] = debug
+    common_args['log_level'] = log_level
     common_args['syslog'] = options.syslog
     common_args['background'] = options.background
 
@@ -366,12 +367,20 @@ def main(name, klass):
 
     # Common args
     cargs = get_common_args(parser)
+    logging.getLogger().setLevel(cargs['log_level'])
     wrapper = klass(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
                     cafile=cargs['cafile'])
+    
     if cargs['syslog']:
-        wrapper.set_logger(SyslogLogger(cargs['debug']))
+        syslog = logging.handlers.SysLogHandler('/dev/log')
+        syslog.setFormatter(logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
+        logging.getLogger().addHandler(syslog)
+        wrapper.set_logger(SyslogLogger(0))
     else:
-        wrapper.set_logger(OSPLogger(cargs['debug']))
+        console = logging.StreamHandler()
+        console.setFormatter(logging.Formatter('%(asctime)s %(name)s: %(levelname)s: %(message)s'))
+        logging.getLogger().addHandler(console)
+        wrapper.set_logger(OSPLogger(0))
     if cargs['background']:
         go_to_background()
 
