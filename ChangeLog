@@ -1,5 +1,10 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/ospd.py: Keep absolute import, restore working situation with
+	  older pythons.
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py: Relative import are evil.
 
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
