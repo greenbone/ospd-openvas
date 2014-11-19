@@ -28,15 +28,19 @@
 # as the package we are in ... Another solution would be to rename that file.
 from __future__ import absolute_import
 
+import logging
+import socket
+import ssl
+import threading
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape as xml_escape
-import socket
-import ssl
-import threading
+
 from ospd.misc import ScanCollection, ResultType
+
+logger = logging.getLogger(__name__)
 
 OSP_VERSION = "0.1.0"
 
@@ -140,12 +144,6 @@ class OSPDaemon(object):
         self.daemon_info['description'] = "No description"
         self.scanner_params = dict()
         self.commands = get_commands_table()
-        self.logger = None
-
-    def set_logger(self, logger):
-        """ """
-        assert logger
-        self.logger = logger
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -204,7 +202,7 @@ class OSPDaemon(object):
     def finish_scan(self, scan_id):
         """ Sets a scan as finished. """
         self.set_scan_progress(scan_id, 100)
-        self.logger.debug(2, "{0}: Scan finished.".format(scan_id))
+        logger.info("{0}: Scan finished.".format(scan_id))
 
     def get_daemon_name(self):
         """ Gives osp daemon's name. """
@@ -244,10 +242,11 @@ class OSPDaemon(object):
         try:
             bindsocket.bind((address, port))
         except socket.error:
-            self.logger.error("Couldn't bind socket on {0}:{1}"\
-                               .format(address, port))
+            logger.error("Couldn't bind socket on {0}:{1}"\
+                         .format(address, port))
             return None
 
+        logger.info('Now listening on %s:%s', address, port)
         bindsocket.listen(0)
         return bindsocket
 
@@ -256,8 +255,8 @@ class OSPDaemon(object):
 
         assert sock
         newsocket, fromaddr = sock.accept()
-        self.logger.debug(1, "New connection from"
-                             " {0}:{1}".format(fromaddr[0], fromaddr[1]))
+        logger.debug("New connection from"
+                     " {0}:{1}".format(fromaddr[0], fromaddr[1]))
         try:
             ssl_socket = ssl.wrap_socket(newsocket, cert_reqs=ssl.CERT_REQUIRED,
                                          server_side=True,
@@ -266,7 +265,7 @@ class OSPDaemon(object):
                                          ca_certs=self.certs['ca_file'],
                                          ssl_version=ssl.PROTOCOL_TLSv1)
         except (ssl.SSLError, socket.error) as message:
-            self.logger.error(message)
+            logger.error(message)
             return None
         return ssl_socket
 
@@ -280,15 +279,15 @@ class OSPDaemon(object):
             try:
                 data = ''.join([data, stream.read(1024)])
                 if len(data) == 0:
-                    self.logger.debug(1, "Empty client stream")
+                    logger.debug("Empty client stream")
                     return
             except (AttributeError, ValueError) as message:
-                self.logger.error(message)
+                logger.error(message)
                 return
             except ssl.SSLError:
                 break
         if len(data) <= 0:
-            self.logger.debug(1, "Empty client stream")
+            logger.debug("Empty client stream")
             return
         try:
             response = self.handle_command(data)
@@ -300,8 +299,8 @@ class OSPDaemon(object):
         """ Closes provided client stream """
         try:
             client_stream.shutdown(socket.SHUT_RDWR)
-        except socket.error, msg:
-            self.logger.debug(1, msg)
+        except socket.error as msg:
+            logger.debug(msg)
         client_stream.close()
 
     def start_daemon(self, address, port):
@@ -314,7 +313,7 @@ class OSPDaemon(object):
     def start_scan(self, scan_id):
         """ Starts the scan with scan_id. """
 
-        self.logger.debug(2, "{0}: Scan started.".format(scan_id))
+        logger.info("{0}: Scan started.".format(scan_id))
         t = threading.Thread(target=self.exec_scan, args=(scan_id, ))
         self.scan_collection.set_thread(scan_id, t)
         t.start()
@@ -533,7 +532,7 @@ class OSPDaemon(object):
         try:
             tree = ET.fromstring(command)
         except ET.ParseError:
-            self.logger.debug(1, "Erroneous client input: {0}".format(command))
+            logger.debug("Erroneous client input: {0}".format(command))
             raise OSPDError('Invalid data')
 
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
@@ -599,7 +598,7 @@ class OSPDaemon(object):
         if progress < 100 and not scan_thread.is_alive():
             self.set_scan_progress(scan_id, 100)
             self.add_scan_error(scan_id, "", "Scan thread failure.")
-            self.logger.debug(2, "{0}: Scan terminated.".format(scan_id))
+            logger.info("{0}: Scan terminated.".format(scan_id))
 
     def get_scan_thread(self, scan_id):
         """ Gives a scan's current exec thread. """

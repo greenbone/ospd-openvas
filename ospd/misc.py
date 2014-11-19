@@ -42,54 +42,6 @@ CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
 PORT = 1234
 ADDRESS = "0.0.0.0"
 
-class OSPLogger(object):
-    """ Class to handle outputting log, debug and error messages. """
-
-    def __init__(self, level=0):
-        """ Initialize the instance. """
-        self.level = level
-
-    def set_level(self, level):
-        """ Set the debugging level. """
-        self.level = level
-
-    def get_level(self):
-        """ Get the debugging level. """
-        return self.level
-
-    def debug(self, level, message):
-        """ Output a debug message if the provided level is equal or higher than
-        the logger's.
-
-        """
-        if self.level >= level:
-            self.__print_message('DEBUG: {0}'.format(message))
-
-    def error(self, message):
-        """ Output an error message. """
-        self.__print_message('ERROR: {0}'.format(message))
-
-    def __print_message(self, message):
-        """ Prints a message to stdout. """
-        assert message
-        print message
-
-class SyslogLogger(OSPLogger):
-    """ Class to send log, debug and error messages to syslog. """
-
-    def __init__(self, level=0):
-        """ Initializes the syslog logger object. """
-        super(SyslogLogger, self).__init__(level)
-        syslog.openlog(ident="ospd")
-
-    def debug(self, level, message):
-        """ Send a debug message to syslog if the level is adequate. """
-        if self.level >= level:
-            syslog.syslog(syslog.LOG_DEBUG, message)
-
-    def error(self, message):
-        """ Send an error message to syslog. """
-        syslog.syslog(syslog.LOG_ERR, message)
 
 class ScanCollection(object):
     """ Scans collection, managing scans and results read and write, exposing
@@ -375,12 +327,11 @@ def main(name, klass):
         syslog = logging.handlers.SysLogHandler('/dev/log')
         syslog.setFormatter(logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
         logging.getLogger().addHandler(syslog)
-        wrapper.set_logger(SyslogLogger(0))
     else:
         console = logging.StreamHandler()
         console.setFormatter(logging.Formatter('%(asctime)s %(name)s: %(levelname)s: %(message)s'))
         logging.getLogger().addHandler(console)
-        wrapper.set_logger(OSPLogger(0))
+
     if cargs['background']:
         go_to_background()
 
