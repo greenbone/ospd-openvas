@@ -262,10 +262,10 @@ class OSPDw3af(OSPDaemon):
                                 options['headers'], options['res_status'])
 
         # Cleanup
-        if self.logger.get_level() < 1:
+        if logger.getEffectiveLevel() > logging.DEBUG:
             os.remove(output_file)
         else:
-            logger.info("{0} not removed.".format(output_file))
+            logger.debug("{0} not removed.".format(output_file))
         os.remove(script_file)
         # Set scan as finished
         self.finish_scan(scan_id)

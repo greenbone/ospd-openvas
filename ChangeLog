@@ -1,5 +1,10 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: get rid
+	  of the last usages of the intern loggers.
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* tests/testArgumentsParser.py: Take the default value from their
 	  source.
 

@@ -347,10 +347,10 @@ class OSPDOvaldi(OSPDaemon):
             self.add_scan_error(scan_id, value=msg)
         # Cleanup temporary directories and close connection.
         sftp.close()
-        if self.logger.get_level() < 1:
+        if logger.getEffectiveLevel() > logging.DEBUG:
             ssh.exec_command("rm -rf {0}".format(target_dir))
         else:
-            logger.info("{0} not removed.".format(target_dir))
+            logger.debug("{0} not removed.".format(target_dir))
 
         ssh.close()
         shutil.rmtree(local_dir)
