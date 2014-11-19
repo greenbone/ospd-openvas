@@ -32,7 +32,7 @@ from xml.sax.saxutils import escape as xml_escape
 import socket
 import ssl
 import threading
-from misc import ScanCollection, ResultType
+from ospd.misc import ScanCollection, ResultType
 
 OSP_VERSION = "0.1.0"
 

@@ -1,5 +1,9 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/ospd.py: Relative import are evil.
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* tests/testArgumentsParser.py, ospd/misc.py: address parsing: Remove
 	  dest, set default.
 
