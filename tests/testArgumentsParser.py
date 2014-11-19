@@ -1,6 +1,7 @@
 import logging
 import unittest
 
+from ospd import misc
 from ospd.misc import create_args_parser, get_common_args
 
 
@@ -22,12 +23,12 @@ class testArgumentParser(unittest.TestCase):
     def testDefaultPort(self):
         args = get_common_args(self.parser,
                                '-k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
-        self.assertEqual(1234, args['port'])
+        self.assertEqual(misc.PORT, args['port'])
 
     def testDefaultAddress(self):
         args = get_common_args(self.parser,
                                '-k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
-        self.assertEqual('0.0.0.0', args['address'])
+        self.assertEqual(misc.ADDRESS, args['address'])
         
     def testAddressParam(self):
         args = get_common_args(self.parser,

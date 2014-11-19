@@ -1,5 +1,10 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* tests/testArgumentsParser.py: Take the default value from their
+	  source.
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py, ospd/misc.py: Widen the usage of
 	  except ... as ...
 
