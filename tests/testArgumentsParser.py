@@ -2,6 +2,7 @@ import unittest
 
 from ospd.misc import create_args_parser, get_common_args
 
+
 class testArgumentParser(unittest.TestCase):
 
     def setUp(self):
@@ -21,4 +22,13 @@ class testArgumentParser(unittest.TestCase):
         args = get_common_args(self.parser,
                                '-k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
         self.assertEqual(1234, args['port'])
+
+    def testDefaultAddress(self):
+        args = get_common_args(self.parser,
+                               '-k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
+        self.assertEqual('0.0.0.0', args['address'])
         
+    def testAddressParam(self):
+        args = get_common_args(self.parser,
+                               '-b 1.2.3.4 -k /etc/passwd -c /etc/passwd --ca-file /etc/passwd'.split())
+        self.assertEqual('1.2.3.4', args['address'])

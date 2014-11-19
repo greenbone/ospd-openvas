@@ -271,7 +271,7 @@ def create_args_parser(description):
 
     parser.add_argument('-p', '--port', default=PORT, type=network_port,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
-    parser.add_argument('-b', '--bind-address', dest='address',
+    parser.add_argument('-b', '--bind-address', default=ADDRESS,
                         help='Address to listen on. Default: {0}'.format(ADDRESS))
     parser.add_argument('-k', '--key-file', dest='keyfile',
                         help='Server key file. Default: {0}'.format(KEY_FILE))
@@ -307,9 +307,7 @@ def get_common_args(parser, args=None):
     port = options.port
 
     # Network address to bind listener to
-    address = ADDRESS
-    if options.address:
-        address = options.address
+    address = options.bind_address
 
     # Debug level.
     debug = 0
