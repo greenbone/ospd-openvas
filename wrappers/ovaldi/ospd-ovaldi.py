@@ -47,13 +47,7 @@ os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 from ospd.ospd import OSPDaemon, simple_response_str
 from ospd.misc import main
 
-# External modules.
-try:
-    import paramiko
-except ImportError:
-    print "paramiko not found."
-    print "# pip install paramiko (Or apt-get install python-paramiko.)"
-    sys.exit(1)
+import paramiko
 
 logger = logging.getLogger(__name__)
 

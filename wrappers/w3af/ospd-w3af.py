@@ -40,13 +40,7 @@ os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 from ospd.ospd import OSPDaemon, simple_response_str
 from ospd.misc import main
 
-# External modules.
-try:
-    import pexpect
-except ImportError:
-    print "pexpect not found."
-    print "# pip install pexpect. (Or apt-get install python-pexpect.)"
-    sys.exit(1)
+import pexpect
 
 logger = logging.getLogger(__name__)
 

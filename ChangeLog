@@ -1,5 +1,10 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: Don't
+	  protect the external imports, let the exception propagate.
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/misc.py, tests/testArgumentsParser.py: Replace the --debug
 	  option with a --log-level one. Setup the logger accordingly.
 
