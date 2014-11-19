@@ -1,5 +1,9 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/misc.py: Fix call to go_to_background (remove logger)
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py: Keep absolute import, restore working situation with
 	  older pythons.
 

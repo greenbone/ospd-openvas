@@ -373,7 +373,7 @@ def main(name, klass):
     else:
         wrapper.set_logger(OSPLogger(cargs['debug']))
     if cargs['background']:
-        go_to_background(wrapper.logger)
+        go_to_background()
 
     if not wrapper.check():
         return 1
