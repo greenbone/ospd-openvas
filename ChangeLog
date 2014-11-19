@@ -1,5 +1,10 @@
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py, ospd/misc.py: Widen the usage of
+	  except ... as ...
+
+2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py, ospd/misc.py: Get rid of the internal logging facility
 
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>

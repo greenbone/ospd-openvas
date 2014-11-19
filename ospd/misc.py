@@ -251,7 +251,7 @@ def go_to_background():
     try:
         if os.fork():
             sys.exit()
-    except OSError, errmsg:
+    except OSError as errmsg:
         logger.error('Fork failed: {0}'.format(errmsg))
         sys.exit('Fork failed')
 

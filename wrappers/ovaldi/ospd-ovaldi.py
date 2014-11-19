@@ -274,7 +274,7 @@ class OSPDOvaldi(OSPDaemon):
                         password=options['password'],
                         timeout=options['timeout'], port=options['port'])
         except (paramiko.ssh_exception.AuthenticationException,
-                socket.error), err:
+                socket.error) as err:
             # Errors: No route to host, connection timeout, authentication
             # failure etc,.
             return self.finish_scan_with_err(scan_id, local_dir, str(err))
@@ -298,7 +298,7 @@ class OSPDOvaldi(OSPDaemon):
         target_dir = "/tmp/{0}".format(scan_id)
         try:
             sftp.mkdir(target_dir)
-        except IOError, err:
+        except IOError as err:
             err = "Failed to mkdir {0} on target: {1}".format(target_dir, err)
             sftp.close()
             ssh.close()
@@ -323,7 +323,7 @@ class OSPDOvaldi(OSPDaemon):
             local_results = "{0}/results.xml".format(local_dir)
             sftp.get(results_path, local_results)
             self.parse_results_xml(local_results, scan_id)
-        except IOError, err:
+        except IOError as err:
             msg = "Couldn't get results.xml: {0}".format(err)
             logger.info(msg)
             self.add_scan_error(scan_id, value=msg)
@@ -332,7 +332,7 @@ class OSPDOvaldi(OSPDaemon):
             local_syschar = "{0}/oval_syschar.xml".format(local_dir)
             sftp.get(syschar_path, local_syschar)
             self.parse_oval_syschar_xml(local_syschar, scan_id)
-        except IOError, err:
+        except IOError as err:
             msg = "Couldn't get oval_syschar.xml: {0}".format(err)
             logger.info(msg)
             self.add_scan_error(scan_id, value=msg)
@@ -341,7 +341,7 @@ class OSPDOvaldi(OSPDaemon):
             local_log = "{0}/ovaldi.log".format(local_dir)
             sftp.get(log_path, local_log)
             self.parse_ovaldi_log(local_log, scan_id)
-        except IOError, err:
+        except IOError as err:
             msg = "Couldn't get ovaldi.log: {0}".format(err)
             logger.info(msg)
             self.add_scan_error(scan_id, value=msg)
