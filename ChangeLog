@@ -1,3 +1,10 @@
+2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/misc.py, tests/testArgumentsParser.py: Move file validation to
+	  the logparser. Note that this doesn't try to validate the default
+	  parameter. This is a regression that is quite handy for test
+	  purpose.
+
 2014-11-19  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: get rid

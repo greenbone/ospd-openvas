@@ -228,15 +228,20 @@ def create_args_parser(description):
             raise argparse.ArgumentTypeError('log level must be one of {debug,info,warning,error,critical}')
         return value
 
+    def filename(string):
+        if not os.path.isfile(string):
+            raise argparse.ArgumentTypeError('%s is not a valid file path' % string)
+        return string
+
     parser.add_argument('-p', '--port', default=PORT, type=network_port,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
     parser.add_argument('-b', '--bind-address', default=ADDRESS,
                         help='Address to listen on. Default: {0}'.format(ADDRESS))
-    parser.add_argument('-k', '--key-file', dest='keyfile',
+    parser.add_argument('-k', '--key-file', type=filename,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
-    parser.add_argument('-c', '--cert-file', dest='certfile',
+    parser.add_argument('-c', '--cert-file', type=filename,
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
-    parser.add_argument('--ca-file', dest='cafile',
+    parser.add_argument('--ca-file', type=filename,
                         help='CA cert file. Default: {0}'.format(CA_FILE))
     parser.add_argument('-L', '--log-level', default='warning', type=log_level,
                         help='Wished level of logging. Default: WARNING')
@@ -272,34 +277,13 @@ def get_common_args(parser, args=None):
     log_level = options.log_level
 
     # Server key path.
-    keyfile = KEY_FILE
-    if options.keyfile:
-        keyfile = options.keyfile
-    if not os.path.isfile(keyfile):
-        print "{0}: Server key file not found.".format(keyfile)
-        print "You can generate one using openvas-mkcert."
-        parser.print_help()
-        sys.exit('Invalid server key')
+    keyfile = options.key_file or KEY_FILE
 
     # Server cert path.
-    certfile = CERT_FILE
-    if options.certfile:
-        certfile = options.certfile
-    if not os.path.isfile(certfile):
-        print "{0}: Server cert file not found.\n".format(certfile)
-        print "You can generate one using openvas-mkcert."
-        parser.print_help()
-        sys.exit('Invalid server certificate')
+    certfile = options.cert_file or CERT_FILE
 
     # CA cert path.
-    cafile = CA_FILE
-    if options.cafile:
-        cafile = options.cafile
-    if not os.path.isfile(cafile):
-        print "{0}: CA cert file not found.\n".format(cafile)
-        print "You can generate one using openvas-mkcert."
-        parser.print_help()
-        sys.exit('Invalid CA certificate')
+    cafile = options.ca_file or CA_FILE
 
     common_args = dict()
     common_args['port'] = port
