@@ -44,7 +44,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
                                                               currentframe())))
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
-from ospd.ospd import OSPDaemon, simple_response_str
+from ospd.ospd import OSPDError, OSPDaemon, simple_response_str
 from ospd.misc import main
 
 import paramiko
@@ -163,22 +163,20 @@ class OSPDOvaldi(OSPDaemon):
         # Validate scan information
         target = scan_et.attrib.get('target')
         if target is None:
-            return simple_response_str('start_scan', 400, 'No target attribute')
+            raise OSPDError('No target attribute', 'start_scan')
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
-            return simple_response_str('start_scan', 400,
-                                       'No scanner_params element')
+            raise OSPDError('No scanner_params element', 'start_scan')
 
         username = scanner_params.find('username')
         if username is None or username.text is None:
-            return simple_response_str('start_scan', 400, 'No username element')
+            raise OSPDError('No username element', 'start_scan')
         password = scanner_params.find('password')
         if password is None or password.text is None:
-            return simple_response_str('start_scan', 400, 'No password element')
+            raise OSPDError('No password element', 'start_scan')
         definitions = scanner_params.find('definitions_file')
         if definitions is None or definitions.text is None:
-            return simple_response_str('start_scan', 400,
-                                       'No definitions_file element')
+            raise OSPDError('No definitions_file element', 'start_scan')
 
         username = username.text
         password = password.text
@@ -190,8 +188,7 @@ class OSPDOvaldi(OSPDaemon):
             try:
                 port = int(port.text)
             except ValueError:
-                return simple_response_str('start_scan', 400,
-                                           'Invalid port value')
+                raise OSPDError('Invalid port value', 'start_scan')
         timeout = scanner_params.find('ssh_timeout')
         if timeout is None or timeout.text is None:
             timeout = self.get_scanner_param_default('ssh_timeout')
@@ -199,8 +196,7 @@ class OSPDOvaldi(OSPDaemon):
             try:
                 timeout = int(timeout.text)
             except ValueError:
-                return simple_response_str('start_scan', 400,
-                                           'Invalid timeout value')
+                raise OSPDError('Invalid timeout value', 'start_scan')
 
         options = dict()
         options['username'] = username
@@ -210,8 +206,7 @@ class OSPDOvaldi(OSPDaemon):
         try:
             options['definitions'] = base64.b64decode(definitions.text)
         except TypeError:
-            err = "Couldn't decode base64 definitions file"
-            return simple_response_str('start_scan', 400, err)
+            raise OSPDError("Couldn't decode base64 definitions file", 'start_scan')
 
         # Create new Scan
         scan_id = self.create_scan(target, options)

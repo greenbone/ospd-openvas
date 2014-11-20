@@ -1,5 +1,9 @@
 2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py: Make use of OSPDErrors
+
+2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* setup.py: Fix description definition.
 
 2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
