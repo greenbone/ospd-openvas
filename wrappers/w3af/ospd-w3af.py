@@ -142,67 +142,32 @@ class OSPDw3af(OSPDaemon):
         """ Gives the used scanner's description. """
         return OSPD_W3AF_DESCRIPTION
 
-    def get_scan_params(self, scanner_params):
-        """ Get scan parameters as a dictionnary. """
-        assert scanner_params
-
-        params = dict()
-        profiles = ["bruteforce", "audit_high_risk", "full_audit",
-                    "OWASP_TOP10", "fast_scan", "empty_profile",
-                    "web_infrastructure", "full_audit_spider_man", "sitemap"]
-        profile = self.get_scan_param(scanner_params, 'profile', profiles)
-        if not profile:
-            return None, 'Invalid profile value'
-        params['profile'] = profile
-        timeout = self.get_scan_param(scanner_params, 'w3af_timeout',
-                                      xrange(7200))
-        if not timeout:
-            return None, 'Invalid timeout value'
-        params['timeout'] = int(timeout)
-        port = self.get_scan_param(scanner_params, 'target_port', range(65535))
-        if not port:
-            return None, 'Invalid target_port value'
-        params['port'] = int(port)
-        use_https = self.get_scan_param(scanner_params, 'use_https', [0, 1])
-        if not use_https:
-            return None, 'Invalid use_https value'
-        params['use_https'] = int(use_https)
-        status = self.get_scan_param(scanner_params, 'http_request_status',
-                                     [0, 1])
-        if not status:
-            return None, 'Invalid http_request_status value'
-        params['status'] = int(status)
-        headers = self.get_scan_param(scanner_params, 'http_request_headers',
-                                      [0, 1])
-        if not headers:
-            return None, 'Invalid http_request_headers value'
-        params['headers'] = int(headers)
-        res_status = self.get_scan_param(scanner_params, 'http_response_status',
-                                         [0, 1])
-        if not res_status:
-            return None, 'Invalid http_respnse_status value'
-        params['res_status'] = int(res_status)
-        return params, None
-
-    def handle_start_scan_command(self, scan_et):
-        """ Handles the OSP <start_scan> command element tree. """
-
-        target = scan_et.attrib.get('target')
-        if target is None:
-            raise OSPDError('No target attribute', 'start_scan')
-        scanner_params = scan_et.find('scanner_params')
-        if scanner_params is None:
-            raise OSPDError('No scanner_params element', 'start_scan')
-        options, err_str = self.get_scan_params(scanner_params)
-        if not options:
-            raise OSPDError(err_str, 'start_scan)'
-        # Create new Scan
-        scan_id = self.create_scan(target, options)
-
-        # Start Scan
-        self.start_scan(scan_id)
-        text = '<id>{0}</id>'.format(scan_id)
-        return simple_response_str('start_scan', 200, 'OK', text)
+    def process_scan_params(self, params):
+        """ params is directly from the XML """
+        for name, values in [('profile', ("bruteforce", "audit_high_risk", "full_audit",
+                                          "OWASP_TOP10", "fast_scan", "empty_profile",
+                                          "web_infrastructure", "full_audit_spider_man", "sitemap")),
+                             ('w3af_timeout', range(7200)),
+                             ('target_ports', range(65535)),
+                             ('use_https', [0, 1]),
+                             ('http_request_status', [0, 1]),
+                             ('http_request_headers', [0, 1]),
+                             ('http_response_status', [0, 1]),
+                            ]:
+            if name not in params:           
+                params[name] = self.get_scanner_param_default(name)
+            if params[name] not in [str(v) for v in values]:
+                raise OSPDError('Invalid %s value' % name, 'start_scan')
+        # Some needs to be renamed ...
+        for source, dest in [('target_ports', 'port'),
+                             ('w3af_timeout', 'timeout'),
+                             ('http_request_status', 'status'),
+                             ('http_request_headers', 'headers'),
+                             ('http_response_status', 'res_status'),
+                            ]:
+            params[dest] = params[source]
+            del params['source']
+        return params
 
     def create_w3af_script(self, scan_id, output_file, options):
         """ Returns path to a w3af script file for the scan_id scan. """

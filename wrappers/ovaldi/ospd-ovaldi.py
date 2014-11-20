@@ -158,63 +158,14 @@ class OSPDOvaldi(OSPDaemon):
         """ Gives the used scanner's description. """
         return OSPD_OVALDI_DESC
 
-    def handle_start_scan_command(self, scan_et):
-        """ Handles the OSP <start_scan> command element tree. """
-        # Validate scan information
-        target = scan_et.attrib.get('target')
-        if target is None:
-            raise OSPDError('No target attribute', 'start_scan')
-        scanner_params = scan_et.find('scanner_params')
-        if scanner_params is None:
-            raise OSPDError('No scanner_params element', 'start_scan')
-
-        username = scanner_params.find('username')
-        if username is None or username.text is None:
-            raise OSPDError('No username element', 'start_scan')
-        password = scanner_params.find('password')
-        if password is None or password.text is None:
-            raise OSPDError('No password element', 'start_scan')
-        definitions = scanner_params.find('definitions_file')
-        if definitions is None or definitions.text is None:
-            raise OSPDError('No definitions_file element', 'start_scan')
-
-        username = username.text
-        password = password.text
-
-        port = scanner_params.find('port')
-        if port is None or port.text is None:
-            port = self.get_scanner_param_default('port')
-        else:
-            try:
-                port = int(port.text)
-            except ValueError:
-                raise OSPDError('Invalid port value', 'start_scan')
-        timeout = scanner_params.find('ssh_timeout')
-        if timeout is None or timeout.text is None:
-            timeout = self.get_scanner_param_default('ssh_timeout')
-        else:
-            try:
-                timeout = int(timeout.text)
-            except ValueError:
-                raise OSPDError('Invalid timeout value', 'start_scan')
-
-        options = dict()
-        options['username'] = username
-        options['password'] = password
-        options['port'] = port
-        options['timeout'] = timeout
+    def process_scan_params(self, params):
         try:
-            options['definitions'] = base64.b64decode(definitions.text)
+            params['definitions'] = base64.b64decode(params['definitions_file'])
         except TypeError:
             raise OSPDError("Couldn't decode base64 definitions file", 'start_scan')
+        del params['definitions_file']
 
-        # Create new Scan
-        scan_id = self.create_scan(target, options)
-
-        # Start Scan
-        self.start_scan(scan_id)
-        text = '<id>{0}</id>'.format(scan_id)
-        return simple_response_str('start_scan', 200, 'OK', text)
+        return params
 
     def finish_scan_with_err(self, scan_id, local_dir=None,
                              err="Unknown error"):

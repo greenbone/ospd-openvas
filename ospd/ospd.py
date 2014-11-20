@@ -163,24 +163,6 @@ class OSPDaemon(object):
         """ Checks if a commands exists. """
         return name in self.commands.keys()
 
-    def get_scan_param(self, scanner_params, name, values):
-        """ Get a scan param value from a params tree and validate its value.
-
-        @param: Xml element containing scanner parameters.
-        @param: Name of scanner parameter to get.
-        @param: List of valid values for the parameter.
-
-        @return: Parameter value if found and valid, None otherwise.
-        """
-        param = scanner_params.find(name)
-        if param is None or param.text is None:
-            param = self.get_scanner_param_default(name)
-        else:
-            param = param.text
-        if values and param not in [str(x) for x in values]:
-            return None
-        return param
-
     def get_scanner_name(self):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
@@ -189,10 +171,28 @@ class OSPDaemon(object):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
+    def process_scan_params(self, params):
+        """ may be overriden by child """
+        return params
+
     def handle_start_scan_command(self, scan_et):
-        """ Asserts to False. Should be implemented by subclass. """
-        assert scan_et
-        raise NotImplementedError
+        # Validate scan information
+        target = scan_et.attrib.get('target')
+        if target is None:
+            raise OSPDError('No target attribute', 'start_scan')
+        scanner_params = scan_et.find('scanner_params')
+        if scanner_params is None:
+            raise OSPDError('No scanner_params element', 'start_scan')
+        params = {}
+        for param in scanner_params:
+            params[param.tag] = param.text
+
+        scan_id = self.create_scan(target, self.process_scan_params(param))
+
+        self.start_scan(scan_id)
+        text = '<id>{0}</id>'.format(scan_id)
+        return simple_response_str('start_scan', 200, 'OK', text)
+
 
     def exec_scan(self, scan_id):
         """ Asserts to False. Should be implemented by subclass. """

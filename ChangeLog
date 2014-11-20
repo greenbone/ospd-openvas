@@ -1,5 +1,10 @@
 2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/w3af/ospd-w3af.py, wrappers/ovaldi/ospd-ovaldi.py,
+	  ospd/ospd.py: Remove xml parsing / generation from child classes.
+
+2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* wrappers/w3af/ospd-w3af.py: Make use of OSPDErrors
 
 2014-11-20  Benoît Allard  <benoit.allard@greenbone.net>
