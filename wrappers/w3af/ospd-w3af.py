@@ -37,7 +37,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
                                                               currentframe())))
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
-from ospd.ospd import OSPDaemon, simple_response_str
+from ospd.ospd import OSPDError, OSPDaemon, simple_response_str
 from ospd.misc import main
 
 import pexpect
@@ -189,14 +189,13 @@ class OSPDw3af(OSPDaemon):
 
         target = scan_et.attrib.get('target')
         if target is None:
-            return simple_response_str('start_scan', 400, 'No target attribute')
+            raise OSPDError('No target attribute', 'start_scan')
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
-            return simple_response_str('start_scan', 400,
-                                       'No scanner_params element')
+            raise OSPDError('No scanner_params element', 'start_scan')
         options, err_str = self.get_scan_params(scanner_params)
         if not options:
-            return simple_response_str('start_scan', 400, err_str)
+            raise OSPDError(err_str, 'start_scan)'
         # Create new Scan
         scan_id = self.create_scan(target, options)
 
