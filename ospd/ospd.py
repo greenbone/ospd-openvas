@@ -119,7 +119,7 @@ class OSPDaemon(object):
     * Add any needed parameters in __init__.
     * Implement check() method which verifies scanner availability and other
       environment related conditions.
-    * Implement handle_start_scan_command and exec_scan methods which are
+    * Implement process_scan_params and exec_scan methods which are
       specific to handling the <start_scan> command, executing the wrapped
       scanner and storing the results.
     * Implement other methods that assert to False such as get_scanner_name,
@@ -176,7 +176,7 @@ class OSPDaemon(object):
         return params
 
     def handle_start_scan_command(self, scan_et):
-        # Validate scan information
+        # Extract scan information
         target = scan_et.attrib.get('target')
         if target is None:
             raise OSPDError('No target attribute', 'start_scan')
