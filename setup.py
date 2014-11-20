@@ -40,8 +40,8 @@ setup(
     # http://packaging.python.org/en/latest/tutorial.html#version
     version='1.0+beta4',
 
-    description=('OSPD is a collection of scanner wrappers which share the, ',
-                 'same communication protocol: OSP (OpenVAS Scanner ',
+    description=('OSPD is a collection of scanner wrappers which share the, '
+                 'same communication protocol: OSP (OpenVAS Scanner '
                  'Protocol)'),
     long_description=long_description,
 
