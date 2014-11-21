@@ -187,7 +187,7 @@ class OSPDaemon(object):
         for param in scanner_params:
             params[param.tag] = param.text
 
-        scan_id = self.create_scan(target, self.process_scan_params(param))
+        scan_id = self.create_scan(target, self.process_scan_params(params))
 
         self.start_scan(scan_id)
         text = '<id>{0}</id>'.format(scan_id)
@@ -302,6 +302,7 @@ class OSPDaemon(object):
         except socket.error as msg:
             logger.debug(msg)
         client_stream.close()
+        logger.debug('Connection to %s closed', client_stream)
 
     def start_daemon(self, address, port):
         """ Initialize the OSP daemon.

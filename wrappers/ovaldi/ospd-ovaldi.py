@@ -44,7 +44,7 @@ CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
                                                               currentframe())))
 os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
 # Local imports
-from ospd.ospd import OSPDError, OSPDaemon, simple_response_str
+from ospd.ospd import OSPDError, OSPDaemon
 from ospd.misc import main
 
 import paramiko
