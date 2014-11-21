@@ -50,15 +50,17 @@ To run a test instance of ospd-ovaldi on local port 1234 with sample data:
 
 $ ospd-ovaldi.py -b 127.0.0.1 -p 1234 &
 
-Add "-d 2" to enable maximum debugging output.
+Add "--log-level=DEBUG" to enable maximum debugging output.
 
 
 To run a test instance of ospd-w3af on local port 1235:
 
 $ ospd-w3af.py -b 127.0.0.1 -p 1235 &
 
-Add "-d 2" to enable maximum debugging output.
+Add "--log-level=debug" to enable maximum debugging output.
 
+Parameter for --log-level can be one of debug, info, warnings, error, or
+critical (in order of priority).
 
 Controlling a OSP daemon
 ------------------------
