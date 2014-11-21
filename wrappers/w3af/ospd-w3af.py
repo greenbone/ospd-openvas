@@ -32,11 +32,6 @@ import logging
 import sys
 from xml.dom.minidom import parse as xml_parse
 
-# Set OSPD Directory in syspaths, for imports
-CURRENT_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.\
-                                                              currentframe())))
-os.sys.path.insert(0, os.path.dirname(os.path.dirname(CURRENT_DIR)))
-# Local imports
 from ospd.ospd import OSPDError, OSPDaemon
 from ospd.misc import main
 

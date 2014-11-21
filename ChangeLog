@@ -1,5 +1,11 @@
 2014-11-21  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py: Remove
+	  crazy PYTHONPATH manipulation. Better use the PYTHONPATH env
+	  variable, or a virtualenv for this purpose.
+
+2014-11-21  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py: Set default scanner_params.
 
 2014-11-21  Benoît Allard  <benoit.allard@greenbone.net>
