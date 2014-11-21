@@ -1,3 +1,23 @@
+ospd 1.0+beta4 (2014-11-21)
+
+This is the fourth beta release of the upcoming 1.0 release of the ospd module
+for the Open Vulnerability Assessment System (OpenVAS).
+
+This release improves robustness, the code design and structure. Also
+the w3af wrapper was extended.
+
+Many thanks to everyone who has contributed to this release:
+Benoît Allard, Hani Benhabiles, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes since 1.0+beta3:
+* Improved error handling.
+* Improved results output of w3af wrapper.
+* Introduce scanner parameters for w3af.
+* Added framework for unit testing.
+* Various structural improvements.
+* Use python standard logger and replace "--debug" option by "--log-level".
+
+
 ospd 1.0+beta3 (2014-10-15)
 
 This is the third beta release of the upcoming 1.0 release of the ospd module
