@@ -187,6 +187,12 @@ class OSPDaemon(object):
         for param in scanner_params:
             params[param.tag] = param.text
 
+        # Set the default values
+        for param in self.scanner_params:
+            if param in params:
+                continue
+            params[param] = self.scanner_params[param].get('default', '')
+
         scan_id = self.create_scan(target, self.process_scan_params(params))
 
         self.start_scan(scan_id)

@@ -1,5 +1,9 @@
 2014-11-21  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/ospd.py: Set default scanner_params.
+
+2014-11-21  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* wrappers/ovaldi/ospd-ovaldi.py, wrappers/w3af/ospd-w3af.py,
 	  ospd/ospd.py, ospd/misc.py: Small cleanups
 
