@@ -27,7 +27,6 @@
 """ ovaldi wrapper for OSPD. """
 
 import base64
-import inspect
 import logging
 import os
 import shutil

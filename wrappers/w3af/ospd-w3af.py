@@ -27,7 +27,6 @@
 """ w3af wrapper for OSPD. """
 
 import os
-import inspect
 import logging
 import sys
 from xml.dom.minidom import parse as xml_parse

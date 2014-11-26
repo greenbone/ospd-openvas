@@ -285,12 +285,13 @@ class OSPDaemon(object):
             try:
                 data = ''.join([data, stream.read(1024)])
                 if len(data) == 0:
-                    logger.debug("Empty client stream")
+                    logger.warning("Empty client stream (Connection unexpectedly closed)")
                     return
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
-            except ssl.SSLError:
+            except ssl.SSLError as e:
+                logger.debug('SSL error: %s', e)
                 break
         if len(data) <= 0:
             logger.debug("Empty client stream")
