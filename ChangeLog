@@ -1,3 +1,8 @@
+2014-11-27  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/w3af/ospd-w3af.py (OSPDw3af.process_scan_params): Fix
+	parameter name. Remove trailling white space.
+
 2014-11-25  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py, wrappers/ovaldi/ospd-ovaldi.py,

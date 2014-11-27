@@ -142,18 +142,18 @@ class OSPDw3af(OSPDaemon):
                                           "OWASP_TOP10", "fast_scan", "empty_profile",
                                           "web_infrastructure", "full_audit_spider_man", "sitemap")),
                              ('w3af_timeout', range(7200)),
-                             ('target_ports', range(65535)),
+                             ('target_port', range(65535)),
                              ('use_https', [0, 1]),
                              ('http_request_status', [0, 1]),
                              ('http_request_headers', [0, 1]),
                              ('http_response_status', [0, 1]),
                             ]:
-            if name not in params:           
+            if name not in params:
                 params[name] = self.get_scanner_param_default(name)
             if params[name] not in [str(v) for v in values]:
                 raise OSPDError('Invalid %s value' % name, 'start_scan')
         # Some needs to be renamed ...
-        for source, dest in [('target_ports', 'port'),
+        for source, dest in [('target_port', 'port'),
                              ('w3af_timeout', 'timeout'),
                              ('http_request_status', 'status'),
                              ('http_request_headers', 'headers'),
