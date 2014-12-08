@@ -14,7 +14,7 @@
 <!--
 OSPD
 $Id$
-Description: OpenVAS Security Protocol (OSP) single page HTML doc generator.
+Description: OpenVAS Scan Protocol (OSP) single page HTML doc generator.
 
 Authors:
 Hani Benhabiles <hani.benhabiles@greenbone.de>
