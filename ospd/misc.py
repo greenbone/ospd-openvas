@@ -248,6 +248,8 @@ def create_args_parser(description):
                         help='Use syslog for logging.')
     parser.add_argument('--background', action='store_true',
                         help='Run in background.')
+    parser.add_argument('--version', action='store_true',
+                        help='Print version then exit.')
     return parser
 
 def go_to_background():
@@ -293,8 +295,26 @@ def get_common_args(parser, args=None):
     common_args['log_level'] = log_level
     common_args['syslog'] = options.syslog
     common_args['background'] = options.background
+    common_args['version'] = options.version
 
     return common_args
+
+def print_version(wrapper):
+    """ Prints the server version and license information."""
+
+    scanner_name = wrapper.get_scanner_name()
+    scanner_version = wrapper.get_scanner_version()
+    print "OSP Server for {0} {1}".format(scanner_name, scanner_version)
+    protocol_version = wrapper.get_protocol_version()
+    print  "OSP Version: {0}".format(protocol_version)
+    daemon_name = wrapper.get_daemon_name()
+    daemon_version = wrapper.get_daemon_version()
+    print "Using: {0} {1}".format(daemon_name, daemon_version)
+    print "Copyright (C) 2014 Greenbone Networks GmbH\n"\
+          "License GPLv2+: GNU GPL version 2 or later\n"\
+          "This is free software: you are free to change"\
+          " and redistribute it.\n"\
+          "There is NO WARRANTY, to the extent permitted by law."
 
 def main(name, klass):
     # Common args parser.
@@ -305,7 +325,10 @@ def main(name, klass):
     logging.getLogger().setLevel(cargs['log_level'])
     wrapper = klass(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
                     cafile=cargs['cafile'])
-    
+
+    if cargs['version']:
+        print_version(wrapper)
+        sys.exit()
     if cargs['syslog']:
         syslog = logging.handlers.SysLogHandler('/dev/log')
         syslog.setFormatter(logging.Formatter('%(name)s: %(levelname)s: %(message)s'))

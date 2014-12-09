@@ -146,7 +146,7 @@ class OSPDOvaldi(OSPDaemon):
 
     def get_scanner_version(self):
         """ Gives the used scanner's version. """
-        return "unknown" # XXX: ovaldi is different on each target.
+        return "unknown version" # XXX: ovaldi is different on each target.
 
     def get_scanner_description(self):
         """ Gives the used scanner's description. """

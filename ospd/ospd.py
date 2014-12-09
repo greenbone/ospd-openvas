@@ -43,6 +43,7 @@ from ospd.misc import ScanCollection, ResultType
 logger = logging.getLogger(__name__)
 
 OSP_VERSION = "0.1.0"
+OSPD_VERSION = "1.0+beta5"
 
 def get_commands_table():
     """ Initializes the supported commands and their info. """
@@ -139,8 +140,8 @@ class OSPDaemon(object):
         self.certs['ca_file'] = cafile
         self.scan_collection = ScanCollection()
         self.daemon_info = dict()
-        self.daemon_info['name'] = "generic ospd"
-        self.daemon_info['version'] = "generic version"
+        self.daemon_info['name'] = "OSPd"
+        self.daemon_info['version'] = OSPD_VERSION
         self.daemon_info['description'] = "No description"
         self.scanner_params = dict()
         self.commands = get_commands_table()
@@ -170,6 +171,10 @@ class OSPDaemon(object):
     def get_scanner_version(self):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
+
+    def get_protocol_version(self):
+        """ Gives the OSP's version. """
+        return OSP_VERSION
 
     def process_scan_params(self, params):
         """ may be overriden by child """

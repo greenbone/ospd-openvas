@@ -1,3 +1,17 @@
+2014-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (create_args_parser, get_common_args): Add --version
+	argument.
+	(print_version): New function.
+	(main): If --version is specified, call print_version() then exit.
+
+	* ospd/ospd.py (OSPD_VERSION): New variable.
+	(OSPDaemon [__init__]): Adjust daemon information.
+	(OSPDaemon [get_protocol_version]): New method.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDOvaldi [get_scanner_version]):
+	Adjust version string.
+
 2014-12-08  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/HTML.xsl, doc/OSP.xml: Fix name of "OSP".
