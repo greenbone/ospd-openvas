@@ -1,3 +1,14 @@
+2014-12-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (print_version): Use specific osp server version instead
+	of scanner version.
+
+	* ospd/ospd.py (OSPDaemon [__init__]): Initialize server_version.
+	(OSPDaemon [get_server_version]): New method.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDovaldi [__init__]),
+	wrappers/w3af/ospd-w3af.py (OSPDw3af [__init__]): Set server_version.
+
 2014-12-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (create_args_parser, get_common_args): Add --version

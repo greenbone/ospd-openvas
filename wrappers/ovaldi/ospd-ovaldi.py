@@ -134,6 +134,7 @@ class OSPDOvaldi(OSPDaemon):
         super(OSPDOvaldi, self).__init__(certfile=certfile, keyfile=keyfile,
                                          cafile=cafile)
 
+        self.server_version = '1.0b1'
         self.init_scanner_params(OSPD_OVALDI_PARAMS)
         self.schema_dir = "/usr/share/ovaldi/xml"
 

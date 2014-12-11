@@ -303,8 +303,8 @@ def print_version(wrapper):
     """ Prints the server version and license information."""
 
     scanner_name = wrapper.get_scanner_name()
-    scanner_version = wrapper.get_scanner_version()
-    print "OSP Server for {0} {1}".format(scanner_name, scanner_version)
+    server_version = wrapper.get_server_version()
+    print "OSP Server for {0} version {1}".format(scanner_name, server_version)
     protocol_version = wrapper.get_protocol_version()
     print  "OSP Version: {0}".format(protocol_version)
     daemon_name = wrapper.get_daemon_name()

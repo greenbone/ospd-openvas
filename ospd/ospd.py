@@ -144,6 +144,7 @@ class OSPDaemon(object):
         self.daemon_info['version'] = OSPD_VERSION
         self.daemon_info['description'] = "No description"
         self.scanner_params = dict()
+        self.server_version = None  # Set by the subclass.
         self.commands = get_commands_table()
 
     def set_command_attributes(self, name, attributes):
@@ -171,6 +172,11 @@ class OSPDaemon(object):
     def get_scanner_version(self):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
+
+    def get_server_version(self):
+        """ Gives the specific OSP server's version. """
+        assert self.server_version
+        return self.server_version
 
     def get_protocol_version(self):
         """ Gives the OSP's version. """

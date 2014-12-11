@@ -112,6 +112,7 @@ class OSPDw3af(OSPDaemon):
         """ Initializes the ospd-w3af daemon's internal data. """
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile)
+        self.server_version = '1.0b1'
         self.init_scanner_params(OSPD_W3AF_PARAMS)
 
     def check(self):
