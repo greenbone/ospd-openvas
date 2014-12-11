@@ -143,6 +143,10 @@ class OSPDaemon(object):
         self.daemon_info['name'] = "OSPd"
         self.daemon_info['version'] = OSPD_VERSION
         self.daemon_info['description'] = "No description"
+        self.scanner_info = dict()
+        self.scanner_info['name'] = 'No name'
+        self.scanner_info['version'] = 'No version'
+        self.scanner_info['description'] = 'No description'
         self.scanner_params = dict()
         self.server_version = None  # Set by the subclass.
         self.commands = get_commands_table()
@@ -166,12 +170,16 @@ class OSPDaemon(object):
         return name in self.commands.keys()
 
     def get_scanner_name(self):
-        """ Asserts to False. Should be implemented by subclass. """
-        raise NotImplementedError
+        """ Gives the wrapped scanner's name. """
+        return self.scanner_info['name']
 
     def get_scanner_version(self):
-        """ Asserts to False. Should be implemented by subclass. """
-        raise NotImplementedError
+        """ Gives the wrapped scanner's version. """
+        return self.scanner_info['version']
+
+    def get_scanner_description(self):
+        """ Gives the wrapped scanner's description. """
+        return self.scanner_info['description']
 
     def get_server_version(self):
         """ Gives the specific OSP server's version. """
@@ -228,10 +236,6 @@ class OSPDaemon(object):
     def get_daemon_version(self):
         """ Gives osp daemon's version. """
         return self.daemon_info['version']
-
-    def get_scanner_description(self):
-        """ Returns the OSP Daemon's description. """
-        raise NotImplementedError
 
     def get_scanner_param_default(self, param):
         """ Returns default value of a scanner param. """

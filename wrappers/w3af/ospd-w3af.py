@@ -113,6 +113,9 @@ class OSPDw3af(OSPDaemon):
         super(OSPDw3af, self).__init__(certfile=certfile, keyfile=keyfile,
                                        cafile=cafile)
         self.server_version = '1.0b1'
+        self.scanner_info['name'] = 'w3af'
+        self.scanner_info['version'] = get_w3af_version()
+        self.scanner_info['description'] = OSPD_W3AF_DESCRIPTION
         self.init_scanner_params(OSPD_W3AF_PARAMS)
 
     def check(self):
@@ -124,18 +127,6 @@ class OSPDw3af(OSPDaemon):
             logger.error("Check for w3af_console failed: %s", message)
             return False
         return True
-
-    def get_scanner_name(self):
-        """ Gives the used scanner's name. """
-        return "w3af"
-
-    def get_scanner_version(self):
-        """ Gives the used scanner's version. """
-        return get_w3af_version()
-
-    def get_scanner_description(self):
-        """ Gives the used scanner's description. """
-        return OSPD_W3AF_DESCRIPTION
 
     def process_scan_params(self, params):
         """ params is directly from the XML """

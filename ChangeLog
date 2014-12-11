@@ -1,5 +1,16 @@
 2014-12-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon [__init__]): Initialize scanner_info.
+	(OSPDaemon [get_scanner_name, get_scanner_version]
+	[get_scanner_description]): Implement methods to return correct value.
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPDovaldi),
+	wrappers/w3af/ospd-w3af.py (OSPDw3af): Set scanner_info
+	values. Remove get_scanner_name, get_scanner_version,
+	get_scanner_description methods.
+
+2014-12-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (print_version): Use specific osp server version instead
 	of scanner version.
 

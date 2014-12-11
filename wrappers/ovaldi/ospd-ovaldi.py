@@ -135,23 +135,14 @@ class OSPDOvaldi(OSPDaemon):
                                          cafile=cafile)
 
         self.server_version = '1.0b1'
+        self.scanner_info['name'] = 'ovaldi'
+        self.scanner_info['version'] = 'unknown version'
+        self.scanner_info['description'] = OSPD_OVALDI_DESC
         self.init_scanner_params(OSPD_OVALDI_PARAMS)
         self.schema_dir = "/usr/share/ovaldi/xml"
 
     def check(self):
         return True
-
-    def get_scanner_name(self):
-        """ Gives the used scanner's name. """
-        return "ovaldi"
-
-    def get_scanner_version(self):
-        """ Gives the used scanner's version. """
-        return "unknown version" # XXX: ovaldi is different on each target.
-
-    def get_scanner_description(self):
-        """ Gives the used scanner's description. """
-        return OSPD_OVALDI_DESC
 
     def process_scan_params(self, params):
         try:
