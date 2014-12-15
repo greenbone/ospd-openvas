@@ -1,3 +1,8 @@
+2014-12-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* wrappers/ovaldi/ospd-ovaldi.py (OSPD_OVALDI_PARAMS): Change
+	definitions_file type to ovaldef_file.
+
 2014-12-11  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [__init__]): Initialize scanner_info.

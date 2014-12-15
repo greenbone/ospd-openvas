@@ -92,7 +92,7 @@ OSPD_OVALDI_PARAMS = \
   ' username/password. the ovaldi tool installed on that target.',
  },
  'definitions_file' :
- {'type' : 'file',
+ {'type' : 'ovaldef_file',
   'name' : 'Oval Definitions',
   'default' : '',
   'description' :
