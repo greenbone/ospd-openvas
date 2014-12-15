@@ -87,7 +87,7 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['pexpect', 'paramiko'],
+    install_requires=['pexpect'],
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
@@ -101,8 +101,7 @@ setup(
     # Scripts. Define scripts here which should be installed in the
     # sys.prefix/bin directory. You can define an alternative place for
     # installation by setting the --install-scripts option of setup.py
-    scripts = ['wrappers/ovaldi/ospd-ovaldi.py',
-               'wrappers/w3af/ospd-w3af.py'],
+    scripts = ['wrappers/w3af/ospd-w3af.py'],
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow

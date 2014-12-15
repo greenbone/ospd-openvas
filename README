@@ -9,10 +9,10 @@ consistently under the central OpenVAS Manager service.
 OSP is similar in many ways to OMP (OpenVAS Management Protocol): XML-based,
 stateless and non-permanent connection.
 
-Currently wrapped scanners: w3af (web application scanner) and ovaldi
-as a remotely controlled OVAL scanner. The design supports wrapping
-further scanners with same protocol OSP, sharing the core daemon
-options while adding scanner specific parameters and options.
+Currently wrapped scanners: w3af (web application scanner).
+The design supports wrapping further scanners with same protocol OSP,
+sharing the core daemon options while adding scanner specific parameters and
+options.
 
 OSPD is licensed under GNU General Public License Version 2 or
 any later version.  Please see file COPYING for details.
@@ -28,7 +28,6 @@ Module structure
 * ospd/misc.py: Miscellaneous code and classes related to OSPD that don't fit
                 elsewhere.
 * wrappers/: Directory for various scanners wrappers. At the moment it contains:
- - wrappers/ovaldi/ospd-ovaldi.py: OSP Daemon that runs ovaldi scanner.
  - wrappers/w3af/ospd-w3af.py: OSP Daemon that runs w3af web scanner (cli mode).
 
 
@@ -43,14 +42,7 @@ For example to see the command line options you can run
 
 $ ospd-NAME.py --help
 
-where NAME can be "ovaldi" or "w3af".
-
-
-To run a test instance of ospd-ovaldi on local port 1234 with sample data:
-
-$ ospd-ovaldi.py -b 127.0.0.1 -p 1234 &
-
-Add "--log-level=DEBUG" to enable maximum debugging output.
+where NAME can be "w3af".
 
 
 To run a test instance of ospd-w3af on local port 1235:
@@ -61,6 +53,7 @@ Add "--log-level=debug" to enable maximum debugging output.
 
 Parameter for --log-level can be one of debug, info, warnings, error, or
 critical (in order of priority).
+
 
 Controlling a OSP daemon
 ------------------------
@@ -92,37 +85,6 @@ $ omp --use-certs -p 1234 -i --xml="<help/>"
           scan_id                ID of a specific scan to get.
           details                Whether to return the full scan report.
 </help_response>
-
-
-With ospd-ovaldi.py listening on 127.0.0.1:1234:
-$ omp --use-certs -p 1235 -i --xml="<help/>"
-
-<help_response status_text="OK" status="200">
-        delete_scan            Delete a finished scan.
-         Attributes:
-          scan_id                ID of scan to delete.
-        help                   Print the commands help.
-        get_version            Return various versions.
-        get_scanner_details    Return scanner description and parameters
-        start_scan             Start a new scan.
-         Attributes:
-          target                 Target host to scan
-         Elements:
-          scanner_params         
-            username               SSH Username
-            password               SSH Password
-            port                   SSH Port
-            definitions_file       Oval Definitions
-        get_scans              List the scans in buffer.
-         Attributes:
-          scan_id                ID of a specific scan to get.
-          details                Whether to return the full scan report.
-</help_response>
-
-
-Starting a scan with ospd-ovaldi:
-
-omp --use-certs --send-file=/tmp/definitions.xml --xml="<start_scan target='127.0.0.1'><scanner_params><username>USERNAME</username><password>PASSWORD</password><definitions_file>SENDFILE</definitions_file></scanner_params></start_scan>" -p 1234 -i
 
 
 Starting a scan with ospd-w3af:
