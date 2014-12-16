@@ -101,7 +101,7 @@ setup(
     # Scripts. Define scripts here which should be installed in the
     # sys.prefix/bin directory. You can define an alternative place for
     # installation by setting the --install-scripts option of setup.py
-    scripts = ['wrappers/w3af/ospd-w3af.py'],
+    # scripts = [''],
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow

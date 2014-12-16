@@ -11,7 +11,6 @@ Prerequisites for OSPD
 
 Prerequisites:
 * python >= 2.7
-* python-pexpect: For running/interacting with w3af_console.
 
 
 Building OSPD
@@ -40,7 +39,7 @@ You need TLS certificates for each of your OSPD service. You may use
 the same certificates for all services if you like.
 
 By default those certificates are used which are also used by OpenVAS
-(see paths with "ospd-NAME.py --help"). Of course this works only
+(see paths with "ospd-NAME --help"). Of course this works only
 if installed in the same environment.
  
 In case you do not have already a certificate to use, you may quickly
@@ -66,7 +65,7 @@ a new Scanner there.
 Or you can create a scanner via openvasmd command line (adjust host,
 port, paths etc. for your daemon):
 
-$ openvasmd --create-scanner="OSP w3af" --scanner-host=127.0.0.1 --scanner-port=1234 \
+$ openvasmd --create-scanner="OSP Scanner-Name" --scanner-host=127.0.0.1 --scanner-port=1234 \
            --scanner-type="OSP" --scanner-ca-pub=/usr/var/lib/openvas/CA/cacert.pem \
            --scanner-key-pub=/usr/var/lib/openvas/CA/clientcert.pem \
            --scanner-key-priv=/usr/var/lib/openvas/private/CA/clientkey.pem 
@@ -75,7 +74,7 @@ Check whether OpenVAS Manager can connect to the OSP daemon (needs to run of cou
 
 $ openvasmd --get-scanners
 08b69003-5fc2-4037-a479-93b440211c73  OpenVAS Default
-3566ddf1-cecf-4491-8bcc-5d62a87404c3  OSP w3af
+3566ddf1-cecf-4491-8bcc-5d62a87404c3  OSP Scanner-Name
 
 $ openvasmd --verify-scanner=3566ddf1-cecf-4491-8bcc-5d62a87404c3
 Scanner version: 1.0.
@@ -93,8 +92,9 @@ python setup.py sdist
 
 This will create the archive file in the subdirectory "dist".
 
+
 Documentation
--------------------------
+-------------
 
 To generate the OSP documentation in HTML format, run the script:
 

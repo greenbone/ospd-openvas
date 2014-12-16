@@ -1,7 +1,7 @@
 About OSPD
 ----------
 
-OSPD is a collection of scanner wrappers which share the same communication
+OSPD is a base class for scanner wrappers which share the same communication
 protocol: OSP (OpenVAS Scanner Protocol). OSP creates a unified interface for
 different security scanners and make their control flow and scan results
 consistently under the central OpenVAS Manager service.
@@ -9,7 +9,6 @@ consistently under the central OpenVAS Manager service.
 OSP is similar in many ways to OMP (OpenVAS Management Protocol): XML-based,
 stateless and non-permanent connection.
 
-Currently wrapped scanners: w3af (web application scanner).
 The design supports wrapping further scanners with same protocol OSP,
 sharing the core daemon options while adding scanner specific parameters and
 options.
@@ -27,71 +26,3 @@ Module structure
 * ospd/ospd.py: Core OSP Daemon class.
 * ospd/misc.py: Miscellaneous code and classes related to OSPD that don't fit
                 elsewhere.
-* wrappers/: Directory for various scanners wrappers. At the moment it contains:
- - wrappers/w3af/ospd-w3af.py: OSP Daemon that runs w3af web scanner (cli mode).
-
-
-Howto start a OSP daemon
-------------------------
-
-All scanner wrappers share the same set of command-line options (such as
---help, --bind-address, --port, --key-file, --timeout etc,.) and some of the
-wrappers add their own specific options.
-
-For example to see the command line options you can run
-
-$ ospd-NAME.py --help
-
-where NAME can be "w3af".
-
-
-To run a test instance of ospd-w3af on local port 1235:
-
-$ ospd-w3af.py -b 127.0.0.1 -p 1235 &
-
-Add "--log-level=debug" to enable maximum debugging output.
-
-Parameter for --log-level can be one of debug, info, warnings, error, or
-critical (in order of priority).
-
-
-Controlling a OSP daemon
-------------------------
-
-You can use command "omp" of the OpenVAS "omp-cli" module to send to and
-receive information from the scanners.
-
-All OSP scanners offer the command "help". They may answer
-with different capabilities (like for the start_scan command).
-
-With ospd-w3af.py listening on 127.0.0.1:1234:
-$ omp --use-certs -p 1234 -i --xml="<help/>"
-
-<help_response status_text="OK" status="200">
-        delete_scan            Delete a finished scan.
-         Attributes:
-          scan_id                ID of scan to delete.
-        help                   Print the commands help.
-        get_version            Return various versions.
-        get_scanner_details    Return scanner description and parameters
-        start_scan             Start a new scan.
-         Attributes:
-          target                 Target host to scan
-         Elements:
-          scanner_params         
-            profile                Scan profile
-        get_scans              List the scans in buffer.
-         Attributes:
-          scan_id                ID of a specific scan to get.
-          details                Whether to return the full scan report.
-</help_response>
-
-
-Starting a scan with ospd-w3af:
-
-omp --use-certs --xml="<start_scan target='www.example.com'><scanner_params><profile>fast_scan</profile></scanner_params></start_scan>" -p 1235 -i
-
-
-Show the list of scans, their status and results (any OSP Scanner):
-
-$ omp --use-certs --xml="<get_scans/>" -p 1234 -i

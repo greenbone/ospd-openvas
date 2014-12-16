@@ -1,3 +1,13 @@
+2014-12-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Moved w3af wrapper into module osp-servers/w3af.
+
+	* README, INSTALL: Dropped text about w3af.
+
+	* setup.py: Drop handling of w3af wrapper.
+
+	* wrappers/w3af/ospd-w3af.py, wrappers/w3af/, wrappers/: Removed.
+
 2014-12-15  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Moved ovaldi wrapper into module osp-servers/ovaldi.
