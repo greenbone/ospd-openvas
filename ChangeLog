@@ -1,3 +1,7 @@
+2014-12-16  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* INSTALL: We don't support python3.
+
 2014-12-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	Moved w3af wrapper into module osp-servers/w3af.

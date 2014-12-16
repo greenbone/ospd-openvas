@@ -10,7 +10,7 @@ Prerequisites for OSPD
 ----------------------
 
 Prerequisites:
-* python >= 2.7
+* python 2.7
 
 
 Building OSPD
