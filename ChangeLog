@@ -1,3 +1,22 @@
+2014-12-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection [add_result]): New method.
+	(ScanCollection [add_alarm, add_log, add_error]): Refactor code to use
+	new add_result class method. Add host method parameter.
+	(target_str_to_list): New function.
+
+	* ospd/ospd.py (get_results_xml): Adjust to output result host in xml.
+	(OSPDaemon [handle_start_scan_command]): Adjust to handle mult-host
+	targets strings.
+	(OSPDaemon [exec_scan]): Add method argument for target host.
+	(OSPDaemon [start_scan]): Return the scan thread. Add method argument
+	for target host.
+	(OSPDaemon [handle_timeout]): Don't finish the scan as there might be
+	other hosts to scan. Adjust add_scan_error() method call.
+	(OSPDaemon [check_scan_thread]): Adjust add_scan_error() method call.
+	(OSPDaemon [add_scan_log, add_scan_error, add_scan_alarm]): Add host
+	method argument. Adjust scan_collection methods calls accordingly.
+
 2014-12-16  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* INSTALL: We don't support python3.

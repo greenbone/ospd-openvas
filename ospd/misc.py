@@ -63,35 +63,30 @@ class ScanCollection(object):
 
         self.scans_table = dict()
 
-    def add_alarm(self, scan_id, name='', value='', severity=''):
-        """ Add a result of type Alarm to a scan in the table. """
+    def add_result(self, scan_id, result_type, host='', name='', value='',
+                   severity=''):
+        """ Add a result to a scan in the table. """
 
+        assert scan_id
         result = dict()
-        result['type'] = ResultType.ALARM
+        result['type'] = result_type
         result['name'] = name
         result['severity'] = severity
         result['value'] = value
+        result['host'] = host
         self.scans_table[scan_id]['results'].append(result)
 
-    def add_log(self, scan_id, name="", value=""):
+    def add_alarm(self, scan_id, host='', name='', value='', severity=''):
+        """ Add a result of type Alarm to a scan in the table. """
+        self.add_result(scan_id, ResultType.ALARM, host, name, value, severity)
+
+    def add_log(self, scan_id, host='', name='', value=''):
         """ Add a result of type Log to a scan in the table. """
+        self.add_result(scan_id, ResultType.LOG, host, name, value, '')
 
-        result = dict()
-        result['type'] = ResultType.LOG
-        result['name'] = name
-        result['severity'] = ''
-        result['value'] = value
-        self.scans_table[scan_id]['results'].append(result)
-
-    def add_error(self, scan_id, name="", value=""):
+    def add_error(self, scan_id, host='', name='', value=''):
         """ Add a result of type Error to a scan in the table. """
-
-        result = dict()
-        result['type'] = ResultType.ERROR
-        result['name'] = name
-        result['severity'] = ''
-        result['value'] = value
-        self.scans_table[scan_id]['results'].append(result)
+        self.add_result(scan_id, ResultType.ERROR, host, name, value, '')
 
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
@@ -209,6 +204,11 @@ class ResultType(object):
             return cls.ERROR
         else:
             assert False, "Erroneous result name {0}.".format(result_name)
+
+def target_str_to_list(target):
+    """ Parses a targets string into a list of individual targets. """
+    target_list = target.split(',')
+    return [target.strip() for target in target_list]
 
 def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """

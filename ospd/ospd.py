@@ -38,7 +38,7 @@ except ImportError:
     import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape as xml_escape
 
-from ospd.misc import ScanCollection, ResultType
+from ospd.misc import ScanCollection, ResultType, target_str_to_list
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +79,10 @@ def get_result_xml(result):
     """ Formats a scan result to XML format. """
 
     result_type = ResultType.get_str(result['type'])
-    return '<result name="{0}" type="{1}" severity="{2}">{3}</result>'\
+    return '<result name="{0}" type="{1}" severity="{2}" host="{3}">\
+            {4}</result>'\
             .format(result['name'], result_type, result['severity'],
-                    xml_escape(result['value']))
+                    result['host'], xml_escape(result['value']))
 
 def simple_response_str(command, status, status_text, content=""):
     """ Creates an OSP response XML string.
@@ -196,8 +197,8 @@ class OSPDaemon(object):
 
     def handle_start_scan_command(self, scan_et):
         # Extract scan information
-        target = scan_et.attrib.get('target')
-        if target is None:
+        target_str = scan_et.attrib.get('target')
+        if target_str is None:
             raise OSPDError('No target attribute', 'start_scan')
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
@@ -212,14 +213,21 @@ class OSPDaemon(object):
                 continue
             params[param] = self.scanner_params[param].get('default', '')
 
-        scan_id = self.create_scan(target, self.process_scan_params(params))
+        scan_id = self.create_scan(target_str, self.process_scan_params(params))
 
-        self.start_scan(scan_id)
+        target_list = target_str_to_list(target_str)
+        if target_list is None:
+            raise OSPDError('Erroneous targets list', 'start_scan')
+        for target in target_list:
+            logger.info("{0}: Scan started.".format(target))
+            thread = self.start_scan(scan_id, target)
+            thread.join()
+            logger.info("{0}: Scan finished.".format(target))
+        self.finish_scan(scan_id)
         text = '<id>{0}</id>'.format(scan_id)
         return simple_response_str('start_scan', 200, 'OK', text)
 
-
-    def exec_scan(self, scan_id):
+    def exec_scan(self, scan_id, target):
         """ Asserts to False. Should be implemented by subclass. """
         assert scan_id
         raise NotImplementedError
@@ -333,20 +341,21 @@ class OSPDaemon(object):
         """
         return self.bind_socket(address, port)
 
-    def start_scan(self, scan_id):
+    def start_scan(self, scan_id, target):
         """ Starts the scan with scan_id. """
 
         logger.info("{0}: Scan started.".format(scan_id))
-        t = threading.Thread(target=self.exec_scan, args=(scan_id, ))
-        self.scan_collection.set_thread(scan_id, t)
-        t.start()
+        scan_thread = threading.Thread(target=self.exec_scan,
+                                       args=(scan_id, target))
+        self.scan_collection.set_thread(scan_id, scan_thread)
+        scan_thread.start()
+        return scan_thread
 
-    def handle_timeout(self, scan_id):
+    def handle_timeout(self, scan_id, host):
         """ Handles scanner reaching timeout error. """
-        self.add_scan_error(scan_id, name="Timeout",
+        self.add_scan_error(scan_id, host=host, name="Timeout",
                             value="{0} exec timeout."\
                                    .format(self.get_scanner_name()))
-        self.finish_scan(scan_id)
 
     def set_scan_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
@@ -620,7 +629,8 @@ class OSPDaemon(object):
         progress = self.get_scan_progress(scan_id)
         if progress < 100 and not scan_thread.is_alive():
             self.set_scan_progress(scan_id, 100)
-            self.add_scan_error(scan_id, "", "Scan thread failure.")
+            self.add_scan_error(scan_id, name="", host="",
+                                value="Scan thread failure.")
             logger.info("{0}: Scan terminated.".format(scan_id))
 
     def get_scan_thread(self, scan_id):
@@ -643,14 +653,14 @@ class OSPDaemon(object):
         """ Gives a scan's end time. """
         return self.scan_collection.get_end_time(scan_id)
 
-    def add_scan_log(self, scan_id, name="", value=""):
+    def add_scan_log(self, scan_id, host='', name='', value=''):
         """ Adds a log result to scan_id scan. """
-        self.scan_collection.add_log(scan_id, name, value)
+        self.scan_collection.add_log(scan_id, host, name, value)
 
-    def add_scan_error(self, scan_id, name="", value=""):
+    def add_scan_error(self, scan_id, host='', name='', value=''):
         """ Adds an error result to scan_id scan. """
-        self.scan_collection.add_error(scan_id, name, value)
+        self.scan_collection.add_error(scan_id, host, name, value)
 
-    def add_scan_alarm(self, scan_id, name='', value='', severity=''):
+    def add_scan_alarm(self, scan_id, host='', name='', value='', severity=''):
         """ Adds an alarm result to scan_id scan. """
-        self.scan_collection.add_alarm(scan_id, name, value, severity)
+        self.scan_collection.add_alarm(scan_id, host, name, value, severity)
