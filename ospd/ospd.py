@@ -215,15 +215,10 @@ class OSPDaemon(object):
 
         scan_id = self.create_scan(target_str, self.process_scan_params(params))
 
-        target_list = target_str_to_list(target_str)
-        if target_list is None:
-            raise OSPDError('Erroneous targets list', 'start_scan')
-        for target in target_list:
-            logger.info("{0}: Scan started.".format(target))
-            thread = self.start_scan(scan_id, target)
-            thread.join()
-            logger.info("{0}: Scan finished.".format(target))
-        self.finish_scan(scan_id)
+        scan_thread = threading.Thread(target=self.start_scan,
+                                       args=(scan_id, target_str))
+        self.scan_collection.set_thread(scan_id, scan_thread)
+        scan_thread.start()
         text = '<id>{0}</id>'.format(scan_id)
         return simple_response_str('start_scan', 200, 'OK', text)
 
@@ -341,15 +336,23 @@ class OSPDaemon(object):
         """
         return self.bind_socket(address, port)
 
-    def start_scan(self, scan_id, target):
+    def start_scan(self, scan_id, target_str):
         """ Starts the scan with scan_id. """
 
         logger.info("{0}: Scan started.".format(scan_id))
-        scan_thread = threading.Thread(target=self.exec_scan,
-                                       args=(scan_id, target))
-        self.scan_collection.set_thread(scan_id, scan_thread)
-        scan_thread.start()
-        return scan_thread
+        target_list = target_str_to_list(target_str)
+        if target_list is None:
+            raise OSPDError('Erroneous targets list', 'start_scan')
+        for target in target_list:
+            logger.info("{0}: Scan started.".format(target))
+            try:
+                self.exec_scan(scan_id, target)
+                logger.info("{0}: Scan finished.".format(target))
+            except:
+                self.add_scan_error(scan_id, name='', host=target,
+                                    value='Host thread failure.')
+                logger.info("{0}: Scan failure with exception.".format(target))
+        self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id, host):
         """ Handles scanner reaching timeout error. """

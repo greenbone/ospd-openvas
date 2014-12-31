@@ -1,5 +1,12 @@
 2014-12-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon [handle_start_scan_command]): Start new thread
+	for the scan and adjust method accordingly.
+	(OSPDaemon [start_scan]): Loop over hosts of the targets string and
+	handle exceptions for hosts scan threads accordingly.
+
+2014-12-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (ScanCollection [add_result]): New method.
 	(ScanCollection [add_alarm, add_log, add_error]): Refactor code to use
 	new add_result class method. Add host method parameter.
