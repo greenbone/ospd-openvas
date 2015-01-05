@@ -343,7 +343,9 @@ class OSPDaemon(object):
         target_list = target_str_to_list(target_str)
         if target_list is None:
             raise OSPDError('Erroneous targets list', 'start_scan')
-        for target in target_list:
+        for index, target in enumerate(target_list):
+            progress = float(index) * 100 / len(target_list)
+            self.set_scan_progress(scan_id, int(progress))
             logger.info("{0}: Scan started.".format(target))
             try:
                 self.exec_scan(scan_id, target)

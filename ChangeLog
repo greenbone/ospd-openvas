@@ -1,3 +1,8 @@
+2014-01-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon [start_scan]): Update scan progress value
+	accordingly.
+
 2014-12-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [handle_start_scan_command]): Start new thread
