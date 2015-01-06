@@ -32,6 +32,7 @@ import logging.handlers
 import os
 import sys
 import uuid
+import socket
 
 logger = logging.getLogger(__name__)
 
@@ -205,10 +206,43 @@ class ResultType(object):
         else:
             assert False, "Erroneous result name {0}.".format(result_name)
 
-def target_str_to_list(target):
+def target_to_ipv4(target):
+    try:
+        socket.inet_pton(socket.AF_INET, target)
+        return [target]
+    except:
+        return None
+
+def target_to_ipv6(target):
+    try:
+        socket.inet_pton(socket.AF_INET6, target)
+        return [target]
+    except:
+        return None
+
+def target_to_list(target):
+    # Is it an IPv4 address ?
+    new_target = target_to_ipv4(target)
+    if new_target:
+        return new_target
+    # Is it an IPv6 address ?
+    new_target = target_to_ipv6(target)
+    if new_target:
+        return new_target
+    return None
+
+def target_str_to_list(target_str):
     """ Parses a targets string into a list of individual targets. """
-    target_list = target.split(',')
-    return [target.strip() for target in target_list]
+    new_list = list()
+    for target in target_str.split(','):
+        target = target.strip()
+        target_list = target_to_list(target)
+        if target_list:
+            new_list.extend(target_list)
+        else:
+            logger.info("{0}: Invalid target value".format(target))
+            return None
+    return new_list
 
 def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
