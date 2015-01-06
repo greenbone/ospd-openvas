@@ -33,6 +33,8 @@ import os
 import sys
 import uuid
 import socket
+import struct
+import binascii
 
 logger = logging.getLogger(__name__)
 
@@ -220,15 +222,63 @@ def target_to_ipv6(target):
     except:
         return None
 
+def ipv4_range_to_list(start_packed, end_packed):
+    new_list = list()
+    try:
+        start = struct.unpack('!L', start_packed)[0]
+        end = struct.unpack('!L', end_packed)[0]
+        for value in xrange(start, end + 1):
+            new_ip = socket.inet_ntoa(struct.pack('!L', value))
+            new_list.append(new_ip)
+    except:
+        return None
+    return new_list
+
+def target_to_ipv4_short(target):
+    splitted = target.split('-')
+    if len(splitted) != 2:
+        return None
+    try:
+        start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
+        start_value = int(binascii.hexlify(start_packed[3]), 16)
+        end_value = int(splitted[1])
+        if end_value < 0 or end_value > 255 or end_value < start_value:
+            return None
+        end_packed = start_packed[0:3] + struct.pack('B', end_value)
+        return ipv4_range_to_list(start_packed, end_packed)
+    except:
+        return None
+
+def target_to_ipv4_long(target):
+    splitted = target.split('-')
+    if len(splitted) != 2:
+        return None
+    try:
+        start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
+        end_packed = socket.inet_pton(socket.AF_INET, splitted[1])
+        if end_packed < start_packed:
+            return None
+        return ipv4_range_to_list(start_packed, end_packed)
+    except:
+        return None
+
 def target_to_list(target):
     # Is it an IPv4 address ?
-    new_target = target_to_ipv4(target)
-    if new_target:
-        return new_target
+    new_list = target_to_ipv4(target)
+    if new_list:
+        return new_list
     # Is it an IPv6 address ?
-    new_target = target_to_ipv6(target)
-    if new_target:
-        return new_target
+    new_list = target_to_ipv6(target)
+    if new_list:
+        return new_list
+    # Is it an IPv4 short-range ?
+    new_list = target_to_ipv4_short(target)
+    if new_list:
+        return new_list
+    # Is it an IPv4 long-range ?
+    new_list = target_to_ipv4_long(target)
+    if new_list:
+        return new_list
     return None
 
 def target_str_to_list(target_str):
