@@ -35,6 +35,8 @@ import uuid
 import socket
 import struct
 import binascii
+import re
+import collections
 
 logger = logging.getLogger(__name__)
 
@@ -255,7 +257,7 @@ def target_to_ipv4_cidr(target):
         block = int(splitted[1])
     except (socket.error, ValueError):
         return None
-    if block < 0 or block > 30:
+    if block <= 0 or block > 30:
         return None
     start_value = int(binascii.hexlify(start_packed), 16) >> (32 - block)
     start_value = (start_value << (32 - block)) + 1
@@ -263,6 +265,28 @@ def target_to_ipv4_cidr(target):
     start_packed = struct.pack('!I', start_value)
     end_packed = struct.pack('!I', end_value)
     return ipv4_range_to_list(start_packed, end_packed)
+
+def target_to_ipv6_cidr(target):
+    splitted = target.split('/')
+    if len(splitted) != 2:
+        return None
+    try:
+        start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
+        block = int(splitted[1])
+    except (socket.error, ValueError):
+        return None
+    if block <= 0 or block > 126:
+        return None
+    start_value = int(binascii.hexlify(start_packed), 16) >> (128 - block)
+    start_value = (start_value << (128 - block)) + 1
+    end_value = (start_value | (int('ff' * 16, 16) >> block)) - 1
+    high = start_value >> 64
+    low = start_value & ((1 << 64) - 1)
+    start_packed = struct.pack('!QQ', high, low)
+    high = end_value >> 64
+    low = end_value & ((1 << 64) - 1)
+    end_packed = struct.pack('!QQ', high, low)
+    return ipv6_range_to_list(start_packed, end_packed)
 
 def target_to_ipv4_long(target):
     splitted = target.split('-')
@@ -281,7 +305,7 @@ def ipv6_range_to_list(start_packed, end_packed):
     new_list = list()
     start = int(binascii.hexlify(start_packed), 16)
     end = int(binascii.hexlify(end_packed), 16)
-    for value in xrange(start, end + 1):
+    for value in range(start, end + 1):
         high = value >> 64
         low = value & ((1 << 64) - 1)
         new_ip = socket.inet_ntop(socket.AF_INET6,
@@ -302,7 +326,6 @@ def target_to_ipv6_short(target):
     if end_value < 0 or end_value > 0xffff or end_value < start_value:
         return None
     end_packed = start_packed[:14] + struct.pack('!H', end_value)
-    print len(start_packed), len(end_packed)
     return ipv6_range_to_list(start_packed, end_packed)
 
 def target_to_ipv6_long(target):
@@ -318,6 +341,13 @@ def target_to_ipv6_long(target):
         return None
     return ipv6_range_to_list(start_packed, end_packed)
 
+def target_to_hostname(target):
+    if len(target) == 0 or len(target) > 255:
+        return None
+    if not re.match('^[\w.-]+$', target):
+        return None
+    return [target]
+
 def target_to_list(target):
     # Is it an IPv4 address ?
     new_list = target_to_ipv4(target)
@@ -329,6 +359,10 @@ def target_to_list(target):
         return new_list
     # Is it an IPv4 CIDR ?
     new_list = target_to_ipv4_cidr(target)
+    if new_list:
+        return new_list
+    # Is it an IPv6 CIDR ?
+    new_list = target_to_ipv6_cidr(target)
     if new_list:
         return new_list
     # Is it an IPv4 short-range ?
@@ -347,6 +381,10 @@ def target_to_list(target):
     new_list = target_to_ipv6_long(target)
     if new_list:
         return new_list
+    # Is it a hostname ?
+    new_list = target_to_hostname(target)
+    if new_list:
+        return new_list
     return None
 
 def target_str_to_list(target_str):
@@ -360,7 +398,7 @@ def target_str_to_list(target_str):
         else:
             logger.info("{0}: Invalid target value".format(target))
             return None
-    return new_list
+    return list(collections.OrderedDict.fromkeys(new_list))
 
 def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """

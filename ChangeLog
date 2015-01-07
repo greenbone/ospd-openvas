@@ -1,5 +1,13 @@
 2014-01-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (target_to_ipv4_cidr): Adjust comparison.
+	(target_to_ipv6_cidr, target_to_hostname): New functions.
+	(ipv6_range_to_list): Use range instead of xrange which may overflow.
+	(target_to_list): Handle IPv6 CIDR and hostname formats.
+	(target_str_to_list): Uniquify the targets list.
+
+2014-01-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (target_to_ipv4_cidr): New function.
 	(target_to_list): Handle IPv4 CIDR format.
 
