@@ -1,5 +1,10 @@
 2014-01-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (target_to_ipv4_cidr): New function.
+	(target_to_list): Handle IPv4 CIDR format.
+
+2014-01-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (target_to_ipv6_short): New function.
 	(target_to_list): Handle IPv6 short-range format.
 

@@ -246,6 +246,24 @@ def target_to_ipv4_short(target):
     end_packed = start_packed[0:3] + struct.pack('B', end_value)
     return ipv4_range_to_list(start_packed, end_packed)
 
+def target_to_ipv4_cidr(target):
+    splitted = target.split('/')
+    if len(splitted) != 2:
+        return None
+    try:
+        start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
+        block = int(splitted[1])
+    except (socket.error, ValueError):
+        return None
+    if block < 0 or block > 30:
+        return None
+    start_value = int(binascii.hexlify(start_packed), 16) >> (32 - block)
+    start_value = (start_value << (32 - block)) + 1
+    end_value = (start_value | (0xffffffff >> block)) - 1
+    start_packed = struct.pack('!I', start_value)
+    end_packed = struct.pack('!I', end_value)
+    return ipv4_range_to_list(start_packed, end_packed)
+
 def target_to_ipv4_long(target):
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -307,6 +325,10 @@ def target_to_list(target):
         return new_list
     # Is it an IPv6 address ?
     new_list = target_to_ipv6(target)
+    if new_list:
+        return new_list
+    # Is it an IPv4 CIDR ?
+    new_list = target_to_ipv4_cidr(target)
     if new_list:
         return new_list
     # Is it an IPv4 short-range ?
