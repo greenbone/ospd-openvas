@@ -271,6 +271,22 @@ def ipv6_range_to_list(start_packed, end_packed):
         new_list.append(new_ip)
     return new_list
 
+def target_to_ipv6_short(target):
+    splitted = target.split('-')
+    if len(splitted) != 2:
+        return None
+    try:
+        start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
+        end_value = int(splitted[1], 16)
+    except (socket.error, ValueError):
+        return None
+    start_value = int(binascii.hexlify(start_packed[14:]), 16)
+    if end_value < 0 or end_value > 0xffff or end_value < start_value:
+        return None
+    end_packed = start_packed[:14] + struct.pack('!H', end_value)
+    print len(start_packed), len(end_packed)
+    return ipv6_range_to_list(start_packed, end_packed)
+
 def target_to_ipv6_long(target):
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -299,6 +315,10 @@ def target_to_list(target):
         return new_list
     # Is it an IPv4 long-range ?
     new_list = target_to_ipv4_long(target)
+    if new_list:
+        return new_list
+    # Is it an IPv6 short-range ?
+    new_list = target_to_ipv6_short(target)
     if new_list:
         return new_list
     # Is it an IPv6 long-range ?
