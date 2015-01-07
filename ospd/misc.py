@@ -224,14 +224,11 @@ def target_to_ipv6(target):
 
 def ipv4_range_to_list(start_packed, end_packed):
     new_list = list()
-    try:
-        start = struct.unpack('!L', start_packed)[0]
-        end = struct.unpack('!L', end_packed)[0]
-        for value in xrange(start, end + 1):
-            new_ip = socket.inet_ntoa(struct.pack('!L', value))
-            new_list.append(new_ip)
-    except:
-        return None
+    start = struct.unpack('!L', start_packed)[0]
+    end = struct.unpack('!L', end_packed)[0]
+    for value in xrange(start, end + 1):
+        new_ip = socket.inet_ntoa(struct.pack('!L', value))
+        new_list.append(new_ip)
     return new_list
 
 def target_to_ipv4_short(target):
@@ -240,14 +237,14 @@ def target_to_ipv4_short(target):
         return None
     try:
         start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
-        start_value = int(binascii.hexlify(start_packed[3]), 16)
         end_value = int(splitted[1])
-        if end_value < 0 or end_value > 255 or end_value < start_value:
-            return None
-        end_packed = start_packed[0:3] + struct.pack('B', end_value)
-        return ipv4_range_to_list(start_packed, end_packed)
-    except:
+    except (socket.error, ValueError):
         return None
+    start_value = int(binascii.hexlify(start_packed[3]), 16)
+    if end_value < 0 or end_value > 255 or end_value < start_value:
+        return None
+    end_packed = start_packed[0:3] + struct.pack('B', end_value)
+    return ipv4_range_to_list(start_packed, end_packed)
 
 def target_to_ipv4_long(target):
     splitted = target.split('-')
@@ -256,11 +253,36 @@ def target_to_ipv4_long(target):
     try:
         start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
         end_packed = socket.inet_pton(socket.AF_INET, splitted[1])
-        if end_packed < start_packed:
-            return None
-        return ipv4_range_to_list(start_packed, end_packed)
-    except:
+    except socket.error:
         return None
+    if end_packed < start_packed:
+        return None
+    return ipv4_range_to_list(start_packed, end_packed)
+
+def ipv6_range_to_list(start_packed, end_packed):
+    new_list = list()
+    start = int(binascii.hexlify(start_packed), 16)
+    end = int(binascii.hexlify(end_packed), 16)
+    for value in xrange(start, end + 1):
+        high = value >> 64
+        low = value & ((1 << 64) - 1)
+        new_ip = socket.inet_ntop(socket.AF_INET6,
+                                  struct.pack('!2Q', high, low))
+        new_list.append(new_ip)
+    return new_list
+
+def target_to_ipv6_long(target):
+    splitted = target.split('-')
+    if len(splitted) != 2:
+        return None
+    try:
+        start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
+        end_packed = socket.inet_pton(socket.AF_INET6, splitted[1])
+    except socket.error:
+        return None
+    if end_packed < start_packed:
+        return None
+    return ipv6_range_to_list(start_packed, end_packed)
 
 def target_to_list(target):
     # Is it an IPv4 address ?
@@ -277,6 +299,10 @@ def target_to_list(target):
         return new_list
     # Is it an IPv4 long-range ?
     new_list = target_to_ipv4_long(target)
+    if new_list:
+        return new_list
+    # Is it an IPv6 long-range ?
+    new_list = target_to_ipv6_long(target)
     if new_list:
         return new_list
     return None
