@@ -73,6 +73,7 @@ class ScanCollection(object):
         """ Add a result to a scan in the table. """
 
         assert scan_id
+        assert len(name) or len(value)
         result = dict()
         result['type'] = result_type
         result['name'] = name
