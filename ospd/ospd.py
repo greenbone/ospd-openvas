@@ -79,10 +79,8 @@ def get_result_xml(result):
     """ Formats a scan result to XML format. """
 
     result_type = ResultType.get_str(result['type'])
-    return '<result name="{0}" type="{1}" severity="{2}" host="{3}">\
-            {4}</result>'\
-            .format(result['name'], result_type, result['severity'],
-                    result['host'], xml_escape(result['value']))
+    return '<result name="{0}" type="{1}" severity="{2}" host="{3}">{4}</result>'.format(
+        result['name'], result_type, result['severity'], result['host'], xml_escape(result['value']))
 
 def simple_response_str(command, status, status_text, content=""):
     """ Creates an OSP response XML string.
@@ -479,11 +477,10 @@ class OSPDaemon(object):
 
         @return: String of scan results in xml.
         """
-        results_str = str()
+        results = []
         for result in self.scan_collection.results_iterator(scan_id):
-            result_str = get_result_xml(result)
-            results_str = ''.join([results_str, result_str])
-        return ''.join(['<results>', results_str, '</results>'])
+            results.append(get_result_xml(result))
+        return ''.join(['<results>', ''.join(results), '</results>'])
 
     def get_xml_str(self, data):
         """ Creates a string in XML Format using the provided data structure.
