@@ -1,3 +1,11 @@
+2014-01-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection (add_host_detail): New method.
+	(ResultType [HOST_DETAIL]): New type.
+	(ResultType [get_str, get_type]): Handle new result type.
+
+	* ospd/ospd.py (OSPDaemon [add_scan_host_detail]): New method.
+
 2015-01-12  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py (get_result_xml): Fix result formatting (remove leading

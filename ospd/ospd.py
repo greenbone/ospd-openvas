@@ -663,6 +663,10 @@ class OSPDaemon(object):
         """ Adds an error result to scan_id scan. """
         self.scan_collection.add_error(scan_id, host, name, value)
 
+    def add_scan_host_detail(self, scan_id, host='', name='', value=''):
+        """ Adds a host detail result to scan_id scan. """
+        self.scan_collection.add_host_detail(scan_id, host, name, value)
+
     def add_scan_alarm(self, scan_id, host='', name='', value='', severity=''):
         """ Adds an alarm result to scan_id scan. """
         self.scan_collection.add_alarm(scan_id, host, name, value, severity)

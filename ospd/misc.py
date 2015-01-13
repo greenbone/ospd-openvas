@@ -54,7 +54,7 @@ class ScanCollection(object):
     Each scan has meta-information such as scan ID, current progress (from 0 to
     100), start time, end time, scan target and options and a list of results.
 
-    There are 3 types of results: Alarms, Logs and Errors.
+    There are 4 types of results: Alarms, Logs, Errors and Host Details.
 
     Todo:
     - Better checking for Scan ID existence and handling otherwise.
@@ -93,6 +93,10 @@ class ScanCollection(object):
     def add_error(self, scan_id, host='', name='', value=''):
         """ Add a result of type Error to a scan in the table. """
         self.add_result(scan_id, ResultType.ERROR, host, name, value, '')
+
+    def add_host_detail(self, scan_id, host='', name='', value=''):
+        """ Add a result of type Host Detail to a scan in the table. """
+        self.add_result(scan_id, ResultType.HOST_DETAIL, host, name, value, '')
 
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
@@ -186,6 +190,7 @@ class ResultType(object):
     ALARM = 0
     LOG = 1
     ERROR = 2
+    HOST_DETAIL = 3
 
     @classmethod
     def get_str(cls, result_type):
@@ -196,6 +201,8 @@ class ResultType(object):
             return "Log Message"
         elif result_type == cls.ERROR:
             return "Error Message"
+        elif result_type == cls.HOST_DETAIL:
+            return "Host Detail"
         else:
             assert False, "Erroneous result type {0}.".format(result_type)
 
@@ -208,6 +215,8 @@ class ResultType(object):
             return cls.LOG
         elif result_name == "Error Message":
             return cls.ERROR
+        elif result_name == "Host Detail":
+            return cls.HOST_DETAIL
         else:
             assert False, "Erroneous result name {0}.".format(result_name)
 
