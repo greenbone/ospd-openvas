@@ -1,3 +1,18 @@
+ospd 1.0b6 (2015-01-14)
+
+This is the sixth beta release of the upcoming 1.0 release of the ospd module
+for the Open Vulnerability Assessment System (OpenVAS).
+
+This release fixes a breakage in the previous release.
+
+Many thanks to everyone who contributed to this release:
+Benoît Allard and Hani Benhabiles.
+
+Main changes since 1.0b5:
+* Add a test_id property to the results
+* Improve PEP8 compliance
+
+
 ospd 1.0b5 (2015-01-14)
 
 This is the fifth beta release of the upcoming 1.0 release of the ospd module
