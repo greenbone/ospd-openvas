@@ -1,5 +1,11 @@
 2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
 
+	Unify version handling.
+
+	* ospd/__init__.py, ospd/ospd.py, setup.py: Updated
+
+2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* setup.py: Cleanup.
 
 2014-01-13  Hani Benhabiles <hani.benhabiles@greenbone.net>

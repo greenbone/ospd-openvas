@@ -38,12 +38,12 @@ except ImportError:
     import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape as xml_escape
 
+from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
 
 logger = logging.getLogger(__name__)
 
 OSP_VERSION = "0.1.0"
-OSPD_VERSION = "1.0+beta5"
 
 def get_commands_table():
     """ Initializes the supported commands and their info. """
