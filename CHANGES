@@ -1,3 +1,23 @@
+ospd 1.0b5 (2015-01-14)
+
+This is the fifth beta release of the upcoming 1.0 release of the ospd module
+for the Open Vulnerability Assessment System (OpenVAS).
+
+This release splits the w3af and ovaldi servers out of this codebase, adds a
+--version command line parameter, adds support for scans of multiple targets,
+and improves robustness
+
+Many thanks to everyone who has contributed to this release:
+Benoît Allard, Hani Benhabiles and Jan-Oliver Wagner.
+
+Main changes since 1.0+beta4
+* Add --version command line parameter to display the current version.
+* Moved ovaldi wrapper into module osp-servers/ovaldi.
+* Moved w3af wrapper into module osp-servers/w3af.
+* Adds support for scans of multiple hosts.
+* Make the version number PEP440 compliant.
+
+
 ospd 1.0+beta4 (2014-11-21)
 
 This is the fourth beta release of the upcoming 1.0 release of the ospd module

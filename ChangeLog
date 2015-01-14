@@ -1,5 +1,9 @@
 2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* CHANGES: Prepare for 1.0b5 release
+
+2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py: Rename OSP_VERSION in PROTOCOL_VERSION for clarity
 
 2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
@@ -82,6 +86,8 @@
 	handle exceptions for hosts scan threads accordingly.
 
 2014-12-31  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	[ba] Adds support for scan of multiple hosts.
 
 	* ospd/misc.py (ScanCollection [add_result]): New method.
 	(ScanCollection [add_alarm, add_log, add_error]): Refactor code to use
