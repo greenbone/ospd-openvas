@@ -79,8 +79,11 @@ def get_result_xml(result):
     """ Formats a scan result to XML format. """
 
     result_type = ResultType.get_str(result['type'])
-    return '<result name="{0}" type="{1}" severity="{2}" host="{3}">{4}</result>'.format(
-        result['name'], result_type, result['severity'], result['host'], xml_escape(result['value']))
+    return '<result name="{0}" type="{1}" severity="{2}" host="{3}"\
+            test_id="{4}"> {5}</result>'\
+            .format(result['name'], result_type, result['severity'],
+                    result['host'], result['test_id'],
+                    xml_escape(result['value']))
 
 def simple_response_str(command, status, status_text, content=""):
     """ Creates an OSP response XML string.
@@ -140,7 +143,7 @@ class OSPDaemon(object):
         self.scan_collection = ScanCollection()
         self.daemon_info = dict()
         self.daemon_info['name'] = "OSPd"
-        self.daemon_info['version'] = OSPD_VERSION
+        self.daemon_info['version'] = __version__
         self.daemon_info['description'] = "No description"
         self.scanner_info = dict()
         self.scanner_info['name'] = 'No name'
@@ -667,6 +670,8 @@ class OSPDaemon(object):
         """ Adds a host detail result to scan_id scan. """
         self.scan_collection.add_host_detail(scan_id, host, name, value)
 
-    def add_scan_alarm(self, scan_id, host='', name='', value='', severity=''):
+    def add_scan_alarm(self, scan_id, host='', name='', value='', test_id='',
+                       severity=''):
         """ Adds an alarm result to scan_id scan. """
-        self.scan_collection.add_alarm(scan_id, host, name, value, severity)
+        self.scan_collection.add_alarm(scan_id, host, name, value, test_id,
+                                       severity)

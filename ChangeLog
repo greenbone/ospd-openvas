@@ -1,3 +1,17 @@
+2014-01-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection [add_result]): Add test_id method
+	argument and set result test_id.
+	(ScanCollection [add_alarm, add_log, add_error, add_host_detail]):
+	Adjust methods calls.
+
+	* ospd/ospd.py (OSPDaemon [add_scan_alarm]): Adjust scan collection
+	method call.
+	(OSPDaemon [__init__]): Set correct daemon version value.
+	(get_result_xml): Add result test_id as xml attribute.
+
+	* ospd/__init__.py: Fix syntax error.
+
 2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/__init__.py: Post release version bump.
