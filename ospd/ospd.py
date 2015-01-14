@@ -43,7 +43,7 @@ from ospd.misc import ScanCollection, ResultType, target_str_to_list
 
 logger = logging.getLogger(__name__)
 
-OSP_VERSION = "0.1.0"
+PROTOCOL_VERSION = "0.1.0"
 
 def get_commands_table():
     """ Initializes the supported commands and their info. """
@@ -187,7 +187,7 @@ class OSPDaemon(object):
 
     def get_protocol_version(self):
         """ Gives the OSP's version. """
-        return OSP_VERSION
+        return PROTOCOL_VERSION
 
     def process_scan_params(self, params):
         """ may be overriden by child """
@@ -543,7 +543,7 @@ class OSPDaemon(object):
         @return: Response string for <get_version> command.
         """
         protocol = self.get_xml_str({'protocol' : {'name' : 'OSP',
-                                                   'version' : OSP_VERSION}})
+                                                   'version' : PROTOCOL_VERSION}})
 
         daemon_name = self.get_daemon_name()
         daemon_ver = self.get_daemon_version()

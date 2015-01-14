@@ -1,5 +1,9 @@
 2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/ospd.py: Rename OSP_VERSION in PROTOCOL_VERSION for clarity
+
+2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
+
 	Unify version handling.
 
 	* ospd/__init__.py, ospd/ospd.py, setup.py: Updated
