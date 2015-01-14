@@ -21,7 +21,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
-#/
+#
 
 """ Miscellaneous functions and utilities related to OSPD. """
 
@@ -48,6 +48,7 @@ ADDRESS = "0.0.0.0"
 
 
 class ScanCollection(object):
+
     """ Scans collection, managing scans and results read and write, exposing
     only needed information.
 
@@ -109,7 +110,7 @@ class ScanCollection(object):
             self.scans_table[scan_id]['progress'] = progress
         if progress == 100:
             self.scans_table[scan_id]['end_time']\
-             = datetime.datetime.now().strftime('%s')
+                = datetime.datetime.now().strftime('%s')
 
     def results_iterator(self, scan_id):
         """ Returns an iterator over scan_id scan's results. """
@@ -188,7 +189,9 @@ class ScanCollection(object):
         self.scans_table.pop(scan_id)
         return True
 
+
 class ResultType(object):
+
     """ Various scan results types values. """
 
     ALARM = 0
@@ -224,6 +227,7 @@ class ResultType(object):
         else:
             assert False, "Erroneous result name {0}.".format(result_name)
 
+
 def target_to_ipv4(target):
     try:
         socket.inet_pton(socket.AF_INET, target)
@@ -231,12 +235,14 @@ def target_to_ipv4(target):
     except:
         return None
 
+
 def target_to_ipv6(target):
     try:
         socket.inet_pton(socket.AF_INET6, target)
         return [target]
     except:
         return None
+
 
 def ipv4_range_to_list(start_packed, end_packed):
     new_list = list()
@@ -246,6 +252,7 @@ def ipv4_range_to_list(start_packed, end_packed):
         new_ip = socket.inet_ntoa(struct.pack('!L', value))
         new_list.append(new_ip)
     return new_list
+
 
 def target_to_ipv4_short(target):
     splitted = target.split('-')
@@ -261,6 +268,7 @@ def target_to_ipv4_short(target):
         return None
     end_packed = start_packed[0:3] + struct.pack('B', end_value)
     return ipv4_range_to_list(start_packed, end_packed)
+
 
 def target_to_ipv4_cidr(target):
     splitted = target.split('/')
@@ -279,6 +287,7 @@ def target_to_ipv4_cidr(target):
     start_packed = struct.pack('!I', start_value)
     end_packed = struct.pack('!I', end_value)
     return ipv4_range_to_list(start_packed, end_packed)
+
 
 def target_to_ipv6_cidr(target):
     splitted = target.split('/')
@@ -302,6 +311,7 @@ def target_to_ipv6_cidr(target):
     end_packed = struct.pack('!QQ', high, low)
     return ipv6_range_to_list(start_packed, end_packed)
 
+
 def target_to_ipv4_long(target):
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -315,6 +325,7 @@ def target_to_ipv4_long(target):
         return None
     return ipv4_range_to_list(start_packed, end_packed)
 
+
 def ipv6_range_to_list(start_packed, end_packed):
     new_list = list()
     start = int(binascii.hexlify(start_packed), 16)
@@ -326,6 +337,7 @@ def ipv6_range_to_list(start_packed, end_packed):
                                   struct.pack('!2Q', high, low))
         new_list.append(new_ip)
     return new_list
+
 
 def target_to_ipv6_short(target):
     splitted = target.split('-')
@@ -342,6 +354,7 @@ def target_to_ipv6_short(target):
     end_packed = start_packed[:14] + struct.pack('!H', end_value)
     return ipv6_range_to_list(start_packed, end_packed)
 
+
 def target_to_ipv6_long(target):
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -355,12 +368,14 @@ def target_to_ipv6_long(target):
         return None
     return ipv6_range_to_list(start_packed, end_packed)
 
+
 def target_to_hostname(target):
     if len(target) == 0 or len(target) > 255:
         return None
     if not re.match('^[\w.-]+$', target):
         return None
     return [target]
+
 
 def target_to_list(target):
     # Is it an IPv4 address ?
@@ -401,6 +416,7 @@ def target_to_list(target):
         return new_list
     return None
 
+
 def target_str_to_list(target_str):
     """ Parses a targets string into a list of individual targets. """
     new_list = list()
@@ -414,6 +430,7 @@ def target_str_to_list(target_str):
             return None
     return list(collections.OrderedDict.fromkeys(new_list))
 
+
 def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
 
@@ -422,18 +439,21 @@ def create_args_parser(description):
     def network_port(string):
         value = int(string)
         if not (0 < value <= 65535):
-            raise argparse.ArgumentTypeError('port must be in ]0,65535] interval')
+            raise argparse.ArgumentTypeError(
+                'port must be in ]0,65535] interval')
         return value
 
     def log_level(string):
         value = getattr(logging, string.upper(), None)
         if not isinstance(value, int):
-            raise argparse.ArgumentTypeError('log level must be one of {debug,info,warning,error,critical}')
+            raise argparse.ArgumentTypeError(
+                'log level must be one of {debug,info,warning,error,critical}')
         return value
 
     def filename(string):
         if not os.path.isfile(string):
-            raise argparse.ArgumentTypeError('%s is not a valid file path' % string)
+            raise argparse.ArgumentTypeError(
+                '%s is not a valid file path' % string)
         return string
 
     parser.add_argument('-p', '--port', default=PORT, type=network_port,
@@ -456,6 +476,7 @@ def create_args_parser(description):
                         help='Print version then exit.')
     return parser
 
+
 def go_to_background():
     """ Daemonize the running process. """
     try:
@@ -464,6 +485,7 @@ def go_to_background():
     except OSError as errmsg:
         logger.error('Fork failed: {0}'.format(errmsg))
         sys.exit('Fork failed')
+
 
 def get_common_args(parser, args=None):
     """ Return list of OSPD common command-line arguments from parser, after
@@ -503,6 +525,7 @@ def get_common_args(parser, args=None):
 
     return common_args
 
+
 def print_version(wrapper):
     """ Prints the server version and license information."""
 
@@ -510,7 +533,7 @@ def print_version(wrapper):
     server_version = wrapper.get_server_version()
     print "OSP Server for {0} version {1}".format(scanner_name, server_version)
     protocol_version = wrapper.get_protocol_version()
-    print  "OSP Version: {0}".format(protocol_version)
+    print "OSP Version: {0}".format(protocol_version)
     daemon_name = wrapper.get_daemon_name()
     daemon_version = wrapper.get_daemon_version()
     print "Using: {0} {1}".format(daemon_name, daemon_version)
@@ -519,6 +542,7 @@ def print_version(wrapper):
           "This is free software: you are free to change"\
           " and redistribute it.\n"\
           "There is NO WARRANTY, to the extent permitted by law."
+
 
 def main(name, klass):
     # Common args parser.
@@ -535,11 +559,14 @@ def main(name, klass):
         sys.exit()
     if cargs['syslog']:
         syslog = logging.handlers.SysLogHandler('/dev/log')
-        syslog.setFormatter(logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
+        syslog.setFormatter(
+            logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
         logging.getLogger().addHandler(syslog)
     else:
         console = logging.StreamHandler()
-        console.setFormatter(logging.Formatter('%(asctime)s %(name)s: %(levelname)s: %(message)s'))
+        console.setFormatter(
+            logging.Formatter(
+                '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
         logging.getLogger().addHandler(console)
 
     if cargs['background']:

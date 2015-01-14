@@ -1,3 +1,9 @@
+2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
+
+	Improve PEP8 compliance (autopep8)
+
+	* ospd/ospd.py, ospd/misc.py: Updated
+
 2014-01-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection [add_result]): Add test_id method

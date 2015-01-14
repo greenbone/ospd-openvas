@@ -45,35 +45,37 @@ logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "0.1.0"
 
+
 def get_commands_table():
     """ Initializes the supported commands and their info. """
 
-    return {'start_scan' : {'description' : 'Start a new scan.',
-                            'attributes' : {'target' :
-                                            'Target host to scan'},
-                            'elements' : None},
-            'help' : {'description' : 'Print the commands help.',
-                      'attributes' :
-                      {'format' : 'Help format. Could be text or xml.'},
-                      'elements' : None},
-            'get_scans' : {'description' : 'List the scans in buffer.',
-                           'attributes' :
-                           {'scan_id' : 'ID of a specific scan to get.',
-                            'details' : 'Whether to return the full'\
-                                        ' scan report.'},
-                           'elements' : None},
-            'delete_scan' : {'description' : 'Delete a finished scan.',
-                             'attributes' :
-                             {'scan_id' : 'ID of scan to delete.'},
-                             'elements' : None},
-            'get_version' : {'description' : 'Return various versions.',
-                             'attributes' : None,
-                             'elements' : None},
-            'get_scanner_details' : {'description' :
-                                     'Return scanner description and'\
-                                     ' parameters',
-                                     'attributes' : None,
-                                     'elements' : None}}
+    return {'start_scan': {'description': 'Start a new scan.',
+                           'attributes': {'target':
+                                          'Target host to scan'},
+                           'elements': None},
+            'help': {'description': 'Print the commands help.',
+                     'attributes':
+                     {'format': 'Help format. Could be text or xml.'},
+                     'elements': None},
+            'get_scans': {'description': 'List the scans in buffer.',
+                          'attributes':
+                          {'scan_id': 'ID of a specific scan to get.',
+                           'details': 'Whether to return the full'
+                           ' scan report.'},
+                          'elements': None},
+            'delete_scan': {'description': 'Delete a finished scan.',
+                            'attributes':
+                            {'scan_id': 'ID of scan to delete.'},
+                            'elements': None},
+            'get_version': {'description': 'Return various versions.',
+                            'attributes': None,
+                            'elements': None},
+            'get_scanner_details': {'description':
+                                    'Return scanner description and'
+                                    ' parameters',
+                                    'attributes': None,
+                                    'elements': None}}
+
 
 def get_result_xml(result):
     """ Formats a scan result to XML format. """
@@ -84,6 +86,7 @@ def get_result_xml(result):
             .format(result['name'], result_type, result['severity'],
                     result['host'], result['test_id'],
                     xml_escape(result['value']))
+
 
 def simple_response_str(command, status, status_text, content=""):
     """ Creates an OSP response XML string.
@@ -103,8 +106,10 @@ def simple_response_str(command, status, status_text, content=""):
 
 
 class OSPDError(Exception):
+
     """ This is an exception that will result in an error message to the
     client """
+
     def __init__(self, message, command='osp', status=400):
         self.message = message
         self.command = command
@@ -115,6 +120,7 @@ class OSPDError(Exception):
 
 
 class OSPDaemon(object):
+
     """ Daemon class for OSP traffic handling.
 
     Every scanner wrapper should subclass it and make necessary additions and
@@ -164,8 +170,9 @@ class OSPDaemon(object):
 
         self.scanner_params = scanner_params
         command = self.commands.get('start_scan')
-        command['elements']\
-         = {'scanner_params' : {k : v['name'] for k, v in scanner_params.items()}}
+        command['elements'] = {
+            'scanner_params':
+                {k: v['name'] for k, v in scanner_params.items()}}
 
     def command_exists(self, name):
         """ Checks if a commands exists. """
@@ -214,7 +221,8 @@ class OSPDaemon(object):
                 continue
             params[param] = self.scanner_params[param].get('default', '')
 
-        scan_id = self.create_scan(target_str, self.process_scan_params(params))
+        scan_id = self.create_scan(
+            target_str, self.process_scan_params(params))
 
         scan_thread = threading.Thread(target=self.start_scan,
                                        args=(scan_id, target_str))
@@ -253,8 +261,8 @@ class OSPDaemon(object):
             param_str = "<scanner_param id='{0}' type='{1}'>"\
                         "<name>{2}</name><description>{3}</description>"\
                         "<default>{4}</default></scanner_param>"\
-                         .format(param_id, param['type'], param['name'],
-                                 param['description'], param['default'])
+                .format(param_id, param['type'], param['name'],
+                        param['description'], param['default'])
             params_str = ''.join([params_str, param_str])
         return "<scanner_params>{0}</scanner_params>".format(params_str)
 
@@ -267,7 +275,7 @@ class OSPDaemon(object):
         try:
             bindsocket.bind((address, port))
         except socket.error:
-            logger.error("Couldn't bind socket on {0}:{1}"\
+            logger.error("Couldn't bind socket on {0}:{1}"
                          .format(address, port))
             return None
 
@@ -304,7 +312,8 @@ class OSPDaemon(object):
             try:
                 data = ''.join([data, stream.read(1024)])
                 if len(data) == 0:
-                    logger.warning("Empty client stream (Connection unexpectedly closed)")
+                    logger.warning(
+                        "Empty client stream (Connection unexpectedly closed)")
                     return
             except (AttributeError, ValueError) as message:
                 logger.error(message)
@@ -360,8 +369,8 @@ class OSPDaemon(object):
     def handle_timeout(self, scan_id, host):
         """ Handles scanner reaching timeout error. """
         self.add_scan_error(scan_id, host=host, name="Timeout",
-                            value="{0} exec timeout."\
-                                   .format(self.get_scanner_name()))
+                            value="{0} exec timeout."
+                            .format(self.get_scanner_name()))
 
     def set_scan_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
@@ -506,7 +515,6 @@ class OSPDaemon(object):
                                                         tag.split()[0])])
         return response
 
-
     def get_scan_xml(self, scan_id, detailed=True):
         """ Gets scan in XML format.
 
@@ -526,8 +534,8 @@ class OSPDaemon(object):
 
         return '<scan id="{0}" target="{1}" progress="{2}"'\
                ' start_time="{3}" end_time="{4}">{5}</scan>'\
-                .format(scan_id, target, progress, start_time, end_time,
-                        results_str)
+            .format(scan_id, target, progress, start_time, end_time,
+                    results_str)
 
     def handle_get_scanner_details(self):
         """ Handles <get_scanner_details> command.
@@ -545,18 +553,18 @@ class OSPDaemon(object):
 
         @return: Response string for <get_version> command.
         """
-        protocol = self.get_xml_str({'protocol' : {'name' : 'OSP',
-                                                   'version' : PROTOCOL_VERSION}})
+        protocol = self.get_xml_str({'protocol': {'name': 'OSP',
+                                                  'version': PROTOCOL_VERSION}})
 
         daemon_name = self.get_daemon_name()
         daemon_ver = self.get_daemon_version()
-        daemon = self.get_xml_str({'daemon' : {'name' : daemon_name,
-                                               'version' : daemon_ver}})
+        daemon = self.get_xml_str({'daemon': {'name': daemon_name,
+                                              'version': daemon_ver}})
 
         scanner_name = self.get_scanner_name()
         scanner_ver = self.get_scanner_version()
-        scanner = self.get_xml_str({'scanner' : {'name' : scanner_name,
-                                                 'version' : scanner_ver}})
+        scanner = self.get_xml_str({'scanner': {'name': scanner_name,
+                                                'version': scanner_ver}})
 
         text = ''.join([protocol, daemon, scanner])
         return simple_response_str('get_version', 200, 'OK', text)
