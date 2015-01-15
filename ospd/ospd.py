@@ -363,7 +363,7 @@ class OSPDaemon(object):
             except:
                 self.add_scan_error(scan_id, name='', host=target,
                                     value='Host thread failure.')
-                logger.info("{0}: Scan failure with exception.".format(target))
+                logger.exception('While scanning %s:' % target)
         self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id, host):
@@ -612,11 +612,13 @@ class OSPDaemon(object):
             return False
 
         while True:
-            client_stream = self.new_client_stream(sock)
-            if client_stream is None:
-                continue
-            self.handle_client_stream(client_stream)
-            self.close_client_stream(client_stream)
+            try:
+                client_stream = self.new_client_stream(sock)
+                if client_stream is None:
+                    continue
+                self.handle_client_stream(client_stream)
+            finally:
+                self.close_client_stream(client_stream)
 
     def create_scan(self, target, options):
         """ Creates a new scan.

@@ -1,3 +1,8 @@
+2015-01-15  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py (start_scan): Print the exception
+	* (run): Always close the stream
+
 2015-01-14  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/__init__.py: Post release version bump.
