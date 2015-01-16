@@ -1,3 +1,7 @@
+2015-01-16  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py (get_result_xml): Fix formatting again.
+
 2015-01-15  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py (start_scan): Print the exception

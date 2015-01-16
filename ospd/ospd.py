@@ -81,11 +81,11 @@ def get_result_xml(result):
     """ Formats a scan result to XML format. """
 
     result_type = ResultType.get_str(result['type'])
-    return '<result name="{0}" type="{1}" severity="{2}" host="{3}"\
-            test_id="{4}"> {5}</result>'\
-            .format(result['name'], result_type, result['severity'],
-                    result['host'], result['test_id'],
-                    xml_escape(result['value']))
+    return ('<result name="{0}" type="{1}" severity="{2}" host="{3}"'
+            ' test_id="{4}">{5}</result>'.format(
+                result['name'], result_type, result['severity'],
+                result['host'], result['test_id'],
+                xml_escape(result['value'])))
 
 
 def simple_response_str(command, status, status_text, content=""):
