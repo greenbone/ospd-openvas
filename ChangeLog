@@ -1,3 +1,10 @@
+2014-01-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/__init__.py: Add module docstring.
+
+	* ospd/misc.py: Add functions and methods docstrings, specify exceptions
+	types, improve code style and fix various pylint errors.
+
 2015-01-16  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py (get_result_xml): Fix formatting again.

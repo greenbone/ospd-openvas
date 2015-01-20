@@ -38,7 +38,7 @@ import binascii
 import re
 import collections
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
 CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
@@ -229,22 +229,28 @@ class ResultType(object):
 
 
 def target_to_ipv4(target):
+    """ Attempt to return a single IPv4 host list from a target string. """
+
     try:
         socket.inet_pton(socket.AF_INET, target)
         return [target]
-    except:
+    except socket.error:
         return None
 
 
 def target_to_ipv6(target):
+    """ Attempt to return a single IPv6 host list from a target string. """
+
     try:
         socket.inet_pton(socket.AF_INET6, target)
         return [target]
-    except:
+    except socket.error:
         return None
 
 
 def ipv4_range_to_list(start_packed, end_packed):
+    """ Return a list of IPv4 entries from start_packed to end_packed. """
+
     new_list = list()
     start = struct.unpack('!L', start_packed)[0]
     end = struct.unpack('!L', end_packed)[0]
@@ -255,6 +261,8 @@ def ipv4_range_to_list(start_packed, end_packed):
 
 
 def target_to_ipv4_short(target):
+    """ Attempt to return a IPv4 short range list from a target string. """
+
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
@@ -271,6 +279,8 @@ def target_to_ipv4_short(target):
 
 
 def target_to_ipv4_cidr(target):
+    """ Attempt to return a IPv4 CIDR list from a target string. """
+
     splitted = target.split('/')
     if len(splitted) != 2:
         return None
@@ -290,6 +300,8 @@ def target_to_ipv4_cidr(target):
 
 
 def target_to_ipv6_cidr(target):
+    """ Attempt to return a IPv6 CIDR list from a target string. """
+
     splitted = target.split('/')
     if len(splitted) != 2:
         return None
@@ -313,6 +325,8 @@ def target_to_ipv6_cidr(target):
 
 
 def target_to_ipv4_long(target):
+    """ Attempt to return a IPv4 long-range list from a target string. """
+
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
@@ -327,6 +341,8 @@ def target_to_ipv4_long(target):
 
 
 def ipv6_range_to_list(start_packed, end_packed):
+    """ Return a list of IPv6 entries from start_packed to end_packed. """
+
     new_list = list()
     start = int(binascii.hexlify(start_packed), 16)
     end = int(binascii.hexlify(end_packed), 16)
@@ -340,6 +356,8 @@ def ipv6_range_to_list(start_packed, end_packed):
 
 
 def target_to_ipv6_short(target):
+    """ Attempt to return a IPv6 short-range list from a target string. """
+
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
@@ -356,6 +374,8 @@ def target_to_ipv6_short(target):
 
 
 def target_to_ipv6_long(target):
+    """ Attempt to return a IPv6 long-range list from a target string. """
+
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
@@ -370,52 +390,45 @@ def target_to_ipv6_long(target):
 
 
 def target_to_hostname(target):
+    """ Attempt to return a single hostname list from a target string. """
+
     if len(target) == 0 or len(target) > 255:
         return None
-    if not re.match('^[\w.-]+$', target):
+    if not re.match(r'^[\w.-]+$', target):
         return None
     return [target]
 
 
 def target_to_list(target):
+    """ Attempt to return a list of single hosts from a target string. """
+
     # Is it an IPv4 address ?
     new_list = target_to_ipv4(target)
-    if new_list:
-        return new_list
     # Is it an IPv6 address ?
-    new_list = target_to_ipv6(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv6(target)
     # Is it an IPv4 CIDR ?
-    new_list = target_to_ipv4_cidr(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv4_cidr(target)
     # Is it an IPv6 CIDR ?
-    new_list = target_to_ipv6_cidr(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv6_cidr(target)
     # Is it an IPv4 short-range ?
-    new_list = target_to_ipv4_short(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv4_short(target)
     # Is it an IPv4 long-range ?
-    new_list = target_to_ipv4_long(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv4_long(target)
     # Is it an IPv6 short-range ?
-    new_list = target_to_ipv6_short(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv6_short(target)
     # Is it an IPv6 long-range ?
-    new_list = target_to_ipv6_long(target)
-    if new_list:
-        return new_list
+    if not new_list:
+        new_list = target_to_ipv6_long(target)
     # Is it a hostname ?
-    new_list = target_to_hostname(target)
-    if new_list:
-        return new_list
-    return None
-
+    if not new_list:
+        new_list = target_to_hostname(target)
+    return new_list
 
 def target_str_to_list(target_str):
     """ Parses a targets string into a list of individual targets. """
@@ -426,7 +439,7 @@ def target_str_to_list(target_str):
         if target_list:
             new_list.extend(target_list)
         else:
-            logger.info("{0}: Invalid target value".format(target))
+            LOGGER.info("{0}: Invalid target value".format(target))
             return None
     return list(collections.OrderedDict.fromkeys(new_list))
 
@@ -437,13 +450,17 @@ def create_args_parser(description):
     parser = argparse.ArgumentParser(description=description)
 
     def network_port(string):
+        """ Check if provided string is a valid network port. """
+
         value = int(string)
-        if not (0 < value <= 65535):
+        if not 0 < value <= 65535:
             raise argparse.ArgumentTypeError(
                 'port must be in ]0,65535] interval')
         return value
 
     def log_level(string):
+        """ Check if provided string is a valid log level. """
+
         value = getattr(logging, string.upper(), None)
         if not isinstance(value, int):
             raise argparse.ArgumentTypeError(
@@ -451,6 +468,8 @@ def create_args_parser(description):
         return value
 
     def filename(string):
+        """ Check if provided string is a valid file path. """
+
         if not os.path.isfile(string):
             raise argparse.ArgumentTypeError(
                 '%s is not a valid file path' % string)
@@ -459,7 +478,8 @@ def create_args_parser(description):
     parser.add_argument('-p', '--port', default=PORT, type=network_port,
                         help='TCP Port to listen on. Default: {0}'.format(PORT))
     parser.add_argument('-b', '--bind-address', default=ADDRESS,
-                        help='Address to listen on. Default: {0}'.format(ADDRESS))
+                        help='Address to listen on. Default: {0}'
+                        .format(ADDRESS))
     parser.add_argument('-k', '--key-file', type=filename,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
     parser.add_argument('-c', '--cert-file', type=filename,
@@ -483,7 +503,7 @@ def go_to_background():
         if os.fork():
             sys.exit()
     except OSError as errmsg:
-        logger.error('Fork failed: {0}'.format(errmsg))
+        LOGGER.error('Fork failed: {0}'.format(errmsg))
         sys.exit('Fork failed')
 
 
@@ -545,6 +565,8 @@ def print_version(wrapper):
 
 
 def main(name, klass):
+    """ OSPD Main function. """
+
     # Common args parser.
     parser = create_args_parser(name)
 
