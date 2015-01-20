@@ -1,5 +1,10 @@
 2014-01-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py: Fix miscellaneous pylint issues. Add functions and
+	methods docstrings.
+
+2014-01-20  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/__init__.py: Add module docstring.
 
 	* ospd/misc.py: Add functions and methods docstrings, specify exceptions

@@ -60,7 +60,7 @@ def get_commands_table():
             'get_scans': {'description': 'List the scans in buffer.',
                           'attributes':
                           {'scan_id': 'ID of a specific scan to get.',
-                           'details': 'Whether to return the full'
+                           'details': 'Whether to return the full'\
                            ' scan report.'},
                           'elements': None},
             'delete_scan': {'description': 'Delete a finished scan.',
@@ -111,11 +111,12 @@ class OSPDError(Exception):
     client """
 
     def __init__(self, message, command='osp', status=400):
-        self.message = message
+        super(OSPDError, self).__init__(message)
         self.command = command
         self.status = status
 
-    def asXML(self):
+    def as_xml(self):
+        """ Return the error in xml format. """
         return simple_response_str(self.command, self.status, self.message)
 
 
@@ -204,7 +205,11 @@ class OSPDaemon(object):
         return params
 
     def handle_start_scan_command(self, scan_et):
-        # Extract scan information
+        """ Handles <start_scan> command.
+
+        @return: Response string for <start_scan> command.
+        """
+
         target_str = scan_et.attrib.get('target')
         if target_str is None:
             raise OSPDError('No target attribute', 'start_scan')
@@ -234,6 +239,7 @@ class OSPDaemon(object):
     def exec_scan(self, scan_id, target):
         """ Asserts to False. Should be implemented by subclass. """
         assert scan_id
+        assert target
         raise NotImplementedError
 
     def finish_scan(self, scan_id):
@@ -279,7 +285,7 @@ class OSPDaemon(object):
                          .format(address, port))
             return None
 
-        logger.info('Now listening on %s:%s', address, port)
+        logger.info('Listening on {0}:{1}'.format(address, port))
         bindsocket.listen(0)
         return bindsocket
 
@@ -318,26 +324,27 @@ class OSPDaemon(object):
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
-            except ssl.SSLError as e:
-                logger.debug('SSL error: %s', e)
+            except ssl.SSLError as exception:
+                logger.debug('SSL error: {0}'.format(exception.message))
                 break
         if len(data) <= 0:
             logger.debug("Empty client stream")
             return
         try:
             response = self.handle_command(data)
-        except OSPDError as e:
-            response = e.asXML()
+        except OSPDError as exception:
+            response = exception.as_xml()
         stream.write(response)
 
     def close_client_stream(self, client_stream):
         """ Closes provided client stream """
         try:
             client_stream.shutdown(socket.SHUT_RDWR)
-        except socket.error as msg:
-            logger.debug(msg)
+            peer = client_stream.getpeername()
+            logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
+        except socket.error as exception:
+            logger.debug('SSL close error: {0}'.format(exception.message))
         client_stream.close()
-        logger.debug('Connection to %s closed', client_stream)
 
     def start_daemon(self, address, port):
         """ Initialize the OSP daemon.
@@ -363,7 +370,7 @@ class OSPDaemon(object):
             except:
                 self.add_scan_error(scan_id, name='', host=target,
                                     value='Host thread failure.')
-                logger.exception('While scanning %s:' % target)
+                logger.exception('While scanning {0}:'.format(target))
         self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id, host):
