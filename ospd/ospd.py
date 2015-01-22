@@ -334,6 +334,10 @@ class OSPDaemon(object):
             response = self.handle_command(data)
         except OSPDError as exception:
             response = exception.as_xml()
+        except Exception:
+            logger.exception('While handling client command:')
+            exception = OSPDError('Fatal error', 'error')
+            response = exception.as_xml()
         stream.write(response)
 
     def close_client_stream(self, client_stream):
