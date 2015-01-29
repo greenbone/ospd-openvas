@@ -617,13 +617,11 @@ class OSPDaemon(object):
             return False
 
         while True:
-            try:
-                client_stream = self.new_client_stream(sock)
-                if client_stream is None:
-                    continue
-                self.handle_client_stream(client_stream)
-            finally:
-                close_client_stream(client_stream)
+            client_stream = self.new_client_stream(sock)
+            if client_stream is None:
+                continue
+            self.handle_client_stream(client_stream)
+            close_client_stream(client_stream)
 
     def create_scan(self, target, options):
         """ Creates a new scan.

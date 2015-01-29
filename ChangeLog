@@ -1,5 +1,10 @@
 2014-01-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon [run]): Remove unnecessary try/finally as
+	exceptions are handled in called functions.
+
+2014-01-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon [bind_socket, close_client_stream]): Move
 	methods to being separate functions.
 	(OSPDaemon [start_daemon]): Remove function.
