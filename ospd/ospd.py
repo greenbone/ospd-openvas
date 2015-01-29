@@ -119,6 +119,32 @@ class OSPDError(Exception):
         """ Return the error in xml format. """
         return simple_response_str(self.command, self.status, self.message)
 
+def bind_socket(address, port):
+    """ Returns a socket bound on (address:port). """
+
+    assert address
+    assert port
+    bindsocket = socket.socket()
+    try:
+        bindsocket.bind((address, port))
+    except socket.error:
+        logger.error("Couldn't bind socket on {0}:{1}"
+                     .format(address, port))
+        return None
+
+    logger.info('Listening on {0}:{1}'.format(address, port))
+    bindsocket.listen(0)
+    return bindsocket
+
+def close_client_stream(client_stream):
+    """ Closes provided client stream """
+    try:
+        client_stream.shutdown(socket.SHUT_RDWR)
+        peer = client_stream.getpeername()
+        logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
+    except socket.error as exception:
+        logger.debug('SSL close error: {0}'.format(exception.message))
+    client_stream.close()
 
 class OSPDaemon(object):
 
@@ -158,6 +184,7 @@ class OSPDaemon(object):
         self.scanner_info['description'] = 'No description'
         self.scanner_params = dict()
         self.server_version = None  # Set by the subclass.
+        self.protocol_version = PROTOCOL_VERSION
         self.commands = get_commands_table()
 
     def set_command_attributes(self, name, attributes):
@@ -198,7 +225,7 @@ class OSPDaemon(object):
 
     def get_protocol_version(self):
         """ Gives the OSP's version. """
-        return PROTOCOL_VERSION
+        return self.protocol_version
 
     def process_scan_params(self, params):
         """ may be overriden by child """
@@ -272,23 +299,6 @@ class OSPDaemon(object):
             params_str = ''.join([params_str, param_str])
         return "<scanner_params>{0}</scanner_params>".format(params_str)
 
-    def bind_socket(self, address, port):
-        """ Returns a socket bound on (address:port). """
-
-        assert address
-        assert port
-        bindsocket = socket.socket()
-        try:
-            bindsocket.bind((address, port))
-        except socket.error:
-            logger.error("Couldn't bind socket on {0}:{1}"
-                         .format(address, port))
-            return None
-
-        logger.info('Listening on {0}:{1}'.format(address, port))
-        bindsocket.listen(0)
-        return bindsocket
-
     def new_client_stream(self, sock):
         """ Returns a new ssl client stream from bind_socket. """
 
@@ -339,23 +349,6 @@ class OSPDaemon(object):
             exception = OSPDError('Fatal error', 'error')
             response = exception.as_xml()
         stream.write(response)
-
-    def close_client_stream(self, client_stream):
-        """ Closes provided client stream """
-        try:
-            client_stream.shutdown(socket.SHUT_RDWR)
-            peer = client_stream.getpeername()
-            logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
-        except socket.error as exception:
-            logger.debug('SSL close error: {0}'.format(exception.message))
-        client_stream.close()
-
-    def start_daemon(self, address, port):
-        """ Initialize the OSP daemon.
-
-        @return True if success, False if error.
-        """
-        return self.bind_socket(address, port)
 
     def start_scan(self, scan_id, target_str):
         """ Starts the scan with scan_id. """
@@ -564,8 +557,9 @@ class OSPDaemon(object):
 
         @return: Response string for <get_version> command.
         """
+        protocol_ver = self.get_protocol_version()
         protocol = self.get_xml_str({'protocol': {'name': 'OSP',
-                                                  'version': PROTOCOL_VERSION}})
+                                                  'version': protocol_ver}})
 
         daemon_name = self.get_daemon_name()
         daemon_ver = self.get_daemon_version()
@@ -618,7 +612,7 @@ class OSPDaemon(object):
 
         @return False if error. Runs indefinitely otherwise.
         """
-        sock = self.start_daemon(address, port)
+        sock = bind_socket(address, port)
         if sock is None:
             return False
 
@@ -629,7 +623,7 @@ class OSPDaemon(object):
                     continue
                 self.handle_client_stream(client_stream)
             finally:
-                self.close_client_stream(client_stream)
+                close_client_stream(client_stream)
 
     def create_scan(self, target, options):
         """ Creates a new scan.

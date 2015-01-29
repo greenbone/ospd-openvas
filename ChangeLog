@@ -1,3 +1,9 @@
+2014-01-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon [bind_socket, close_client_stream]): Move
+	methods to being separate functions.
+	(OSPDaemon [start_daemon]): Remove function.
+
 2014-01-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [handle_client_stream]): Handle commands
