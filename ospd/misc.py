@@ -584,6 +584,10 @@ def main(name, klass):
         syslog.setFormatter(
             logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
         logging.getLogger().addHandler(syslog)
+        # Duplicate syslog's file descriptor to stout/stderr.
+        syslog_fd = syslog.socket.fileno()
+        os.dup2(syslog_fd, 1)
+        os.dup2(syslog_fd, 2)
     else:
         console = logging.StreamHandler()
         console.setFormatter(

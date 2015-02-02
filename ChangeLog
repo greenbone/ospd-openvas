@@ -1,3 +1,8 @@
+2014-02-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (main): In syslog case, close stdout/stderr and open them
+	as the same syslog logging handler file.
+
 2014-01-29  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [run]): Remove unnecessary try/finally as
