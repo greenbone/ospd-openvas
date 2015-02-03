@@ -1,3 +1,12 @@
+2014-02-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (BASE_SCANNER_PARAMS): New dictionnary for base osp
+	scanner parameters.
+	(OSPDaemon [__init__]): Add base scanner parameters.
+	(OSPDaemon [init_scanner_parameters]): Rename to add_scan_parameter,
+	take a name and a parameter to add, instead of a dictionnary of
+	parameters to set the scanner parameters to.
+
 2014-02-02  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (main): In syslog case, close stdout/stderr and open them

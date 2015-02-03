@@ -45,6 +45,12 @@ logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "0.1.0"
 
+BASE_SCANNER_PARAMS = \
+    {'debug_mode':
+     {'type': 'boolean',
+      'name': 'Debug Mode',
+      'default': 0,
+      'description': 'Whether to get extra scan debug information.',},}
 
 def get_commands_table():
     """ Initializes the supported commands and their info. """
@@ -182,10 +188,12 @@ class OSPDaemon(object):
         self.scanner_info['name'] = 'No name'
         self.scanner_info['version'] = 'No version'
         self.scanner_info['description'] = 'No description'
-        self.scanner_params = dict()
         self.server_version = None  # Set by the subclass.
         self.protocol_version = PROTOCOL_VERSION
         self.commands = get_commands_table()
+        self.scanner_params = dict()
+        for name, param in BASE_SCANNER_PARAMS.items():
+            self.add_scanner_param(name, param)
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -193,14 +201,16 @@ class OSPDaemon(object):
             command = self.commands.get(name)
             command['attributes'] = attributes
 
-    def init_scanner_params(self, scanner_params):
-        """ Initializes the scanner's parameters. """
+    def add_scanner_param(self, name, scanner_param):
+        """ Add a scanner parameter. """
 
-        self.scanner_params = scanner_params
+        assert name
+        assert scanner_param
+        self.scanner_params[name] = scanner_param
         command = self.commands.get('start_scan')
         command['elements'] = {
             'scanner_params':
-                {k: v['name'] for k, v in scanner_params.items()}}
+                {k: v['name'] for k, v in self.scanner_params.items()}}
 
     def command_exists(self, name):
         """ Checks if a commands exists. """
