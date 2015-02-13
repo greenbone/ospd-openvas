@@ -20,4 +20,4 @@ class testOSPDError(unittest.TestCase):
         e = OSPDError('message')
         self.assertEqual(
             '<osp_response status="400" status_text="message"></osp_response>',
-            e.asXML())
+            e.as_xml())

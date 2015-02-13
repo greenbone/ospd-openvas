@@ -1,3 +1,7 @@
+2015-02-13  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* tests/testOSPDError.py: Make test pass again.
+
 2015-02-13  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* ospd/__init__.py: Post release version bump.
