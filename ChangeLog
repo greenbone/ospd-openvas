@@ -1,3 +1,9 @@
+2015-02-13  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the ospd 1.0b7 release.
+
+	* CHANGES: Updated.
+
 2014-02-03  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (BASE_SCANNER_PARAMS): New dictionnary for base osp

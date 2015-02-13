@@ -1,3 +1,21 @@
+ospd 1.0b7 (2015-02-13)
+
+This is the seventh beta release of the upcoming 1.0 release of the ospd module
+for the Open Vulnerability Assessment System (OpenVAS).
+
+This release improves logging and error reporting as well as source code documentation and PEP8 compliance and addresses several code quality issues found in automatic and manual reviews.
+
+Many thanks to everyone who contributed to this release:
+Benoît Allard and Hani Benhabiles.
+
+Main changes since 1.0b6:
+* PEP8 compliance has been improved.
+* Error reporting has been improved.
+* Source code documentation has been improved.
+* Several code quality issues have been addressed.
+* Logging has been improved.
+
+
 ospd 1.0b6 (2015-01-14)
 
 This is the sixth beta release of the upcoming 1.0 release of the ospd module
