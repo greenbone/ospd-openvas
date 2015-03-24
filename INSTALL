@@ -18,7 +18,7 @@ Building OSPD
 
 To install OSPD into directory <prefix> run this command:
 
-python setup.py install --prefix=<prefix> --install-scripts=<prefix>/bin
+python setup.py install --prefix=<prefix>
 
 The default for <prefix> is /usr/local
 

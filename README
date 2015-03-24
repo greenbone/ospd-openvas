@@ -9,7 +9,7 @@ consistently under the central OpenVAS Manager service.
 OSP is similar in many ways to OMP (OpenVAS Management Protocol): XML-based,
 stateless and non-permanent connection.
 
-The design supports wrapping further scanners with same protocol OSP,
+The design supports wrapping arbitrary scanners with same protocol OSP,
 sharing the core daemon options while adding scanner specific parameters and
 options.
 
@@ -20,9 +20,20 @@ All parts of OSPD are Copyright (C) by Greenbone Networks GmbH
 (see http://www.greenbone.net).
 
 
+How to write your own OSP Scanner Wrapper
+-----------------------------------------
+
+As a core you need to derive from the class OSPDaemon from ospd.py.
+See the documentation there for the single steps to establish the
+full wrapper.
+
+See the file INSTALL about how to register a OSP scanner at
+the OpenVAS Manager which will automatically establish a full GUI
+integration for the Greenbone Security Assistant (GSA).
+
+
 Module structure
 ----------------
 
 * ospd/ospd.py: Core OSP Daemon class.
-* ospd/misc.py: Miscellaneous code and classes related to OSPD that don't fit
-                elsewhere.
+* ospd/misc.py: Miscellaneous code and classes related to OSPD.

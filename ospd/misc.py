@@ -40,9 +40,11 @@ import collections
 
 LOGGER = logging.getLogger(__name__)
 
+# Default file locations as used by a OpenVAS default installation
 KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
 CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
 CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
+
 PORT = 1234
 ADDRESS = "0.0.0.0"
 
@@ -557,7 +559,7 @@ def print_version(wrapper):
     daemon_name = wrapper.get_daemon_name()
     daemon_version = wrapper.get_daemon_version()
     print "Using: {0} {1}".format(daemon_name, daemon_version)
-    print "Copyright (C) 2014 Greenbone Networks GmbH\n"\
+    print "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"\
           "License GPLv2+: GNU GPL version 2 or later\n"\
           "This is free software: you are free to change"\
           " and redistribute it.\n"\
