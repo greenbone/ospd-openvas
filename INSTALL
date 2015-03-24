@@ -101,3 +101,17 @@ To generate the OSP documentation in HTML format, run the script:
 ./doc/generate
 
 This will create the osp.html file in the subdirectory "doc".
+
+
+Tests
+-----
+
+To run the tests, execute the command:
+
+python -m unittest discover ./tests/
+
+If successful, something like the text below will be outputted:
+...
+Ran 14 tests in 0.025s
+
+OK

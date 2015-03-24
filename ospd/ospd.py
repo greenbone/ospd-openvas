@@ -43,7 +43,7 @@ from ospd.misc import ScanCollection, ResultType, target_str_to_list
 
 logger = logging.getLogger(__name__)
 
-PROTOCOL_VERSION = "0.1.0"
+PROTOCOL_VERSION = "1.0"
 
 BASE_SCANNER_PARAMS = \
     {'debug_mode':
