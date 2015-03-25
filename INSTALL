@@ -108,7 +108,7 @@ Tests
 
 To run the tests, execute the command:
 
-python -m unittest discover ./tests/
+python setup.py test
 
 If successful, something like the text below will be outputted:
 ...
