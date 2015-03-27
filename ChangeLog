@@ -1,3 +1,8 @@
+2015-03-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* INSTALL: Added some aspects on documentation and added a note
+	about the tests.
+
 2015-03-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* INSTALL: Adjust tests running command.

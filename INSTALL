@@ -96,11 +96,29 @@ This will create the archive file in the subdirectory "dist".
 Documentation
 -------------
 
-To generate the OSP documentation in HTML format, run the script:
+To generate the protocol documentation for OSP in HTML format, run the script:
 
 ./doc/generate
 
 This will create the osp.html file in the subdirectory "doc".
+
+Source code documentation can be accessed over the usual methods,
+for example:
+
+$ python
+>>> import ospd.ospd
+>>> help (ospd.ospd)
+
+An equivalent to this is:
+
+$ pydoc ospd.ospd
+
+To explore the code documentation in a web browser:
+
+$ pydoc -p 12345
+pydoc server ready at http://localhost:12345/
+ 
+For further options see the man page of pydoc.
 
 
 Tests
@@ -115,3 +133,6 @@ If successful, something like the text below will be outputted:
 Ran 14 tests in 0.025s
 
 OK
+
+Don't get confused by the various error message you will see. Those
+are part of the tests. The "OK" at the end is what counts.
