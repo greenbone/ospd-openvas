@@ -6,7 +6,7 @@
 # Benoît Allard <benoit.allard@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2014 Greenbone Networks GmbH
+# Copyright (C) 2014, 2015 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,4 +24,4 @@
 
 """ OSPd core module. """
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'

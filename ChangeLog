@@ -1,5 +1,9 @@
 2015-03-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* ospd/__init__.py: Post release version bump.
+
+2015-03-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	Preparing the ospd 1.0.0 release.
 
 	* CHANGES: Updated.
