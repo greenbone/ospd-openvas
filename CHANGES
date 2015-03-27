@@ -1,3 +1,35 @@
+ospd 1.0.0 (2015-03-27)
+
+This is the 1.0.0 release of the ospd module for the Open Vulnerability
+Assessment System (OpenVAS).
+
+ospd 1.0 represents over one year of intensive work. The mission of ospd
+is to offer a powerful unified interface for different security scanners
+and make their control flow and scan results consistently available under
+the central OpenVAS Manager service.
+
+The design supports wrapping arbitrary scanners with same protocol OSP
+(OpenVAS Scanner Protocol), sharing the core daemon options while adding
+scanner specific parameters and options.
+
+Central features of ospd are:
+
+* A base class for arbitrary OSP scanner that offers all standard features
+  of such a wrapper daemon.
+
+* OSP documentation. 
+
+ospd is Free Software (Open Source), licensed under GNU General Public License
+Version 2 or any later version.  
+
+Many thanks to everyone who has contributed to this release:
+Benoît Allard, Hani Benhabiles, Jan-Oliver Wagner, Michael Wiegand
+
+Main changes since 1.0b7:
+* Fixed tests.
+* Various documentation updates.
+
+
 ospd 1.0b7 (2015-02-13)
 
 This is the seventh beta release of the upcoming 1.0 release of the ospd module
