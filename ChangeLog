@@ -1,3 +1,9 @@
+2015-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (BASE_SCANNER_PARAMS): Add dry_run parameter.
+	(OSPDaemon [start_scan]): Handle dry_run scanner parameter.
+	(OSPDaemon [dry_run_scan]): New method.
+
 2015-03-27  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* ospd/__init__.py: Post release version bump.

@@ -50,7 +50,12 @@ BASE_SCANNER_PARAMS = \
      {'type': 'boolean',
       'name': 'Debug Mode',
       'default': 0,
-      'description': 'Whether to get extra scan debug information.',},}
+      'description': 'Whether to get extra scan debug information.',},
+     'dry_run':
+     {'type': 'boolean',
+      'name': 'Dry Run',
+      'default': 0,
+      'description': 'Whether to dry run scan.',},}
 
 def get_commands_table():
     """ Initializes the supported commands and their info. """
@@ -372,13 +377,24 @@ class OSPDaemon(object):
             self.set_scan_progress(scan_id, int(progress))
             logger.info("{0}: Scan started.".format(target))
             try:
-                self.exec_scan(scan_id, target)
+                options = self.get_scan_options(scan_id)
+                if options.has_key('dry_run') and int(options['dry_run']):
+                    self.dry_run_scan(scan_id, target)
+                else:
+                    self.exec_scan(scan_id, target)
                 logger.info("{0}: Scan finished.".format(target))
             except:
                 self.add_scan_error(scan_id, name='', host=target,
                                     value='Host thread failure.')
                 logger.exception('While scanning {0}:'.format(target))
         self.finish_scan(scan_id)
+
+    def dry_run_scan(self, scan_id, host):
+        """ Dry runs a scan. """
+
+        logger.info("{0}: Dry run mode.".format(host))
+        self.add_scan_log(scan_id, name='', host=host,
+                          value='Dry run result')
 
     def handle_timeout(self, scan_id, host):
         """ Handles scanner reaching timeout error. """
