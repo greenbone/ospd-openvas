@@ -268,10 +268,16 @@ class OSPDaemon(object):
                 continue
             params[param] = self.scanner_params[param].get('default', '')
 
-        scan_id = self.create_scan(
-            target_str, self.process_scan_params(params))
+        # Dry run case.
+        if params.has_key('dry_run') and int(params['dry_run']):
+            scan_func = self.dry_run_scan
+            scan_params = None
+        else:
+            scan_func = self.start_scan
+            scan_params = self.process_scan_params(params)
 
-        scan_thread = threading.Thread(target=self.start_scan,
+        scan_id = self.create_scan(target_str, scan_params)
+        scan_thread = threading.Thread(target=scan_func,
                                        args=(scan_id, target_str))
         self.scan_collection.set_thread(scan_id, scan_thread)
         scan_thread.start()
@@ -377,11 +383,7 @@ class OSPDaemon(object):
             self.set_scan_progress(scan_id, int(progress))
             logger.info("{0}: Scan started.".format(target))
             try:
-                options = self.get_scan_options(scan_id)
-                if options.has_key('dry_run') and int(options['dry_run']):
-                    self.dry_run_scan(scan_id, target)
-                else:
-                    self.exec_scan(scan_id, target)
+                self.exec_scan(scan_id, target)
                 logger.info("{0}: Scan finished.".format(target))
             except:
                 self.add_scan_error(scan_id, name='', host=target,
@@ -389,12 +391,15 @@ class OSPDaemon(object):
                 logger.exception('While scanning {0}:'.format(target))
         self.finish_scan(scan_id)
 
-    def dry_run_scan(self, scan_id, host):
+    def dry_run_scan(self, scan_id, target_str):
         """ Dry runs a scan. """
 
-        logger.info("{0}: Dry run mode.".format(host))
-        self.add_scan_log(scan_id, name='', host=host,
-                          value='Dry run result')
+        target_list = target_str_to_list(target_str)
+        for _, host in enumerate(target_list):
+            logger.info("{0}: Dry run mode.".format(host))
+            self.add_scan_log(scan_id, name='', host=host,
+                              value='Dry run result')
+        self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id, host):
         """ Handles scanner reaching timeout error. """

@@ -1,3 +1,11 @@
+2015-04-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon [handle_start_scan_command]): Handle dry run
+	case.
+	(OSPDaemon [start_scan]): Remove dry run case handling.
+	(OSPDaemon [dry_run_case]): Get target string as method argument. Call
+	finish_scan().
+
 2015-04-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (BASE_SCANNER_PARAMS): Add dry_run parameter.
