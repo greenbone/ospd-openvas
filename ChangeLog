@@ -1,5 +1,12 @@
 2015-05-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (resolve_hostname): New function.
+
+	* ospd/ospd.py (OSPDaemon [start_scan, dry_run_scan]): Resolve hostname
+	so that results sent by scanner are always in IP format.
+
+2015-05-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* doc/OSP.xml: Update example response documentation for get_scans
 	command.
 

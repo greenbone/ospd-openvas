@@ -40,6 +40,7 @@ from xml.sax.saxutils import escape as xml_escape
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
+from ospd.misc import resolve_hostname
 
 logger = logging.getLogger(__name__)
 
@@ -380,21 +381,30 @@ class OSPDaemon(object):
         for index, target in enumerate(target_list):
             progress = float(index) * 100 / len(target_list)
             self.set_scan_progress(scan_id, int(progress))
-            logger.info("{0}: Scan started.".format(target))
+            host = resolve_hostname(target)
+            if host is None:
+                logger.info("Couldn't resolve {0}.".format(target))
+                continue
+
+            logger.info("{0}: Host scan started.".format(host))
             try:
-                self.exec_scan(scan_id, target)
-                logger.info("{0}: Scan finished.".format(target))
+                self.exec_scan(scan_id, host)
+                logger.info("{0}: Host scan finished.".format(host))
             except:
-                self.add_scan_error(scan_id, name='', host=target,
+                self.add_scan_error(scan_id, name='', host=host,
                                     value='Host thread failure.')
-                logger.exception('While scanning {0}:'.format(target))
+                logger.exception('While scanning {0}:'.format(host))
         self.finish_scan(scan_id)
 
     def dry_run_scan(self, scan_id, target_str):
         """ Dry runs a scan. """
 
         target_list = target_str_to_list(target_str)
-        for _, host in enumerate(target_list):
+        for _, target in enumerate(target_list):
+            host = resolve_hostname(target)
+            if host is None:
+                logger.info("Couldn't resolve {0}.".format(target))
+                continue
             logger.info("{0}: Dry run mode.".format(host))
             self.add_scan_log(scan_id, name='', host=host,
                               value='Dry run result')

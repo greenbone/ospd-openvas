@@ -428,6 +428,16 @@ def target_str_to_list(target_str):
     return list(collections.OrderedDict.fromkeys(new_list))
 
 
+def resolve_hostname(hostname):
+    """ Returns IP of a hostname. """
+
+    assert hostname
+    try:
+        return socket.gethostbyname(hostname)
+    except socket.gaierror:
+        return None
+
+
 def create_args_parser(description):
     """ Create a command-line arguments parser for OSPD. """
 
