@@ -207,13 +207,29 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_scans_response status_text="OK" status="200">
-          <scan id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" target="localhost" end_time="1411999321" progress="100" start_time="1411999316">
-            <results>
-              <result severity="" name="" type="Error Message">
-                ...
-              </result>
-            </results>
-          </scan>
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
+                end_time="1432824234" progress="100" start_time="1432824206">
+             <results>
+               <result host="192.168.1.252" severity="2.5" port="443/tcp"
+                       test_id="" name="Path disclosure vulnerability"
+                       type="Alarm">
+                 The URL: &quot;https://192.168.1.252/&quot; has a path
+                 disclosure vulnerability which discloses "/var/www/phpinfo.php"
+
+                 HTTP Request Status: GET https://192.168.1.252/ HTTP/1.1
+
+                 HTTP Request Headers:
+                  Host: 192.168.1.252
+                  Accept-encoding: gzip, deflate
+                  Accept: */*
+                  User-agent: w3af.org
+
+                 HTTP Response Status: HTTP/1.1 200 OK
+               </result>
+               ...
+             </results>
+           </scan>
+
         </get_scans_response>
       </response>
     </example>

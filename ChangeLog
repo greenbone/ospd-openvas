@@ -1,5 +1,10 @@
 2015-05-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* doc/OSP.xml: Update example response documentation for get_scans
+	command.
+
+2015-05-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (ScanCollection [add_result]): Add port parameter.
 	(ScanCollection [add_alarm, add_log, add_error, add_host_detail]):
 	Remove methods.
