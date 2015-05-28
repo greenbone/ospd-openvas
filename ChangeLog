@@ -1,3 +1,7 @@
+2015-05-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* INSTALL: Updates with some more hints.
+
 2015-05-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (resolve_hostname): New function.
