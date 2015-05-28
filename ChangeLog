@@ -1,3 +1,13 @@
+2015-05-28  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection [add_result]): Add port parameter.
+	(ScanCollection [add_alarm, add_log, add_error, add_host_detail]):
+	Remove methods.
+
+	* ospd/ospd.py (OSPDaemon [add_scan_log, add_scan_error])
+	([add_scan_alarm, add_host_detail]): Add port parameter. Adjust scan
+	collection method call.
+
 2015-04-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon [handle_start_scan_command]): Handle dry run

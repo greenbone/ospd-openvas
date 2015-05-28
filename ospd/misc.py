@@ -72,7 +72,7 @@ class ScanCollection(object):
         self.scans_table = dict()
 
     def add_result(self, scan_id, result_type, host='', name='', value='',
-                   test_id='', severity=''):
+                   port='', test_id='', severity=''):
         """ Add a result to a scan in the table. """
 
         assert scan_id
@@ -84,26 +84,8 @@ class ScanCollection(object):
         result['test_id'] = test_id
         result['value'] = value
         result['host'] = host
+        result['port'] = port
         self.scans_table[scan_id]['results'].append(result)
-
-    def add_alarm(self, scan_id, host='', name='', value='', test_id='',
-                  severity=''):
-        """ Add a result of type Alarm to a scan in the table. """
-        self.add_result(scan_id, ResultType.ALARM, host, name, value, test_id,
-                        severity)
-
-    def add_log(self, scan_id, host='', name='', value=''):
-        """ Add a result of type Log to a scan in the table. """
-        self.add_result(scan_id, ResultType.LOG, host, name, value, '', '')
-
-    def add_error(self, scan_id, host='', name='', value=''):
-        """ Add a result of type Error to a scan in the table. """
-        self.add_result(scan_id, ResultType.ERROR, host, name, value, '', '')
-
-    def add_host_detail(self, scan_id, host='', name='', value=''):
-        """ Add a result of type Host Detail to a scan in the table. """
-        self.add_result(scan_id, ResultType.HOST_DETAIL, host, name, value, '',
-                        '')
 
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """

@@ -93,10 +93,9 @@ def get_result_xml(result):
 
     result_type = ResultType.get_str(result['type'])
     return ('<result name="{0}" type="{1}" severity="{2}" host="{3}"'
-            ' test_id="{4}">{5}</result>'.format(
-                result['name'], result_type, result['severity'],
-                result['host'], result['test_id'],
-                xml_escape(result['value'])))
+            ' test_id="{4}" port="{5}">{6}</result>'.format(
+                result['name'], result_type, result['severity'], result['host'],
+                result['test_id'], result['port'], xml_escape(result['value'])))
 
 
 def simple_response_str(command, status, status_text, content=""):
@@ -702,20 +701,23 @@ class OSPDaemon(object):
         """ Gives a scan's end time. """
         return self.scan_collection.get_end_time(scan_id)
 
-    def add_scan_log(self, scan_id, host='', name='', value=''):
+    def add_scan_log(self, scan_id, host='', name='', value='', port=''):
         """ Adds a log result to scan_id scan. """
-        self.scan_collection.add_log(scan_id, host, name, value)
+        self.scan_collection.add_result(scan_id, ResultType.LOG, host, name,
+                                        value, port)
 
-    def add_scan_error(self, scan_id, host='', name='', value=''):
+    def add_scan_error(self, scan_id, host='', name='', value='', port=''):
         """ Adds an error result to scan_id scan. """
-        self.scan_collection.add_error(scan_id, host, name, value)
+        self.scan_collection.add_result(scan_id, ResultType.ERROR, host, name,
+                                        value, port)
 
     def add_scan_host_detail(self, scan_id, host='', name='', value=''):
         """ Adds a host detail result to scan_id scan. """
-        self.scan_collection.add_host_detail(scan_id, host, name, value)
+        self.scan_collection.add_result(scan_id, ResultType.HOST_DETAIL, host,
+                                        name, value)
 
-    def add_scan_alarm(self, scan_id, host='', name='', value='', test_id='',
-                       severity=''):
+    def add_scan_alarm(self, scan_id, host='', name='', value='', port='',
+                       test_id='', severity=''):
         """ Adds an alarm result to scan_id scan. """
-        self.scan_collection.add_alarm(scan_id, host, name, value, test_id,
-                                       severity)
+        self.scan_collection.add_result(scan_id, ResultType.ALARM, host, name,
+                                        value, port, test_id, severity)
