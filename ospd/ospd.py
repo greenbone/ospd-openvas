@@ -417,7 +417,7 @@ class OSPDaemon(object):
                             .format(self.get_scanner_name()))
 
     def set_scan_progress(self, scan_id, progress):
-        """ Sets scan_id scan's progress. """
+        """ Sets scan_id scan's progress which is a number between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
     def scan_exists(self, scan_id):
