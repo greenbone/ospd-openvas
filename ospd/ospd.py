@@ -96,9 +96,9 @@ def get_result_xml(result):
     value = result['value'].encode('ascii', 'xmlcharrefreplace')
     result_value = xml_escape(value)
     return ('<result name="{0}" type="{1}" severity="{2}" host="{3}"'
-            ' test_id="{4}" port="{5}">{6}</result>'.format(
+            ' test_id="{4}" port="{5}" qod="{6}">{7}</result>'.format(
                 result['name'], result_type, result['severity'], result['host'],
-                result['test_id'], result['port'], result_value))
+                result['test_id'], result['port'], result['qod'], result_value))
 
 
 def simple_response_str(command, status, status_text, content=""):
@@ -729,7 +729,7 @@ class OSPDaemon(object):
                                         name, value)
 
     def add_scan_alarm(self, scan_id, host='', name='', value='', port='',
-                       test_id='', severity=''):
+                       test_id='', severity='', qod=''):
         """ Adds an alarm result to scan_id scan. """
         self.scan_collection.add_result(scan_id, ResultType.ALARM, host, name,
-                                        value, port, test_id, severity)
+                                        value, port, test_id, severity, qod)

@@ -1,3 +1,10 @@
+2015-06-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection.add_result): Add qod parameter.
+
+	* ospd/ospd.py (get_result_xml): Print result qod too.
+	(OSPDaemon.add_scan_alarm): Add qod parameter.
+
 2015-06-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (get_result_xml): Encode value string before xml
