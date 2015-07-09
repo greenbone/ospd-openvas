@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 # $Id$
 # Description:
 # OSP Daemon core class.
 #
 # Authors:
 # Hani Benhabiles <hani.benhabiles@greenbone.net>
+# Benoît Allard <benoit.allard@greenbone.net>
 #
 # Copyright:
 # Copyright (C) 2014 Greenbone Networks GmbH
@@ -25,17 +27,15 @@
 """ OSP Daemon core class. """
 
 # This is needed for older pythons as our current module is called the same
-# as the package we are in ... Another solution would be to rename that file.
+# as the package we are in ...
+# Another solution would be to rename that file.
 from __future__ import absolute_import
 
 import logging
 import socket
 import ssl
 import threading
-try:
-    import xml.etree.cElementTree as ET
-except ImportError:
-    import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ET
 from xml.sax.saxutils import escape as xml_escape
 
 from ospd import __version__
@@ -58,47 +58,49 @@ BASE_SCANNER_PARAMS = \
       'default': 0,
       'description': 'Whether to dry run scan.',},}
 
-def get_commands_table():
-    """ Initializes the supported commands and their info. """
-
-    return {'start_scan': {'description': 'Start a new scan.',
+COMMANDS_TABLE = {
+    'start_scan': {'description': 'Start a new scan.',
                            'attributes': {'target':
                                           'Target host to scan'},
                            'elements': None},
-            'help': {'description': 'Print the commands help.',
+    'help': {'description': 'Print the commands help.',
                      'attributes':
                      {'format': 'Help format. Could be text or xml.'},
                      'elements': None},
-            'get_scans': {'description': 'List the scans in buffer.',
+    'get_scans': {'description': 'List the scans in buffer.',
                           'attributes':
                           {'scan_id': 'ID of a specific scan to get.',
                            'details': 'Whether to return the full'\
                            ' scan report.'},
                           'elements': None},
-            'delete_scan': {'description': 'Delete a finished scan.',
+    'delete_scan': {'description': 'Delete a finished scan.',
                             'attributes':
                             {'scan_id': 'ID of scan to delete.'},
                             'elements': None},
-            'get_version': {'description': 'Return various versions.',
+    'get_version': {'description': 'Return various versions.',
                             'attributes': None,
                             'elements': None},
-            'get_scanner_details': {'description':
+    'get_scanner_details': {'description':
                                     'Return scanner description and'
                                     ' parameters',
                                     'attributes': None,
-                                    'elements': None}}
+                                    'elements': None}
+}
 
 
 def get_result_xml(result):
     """ Formats a scan result to XML format. """
-
-    result_type = ResultType.get_str(result['type'])
-    value = result['value'].encode('ascii', 'xmlcharrefreplace')
-    result_value = xml_escape(value)
-    return ('<result name="{0}" type="{1}" severity="{2}" host="{3}"'
-            ' test_id="{4}" port="{5}" qod="{6}">{7}</result>'.format(
-                result['name'], result_type, result['severity'], result['host'],
-                result['test_id'], result['port'], result['qod'], result_value))
+    result_xml = ET.Element('result')
+    for name, value in [('name', result['name']),
+                        ('type', ResultType.get_str(result['type'])),
+                        ('severity', result['severity']),
+                        ('host', result['host']),
+                        ('test_id', result['test_id']),
+                        ('port', result['port']),
+                        ('qod', result['qod'])]:
+        result_xml.set(name, value)
+    result_xml.text = result['value']
+    return result_xml
 
 
 def simple_response_str(command, status, status_text, content=""):
@@ -111,11 +113,17 @@ def simple_response_str(command, status, status_text, content=""):
 
     @return: String of response in xml format.
     """
-    assert command
-    assert status
-    assert status_text
-    return '<{0}_response status="{1}" status_text="{2}">{3}'\
-           '</{0}_response>'.format(command, status, status_text, content)
+    response = ET.Element('%s_response' % command)
+    for name, value in [('status', str(status)), ('status_text', status_text)]:
+        response.set(name, value)
+    if isinstance(content, list):
+        for elem in content:
+            response.append(elem)
+    elif isinstance(content, ET.Element):
+        response.append(content)
+    else:
+        response.text = content
+    return ET.tostring(response)
 
 
 class OSPDError(Exception):
@@ -197,7 +205,7 @@ class OSPDaemon(object):
         self.scanner_info['description'] = 'No description'
         self.server_version = None  # Set by the subclass.
         self.protocol_version = PROTOCOL_VERSION
-        self.commands = get_commands_table()
+        self.commands = COMMANDS_TABLE
         self.scanner_params = dict()
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
@@ -283,13 +291,12 @@ class OSPDaemon(object):
                                        args=(scan_id, target_str))
         self.scan_collection.set_thread(scan_id, scan_thread)
         scan_thread.start()
-        text = '<id>{0}</id>'.format(scan_id)
-        return simple_response_str('start_scan', 200, 'OK', text)
+        id_ = ET.Element('id')
+        id_.text = scan_id
+        return simple_response_str('start_scan', 200, 'OK', id_)
 
     def exec_scan(self, scan_id, target):
         """ Asserts to False. Should be implemented by subclass. """
-        assert scan_id
-        assert target
         raise NotImplementedError
 
     def finish_scan(self, scan_id):
@@ -312,15 +319,19 @@ class OSPDaemon(object):
 
     def get_scanner_params_xml(self):
         """ Returns the OSP Daemon's scanner params in xml format. """
-        params_str = ""
+        scanner_params = ET.Element('scanner_params')
         for param_id, param in self.scanner_params.items():
-            param_str = "<scanner_param id='{0}' type='{1}'>"\
-                        "<name>{2}</name><description>{3}</description>"\
-                        "<default>{4}</default></scanner_param>"\
-                .format(param_id, param['type'], param['name'],
-                        param['description'], param['default'])
-            params_str = ''.join([params_str, param_str])
-        return "<scanner_params>{0}</scanner_params>".format(params_str)
+            param_xml = ET.SubElement(scanner_params, 'scanner_param')
+            for name, value in [('id', param_id),
+                                ('type', param['type'])]:
+                param_xml.set(name, value)
+            for name, value in [('name', param['name']),
+                                ('description', param['description']),
+                                ('default', param['default'])]:
+                elem = ET.SubElement(param_xml, name)
+                elem.text = value
+            scanner_params.append(param_xml)
+        return scanner_params
 
     def new_client_stream(self, sock):
         """ Returns a new ssl client stream from bind_socket. """
@@ -391,11 +402,13 @@ class OSPDaemon(object):
             logger.info("{0}: Host scan started.".format(host))
             try:
                 self.exec_scan(scan_id, host)
-                logger.info("{0}: Host scan finished.".format(host))
-            except:
+            except Exception as e:
                 self.add_scan_error(scan_id, name='', host=host,
-                                    value='Host thread failure.')
+                                    value='Host thread failure (%s).' % e)
                 logger.exception('While scanning {0}:'.format(host))
+            else:
+                logger.info("{0}: Host scan finished.".format(host))
+
         self.finish_scan(scan_id)
 
     def dry_run_scan(self, scan_id, target_str):
@@ -435,26 +448,24 @@ class OSPDaemon(object):
         @return: Response string for <get_scans> command.
         """
 
-        details = True
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
-        if details and details == '0':
-            details = False
+        details = int(details or '1')
 
-        response = ""
+        responses = []
         if scan_id and scan_id in self.scan_collection.ids_iterator():
             self.check_scan_thread(scan_id)
-            scan_str = self.get_scan_xml(scan_id, details)
-            response = ''.join([response, scan_str])
+            scan = self.get_scan_xml(scan_id, details)
+            responses.append(scan)
         elif scan_id:
             text = "Failed to find scan '{0}'".format(scan_id)
             return simple_response_str('get_scans', 404, text)
         else:
             for scan_id in self.scan_collection.ids_iterator():
                 self.check_scan_thread(scan_id)
-                scan_str = self.get_scan_xml(scan_id, details)
-                response = ''.join([response, scan_str])
-        return simple_response_str('get_scans', 200, 'OK', response)
+                scan = self.get_scan_xml(scan_id, details)
+                responses.append(scan)
+        return simple_response_str('get_scans', 200, 'OK', responses)
 
     def handle_help_command(self, scan_et):
         """ Handles <help> command.
@@ -535,10 +546,11 @@ class OSPDaemon(object):
 
         @return: String of scan results in xml.
         """
-        results = []
+        results = ET.Element('results')
         for result in self.scan_collection.results_iterator(scan_id):
             results.append(get_result_xml(result))
-        return ''.join(['<results>', ''.join(results), '</results>'])
+        logger.info(ET.tostring(results))
+        return results
 
     def get_xml_str(self, data):
         """ Creates a string in XML Format using the provided data structure.
@@ -548,18 +560,19 @@ class OSPDaemon(object):
         @return: String of data in xml format.
         """
 
-        response = str()
+        responses = []
         for tag, value in data.items():
+            elem = ET.Element(tag)
             if type(value) == type(dict()):
-                value = self.get_xml_str(value)
+                for value in self.get_xml_str(value):
+                    elem.append(value)
             elif type(value) == type(list()):
                 value = ', '.join([m for m in value])
-            elif value is None:
-                value = str()
-            response = ''.join([response,
-                                "<{0}>{1}</{2}>".format(tag, value,
-                                                        tag.split()[0])])
-        return response
+                elem.text = value
+            else:
+                elem.text = value
+            responses.append(elem)
+        return responses
 
     def get_scan_xml(self, scan_id, detailed=True):
         """ Gets scan in XML format.
@@ -567,31 +580,34 @@ class OSPDaemon(object):
         @return: String of scan in xml format.
         """
         if not scan_id:
-            return self.get_xml_str({'scan': ''})
+            return ET.Element('scan')
 
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
-        if detailed is False:
-            results_str = ""
-        else:
-            results_str = self.get_scan_results_xml(scan_id)
-
-        return '<scan id="{0}" target="{1}" progress="{2}"'\
-               ' start_time="{3}" end_time="{4}">{5}</scan>'\
-            .format(scan_id, target, progress, start_time, end_time,
-                    results_str)
+        response = ET.Element('scan')
+        for name, value in [('id', scan_id),
+                            ('target', target),
+                            ('progress', progress),
+                            ('start_time', start_time),
+                            ('end_time', end_time)]:
+            response.set(name, str(value))
+        if detailed:
+            response.append(self.get_scan_results_xml(scan_id))
+        return response
 
     def handle_get_scanner_details(self):
         """ Handles <get_scanner_details> command.
 
         @return: Response string for <get_version> command.
         """
-        description = self.get_scanner_description()
-        scanner_params = self.get_scanner_params_xml()
-        details = "<description>{0}</description>{1}".format(description,
-                                                             scanner_params)
+        desc_xml = ET.Element('description')
+        desc_xml.text =  self.get_scanner_description()
+        details = [
+            desc_xml,
+            self.get_scanner_params_xml()
+        ]
         return simple_response_str('get_scanner_details', 200, 'OK', details)
 
     def handle_get_version_command(self):
@@ -599,22 +615,22 @@ class OSPDaemon(object):
 
         @return: Response string for <get_version> command.
         """
-        protocol_ver = self.get_protocol_version()
-        protocol = self.get_xml_str({'protocol': {'name': 'OSP',
-                                                  'version': protocol_ver}})
+        protocol = ET.Element('protocol')
+        for name, value in [('name', 'OSP'), ('version', self.get_protocol_version())]:
+            elem = ET.SubElement(protocol, name)
+            elem.text = value
 
-        daemon_name = self.get_daemon_name()
-        daemon_ver = self.get_daemon_version()
-        daemon = self.get_xml_str({'daemon': {'name': daemon_name,
-                                              'version': daemon_ver}})
+        daemon = ET.Element('daemon')
+        for name, value in [('name', self.get_daemon_name()), ('version', self.get_daemon_version())]:
+            elem = ET.SubElement(daemon, name)
+            elem.text = value
 
-        scanner_name = self.get_scanner_name()
-        scanner_ver = self.get_scanner_version()
-        scanner = self.get_xml_str({'scanner': {'name': scanner_name,
-                                                'version': scanner_ver}})
+        scanner = ET.Element('scanner')
+        for name, value in [('name', self.get_scanner_name()), ('version', self.get_scanner_version())]:
+            elem = ET.SubElement(scanner, name)
+            elem.text = value
 
-        text = ''.join([protocol, daemon, scanner])
-        return simple_response_str('get_version', 200, 'OK', text)
+        return simple_response_str('get_version', 200, 'OK', [protocol, daemon, scanner])
 
     def handle_command(self, command):
         """ Handles an osp command in a string.

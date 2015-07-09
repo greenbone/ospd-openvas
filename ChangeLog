@@ -1,3 +1,13 @@
+2015-07-09  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py: Stop hand-crafting XML message, use libraries.
+	* tests/testOSPDError.py: Update test.
+	* tests/testScanAndResult.py: Add integration tests
+
+2015-07-09  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/doc/: Remove empty extra directory.
+
 2015-06-19  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection.add_result): Add qod parameter.
