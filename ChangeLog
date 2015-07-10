@@ -1,3 +1,7 @@
+2015-07-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.start_scan): Do not resolve target hostname.
+
 2015-07-10  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: Remove unused import

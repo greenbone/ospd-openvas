@@ -393,20 +393,15 @@ class OSPDaemon(object):
         for index, target in enumerate(target_list):
             progress = float(index) * 100 / len(target_list)
             self.set_scan_progress(scan_id, int(progress))
-            host = resolve_hostname(target)
-            if host is None:
-                logger.info("Couldn't resolve {0}.".format(target))
-                continue
-
-            logger.info("{0}: Host scan started.".format(host))
+            logger.info("{0}: Host scan started.".format(target))
             try:
-                self.exec_scan(scan_id, host)
+                self.exec_scan(scan_id, target)
             except Exception as e:
-                self.add_scan_error(scan_id, name='', host=host,
+                self.add_scan_error(scan_id, name='', host=target,
                                     value='Host thread failure (%s).' % e)
-                logger.exception('While scanning {0}:'.format(host))
+                logger.exception('While scanning {0}:'.format(target))
             else:
-                logger.info("{0}: Host scan finished.".format(host))
+                logger.info("{0}: Host scan finished.".format(target))
 
         self.finish_scan(scan_id)
 
