@@ -36,7 +36,6 @@ import socket
 import ssl
 import threading
 import xml.etree.ElementTree as ET
-from xml.sax.saxutils import escape as xml_escape
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
