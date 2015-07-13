@@ -114,7 +114,7 @@ def simple_response_str(command, status, status_text, content=""):
     """
     response = ET.Element('%s_response' % command)
     for name, value in [('status', str(status)), ('status_text', status_text)]:
-        response.set(name, value)
+        response.set(name, str(value))
     if isinstance(content, list):
         for elem in content:
             response.append(elem)

@@ -1,3 +1,8 @@
+2015-07-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (simple_response_str): Stringify value. Fixes an
+	exception when value is an int.
+
 2015-07-13  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py [get_scanner_params_xml]: Fix the absence of default
