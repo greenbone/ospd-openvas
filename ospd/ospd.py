@@ -723,10 +723,11 @@ class OSPDaemon(object):
         """ Gives a scan's end time. """
         return self.scan_collection.get_end_time(scan_id)
 
-    def add_scan_log(self, scan_id, host='', name='', value='', port=''):
+    def add_scan_log(self, scan_id, host='', name='', value='', port='',
+                     test_id=''):
         """ Adds a log result to scan_id scan. """
         self.scan_collection.add_result(scan_id, ResultType.LOG, host, name,
-                                        value, port)
+                                        value, port, test_id)
 
     def add_scan_error(self, scan_id, host='', name='', value='', port=''):
         """ Adds an error result to scan_id scan. """
