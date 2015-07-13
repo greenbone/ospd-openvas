@@ -1,5 +1,10 @@
 2015-07-13  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/ospd.py [get_scanner_params_xml]: Fix the absence of default
+	  value.
+
+2015-07-13  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py [get_scanner_params_xml]: De-duplicate the parameter
 	  list.
 
