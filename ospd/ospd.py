@@ -329,7 +329,6 @@ class OSPDaemon(object):
                                 ('default', param['default'])]:
                 elem = ET.SubElement(param_xml, name)
                 elem.text = value
-            scanner_params.append(param_xml)
         return scanner_params
 
     def new_client_stream(self, sock):
