@@ -1,5 +1,9 @@
 2015-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
+	* ospd/__init__.py: Post release version bump.
+
+2015-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
 	Preparing the ospd 1.0.1 release.
 
 	* CHANGES: Updated.
