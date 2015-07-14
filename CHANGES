@@ -1,3 +1,24 @@
+ospd 1.0.1 (2015-07-14)
+
+This is the first maintenance release of the ospd 1.0 module for the Open
+Vulnerability Assessment System (OpenVAS).
+
+This release adds support for a "dry run" mode and for port and QoD parameters.
+It also addresses an issue with string encoding as well as improving XML
+generation.
+
+Many thanks to everyone who has contributed to this release:
+Benoît Allard, Hani Benhabiles and Jan-Oliver Wagner.
+
+Main changes since 1.0.0:
+* Support for "dry run" mode has been added.
+* Support for port parameter has been added.
+* Support for QoD parameter has been added.
+* An issue with string encoding has been addressed.
+* XML generation has been improved.
+* Documentation has been updated.
+
+
 ospd 1.0.0 (2015-03-27)
 
 This is the 1.0.0 release of the ospd module for the Open Vulnerability

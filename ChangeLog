@@ -1,3 +1,9 @@
+2015-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	Preparing the ospd 1.0.1 release.
+
+	* CHANGES: Updated.
+
 2015-07-14  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: Fix more serialization issue, add qod to log messages.
