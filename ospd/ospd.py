@@ -97,7 +97,7 @@ def get_result_xml(result):
                         ('test_id', result['test_id']),
                         ('port', result['port']),
                         ('qod', result['qod'])]:
-        result_xml.set(name, value)
+        result_xml.set(name, str(value))
     result_xml.text = result['value']
     return result_xml
 
@@ -723,10 +723,10 @@ class OSPDaemon(object):
         return self.scan_collection.get_end_time(scan_id)
 
     def add_scan_log(self, scan_id, host='', name='', value='', port='',
-                     test_id=''):
+                     test_id='', qod=''):
         """ Adds a log result to scan_id scan. """
         self.scan_collection.add_result(scan_id, ResultType.LOG, host, name,
-                                        value, port, test_id)
+                                        value, port, test_id, 0.0, qod)
 
     def add_scan_error(self, scan_id, host='', name='', value='', port=''):
         """ Adds an error result to scan_id scan. """

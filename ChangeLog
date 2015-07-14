@@ -1,3 +1,7 @@
+2015-07-14  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py: Fix more serialization issue, add qod to log messages.
+
 2015-07-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (simple_response_str): Stringify value. Fixes an
