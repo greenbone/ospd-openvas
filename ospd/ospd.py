@@ -593,7 +593,7 @@ class OSPDaemon(object):
     def handle_get_scanner_details(self):
         """ Handles <get_scanner_details> command.
 
-        @return: Response string for <get_version> command.
+        @return: Response string for <get_scanner_details> command.
         """
         desc_xml = ET.Element('description')
         desc_xml.text =  self.get_scanner_description()

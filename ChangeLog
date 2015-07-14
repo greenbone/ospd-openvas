@@ -1,3 +1,7 @@
+2015-07-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.handle_get_scanner_details): Fix docstring.
+
 2015-07-14  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* ospd/__init__.py: Post release version bump.
