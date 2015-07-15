@@ -270,6 +270,8 @@ class OSPDaemon(object):
         params = {}
         for param in scanner_params:
             params[param.tag] = param.text
+            if params[param.tag] is None:
+                params[param.tag] = ''
 
         # Set the default values
         for param in self.scanner_params:
