@@ -1,3 +1,8 @@
+2015-07-16  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/misc.py: Initialize the parameter in the same order as the base
+	  class.
+
 2015-07-15  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.handle_start_scan_command): Set null

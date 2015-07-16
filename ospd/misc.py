@@ -568,7 +568,7 @@ def main(name, klass):
     # Common args
     cargs = get_common_args(parser)
     logging.getLogger().setLevel(cargs['log_level'])
-    wrapper = klass(keyfile=cargs['keyfile'], certfile=cargs['certfile'],
+    wrapper = klass(certfile=cargs['certfile'], keyfile=cargs['keyfile'],
                     cafile=cargs['cafile'])
 
     if cargs['version']:
