@@ -26,17 +26,17 @@
 """ Miscellaneous functions and utilities related to OSPD. """
 
 import argparse
-import datetime
+import binascii
+import collections
 import logging
 import logging.handlers
 import os
-import sys
-import uuid
+import re
 import socket
 import struct
-import binascii
-import re
-import collections
+import sys
+import time
+import uuid
 
 LOGGER = logging.getLogger(__name__)
 
@@ -94,8 +94,7 @@ class ScanCollection(object):
         if progress > 0 and progress <= 100:
             self.scans_table[scan_id]['progress'] = progress
         if progress == 100:
-            self.scans_table[scan_id]['end_time']\
-                = datetime.datetime.now().strftime('%s')
+            self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def results_iterator(self, scan_id):
         """ Returns an iterator over scan_id scan's results. """
@@ -115,7 +114,7 @@ class ScanCollection(object):
         scan_info['progress'] = 0
         scan_info['target'] = target
         scan_info['options'] = options
-        scan_info['start_time'] = datetime.datetime.now().strftime('%s')
+        scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = "0"
         scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
