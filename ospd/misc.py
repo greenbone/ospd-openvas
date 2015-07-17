@@ -27,6 +27,7 @@
 # Needed to say that when we import ospd, we mean the package and not the
 # module in that directory.
 from __future__ import absolute_import
+from __future__ import print_function
 
 import argparse
 import binascii
@@ -573,17 +574,17 @@ def print_version(wrapper):
 
     scanner_name = wrapper.get_scanner_name()
     server_version = wrapper.get_server_version()
-    print "OSP Server for {0} version {1}".format(scanner_name, server_version)
+    print("OSP Server for {0} version {1}".format(scanner_name, server_version))
     protocol_version = wrapper.get_protocol_version()
-    print "OSP Version: {0}".format(protocol_version)
+    print("OSP Version: {0}".format(protocol_version))
     daemon_name = wrapper.get_daemon_name()
     daemon_version = wrapper.get_daemon_version()
-    print "Using: {0} {1}".format(daemon_name, daemon_version)
-    print "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"\
+    print("Using: {0} {1}".format(daemon_name, daemon_version))
+    print("Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"\
           "License GPLv2+: GNU GPL version 2 or later\n"\
           "This is free software: you are free to change"\
           " and redistribute it.\n"\
-          "There is NO WARRANTY, to the extent permitted by law."
+          "There is NO WARRANTY, to the extent permitted by law.")
 
 
 def main(name, klass):

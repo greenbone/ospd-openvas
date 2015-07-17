@@ -1,5 +1,10 @@
 2015-07-17  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/misc.py, ospd/ospd.py, tests/testScanAndResult.py: Progress
+	  toward python3 support.
+
+2015-07-17  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/win_socket.py: Added
 	* ospd/misc.py: Add platform dependant version of the inet functions.
 

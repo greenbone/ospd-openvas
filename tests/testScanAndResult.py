@@ -1,3 +1,6 @@
+from __future__ import print_function
+
+
 import time
 import unittest
 import xml.etree.ElementTree as ET
@@ -45,19 +48,19 @@ class FullTest(unittest.TestCase):
     def testGetDefaultScannerParams(self):
         daemon = DummyWrapper([])
         response = ET.fromstring(daemon.handle_command('<get_scanner_details />'))
-        print ET.tostring(response)
+        print(ET.tostring(response))
 
     def testGetDefaultHelp(self):
         daemon = DummyWrapper([])
         response = ET.fromstring(daemon.handle_command('<help />'))
-        print ET.tostring(response)
+        print(ET.tostring(response))
         response = ET.fromstring(daemon.handle_command('<help format="xml" />'))
-        print ET.tostring(response)
+        print(ET.tostring(response))
 
     def testGetDefaultScannerVersion(self):
         daemon = DummyWrapper([])
         response = ET.fromstring(daemon.handle_command('<get_version />'))
-        print ET.tostring(response)
+        print(ET.tostring(response))
 
     def testiScanWithError(self):
         daemon = DummyWrapper([
@@ -65,20 +68,20 @@ class FullTest(unittest.TestCase):
         ])
 
         response = ET.fromstring(daemon.handle_command('<start_scan target="localhost"><scanner_params /></start_scan>'))
-        print ET.tostring(response)
+        print(ET.tostring(response))
         scan_id = response.findtext('id')
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="0"/>' % scan_id))
-        self.assertEquals('0', response.find('scan').get('end_time'))
-        print ET.tostring(response)
+        self.assertEqual('0', response.find('scan').get('end_time'))
+        print(ET.tostring(response))
         time.sleep(.010)
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
-        print ET.tostring(response)
+        print(ET.tostring(response))
         response = ET.fromstring(daemon.handle_command('<get_scans />'))
-        print ET.tostring(response)
+        print(ET.tostring(response))
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="1"/>' % scan_id))
-        self.assertEquals(response.findtext('scan/results/result'), 'something went wrong')
-        print ET.tostring(response)
+        self.assertEqual(response.findtext('scan/results/result'), 'something went wrong')
+        print(ET.tostring(response))
         
         response = ET.fromstring(daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
-        self.assertEquals(response.get('status'), '200')
-        print ET.tostring(response)
+        self.assertEqual(response.get('status'), '200')
+        print(ET.tostring(response))

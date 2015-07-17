@@ -269,9 +269,7 @@ class OSPDaemon(object):
             raise OSPDError('No scanner_params element', 'start_scan')
         params = {}
         for param in scanner_params:
-            params[param.tag] = param.text
-            if params[param.tag] is None:
-                params[param.tag] = ''
+            params[param.tag] = param.text or ''
 
         # Set the default values
         for param in self.scanner_params:
@@ -280,7 +278,7 @@ class OSPDaemon(object):
             params[param] = self.scanner_params[param].get('default', '')
 
         # Dry run case.
-        if params.has_key('dry_run') and int(params['dry_run']):
+        if 'dry_run' in params and int(params['dry_run']):
             scan_func = self.dry_run_scan
             scan_params = None
         else:
@@ -481,7 +479,7 @@ class OSPDaemon(object):
         """ Returns the help output in plain text format."""
 
         txt = str('\n')
-        for name, info in self.commands.iteritems():
+        for name, info in self.commands.items():
             command_txt = "\t{0: <22} {1}\n".format(name, info['description'])
             if info['attributes']:
                 command_txt = ''.join([command_txt, "\t Attributes:\n"])
