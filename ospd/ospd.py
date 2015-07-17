@@ -131,7 +131,8 @@ class OSPDError(Exception):
     client """
 
     def __init__(self, message, command='osp', status=400):
-        super(OSPDError, self).__init__(message)
+        super(OSPDError, self).__init__()
+        self.message = message
         self.command = command
         self.status = status
 
@@ -354,11 +355,11 @@ class OSPDaemon(object):
         """ Handles stream of data received from client. """
         if stream is None:
             return
-        data = ''
+        data = []
         stream.settimeout(2)
         while True:
             try:
-                data = ''.join([data, stream.read(1024)])
+                data.append(stream.read(1024))
                 if len(data) == 0:
                     logger.warning(
                         "Empty client stream (Connection unexpectedly closed)")
@@ -366,9 +367,10 @@ class OSPDaemon(object):
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
-            except ssl.SSLError as exception:
-                logger.debug('SSL error: {0}'.format(exception.message))
+            except (ssl.SSLError, socket.timeout) as exception:
+                logger.debug('Error: {0}'.format(exception))
                 break
+        data = b''.join(data)
         if len(data) <= 0:
             logger.debug("Empty client stream")
             return
@@ -483,7 +485,7 @@ class OSPDaemon(object):
             command_txt = "\t{0: <22} {1}\n".format(name, info['description'])
             if info['attributes']:
                 command_txt = ''.join([command_txt, "\t Attributes:\n"])
-                for attrname, attrdesc in info['attributes'].iteritems():
+                for attrname, attrdesc in info['attributes'].items():
                     attr_txt = "\t  {0: <22} {1}\n".format(attrname, attrdesc)
                     command_txt = ''.join([command_txt, attr_txt])
             if info['elements']:
@@ -496,7 +498,7 @@ class OSPDaemon(object):
         """ Returns the elems dictionnary as formatted plain text. """
         assert elems
         text = ""
-        for elename, eledesc in elems.iteritems():
+        for elename, eledesc in elems.items():
             if type(eledesc) == type(dict()):
                 desc_txt = self.elements_as_text(eledesc, indent + 2)
                 desc_txt = ''.join(['\n', desc_txt])

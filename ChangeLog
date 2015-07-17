@@ -1,5 +1,14 @@
 2015-07-17  Benoît Allard  <benoit.allard@greenbone.net>
 
+	Improve python3 support.
+
+	First test are working fine, testsuite is passing.
+
+	* ospd/ospd.py, tests/testOSPDError.py, tests/testScanAndResult.py:
+	  Style update.
+
+2015-07-17  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/misc.py, ospd/ospd.py, tests/testScanAndResult.py: Progress
 	  toward python3 support.
 

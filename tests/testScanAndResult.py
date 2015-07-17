@@ -30,6 +30,7 @@ class DummyWrapper(OSPDaemon):
         return self.checkresults
 
     def exec_scan(self, scan_id, target):
+        time.sleep(0.01)
         for res in self.results:
             if res.result_type=='log':
                 self.add_scan_log(scan_id, res.host or target, res.name, res.value, res.port)
@@ -71,8 +72,10 @@ class FullTest(unittest.TestCase):
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="0"/>' % scan_id))
-        self.assertEqual('0', response.find('scan').get('end_time'))
         print(ET.tostring(response))
+        for scan in response.findall('scan'):
+            if int(scan.get('progress')) != 100:
+                self.assertEqual('0', scan.get('end_time'))
         time.sleep(.010)
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
         print(ET.tostring(response))
