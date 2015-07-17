@@ -1,3 +1,8 @@
+2015-07-17  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py [OSPDaemon.run]: Properly close the server socket when
+	  we're done.
+
 2015-07-16  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/misc.py: Fix the usage of undocumented strftime format string.

@@ -669,12 +669,17 @@ class OSPDaemon(object):
         if sock is None:
             return False
 
-        while True:
-            client_stream = self.new_client_stream(sock)
-            if client_stream is None:
-                continue
-            self.handle_client_stream(client_stream)
-            close_client_stream(client_stream)
+        try:
+            while True:
+                client_stream = self.new_client_stream(sock)
+                if client_stream is None:
+                    continue
+                self.handle_client_stream(client_stream)
+                close_client_stream(client_stream)
+        except KeyboardInterrupt:
+            logger.info("Recieved Ctrl-C shuting-down ...")
+        finally:
+            sock.shutdown(socket.SHUT_RDWR); sock.close()
 
     def create_scan(self, target, options):
         """ Creates a new scan.
