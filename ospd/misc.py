@@ -45,8 +45,8 @@ import uuid
 LOGGER = logging.getLogger(__name__)
 
 # Default file locations as used by a OpenVAS default installation
-KEY_FILE = "/usr/var/lib/openvas/private/CA/clientkey.pem"
-CERT_FILE = "/usr/var/lib/openvas/CA/clientcert.pem"
+KEY_FILE = "/usr/var/lib/openvas/private/CA/serverkey.pem"
+CERT_FILE = "/usr/var/lib/openvas/CA/servercert.pem"
 CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
 
 PORT = 1234

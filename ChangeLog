@@ -1,3 +1,8 @@
+2015-07-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (KEY_FILE, CERT_FILE): Change defaults value to server
+	certs instead of client certs.
+
 2015-07-17  Benoît Allard  <benoit.allard@greenbone.net>
 
 	Improve python3 support.
