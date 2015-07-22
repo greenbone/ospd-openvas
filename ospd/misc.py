@@ -525,9 +525,9 @@ def create_args_parser(description):
                         .format(ADDRESS))
     parser.add_argument('-k', '--key-file', type=filename,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
-    parser.add_argument('-c', '--cert-file', type=cacert_file,
+    parser.add_argument('-c', '--cert-file', type=filename,
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
-    parser.add_argument('--ca-file', type=filename,
+    parser.add_argument('--ca-file', type=cacert_file,
                         help='CA cert file. Default: {0}'.format(CA_FILE))
     parser.add_argument('-L', '--log-level', default='warning', type=log_level,
                         help='Wished level of logging. Default: WARNING')
