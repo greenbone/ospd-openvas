@@ -40,6 +40,7 @@ import socket
 import struct
 import sys
 import time
+import ssl
 import uuid
 
 LOGGER = logging.getLogger(__name__)
@@ -481,6 +482,25 @@ def create_args_parser(description):
                 'port must be in ]0,65535] interval')
         return value
 
+    def cacert_file(cacert):
+        """ Check if provided file is a valid CA Certificate """
+        try:
+            context = ssl.create_default_context(cafile=cacert)
+        except IOError:
+            raise argparse.ArgumentTypeError('CA Certificate not found')
+        try:
+            not_after = context.get_ca_certs()[0]['notAfter']
+            not_after = ssl.cert_time_to_seconds(not_after)
+            not_before = context.get_ca_certs()[0]['notBefore']
+            not_before = ssl.cert_time_to_seconds(not_before)
+        except (KeyError, IndexError):
+            raise argparse.ArgumentTypeError('CA Certificate is erroneous')
+        if not_after < int(time.time()):
+            raise argparse.ArgumentTypeError('CA Certificate expired')
+        if not_before > int(time.time()):
+            raise argparse.ArgumentTypeError('CA Certificate not active yet')
+        return cacert
+
     def log_level(string):
         """ Check if provided string is a valid log level. """
 
@@ -505,7 +525,7 @@ def create_args_parser(description):
                         .format(ADDRESS))
     parser.add_argument('-k', '--key-file', type=filename,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
-    parser.add_argument('-c', '--cert-file', type=filename,
+    parser.add_argument('-c', '--cert-file', type=cacert_file,
                         help='Server cert file. Default: {0}'.format(CERT_FILE))
     parser.add_argument('--ca-file', type=filename,
                         help='CA cert file. Default: {0}'.format(CA_FILE))

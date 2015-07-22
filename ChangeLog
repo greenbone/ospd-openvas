@@ -1,3 +1,8 @@
+2015-07-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (cacert_file): New function.
+	(create_args_parser): Set --cert-file argument type to cacert_file.
+
 2015-07-21  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (KEY_FILE, CERT_FILE): Change defaults value to server
