@@ -1,3 +1,7 @@
+2015-07-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* doc/HTML.xsl, doc/OSP.xml: Add scanner parameters types documentation.
+
 2015-07-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (create_args_parser): Use cacert_file argument type for

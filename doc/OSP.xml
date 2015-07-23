@@ -38,10 +38,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>A string</summary>
   </type>
   <type>
-    <name>file</name>
-    <summary>A file's content that is base64 encoded</summary>
-  </type>
-  <type>
     <name>boolean</name>
     <summary>0 or 1</summary>
   </type>
@@ -494,4 +490,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
   </command>
+  <parameter_type>
+    <name>integer</name>
+    <summary>An integer value</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>string</name>
+    <summary>A string</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>boolean</name>
+    <summary>0 or 1</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>selection</name>
+    <summary>A value out of the | seperated values list</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>password</name>
+    <summary>A password</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>file</name>
+    <summary>A file's content</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>ovaldef_file</name>
+    <summary>An ovaldef file's content that is base64 encoded</summary>
+  </parameter_type>
 </protocol>

@@ -246,6 +246,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </tr>
   </xsl:template>
 
+  <xsl:template match="parameter_type" mode="index">
+    <tr>
+      <td><a href="#type_{name}"><xsl:value-of select="name"/></a></td>
+      <td>
+        <xsl:if test="summary">
+          <div style="margin-left: 15px;"><xsl:value-of select="normalize-space(summary)"/>.</div>
+        </xsl:if>
+      </td>
+    </tr>
+  </xsl:template>
+
   <xsl:template name="type-summary">
     <h2 id="type_summary">1 Summary of Data Types</h2>
     <table id="index">
@@ -512,6 +523,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <xsl:apply-templates select="command"/>
   </xsl:template>
 
+  <xsl:template name="parameter-summary">
+    <h2 id="parameter_summary">5 Summary of Scanner Parameters Types</h2>
+    <table>
+    <xsl:apply-templates select="parameter_type" mode="index"/>
+    </table>
+  </xsl:template>
+
   <!-- Root. -->
 
   <xsl:template match="protocol">
@@ -557,12 +575,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   <li><a href="#command_summary">Summary of Commands</a></li>
                   <li><a href="#type_details">Data Type Details</a></li>
                   <li><a href="#command_details">Command Details</a></li>
+                  <li><a href="#parameter_summary">Summary of Scanner Parameters Types</a></li>
                 </ol>
 
                 <xsl:call-template name="type-summary"/>
                 <xsl:call-template name="command-summary"/>
                 <xsl:call-template name="type-details"/>
                 <xsl:call-template name="command-details"/>
+                <xsl:call-template name="parameter-summary"/>
 
                 <div style="text-align: center; padding: 5px;">
                   This file was automatically generated.
