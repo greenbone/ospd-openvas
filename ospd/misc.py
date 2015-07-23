@@ -534,7 +534,7 @@ def create_args_parser(description):
     parser.add_argument('--syslog', action='store_true',
                         help='Use syslog for logging.')
     parser.add_argument('--background', action='store_true',
-                        help='Run in background.')
+                        help='Run in background. Implies --syslog.')
     parser.add_argument('--version', action='store_true',
                         help='Print version then exit.')
     return parser
@@ -582,7 +582,7 @@ def get_common_args(parser, args=None):
     common_args['certfile'] = certfile
     common_args['cafile'] = cafile
     common_args['log_level'] = log_level
-    common_args['syslog'] = options.syslog
+    common_args['syslog'] = options.syslog or options.background
     common_args['background'] = options.background
     common_args['version'] = options.version
 

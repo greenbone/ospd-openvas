@@ -1,5 +1,10 @@
 2015-07-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/misc.py (create_args_parser): Update --syslog documentation.
+	(get_common_args): Set --syslog when --background is set.
+
+2015-07-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* doc/HTML.xsl: Don't set id for some elements as it is unused.
 
 2015-07-23  Hani Benhabiles <hani.benhabiles@greenbone.net>
