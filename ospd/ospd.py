@@ -164,7 +164,7 @@ def close_client_stream(client_stream):
         peer = client_stream.getpeername()
         logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
     except socket.error as exception:
-        logger.debug('SSL close error: {0}'.format(exception.message))
+        logger.debug('SSL close error: {0}'.format(exception))
     client_stream.close()
 
 class OSPDaemon(object):
