@@ -1,5 +1,12 @@
 2015-08-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon.process_scan_params): Integerify integer and
+	boolean parameters.
+	(OSPDaemon.get_scanner_param_type): New method.
+	(OSPDaemon.get_scanner_param_default): Improve checks.
+
+2015-08-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (close_client_stream): Handle OSError exception. Get
 	peername before shutting down socket.
 

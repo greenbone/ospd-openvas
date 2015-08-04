@@ -253,7 +253,11 @@ class OSPDaemon(object):
         return self.protocol_version
 
     def process_scan_params(self, params):
-        """ may be overriden by child """
+        """ Processes the scan parameters. """
+        for key in params:
+            param_type = self.get_scanner_param_type(key)
+            if param_type in ['integer', 'boolean']:
+                params[key] = int(params[key])
         return params
 
     def handle_start_scan_command(self, scan_et):
@@ -312,10 +316,21 @@ class OSPDaemon(object):
         """ Gives osp daemon's version. """
         return self.daemon_info['version']
 
-    def get_scanner_param_default(self, param):
-        """ Returns default value of a scanner param. """
+    def get_scanner_param_type(self, param):
+        """ Returns type of a scanner parameter. """
         assert type(param) is type(str())
-        return self.scanner_params[param]['default']
+        entry = self.scanner_params.get(param)
+        if not entry:
+            return None
+        return entry.get('type')
+
+    def get_scanner_param_default(self, param):
+        """ Returns default value of a scanner parameter. """
+        assert type(param) is type(str())
+        entry = self.scanner_params.get(param)
+        if not entry:
+            return None
+        return entry.get('default')
 
     def get_scanner_params_xml(self):
         """ Returns the OSP Daemon's scanner params in xml format. """
