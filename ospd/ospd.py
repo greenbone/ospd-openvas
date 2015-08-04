@@ -254,10 +254,29 @@ class OSPDaemon(object):
 
     def process_scan_params(self, params):
         """ Processes the scan parameters. """
+        # Set default values.
+        for key in self.scanner_params:
+            if key not in params:
+                params[key] = self.get_scanner_param_default(key)
+                if self.get_scanner_param_type(key) == 'selection':
+                    params[key] = params[key].split('|')[0]
+        # Validate values.
         for key in params:
             param_type = self.get_scanner_param_type(key)
+            if not param_type:
+                continue
             if param_type in ['integer', 'boolean']:
-                params[key] = int(params[key])
+                try:
+                    params[key] = int(params[key])
+                except ValueError:
+                    raise OSPDError('Invalid %s value' % key, 'start_scan')
+            if param_type == 'boolean':
+                if params[key] not in [0, 1]:
+                    raise OSPDError('Invalid %s value' % key, 'start_scan')
+            elif param_type == 'selection':
+                selection = self.get_scanner_param_default(key).split('|')[0]
+                if params[key] not in selection:
+                    raise OSPDError('Invalid %s value' % key, 'start_scan')
         return params
 
     def handle_start_scan_command(self, scan_et):
@@ -275,12 +294,6 @@ class OSPDaemon(object):
         params = {}
         for param in scanner_params:
             params[param.tag] = param.text or ''
-
-        # Set the default values
-        for param in self.scanner_params:
-            if param in params:
-                continue
-            params[param] = self.scanner_params[param].get('default', '')
 
         # Dry run case.
         if 'dry_run' in params and int(params['dry_run']):
