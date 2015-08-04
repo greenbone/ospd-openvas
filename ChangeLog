@@ -1,3 +1,8 @@
+2015-08-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (close_client_stream): Handle OSError exception. Get
+	peername before shutting down socket.
+
 2015-08-03  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: Not all exceptions have a 'message', let the str

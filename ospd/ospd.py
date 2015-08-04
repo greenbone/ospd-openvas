@@ -160,10 +160,10 @@ def bind_socket(address, port):
 def close_client_stream(client_stream):
     """ Closes provided client stream """
     try:
-        client_stream.shutdown(socket.SHUT_RDWR)
         peer = client_stream.getpeername()
+        client_stream.shutdown(socket.SHUT_RDWR)
         logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
-    except socket.error as exception:
+    except (socket.error, OSError) as exception:
         logger.debug('SSL close error: {0}'.format(exception))
     client_stream.close()
 
