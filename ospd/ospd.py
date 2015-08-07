@@ -252,8 +252,11 @@ class OSPDaemon(object):
         """ Gives the OSP's version. """
         return self.protocol_version
 
-    def process_scan_params(self, params):
+    def _preprocess_scan_params(self, xml_params):
         """ Processes the scan parameters. """
+        params = {}
+        for param in xml_params:
+            params[param.tag] = param.text or ''
         # Set default values.
         for key in self.scanner_params:
             if key not in params:
@@ -279,6 +282,11 @@ class OSPDaemon(object):
                     raise OSPDError('Invalid %s value' % key, 'start_scan')
         return params
 
+    def process_scan_params(self, params):
+        """ This method is to be overriden by the child classes if necessary
+        """
+        return params
+
     def handle_start_scan_command(self, scan_et):
         """ Handles <start_scan> command.
 
@@ -291,9 +299,8 @@ class OSPDaemon(object):
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
             raise OSPDError('No scanner_params element', 'start_scan')
-        params = {}
-        for param in scanner_params:
-            params[param.tag] = param.text or ''
+
+        params = self._preprocess_scan_params(scanner_params)
 
         # Dry run case.
         if 'dry_run' in params and int(params['dry_run']):

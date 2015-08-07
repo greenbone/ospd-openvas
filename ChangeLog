@@ -1,3 +1,8 @@
+2015-08-07  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py: Fix the handling of the scanner parameters in a way
+	  that doesn't require a change of all implemented daemons.
+
 2015-08-04  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.process_scan_params): Set default values.
