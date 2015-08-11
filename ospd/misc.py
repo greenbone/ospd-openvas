@@ -486,6 +486,9 @@ def create_args_parser(description):
         """ Check if provided file is a valid CA Certificate """
         try:
             context = ssl.create_default_context(cafile=cacert)
+        except AttributeError:
+            # Python version < 2.7.9
+            return cacert
         except IOError:
             raise argparse.ArgumentTypeError('CA Certificate not found')
         try:

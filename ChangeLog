@@ -1,3 +1,7 @@
+2015-08-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (create_args_parser): Fix for pre-2.7.9 Python versions.
+
 2015-08-07  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: Fix the handling of the scanner parameters in a way
