@@ -1,5 +1,10 @@
 2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Default details
+	value to True for backward compatibility.
+
+2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Set details to
 	False when None or '0'.
 

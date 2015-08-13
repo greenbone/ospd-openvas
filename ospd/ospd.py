@@ -480,7 +480,7 @@ class OSPDaemon(object):
 
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
-        if not details or details == '0':
+        if details and details == '0':
             details = False
         else:
             details = True
