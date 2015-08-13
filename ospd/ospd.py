@@ -480,7 +480,10 @@ class OSPDaemon(object):
 
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
-        details = int(details or '1')
+        if not details or details == '0':
+            details = False
+        else:
+            details = True
 
         responses = []
         if scan_id and scan_id in self.scan_collection.ids_iterator():

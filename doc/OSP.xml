@@ -199,7 +199,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <example>
       <summary>Get a scan report summary</summary>
       <request>
-        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c"/>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="1"/>
       </request>
       <response>
         <get_scans_response status_text="OK" status="200">

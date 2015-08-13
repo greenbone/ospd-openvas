@@ -1,3 +1,10 @@
+2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Set details to
+	False when None or '0'.
+
+	* doc/OSP.xml: Update documentation.
+
 2015-08-10  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (create_args_parser): Fix for pre-2.7.9 Python versions.
