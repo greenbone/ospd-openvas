@@ -1,3 +1,7 @@
+2015-08-26  Sven Haardiek <sven.haardiek@greenbone.net>
+
+	* tests/testScanAndResult.py: Fix test to work on slower machines.
+
 2015-08-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.handle_get_scans_command): Default details

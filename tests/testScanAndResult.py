@@ -71,12 +71,18 @@ class FullTest(unittest.TestCase):
         response = ET.fromstring(daemon.handle_command('<start_scan target="localhost"><scanner_params /></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
-        response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="0"/>' % scan_id))
-        print(ET.tostring(response))
-        for scan in response.findall('scan'):
+        finished = False
+        while not finished:
+            response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="0"/>' % scan_id))
+            print(ET.tostring(response))
+            scans = response.findall('scan')
+            self.assertEqual(1, len(scans))
+            scan = scans[0]
             if int(scan.get('progress')) != 100:
                 self.assertEqual('0', scan.get('end_time'))
-        time.sleep(.010)
+                time.sleep(.010)
+            else:
+                finished = True
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
         print(ET.tostring(response))
         response = ET.fromstring(daemon.handle_command('<get_scans />'))
@@ -84,7 +90,7 @@ class FullTest(unittest.TestCase):
         response = ET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="1"/>' % scan_id))
         self.assertEqual(response.findtext('scan/results/result'), 'something went wrong')
         print(ET.tostring(response))
-        
+
         response = ET.fromstring(daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
         print(ET.tostring(response))
