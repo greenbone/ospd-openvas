@@ -45,45 +45,61 @@ logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "1.0"
 
-BASE_SCANNER_PARAMS = \
-    {'debug_mode':
-     {'type': 'boolean',
-      'name': 'Debug Mode',
-      'default': 0,
-      'description': 'Whether to get extra scan debug information.',},
-     'dry_run':
-     {'type': 'boolean',
-      'name': 'Dry Run',
-      'default': 0,
-      'description': 'Whether to dry run scan.',},}
+BASE_SCANNER_PARAMS = {
+    'debug_mode': {
+        'type': 'boolean',
+        'name': 'Debug Mode',
+        'default': 0,
+        'description': 'Whether to get extra scan debug information.',
+    },
+    'dry_run': {
+        'type': 'boolean',
+        'name': 'Dry Run',
+        'default': 0,
+        'description': 'Whether to dry run scan.',
+    },
+}
 
 COMMANDS_TABLE = {
-    'start_scan': {'description': 'Start a new scan.',
-                           'attributes': {'target':
-                                          'Target host to scan'},
-                           'elements': None},
-    'help': {'description': 'Print the commands help.',
-                     'attributes':
-                     {'format': 'Help format. Could be text or xml.'},
-                     'elements': None},
-    'get_scans': {'description': 'List the scans in buffer.',
-                          'attributes':
-                          {'scan_id': 'ID of a specific scan to get.',
-                           'details': 'Whether to return the full'\
-                           ' scan report.'},
-                          'elements': None},
-    'delete_scan': {'description': 'Delete a finished scan.',
-                            'attributes':
-                            {'scan_id': 'ID of scan to delete.'},
-                            'elements': None},
-    'get_version': {'description': 'Return various versions.',
-                            'attributes': None,
-                            'elements': None},
-    'get_scanner_details': {'description':
-                                    'Return scanner description and'
-                                    ' parameters',
-                                    'attributes': None,
-                                    'elements': None}
+    'start_scan': {
+        'description': 'Start a new scan.',
+        'attributes': {
+            'target': 'Target host to scan'
+        },
+        'elements': None
+    },
+    'help': {
+        'description': 'Print the commands help.',
+        'attributes': {
+            'format': 'Help format. Could be text or xml.'
+        },
+        'elements': None
+    },
+    'get_scans': {
+        'description': 'List the scans in buffer.',
+        'attributes': {
+            'scan_id': 'ID of a specific scan to get.',
+            'details': 'Whether to return the full scan report.'
+        },
+        'elements': None
+    },
+    'delete_scan': {
+        'description': 'Delete a finished scan.',
+        'attributes': {
+            'scan_id': 'ID of scan to delete.'
+        },
+        'elements': None
+    },
+    'get_version': {
+        'description': 'Return various versions.',
+        'attributes': None,
+        'elements': None
+    },
+    'get_scanner_details': {
+        'description': 'Return scanner description and parameters',
+        'attributes': None,
+        'elements': None
+    }
 }
 
 
@@ -636,7 +652,7 @@ class OSPDaemon(object):
         @return: Response string for <get_scanner_details> command.
         """
         desc_xml = ET.Element('description')
-        desc_xml.text =  self.get_scanner_description()
+        desc_xml.text = self.get_scanner_description()
         details = [
             desc_xml,
             self.get_scanner_params_xml()
@@ -717,7 +733,8 @@ class OSPDaemon(object):
         except KeyboardInterrupt:
             logger.info("Recieved Ctrl-C shuting-down ...")
         finally:
-            sock.shutdown(socket.SHUT_RDWR); sock.close()
+            sock.shutdown(socket.SHUT_RDWR)
+            sock.close()
 
     def create_scan(self, target, options):
         """ Creates a new scan.

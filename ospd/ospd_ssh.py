@@ -31,33 +31,37 @@ import socket
 import paramiko
 
 SSH_SCANNER_PARAMS = {
-    'username':
-     {'type': 'string',
-      'name': 'SSH Username',
-      'default': '',
-      'description': 'The SSH username used to log into the target and to run'
-                     ' the commands on that target.',},
-     'password':
-     {'type': 'password',
-      'name': 'SSH Password',
-      'default': '',
-      'description': 'The SSH password for the given username which is used to'
-                     ' log into the target and to run the commands'
-                     ' on that target. This should not be a privileged user'
-                     ' like "root", a regular privileged user account should be'
-                     ' sufficient in most cases.',},
-     'port':
-     {'type': 'integer',
-      'name': 'SSH Port',
-      'default': 22,
-      'description': 'The SSH port which to use for logging in with the given'
-                     ' username/password.'
-                     ' target.',},
-     'ssh_timeout':
-     {'type': 'integer',
-      'name': 'SSH timeout',
-      'default': 30,
-      'description': 'Timeout when communicating with the target via SSH.',},}
+    'username': {
+        'type': 'string',
+        'name': 'SSH Username',
+        'default': '',
+        'description': 'The SSH username used to log into the target and to'
+                       ' run the commands on that target.',
+    },
+    'password': {
+        'type': 'password',
+        'name': 'SSH Password',
+        'default': '',
+        'description': 'The SSH password for the given username which is used'
+                       ' to log into the target and to run the commands on'
+                       ' that target. This should not be a privileged user'
+                       ' like "root", a regular privileged user account'
+                       ' should be sufficient in most cases.',
+    },
+    'port': {
+        'type': 'integer',
+        'name': 'SSH Port',
+        'default': 22,
+        'description': 'The SSH port which to use for logging in with the'
+                       ' given username/password.',
+    },
+    'ssh_timeout': {
+        'type': 'integer',
+        'name': 'SSH timeout',
+        'default': 30,
+        'description': 'Timeout when communicating with the target via SSH.',
+    },
+}
 
 
 class OSPDaemonSimpleSSH(OSPDaemon):

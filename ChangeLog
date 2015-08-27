@@ -1,3 +1,8 @@
+2015-08-27  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd_ssh.py, ospd/ospd.py, ospd/win_socket.py, ospd/misc.py:
+	  Make PEP8 happier (syntaxic improvements)
+
 2015-08-26  Sven Haardiek <sven.haardiek@greenbone.net>
 
 	* tests/testScanAndResult.py: Fix test to work on slower machines.

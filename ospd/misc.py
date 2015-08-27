@@ -242,6 +242,7 @@ def inet_ntop(address_family, packed_ip):
 
     return __inet_ntop(address_family, packed_ip)
 
+
 def target_to_ipv4(target):
     """ Attempt to return a single IPv4 host list from a target string. """
 
@@ -444,6 +445,7 @@ def target_to_list(target):
         new_list = target_to_hostname(target)
     return new_list
 
+
 def target_str_to_list(target_str):
     """ Parses a targets string into a list of individual targets. """
     new_list = list()
@@ -603,10 +605,10 @@ def print_version(wrapper):
     daemon_name = wrapper.get_daemon_name()
     daemon_version = wrapper.get_daemon_version()
     print("Using: {0} {1}".format(daemon_name, daemon_version))
-    print("Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"\
-          "License GPLv2+: GNU GPL version 2 or later\n"\
-          "This is free software: you are free to change"\
-          " and redistribute it.\n"\
+    print("Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
+          "License GPLv2+: GNU GPL version 2 or later\n"
+          "This is free software: you are free to change"
+          " and redistribute it.\n"
           "There is NO WARRANTY, to the extent permitted by law.")
 
 
