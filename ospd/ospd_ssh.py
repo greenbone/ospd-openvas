@@ -25,10 +25,18 @@
 
 """ OSP Daemon class for simple remote SSH-based command execution. """
 
-from ospd import OSPDaemon
+# This is needed for older pythons as our current module is called the same
+# as the ospd package
+# Another solution would be to rename that file.
+from __future__ import absolute_import
+
+from ospd.ospd import OSPDaemon
 
 import socket
-import paramiko
+try:
+    import paramiko
+except ImportError:
+    paramiko = None
 
 SSH_SCANNER_PARAMS = {
     'username': {
@@ -84,13 +92,15 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         super(OSPDaemonSimpleSSH, self).__init__(certfile=certfile, keyfile=keyfile,
                                                  cafile=cafile)
 
+        if paramiko is None:
+            raise ImportError('paramiko needs to be installed in order to use'
+                              ' the %s class.' % self.__class__.__name__)
+
         for name, param in SSH_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
 
-        self.ssh = paramiko.SSHClient()
-        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
-    def run_command(self, scan_id, host='', cmd=''):
+    def run_command(self, scan_id, host, cmd):
         """
         Run a single command via SSH and return the content of stdout or
         None in case of an Error. A scan error is issued in the latter
@@ -100,15 +110,18 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         'password' and 'ssh_timeout' are used.
         """
 
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
         options = self.get_scan_options(scan_id)
 
         port = int(options['port'])
         timeout = int(options['ssh_timeout'])
 
         try:
-            self.ssh.connect(hostname=host, username=options['username'],
-                             password=options['password'], timeout=timeout,
-                             port=port)
+            ssh.connect(hostname=host, username=options['username'],
+                        password=options['password'], timeout=timeout,
+                        port=port)
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error) as err:
             # Errors: No route to host, connection timeout, authentication
@@ -116,8 +129,8 @@ class OSPDaemonSimpleSSH(OSPDaemon):
             self.add_scan_error(scan_id, host=host, value=str(err))
             return None
 
-        _, stdout, _ = self.ssh.exec_command(cmd)
+        _, stdout, _ = ssh.exec_command(cmd)
         result = stdout.readlines()
-        self.ssh.close()
+        ssh.close()
 
         return result
