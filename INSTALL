@@ -13,8 +13,11 @@ Prerequisites:
 * python 2.7
 * python-setuptools
 
+For using ospd_ssh:
+* python-paramiko
+
 On Debian 8 this should work to install dependencies:
-# apt-get install python-setuptools
+# apt-get install python-setuptools python-paramiko
 
 
 Building OSPD

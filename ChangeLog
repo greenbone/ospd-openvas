@@ -1,3 +1,9 @@
+2015-07-28  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* INSTALL: Added dependency info about paramiko.
+
+	* README: Added missing modules. Added a hint on online tutorial.
+
 2015-08-27  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd_ssh.py, ospd/ospd.py, ospd/win_socket.py, ospd/misc.py:

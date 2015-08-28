@@ -31,9 +31,14 @@ See the file INSTALL about how to register a OSP scanner at
 the OpenVAS Manager which will automatically establish a full GUI
 integration for the Greenbone Security Assistant (GSA).
 
+There are some online resources about this topic:
+http://docs.greenbone.net/GSM-Manual/gos-3.1/en/osp.html#how-to-write-your-own-osp-wrapper
+
 
 Module structure
 ----------------
 
-* ospd/ospd.py: Core OSP Daemon class.
-* ospd/misc.py: Miscellaneous code and classes related to OSPD.
+* ospd/ospd.py:       Core OSP Daemon class.
+* ospd/misc.py:       Miscellaneous code and classes related to OSPD.
+* ospd/ospd_ssh.py:   OSP Daemon class for simple remote SSH-based command execution.
+* ospd/win_socket.py: Network class/functions for running a OSP daemon on Windows systems.
