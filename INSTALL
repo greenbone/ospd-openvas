@@ -10,7 +10,7 @@ Prerequisites for OSPD
 ----------------------
 
 Prerequisites:
-* python 2.7
+* python 2.7, python 3.3 or python 3.4
 * python-setuptools
 
 For using ospd_ssh:

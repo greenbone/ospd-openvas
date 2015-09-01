@@ -1,3 +1,24 @@
+ospd 1.0.2 (2015-09-01)
+
+This is the second maintenance release of the ospd 1.0 module for the Open
+Vulnerability Assessment System (OpenVAS).
+
+This release adds support for windows platform, python3 (3.3 and 3.4 tested)
+as well as fixes numerous issues. Using the --background command line switch
+now implies --syslog.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Benoît Allard, Sven Haardiek, and Jan-Oliver Wagner.
+
+Main changes since 1.0.1:
+* Add platform dependant version of the inet functions.
+* Add python3 support.
+* Set --syslog when --background is set.
+* Add a scanner base class that handles a simple ssh command on a target host.
+* Update documentation.
+* Fix test to work on slower machines.
+
+
 ospd 1.0.1 (2015-07-14)
 
 This is the first maintenance release of the ospd 1.0 module for the Open
