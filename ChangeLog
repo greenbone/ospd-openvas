@@ -1,5 +1,11 @@
 2015-09-01  Benoît Allard  <benoit.allard@greenbone.net>
 
+	Post release version bump
+
+	* ospd/__init__.py: Updated
+
+2015-09-01  Benoît Allard  <benoit.allard@greenbone.net>
+
 	Prepare release of ospd-1.0.2
 
 	* CHANGES, INSTALL: Updated
