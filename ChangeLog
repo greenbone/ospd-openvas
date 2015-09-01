@@ -1,3 +1,7 @@
+2015-09-01  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* tox.ini: Added (py27, py33, py34, pypy are tested.)
+
 2015-08-28  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd_ssh.py, tests/testSSHDaemon.py: Don;t crash hard when
