@@ -195,6 +195,8 @@ class OSPDaemon(object):
     * Implement process_scan_params and exec_scan methods which are
       specific to handling the <start_scan> command, executing the wrapped
       scanner and storing the results.
+    * exec_scan() should return 0 if host is dead or not reached, 1 if host is
+      alive.
     * Implement other methods that assert to False such as get_scanner_name,
       get_scanner_version.
     * Use Call set_command_attributes at init time to add scanner command
@@ -447,7 +449,13 @@ class OSPDaemon(object):
             self.set_scan_progress(scan_id, int(progress))
             logger.info("{0}: Host scan started.".format(target))
             try:
-                self.exec_scan(scan_id, target)
+                ret = self.exec_scan(scan_id, target)
+                if ret == 0:
+                    self.add_scan_host_detail(scan_id, name='host_status',
+                                              host=target, value='0')
+                elif ret == 1 or ret == None:
+                    self.add_scan_host_detail(scan_id, name='host_status',
+                                              host=target, value='1')
             except Exception as e:
                 self.add_scan_error(scan_id, name='', host=target,
                                     value='Host thread failure (%s).' % e)

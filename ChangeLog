@@ -1,3 +1,7 @@
+2015-09-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.start_scan): Handle exec_scan() return value.
+
 2015-09-07  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* tests/testTargetConvert.py, ospd/misc.py: Fix the broken test case.
