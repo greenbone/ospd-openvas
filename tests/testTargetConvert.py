@@ -33,6 +33,6 @@ class testTargetLists(unittest.TestCase):
         self.assertFalse(addresses is None)
         self.assertEqual(len(addresses), 254)
         for i in range(1, 255):
-            self.assertTrue('1.10.181.%d' % i in addresses)
+            self.assertTrue('195.70.81.%d' % i in addresses)
        
         

@@ -1,5 +1,9 @@
 2015-09-07  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* tests/testTargetConvert.py, ospd/misc.py: Fix the broken test case.
+
+2015-09-07  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* tests/testTargetConvert.py: Add a test suite for a broken case.
 
 2015-09-01  Benoît Allard  <benoit.allard@greenbone.net>

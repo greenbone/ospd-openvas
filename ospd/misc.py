@@ -269,7 +269,7 @@ def ipv4_range_to_list(start_packed, end_packed):
     new_list = list()
     start = struct.unpack('!L', start_packed)[0]
     end = struct.unpack('!L', end_packed)[0]
-    for value in xrange(start, end + 1):
+    for value in range(start, end + 1):
         new_ip = socket.inet_ntoa(struct.pack('!L', value))
         new_list.append(new_ip)
     return new_list
