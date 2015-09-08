@@ -1,5 +1,9 @@
 2015-09-08  Benoît Allard  <benoit.allard@greenbone.net>
 
+	* ospd/ospd.py: comparison to None should be 'if cond is None:'
+
+2015-09-08  Benoît Allard  <benoit.allard@greenbone.net>
+
 	* ospd/ospd.py: do not compare types, use 'isinstance()'
 
 2015-09-07  Hani Benhabiles <hani.benhabiles@greenbone.net>

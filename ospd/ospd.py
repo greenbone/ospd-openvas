@@ -156,6 +156,7 @@ class OSPDError(Exception):
         """ Return the error in xml format. """
         return simple_response_str(self.command, self.status, self.message)
 
+
 def bind_socket(address, port):
     """ Returns a socket bound on (address:port). """
 
@@ -173,6 +174,7 @@ def bind_socket(address, port):
     bindsocket.listen(0)
     return bindsocket
 
+
 def close_client_stream(client_stream):
     """ Closes provided client stream """
     try:
@@ -182,6 +184,7 @@ def close_client_stream(client_stream):
     except (socket.error, OSError) as exception:
         logger.debug('SSL close error: {0}'.format(exception))
     client_stream.close()
+
 
 class OSPDaemon(object):
 
@@ -453,7 +456,7 @@ class OSPDaemon(object):
                 if ret == 0:
                     self.add_scan_host_detail(scan_id, name='host_status',
                                               host=target, value='0')
-                elif ret == 1 or ret == None:
+                elif ret == 1 or ret is None:
                     self.add_scan_host_detail(scan_id, name='host_status',
                                               host=target, value='1')
             except Exception as e:
