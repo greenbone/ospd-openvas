@@ -1,3 +1,7 @@
+2015-09-08  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py: do not compare types, use 'isinstance()'
+
 2015-09-07  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.start_scan): Handle exec_scan() return value.

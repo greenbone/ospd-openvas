@@ -356,7 +356,7 @@ class OSPDaemon(object):
 
     def get_scanner_param_type(self, param):
         """ Returns type of a scanner parameter. """
-        assert type(param) is type(str())
+        assert isinstance(param, str)
         entry = self.scanner_params.get(param)
         if not entry:
             return None
@@ -364,7 +364,7 @@ class OSPDaemon(object):
 
     def get_scanner_param_default(self, param):
         """ Returns default value of a scanner parameter. """
-        assert type(param) is type(str())
+        assert isinstance(param, str)
         entry = self.scanner_params.get(param)
         if not entry:
             return None
@@ -561,10 +561,10 @@ class OSPDaemon(object):
         assert elems
         text = ""
         for elename, eledesc in elems.items():
-            if type(eledesc) == type(dict()):
+            if isinstance(eledesc, dict):
                 desc_txt = self.elements_as_text(eledesc, indent + 2)
                 desc_txt = ''.join(['\n', desc_txt])
-            elif type(eledesc) == type(str()):
+            elif isinstance(eledesc, str):
                 desc_txt = ''.join([eledesc, '\n'])
             else:
                 assert False, "Only string or dictionnary"
@@ -620,10 +620,10 @@ class OSPDaemon(object):
         responses = []
         for tag, value in data.items():
             elem = ET.Element(tag)
-            if type(value) == type(dict()):
+            if isinstance(value, dict):
                 for value in self.get_xml_str(value):
                     elem.append(value)
-            elif type(value) == type(list()):
+            elif isinstance(value, list):
                 value = ', '.join([m for m in value])
                 elem.text = value
             else:
