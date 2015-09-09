@@ -1,3 +1,7 @@
+2015-09-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.start_scan): Handle unknown host status case.
+
 2015-09-08  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: comparison to None should be 'if cond is None:'
