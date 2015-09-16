@@ -298,7 +298,7 @@ class OSPDaemon(object):
                 if params[key] not in [0, 1]:
                     raise OSPDError('Invalid %s value' % key, 'start_scan')
             elif param_type == 'selection':
-                selection = self.get_scanner_param_default(key).split('|')[0]
+                selection = self.get_scanner_param_default(key).split('|')
                 if params[key] not in selection:
                     raise OSPDError('Invalid %s value' % key, 'start_scan')
         return params

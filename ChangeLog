@@ -1,3 +1,7 @@
+2015-09-16  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py: Make the 'selection's work again.
+
 2015-09-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.start_scan): Handle unknown host status case.
