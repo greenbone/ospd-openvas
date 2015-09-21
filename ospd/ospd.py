@@ -334,7 +334,8 @@ class OSPDaemon(object):
 
         scan_id = self.create_scan(target_str, scan_params)
         scan_thread = threading.Thread(target=scan_func,
-                                       args=(scan_id, target_str))
+                                       args=(scan_id, target_str),
+                                       name='Scan-thread-{0}'.format(scan_id))
         self.scan_collection.set_thread(scan_id, scan_thread)
         scan_thread.start()
         id_ = ET.Element('id')

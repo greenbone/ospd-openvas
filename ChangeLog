@@ -1,3 +1,8 @@
+2015-09-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.handle_start_scan_command): Set scan thread
+	name.
+
 2015-09-21  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.__init__): Update comment to refer to the
