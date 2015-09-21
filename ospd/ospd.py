@@ -210,7 +210,8 @@ class OSPDaemon(object):
 
     def __init__(self, certfile, keyfile, cafile):
         """ Initializes the daemon's internal data. """
-        # Generate certificate for default params with openvas-mkcert
+        # Generate certificate for default params with openvas-mkcert or
+        # openvas-manage-certs
         self.certs = dict()
         self.certs['cert_file'] = certfile
         self.certs['key_file'] = keyfile

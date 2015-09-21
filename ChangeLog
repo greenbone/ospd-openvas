@@ -1,3 +1,8 @@
+2015-09-21  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* ospd/ospd.py (OSPDaemon.__init__): Update comment to refer to the
+	script replacing openvas-mkcert as well.
+
 2015-09-16  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: Make the 'selection's work again.
