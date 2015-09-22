@@ -1,3 +1,7 @@
+2015-09-22  Benoît Allard  <benoit.allard@greenbone.net>
+
+	* ospd/ospd.py: Don't dump kb (Mb ?) in the logging system.
+
 2015-09-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.handle_start_scan_command): Set scan thread

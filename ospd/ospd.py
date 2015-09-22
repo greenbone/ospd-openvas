@@ -616,7 +616,8 @@ class OSPDaemon(object):
         results = ET.Element('results')
         for result in self.scan_collection.results_iterator(scan_id):
             results.append(get_result_xml(result))
-        logger.info(ET.tostring(results))
+        
+        logger.info('Returning %d results', len(results))
         return results
 
     def get_xml_str(self, data):
