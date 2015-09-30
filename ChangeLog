@@ -1,3 +1,19 @@
+2015-09-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection.__init__): Initialized shared data manager.
+	(ScanCollection.add_result): Adjust results appending.
+	(ScanCollection.create_scan): Use shared dictionnary for scan info.
+	Don't set exec_thread.
+	(ScanCollection [get_thread, set_thread]): Remove methods.
+
+	* ospd/ospd.py (OSPDaemon.__init__): Initialize scan_processes dict.
+	(OSPDaemon [handle_get_scans_command])): Use multiprocessing instead of
+	threading. Adjust accordingly.
+	(OSPDaemon([handle_delete_scan_command]): Adjust called methods name.
+	(OSPDaemon.check_scan_thread): Rename to check_scan_process(), adjust
+	accordingly.
+	(OSPDaemon.get_scan_thread): Remove method.
+
 2015-09-22  Benoît Allard  <benoit.allard@greenbone.net>
 
 	* ospd/ospd.py: Don't dump kb (Mb ?) in the logging system.

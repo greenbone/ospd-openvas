@@ -42,6 +42,7 @@ import sys
 import time
 import ssl
 import uuid
+import multiprocessing
 
 LOGGER = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ class ScanCollection(object):
     def __init__(self):
         """ Initialize the Scan Collection. """
 
+        self.data_manager = multiprocessing.Manager()
         self.scans_table = dict()
 
     def add_result(self, scan_id, result_type, host='', name='', value='',
@@ -91,7 +93,10 @@ class ScanCollection(object):
         result['host'] = host
         result['port'] = port
         result['qod'] = qod
-        self.scans_table[scan_id]['results'].append(result)
+        results = self.scans_table[scan_id]['results']
+        results.append(result)
+        # Set scan_info's results to propagate results to parent process.
+        self.scans_table[scan_id]['results'] = results
 
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
@@ -114,7 +119,7 @@ class ScanCollection(object):
     def create_scan(self, target, options):
         """ Creates a new scan with provided target and options. """
 
-        scan_info = dict()
+        scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['progress'] = 0
         scan_info['target'] = target
@@ -123,7 +128,6 @@ class ScanCollection(object):
         scan_info['end_time'] = "0"
         scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
-        scan_info['exec_thread'] = None
         self.scans_table[scan_id] = scan_info
         return scan_id
 
@@ -141,14 +145,6 @@ class ScanCollection(object):
         """ Get a scan's current progress value. """
 
         return self.scans_table[scan_id]['progress']
-
-    def get_thread(self, scan_id):
-        """ Get a scan's executing thread. """
-        return self.scans_table[scan_id]['exec_thread']
-
-    def set_thread(self, scan_id, thread):
-        """ Set a scan's executing thread. """
-        self.scans_table[scan_id]['exec_thread'] = thread
 
     def get_start_time(self, scan_id):
         """ Get a scan's start time. """

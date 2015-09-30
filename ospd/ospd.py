@@ -34,7 +34,7 @@ from __future__ import absolute_import
 import logging
 import socket
 import ssl
-import threading
+import multiprocessing
 import xml.etree.ElementTree as ET
 
 from ospd import __version__
@@ -217,6 +217,7 @@ class OSPDaemon(object):
         self.certs['key_file'] = keyfile
         self.certs['ca_file'] = cafile
         self.scan_collection = ScanCollection()
+        self.scan_processes = dict()
         self.daemon_info = dict()
         self.daemon_info['name'] = "OSPd"
         self.daemon_info['version'] = __version__
@@ -333,11 +334,10 @@ class OSPDaemon(object):
             scan_params = self.process_scan_params(params)
 
         scan_id = self.create_scan(target_str, scan_params)
-        scan_thread = threading.Thread(target=scan_func,
-                                       args=(scan_id, target_str),
-                                       name='Scan-thread-{0}'.format(scan_id))
-        self.scan_collection.set_thread(scan_id, scan_thread)
-        scan_thread.start()
+        scan_process = multiprocessing.Process(target=scan_func,
+                                               args=(scan_id, target_str))
+        self.scan_processes[scan_id] = scan_process
+        scan_process.start()
         id_ = ET.Element('id')
         id_.text = scan_id
         return simple_response_str('start_scan', 200, 'OK', id_)
@@ -468,7 +468,7 @@ class OSPDaemon(object):
                     logger.debug('{0}: No host status returned'.format(target))
             except Exception as e:
                 self.add_scan_error(scan_id, name='', host=target,
-                                    value='Host thread failure (%s).' % e)
+                                    value='Host process failure (%s).' % e)
                 logger.exception('While scanning {0}:'.format(target))
             else:
                 logger.info("{0}: Host scan finished.".format(target))
@@ -521,7 +521,7 @@ class OSPDaemon(object):
 
         responses = []
         if scan_id and scan_id in self.scan_collection.ids_iterator():
-            self.check_scan_thread(scan_id)
+            self.check_scan_process(scan_id)
             scan = self.get_scan_xml(scan_id, details)
             responses.append(scan)
         elif scan_id:
@@ -529,7 +529,7 @@ class OSPDaemon(object):
             return simple_response_str('get_scans', 404, text)
         else:
             for scan_id in self.scan_collection.ids_iterator():
-                self.check_scan_thread(scan_id)
+                self.check_scan_process(scan_id)
                 scan = self.get_scan_xml(scan_id, details)
                 responses.append(scan)
         return simple_response_str('get_scans', 200, 'OK', responses)
@@ -596,7 +596,7 @@ class OSPDaemon(object):
         if not self.scan_exists(scan_id):
             text = "Failed to find scan '{0}'".format(scan_id)
             return simple_response_str('delete_scan', 404, text)
-        self.check_scan_thread(scan_id)
+        self.check_scan_process(scan_id)
         if self.delete_scan(scan_id):
             return simple_response_str('delete_scan', 200, 'OK')
         raise OSPDError('Scan in progress', 'delete_scan')
@@ -773,19 +773,15 @@ class OSPDaemon(object):
         """ Sets a scan's option to a provided value. """
         return self.scan_collection.set_option(scan_id, name, value)
 
-    def check_scan_thread(self, scan_id):
-        """ Check the scan's thread, and terminate the scan if not alive. """
-        scan_thread = self.get_scan_thread(scan_id)
+    def check_scan_process(self, scan_id):
+        """ Check the scan's process, and terminate the scan if not alive. """
+        scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
-        if progress < 100 and not scan_thread.is_alive():
+        if progress < 100 and not scan_process.is_alive():
             self.set_scan_progress(scan_id, 100)
             self.add_scan_error(scan_id, name="", host="",
-                                value="Scan thread failure.")
+                                value="Scan process failure.")
             logger.info("{0}: Scan terminated.".format(scan_id))
-
-    def get_scan_thread(self, scan_id):
-        """ Gives a scan's current exec thread. """
-        return self.scan_collection.get_thread(scan_id)
 
     def get_scan_progress(self, scan_id):
         """ Gives a scan's current progress value. """
