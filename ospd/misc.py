@@ -116,8 +116,8 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def create_scan(self, target, options):
-        """ Creates a new scan with provided target and options. """
+    def create_scan(self, target, options, scan_id=''):
+        """ Creates a new scan with provided target scan id and options. """
 
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
@@ -126,7 +126,8 @@ class ScanCollection(object):
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = "0"
-        scan_id = str(uuid.uuid4())
+        if scan_id is None or scan_id == '':
+            scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
         self.scans_table[scan_id] = scan_info
         return scan_id
@@ -464,6 +465,15 @@ def resolve_hostname(hostname):
         return socket.gethostbyname(hostname)
     except socket.gaierror:
         return None
+
+def valid_uuid(value):
+    """ Check if value is a valid UUID. """
+
+    try:
+        uuid.UUID(value, version=4)
+        return True
+    except (TypeError, ValueError, AttributeError):
+        return False
 
 
 def create_args_parser(description):

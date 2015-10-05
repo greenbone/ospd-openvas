@@ -1,3 +1,19 @@
+2015-10-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection.create_scan): Add scan_id method
+	parameter.
+	(valid_uuid): New function.
+
+	* ospd/ospd.py (COMMANDS_TABLE): Add stop_scan command. Add scan_id
+	attribute for start_scan command.
+	(OSPDaemon.handle_start_scan_command): Use scan_id command attribute.
+	(OSPDaemon.handle_stop_scan_command): New method.
+	(OSPDaemon.handle_command): Handle stop_scan command.
+	(OSPDaemon.create_scan): Take scan_id parameter.
+	(OSPDaemon.delete_scan): Remove scan_processes entry too.
+
+	* doc/OSP.xml: Update documentation.
+
 2015-09-30  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection.__init__): Initialized shared data manager.

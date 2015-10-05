@@ -36,10 +36,11 @@ import socket
 import ssl
 import multiprocessing
 import xml.etree.ElementTree as ET
+import psutil
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
-from ospd.misc import resolve_hostname
+from ospd.misc import resolve_hostname, valid_uuid
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +65,15 @@ COMMANDS_TABLE = {
     'start_scan': {
         'description': 'Start a new scan.',
         'attributes': {
-            'target': 'Target host to scan'
+            'target': 'Target host to scan',
+            'scan_id': 'Optional UUID value to use as scan ID'
+        },
+        'elements': None
+    },
+    'stop_scan': {
+        'description': 'Stop a currently running scan.',
+        'attributes': {
+            'scan_id': 'ID of scan to stop.'
         },
         'elements': None
     },
@@ -319,6 +328,10 @@ class OSPDaemon(object):
         target_str = scan_et.attrib.get('target')
         if target_str is None:
             raise OSPDError('No target attribute', 'start_scan')
+        scan_id = scan_et.attrib.get('scan_id')
+        if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
+            raise OSPDError('Invalid scan_id UUID', 'start_scan')
+
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
             raise OSPDError('No scanner_params element', 'start_scan')
@@ -333,7 +346,7 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(target_str, scan_params)
+        scan_id = self.create_scan(target_str, scan_params, scan_id)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id, target_str))
         self.scan_processes[scan_id] = scan_process
@@ -341,6 +354,32 @@ class OSPDaemon(object):
         id_ = ET.Element('id')
         id_.text = scan_id
         return simple_response_str('start_scan', 200, 'OK', id_)
+
+    def handle_stop_scan_command(self, scan_et):
+        """ Handles <stop_scan> command.
+
+        @return: Response string for <stop_scan> command.
+        """
+
+        scan_id = scan_et.attrib.get('scan_id')
+        if scan_id is None:
+            raise OSPDError('No scan_id attribute', 'stop_scan')
+        scan_process = self.scan_processes.get(scan_id)
+        if not scan_process:
+            raise OSPDError('Scan not found.', 'stop_scan')
+        if not scan_process.is_alive():
+            raise OSPDError('Scan already stopped or finished.', 'stop_scan')
+
+        logger.info('{0}: Scan stopping {1}.'.format(scan_id, scan_process.ident))
+        psutil_process = psutil.Process(scan_process.ident)
+        for child in psutil_process.get_children(recursive=True):
+            child.kill()
+        scan_process.terminate()
+        scan_process.join()
+        self.set_scan_progress(scan_id, 100)
+        self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
+        logger.info('{0}: Scan stopped.'.format(scan_id))
+        return simple_response_str('stop_scan', 200, 'OK')
 
     def exec_scan(self, scan_id, target):
         """ Asserts to False. Should be implemented by subclass. """
@@ -606,6 +645,10 @@ class OSPDaemon(object):
 
         @return: 1 if scan deleted, 0 otherwise.
         """
+        try:
+            del self.scan_processes[scan_id]
+        except KeyError:
+            logger.debug('Scan process for {0} not found'.format(scan_id))
         return self.scan_collection.delete_scan(scan_id)
 
     def get_scan_results_xml(self, scan_id):
@@ -616,7 +659,7 @@ class OSPDaemon(object):
         results = ET.Element('results')
         for result in self.scan_collection.results_iterator(scan_id):
             results.append(get_result_xml(result))
-        
+
         logger.info('Returning %d results', len(results))
         return results
 
@@ -718,6 +761,8 @@ class OSPDaemon(object):
             return self.handle_get_version_command()
         elif tree.tag == "start_scan":
             return self.handle_start_scan_command(tree)
+        elif tree.tag == "stop_scan":
+            return self.handle_stop_scan_command(tree)
         elif tree.tag == "get_scans":
             return self.handle_get_scans_command(tree)
         elif tree.tag == "delete_scan":
@@ -755,7 +800,7 @@ class OSPDaemon(object):
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
-    def create_scan(self, target, options):
+    def create_scan(self, target, options, scan_id):
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -763,7 +808,7 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
-        return self.scan_collection.create_scan(target, options)
+        return self.scan_collection.create_scan(target, options, scan_id)
 
     def get_scan_options(self, scan_id):
         """ Gives a scan's list of options. """

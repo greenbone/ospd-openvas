@@ -107,6 +107,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <elements></elements>
             <description>Return various versions</description>
           </get_version>
+          <stop_scan>
+            <attributes>
+              <scan_id>ID of scan stop.</scan_id>
+            </attributes>
+            <elements></elements>
+            <description>Stop a currently running scan.</description>
+          </stop_scan>
           <get_scanner_details>
             <attributes></attributes>
             <elements></elements>
@@ -114,6 +121,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </get_scanner_details>
           <start_scan>
             <attributes>
+              <scan_id>Optional UUID value to set as scan ID</scan_id>
               <target>Target host to scan</target>
             </attributes>
             <elements>
@@ -447,6 +455,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <summary>Target host to scan</summary>
         <type>string</type>
       </attrib>
+      <attrib>
+        <name>scan_id</name>
+        <summary>Optional UUID value to use as scan ID</summary>
+        <type>uuid</type>
+      </attrib>
       <e>scanner_params</e>
     </pattern>
     <ele>
@@ -487,6 +500,42 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <start_scan_response status_text="OK" status="200">
           <id>2f616d53-595f-4785-9b97-4395116ca118</id>
         </start_scan_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>stop_scan</name>
+    <summary>Stop a currently running scan</summary>
+    <pattern>
+      <attrib>
+        <name>scan_id</name>
+        <summary>ID of scan to stop</summary>
+        <type>uuid</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>integer</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
+    </response>
+    <example>
+      <summary>Stop a scan</summary>
+      <request>
+        <stop_scan scan_id='6ec1732c-10e8-448c-90fb-7797ad47ada2'>
+        </stop_scan>
+      </request>
+      <response>
+        <stop_scan_response status_text="OK" status="200">
+        </stop_scan_response>
       </response>
     </example>
   </command>
