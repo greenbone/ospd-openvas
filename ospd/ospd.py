@@ -8,7 +8,7 @@
 # Benoît Allard <benoit.allard@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2014 Greenbone Networks GmbH
+# Copyright (C) 2014, 2015 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -44,7 +44,7 @@ from ospd.misc import resolve_hostname, valid_uuid
 
 logger = logging.getLogger(__name__)
 
-PROTOCOL_VERSION = "1.0"
+PROTOCOL_VERSION = "1.1"
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {

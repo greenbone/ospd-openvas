@@ -1,3 +1,11 @@
+2015-10-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Post branch version bump.
+
+	* ospd/__init__.py, doc/OSP.xml: Increased version from 1.0.3 to 1.1.0.
+
+	* ospd/ospd.py: Increased PROTOCOL_VERSION from 1.0 to 1.1.
+
 2015-10-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py: Don't import psutil module.
