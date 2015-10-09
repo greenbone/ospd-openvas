@@ -1,3 +1,10 @@
+2015-10-09  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py: Don't import psutil module.
+	(OSPDaemon.handle_stop_scan_command): Terminate process group.
+	(OSPDaemon [start_scan, dry_run_scan]): Set scan's process ID as group
+	ID.
+
 2015-10-05  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection.create_scan): Add scan_id method

@@ -36,7 +36,7 @@ import socket
 import ssl
 import multiprocessing
 import xml.etree.ElementTree as ET
-import psutil
+import os
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
@@ -371,10 +371,8 @@ class OSPDaemon(object):
             raise OSPDError('Scan already stopped or finished.', 'stop_scan')
 
         logger.info('{0}: Scan stopping {1}.'.format(scan_id, scan_process.ident))
-        psutil_process = psutil.Process(scan_process.ident)
-        for child in psutil_process.get_children(recursive=True):
-            child.kill()
         scan_process.terminate()
+        os.killpg(os.getpgid(scan_process.ident), 15)
         scan_process.join()
         self.set_scan_progress(scan_id, 100)
         self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
@@ -484,6 +482,7 @@ class OSPDaemon(object):
     def start_scan(self, scan_id, target_str):
         """ Starts the scan with scan_id. """
 
+        os.setsid()
         logger.info("{0}: Scan started.".format(scan_id))
         target_list = target_str_to_list(target_str)
         if target_list is None:
@@ -517,6 +516,7 @@ class OSPDaemon(object):
     def dry_run_scan(self, scan_id, target_str):
         """ Dry runs a scan. """
 
+        os.setsid()
         target_list = target_str_to_list(target_str)
         for _, target in enumerate(target_list):
             host = resolve_hostname(target)
