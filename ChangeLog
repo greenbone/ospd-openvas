@@ -1,5 +1,10 @@
 2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* ospd/ospd.py (OSPDaemon.check_scan_process): Don't leave defunct
+	process when scan is finished
+
+2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* tests/testSSHDaemon.py, tests/testScanAndResult.py: Update class
 	method calls.
 

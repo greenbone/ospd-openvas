@@ -831,6 +831,8 @@ class OSPDaemon(object):
             self.add_scan_error(scan_id, name="", host="",
                                 value="Scan process failure.")
             logger.info("{0}: Scan terminated.".format(scan_id))
+        elif progress == 100:
+            scan_process.join()
 
     def get_scan_progress(self, scan_id):
         """ Gives a scan's current progress value. """
