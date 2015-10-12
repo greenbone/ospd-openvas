@@ -116,13 +116,14 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def create_scan(self, target, options, scan_id=''):
-        """ Creates a new scan with provided target scan id and options. """
+    def create_scan(self, scan_id='', target='', ports='', options=dict()):
+        """ Creates a new scan with provided scan information. """
 
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['progress'] = 0
         scan_info['target'] = target
+        scan_info['ports'] = ports
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = "0"
@@ -161,6 +162,11 @@ class ScanCollection(object):
         """ Get a scan's target. """
 
         return self.scans_table[scan_id]['target']
+
+    def get_ports(self, scan_id):
+        """ Get a scan's ports list. """
+
+        return self.scans_table[scan_id]['ports']
 
     def id_exists(self, scan_id):
         """ Check whether a scan exists in the table. """

@@ -328,6 +328,9 @@ class OSPDaemon(object):
         target_str = scan_et.attrib.get('target')
         if target_str is None:
             raise OSPDError('No target attribute', 'start_scan')
+        ports_str = scan_et.attrib.get('ports')
+        if ports_str is None:
+            raise OSPDError('No ports attribute', 'start_scan')
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
             raise OSPDError('Invalid scan_id UUID', 'start_scan')
@@ -346,7 +349,7 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(target_str, scan_params, scan_id)
+        scan_id = self.create_scan(scan_id, target_str, ports_str, scan_params)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id, target_str))
         self.scan_processes[scan_id] = scan_process
@@ -473,6 +476,7 @@ class OSPDaemon(object):
             response = self.handle_command(data)
         except OSPDError as exception:
             response = exception.as_xml()
+            logger.debug('Command error: {0}'.format(exception.message))
         except Exception:
             logger.exception('While handling client command:')
             exception = OSPDError('Fatal error', 'error')
@@ -800,7 +804,7 @@ class OSPDaemon(object):
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
-    def create_scan(self, target, options, scan_id):
+    def create_scan(self, scan_id, target, ports, options):
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -808,7 +812,7 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
-        return self.scan_collection.create_scan(target, options, scan_id)
+        return self.scan_collection.create_scan(scan_id, target, ports, options)
 
     def get_scan_options(self, scan_id):
         """ Gives a scan's list of options. """
@@ -835,6 +839,10 @@ class OSPDaemon(object):
     def get_scan_target(self, scan_id):
         """ Gives a scan's target. """
         return self.scan_collection.get_target(scan_id)
+
+    def get_scan_ports(self, scan_id):
+        """ Gives a scan's ports list. """
+        return self.scan_collection.get_ports(scan_id)
 
     def get_scan_start_time(self, scan_id):
         """ Gives a scan's start time. """
