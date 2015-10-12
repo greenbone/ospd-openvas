@@ -68,7 +68,7 @@ class FullTest(unittest.TestCase):
             Result('error', value='something went wrong'),
         ])
 
-        response = ET.fromstring(daemon.handle_command('<start_scan target="localhost"><scanner_params /></start_scan>'))
+        response = ET.fromstring(daemon.handle_command('<start_scan target="localhost" ports="80, 443"><scanner_params /></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         finished = False

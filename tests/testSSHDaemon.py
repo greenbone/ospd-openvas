@@ -40,7 +40,7 @@ class fakeparamiko(object):
 
 
 class TestSSH(unittest.TestCase):
-    
+
     def testNoParamiko(self):
         ospd_ssh.paramiko = None
         self.assertRaises(ImportError, OSPDaemonSimpleSSH, 'cert', 'key', 'ca')
@@ -48,7 +48,9 @@ class TestSSH(unittest.TestCase):
     def testRunCommand(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca')
-        scanid = daemon.create_scan('host.example.com', dict(port=5, ssh_timeout=15, username='dummy', password='pw'))
+        scanid = daemon.create_scan(None, 'host.example.com', '80, 443',
+                                    dict(port=5, ssh_timeout=15,
+                                         username='dummy', password='pw'))
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
         self.assertTrue(isinstance(res, list))
         self.assertEqual(commands, ['cat /etc/passwd'])

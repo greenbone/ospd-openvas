@@ -1,5 +1,10 @@
 2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* tests/testSSHDaemon.py, tests/testScanAndResult.py: Update class
+	method calls.
+
+2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/misc.py (ScanCollection.create_scan): Add ports parameter.
 	(ScanCollection.get_ports): New method.
 
