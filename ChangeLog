@@ -1,3 +1,12 @@
+2015-10-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (ScanCollection.__init__): Initialize data manager to
+	none.
+	(ScanCollection.create_scan): Create data manager process if not done
+	already.
+	(ScanCollection.delete_scan): Delete data manager process if no scans
+	are left.
+
 2015-10-12  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd.py (OSPDaemon.check_scan_process): Don't leave defunct

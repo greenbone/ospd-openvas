@@ -75,7 +75,7 @@ class ScanCollection(object):
     def __init__(self):
         """ Initialize the Scan Collection. """
 
-        self.data_manager = multiprocessing.Manager()
+        self.data_manager = None
         self.scans_table = dict()
 
     def add_result(self, scan_id, result_type, host='', name='', value='',
@@ -119,6 +119,8 @@ class ScanCollection(object):
     def create_scan(self, scan_id='', target='', ports='', options=dict()):
         """ Creates a new scan with provided scan information. """
 
+        if self.data_manager is None:
+            self.data_manager = multiprocessing.Manager()
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['progress'] = 0
@@ -179,6 +181,9 @@ class ScanCollection(object):
         if self.get_progress(scan_id) < 100:
             return False
         self.scans_table.pop(scan_id)
+        if len(self.scans_table) == 0:
+            del self.data_manager
+            self.data_manager = None
         return True
 
 
