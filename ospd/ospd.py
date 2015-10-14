@@ -66,7 +66,8 @@ COMMANDS_TABLE = {
         'description': 'Start a new scan.',
         'attributes': {
             'target': 'Target host to scan',
-            'scan_id': 'Optional UUID value to use as scan ID'
+            'ports': 'Ports list to scan',
+            'scan_id': 'Optional UUID value to use as scan ID',
         },
         'elements': None
     },

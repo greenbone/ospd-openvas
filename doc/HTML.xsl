@@ -530,6 +530,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </table>
   </xsl:template>
 
+  <!-- Changes. -->
+
+  <xsl:template match="change">
+    <xsl:param name="index">6.<xsl:value-of select="position()"/></xsl:param>
+    <div>
+      <div>
+        <h3>
+          <xsl:value-of select="$index"/>
+          Change in <tt><xsl:value-of select="command"/></tt>
+        </h3>
+      </div>
+
+      <p>In short: <xsl:value-of select="normalize-space(summary)"/>.</p>
+
+      <p><xsl:apply-templates select="description"/></p>
+    </div>
+  </xsl:template>
+
+  <xsl:template name="changes">
+    <h2 id="changes">
+      6 Compatibility Changes in Version <xsl:value-of select="/protocol/version"/>
+    </h2>
+    <xsl:apply-templates select="change[version=/protocol/version]"/>
+  </xsl:template>
+
   <!-- Root. -->
 
   <xsl:template match="protocol">
@@ -576,6 +601,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   <li><a href="#type_details">Data Type Details</a></li>
                   <li><a href="#command_details">Command Details</a></li>
                   <li><a href="#parameter_summary">Summary of Scanner Parameters Types</a></li>
+                  <li>
+                    <a href="#changes">
+                      Compatibility Changes in Version <xsl:value-of select="version"/>
+                    </a>
+                  </li>
                 </ol>
 
                 <xsl:call-template name="type-summary"/>
@@ -583,6 +613,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                 <xsl:call-template name="type-details"/>
                 <xsl:call-template name="command-details"/>
                 <xsl:call-template name="parameter-summary"/>
+                <xsl:call-template name="changes"/>
 
                 <div style="text-align: center; padding: 5px;">
                   This file was automatically generated.

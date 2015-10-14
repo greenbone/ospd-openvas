@@ -123,6 +123,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <attributes>
               <scan_id>Optional UUID value to set as scan ID</scan_id>
               <target>Target host to scan</target>
+              <ports>Ports list to scan</ports>
             </attributes>
             <elements>
               <scanner_params>
@@ -134,6 +135,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             </elements>
             <description>Start a new scan</description>
           </start_scan>
+          <stop_scan>
+            <attributes>
+              <scan_id>ID of scan to stop</scan_id>
+            </attributes>
+            <description>Stop a currently running scan</description>
+          </stop_scan>
           <get_scans>
             <attributes>
               <scan_id>ID of a specific scan to get</scan_id>
@@ -219,16 +226,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                        type="Alarm">
                  The URL: &quot;https://192.168.1.252/&quot; has a path
                  disclosure vulnerability which discloses "/var/www/phpinfo.php"
-
-                 HTTP Request Status: GET https://192.168.1.252/ HTTP/1.1
-
-                 HTTP Request Headers:
-                  Host: 192.168.1.252
-                  Accept-encoding: gzip, deflate
-                  Accept: */*
-                  User-agent: w3af.org
-
-                 HTTP Response Status: HTTP/1.1 200 OK
+                 ...
                </result>
                ...
              </results>
@@ -456,6 +454,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <type>string</type>
       </attrib>
       <attrib>
+        <name>ports</name>
+        <summary>Ports list to scan</summary>
+        <type>string</type>
+      </attrib>
+      <attrib>
         <name>scan_id</name>
         <summary>Optional UUID value to use as scan ID</summary>
         <type>uuid</type>
@@ -488,7 +491,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <example>
       <summary>Start a new scan</summary>
       <request>
-        <start_scan target='localhost'>
+        <start_scan target='localhost' ports='80, 443'>
           <scanner_params>
             <target_port>443</target_port>
             <use_https>1</use_https>
@@ -567,4 +570,32 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
+  <change>
+    <command>STOP_SCAN</command>
+    <summary>command added</summary>
+    <description>
+      Added new command to stop a currently running scan.
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>scan_id attribute added</summary>
+    <description>
+      <p>
+        The scan_id attribute was added to allow the client to specify a UUID as
+        the ID of the scan.
+      </p>
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>ports attribute added</summary>
+    <description>
+      The ports attribute was added to allow the client to specify a ports list
+      to use for the scan.
+    </description>
+    <version>1.1</version>
+  </change>
 </protocol>

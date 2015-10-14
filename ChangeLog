@@ -1,3 +1,13 @@
+2015-10-14  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (COMMANDS_TABLE): Add ports attribute to start_scan.
+
+	* doc/HTML.xsl (changes, change): New templates.
+	(protocol): Add changes section.
+
+	* doc/OSP.xml: Update documentation to match start_scan new attribute
+	and stop_scan command addition.
+
 2015-10-13  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (ScanCollection.__init__): Initialize data manager to
