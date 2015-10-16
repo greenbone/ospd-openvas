@@ -43,6 +43,7 @@ SSH_SCANNER_PARAMS = {
         'type': 'string',
         'name': 'SSH Username',
         'default': '',
+        'mandatory': 0,
         'description': 'The SSH username used to log into the target and to'
                        ' run the commands on that target.',
     },
@@ -50,6 +51,7 @@ SSH_SCANNER_PARAMS = {
         'type': 'password',
         'name': 'SSH Password',
         'default': '',
+        'mandatory': 0,
         'description': 'The SSH password for the given username which is used'
                        ' to log into the target and to run the commands on'
                        ' that target. This should not be a privileged user'
@@ -60,6 +62,7 @@ SSH_SCANNER_PARAMS = {
         'type': 'integer',
         'name': 'SSH Port',
         'default': 22,
+        'mandatory': 0,
         'description': 'The SSH port which to use for logging in with the'
                        ' given username/password.',
     },
@@ -67,6 +70,7 @@ SSH_SCANNER_PARAMS = {
         'type': 'integer',
         'name': 'SSH timeout',
         'default': 30,
+        'mandatory': 0,
         'description': 'Timeout when communicating with the target via SSH.',
     },
 }

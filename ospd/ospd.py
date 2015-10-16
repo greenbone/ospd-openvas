@@ -51,12 +51,14 @@ BASE_SCANNER_PARAMS = {
         'type': 'boolean',
         'name': 'Debug Mode',
         'default': 0,
+        'mandatory': 0,
         'description': 'Whether to get extra scan debug information.',
     },
     'dry_run': {
         'type': 'boolean',
         'name': 'Dry Run',
         'default': 0,
+        'mandatory': 0,
         'description': 'Whether to dry run scan.',
     },
 }
@@ -313,6 +315,9 @@ class OSPDaemon(object):
                 selection = self.get_scanner_param_default(key).split('|')
                 if params[key] not in selection:
                     raise OSPDError('Invalid %s value' % key, 'start_scan')
+            if self.get_scanner_param_mandatory(key) and params[key] == '':
+                    raise OSPDError('Mandatory %s value is missing' % key,
+                                    'start_scan')
         return params
 
     def process_scan_params(self, params):
@@ -408,6 +413,14 @@ class OSPDaemon(object):
             return None
         return entry.get('type')
 
+    def get_scanner_param_mandatory(self, param):
+        """ Returns if a scanner parameter is mandatory. """
+        assert isinstance(param, str)
+        entry = self.scanner_params.get(param)
+        if not entry:
+            return False
+        return entry.get('mandatory')
+
     def get_scanner_param_default(self, param):
         """ Returns default value of a scanner parameter. """
         assert isinstance(param, str)
@@ -426,7 +439,8 @@ class OSPDaemon(object):
                 param_xml.set(name, value)
             for name, value in [('name', param['name']),
                                 ('description', param['description']),
-                                ('default', param['default'])]:
+                                ('default', param['default']),
+                                ('mandatory', param['mandatory'])]:
                 elem = ET.SubElement(param_xml, name)
                 elem.text = str(value)
         return scanner_params

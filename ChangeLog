@@ -1,3 +1,15 @@
+2015-10-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd.py (BASE_SCANNER_PARAMS): Add mandatory attribute to
+	parameters.
+	(OSPDaemon._preprocess_scan_params): Check if a missing scanner
+	parameter is mandatory.
+	(OSPDaemon.get_scanner_param_mandatory): New method.
+	(OSPDaemon.get_scanner_params_xml): Add mandatory element to param xml.
+
+	* ospd/ospd_ssh.py (SSH_SCANNER_PARAMS): Add mandatory attribute to
+	parameters.
+
 2015-10-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* ospd/__init__.py: Increased version to 1.2b1.
