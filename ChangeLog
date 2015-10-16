@@ -1,3 +1,9 @@
+2015-10-16  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	Preparing the ospd 1.2b1 release.
+
+	* CHANGES: Updated.
+
 2015-10-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* doc/OSP.xml: Update get_scanner_details documentation.

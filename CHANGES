@@ -1,3 +1,22 @@
+ospd 1.2b1 (2015-10-16)
+
+This is the first beta release of the 1.2 version of the ospd module
+for the Open Vulnerability Assessment System (OpenVAS).
+
+This realease features the first new elements of the upcoming
+protocol version 1.1 of OSP: Stopping of Scans, Ports and
+mandatory flag for scan parameters.
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles and Jan-Oliver Wagner.
+
+Main changes compared to 1.0:
+* New command stop_scan to stop a running scan.
+* Add "ports" parameter and scan_id for start_scan command.
+* Add "mandatory" attribute for scan parameters.
+* More flexibility of internal process and shared data handling.
+
+
 ospd 1.0.2 (2015-09-01)
 
 This is the second maintenance release of the ospd 1.0 module for the Open
