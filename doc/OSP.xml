@@ -395,6 +395,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <e>name</e>
             <e>description</e>
             <e>default</e>
+            <e>mandatory</e>
           </pattern>
           <ele>
             <name>name</name>
@@ -404,6 +405,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>default</name>
+          </ele>
+          <ele>
+            <name>mandatory</name>
           </ele>
         </ele>
       </ele>
@@ -419,10 +423,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             ...
           </description>
           <scanner_params>
-            <scanner_param id="profile" type="string">
+            <scanner_param id="profile" type="selection">
               <name>Scan profile</name>
               <description>Scan profiles are predefined set of plugins and customized configurations.</description>
-              <default>fast_scan</default>
+              <default>fast_scan|fast_scan|audit_high_risk|full_audit|OWASP_TOP10|bruteforce|empty_profile|web_infrastructure|full_audit_spider_man|sitemap</default>
+            </scanner_param>
+            <scanner_param id="http_request_status" type="boolean">
+              <name>Show HTTP request status</name>
+              <description>Whether to show the HTTP request&apos;s status in results</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="dry_run" type="boolean">
+              <name>Dry Run</name>
+              <description>Whether to dry run scan.</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="http_request_headers" type="boolean">
+              <name>Show HTTP request headers</name>
+              <description>Whether to show the HTTP request&apos;s headers in results</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="http_response_status" type="boolean">
+              <name>Show HTTP response status</name>
+              <description>Whether to show the HTTP response&apos;s status in results</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="seed_path" type="string">
+              <name>Seed path</name>
+              <description>Path to start with</description>
+              <default>/</default>
+            </scanner_param>
+            <scanner_param id="debug_mode" type="boolean">
+              <name>Debug Mode</name>
+              <description>Whether to get extra scan debug information.</description>
+              <default>0</default>
             </scanner_param>
             <scanner_param id="target_port" type="integer">
               <name>Target port</name>
@@ -433,11 +467,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <name>Use HTTPS</name>
               <description>Whether the target application is running over HTTPS</description>
               <default>0</default>
-            </scanner_param>
-            <scanner_param id="w3af_timeout" type="integer">
-              <name>w3af scan timeout</name>
-              <description>Time to wait for the w3af scan to finish</description>
-              <default>3600</default>
             </scanner_param>
           </scanner_params>
         </get_scanner_details_response>

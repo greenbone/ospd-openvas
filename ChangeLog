@@ -1,5 +1,9 @@
 2015-10-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
+	* doc/OSP.xml: Update get_scanner_details documentation.
+
+2015-10-16  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
 	* ospd/ospd.py (BASE_SCANNER_PARAMS): Add mandatory attribute to
 	parameters.
 	(OSPDaemon._preprocess_scan_params): Check if a missing scanner
