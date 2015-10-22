@@ -371,11 +371,11 @@ class OSPDaemon(object):
         """
 
         scan_id = scan_et.attrib.get('scan_id')
-        if scan_id is None:
+        if scan_id is None or scan_id == '':
             raise OSPDError('No scan_id attribute', 'stop_scan')
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
-            raise OSPDError('Scan not found.', 'stop_scan')
+            raise OSPDError('Scan not found {0}.'.format(scan_id), 'stop_scan')
         if not scan_process.is_alive():
             raise OSPDError('Scan already stopped or finished.', 'stop_scan')
 
