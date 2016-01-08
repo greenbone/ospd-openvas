@@ -40,7 +40,7 @@ except ImportError:
 
 SSH_SCANNER_PARAMS = {
     'username': {
-        'type': 'string',
+        'type': 'credential_username',
         'name': 'SSH Username',
         'default': '',
         'mandatory': 0,
@@ -48,7 +48,7 @@ SSH_SCANNER_PARAMS = {
                        ' run the commands on that target.',
     },
     'password': {
-        'type': 'password',
+        'type': 'credential_password',
         'name': 'SSH Password',
         'default': '',
         'mandatory': 0,
