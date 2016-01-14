@@ -588,8 +588,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>A value out of the | seperated values list</summary>
   </parameter_type>
   <parameter_type>
-    <name>password</name>
-    <summary>A password</summary>
+    <name>credential_username</name>
+    <summary>The username of a credential</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>credential_password</name>
+    <summary>The password of a credential</summary>
   </parameter_type>
   <parameter_type>
     <name>file</name>
@@ -624,6 +628,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>
       The ports attribute was added to allow the client to specify a ports list
       to use for the scan.
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>Scanner Parameters Types</command>
+    <summary>credential_username added</summary>
+    <description>
+      For the new way of defining a credential, this is the element for the username.
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>Scanner Parameters Types</command>
+    <summary>password renamed to credential_password</summary>
+    <description>
+      For the new way of defining a credential, this is the element for the password.
     </description>
     <version>1.1</version>
   </change>

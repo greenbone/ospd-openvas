@@ -1,3 +1,8 @@
+2016-01-14  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* doc/OSP.xml: Added documentation about new/changed
+	parameter types.
+
 2016-01-08  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd_ssh.py (SSH_SCANNER_PARAMS): Change parameter types to
