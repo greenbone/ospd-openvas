@@ -39,20 +39,12 @@ except ImportError:
     paramiko = None
 
 SSH_SCANNER_PARAMS = {
-    'username': {
-        'type': 'credential_username',
-        'name': 'SSH Username',
+    'username:password': {
+        'type': 'credential_up',
+        'name': 'SSH credentials',
         'default': '',
         'mandatory': 0,
-        'description': 'The SSH username used to log into the target and to'
-                       ' run the commands on that target.',
-    },
-    'password': {
-        'type': 'credential_password',
-        'name': 'SSH Password',
-        'default': '',
-        'mandatory': 0,
-        'description': 'The SSH password for the given username which is used'
+        'description': 'The SSH credentials in username:password format. Used'
                        ' to log into the target and to run the commands on'
                        ' that target. This should not be a privileged user'
                        ' like "root", a regular privileged user account'

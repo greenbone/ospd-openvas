@@ -28,7 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <name>OpenVAS Scan Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The OpenVAS Scan Protocol</summary>
-  <version>1.1</version>
+  <version>1.2</version>
   <type>
     <name>integer</name>
     <summary>An integer</summary>
@@ -588,12 +588,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>A value out of the | seperated values list</summary>
   </parameter_type>
   <parameter_type>
-    <name>credential_username</name>
-    <summary>The username of a credential</summary>
-  </parameter_type>
-  <parameter_type>
-    <name>credential_password</name>
-    <summary>The password of a credential</summary>
+    <name>credential_up</name>
+    <summary>The username:password of a credential</summary>
   </parameter_type>
   <parameter_type>
     <name>file</name>
@@ -646,5 +642,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       For the new way of defining a credential, this is the element for the password.
     </description>
     <version>1.1</version>
+  </change>
+  <change>
+    <command>Scanner Parameters Types</command>
+    <summary>credential_up added, credential_username and credential_password removed</summary>
+    <description>
+      The username:password credentials. Used instead of the separate
+      credential_username and credential_password.
+    </description>
+    <version>1.2</version>
   </change>
 </protocol>
