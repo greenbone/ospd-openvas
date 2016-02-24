@@ -39,7 +39,7 @@ except ImportError:
     paramiko = None
 
 SSH_SCANNER_PARAMS = {
-    'username:password': {
+    'username_password': {
         'type': 'credential_up',
         'name': 'SSH credentials',
         'default': '',
@@ -56,7 +56,7 @@ SSH_SCANNER_PARAMS = {
         'default': 22,
         'mandatory': 0,
         'description': 'The SSH port which to use for logging in with the'
-                       ' given username/password.',
+                       ' given username_password.',
     },
     'ssh_timeout': {
         'type': 'integer',
@@ -115,9 +115,12 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         timeout = int(options['ssh_timeout'])
 
         try:
-            ssh.connect(hostname=host, username=options['username'],
-                        password=options['password'], timeout=timeout,
-                        port=port)
+            username, password = options['username_password'].split(':', 1)
+            ssh.connect(hostname=host, username=username, password=password,
+                        timeout=timeout, port=port)
+        except ValueError:
+            self.add_scan_error(scan_id, host=host,
+                                value='Erroneous username_password value')
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error) as err:
             # Errors: No route to host, connection timeout, authentication

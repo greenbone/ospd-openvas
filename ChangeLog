@@ -1,3 +1,10 @@
+2016-02-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/ospd_ssh.py (SSH_SCANNER_PARAMS): Change username:password
+	parameter name to username_password for xml format correctness.
+	(OSPDaemonSimpleSSH [run_command]): Adjust the username and password
+	getter.
+
 2016-02-22  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/ospd_ssh.py (SSH_SCANNER_PARAMS): Regroup username and password
