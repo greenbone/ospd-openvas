@@ -121,6 +121,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         except ValueError:
             self.add_scan_error(scan_id, host=host,
                                 value='Erroneous username_password value')
+            return None
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error) as err:
             # Errors: No route to host, connection timeout, authentication
