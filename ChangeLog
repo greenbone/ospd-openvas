@@ -1,3 +1,8 @@
+2016-08-31  Michael Wiegand <michael.wiegand@greenbone.net>
+
+	* doc/HTML.xsl, doc/OSP.xml: Use consistent domain name in mail
+	addresses.
+
 2016-02-25  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* doc/OSP.xml: Changed version back to 1.1. There is no need to

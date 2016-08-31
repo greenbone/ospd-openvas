@@ -17,7 +17,7 @@ $Id$
 Description: OpenVAS Scan Protocol (OSP) single page HTML doc generator.
 
 Authors:
-Hani Benhabiles <hani.benhabiles@greenbone.de>
+Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 Copyright:
 Copyright (C) 2014 Greenbone Networks GmbH
