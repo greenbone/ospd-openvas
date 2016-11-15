@@ -50,7 +50,7 @@ class TestSSH(unittest.TestCase):
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca')
         scanid = daemon.create_scan(None, 'host.example.com', '80, 443',
                                     dict(port=5, ssh_timeout=15,
-                                         username='dummy', password='pw'))
+                                         username_password='dummy:pw'))
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
         self.assertTrue(isinstance(res, list))
         self.assertEqual(commands, ['cat /etc/passwd'])
