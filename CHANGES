@@ -1,3 +1,17 @@
+ospd 1.2.0 (2016-11-16)
+
+This is the 1.2.0 release of the ospd module for the Open Vulnerability
+Assessment System (OpenVAS).
+
+Many thanks to everyone who has contributed to this release:
+Hani Benhabiles, Jan-Oliver Wagner and Michael Wiegand.
+
+Main changes since 1.2b1:
+* Error handling has been improved.
+* Handling of SSH credentials has been improved.
+* The protocol documentation has been updated.
+
+
 ospd 1.2b1 (2015-10-16)
 
 This is the first beta release of the 1.2 version of the ospd module

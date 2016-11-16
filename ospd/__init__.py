@@ -24,4 +24,4 @@
 
 """ OSPd core module. """
 
-__version__ = '1.2b2'
+__version__ = '1.2.0'
