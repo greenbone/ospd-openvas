@@ -53,6 +53,7 @@ CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
 
 PORT = 1234
 ADDRESS = "0.0.0.0"
+UNIX_SOCK = "/tmp/ospd.sock"
 
 
 class ScanCollection(object):
@@ -545,6 +546,8 @@ def create_args_parser(description):
     parser.add_argument('-b', '--bind-address', default=ADDRESS,
                         help='Address to listen on. Default: {0}'
                         .format(ADDRESS))
+    parser.add_argument('-u', '--unix-socket',
+                        help='Unix file socket to listen on.')
     parser.add_argument('-k', '--key-file', type=filename,
                         help='Server key file. Default: {0}'.format(KEY_FILE))
     parser.add_argument('-c', '--cert-file', type=filename,
@@ -585,6 +588,9 @@ def get_common_args(parser, args=None):
     # Network address to bind listener to
     address = options.bind_address
 
+    # Unix file socket to listen on
+    unix_socket = options.unix_socket
+
     # Debug level.
     log_level = options.log_level
 
@@ -600,6 +606,7 @@ def get_common_args(parser, args=None):
     common_args = dict()
     common_args['port'] = port
     common_args['address'] = address
+    common_args['unix_socket'] = unix_socket
     common_args['keyfile'] = keyfile
     common_args['certfile'] = certfile
     common_args['cafile'] = cafile
@@ -665,4 +672,4 @@ def main(name, klass):
 
     if not wrapper.check():
         return 1
-    return wrapper.run(cargs['address'], cargs['port'])
+    return wrapper.run(cargs['address'], cargs['port'], cargs['unix_socket'])

@@ -1,3 +1,12 @@
+2016-11-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py (create_args_parser, get_common_args, main): Add --unix-socket
+	option.
+
+	* ospd/ospd.py (bind_unix_socket): New function.
+	(close_client_stream, OSPDaemon [handle_client_stream, run]): Handle
+	unix file socket case.
+
 2016-11-16  Michael Wiegand <michael.wiegand@greenbone.net>
 
 	Post branch version bump.

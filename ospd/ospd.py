@@ -186,15 +186,38 @@ def bind_socket(address, port):
     bindsocket.listen(0)
     return bindsocket
 
+def bind_unix_socket(path):
+    """ Returns a unix file socket bound on (path). """
 
-def close_client_stream(client_stream):
+    assert path
+    bindsocket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+    try:
+        os.unlink(path)
+    except OSError:
+        if os.path.exists(path):
+            raise
+    try:
+        bindsocket.bind(path)
+    except socket.error:
+        logger.error("Couldn't bind socket on {0}".format(path))
+        return None
+
+    logger.info('Listening on {0}'.format(path))
+    bindsocket.listen(0)
+    return bindsocket
+
+
+def close_client_stream(client_stream, unix_path):
     """ Closes provided client stream """
     try:
-        peer = client_stream.getpeername()
         client_stream.shutdown(socket.SHUT_RDWR)
-        logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
+        if unix_path:
+            logger.debug('{0}: Connection closed'.format(unix_path))
+        else:
+            peer = client_stream.getpeername()
+            logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
     except (socket.error, OSError) as exception:
-        logger.debug('SSL close error: {0}'.format(exception))
+        logger.debug('Connection closing error: {0}'.format(exception))
     client_stream.close()
 
 
@@ -464,15 +487,18 @@ class OSPDaemon(object):
             return None
         return ssl_socket
 
-    def handle_client_stream(self, stream):
+    def handle_client_stream(self, stream, is_unix=False):
         """ Handles stream of data received from client. """
-        if stream is None:
-            return
+
+        assert stream
         data = []
         stream.settimeout(2)
         while True:
             try:
-                data.append(stream.read(1024))
+                if is_unix:
+                    data.append(stream.recv(1024))
+                else:
+                    data.append(stream.read(1024))
                 if len(data) == 0:
                     logger.warning(
                         "Empty client stream (Connection unexpectedly closed)")
@@ -480,7 +506,10 @@ class OSPDaemon(object):
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
-            except (ssl.SSLError, socket.timeout) as exception:
+            except (ssl.SSLError) as exception:
+                logger.debug('Error: {0}'.format(exception[0]))
+                break
+            except (socket.timeout) as exception:
                 logger.debug('Error: {0}'.format(exception))
                 break
         data = b''.join(data)
@@ -496,7 +525,10 @@ class OSPDaemon(object):
             logger.exception('While handling client command:')
             exception = OSPDError('Fatal error', 'error')
             response = exception.as_xml()
-        stream.write(response)
+        if is_unix:
+            stream.sendall(response)
+        else:
+            stream.write(response)
 
     def start_scan(self, scan_id, target_str):
         """ Starts the scan with scan_id. """
@@ -797,22 +829,31 @@ class OSPDaemon(object):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
-    def run(self, address, port):
+    def run(self, address, port, unix_path):
         """ Starts the Daemon, handling commands until interrupted.
 
         @return False if error. Runs indefinitely otherwise.
         """
-        sock = bind_socket(address, port)
+        assert address or unix_path
+        if unix_path:
+            sock = bind_unix_socket(unix_path)
+        else:
+            sock = bind_socket(address, port)
         if sock is None:
             return False
 
         try:
             while True:
-                client_stream = self.new_client_stream(sock)
-                if client_stream is None:
-                    continue
-                self.handle_client_stream(client_stream)
-                close_client_stream(client_stream)
+                if unix_path:
+                    client_stream, _ = sock.accept()
+                    logger.debug("New connection from {0}".format(unix_path))
+                    self.handle_client_stream(client_stream, True)
+                else:
+                    client_stream = self.new_client_stream(sock)
+                    if client_stream is None:
+                        continue
+                    self.handle_client_stream(client_stream, False)
+                close_client_stream(client_stream, unix_path)
         except KeyboardInterrupt:
             logger.info("Recieved Ctrl-C shuting-down ...")
         finally:
