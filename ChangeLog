@@ -1,3 +1,7 @@
+2016-11-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
+
+	* ospd/misc.py: Remove UNIX_SOCK variable.
+
 2016-11-24  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py (create_args_parser, get_common_args, main): Add --unix-socket

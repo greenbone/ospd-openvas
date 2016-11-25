@@ -53,7 +53,6 @@ CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
 
 PORT = 1234
 ADDRESS = "0.0.0.0"
-UNIX_SOCK = "/tmp/ospd.sock"
 
 
 class ScanCollection(object):
