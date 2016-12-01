@@ -1,5 +1,10 @@
 2016-12-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
+	* README, setup.py, doc/OSP.xml: "O" in OSP stands for "Open". And "S"
+	stands for "Scanner".
+
+2016-12-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
 	* ospd/ospd.py: Fix some comments to be less explicit with names which
 	could outdate unnoticed.
 
