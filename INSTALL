@@ -46,7 +46,13 @@ mkdir -p <prefix>/lib/python2.7/site-packages
 Creating certificates
 ---------------------
 
-You need TLS certificates for each of your OSPD service. You may use
+An OSPD service can be started using a unix domain socket (only on
+respective systems) or using a TCP socket. The latter uses TLS-based
+encryption and authorization while the first is not encrypted and uses
+the standard file access rights for authorization.
+
+For the TCP socket communication it is mandatory to use adequate
+TLS certificates which you need for each of your OSPD service. You may use
 the same certificates for all services if you like.
 
 By default those certificates are used which are also used by OpenVAS
@@ -58,7 +64,8 @@ create your own one (can be used for multiple ospd daemons):
 
 $ openvas-manage-certs.sh -s
 
-And sign it with the CA checked for by the client.
+And sign it with the CA checked for by the client. The client is usually
+OpenVAS Manager for which a global trusted CA certficate can be configured.
 
 
 Registering a OSP daemon at OpenVAS Manager
@@ -80,6 +87,10 @@ $ openvasmd --create-scanner="OSP Scanner-Name" --scanner-host=127.0.0.1 --scann
            --scanner-type="OSP" --scanner-ca-pub=/usr/var/lib/openvas/CA/cacert.pem \
            --scanner-key-pub=/usr/var/lib/openvas/CA/clientcert.pem \
            --scanner-key-priv=/usr/var/lib/openvas/private/CA/clientkey.pem 
+
+In case the OSP daemon runs on the same system as openvasmd and uses a unix domain socket:
+
+$ openvasmd --create-scanner="OSP Scanner-Name" --scanner-type="OSP" --scanner-host=/my/path/to/socket
 
 Check whether OpenVAS Manager can connect to the OSP daemon (needs to run of course):
 

@@ -239,13 +239,11 @@ class OSPDaemon(object):
       get_scanner_version.
     * Use Call set_command_attributes at init time to add scanner command
       specific options eg. the w3af profile for w3af wrapper.
-
-    See OSPDw3af and OSPDOvaldi for wrappers examples.
     """
 
     def __init__(self, certfile, keyfile, cafile):
         """ Initializes the daemon's internal data. """
-        # Generate certificate for default params with openvas-mkcert or
+        # Generate certificate for default params with
         # openvas-manage-certs
         self.certs = dict()
         self.certs['cert_file'] = certfile

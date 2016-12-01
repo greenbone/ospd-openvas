@@ -1,3 +1,10 @@
+2016-12-01  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* ospd/ospd.py: Fix some comments to be less explicit with names which
+	could outdate unnoticed.
+
+	* INSTALL: Update to reflect the unix domain socket option.
+
 2016-11-25  Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 	* ospd/misc.py: Remove UNIX_SOCK variable.
