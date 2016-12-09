@@ -243,8 +243,12 @@ class OSPDaemon(object):
 
     def __init__(self, certfile, keyfile, cafile):
         """ Initializes the daemon's internal data. """
-        # Generate certificate for default params with
-        # openvas-manage-certs
+        # @todo: Actually it makes sense to move the certificate params to
+        #        a separate function because it is not mandatory anymore to
+        #        use a TLS setup (unix file socket is an alternative).
+        #        However, chaning this makes it mandatory for any ospd scanner
+        #        to change the function calls as well. So this breaks the API
+        #        and should only be done with a major release.
         self.certs = dict()
         self.certs['cert_file'] = certfile
         self.certs['key_file'] = keyfile
