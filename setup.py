@@ -51,8 +51,8 @@ setup(
     url='http://www.openvas.org',
 
     # Author
-    author='OpenVAS Development Team',
-    author_email='info@openvas.org',
+    author='Greenbone Networks GmbH',
+    author_email='info@greenbone.net',
 
     # License
     license='GPLv2+',
@@ -78,7 +78,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords=['OpenVAS OSP'],
+    keywords=['Greenbone Vulnerbility Manager OSP'],
 
     # List run-time dependencies here. These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's

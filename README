@@ -4,9 +4,9 @@ About OSPD
 OSPD is a base class for scanner wrappers which share the same communication
 protocol: OSP (Open Scanner Protocol). OSP creates a unified interface for
 different security scanners and make their control flow and scan results
-consistently available under the central OpenVAS Manager service.
+consistently available under the central Greenbone Vulnerability Manager service.
 
-OSP is similar in many ways to OMP (OpenVAS Management Protocol): XML-based,
+OSP is similar in many ways to GMP (Greenbone Management Protocol): XML-based,
 stateless and non-permanent connection.
 
 The design supports wrapping arbitrary scanners with same protocol OSP,
@@ -28,8 +28,8 @@ See the documentation there for the single steps to establish the
 full wrapper.
 
 See the file INSTALL about how to register a OSP scanner at
-the OpenVAS Manager which will automatically establish a full GUI
-integration for the Greenbone Security Assistant (GSA).
+the Greenbone Vulnerability Manager which will automatically establish a full
+GUI integration for the Greenbone Security Assistant (GSA).
 
 There are some online resources about this topic:
 http://docs.greenbone.net/GSM-Manual/gos-3.1/en/osp.html#how-to-write-your-own-osp-wrapper

@@ -1,3 +1,9 @@
+2018-02-04  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
+
+	* INSTALL, README, doc/HTML.xsl, doc/generate, ospd/misc.py, setup.py:
+	Update to reflect name changes: OpenVAS Manager to Greenbone
+	Vulnerability Manager, openvasmd to gvmd, OMP to GMP.
+
 2016-12-09  Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 	* ospd/ospd.py: Add a todo for a future change.

@@ -47,9 +47,9 @@ import multiprocessing
 LOGGER = logging.getLogger(__name__)
 
 # Default file locations as used by a OpenVAS default installation
-KEY_FILE = "/usr/var/lib/openvas/private/CA/serverkey.pem"
-CERT_FILE = "/usr/var/lib/openvas/CA/servercert.pem"
-CA_FILE = "/usr/var/lib/openvas/CA/cacert.pem"
+KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
+CERT_FILE = "/usr/var/lib/gvm/CA/servercert.pem"
+CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
 
 PORT = 1234
 ADDRESS = "0.0.0.0"

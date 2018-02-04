@@ -62,46 +62,47 @@ if installed in the same environment.
 In case you do not have already a certificate to use, you may quickly
 create your own one (can be used for multiple ospd daemons):
 
-$ openvas-manage-certs.sh -s
+$ gvm-manage-certs.sh -s
 
 And sign it with the CA checked for by the client. The client is usually
-OpenVAS Manager for which a global trusted CA certficate can be configured.
+Greenbone Vulnerability Manager for which a global trusted CA certficate
+can be configured.
 
 
-Registering a OSP daemon at OpenVAS Manager
--------------------------------------------
+Registering a OSP daemon at Greenbone Vulnerability Manager
+-----------------------------------------------------------
 
 The file README explains how to control a OSP daemon via command line.
 
-It is also possible to register a OSP daemon at the OpenVAS Manager
-and then use OMP clients to control the OSP daemon, for example the
+It is also possible to register a OSP daemon at the Greenbone Vulnerability
+Manager and then use GMP clients to control the OSP daemon, for example the
 web interface GSA.
 
 You can register either via the GUI (Configuration->Scanners) and create
 a new Scanner there.
 
-Or you can create a scanner via openvasmd command line (adjust host,
+Or you can create a scanner via gvmd command line (adjust host,
 port, paths etc. for your daemon):
 
-$ openvasmd --create-scanner="OSP Scanner-Name" --scanner-host=127.0.0.1 --scanner-port=1234 \
-           --scanner-type="OSP" --scanner-ca-pub=/usr/var/lib/openvas/CA/cacert.pem \
-           --scanner-key-pub=/usr/var/lib/openvas/CA/clientcert.pem \
-           --scanner-key-priv=/usr/var/lib/openvas/private/CA/clientkey.pem 
+$ gvmd --create-scanner="OSP Scanner-Name" --scanner-host=127.0.0.1 --scanner-port=1234 \
+       --scanner-type="OSP" --scanner-ca-pub=/usr/var/lib/gvm/CA/cacert.pem \
+       --scanner-key-pub=/usr/var/lib/gvm/CA/clientcert.pem \
+       --scanner-key-priv=/usr/var/lib/gvm/private/CA/clientkey.pem 
 
-In case the OSP daemon runs on the same system as openvasmd and uses a unix domain socket:
+In case the OSP daemon runs on the same system as gvmd and uses a unix domain socket:
 
-$ openvasmd --create-scanner="OSP Scanner-Name" --scanner-type="OSP" --scanner-host=/my/path/to/socket
+$ gvmd --create-scanner="OSP Scanner-Name" --scanner-type="OSP" --scanner-host=/my/path/to/socket
 
-Check whether OpenVAS Manager can connect to the OSP daemon (needs to run of course):
+Check whether Greenbone Vulnerbility Manager can connect to the OSP daemon (needs to run of course):
 
-$ openvasmd --get-scanners
+$ gvmd --get-scanners
 08b69003-5fc2-4037-a479-93b440211c73  OpenVAS Default
 3566ddf1-cecf-4491-8bcc-5d62a87404c3  OSP Scanner-Name
 
-$ openvasmd --verify-scanner=3566ddf1-cecf-4491-8bcc-5d62a87404c3
+$ gvmd --verify-scanner=3566ddf1-cecf-4491-8bcc-5d62a87404c3
 Scanner version: 1.0.
 
-Of course, using OMP via command line tool "omp" to register a
+Of course, using GMP via command line tool of "gvm-tools" to register a
 OSP Scanner is also possible as a third option.
 
 
