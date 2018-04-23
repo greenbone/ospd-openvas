@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/master)
+
 About OSPD
 ----------
 
