@@ -2,7 +2,7 @@ INSTALLATION INSTRUCTIONS FOR OSPD
 ==================================
 
 Please note: The reference system used by most of the developers is Debian
-Debian GNU/Linux 'Jessie' 8. The build might fail on any other systems.
+Debian GNU/Linux 'Stretch' 9. The build might fail on any other systems.
 Also it is necessary to install dependent development packages.
 
 
@@ -10,14 +10,14 @@ Prerequisites for OSPD
 ----------------------
 
 Prerequisites:
-* python 2.7, python 3.3 or python 3.4
+* python 3
 * python-setuptools
 
 For using ospd_ssh:
 * python-paramiko
 
-On Debian 8 this should work to install dependencies:
-# apt-get install python-setuptools python-paramiko
+On Debian this should work to install dependencies:
+# apt-get install python3-setuptools python3-paramiko
 
 
 Building OSPD
@@ -25,7 +25,7 @@ Building OSPD
 
 To install OSPD into directory <prefix> run this command:
 
-python setup.py install --prefix=<prefix>
+python3 setup.py install --prefix=<prefix>
 
 The default for <prefix> is /usr/local
 
@@ -36,11 +36,11 @@ first with the mechanism of your system (for example via apt or rpm).
 You may need to set the PYTHONPATH like this before running
 the install command (perhaps with another python version):
 
-export PYTHONPATH=<prefix>/lib/python2.7/site-packages/
+export PYTHONPATH=<prefix>/lib/python3.5/site-packages/
 
 You also may need to create directories prior to the install:
 
-mkdir -p <prefix>/lib/python2.7/site-packages
+mkdir -p <prefix>/lib/python3.5/site-packages
 
 
 Creating certificates
@@ -111,7 +111,7 @@ Creating a source archive
 
 To create a .tar.gz file for the ospd module run this command:
 
-python setup.py sdist
+python3 setup.py sdist
 
 This will create the archive file in the subdirectory "dist".
 
@@ -128,7 +128,7 @@ This will create the osp.html file in the subdirectory "doc".
 Source code documentation can be accessed over the usual methods,
 for example:
 
-$ python
+$ python3
 >>> import ospd.ospd
 >>> help (ospd.ospd)
 
@@ -149,7 +149,7 @@ Tests
 
 To run the tests, execute the command:
 
-python setup.py test
+python3 setup.py test
 
 If successful, something like the text below will be outputted:
 ...
