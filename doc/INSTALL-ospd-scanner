@@ -1,0 +1,145 @@
+GENERAL INSTALLATION INSTRUCTIONS FOR OSPD-BASED SCANNERS
+=========================================================
+
+This is a general description about how to install a
+ospd-based scanner wrapper implementation.
+
+The actual scanner implementation usually has a individual
+INSTALL instruction and refer to this general guide.
+
+In the following description replace "scanner" by the name
+of the actual OSPD scanner.
+
+
+Install via virtualenv
+----------------------
+
+The preferred way to install ospd-scanner is to do so inside a virtualenv,
+this way, the server and its dependency are well isolated from system-wide
+updates, making it easier to upgrade it, delete it, or install dependencies
+only for it. Refer to the virtualenv documentation for further information.
+
+First you need to create a virtualenv somewhere on your system::
+
+    virtualenv ospd-scanner
+
+Finally install OSPD-SCANNER inside your newly created virtualenv::
+
+    ospd-scanner/bin/pip install ospd_scanner-x.y.z.tar.gz
+
+Note: As ospd is not (yet) available through PyPI, you probably want to
+install it manually first inside your virtualenv prior installing OSPD-SCANNER.
+
+To run OSPD-SCANNER, just start the binary placed inside the virtualenv::
+
+    ospd-scanner/bin/ospd-scanner
+
+
+Install (Sub-)System-wide
+-------------------------
+
+To install OSPD-SCANNER into directory <prefix> run this command:
+
+python3 setup.py install --prefix=<prefix>
+
+The default for <prefix> is /usr/local
+
+Be aware that this might automatically download and install missing
+Python packages. To prevent this, you should install the prerequisites
+first with the mechanism of your system (for example via apt or rpm).
+
+You may need to set the PYTHONPATH like this before running
+the install command (perhaps with another python version):
+
+export PYTHONPATH=<prefix>/lib/python3.5/site-packages/
+
+
+Creating certificates
+---------------------
+
+An OSPD service can be started using a unix domain socket (only on
+respective systems) or using a TCP socket. The latter uses TLS-based
+encryption and authorization while the first is not encrypted and uses
+the standard file access rights for authorization.
+
+For the TCP socket communication it is mandatory to use adequate
+TLS certificates which you need for each of your OSPD service. You may use
+the same certificates for all services if you like.
+
+By default those certificates are used which are also used by GVM
+(see paths with "ospd-NAME --help"). Of course this works only
+if installed in the same environment.
+ 
+In case you do not have already a certificate to use, you may quickly
+create your own one (can be used for multiple ospd daemons):
+
+$ gvm-manage-certs.sh -s
+
+And sign it with the CA checked for by the client. The client is usually
+Greenbone Vulnerability Manager for which a global trusted CA certficate
+can be configured.
+
+
+Registering a OSP daemon at Greenbone Vulnerability Manager
+-----------------------------------------------------------
+
+The file README explains how to control the OSP daemon via command line.
+
+It is also possible to register a OSP daemon at the Greenbone Vulnerability
+Manager and then use GMP clients to control the OSP daemon, for example the
+web interface GSA.
+
+You can register either via the GUI (Configuration->Scanners) and create
+a new Scanner there.
+
+Or you can create a scanner via gvmd command line (adjust host,
+port, paths etc. for your daemon):
+
+$ gvmd --create-scanner="OSP Scanner" --scanner-host=127.0.0.1 --scanner-port=1234 \
+       --scanner-type="OSP" --scanner-ca-pub=/usr/var/lib/gvm/CA/cacert.pem \
+       --scanner-key-pub=/usr/var/lib/gvm/CA/clientcert.pem \
+       --scanner-key-priv=/usr/var/lib/gvm/private/CA/clientkey.pem 
+
+Check whether Greenbone Vulnerability Manager can connect to the OSP daemon:
+
+$ gvmd --get-scanners
+08b69003-5fc2-4037-a479-93b440211c73  OpenVAS Default
+3566ddf1-cecf-4491-8bcc-5d62a87404c3  OSP Scanner
+
+$ gvmd --verify-scanner=3566ddf1-cecf-4491-8bcc-5d62a87404c3
+Scanner version: 1.0.
+
+Of course, using GMP via command line tools "gvm-tools" to register a
+OSP Scanner is also possible as a third option.
+
+
+Documentation
+-------------
+
+Source code documentation can be accessed over the usual methods,
+for example (replace "scanner" by the scanner name):
+
+$ python3
+>>> import ospd_scanner.wrapper
+>>> help (ospd_scanner.wrapper)
+
+An equivalent to this is:
+
+$ pydoc3 ospd_scanner.wrapper
+
+To explore the code documentation in a web browser:
+
+$ pydoc3 -p 12345
+pydoc server ready at http://localhost:12345/
+ 
+For further options see the man page of pydoc.
+
+
+Creating a source archive
+-------------------------
+
+To create a .tar.gz file for the ospd module run this command:
+
+python3 setup.py sdist
+
+This will create the archive file in the subdirectory "dist".
