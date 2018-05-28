@@ -261,7 +261,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </pattern>
     </response>
     <example>
-      <summary>Delete a scan successfuly</summary>
+      <summary>Delete a scan successfully</summary>
       <request>
         <delete_scan scan_id="013587e3-b4d7-8e79-9ebb-90a2133c338c"/>
       </request>
@@ -585,7 +585,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </parameter_type>
   <parameter_type>
     <name>selection</name>
-    <summary>A value out of the | seperated values list</summary>
+    <summary>A value out of the | separated values list</summary>
   </parameter_type>
   <parameter_type>
     <name>credential_up</name>

@@ -1,7 +1,7 @@
 INSTALLATION INSTRUCTIONS FOR OSPD
 ==================================
 
-Please note: The reference system used by most of the developers is Debian
+Please note: The reference system used by most of the developers is
 Debian GNU/Linux 'Stretch' 9. The build might fail on any other systems.
 Also it is necessary to install dependent development packages.
 

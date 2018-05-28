@@ -5,7 +5,7 @@ About OSPD
 
 OSPD is a base class for scanner wrappers which share the same communication
 protocol: OSP (Open Scanner Protocol). OSP creates a unified interface for
-different security scanners and make their control flow and scan results
+different security scanners and makes their control flow and scan results
 consistently available under the central Greenbone Vulnerability Manager service.
 
 OSP is similar in many ways to GMP (Greenbone Management Protocol): XML-based,
