@@ -76,7 +76,7 @@ create your own one (can be used for multiple ospd daemons):
 $ gvm-manage-certs.sh -s
 
 And sign it with the CA checked for by the client. The client is usually
-Greenbone Vulnerability Manager for which a global trusted CA certficate
+Greenbone Vulnerability Manager for which a global trusted CA certificate
 can be configured.
 
 

@@ -226,7 +226,7 @@ class ResultType(object):
 
 __inet_pton = None
 def inet_pton(address_family, ip_string):
-    """ A platform independant version of inet_pton """
+    """ A platform independent version of inet_pton """
     global __inet_pton
     if __inet_pton is None:
         if hasattr(socket, 'inet_pton'):
@@ -239,7 +239,7 @@ def inet_pton(address_family, ip_string):
 
 __inet_ntop = None
 def inet_ntop(address_family, packed_ip):
-    """ A platform independant version of inet_ntop """
+    """ A platform independent version of inet_ntop """
     global __inet_ntop
     if __inet_ntop is None:
         if hasattr(socket, 'inet_ntop'):

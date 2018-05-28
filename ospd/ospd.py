@@ -246,7 +246,7 @@ class OSPDaemon(object):
         # @todo: Actually it makes sense to move the certificate params to
         #        a separate function because it is not mandatory anymore to
         #        use a TLS setup (unix file socket is an alternative).
-        #        However, chaning this makes it mandatory for any ospd scanner
+        #        However, changing this makes it mandatory for any ospd scanner
         #        to change the function calls as well. So this breaks the API
         #        and should only be done with a major release.
         self.certs = dict()
@@ -346,7 +346,7 @@ class OSPDaemon(object):
         return params
 
     def process_scan_params(self, params):
-        """ This method is to be overriden by the child classes if necessary
+        """ This method is to be overridden by the child classes if necessary
         """
         return params
 
@@ -659,7 +659,7 @@ class OSPDaemon(object):
         return txt
 
     def elements_as_text(self, elems, indent=2):
-        """ Returns the elems dictionnary as formatted plain text. """
+        """ Returns the elems dictionary as formatted plain text. """
         assert elems
         text = ""
         for elename, eledesc in elems.items():
@@ -669,7 +669,7 @@ class OSPDaemon(object):
             elif isinstance(eledesc, str):
                 desc_txt = ''.join([eledesc, '\n'])
             else:
-                assert False, "Only string or dictionnary"
+                assert False, "Only string or dictionary"
             ele_txt = "\t{0}{1: <22} {2}".format(' ' * indent, elename,
                                                  desc_txt)
             text = ''.join([text, ele_txt])
@@ -719,7 +719,7 @@ class OSPDaemon(object):
     def get_xml_str(self, data):
         """ Creates a string in XML Format using the provided data structure.
 
-        @param: Dictionnary of xml tags and their elements.
+        @param: Dictionary of xml tags and their elements.
 
         @return: String of data in xml format.
         """
@@ -857,7 +857,7 @@ class OSPDaemon(object):
                     self.handle_client_stream(client_stream, False)
                 close_client_stream(client_stream, unix_path)
         except KeyboardInterrupt:
-            logger.info("Recieved Ctrl-C shuting-down ...")
+            logger.info("Received Ctrl-C shutting-down ...")
         finally:
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()

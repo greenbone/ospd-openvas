@@ -78,7 +78,7 @@ setup(
     ],
 
     # What does your project relate to?
-    keywords=['Greenbone Vulnerbility Manager OSP'],
+    keywords=['Greenbone Vulnerability Manager OSP'],
 
     # List run-time dependencies here. These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's
