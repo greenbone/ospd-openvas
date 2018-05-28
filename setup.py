@@ -42,7 +42,7 @@ setup(
     # http://packaging.python.org/en/latest/tutorial.html#version
     version=__version__,
 
-    description=('OSPD is a collection of scanner wrappers which share the '
+    description=('OSPD is a base for scanner wrappers which share the '
                  'same communication protocol: OSP (Open Scanner '
                  'Protocol)'),
     long_description=long_description,
@@ -74,7 +74,7 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.5',
     ],
 
     # What does your project relate to?
