@@ -1,3 +1,13 @@
+SUMMARY OF RELEASE CHANGES FOR OSPD
+===================================
+
+For detailed code changes, please visit
+ https://github.com/greenbone/ospd/commits/master
+or get the entire source code repository and view log history:
+$ git clone https://github.com/greenbone/ospd.git
+$ cd ospd && git log
+
+
 ospd 1.2.0 (2016-11-16)
 
 This is the 1.2.0 release of the ospd module for the Open Vulnerability
