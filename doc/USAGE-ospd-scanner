@@ -1,7 +1,7 @@
 GENERAL USAGE INSTRUCTIONS for OSPD-BASED SCANNERS
 --------------------------------------------------
 
-This is a general description about how to use a
+This is a general description about how to use an
 ospd-based scanner wrapper implementation.
 
 The actual scanner implementation has a individual
@@ -15,7 +15,7 @@ See the INSTALL of your ospd-based scanner and the general
 instructions in file ospd/doc/INSTALL-ospd-scanner on how to
 hand over full control to the Greenbone Vulnerability Manager.
 
-This usage guide explains how to use a OSP scanner independently
+This usage guide explains how to use an OSP scanner independently
 from Greenbone Vulnerability Manager, for example when developing
 a new ospd-based scanner or for testing purposes.
 
@@ -25,9 +25,9 @@ Open Scanner Protocol
 
 Using a ospd-based scanner means to use the Open Scanner Protocol
 (OSP). This is what Greenbone Vulnerability Manager does.
-See the ospd module for the original specificatoin (ospd/doc/OSP.xml).
+See the ospd module for the original specification (ospd/doc/OSP.xml).
 
-There are also online version, for example: 
+There is also an online version available at:
 
   http://docs.greenbone.net/API/OSP/osp-1.0.html
 
@@ -36,15 +36,15 @@ gvm-tools
 ---------
 
 The gvm-tools help to make accessing the OSP interface easier.
-It can be optained from
+They can be obtained from
 
   https://github.com/greenbone/gvm-tools
 
-This module provide the comands gvm-cli and gvm-pyshell.
+This module provides the commands gvm-cli and gvm-pyshell.
 
 
-Starting a ospd-based scanner
------------------------------
+Starting an ospd-based scanner
+------------------------------
 
 All ospd-based scanners share a set of command-line options such as
 --help, --bind-address, --port, --key-file, --timeout etc.
@@ -68,27 +68,23 @@ Parameter for --log-level can be one of debug, info, warnings, error, or
 critical (in order of priority).
 
 
-Controlling a OSP scanner
--------------------------
+Controlling an OSP scanner
+--------------------------
 
-You can use command line tools of "gvm-tools" module to send to and
-receive information from the scanners.
+You can use command line tools of "gvm-tools" module to interact with an OSP
+scanner.
 
-Get a description of the interface:
+To get a description of the interface:
 
 $ gvm-cli socket --sockpath <prefix>/var/run/ospd-scanner.sock --xml "<help/>"
 
-or
-
-$ gvm-cli --use-certs -p 1234 -i --xml="<help/>"
-
 
 Starting a scan (scanner parameters can be added according to the description
-printed upon the command "<help/>":
+printed upon the command "<help/>"):
 
 $ gvm-cli socket --sockpath <prefix>/var/run/ospd-scanner.sock --xml="<start_scan target='www.example.com'></start_scan>"
 
 
-Show the list of scans, their status and results:
+Show the list of scans, their statuses and results:
 
 $ gvm-cli socket --sockpath <prefix>/var/run/ospd-scanner.sock --xml="<get_scans/>"
