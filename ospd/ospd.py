@@ -6,9 +6,10 @@
 # Authors:
 # Hani Benhabiles <hani.benhabiles@greenbone.net>
 # Benoît Allard <benoit.allard@greenbone.net>
+# Jan-Oliver Wahmer <jan-oliver.wagner@greenbone.net>
 #
 # Copyright:
-# Copyright (C) 2014, 2015 Greenbone Networks GmbH
+# Copyright (C) 2014, 2015, 2018 Greenbone Networks GmbH
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -44,7 +45,7 @@ from ospd.misc import resolve_hostname, valid_uuid
 
 logger = logging.getLogger(__name__)
 
-PROTOCOL_VERSION = "1.1"
+PROTOCOL_VERSION = "1.2"
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -92,6 +93,13 @@ COMMANDS_TABLE = {
         'attributes': {
             'scan_id': 'ID of a specific scan to get.',
             'details': 'Whether to return the full scan report.'
+        },
+        'elements': None
+    },
+    'get_vts': {
+        'description': 'List of available vulnerability tests.',
+        'attributes': {
+            'vt_id': 'ID of a specific vulnerability test to get.'
         },
         'elements': None
     },
@@ -267,6 +275,7 @@ class OSPDaemon(object):
         self.protocol_version = PROTOCOL_VERSION
         self.commands = COMMANDS_TABLE
         self.scanner_params = dict()
+        self.vts = dict()
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
 
@@ -286,6 +295,22 @@ class OSPDaemon(object):
         command['elements'] = {
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
+
+    def add_vt(self, vt_id, name=''):
+        """ Add a vulnerability test information.
+
+        Returns: The new number of stored VTs.
+        -1 in case the VT ID was already present and thus the
+        new VT was not considered.
+        -2 in case the vt_id was invalid.
+        """
+
+        if vt_id and vt_id in self.vts:
+            return -1 # The VT was already in the list.
+        elif vt_id:
+            self.vts[vt_id] = { 'name': name }
+            return len(self.vts)
+        return -2 # no valid vt_id
 
     def command_exists(self, name):
         """ Checks if a commands exists. """
@@ -626,6 +651,29 @@ class OSPDaemon(object):
                 responses.append(scan)
         return simple_response_str('get_scans', 200, 'OK', responses)
 
+    def handle_get_vts_command(self, vt_et):
+        """ Handles <get_vts> command.
+
+        @return: Response string for <get_vts> command.
+        """
+
+        vt_id = vt_et.attrib.get('vt_id')
+
+        if vt_id and vt_id not in self.vts:
+            text = "Failed to find vulnerability test '{0}'".format(vt_id)
+            return simple_response_str('get_vts', 404, text)
+
+        responses = []
+
+        if vt_id:
+            vts_xml = self.get_vts_xml(vt_id)
+        else:
+            vts_xml = self.get_vts_xml()
+
+        responses.append(vts_xml)
+
+        return simple_response_str('get_vts', 200, 'OK', responses)
+
     def handle_help_command(self, scan_et):
         """ Handles <help> command.
 
@@ -741,7 +789,7 @@ class OSPDaemon(object):
     def get_scan_xml(self, scan_id, detailed=True):
         """ Gets scan in XML format.
 
-        @return: String of scan in xml format.
+        @return: String of scan in XML format.
         """
         if not scan_id:
             return ET.Element('scan')
@@ -760,6 +808,42 @@ class OSPDaemon(object):
         if detailed:
             response.append(self.get_scan_results_xml(scan_id))
         return response
+
+    def get_vt_xml(self, vt_id):
+        """ Gets a single vulnerability test information in XML format.
+
+        @return: String of single vulnerability test information in XML format.
+        """
+        if not vt_id:
+            return ET.Element('vt')
+
+        vt = self.vts.get(vt_id)
+
+        name = vt.get('name')
+        vt_xml = ET.Element('vt')
+        vt_xml.set('id', vt_id)
+        for name, value in [('name', name)]:
+            elem = ET.SubElement(vt_xml, name)
+            elem.text = str(value)
+        return vt_xml
+
+    def get_vts_xml(self, vt_id=''):
+        """ Gets collection of vulnerability test information in XML format.
+        If vt_id is specified, the collection will contain only this vt, of found.
+        If no vt_id is specified, the collection will contain all vts.
+
+        @return: String of collection of vulnerability test information in XML format.
+        """
+
+        vts_xml = ET.Element('vts')
+
+        if vt_id != '':
+            vts_xml.append(self.get_vt_xml(vt_id))
+        else:
+            for vt_id in self.vts:
+                vts_xml.append(self.get_vt_xml(vt_id))
+
+        return vts_xml
 
     def handle_get_scanner_details(self):
         """ Handles <get_scanner_details> command.
@@ -818,6 +902,8 @@ class OSPDaemon(object):
             return self.handle_stop_scan_command(tree)
         elif tree.tag == "get_scans":
             return self.handle_get_scans_command(tree)
+        elif tree.tag == "get_vts":
+            return self.handle_get_vts_command(tree)
         elif tree.tag == "delete_scan":
             return self.handle_delete_scan_command(tree)
         elif tree.tag == "help":
