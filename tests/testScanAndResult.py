@@ -63,6 +63,25 @@ class FullTest(unittest.TestCase):
         response = ET.fromstring(daemon.handle_command('<get_version />'))
         print(ET.tostring(response))
 
+    def testGetVTs_no_VT(self):
+        daemon = DummyWrapper([])
+        response = ET.fromstring(daemon.handle_command('<get_vts />'))
+        print(ET.tostring(response))
+
+    def testGetVTs_single_VT(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4', 'A vulnerability test')
+        response = ET.fromstring(daemon.handle_command('<get_vts />'))
+        print(ET.tostring(response))
+
+    def testGetVTs_multiple_VTs(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4', 'A vulnerability test')
+        daemon.add_vt('some id', 'Another vulnerability test')
+        daemon.add_vt('123456789', 'Yet another vulnerability test')
+        response = ET.fromstring(daemon.handle_command('<get_vts />'))
+        print(ET.tostring(response))
+
     def testiScanWithError(self):
         daemon = DummyWrapper([
             Result('error', value='something went wrong'),
