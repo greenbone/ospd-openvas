@@ -1,0 +1,20 @@
+INSTALLATION INSTRUCTIONS FOR OSPD-OPENVAS
+==========================================
+
+Prerequisites for OSPD-OPENVAS
+-------------------------------
+
+Prerequisites:
+* Python 3
+* ospd: Base class for OSP servers.
+
+
+Installing OSPD-OPENVAS
+------------------------
+
+There are no special installation aspects for this module
+beyond the general installation guide for ospd-based scanners.
+
+Please follow the general installation guide for ospd-based scanners:
+
+  https://github.com/greenbone/ospd/blob/master/doc/INSTALL-ospd-scanner
