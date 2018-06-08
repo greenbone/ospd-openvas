@@ -5,9 +5,10 @@ Description: OSP schema with embedded documentation, in OSP.
 
 Authors:
 Hani Benhabiles <hani.benhabiles@greenbone.net>
+Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
 
 Copyright:
-Copyright (C) 2014, 2015 Greenbone Networks GmbH
+Copyright (C) 2014, 2015, 2018 Greenbone Networks GmbH
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <name>Open Scanner Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
-  <version>1.1</version>
+  <version>1.2</version>
   <type>
     <name>integer</name>
     <summary>An integer</summary>
@@ -473,6 +474,86 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
   </command>
+
+  <command>
+    <name>get_vts</name>
+    <summary>Return information about vulnerability tests, if offered by scanner</summary>
+    <pattern>
+      <attrib>
+        <name>vt_id</name>
+        <summary>Identifier for vulnerability test</summary>
+        <type>string</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>integer</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>vts</e>
+      </pattern>
+      <ele>
+        <name>vts</name>
+        <pattern>
+          <any><e>vt</e></any>
+        </pattern>
+        <ele>
+          <name>vt</name>
+          <pattern>
+            <attrib>
+              <name>id</name>
+              <type>string</type>
+            </attrib>
+            <e>name</e>
+          </pattern>
+          <ele>
+            <name>name</name>
+          </ele>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Get information for all available vulnerability tests</summary>
+      <request>
+        <get_vts/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts>
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerabilty X</name>
+            </vt>
+            <vt id="ad45h67">
+              <name>Check for presence of vulnerabilty Y</name>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a single vulnerability test</summary>
+      <request>
+        <get_vts id='1.2.3.4.5'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts>
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerabilty X</name>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+  </command>
+
   <command>
     <name>start_scan</name>
     <summary>Start a new scan</summary>
@@ -599,6 +680,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>command added</summary>
+    <description>
+      Added new command to retrieve information about vulnerability tests a scanner might offer.
+    </description>
+    <version>1.2</version>
+  </change>
+
   <change>
     <command>STOP_SCAN</command>
     <summary>command added</summary>
