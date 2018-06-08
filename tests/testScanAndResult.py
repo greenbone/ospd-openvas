@@ -44,12 +44,17 @@ class DummyWrapper(OSPDaemon):
                 raise ValueError(res.result_type)
 
 class FullTest(unittest.TestCase):
-    # There should be a lot more assert in there !
+    # TODO: There should be a lot more assert in there !
 
     def testGetDefaultScannerParams(self):
         daemon = DummyWrapper([])
         response = ET.fromstring(daemon.handle_command('<get_scanner_details />'))
-        print(ET.tostring(response))
+        # The status of the response must be success (i.e. 200)
+        self.assertEqual(response.get('status'), '200')
+        # The response root element must have the correct name
+        self.assertEqual(response.tag, 'get_scanner_details_response')
+        # The response must contain a 'scanner_params' element
+        self.assertIsNotNone(response.find('scanner_params'))
 
     def testGetDefaultHelp(self):
         daemon = DummyWrapper([])
