@@ -29,6 +29,9 @@ class DummyWrapper(OSPDaemon):
     def check(self):
         return self.checkresults
 
+    def get_custom_vt_as_xml_str(self, custom):
+        return '<mytest>static test</mytest>'
+
     def exec_scan(self, scan_id, target):
         time.sleep(0.01)
         for res in self.results:
@@ -83,6 +86,14 @@ class FullTest(unittest.TestCase):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
         daemon.add_vt('some id', 'Another vulnerability test')
+        daemon.add_vt('123456789', 'Yet another vulnerability test')
+        response = ET.fromstring(daemon.handle_command('<get_vts />'))
+        print(ET.tostring(response))
+
+    def testGetVTs_multiple_VTs_with_custom(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4', 'A vulnerability test')
+        daemon.add_vt('some id', 'Another vulnerability test with custom info', { 'depencency': '1.2.3.4' })
         daemon.add_vt('123456789', 'Yet another vulnerability test')
         response = ET.fromstring(daemon.handle_command('<get_vts />'))
         print(ET.tostring(response))
