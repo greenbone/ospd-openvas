@@ -32,6 +32,8 @@ from ospd.ospd import OSPDaemon
 from ospd.misc import main as daemon_main
 from ospd_openvas import __version__
 
+import ospd_openvas.openvas_db as openvas_db
+
 OSPD_DESC = """
 This scanner runs 'OpenVAS Scanner' to scan the target hosts.
 
@@ -43,8 +45,8 @@ various types of systems and services.
 For more details about OpenVAS see the OpenVAS homepage:
 http://www.openvas.org/
 
-The current version of ospd-openvas is a simple frame, which sends 
-the server parameters to the Greenbone Vulnerability Manager (GVM) and checks the 
+The current version of ospd-openvas is a simple frame, which sends
+the server parameters to the Greenbone Vulnerability Manager (GVM) and checks the
 existence of OpenVAS Scanner binary. But it can not run scans yet.
 """
 
@@ -201,9 +203,14 @@ class OSPDopenvas(OSPDaemon):
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
 
+        if openvas_db.db_init() is False:
+            self.add_scan_error(scan_id, host=target,
+                 value='OpenVAS Redis Error: Not possible to find db_connection.')
+            return 2
+
 
     def parse_param(self):
-        ''' Set OSPD_PARAMS with the params taken from the openvas_scanner. '''
+        """ Set OSPD_PARAMS with the params taken from the openvas_scanner. """
         global OSPD_PARAMS
         result = subprocess.check_output(['openvassd', '-s'],
                                          stderr=subprocess.STDOUT)

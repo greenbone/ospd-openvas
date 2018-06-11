@@ -7,6 +7,7 @@ Prerequisites for OSPD-OPENVAS
 Prerequisites:
 * Python 3
 * ospd: Base class for OSP servers.
+* python3-redis
 
 
 Installing OSPD-OPENVAS
