@@ -512,9 +512,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <type>string</type>
             </attrib>
             <e>name</e>
+            <e>custom</e>
           </pattern>
           <ele>
             <name>name</name>
+          </ele>
+          <ele>
+            <name>custom</name>
           </ele>
         </ele>
       </ele>
@@ -547,6 +551,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerabilty X</name>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a vulnerability test with custom data</summary>
+      <request>
+        <get_vts id='1.2.3.4.5'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts>
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerabilty X</name>
+	      <custom>
+                <my_element>First custom element</my_element>
+                <my_other_element>second custom element</my_other_element>
+	      </custom>
             </vt>
           </vts>
         </get_vts_response>

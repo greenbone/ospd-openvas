@@ -296,7 +296,7 @@ class OSPDaemon(object):
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
-    def add_vt(self, vt_id, name=''):
+    def add_vt(self, vt_id, name='', custom=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -305,12 +305,18 @@ class OSPDaemon(object):
         -2 in case the vt_id was invalid.
         """
 
-        if vt_id and vt_id in self.vts:
+        if not vt_id:
+            return -2 # no valid vt_id
+
+        if vt_id in self.vts:
             return -1 # The VT was already in the list.
-        elif vt_id:
+
+        if vt_id and custom is not None:
+            self.vts[vt_id] = { 'name': name, 'custom': custom }
+        else:
             self.vts[vt_id] = { 'name': name }
-            return len(self.vts)
-        return -2 # no valid vt_id
+
+        return len(self.vts)
 
     def command_exists(self, name):
         """ Checks if a commands exists. """
@@ -809,6 +815,19 @@ class OSPDaemon(object):
             response.append(self.get_scan_results_xml(scan_id))
         return response
 
+    def get_custom_vt_as_xml_str(self, custom):
+        """ Create a string representation of the XML object from the
+        custom data object.
+        This needs to be implemented by each ospd wrapper, in case
+        custom elements for VTs are used.
+
+        The custom XML object which is returned will be embedded
+        into a <custom></custom> element.
+
+        @return: XML object as string for custom data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -822,9 +841,15 @@ class OSPDaemon(object):
         name = vt.get('name')
         vt_xml = ET.Element('vt')
         vt_xml.set('id', vt_id)
+
         for name, value in [('name', name)]:
             elem = ET.SubElement(vt_xml, name)
             elem.text = str(value)
+
+        if vt.get('custom'):
+            custom_xml_str = '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(vt.get('custom'))
+            vt_xml.append(ET.fromstring(custom_xml_str))
+
         return vt_xml
 
     def get_vts_xml(self, vt_id=''):
