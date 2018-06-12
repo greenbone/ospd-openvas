@@ -227,7 +227,7 @@ def get_pattern(pattern):
 
     elem_list = []
     for item in items:
-        elem_list.append(ctx.smembers(item))
+        elem_list.append([item, ctx.smembers(item)])
     return elem_list
 
 def release_db(kbindex=0):

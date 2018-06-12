@@ -205,9 +205,13 @@ class OSPDopenvas(OSPDaemon):
 
         if openvas_db.db_init() is False:
             self.add_scan_error(scan_id, host=target,
-                 value='OpenVAS Redis Error: Not possible to find db_connection.')
+                 value='OpenVAS Redis Error: Not possible' +
+                       'to find db_connection.')
             return 2
 
+        ctx = openvas_db.db_find('nvticache10')
+        openvas_db.set_global_redisctx(ctx)
+        self.load_vts()
 
     def parse_param(self):
         """ Set OSPD_PARAMS with the params taken from the openvas_scanner. """
@@ -224,6 +228,17 @@ class OSPDopenvas(OSPDaemon):
             if elem in param_list:
                 OSPD_PARAMS[elem]['default'] = param_list[elem]
 
+    def load_vts(self):
+        """ Load the NVT's OIDs and their filename into the vts
+        global  dictionary. """
+        oids = openvas_db.get_pattern('filename:*:oid')
+        for oid in oids:
+            vt_id = oid[1].pop()
+            ret = self.add_vt(vt_id, name=oid[0])
+            if ret == -1:
+                logger.info("Dupplicated VT with OID: {0}".format(vt_id))
+            if ret == -2:
+                logger.info("{0}: Invalid OID.".format(vt_id))
 
     def check(self):
         """ Checks that openvassd command line tool is found and
