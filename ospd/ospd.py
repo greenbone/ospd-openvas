@@ -286,7 +286,7 @@ class OSPDaemon(object):
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
         self.vts = dict()
-        self.vt_id_pattern = re.compile("[0-9a-zA-Z_:.]{1,80}")
+        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\-:.]{1,80}")
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
