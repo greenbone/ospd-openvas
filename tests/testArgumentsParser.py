@@ -53,7 +53,6 @@ class testArgumentParser(unittest.TestCase):
         args = get_common_args(self.parser, '-k /etc/passwd'.split())
         self.assertEqual('/etc/passwd', args['keyfile'])
 
-    
-    def testDefaultLogLevel(self):
+    def testDefaultKey(self):
         args = get_common_args(self.parser, [])
         self.assertEqual(misc.KEY_FILE, args['keyfile'])
