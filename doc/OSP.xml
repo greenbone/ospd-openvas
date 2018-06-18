@@ -52,6 +52,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>A date, in unix format</summary>
     <pattern>integer</pattern>
   </type>
+  <type>
+    <name>vt_id</name>
+    <summary>Identifier for a vulnerability test</summary>
+    <pattern>xsd:token { pattern = "[0-9a-zA-Z_\-.:]{1,80}" }</pattern>
+  </type>
   <command>
     <name>help</name>
     <summary>Get the help text</summary>
@@ -482,7 +487,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <attrib>
         <name>vt_id</name>
         <summary>Identifier for vulnerability test</summary>
-        <type>string</type>
+        <type>vt_id</type>
       </attrib>
     </pattern>
     <response>
@@ -509,7 +514,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <pattern>
             <attrib>
               <name>id</name>
-              <type>string</type>
+              <type>vt_id</type>
             </attrib>
             <e>name</e>
             <e>custom</e>
@@ -638,7 +643,23 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         </start_scan_response>
       </response>
     </example>
+    <example>
+      <summary>Start a new scan with a VT selection</summary>
+      <request>
+        <start_scan target='localhost' ports='80, 443'>
+          <scanner_params>
+            <vts>1.2.3.4.5, 22.34.61.1, 3.67.4.2</vts>
+          </scanner_params>
+        </start_scan>
+      </request>
+      <response>
+        <start_scan_response status_text="OK" status="200">
+          <id>2f616d53-595f-4785-9b97-4395116ca118</id>
+        </start_scan_response>
+      </response>
+    </example>
   </command>
+
   <command>
     <name>stop_scan</name>
     <summary>Stop a currently running scan</summary>

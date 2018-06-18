@@ -38,6 +38,7 @@ import ssl
 import multiprocessing
 import xml.etree.ElementTree as ET
 import os
+import re
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
@@ -61,6 +62,13 @@ BASE_SCANNER_PARAMS = {
         'default': 0,
         'mandatory': 0,
         'description': 'Whether to dry run scan.',
+    },
+    'vts': {
+        'type': 'string',
+        'name': 'Vulnerability Tests',
+        'default': '',
+        'mandatory': 0,
+        'description': 'Comma-separated list of vulnerability test IDs to be executed.',
     },
 }
 
@@ -275,9 +283,10 @@ class OSPDaemon(object):
         self.protocol_version = PROTOCOL_VERSION
         self.commands = COMMANDS_TABLE
         self.scanner_params = dict()
-        self.vts = dict()
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
+        self.vts = dict()
+        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\-:.]{1,80}")
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -306,6 +315,9 @@ class OSPDaemon(object):
         """
 
         if not vt_id:
+            return -2 # no valid vt_id
+
+        if self.vt_id_pattern.fullmatch(vt_id) is None:
             return -2 # no valid vt_id
 
         if vt_id in self.vts:
