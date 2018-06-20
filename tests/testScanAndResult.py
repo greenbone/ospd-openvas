@@ -129,3 +129,21 @@ class FullTest(unittest.TestCase):
         response = ET.fromstring(daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
         print(ET.tostring(response))
+
+    def testStopScan(self):
+        daemon = DummyWrapper([])
+        response = ET.fromstring(
+            daemon.handle_command('<start_scan ' +
+                                  'target="localhost" ports="80, 443">' +
+                                  '<scanner_params /></start_scan>'))
+        print(ET.tostring(response))
+        scan_id = response.findtext('id')
+        time.sleep(0.01)
+
+        response = daemon.stop_scan(scan_id)
+        self.assertEqual(response, None)
+
+        response = ET.fromstring(daemon.handle_command(
+            '<stop_scan scan_id="%s" />' % scan_id))
+        self.assertEqual(response.get('status'), '200')
+        print(ET.tostring(response))

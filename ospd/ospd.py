@@ -448,6 +448,7 @@ class OSPDaemon(object):
             raise OSPDError('Scan already stopped or finished.', 'stop_scan')
 
         logger.info('{0}: Scan stopping {1}.'.format(scan_id, scan_process.ident))
+        self.stop_scan(scan_id)
         scan_process.terminate()
         os.killpg(os.getpgid(scan_process.ident), 15)
         scan_process.join()
@@ -455,6 +456,10 @@ class OSPDaemon(object):
         self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
         logger.info('{0}: Scan stopped.'.format(scan_id))
         return simple_response_str('stop_scan', 200, 'OK')
+
+    def stop_scan(self, scan_id):
+        """ Should be implemented by subclass in case of a clean up before
+        terminating is needed. """
 
     def exec_scan(self, scan_id, target):
         """ Asserts to False. Should be implemented by subclass. """
