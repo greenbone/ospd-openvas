@@ -100,6 +100,13 @@ $ gvmd --create-scanner="OSP Scanner" --scanner-host=127.0.0.1 --scanner-port=12
        --scanner-key-pub=/usr/var/lib/gvm/CA/clientcert.pem \
        --scanner-key-priv=/usr/var/lib/gvm/private/CA/clientkey.pem 
 
+or for local running ospd-scanner via file socket:
+
+$ gvmd --create-scanner="OSP Scanner" --scanner-type="OSP" --scanner-host=/var/run/ospd-scanner.sock
+
+Please note that the scanner created via gvmd like above will be created with read permissions
+to all pre-configured roles.
+
 Check whether Greenbone Vulnerability Manager can connect to the OSP daemon:
 
 $ gvmd --get-scanners
