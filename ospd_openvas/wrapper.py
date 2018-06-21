@@ -22,10 +22,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-import logging
 import subprocess
 
-from ospd.ospd import OSPDaemon
+from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
 from ospd_openvas import __version__
 
@@ -202,10 +201,9 @@ class OSPDopenvas(OSPDaemon):
             self.add_scanner_param(name, param)
 
         if openvas_db.db_init() is False:
-            self.add_scan_error(
-                scan_id, host=target,
-                value='OpenVAS Redis Error: Not possible to find db_connection.')
-            return 2
+            logger.error('OpenVAS Redis Error: Not possible '
+                         'to find db_connection.')
+            raise Exception
 
         ctx = openvas_db.db_find('nvticache10')
         openvas_db.set_global_redisctx(ctx)
