@@ -22,11 +22,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-import subprocess
-import time
-import os
 import logging
-import xml.etree.ElementTree as ET
+import subprocess
 
 from ospd.ospd import OSPDaemon
 from ospd.misc import main as daemon_main
@@ -59,14 +56,14 @@ OSPD_PARAMS = {
         'description': 'Automatically enable the plugins that are depended on',
     },
     'cgi_path': {
-        'type' : 'string',
+        'type': 'string',
         'name': 'cgi_path',
         'default': '/cgi-bin:/scripts',
         'mandatory': 1,
         'description': 'Look for default CGIs in /cgi-bin and /scripts',
     },
     'checks_read_timeout': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'checks_read_timeout',
         'default': 5,
         'mandatory': 1,
@@ -87,35 +84,35 @@ OSPD_PARAMS = {
         'description': '',
     },
     'non_simult_ports': {
-        'type' : 'string',
+        'type': 'string',
         'name': 'non_simult_ports',
         'default': '139, 445, 3389, Services/irc',
         'mandatory': 1,
         'description': 'Prevent to make two connections on the same given ports at the same time.',
     },
     'open_sock_max_attempts': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'open_sock_max_attempts',
         'default': 5,
         'mandatory': 0,
         'description': 'Number of unsuccessful retries to open the socket before to set the port as closed.',
     },
     'timeout_retry': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'timeout_retry',
         'default': 5,
         'mandatory': 0,
         'description': 'Number of retries when a socket connection attempt timesout.',
     },
     'optimize_test': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'optimize_test',
         'default': 5,
         'mandatory': 0,
         'description': 'By default, openvassd does not trust the remote host banners.',
     },
     'plugins_timeout': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'plugins_timeout',
         'default': 5,
         'mandatory': 0,
@@ -136,14 +133,14 @@ OSPD_PARAMS = {
         'description': 'Disable the plugins with potential to crash the remote services',
     },
     'scanner_plugins_timeout': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'scanner_plugins_timeout',
         'default': 36000,
         'mandatory': 1,
         'description': 'Like plugins_timeout, but for ACT_SCANNER plugins.',
     },
     'time_between_request': {
-        'type' : 'integer',
+        'type': 'integer',
         'name': 'time_between_request',
         'default': 0,
         'mandatory': 0,
@@ -171,20 +168,21 @@ OSPD_PARAMS = {
         'description': 'To test the local network. Hosts will be referred to by their MAC address.',
     },
     'vhosts': {
-        'type' : 'string',
+        'type': 'string',
         'name': 'vhosts',
         'default': '',
         'mandatory': 0,
         'description': '',
     },
     'vhosts_ip': {
-        'type' : 'string',
+        'type': 'string',
         'name': 'vhosts_ip',
         'default': '',
         'mandatory': 0,
         'description': '',
     },
 }
+
 
 class OSPDopenvas(OSPDaemon):
 
@@ -195,18 +193,18 @@ class OSPDopenvas(OSPDaemon):
         global COMMANDS_TABLE
 
         super(OSPDopenvas, self).__init__(certfile=certfile, keyfile=keyfile,
-                                    cafile=cafile)
+                                          cafile=cafile)
         self.server_version = __version__
         self.scanner_info['name'] = 'openvassd'
-        self.scanner_info['version'] = '' # achieved during self.check()
+        self.scanner_info['version'] = ''  # achieved during self.check()
         self.scanner_info['description'] = OSPD_DESC
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
 
         if openvas_db.db_init() is False:
-            self.add_scan_error(scan_id, host=target,
-                 value='OpenVAS Redis Error: Not possible' +
-                       'to find db_connection.')
+            self.add_scan_error(
+                scan_id, host=target,
+                value='OpenVAS Redis Error: Not possible to find db_connection.')
             return 2
 
         ctx = openvas_db.db_find('nvticache10')
@@ -262,7 +260,6 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['version'] = result.replace('\n', '. ')
         return True
 
-
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
 
@@ -273,6 +270,7 @@ class OSPDopenvas(OSPDaemon):
                           value='An OpenVAS Scanner was started for %s.'
                           % target)
         return 1
+
 
 def main():
     """ OSP openvas main function. """

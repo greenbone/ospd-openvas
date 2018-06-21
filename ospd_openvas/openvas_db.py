@@ -31,7 +31,6 @@ from __future__ import print_function
 
 import redis
 import subprocess
-import string
 
 """ Path to the Redis socket. """
 DB_ADDRESS = ""
