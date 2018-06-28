@@ -295,6 +295,11 @@ class OSPDopenvas(OSPDaemon):
 
         return True
 
+    def scan_is_finished(self, scan_id):
+        """ Check if the scan has finished. """
+        status = openvas_db.item_get_single(('internal/%s' % scan_id))
+        return status == 'finished'
+
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
         global MAIN_KBINDEX
@@ -340,6 +345,48 @@ class OSPDopenvas(OSPDaemon):
         self.add_scan_log(scan_id, host=target, name='OpenVAS summary',
                           value='An OpenVAS Scanner was started for %s.'
                           % target)
+
+        self.add_scan_log(scan_id, host=target, name='KB location Found',
+                          value='KB location path was found: %s.'
+                          % openvas_db.DB_ADDRESS)
+
+        self.add_scan_log(scan_id, host=target, name='Feed Update',
+                          value='Feed version: %s.'
+                          % nvti.get_feed_version())
+
+        cmd = ['openvassd', '--scan-start', scan_id]
+        try:
+            result = subprocess.Popen(cmd, shell=False)
+        except OSError:
+            # the command is not available
+            return False
+
+        ovas_pid = result.pid
+        logger.debug('pid = {0}'.format(ovas_pid))
+
+        no_id_found = False
+        while (1):
+            time.sleep(3)
+
+            for i in range(1, openvas_db.MAX_DBINDEX):
+                if i == MAIN_KBINDEX:
+                    continue
+                ctx = openvas_db.kb_connect(i)
+                openvas_db.set_global_redisctx(ctx)
+                id_aux = openvas_db.item_get_single('internal/scan_id')
+                if not id_aux:
+                    continue
+                if id_aux == scan_id:
+                    no_id_found = False
+                    if self.scan_is_finished(scan_id):
+                        openvas_db.release_db(i)
+            # Scan end. No kb in use for this scan id
+            if no_id_found:
+                break
+            no_id_found = True
+
+        # Delete keys from KB related to this scan task.
+        openvas_db.release_db(MAIN_KBINDEX)
         return 1
 
 
