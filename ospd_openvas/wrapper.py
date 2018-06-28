@@ -23,11 +23,18 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 import subprocess
+import time
+import os
+import signal
+import psutil
 
 from ospd.ospd import OSPDaemon, logger
+from ospd.ospd import simple_response_str
 from ospd.misc import main as daemon_main
+from ospd.misc import target_str_to_list
 from ospd_openvas import __version__
 
+import ospd_openvas.nvticache as nvti
 import ospd_openvas.openvas_db as openvas_db
 
 OSPD_DESC = """
@@ -189,7 +196,6 @@ class OSPDopenvas(OSPDaemon):
 
     def __init__(self, certfile, keyfile, cafile):
         """ Initializes the ospd-openvas daemon's internal data. """
-        global COMMANDS_TABLE
 
         super(OSPDopenvas, self).__init__(certfile=certfile, keyfile=keyfile,
                                           cafile=cafile)
@@ -205,13 +211,15 @@ class OSPDopenvas(OSPDaemon):
                          'to find db_connection.')
             raise Exception
 
-        ctx = openvas_db.db_find('nvticache10')
+        ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
         openvas_db.set_global_redisctx(ctx)
         self.load_vts()
 
     def parse_param(self):
         """ Set OSPD_PARAMS with the params taken from the openvas_scanner. """
         global OSPD_PARAMS
+        bool_dict = {'no': 0, 'yes': 1}
+
         result = subprocess.check_output(['openvassd', '-s'],
                                          stderr=subprocess.STDOUT)
         result = result.decode('ascii')
@@ -219,7 +227,10 @@ class OSPDopenvas(OSPDaemon):
         for conf in result.split('\n'):
             elem = conf.split('=')
             if len(elem) == 2:
-                param_list[str.strip(elem[0])] = str.strip(elem[1])
+                value = str.strip(elem[1])
+                if str.strip(elem[1]) in bool_dict:
+                    value = bool_dict[value]
+                param_list[str.strip(elem[0])] = value
         for elem in OSPD_PARAMS:
             if elem in param_list:
                 OSPD_PARAMS[elem]['default'] = param_list[elem]
@@ -228,13 +239,28 @@ class OSPDopenvas(OSPDaemon):
         """ Load the NVT's OIDs and their filename into the vts
         global  dictionary. """
         oids = openvas_db.get_pattern('filename:*:oid')
+        is_custom = 1
         for oid in oids:
             vt_id = oid[1].pop()
-            ret = self.add_vt(vt_id, name=oid[0])
+            filename = oid[0].split(':')
+            ret = self.add_vt(vt_id,
+                              name=filename[1],
+                              custom=nvti.get_nvt_all(vt_id, is_custom))
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
                 logger.info("{0}: Invalid OID.".format(vt_id))
+
+    def get_custom_vt_as_xml_str(self, custom):
+        """ Create a string representation of the XML object from the
+        custom data object.
+
+        The custom XML object which is returned will be embedded
+        into a <custom></custom> element.
+
+        @return: XML object as string for custom data.
+        """
+        return custom
 
     def check(self):
         """ Checks that openvassd command line tool is found and
