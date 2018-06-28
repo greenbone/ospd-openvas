@@ -59,7 +59,7 @@ def get_nvt_pref(oid):
         xml_timeout.text = timeout
         preferences.append(xml_timeout)
 
-    if len(resp) > 0:
+    if resp:
         for nvt_pref in resp:
             elem = nvt_pref.split('|||')
             preference = ET.Element('preference')
@@ -82,7 +82,7 @@ def get_nvt_all(oid, is_custom=0):
     resp = ctx.lrange("nvt:%s" % oid,
                       openvas_db.nvt_meta_fields.index("NVT_FILENAME_POS"),
                       openvas_db.nvt_meta_fields.index("NVT_VERSION_POS"))
-    if (isinstance(resp, list) and len(resp) > 0) is False:
+    if (isinstance(resp, list) and resp) is False:
         return None
 
     nvt = ET.Element('vt')

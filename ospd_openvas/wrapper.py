@@ -260,15 +260,9 @@ class OSPDopenvas(OSPDaemon):
             if ret == -2:
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
-    def get_custom_vt_as_xml_str(self, custom):
-        """ Create a string representation of the XML object from the
-        custom data object.
-
-        The custom XML object which is returned will be embedded
-        into a <custom></custom> element.
-
-        @return: XML object as string for custom data.
-        """
+    @staticmethod
+    def get_custom_vt_as_xml_str(custom):
+        """ Return custom since it is already formated as string. """
         return custom
 
     def check(self):
