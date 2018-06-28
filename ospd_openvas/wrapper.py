@@ -29,7 +29,6 @@ import signal
 import psutil
 
 from ospd.ospd import OSPDaemon, logger
-from ospd.ospd import simple_response_str
 from ospd.misc import main as daemon_main
 from ospd.misc import target_str_to_list
 from ospd_openvas import __version__
@@ -311,14 +310,14 @@ class OSPDopenvas(OSPDaemon):
     def get_openvas_status(self, scan_id, target):
         """ Get all status entries from redis kb. """
         res = openvas_db.get_status()
-        while (res):
+        while res:
             self.update_progress(scan_id, target, res)
             res = openvas_db.get_status()
 
     def get_openvas_result(self, scan_id):
         """ Get all result entries from redis kb. """
         res = openvas_db.get_result()
-        while (res):
+        while res:
             msg = res.split('|||')
             if msg[1] == '':
                 host_aux = openvas_db.item_get_single('internal/ip')
@@ -353,6 +352,40 @@ class OSPDopenvas(OSPDaemon):
         """ Check if the scan has finished. """
         status = openvas_db.item_get_single(('internal/%s' % scan_id))
         return status == 'finished'
+
+    def scan_is_stopped(self, scan_id):
+        """ Check if the parent process has recieved the stop_scan order.
+        @in scan_id: ID to identify the scan to be stopped.
+        @return 1 if yes, None in oder case.
+        """
+        ctx = openvas_db.kb_connect(dbnum=MAIN_KBINDEX)
+        openvas_db.set_global_redisctx(ctx)
+        status = openvas_db.item_get_single(('internal/%s' % scan_id))
+        return status == 'stop_all'
+
+    def stop_scan(self, scan_id):
+        """ Set a key in redis to indicate the wrapper process that it
+        must kill the childs. It is done through redis because this a new
+        multiprocess instance and it is not possible to reach the variables
+        of the grandchild process. Then, a clean up is performed before
+        terminating. """
+        ctx = openvas_db.db_find('internal/%s' % scan_id)
+        openvas_db.set_global_redisctx(ctx)
+        openvas_db.item_set_single(('internal/%s' % scan_id), ['stop_all', ])
+        while 1:
+            time.sleep(1)
+            if openvas_db.item_get_single('internal/%s' % scan_id):
+                continue
+            break
+
+    def do_cleanup(self, ovas_pid):
+        """ Send SIGUSR1 to OpenVAS process to stop the scan. """
+        parent = psutil.Process(ovas_pid)
+        children = parent.children(recursive=True)
+        for process in children:
+            if process.ppid() == int(ovas_pid):
+                logger.debug('Stopping process: {0}'.format(process))
+                os.kill(process.pid, signal.SIGUSR1)
 
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
@@ -419,8 +452,12 @@ class OSPDopenvas(OSPDaemon):
         logger.debug('pid = {0}'.format(ovas_pid))
 
         no_id_found = False
-        while (1):
+        while 1:
             time.sleep(3)
+
+            # Check if the client stopped the whole scan
+            if self.scan_is_stopped(scan_id):
+                self.do_cleanup(ovas_pid)
 
             for i in range(1, openvas_db.MAX_DBINDEX):
                 if i == MAIN_KBINDEX:
