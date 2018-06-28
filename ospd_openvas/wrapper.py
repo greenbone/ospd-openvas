@@ -292,10 +292,47 @@ class OSPDopenvas(OSPDaemon):
 
         self.parse_param()
         self.scanner_info['version'] = version[0]
+
         return True
 
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
+        global MAIN_KBINDEX
+        ports = self.get_scan_ports(scan_id)
+        # Get scan options
+        options = self.get_scan_options(scan_id)
+        prefs_val = []
+        ctx = openvas_db.kb_new()
+        openvas_db.set_global_redisctx(ctx)
+        MAIN_KBINDEX = openvas_db.DB_INDEX
+
+        for item in options.items():
+            prefs_val.append(item[0] + "|||" + str(item[1]))
+        openvas_db.item_add_single(str('internal/%s/scanprefs' % scan_id),
+                                   prefs_val)
+
+        openvas_db.item_add_single(('internal/%s' % scan_id), ['new', ])
+
+        # Set target
+        target_aux = ('TARGET|||%s' % target)
+        openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+                                   [target_aux, ])
+        # Set port range
+        port_range = ('port_range|||%s' % ports)
+        openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+                                   [port_range, ])
+        # Set plugins to run
+        # Add single VTs
+        if options.get('vts') != '':
+            vts = options.get('vts')
+            plugin_list = ('plugin_set|||%s' % vts.replace(',', ';'))
+            openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+                                       [plugin_list, ])
+        else:
+            openvas_db.release_db(MAIN_KBINDEX)
+            self.add_scan_error(scan_id, name='', host=target,
+                                value='No VTS to run.')
+            return 2
 
         # Create a general log entry about executing OpenVAS
         # It is important to send at least one result, otherwise
