@@ -49,9 +49,11 @@ For more details about OpenVAS see the OpenVAS homepage:
 http://www.openvas.org/
 
 The current version of ospd-openvas is a simple frame, which sends
-the server parameters to the Greenbone Vulnerability Manager (GVM) and checks the
-existence of OpenVAS Scanner binary. But it can not run scans yet.
+the server parameters to the Greenbone Vulnerability Manager (GVM) and checks
+the existence of OpenVAS Scanner binary. But it can not run scans yet.
 """
+
+MAIN_KBINDEX = None
 
 OSPD_PARAMS = {
     'auto_enable_dependencies': {
@@ -73,7 +75,8 @@ OSPD_PARAMS = {
         'name': 'checks_read_timeout',
         'default': 5,
         'mandatory': 1,
-        'description': 'Number  of seconds that the security checks will wait for when doing a recv()',
+        'description': ('Number  of seconds that the security checks will ' +
+                        'wait for when doing a recv()'),
     },
     'drop_privileges': {
         'type': 'boolean',
@@ -94,28 +97,32 @@ OSPD_PARAMS = {
         'name': 'non_simult_ports',
         'default': '139, 445, 3389, Services/irc',
         'mandatory': 1,
-        'description': 'Prevent to make two connections on the same given ports at the same time.',
+        'description': ('Prevent to make two connections on the same given ' +
+                        'ports at the same time.'),
     },
     'open_sock_max_attempts': {
         'type': 'integer',
         'name': 'open_sock_max_attempts',
         'default': 5,
         'mandatory': 0,
-        'description': 'Number of unsuccessful retries to open the socket before to set the port as closed.',
+        'description': ('Number of unsuccessful retries to open the socket ' +
+                        'before to set the port as closed.'),
     },
     'timeout_retry': {
         'type': 'integer',
         'name': 'timeout_retry',
         'default': 5,
         'mandatory': 0,
-        'description': 'Number of retries when a socket connection attempt timesout.',
+        'description': ('Number of retries when a socket connection attempt ' +
+                        'timesout.'),
     },
     'optimize_test': {
         'type': 'integer',
         'name': 'optimize_test',
         'default': 5,
         'mandatory': 0,
-        'description': 'By default, openvassd does not trust the remote host banners.',
+        'description': ('By default, openvassd does not trust the remote ' +
+                        'host banners.'),
     },
     'plugins_timeout': {
         'type': 'integer',
@@ -136,7 +143,8 @@ OSPD_PARAMS = {
         'name': 'safe_checks',
         'default': 1,
         'mandatory': 1,
-        'description': 'Disable the plugins with potential to crash the remote services',
+        'description': ('Disable the plugins with potential to crash ' +
+                        'the remote services'),
     },
     'scanner_plugins_timeout': {
         'type': 'integer',
@@ -150,7 +158,8 @@ OSPD_PARAMS = {
         'name': 'time_between_request',
         'default': 0,
         'mandatory': 0,
-        'description': 'Allow to set a wait time between two actions (open, send, close).',
+        'description': ('Allow to set a wait time between two actions ' +
+                        '(open, send, close).'),
     },
     'unscanned_closed': {
         'type': 'boolean',
@@ -171,7 +180,8 @@ OSPD_PARAMS = {
         'name': 'use_mac_addr',
         'default': 0,
         'mandatory': 0,
-        'description': 'To test the local network. Hosts will be referred to by their MAC address.',
+        'description': 'To test the local network. ' +
+                       'Hosts will be referred to by their MAC address.',
     },
     'vhosts': {
         'type': 'string',
