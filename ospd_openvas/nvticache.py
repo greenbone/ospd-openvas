@@ -95,18 +95,18 @@ def get_nvt_all(oid, is_custom=0):
 
     for elem in subelem:
         ET.SubElement(nvt, elem)
-    for child, res in zip(nvt.getchildren(), resp):
+    for child, res in zip(list(nvt), resp):
         child.text = res
 
     # Add preferences
     nvt.append(get_nvt_pref(oid))
 
     if is_custom:
-        itera = nvt.getiterator()
+        itera = nvt.iter()
         custom = ''
         for elem in itera:
-          if elem.tag != 'vt' and elem.tag != 'file_name':
-              custom +=(ET.tostring(elem).decode('utf-8'))
+            if elem.tag != 'vt' and elem.tag != 'file_name':
+                custom += (ET.tostring(elem).decode('utf-8'))
         return custom
 
     return nvt
