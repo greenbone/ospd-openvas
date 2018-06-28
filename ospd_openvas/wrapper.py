@@ -280,18 +280,18 @@ class OSPDopenvas(OSPDaemon):
                                              stderr=subprocess.STDOUT)
             result = result.decode('ascii')
         except OSError:
-            # the command is not available
+            # The command is not available
             return False
 
         if result is None:
             return False
 
-        version = result.find('OpenVAS')
-        if version < 0:
+        version = result.split('\n')
+        if version[0].find('OpenVAS') < 0:
             return False
 
         self.parse_param()
-        self.scanner_info['version'] = result.replace('\n', '. ')
+        self.scanner_info['version'] = version[0]
         return True
 
     def exec_scan(self, scan_id, target):
