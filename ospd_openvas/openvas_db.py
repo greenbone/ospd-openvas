@@ -96,7 +96,7 @@ def max_db_index():
     try:
         ctx = kb_connect()
         resp = ctx.config_get("databases")
-    except RedisError:
+    except redis.RedisError:
         return 2
 
     if isinstance(resp, dict) is False:
