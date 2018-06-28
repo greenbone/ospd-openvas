@@ -295,6 +295,60 @@ class OSPDopenvas(OSPDaemon):
 
         return True
 
+    def update_progress(self, scan_id, target, msg):
+        """ Calculate porcentage and update the scan status
+        for the progress bar. """
+        host_progress_dict = dict()
+        prog = str.split(msg, '/')
+        if prog[1] == 0:
+            return
+        host_prog = (float(prog[0]) / float(prog[1])) * 100
+        host_progress_dict[target] = host_prog
+        total_host = len(target_str_to_list(target))
+        self.set_scan_progress(scan_id,
+                               sum(host_progress_dict.values()) / total_host)
+
+    def get_openvas_status(self, scan_id, target):
+        """ Get all status entries from redis kb. """
+        res = openvas_db.get_status()
+        while (res):
+            self.update_progress(scan_id, target, res)
+            res = openvas_db.get_status()
+
+    def get_openvas_result(self, scan_id):
+        """ Get all result entries from redis kb. """
+        res = openvas_db.get_result()
+        while (res):
+            msg = res.split('|||')
+            if msg[1] == '':
+                host_aux = openvas_db.item_get_single('internal/ip')
+            else:
+                host_aux = msg[1]
+            if msg[0] == 'ERRMSG':
+                self.add_scan_error(scan_id, host=host_aux,
+                                    name=msg[3], value=msg[4], port=msg[2])
+            if msg[0] == 'LOG':
+                self.add_scan_log(scan_id, host=host_aux, name=msg[3],
+                                  value=msg[4], port=msg[2])
+            if msg[0] == 'ALARM':
+                self.add_scan_alarm(scan_id, host=host_aux, name=msg[3],
+                                    value=msg[4], port=msg[2], qod='97',
+                                    severity='7.5')
+            res = openvas_db.get_result()
+
+    def get_openvas_timestamp_scan_host(self, scan_id, target):
+        """ Get start and end timestamp of a host scan from redis kb. """
+        timestamp = openvas_db.get_host_scan_scan_end_time()
+        if timestamp:
+            self.add_scan_log(scan_id, host=target, name='HOST_END',
+                              value=timestamp)
+            return
+        timestamp = openvas_db.get_host_scan_scan_start_time()
+        if timestamp:
+            self.add_scan_log(scan_id, host=target, name='HOST_START',
+                              value=timestamp)
+            return
+
     def scan_is_finished(self, scan_id):
         """ Check if the scan has finished. """
         status = openvas_db.item_get_single(('internal/%s' % scan_id))
@@ -378,6 +432,10 @@ class OSPDopenvas(OSPDaemon):
                     continue
                 if id_aux == scan_id:
                     no_id_found = False
+                    self.get_openvas_timestamp_scan_host(scan_id, target)
+                    self.get_openvas_result(scan_id)
+                    self.get_openvas_status(scan_id, target)
+
                     if self.scan_is_finished(scan_id):
                         openvas_db.release_db(i)
             # Scan end. No kb in use for this scan id
