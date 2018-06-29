@@ -209,7 +209,8 @@ def item_set_single(name, value):
     ctx = get_kb_context()
     pipe = ctx.pipeline()
     pipe.delete(name)
-    pipe.sadd(name, value)
+    pipe.sadd(name, *set(value))
+    pipe.execute()
 
 def item_del_single(name):
     """ Delete a single KB element. The right global REDISCONTEXT must be

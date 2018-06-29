@@ -37,7 +37,7 @@ setup(
     author_email='info@greenbone.net',
 
     license='GPLV2+',
-    install_requires=['ospd>=1.4b1', 'ospd<=1.5.0', 'redis'],
+    install_requires=['ospd>=1.4b1', 'ospd<=1.5.0', 'redis', 'psutil'],
 
     entry_points={
         'console_scripts': ['ospd-openvas=ospd_openvas.wrapper:main'],
