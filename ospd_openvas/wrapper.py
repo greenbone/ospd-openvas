@@ -221,6 +221,9 @@ class OSPDopenvas(OSPDaemon):
             raise Exception
 
         ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
+        if not ctx:
+            self.redis_nvticache_init()
+            ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
         openvas_db.set_global_redisctx(ctx)
         self.load_vts()
 
@@ -244,10 +247,19 @@ class OSPDopenvas(OSPDaemon):
             if elem in param_list:
                 OSPD_PARAMS[elem]['default'] = param_list[elem]
 
+    def redis_nvticache_init(self):
+        """ Loads NVT's metadata into Redis DB. """
+        try:
+            logger.debug('Loading NVTs in Redis DB')
+            subprocess.check_call(['openvassd', '-C'])
+        except subprocess.CalledProcessError as err:
+            logger.error('OpenVAS Scanner failed to load NVTs.')
+            raise err
+
     def load_vts(self):
         """ Load the NVT's OIDs and their filename into the vts
         global  dictionary. """
-        oids = openvas_db.get_pattern('filename:*:oid')
+        oids = nvti.get_oids()
         is_custom = 1
         for oid in oids:
             vt_id = oid[1].pop()
