@@ -5,7 +5,7 @@ import time
 import unittest
 import xml.etree.ElementTree as ET
 
-from ospd.ospd import OSPDaemon
+from ospd.ospd import OSPDaemon, OSPDError
 
 class Result(object):
     def __init__(self, type_, **kwargs):
@@ -147,3 +147,30 @@ class FullTest(unittest.TestCase):
             '<stop_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
         print(ET.tostring(response))
+
+    def testScanWithVTs(self):
+        daemon = DummyWrapper([])
+        cmd = ET.fromstring('<start_scan ' +
+                                  'target="localhost" ports="80, 443">' +
+                                  '<scanner_params /><vts /></start_scan>')
+        print(ET.tostring(cmd))
+        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+
+        response = ET.fromstring(
+            daemon.handle_command('<start_scan ' +
+                                  'target="localhost" ports="80, 443">' +
+                                  '<scanner_params /><vts>1.2.3.4</vts></start_scan>'))
+        print(ET.tostring(response))
+        scan_id = response.findtext('id')
+        time.sleep(0.01)
+        self.assertEqual(daemon.get_scan_vts(scan_id), '1.2.3.4')
+        self.assertNotEqual(daemon.get_scan_vts(scan_id), '1.2.3.6')
+
+        response = ET.fromstring(
+            daemon.handle_command('<start_scan ' +
+                                  'target="localhost" ports="80, 443">' +
+                                  '<scanner_params /></start_scan>'))
+        print(ET.tostring(response))
+        scan_id = response.findtext('id')
+        time.sleep(0.01)
+        self.assertEqual(daemon.get_scan_vts(scan_id), '')

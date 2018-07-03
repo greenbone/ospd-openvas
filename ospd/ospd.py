@@ -63,13 +63,6 @@ BASE_SCANNER_PARAMS = {
         'mandatory': 0,
         'description': 'Whether to dry run scan.',
     },
-    'vts': {
-        'type': 'string',
-        'name': 'Vulnerability Tests',
-        'default': '',
-        'mandatory': 0,
-        'description': 'Comma-separated list of vulnerability test IDs to be executed.',
-    },
 }
 
 COMMANDS_TABLE = {
@@ -415,6 +408,15 @@ class OSPDaemon(object):
 
         params = self._preprocess_scan_params(scanner_params)
 
+        # VTS is an optional element. If present should not be empty.
+        vts_str = ''
+        scanner_vts = scan_et.find('vts')
+        if scanner_vts is not None:
+            if scanner_vts.text is None:
+                raise OSPDError('VTs list is empty', 'start_scan')
+            else:
+                vts_str = scanner_vts.text
+
         # Dry run case.
         if 'dry_run' in params and int(params['dry_run']):
             scan_func = self.dry_run_scan
@@ -423,7 +425,8 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(scan_id, target_str, ports_str, scan_params)
+        scan_id = self.create_scan(scan_id, target_str,
+                                   ports_str, scan_params, vts_str)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id, target_str))
         self.scan_processes[scan_id] = scan_process
@@ -996,7 +999,7 @@ class OSPDaemon(object):
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
-    def create_scan(self, scan_id, target, ports, options):
+    def create_scan(self, scan_id, target, ports, options, vts):
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -1004,7 +1007,8 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
-        return self.scan_collection.create_scan(scan_id, target, ports, options)
+        return self.scan_collection.create_scan(scan_id, target,
+                                                ports, options, vts)
 
     def get_scan_options(self, scan_id):
         """ Gives a scan's list of options. """
@@ -1037,6 +1041,10 @@ class OSPDaemon(object):
     def get_scan_ports(self, scan_id):
         """ Gives a scan's ports list. """
         return self.scan_collection.get_ports(scan_id)
+
+    def get_scan_vts(self, scan_id):
+        """ Gives a scan's vts list. """
+        return self.scan_collection.get_vts(scan_id)
 
     def get_scan_start_time(self, scan_id):
         """ Gives a scan's start time. """
