@@ -421,8 +421,8 @@ class OSPDopenvas(OSPDaemon):
                                    [port_range, ])
         # Set plugins to run
         # Add single VTs
-        if options.get('vts') != '':
-            vts = options.get('vts')
+        vts = self.get_scan_vts(scan_id)
+        if vts != '':
             plugin_list = ('plugin_set|||%s' % vts.replace(',', ';'))
             openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
                                        [plugin_list, ])
