@@ -1,5 +1,5 @@
 [![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/master)
-[![Codecov](https://img.shields.io/codecov/c/github/greenbone/ospd.svg)](https://codecov.io/gh/greenbone/ospd)
+[![Codecov](https://codecov.io/gh/greenbone/ospd/branch/master/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
 
 About OSPD
 ----------
