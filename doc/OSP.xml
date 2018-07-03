@@ -647,9 +647,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <summary>Start a new scan with a VT selection</summary>
       <request>
         <start_scan target='localhost' ports='80, 443'>
-          <scanner_params>
-            <vts>1.2.3.4.5, 22.34.61.1, 3.67.4.2</vts>
-          </scanner_params>
+          <scanner_params />
+          <vts>1.2.3.4.5, 22.34.61.1, 3.67.4.2</vts>
         </start_scan>
       </request>
       <response>
