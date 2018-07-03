@@ -92,7 +92,7 @@ $ gvm-cli socket --sockpath <prefix>/var/run/ospd-scanner.sock --xml="<start_sca
 
 Start a scan for two vulnerability tests vt_id_1 and vt_id_2 of a ospd-based scanner:
 
-$ gvm-cli socket --sockpath <prefix>/var/run/ospd-scanner.sock --xml="<start_scan target='www.example.com'><scanner_params><vts>vt_id_1, vt_id_2</vts></scanner_params></start_scan>"
+$ gvm-cli socket --sockpath <prefix>/var/run/ospd-scanner.sock --xml="<start_scan target='www.example.com'><scanner_params></scanner_params><vts>vt_id_1, vt_id_2</vts></start_scan>"
 
 
 Show the list of scans with status and results:
