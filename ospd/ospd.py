@@ -298,7 +298,7 @@ class OSPDaemon(object):
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
-    def add_vt(self, vt_id, name='', custom=None):
+    def add_vt(self, vt_id, name='', vt_params=None, custom=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -308,18 +308,19 @@ class OSPDaemon(object):
         """
 
         if not vt_id:
-            return -2 # no valid vt_id
+            return -2  # no valid vt_id
 
         if self.vt_id_pattern.fullmatch(vt_id) is None:
-            return -2 # no valid vt_id
+            return -2  # no valid vt_id
 
         if vt_id in self.vts:
-            return -1 # The VT was already in the list.
+            return -1  # The VT was already in the list.
 
-        if vt_id and custom is not None:
-            self.vts[vt_id] = { 'name': name, 'custom': custom }
-        else:
-            self.vts[vt_id] = { 'name': name }
+        self.vts[vt_id] = {'name': name}
+        if custom is not None:
+            self.vts[vt_id]["custom"] = custom
+        if vt_params is not None:
+            self.vts[vt_id]["vt_params"] = vt_params
 
         return len(self.vts)
 
@@ -854,6 +855,19 @@ class OSPDaemon(object):
         """
         return ''
 
+    def get_params_vt_as_xml_str(self, vt_params):
+        """ Create a string representation of the XML object from the
+        vt_params data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_params elements for VTs are used.
+
+        The vt_params XML object which is returned will be embedded
+        into a <vt_params></vt_params> element.
+
+        @return: XML object as string for vt parameters data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -875,6 +889,10 @@ class OSPDaemon(object):
         if vt.get('custom'):
             custom_xml_str = '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(vt.get('custom'))
             vt_xml.append(ET.fromstring(custom_xml_str))
+
+        if vt.get('vt_params'):
+            params_xml_str = '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(vt.get('vt_params'))
+            vt_xml.append(ET.fromstring(params_xml_str))
 
         return vt_xml
 
