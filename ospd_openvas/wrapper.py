@@ -260,13 +260,14 @@ class OSPDopenvas(OSPDaemon):
         """ Load the NVT's OIDs and their filename into the vts
         global  dictionary. """
         oids = nvti.get_oids()
-        is_custom = 1
+        str_out = True
         for oid in oids:
             vt_id = oid[1].pop()
             filename = oid[0].split(':')
             ret = self.add_vt(vt_id,
                               name=filename[1],
-                              custom=nvti.get_nvt_all(vt_id, is_custom))
+                              vt_params=nvti.get_nvt_params(vt_id, str_out),
+                              custom=nvti.get_nvt_metadata(vt_id, str_out))
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
@@ -276,6 +277,11 @@ class OSPDopenvas(OSPDaemon):
     def get_custom_vt_as_xml_str(custom):
         """ Return custom since it is already formated as string. """
         return custom
+
+    @staticmethod
+    def get_params_vt_as_xml_str(vt_params):
+        """ Return custom since it is already formated as string. """
+        return vt_params
 
     def check(self):
         """ Checks that openvassd command line tool is found and
