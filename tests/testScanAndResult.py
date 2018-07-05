@@ -32,6 +32,14 @@ class DummyWrapper(OSPDaemon):
     def get_custom_vt_as_xml_str(self, custom):
         return '<mytest>static test</mytest>'
 
+    def get_params_vt_as_xml_str(self, vt_param):
+        return ('<vt_param id="abc" type="string">'
+                '<name>ABC</name><description>Test ABC</description><default>yes</default>'
+                '</vt_param>'
+                '<vt_param id="def" type="string">'
+                '<name>DEF</name><description>Test DEF</description><default>no</default>'
+                '</vt_param>')
+
     def exec_scan(self, scan_id, target):
         time.sleep(0.01)
         for res in self.results:
@@ -97,6 +105,25 @@ class FullTest(unittest.TestCase):
         daemon.add_vt('123456789', 'Yet another vulnerability test')
         response = ET.fromstring(daemon.handle_command('<get_vts />'))
         print(ET.tostring(response))
+
+    def testGetVTs_VTs_with_params(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4', 'A vulnerability test', vt_params="a", custom="b")
+        response = ET.fromstring(daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        print(ET.tostring(response))
+        # The status of the response must be success (i.e. 200)
+        self.assertEqual(response.get('status'), '200')
+        # The response root element must have the correct name
+        self.assertEqual(response.tag, 'get_vts_response')
+        # The response must contain a 'scanner_params' element
+        self.assertIsNotNone(response.find('vts'))
+        vt_params =  response[0][0].findall('vt_params')
+        self.assertEqual(1, len(vt_params))
+        custom =  response[0][0].findall('custom')
+        self.assertEqual(1, len(custom))
+        params = response.findall('vts/vt/vt_params/vt_param')
+        self.assertEqual(2, len(params))
+
 
     def testiScanWithError(self):
         daemon = DummyWrapper([

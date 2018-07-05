@@ -517,10 +517,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <type>vt_id</type>
             </attrib>
             <e>name</e>
+            <e>vt_params</e>
             <e>custom</e>
           </pattern>
           <ele>
             <name>name</name>
+          </ele>
+          <ele>
+            <name>vt_params</name>
           </ele>
           <ele>
             <name>custom</name>
@@ -571,6 +575,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerabilty X</name>
+	      <custom>
+                <my_element>First custom element</my_element>
+                <my_other_element>second custom element</my_other_element>
+	      </custom>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a vulnerability test with VT parameters data</summary>
+      <request>
+        <get_vts id='1.2.3.4.5'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts>
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerabilty X</name>
+	      <vt_params>
+                <vt_param id="timeout" type="integer">
+                  <name>Timeout</name>
+                  <description>Vulnerability Test Timeout</description>
+                  <default>300</default>
+                </vt_param>
+                <vt_param id="scan.udp" type="boolean">
+                  <name>Scan UDP</name>
+                  <description />
+                  <default>1</default>
+                </vt_param>
+	      </vt_params>
 	      <custom>
                 <my_element>First custom element</my_element>
                 <my_other_element>second custom element</my_other_element>
