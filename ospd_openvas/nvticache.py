@@ -45,7 +45,7 @@ def get_oids():
     """
     return openvas_db.get_pattern('filename:*:oid')
 
-def get_nvt_pref(oid):
+def get_nvt_params(oid, str_format=False):
     """ Get NVT's preferences.
         @Return XML tree with preferences
     """
@@ -53,28 +53,43 @@ def get_nvt_pref(oid):
     resp = ctx.smembers('oid:%s:prefs' % oid)
     timeout = ctx.lindex('nvt:%s' % oid,
                          openvas_db.nvt_meta_fields.index("NVT_TIMEOUT_POS"))
-    preferences = ET.Element('preferences')
+    vt_params = ET.Element('vt_params')
     if int(timeout) > 0:
-        xml_timeout = ET.Element('timeout')
-        xml_timeout.text = timeout
-        preferences.append(xml_timeout)
+        vt_param = ET.Element('vt_param')
+        vt_param.set('id', 'timeout')
+        vt_param.set('type', 'entry')
+        xml_name = ET.SubElement(vt_param, 'name')
+        xml_name.text = "Timeout"
+        xml_desc =  ET.SubElement(vt_param, 'description')
+        xml_desc.text = "Script Timeout"
+        xml_def = ET.SubElement(vt_param, 'default')
+        xml_def.text = timeout
+        vt_params.append(vt_param)
 
     if resp:
         for nvt_pref in resp:
             elem = nvt_pref.split('|||')
-            preference = ET.Element('preference')
-            xml_name = ET.SubElement(preference, 'name')
+            vt_param = ET.Element('vt_param')
+            vt_param.set('id', elem[0])
+            vt_param.set('type', elem[1])
+            xml_name = ET.SubElement(vt_param, 'name')
             xml_name.text = elem[0]
-            xml_type = ET.SubElement(preference, 'type')
-            xml_type.text = elem[1]
             if elem[2]:
-                xml_def = ET.SubElement(preference, 'default')
+                xml_def = ET.SubElement(vt_param, 'default')
                 xml_def.text = elem[2]
-            preferences.append(preference)
+            xml_desc =  ET.SubElement(vt_param, 'description')
+            vt_params.append(vt_param)
 
-    return preferences
+    if str_format:
+        params_list = vt_params.findall("vt_param")
+        params = ''
+        for param in params_list:
+            params += (ET.tostring(param).decode('utf-8'))
+        return params
 
-def get_nvt_all(oid, is_custom=0):
+    return vt_params
+
+def get_nvt_metadata(oid, str_format=False):
     """ Get a full NVT. Returns an XML tree with the NVT metadata.
     """
     ctx = openvas_db.get_kb_context()
@@ -98,15 +113,12 @@ def get_nvt_all(oid, is_custom=0):
     for child, res in zip(list(nvt), resp):
         child.text = res
 
-    # Add preferences
-    nvt.append(get_nvt_pref(oid))
-
-    if is_custom:
+    if str_format:
         itera = nvt.iter()
-        custom = ''
+        metadata = ''
         for elem in itera:
             if elem.tag != 'vt' and elem.tag != 'file_name':
-                custom += (ET.tostring(elem).decode('utf-8'))
-        return custom
+                metadata += (ET.tostring(elem).decode('utf-8'))
+        return metadata
 
     return nvt
