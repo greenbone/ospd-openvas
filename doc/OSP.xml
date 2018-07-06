@@ -637,10 +637,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <type>uuid</type>
       </attrib>
       <e>scanner_params</e>
+      <e>vts</e>
     </pattern>
     <ele>
       <name>scanner_params</name>
       <summary>Contains elements that represent scanner specific parameters</summary>
+    </ele>
+    <ele>
+      <name>vts</name>
+      <summary>Vulnerability test list to be excecute</summary>
     </ele>
     <response>
       <pattern>
@@ -767,6 +772,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </description>
     <version>1.2</version>
   </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>vts optional element added </summary>
+    <description>
+      Added optional element vts to allow the client to specify a vts list
+      to use for the scan.
+    </description>
+    <version>1.2</version>
+  </change>
+
 
   <change>
     <command>STOP_SCAN</command>
