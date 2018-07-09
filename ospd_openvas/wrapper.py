@@ -399,6 +399,21 @@ class OSPDopenvas(OSPDaemon):
                 logger.debug('Stopping process: {0}'.format(process))
                 os.kill(process.pid, signal.SIGUSR1)
 
+    @staticmethod
+    def process_vts(vts):
+        """ Add single VTs and their parameters. """
+        vts_list = []
+        vts_params = []
+        ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
+        for memb in vts.items():
+            vts_list.append(memb[0])
+            nvt_name = nvti.get_nvt_name(ctx, memb[0])
+            for i in memb[1].items():
+                param = ["{0}[{1}]:{2}".format(nvt_name, i[1]['type'], i[0]),
+                         str(i[1]['value'])]
+                vts_params.append(param)
+        return vts_list, vts_params
+
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
         global MAIN_KBINDEX
@@ -410,12 +425,13 @@ class OSPDopenvas(OSPDaemon):
         openvas_db.set_global_redisctx(ctx)
         MAIN_KBINDEX = openvas_db.DB_INDEX
 
+        openvas_db.item_add_single(('internal/%s' % scan_id), ['new', ])
+
+        # Set scan preferences
         for item in options.items():
             prefs_val.append(item[0] + "|||" + str(item[1]))
         openvas_db.item_add_single(str('internal/%s/scanprefs' % scan_id),
                                    prefs_val)
-
-        openvas_db.item_add_single(('internal/%s' % scan_id), ['new', ])
 
         # Set target
         target_aux = ('TARGET|||%s' % target)
@@ -426,12 +442,19 @@ class OSPDopenvas(OSPDaemon):
         openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
                                    [port_range, ])
         # Set plugins to run
-        # Add single VTs
-        vts = self.get_scan_vts(scan_id)
-        if vts != '':
-            plugin_list = ('plugin_set|||%s' % vts.replace(',', ';'))
+        nvts = self.get_scan_vts(scan_id)
+        if nvts != '':
+            nvts_list, nvts_params = self.process_vts(nvts)
+            # Add nvts list
+            separ = ';'
+            plugin_list = ('plugin_set|||%s' % separ.join(nvts_list))
             openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
                                        [plugin_list, ])
+            # Add nvts parameters
+            for elem in nvts_params:
+                item = ('%s|||%s' % (elem[0], elem[1]))
+                openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+                                           [item, ])
         else:
             openvas_db.release_db(MAIN_KBINDEX)
             self.add_scan_error(scan_id, name='', host=target,
