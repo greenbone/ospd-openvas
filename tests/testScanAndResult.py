@@ -178,21 +178,24 @@ class FullTest(unittest.TestCase):
     def testScanWithVTs(self):
         daemon = DummyWrapper([])
         cmd = ET.fromstring('<start_scan ' +
-                                  'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vts /></start_scan>')
+                            'target="localhost" ports="80, 443">' +
+                            '<scanner_params /><vts /></start_scan>')
         print(ET.tostring(cmd))
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
+        # With one VT, without params
         response = ET.fromstring(
             daemon.handle_command('<start_scan ' +
                                   'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vts>1.2.3.4</vts></start_scan>'))
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
+                                  '</vts></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         time.sleep(0.01)
-        self.assertEqual(daemon.get_scan_vts(scan_id), '1.2.3.4')
-        self.assertNotEqual(daemon.get_scan_vts(scan_id), '1.2.3.6')
+        self.assertEqual(daemon.get_scan_vts(scan_id), {'1.2.3.4': {}})
+        self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
 
+        # With out VTS
         response = ET.fromstring(
             daemon.handle_command('<start_scan ' +
                                   'target="localhost" ports="80, 443">' +
@@ -200,4 +203,29 @@ class FullTest(unittest.TestCase):
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         time.sleep(0.01)
-        self.assertEqual(daemon.get_scan_vts(scan_id), '')
+        self.assertEqual(daemon.get_scan_vts(scan_id), {})
+
+    def testScanWithVTs_and_param(self):
+        daemon = DummyWrapper([])
+
+        # Raise because no vt_param name attribute
+        cmd = ET.fromstring('<start_scan ' +
+                            'target="localhost" ports="80, 443">' +
+                            '<scanner_params /><vts><vt id="1234">' +
+                            '<vt_param type="entry">200</vt_param>' +
+                            '</vt></vts></start_scan>')
+        print(ET.tostring(cmd))
+        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+
+        # No error
+        response = ET.fromstring(
+            daemon.handle_command('<start_scan ' +
+                                  'target="localhost" ports="80, 443">' +
+                                  '<scanner_params /><vts><vt id="1234">' +
+                                  '<vt_param name="ABC" type="entry">200' +
+                                  '</vt_param></vt></vts></start_scan>'))
+        print(ET.tostring(response))
+        scan_id = response.findtext('id')
+        time.sleep(0.01)
+        self.assertEqual(daemon.get_scan_vts(scan_id),
+                         {'1234': {'ABC': {'type': 'entry', 'value': '200'}}})
