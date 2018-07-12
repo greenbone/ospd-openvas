@@ -388,12 +388,29 @@ class OSPDaemon(object):
         return params
 
     def process_vts_params(self, scanner_vts):
-        """ Process the scan vts and their parameters.
+        """ Receive an XML object with the Vulnerability Tests an their
+        parameters to be use in a scan and return a dictionary.
+
+        @param: XML element with vt subelements. Each vt has an
+                id attribute. Optinal parameters can be included
+                as vt child.
+                Example form:
+                <vts>
+                  <vt id='vt1' />
+                  <vt id='vt2'>
+                    <vt_param name='param1' type='type'>value</vt_param>
+                  </vt>
+                <vts>
+
+        @return: Dictionary containing the vts attribute and subelements,
+                 like the VT's id and VT's parameters.
+                 Example form:
+                 {v1, vt2: {param1: {'type': type', 'value': value}}}
         """
         vts = {}
         for vt in scanner_vts:
-            id = vt.attrib.get('id')
-            vts[id] = {}
+            vt_id = vt.attrib.get('id')
+            vts[vt_id] = {}
             for param in vt:
                 if not param.attrib.get('name'):
                     raise OSPDError('Invalid NVT parameter. No parameter name',
@@ -401,7 +418,7 @@ class OSPDaemon(object):
                 ptype = param.attrib.get('type', 'entry')
                 pvalue = param.text if param.text else ''
                 pname = param.attrib.get('name')
-                vts[id][pname] = {'type': ptype, 'value': pvalue}
+                vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
         return vts
 
     def handle_start_scan_command(self, scan_et):
