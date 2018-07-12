@@ -37,6 +37,7 @@ import socket
 import ssl
 import multiprocessing
 import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as secET
 import os
 import re
 
@@ -922,11 +923,11 @@ class OSPDaemon(object):
 
         if vt.get('custom'):
             custom_xml_str = '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(vt.get('custom'))
-            vt_xml.append(ET.fromstring(custom_xml_str))
+            vt_xml.append(secET.fromstring(custom_xml_str))
 
         if vt.get('vt_params'):
             params_xml_str = '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(vt.get('vt_params'))
-            vt_xml.append(ET.fromstring(params_xml_str))
+            vt_xml.append(secET.fromstring(params_xml_str))
 
         return vt_xml
 
@@ -989,8 +990,8 @@ class OSPDaemon(object):
         @return: OSP Response to command.
         """
         try:
-            tree = ET.fromstring(command)
-        except ET.ParseError:
+            tree = secET.fromstring(command)
+        except secET.ParseError:
             logger.debug("Erroneous client input: {0}".format(command))
             raise OSPDError('Invalid data')
 
