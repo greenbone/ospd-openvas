@@ -388,6 +388,40 @@ class OSPDaemon(object):
         """
         return params
 
+    def process_vts_params(self, scanner_vts):
+        """ Receive an XML object with the Vulnerability Tests an their
+        parameters to be use in a scan and return a dictionary.
+
+        @param: XML element with vt subelements. Each vt has an
+                id attribute. Optinal parameters can be included
+                as vt child.
+                Example form:
+                <vts>
+                  <vt id='vt1' />
+                  <vt id='vt2'>
+                    <vt_param name='param1' type='type'>value</vt_param>
+                  </vt>
+                <vts>
+
+        @return: Dictionary containing the vts attribute and subelements,
+                 like the VT's id and VT's parameters.
+                 Example form:
+                 {v1, vt2: {param1: {'type': type', 'value': value}}}
+        """
+        vts = {}
+        for vt in scanner_vts:
+            vt_id = vt.attrib.get('id')
+            vts[vt_id] = {}
+            for param in vt:
+                if not param.attrib.get('name'):
+                    raise OSPDError('Invalid NVT parameter. No parameter name',
+                                    'start_scan')
+                ptype = param.attrib.get('type', 'entry')
+                pvalue = param.text if param.text else ''
+                pname = param.attrib.get('name')
+                vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
+        return vts
+
     def handle_start_scan_command(self, scan_et):
         """ Handles <start_scan> command.
 
@@ -411,13 +445,13 @@ class OSPDaemon(object):
         params = self._preprocess_scan_params(scanner_params)
 
         # VTS is an optional element. If present should not be empty.
-        vts_str = ''
+        vts = {}
         scanner_vts = scan_et.find('vts')
         if scanner_vts is not None:
-            if scanner_vts.text is None:
+            if not scanner_vts:
                 raise OSPDError('VTs list is empty', 'start_scan')
             else:
-                vts_str = scanner_vts.text
+                vts = self.process_vts_params(scanner_vts)
 
         # Dry run case.
         if 'dry_run' in params and int(params['dry_run']):
@@ -428,7 +462,7 @@ class OSPDaemon(object):
             scan_params = self.process_scan_params(params)
 
         scan_id = self.create_scan(scan_id, target_str,
-                                   ports_str, scan_params, vts_str)
+                                   ports_str, scan_params, vts)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id, target_str))
         self.scan_processes[scan_id] = scan_process
