@@ -9,18 +9,20 @@ from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon, OSPDError
 
+
 class Result(object):
     def __init__(self, type_, **kwargs):
-        self.result_type=type_
-        self.host=''
-        self.name=''
-        self.value=''
-        self.port=''
-        self.test_id=''
-        self.severity=''
-        self.qod=''
+        self.result_type = type_
+        self.host = ''
+        self.name = ''
+        self.value = ''
+        self.port = ''
+        self.test_id = ''
+        self.severity = ''
+        self.qod = ''
         for name, value in kwargs.items():
             setattr(self, name, value)
+
 
 class DummyWrapper(OSPDaemon):
     def __init__(self, results, checkresult=True):
@@ -45,16 +47,17 @@ class DummyWrapper(OSPDaemon):
     def exec_scan(self, scan_id, target):
         time.sleep(0.01)
         for res in self.results:
-            if res.result_type=='log':
+            if res.result_type == 'log':
                 self.add_scan_log(scan_id, res.host or target, res.name, res.value, res.port)
             if res.result_type == 'error':
                 self.add_scan_error(scan_id, res.host or target, res.name, res.value, res.port)
             elif res.result_type == 'host-detail':
-                self.add_scan_error(scan_id, res.host  or target, res.name, res.value)
+                self.add_scan_error(scan_id, res.host or target, res.name, res.value)
             elif res.result_type == 'alarm':
                 self.add_scan_alarm(scan_id, res.host or target, res.name, res.value, res.port, res.test_id, res.severity, res.qod)
             else:
                 raise ValueError(res.result_type)
+
 
 class FullTest(unittest.TestCase):
     # TODO: There should be a lot more assert in there !
@@ -103,7 +106,7 @@ class FullTest(unittest.TestCase):
     def testGetVTs_multiple_VTs_with_custom(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
-        daemon.add_vt('some id', 'Another vulnerability test with custom info', { 'depencency': '1.2.3.4' })
+        daemon.add_vt('some id', 'Another vulnerability test with custom info', {'depencency': '1.2.3.4'})
         daemon.add_vt('123456789', 'Yet another vulnerability test')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
         print(ET.tostring(response))
@@ -119,13 +122,12 @@ class FullTest(unittest.TestCase):
         self.assertEqual(response.tag, 'get_vts_response')
         # The response must contain a 'scanner_params' element
         self.assertIsNotNone(response.find('vts'))
-        vt_params =  response[0][0].findall('vt_params')
+        vt_params = response[0][0].findall('vt_params')
         self.assertEqual(1, len(vt_params))
-        custom =  response[0][0].findall('custom')
+        custom = response[0][0].findall('custom')
         self.assertEqual(1, len(custom))
         params = response.findall('vts/vt/vt_params/vt_param')
         self.assertEqual(2, len(params))
-
 
     def testiScanWithError(self):
         daemon = DummyWrapper([
@@ -180,8 +182,8 @@ class FullTest(unittest.TestCase):
     def testScanWithVTs(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring('<start_scan ' +
-                            'target="localhost" ports="80, 443">' +
-                            '<scanner_params /><vts /></start_scan>')
+                               'target="localhost" ports="80, 443">' +
+                               '<scanner_params /><vts /></start_scan>')
         print(ET.tostring(cmd))
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
@@ -212,10 +214,10 @@ class FullTest(unittest.TestCase):
 
         # Raise because no vt_param name attribute
         cmd = secET.fromstring('<start_scan ' +
-                            'target="localhost" ports="80, 443">' +
-                            '<scanner_params /><vts><vt id="1234">' +
-                            '<vt_param type="entry">200</vt_param>' +
-                            '</vt></vts></start_scan>')
+                               'target="localhost" ports="80, 443">' +
+                               '<scanner_params /><vts><vt id="1234">' +
+                               '<vt_param type="entry">200</vt_param>' +
+                               '</vt></vts></start_scan>')
         print(ET.tostring(cmd))
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
@@ -235,17 +237,17 @@ class FullTest(unittest.TestCase):
     def testBillonLaughs(self):
         daemon = DummyWrapper([])
         lol = ('<?xml version="1.0"?>' +
-              '<!DOCTYPE lolz [' +
-              ' <!ENTITY lol "lol">' +
-              ' <!ELEMENT lolz (#PCDATA)>' +
-              ' <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">' +
-              ' <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">' +
-              ' <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">' +
-              ' <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">' +
-              ' <!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">' +
-              ' <!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">' +
-              ' <!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">' +
-              ' <!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">' +
-              ' <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">' +
-              ']>')
+               '<!DOCTYPE lolz [' +
+               ' <!ENTITY lol "lol">' +
+               ' <!ELEMENT lolz (#PCDATA)>' +
+               ' <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">' +
+               ' <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">' +
+               ' <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">' +
+               ' <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">' +
+               ' <!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">' +
+               ' <!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">' +
+               ' <!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">' +
+               ' <!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">' +
+               ' <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">' +
+               ']>')
         self.assertRaises(EntitiesForbidden, daemon.handle_command, lol)
