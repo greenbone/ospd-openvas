@@ -12,12 +12,17 @@ Prerequisites for OSPD
 Prerequisites:
 * python 3
 * python-setuptools
+* python-defusedxml
 
 For using ospd_ssh:
 * python-paramiko
 
+For unittests:
+* python-lxml
+
 On Debian this should work to install dependencies:
-# apt-get install python3-setuptools python3-paramiko
+# apt-get install python3-setuptools python3-paramiko python3-defusedxml \
+  python3-lxml
 
 
 Building OSPD

@@ -25,6 +25,11 @@ jobs:
             . venv/bin/activate
             pip install coverage codecov
       - run:
+          name: Install dependencies
+          command: |
+            . venv/bin/activate
+            pip install .
+      - run:
           name: Run unit tests
           command: |
             . venv/bin/activate
