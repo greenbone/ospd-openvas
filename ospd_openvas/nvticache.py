@@ -122,3 +122,8 @@ def get_nvt_metadata(oid, str_format=False):
         return metadata
 
     return nvt
+
+def get_nvt_name(ctx, oid):
+    """ Get the NVT name of the given OID."""
+    return ctx.lindex("nvt:%s" % oid,
+                      openvas_db.nvt_meta_fields.index("NVT_NAME_POS"))
