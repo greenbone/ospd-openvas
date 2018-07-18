@@ -422,6 +422,47 @@ class OSPDaemon(object):
                 vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
         return vts
 
+    def process_targets_element(self, scanner_target):
+        """ Receive an XML object with the target, ports to run
+        a scan against.
+
+        @param: XML element with target subelements. Each target has <hosts>
+        and <ports> subelements. Hosts can be a single host, a host range,
+        a comma-separated host list or a network address. <ports> is optional,
+        therefor each ospd-scanner should check for a valid port if needed.
+
+                Example form:
+                <targets>
+                  <target>
+                    <hosts>localhosts</hosts>
+                    <ports>80,443</ports>
+                  </target>
+                  <target>
+                    <hosts>192.168.0.0/24</hosts>
+                    <ports>22</ports>
+                  </target>
+                </targets>
+
+        @return: A list of (hosts, port) tuples.
+                 Example form:
+                 [('localhost', '80,43'), ('192.168.0.0/24', '22')]
+        """
+
+        target_list = []
+        for target in scanner_target:
+            for child in target:
+                if child.tag == 'hosts':
+                    hosts = child.text
+                ports = ''
+                if child.tag == 'ports':
+                    ports = child.text
+            if hosts:
+                target_list.append([hosts, ports])
+            else:
+                raise OSPDError('No target to scan', 'start_scan')
+
+        return target_list
+
     def handle_start_scan_command(self, scan_et):
         """ Handles <start_scan> command.
 
@@ -429,11 +470,20 @@ class OSPDaemon(object):
         """
 
         target_str = scan_et.attrib.get('target')
-        if target_str is None:
-            raise OSPDError('No target attribute', 'start_scan')
         ports_str = scan_et.attrib.get('ports')
-        if ports_str is None:
-            raise OSPDError('No ports attribute', 'start_scan')
+        # For backward compatibility, if target and ports attributes are set,
+        # <targets> element is ignored.
+        if target_str is None or ports_str is None:
+            target_list = scan_et.find('targets')
+            if target_list is None or not target_list:
+                raise OSPDError('No targets or ports', 'start_scan')
+            else:
+                scan_targets = self.process_targets_element(target_list)
+        else:
+            scan_targets = []
+            for single_target in target_str_to_list(target_str):
+                scan_targets.append([single_target, ports_str])
+
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
             raise OSPDError('Invalid scan_id UUID', 'start_scan')
@@ -461,10 +511,9 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(scan_id, target_str,
-                                   ports_str, scan_params, vts)
+        scan_id = self.create_scan(scan_id, scan_targets, scan_params, vts)
         scan_process = multiprocessing.Process(target=scan_func,
-                                               args=(scan_id, target_str))
+                                               args=(scan_id, scan_targets))
         self.scan_processes[scan_id] = scan_process
         scan_process.start()
         id_ = ET.Element('id')
@@ -625,51 +674,52 @@ class OSPDaemon(object):
         else:
             stream.write(response)
 
-    def start_scan(self, scan_id, target_str):
+    def start_scan(self, scan_id, targets):
         """ Starts the scan with scan_id. """
 
         os.setsid()
         logger.info("{0}: Scan started.".format(scan_id))
-        target_list = target_str_to_list(target_str)
-        if target_list is None:
+        target_list = targets
+        if target_list is None or not target_list:
             raise OSPDError('Erroneous targets list', 'start_scan')
         for index, target in enumerate(target_list):
             progress = float(index) * 100 / len(target_list)
             self.set_scan_progress(scan_id, int(progress))
-            logger.info("{0}: Host scan started.".format(target))
+            logger.info("{0}: Host scan started on ports {1}.".format(target[0],target[1]))
             try:
-                ret = self.exec_scan(scan_id, target)
+                ret = self.exec_scan(scan_id, target[0])
                 if ret == 0:
                     self.add_scan_host_detail(scan_id, name='host_status',
-                                              host=target, value='0')
+                                              host=target[0], value='0')
                 elif ret == 1:
                     self.add_scan_host_detail(scan_id, name='host_status',
-                                              host=target, value='1')
+                                              host=target[0], value='1')
                 elif ret == 2:
                     self.add_scan_host_detail(scan_id, name='host_status',
-                                              host=target, value='2')
+                                              host=target[0], value='2')
                 else:
-                    logger.debug('{0}: No host status returned'.format(target))
+                    logger.debug('{0}: No host status returned'.format(target[0]))
             except Exception as e:
-                self.add_scan_error(scan_id, name='', host=target,
+                self.add_scan_error(scan_id, name='', host=target[0],
                                     value='Host process failure (%s).' % e)
-                logger.exception('While scanning {0}:'.format(target))
+                logger.exception('While scanning {0}:'.format(target[0]))
             else:
-                logger.info("{0}: Host scan finished.".format(target))
+                logger.info("{0}: Host scan finished.".format(target[0]))
 
         self.finish_scan(scan_id)
 
-    def dry_run_scan(self, scan_id, target_str):
+    def dry_run_scan(self, scan_id, targets):
         """ Dry runs a scan. """
 
         os.setsid()
-        target_list = target_str_to_list(target_str)
-        for _, target in enumerate(target_list):
-            host = resolve_hostname(target)
+        #target_list = target_str_to_list(target_str)
+        for _, target in enumerate(targets):
+            host = resolve_hostname(target[0])
             if host is None:
-                logger.info("Couldn't resolve {0}.".format(target))
+                logger.info("Couldn't resolve {0}.".format(target[0]))
                 continue
-            logger.info("{0}: Dry run mode.".format(host))
+            port = self.get_scan_ports(scan_id, target=target[0])
+            logger.info("{0}:{1}: Dry run mode.".format(host, port))
             self.add_scan_log(scan_id, name='', host=host,
                               value='Dry run result')
         self.finish_scan(scan_id)
@@ -1052,7 +1102,7 @@ class OSPDaemon(object):
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
-    def create_scan(self, scan_id, target, ports, options, vts):
+    def create_scan(self, scan_id, targets, options, vts):
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -1060,8 +1110,7 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
-        return self.scan_collection.create_scan(scan_id, target,
-                                                ports, options, vts)
+        return self.scan_collection.create_scan(scan_id, targets, options, vts)
 
     def get_scan_options(self, scan_id):
         """ Gives a scan's list of options. """
@@ -1091,9 +1140,9 @@ class OSPDaemon(object):
         """ Gives a scan's target. """
         return self.scan_collection.get_target(scan_id)
 
-    def get_scan_ports(self, scan_id):
+    def get_scan_ports(self, scan_id, target=''):
         """ Gives a scan's ports list. """
-        return self.scan_collection.get_ports(scan_id)
+        return self.scan_collection.get_ports(scan_id, target)
 
     def get_scan_vts(self, scan_id):
         """ Gives a scan's vts list. """

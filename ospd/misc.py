@@ -116,7 +116,7 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def create_scan(self, scan_id='', target='', ports='', options=dict(), vts=''):
+    def create_scan(self, scan_id='', targets='', options=dict(), vts=''):
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
@@ -124,8 +124,7 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['progress'] = 0
-        scan_info['target'] = target
-        scan_info['ports'] = ports
+        scan_info['targets'] = targets
         scan_info['vts'] = vts
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
@@ -162,14 +161,23 @@ class ScanCollection(object):
         return self.scans_table[scan_id]['end_time']
 
     def get_target(self, scan_id):
-        """ Get a scan's target. """
+        """ Get a scan's target list. """
 
-        return self.scans_table[scan_id]['target']
+        return self.scans_table[scan_id]['targets']
 
-    def get_ports(self, scan_id):
-        """ Get a scan's ports list. """
-
-        return self.scans_table[scan_id]['ports']
+    def get_ports(self, scan_id, target):
+        """ Get a scan's ports list. If a target is specified
+        it will return the corresponding port for it. If not,
+        it returns the port item of the first nested list in
+        the target's list.
+        """
+        port = None
+        if target:
+            for item in self.scans_table[scan_id]['targets']:
+                if target == item[0]:
+                    return item[1]
+                    break
+        return self.scans_table[scan_id]['targets'][0][1]
 
     def get_vts(self, scan_id):
         """ Get a scan's vts list. """
