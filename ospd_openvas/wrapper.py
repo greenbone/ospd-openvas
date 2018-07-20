@@ -417,7 +417,12 @@ class OSPDopenvas(OSPDaemon):
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
         global MAIN_KBINDEX
-        ports = self.get_scan_ports(scan_id)
+        ports = self.get_scan_ports(scan_id, target)
+        if not ports:
+            self.add_scan_error(scan_id, name='', host=target,
+                                value='No port list defined.')
+            return 2
+
         # Get scan options
         options = self.get_scan_options(scan_id)
         prefs_val = []
