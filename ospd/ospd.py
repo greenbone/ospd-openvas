@@ -422,7 +422,8 @@ class OSPDaemon(object):
                 vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
         return vts
 
-    def process_targets_element(self, scanner_target):
+    @staticmethod
+    def process_targets_element(scanner_target):
         """ Receive an XML object with the target, ports to run
         a scan against.
 

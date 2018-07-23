@@ -171,12 +171,11 @@ class ScanCollection(object):
         it returns the port item of the first nested list in
         the target's list.
         """
-        port = None
         if target:
             for item in self.scans_table[scan_id]['targets']:
                 if target == item[0]:
                     return item[1]
-                    break
+
         return self.scans_table[scan_id]['targets'][0][1]
 
     def get_vts(self, scan_id):

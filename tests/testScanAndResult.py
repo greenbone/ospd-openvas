@@ -266,6 +266,4 @@ class FullTest(unittest.TestCase):
                                   '<ports>22</ports></target></targets>' +
                                   '</start_scan>'))
         print(ET.tostring(response))
-        scan_id = response.findtext('id')
-        time.sleep(0.01)
         self.assertEqual(response.get('status'), '200')
