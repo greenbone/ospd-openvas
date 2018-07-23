@@ -48,7 +48,7 @@ class TestSSH(unittest.TestCase):
     def testRunCommand(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca')
-        scanid = daemon.create_scan(None, 'host.example.com', '80, 443',
+        scanid = daemon.create_scan(None, ['host.example.com', '80, 443'],
                                     dict(port=5, ssh_timeout=15,
                                          username_password='dummy:pw'), '')
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
