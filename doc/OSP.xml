@@ -128,8 +128,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <start_scan>
             <attributes>
               <scan_id>Optional UUID value to set as scan ID</scan_id>
-              <target>Target host to scan</target>
-              <ports>Ports list to scan</ports>
+              <target>Target hosts to scan in a comma-separated list</target>
+              <ports>Ports list to scan as comma-separated list</ports>
             </attributes>
             <elements>
               <scanner_params>
@@ -575,10 +575,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerabilty X</name>
-	      <custom>
+              <custom>
                 <my_element>First custom element</my_element>
                 <my_other_element>second custom element</my_other_element>
-	      </custom>
+              </custom>
             </vt>
           </vts>
         </get_vts_response>
@@ -594,7 +594,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerabilty X</name>
-	      <vt_params>
+              <vt_params>
                 <vt_param id="timeout" type="integer">
                   <name>Timeout</name>
                   <description>Vulnerability Test Timeout</description>
@@ -605,11 +605,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   <description />
                   <default>1</default>
                 </vt_param>
-	      </vt_params>
-	      <custom>
+              </vt_params>
+              <custom>
                 <my_element>First custom element</my_element>
                 <my_other_element>second custom element</my_other_element>
-	      </custom>
+              </custom>
             </vt>
           </vts>
         </get_vts_response>
@@ -623,12 +623,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <pattern>
       <attrib>
         <name>target</name>
-        <summary>Target host to scan</summary>
+        <summary>Target hosts to scan in a comma-separated list</summary>
         <type>string</type>
       </attrib>
       <attrib>
         <name>ports</name>
-        <summary>Ports list to scan</summary>
+        <summary>Ports list to scan as comma-separated list</summary>
         <type>string</type>
       </attrib>
       <attrib>
@@ -646,6 +646,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <ele>
       <name>vts</name>
       <summary>Contanins elements that represent Vulnerability Test to be excecute and their parameters</summary>
+    </ele>
+    <ele>
+      <name>targets</name>
+      <summary>Contanins elements that represent a target to execute a scan against. If target and port attributes are present this elemen is not take in account</summary>
     </ele>
     <response>
       <pattern>
@@ -696,6 +700,35 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <vt id='1.3.6.1.4.1.25623.1.0.10330'></vt>
             <vt id='1.3.6.1.4.1.25623.1.0.100034'></vt>
           </vts>
+        </start_scan>
+      </request>
+      <response>
+        <start_scan_response status_text="OK" status="200">
+          <id>2f616d53-595f-4785-9b97-4395116ca118</id>
+        </start_scan_response>
+      </response>
+    </example>
+    <example>
+      <summary>Start a new scan with multi-targets</summary>
+      <request>
+        <start_scan>
+          <scanner_params />
+          <vts>
+            <vt id='1.3.6.1.4.1.25623.1.0.10662'>
+              <vt_param name='XYZ JKL' type='entry'>200</vt_param>
+              <vt_param name='ABC' type='checkbox'>yes</vt_param>
+            </vt>
+          </vts>
+          <targets>
+            <target>
+              <hosts>localhost</hosts>
+              <ports>80,443</ports>
+            </target>
+            <target>
+              <hosts>192.168.1.0/24</hosts>
+              <ports>1,2,3,80,443</ports>
+            </target>
+          </targets>
         </start_scan>
       </request>
       <response>
@@ -785,6 +818,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>
       Added optional element vts to allow the client to specify a vts list
       to use for the scan and their parameters.
+    </description>
+    <version>1.2</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>target optional element added </summary>
+    <description>
+      Added optional element targets to specify different hosts with a different port list. This is take in account only if target and port attributes are not present in start_scan tag.
     </description>
     <version>1.2</version>
   </change>

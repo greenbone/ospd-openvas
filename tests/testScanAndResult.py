@@ -251,3 +251,19 @@ class FullTest(unittest.TestCase):
                ' <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">' +
                ']>')
         self.assertRaises(EntitiesForbidden, daemon.handle_command, lol)
+
+    def testScanMultiTarget(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan>' +
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
+                                  '</vts>' +
+                                  '<targets><target>' +
+                                  '<hosts>localhosts</hosts>' +
+                                  '<ports>80,443</ports>' +
+                                  '</target>' +
+                                  '<target><hosts>192.168.0.0/24</hosts>' +
+                                  '<ports>22</ports></target></targets>' +
+                                  '</start_scan>'))
+        print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
