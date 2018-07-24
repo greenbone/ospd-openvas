@@ -693,6 +693,25 @@ class OSPDaemon(object):
             return None
         return ssl_socket
 
+    @staticmethod
+    def write_to_stream(stream, response, block_len=1024):
+        """
+        Send the response in blocks of the given len using the
+        passed method dependending on the socket type.
+        """
+        try:
+            i_start = 0
+            i_end = block_len
+            while True:
+                if i_end > len(response):
+                    stream(response[i_start:])
+                    break
+                stream(response[i_start:i_end])
+                i_start = i_end
+                i_end += block_len
+        except (socket.timeout, socket.error) as exception:
+            logger.debug('Error sending response to the client: {0}'.format(exception))
+
     def handle_client_stream(self, stream, is_unix=False):
         """ Handles stream of data received from client. """
 
@@ -732,9 +751,10 @@ class OSPDaemon(object):
             exception = OSPDError('Fatal error', 'error')
             response = exception.as_xml()
         if is_unix:
-            stream.sendall(response)
+            send_method = stream.send
         else:
-            stream.write(response)
+            send_method = stream.write
+        self.write_to_stream(send_method, response)
 
     def start_scan(self, scan_id, targets):
         """ Starts the scan with scan_id. """
