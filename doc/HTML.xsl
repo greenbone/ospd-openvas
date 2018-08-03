@@ -20,7 +20,7 @@ Authors:
 Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 Copyright:
-Copyright (C) 2014 Greenbone Networks GmbH
+Copyright (C) 2014, 2018 Greenbone Networks GmbH
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -486,7 +486,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   </pre>
                 </xsl:for-each>
               </div>
-              <i>OSPD</i>
+              <i>Server</i>
               <div style="margin-left: 2%; margin-right: 2%;">
                 <xsl:for-each select="response/*">
                   <pre>
