@@ -30,6 +30,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
   <version>1.2</version>
+
+  <!-- Types. -->
+
   <type>
     <name>integer</name>
     <summary>An integer</summary>
@@ -57,6 +60,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Identifier for a vulnerability test</summary>
     <pattern>xsd:token { pattern = "[0-9a-zA-Z_\-.:]{1,80}" }</pattern>
   </type>
+
+  <!-- Elements. -->
+
+  <element>
+    <name>target</name>
+    <summary>A scan target consisting of hosts and a port selection</summary>
+    <pattern>
+      <e>hosts</e>
+      <e>ports</e>
+    </pattern>
+    <ele>
+      <name>hosts</name>
+      <summary>One or many hosts. The list is comma-separated. Each entry can be a IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6</summary>
+    </ele>
+    <ele>
+      <name>ports</name>
+      <summary>A list of ports that is the same for the given hosts</summary>
+    </ele>
+  </element>
+
+  <!-- Commands. -->
+
   <command>
     <name>help</name>
     <summary>Get the help text</summary>
