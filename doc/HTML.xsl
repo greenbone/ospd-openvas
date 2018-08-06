@@ -20,7 +20,7 @@ Authors:
 Hani Benhabiles <hani.benhabiles@greenbone.net>
 
 Copyright:
-Copyright (C) 2014 Greenbone Networks GmbH
+Copyright (C) 2014, 2018 Greenbone Networks GmbH
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -36,6 +36,9 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
+
+  <xsl:variable name="rnc-comments">0</xsl:variable>
+  <xsl:include href="rnc.xsl"/>
 
   <!-- Helpers. -->
 
@@ -265,7 +268,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </xsl:template>
 
   <xsl:template match="type" mode="details">
-    <xsl:param name="index">3.<xsl:value-of select="position()"/></xsl:param>
+    <xsl:param name="index">4.<xsl:value-of select="position()"/></xsl:param>
     <div>
       <div>
         <h3 id="type_{name}">
@@ -283,11 +286,72 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </xsl:template>
 
   <xsl:template name="type-details">
-    <h2 id="type_details">3 Data Types Details</h2>
+    <h2 id="type_details">4 Data Types Details</h2>
     <xsl:apply-templates select="type" mode="details"/>
   </xsl:template>
 
+  <!-- Elements. -->
+
+  <xsl:template match="element" mode="index">
+    <tr id="index">
+      <td id="index"><a href="#element_{name}"><xsl:value-of select="name"/></a></td>
+      <td id="index">
+        <xsl:if test="summary">
+          <div style="margin-left: 15px;"><xsl:value-of select="normalize-space(summary)"/>.</div>
+        </xsl:if>
+      </td>
+    </tr>
+  </xsl:template>
+
+  <xsl:template name="element-summary">
+    <h2 id="element_summary">2 Summary of Elements</h2>
+    <table id="index">
+    <xsl:apply-templates select="element" mode="index"/>
+    </table>
+  </xsl:template>
+
+  <xsl:template name="element-details">
+    <h2 id="element_details">5 Element Details</h2>
+    <xsl:apply-templates select="element"/>
+  </xsl:template>
+
+  <xsl:template match="element">
+    <xsl:param name="index">5.<xsl:value-of select="position()"/></xsl:param>
+    <div>
+      <div>
+        <h3 id="element_{name}">
+        <xsl:value-of select="$index"/>
+        Element <tt><xsl:value-of select="name"/></tt></h3>
+      </div>
+
+      <p>In short: <xsl:value-of select="normalize-space(summary)"/>.</p>
+
+      <xsl:apply-templates select="description"/>
+
+      <h4><xsl:value-of select="$index"/>.1 Structure</h4>
+
+      <ul style="list-style: none">
+        <li>
+          <xsl:call-template name="command-structure"/>
+        </li>
+      </ul>
+
+      <h4><xsl:value-of select="$index"/>.2 RNC</h4>
+
+      <div style="border: 1px solid; padding:10px; width: 85%; align: center; margin-left: auto; margin-right: auto; background: #d5d5d5;">
+        <div style="margin-left: 5%">
+          <xsl:call-template name="command-relax"/>
+        </div>
+      </div>
+
+    </div>
+  </xsl:template>
+
   <!-- Commands. -->
+
+  <xsl:template name="command-relax">
+    <pre><xsl:call-template name="command-body"/></pre>
+  </xsl:template>
 
   <xsl:template match="type">
     <xsl:choose>
@@ -445,7 +509,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </xsl:template>
 
   <xsl:template match="command">
-    <xsl:param name="index">4.<xsl:value-of select="position()"/></xsl:param>
+    <xsl:param name="index">6.<xsl:value-of select="position()"/></xsl:param>
     <div>
       <div>
         <h3 id="command_{name}">
@@ -486,7 +550,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   </pre>
                 </xsl:for-each>
               </div>
-              <i>OSPD</i>
+              <i>Server</i>
               <div style="margin-left: 2%; margin-right: 2%;">
                 <xsl:for-each select="response/*">
                   <pre>
@@ -512,19 +576,19 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </xsl:template>
 
   <xsl:template name="command-summary">
-    <h2 id="command_summary">2 Summary of Commands</h2>
+    <h2 id="command_summary">3 Summary of Commands</h2>
     <table>
     <xsl:apply-templates select="command" mode="index"/>
     </table>
   </xsl:template>
 
   <xsl:template name="command-details">
-    <h2 id="command_details">4 Command Details</h2>
+    <h2 id="command_details">6 Command Details</h2>
     <xsl:apply-templates select="command"/>
   </xsl:template>
 
   <xsl:template name="parameter-summary">
-    <h2 id="parameter_summary">5 Summary of Scanner Parameters Types</h2>
+    <h2 id="parameter_summary">7 Summary of Scanner Parameters Types</h2>
     <table>
     <xsl:apply-templates select="parameter_type" mode="index"/>
     </table>
@@ -533,7 +597,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <!-- Changes. -->
 
   <xsl:template match="change">
-    <xsl:param name="index">6.<xsl:value-of select="position()"/></xsl:param>
+    <xsl:param name="index">8.<xsl:value-of select="position()"/></xsl:param>
     <div>
       <div>
         <h3>
@@ -550,7 +614,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   <xsl:template name="changes">
     <h2 id="changes">
-      6 Compatibility Changes in Version <xsl:value-of select="/protocol/version"/>
+      8 Compatibility Changes in Version <xsl:value-of select="/protocol/version"/>
     </h2>
     <xsl:apply-templates select="change[version=/protocol/version]"/>
   </xsl:template>
@@ -597,8 +661,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                 <h2 id="contents">Contents</h2>
                 <ol>
                   <li><a href="#type_summary">Summary of Data Types</a></li>
+                  <li><a href="#element_summary">Summary of Elements</a></li>
                   <li><a href="#command_summary">Summary of Commands</a></li>
                   <li><a href="#type_details">Data Type Details</a></li>
+                  <li><a href="#element_details">Element Details</a></li>
                   <li><a href="#command_details">Command Details</a></li>
                   <li><a href="#parameter_summary">Summary of Scanner Parameters Types</a></li>
                   <li>
@@ -609,8 +675,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                 </ol>
 
                 <xsl:call-template name="type-summary"/>
+                <xsl:call-template name="element-summary"/>
                 <xsl:call-template name="command-summary"/>
                 <xsl:call-template name="type-details"/>
+                <xsl:call-template name="element-details"/>
                 <xsl:call-template name="command-details"/>
                 <xsl:call-template name="parameter-summary"/>
                 <xsl:call-template name="changes"/>
