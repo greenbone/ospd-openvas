@@ -230,6 +230,18 @@ def get_pattern(pattern):
         elem_list.append([item, ctx.smembers(item)])
     return elem_list
 
+def get_elem_pattern_by_index(pattern, index=1):
+    """ Get all items with index 'index', stored under
+    a given pattern.
+    """
+    ctx = get_kb_context()
+    items = ctx.keys(pattern)
+
+    elem_list = []
+    for item in items:
+        elem_list.append([item, ctx.lindex(item, index)])
+    return elem_list
+
 def release_db(kbindex=0):
     """ Connect to redis and select the db by index.
     Flush db and delete the index from DBINDEX_NAME list.
