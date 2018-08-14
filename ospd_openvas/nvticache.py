@@ -43,7 +43,7 @@ def get_feed_version():
 def get_oids():
     """ Get the list of NVT OIDs.
     """
-    return openvas_db.get_pattern('filename:*:oid')
+    return openvas_db.get_elem_pattern_by_index('filename:*')
 
 def get_nvt_params(oid, str_format=False):
     """ Get NVT's preferences.

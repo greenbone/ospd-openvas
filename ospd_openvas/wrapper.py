@@ -262,7 +262,7 @@ class OSPDopenvas(OSPDaemon):
         oids = nvti.get_oids()
         str_out = True
         for oid in oids:
-            vt_id = oid[1].pop()
+            vt_id = oid[1]
             filename = oid[0].split(':')
             ret = self.add_vt(vt_id,
                               name=filename[1],
