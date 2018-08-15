@@ -423,14 +423,57 @@ class OSPDaemon(object):
         return vts
 
     @staticmethod
-    def process_targets_element(scanner_target):
-        """ Receive an XML object with the target, ports to run
+    def process_credentials_elements(cred_tree):
+        """ Receive an XML object with the credentials to run
+        a scan against a given target.
+
+        @param:
+        <credentials>
+          <credential type="up" service="ssh" port="22">
+            <username>scanuser</username>
+            <password>mypass</password>
+          </credential>
+          <credential type="up" service="smb">
+            <username>smbuser</username>
+            <password>mypass</password>
+          </credential>
+        </credentials>
+
+        @return: Dictionary containing the credentials for a given target.
+                 Example form:
+                 {'ssh': {'type': type,
+                          'port': port,
+                          'username': username,
+                          'password': pass,
+                        },
+                  'smb': {'type': type,
+                          'username': username,
+                          'password': pass,
+                         },
+                   }
+        """
+        credentials = {}
+        for credential in cred_tree:
+            service = credential.attrib.get('service')
+            credentials[service] = {}
+            credentials[service]['type'] = credential.attrib.get('type')
+            if service == 'ssh':
+                credentials[service]['port'] = credential.attrib.get('port')
+            for param in credential:
+                credentials[service][param.tag] = param.text
+
+        return credentials
+
+    @classmethod
+    def process_targets_element(cls, scanner_target):
+        """ Receive an XML object with the target, ports and credentials to run
         a scan against.
 
         @param: XML element with target subelements. Each target has <hosts>
         and <ports> subelements. Hosts can be a single host, a host range,
-        a comma-separated host list or a network address. <ports> is optional,
-        therefor each ospd-scanner should check for a valid port if needed.
+        a comma-separated host list or a network address.
+        <ports> and  <credentials> are optional. Therefore each ospd-scanner
+        should check for a valid ones if needed.
 
                 Example form:
                 <targets>
@@ -441,24 +484,42 @@ class OSPDaemon(object):
                   <target>
                     <hosts>192.168.0.0/24</hosts>
                     <ports>22</ports>
+                    <credentials>
+                      <credential type="up" service="ssh" port="22">
+                        <username>scanuser</username>
+                        <password>mypass</password>
+                      </credential>
+                      <credential type="up" service="smb">
+                        <username>smbuser</username>
+                        <password>mypass</password>
+                      </credential>
+                    </credentials>
                   </target>
                 </targets>
 
         @return: A list of (hosts, port) tuples.
                  Example form:
-                 [('localhost', '80,43'), ('192.168.0.0/24', '22')]
+                 [['localhost', '80,43'],
+                  ['192.168.0.0/24', '22', {'smb': {'type': type,
+                                                    'port': port,
+                                                    'username': username,
+                                                    'password': pass,
+                                                   }}]]
         """
 
         target_list = []
         for target in scanner_target:
+            ports= ''
+            credentials = {}
             for child in target:
                 if child.tag == 'hosts':
                     hosts = child.text
-                ports = ''
                 if child.tag == 'ports':
                     ports = child.text
+                if child.tag == 'credentials':
+                    credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([hosts, ports])
+                target_list.append([hosts, ports, credentials])
             else:
                 raise OSPDError('No target to scan', 'start_scan')
 
@@ -1144,6 +1205,11 @@ class OSPDaemon(object):
     def get_scan_ports(self, scan_id, target=''):
         """ Gives a scan's ports list. """
         return self.scan_collection.get_ports(scan_id, target)
+
+    def get_scan_credentials(self, scan_id, target=''):
+        """ Gives a scan's credential list. If a target is passed gives
+        the credential list for the given target. """
+        return self.scan_collection.get_credentials(scan_id, target)
 
     def get_scan_vts(self, scan_id):
         """ Gives a scan's vts list. """
