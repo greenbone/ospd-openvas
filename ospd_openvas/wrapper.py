@@ -434,7 +434,14 @@ class OSPDopenvas(OSPDaemon):
 
         # Set scan preferences
         for item in options.items():
-            prefs_val.append(item[0] + "|||" + str(item[1]))
+            item_type = ''
+            if item[0] in OSPD_PARAMS:
+                item_type = OSPD_PARAMS[item[0]].get('type')
+            if item_type == 'boolean' and item[1] == 1:
+                val = 'yes'
+            else:
+                val = str(item[1])
+            prefs_val.append(item[0] + "|||" + val)
         openvas_db.item_add_single(str('internal/%s/scanprefs' % scan_id),
                                    prefs_val)
 
