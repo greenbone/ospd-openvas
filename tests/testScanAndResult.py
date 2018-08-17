@@ -9,7 +9,6 @@ from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon, OSPDError
 
-
 class Result(object):
     def __init__(self, type_, **kwargs):
         self.result_type = type_
@@ -289,3 +288,10 @@ class FullTest(unittest.TestCase):
                                   '</start_scan>'))
         print(ET.tostring(response))
         self.assertEqual(response.get('status'), '200')
+        cred_dict = {'ssh': {'type': 'up', 'password':
+                    'mypass', 'port': '22', 'username':
+                    'scanuser'}, 'smb': {'type': 'up',
+                    'password': 'mypass', 'username': 'smbuser'}}
+        scan_id = response.findtext('id')
+        response = daemon.get_scan_credentials(scan_id, "192.168.0.0/24")
+        self.assertEqual(response, cred_dict)
