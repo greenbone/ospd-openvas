@@ -414,6 +414,80 @@ class OSPDopenvas(OSPDaemon):
                 vts_params.append(param)
         return vts_list, vts_params
 
+    @staticmethod
+    def build_credentials_as_prefs(credentials):
+        """ Parse the credential dictionary.
+        @param credentials: Dictionary with the credentials.
+
+        @return A list with the credentials in string format to be
+                added to the redis KB.
+        """
+        cred_prefs_list = []
+        for credential in credentials.items():
+            service = credential[0]
+            cred_params = credentials.get(service)
+            cred_type = cred_params.get('type', '')
+            username = cred_params.get('username', '')
+            password = cred_params.get('password', '')
+
+            if service == 'ssh':
+                port = cred_params.get('port', '')
+                cred_prefs_list.append('auth_port_ssh|||' +
+                                       '{0}'.format(port))
+                cred_prefs_list.append('SSH Authorization[entry]:SSH login ' +
+                                       'name:|||{0}'.format(username))
+                if cred_type == 'up':
+                    cred_prefs_list.append('SSH Authorization[password]:' +
+                                           'SSH password (unsafe!):|||' +
+                                           '{0}'.format(password))
+                else:
+                    private = cred_params.get('private', '')
+                    cred_prefs_list.append('SSH Authorization[password]:' +
+                                           'SSH key passphrase:|||' +
+                                           '{0}'.format(password))
+                    cred_prefs_list.append('SSH Authorization[file]:' +
+                                           'SSH private key:|||' +
+                                           '{0}'.format(private))
+            if service == 'smb':
+                cred_prefs_list.append('SMB Authorization[entry]:SMB login:' +
+                                       '|||{0}'.format(username))
+                cred_prefs_list.append('SMB Authorization[password]:' +
+                                       'SMB password :|||' +
+                                       '{0}'.format(password))
+            if service == 'esxi':
+                cred_prefs_list.append('ESXi Authorization[entry]:ESXi login ' +
+                                       'name:|||{0}'.format(username))
+                cred_prefs_list.append('ESXi Authorization[password]:' +
+                                       'ESXi login password:|||' +
+                                       '{0}'.format(password))
+
+            if service == 'snmp':
+                community = cred_params.get('community', '')
+                auth_algorithm = cred_params.get('auth_algorithm', '')
+                privacy_password = cred_params.get('privacy_password', '')
+                privacy_algorithm = cred_params.get('privacy_algorithm', '')
+
+                cred_prefs_list.append('SNMP Authorization[password]:' +
+                                       'SNMP Community:' +
+                                       '{0}'.format(community))
+                cred_prefs_list.append('SNMP Authorization[entry]:' +
+                                       'SNMPv3 Username:' +
+                                       '{0}'.format(username))
+                cred_prefs_list.append('SNMP Authorization[password]:' +
+                                       'SNMPv3 Password:' +
+                                       '{0}'.format(password))
+                cred_prefs_list.append('SNMP Authorization[radio]:' +
+                                       'SNMPv3 Authentication Algorithm:' +
+                                       '{0}'.format(auth_algorithm))
+                cred_prefs_list.append('SNMP Authorization[password]:' +
+                                       'SNMPv3 Privacy Password:' +
+                                       '{0}'.format(privacy_password))
+                cred_prefs_list.append('SNMP Authorization[radio]:' +
+                                       'SNMPv3 Privacy Algorithm:' +
+                                       '{0}'.format(privacy_algorithm))
+
+        return cred_prefs_list
+
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
         global MAIN_KBINDEX
@@ -446,6 +520,14 @@ class OSPDopenvas(OSPDaemon):
         port_range = ('port_range|||%s' % ports)
         openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
                                    [port_range, ])
+
+        # Set credentials
+        credentials = self.get_scan_credentials(scan_id, target)
+        if credentials:
+            cred_prefs = self.build_credentials_as_prefs(credentials)
+            openvas_db.item_add_single(str('internal/%s/scanprefs' % scan_id),
+                                       cred_prefs)
+
         # Set plugins to run
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
