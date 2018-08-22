@@ -9,7 +9,6 @@ from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon, OSPDError
 
-
 class Result(object):
     def __init__(self, type_, **kwargs):
         self.result_type = type_
@@ -267,3 +266,32 @@ class FullTest(unittest.TestCase):
                                   '</start_scan>'))
         print(ET.tostring(response))
         self.assertEqual(response.get('status'), '200')
+
+    def testMultiTargetWithCredentials(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan>' +
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
+                                  '</vts>' +
+                                  '<targets><target><hosts>localhosts</hosts>' +
+                                  '<ports>80,443</ports></target><target>' +
+                                  '<hosts>192.168.0.0/24</hosts><ports>22' +
+                                  '</ports><credentials>' +
+                                  '<credential type="up" service="ssh" port="22">' +
+                                  '<username>scanuser</username>' +
+                                  '<password>mypass</password>' +
+                                  '</credential><credential type="up" service="smb">' +
+                                  '<username>smbuser</username>' +
+                                  '<password>mypass</password></credential>' +
+                                  '</credentials>' +
+                                  '</target></targets>' +
+                                  '</start_scan>'))
+        print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
+        cred_dict = {'ssh': {'type': 'up', 'password':
+                    'mypass', 'port': '22', 'username':
+                    'scanuser'}, 'smb': {'type': 'up',
+                    'password': 'mypass', 'username': 'smbuser'}}
+        scan_id = response.findtext('id')
+        response = daemon.get_scan_credentials(scan_id, "192.168.0.0/24")
+        self.assertEqual(response, cred_dict)

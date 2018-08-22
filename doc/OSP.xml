@@ -65,10 +65,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   <element>
     <name>target</name>
-    <summary>A scan target consisting of hosts and a port selection</summary>
+    <summary>A scan target consisting of hosts, a port selection and credentials</summary>
     <pattern>
       <e>hosts</e>
       <e>ports</e>
+      <e>credentials</e>
     </pattern>
     <ele>
       <name>hosts</name>
@@ -77,6 +78,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <ele>
       <name>ports</name>
       <summary>A list of ports that is the same for the given hosts</summary>
+    </ele>
+    <ele>
+      <name>credentials</name>
+      <summary>One or many credentials containing the credential for the given hosts.</summary>
     </ele>
   </element>
 
@@ -663,6 +668,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </attrib>
       <e>scanner_params</e>
       <e>vts</e>
+      <e>targets</e>
     </pattern>
     <ele>
       <name>scanner_params</name>
@@ -734,7 +740,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
     <example>
-      <summary>Start a new scan with multi-targets</summary>
+      <summary>Start a new scan with multi-targets. Each one has a different port list and one of them has credentials for authenticated scans.</summary>
       <request>
         <start_scan>
           <scanner_params />
@@ -752,6 +758,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <target>
               <hosts>192.168.1.0/24</hosts>
               <ports>1,2,3,80,443</ports>
+              <credentials>
+                <credential type="up" service="ssh" port="22">
+                  <username>scanuser</username>
+                  <password>mypass</password>
+                </credential>
+                <credential type="up" service="smb">
+                  <username>smbuser</username>
+                  <password>mypass</password>
+                </credential>
+              </credentials>
             </target>
           </targets>
         </start_scan>
@@ -850,7 +866,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <command>START_SCAN</command>
     <summary>target optional element added </summary>
     <description>
-      Added optional element targets to specify different hosts with a different port list. This is take in account only if target and port attributes are not present in start_scan tag.
+      Added optional element targets to specify different hosts with a different port list and credentials. This is take in account only if target and port attributes are not present in start_scan tag.
     </description>
     <version>1.2</version>
   </change>

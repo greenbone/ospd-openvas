@@ -178,6 +178,15 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['targets'][0][1]
 
+    def get_credentials(self, scan_id, target):
+        """ Get a scan's credential list. It return dictionary with
+        the corresponding credential for a given target.
+        """
+        if target:
+            for item in self.scans_table[scan_id]['targets']:
+                if target == item[0]:
+                    return item[2]
+
     def get_vts(self, scan_id):
         """ Get a scan's vts list. """
 
