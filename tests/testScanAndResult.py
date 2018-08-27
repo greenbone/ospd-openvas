@@ -349,3 +349,31 @@ class FullTest(unittest.TestCase):
         print(ET.tostring(response))
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
+
+    def testScanMultiTargetParallelWithError(self):
+        daemon = DummyWrapper([])
+        cmd = secET.fromstring('<start_scan parallel="100a">' +
+                               '<scanner_params />' +
+                               '<targets><target>' +
+                               '<hosts>localhosts</hosts>' +
+                               '<ports>22</ports>' +
+                               '</target></targets>' +
+                               '</start_scan>')
+        time.sleep(1)
+        print(ET.tostring(cmd))
+        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+
+    def testScanMultiTargetParallel100(self):
+        daemon = DummyWrapper([])
+        cmd = response = secET.fromstring(
+            daemon.handle_command('<start_scan parallel="100">' +
+                                  '<scanner_params />' +
+                                  '<targets><target>' +
+                                  '<hosts>localhosts</hosts>' +
+                                  '<ports>22</ports>' +
+                                  '</target></targets>' +
+                                  '</start_scan>'))
+        time.sleep(1)
+        print(ET.tostring(cmd))
+        self.assertEqual(response.get('status'), '200')
+
