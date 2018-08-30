@@ -27,6 +27,7 @@ import time
 import os
 import signal
 import psutil
+import uuid
 
 from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
@@ -311,7 +312,7 @@ class OSPDopenvas(OSPDaemon):
         for the progress bar. """
         host_progress_dict = dict()
         prog = str.split(msg, '/')
-        if prog[1] == 0:
+        if float(prog[1]) == 0:
             return
         host_prog = (float(prog[0]) / float(prog[1])) * 100
         host_progress_dict[target] = host_prog
@@ -504,7 +505,10 @@ class OSPDopenvas(OSPDaemon):
         openvas_db.set_global_redisctx(ctx)
         MAIN_KBINDEX = openvas_db.DB_INDEX
 
-        openvas_db.item_add_single(('internal/%s' % scan_id), ['new', ])
+        # To avoid interference between scan process during a parallel scanning
+        # new uuid is used internaly for each scan.
+        openvas_scan_id = str(uuid.uuid4())
+        openvas_db.item_add_single(('internal/%s' % openvas_scan_id), ['new', ])
 
         # Set scan preferences
         for item in options.items():
@@ -516,23 +520,23 @@ class OSPDopenvas(OSPDaemon):
             else:
                 val = str(item[1])
             prefs_val.append(item[0] + "|||" + val)
-        openvas_db.item_add_single(str('internal/%s/scanprefs' % scan_id),
+        openvas_db.item_add_single(str('internal/%s/scanprefs' % (openvas_scan_id)),
                                    prefs_val)
 
         # Set target
         target_aux = ('TARGET|||%s' % target)
-        openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+        openvas_db.item_add_single(('internal/%s/scanprefs' % openvas_scan_id),
                                    [target_aux, ])
         # Set port range
         port_range = ('port_range|||%s' % ports)
-        openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+        openvas_db.item_add_single(('internal/%s/scanprefs' % openvas_scan_id),
                                    [port_range, ])
 
         # Set credentials
         credentials = self.get_scan_credentials(scan_id, target)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
-            openvas_db.item_add_single(str('internal/%s/scanprefs' % scan_id),
+            openvas_db.item_add_single(str('internal/%s/scanprefs' % openvas_scan_id),
                                        cred_prefs)
 
         # Set plugins to run
@@ -542,12 +546,12 @@ class OSPDopenvas(OSPDaemon):
             # Add nvts list
             separ = ';'
             plugin_list = ('plugin_set|||%s' % separ.join(nvts_list))
-            openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+            openvas_db.item_add_single(('internal/%s/scanprefs' % openvas_scan_id),
                                        [plugin_list, ])
             # Add nvts parameters
             for elem in nvts_params:
                 item = ('%s|||%s' % (elem[0], elem[1]))
-                openvas_db.item_add_single(('internal/%s/scanprefs' % scan_id),
+                openvas_db.item_add_single(('internal/%s/scanprefs' % openvas_scan_id),
                                            [item, ])
         else:
             openvas_db.release_db(MAIN_KBINDEX)
@@ -570,7 +574,7 @@ class OSPDopenvas(OSPDaemon):
                           value='Feed version: %s.'
                           % nvti.get_feed_version())
 
-        cmd = ['openvassd', '--scan-start', scan_id]
+        cmd = ['openvassd', '--scan-start', openvas_scan_id]
         try:
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
@@ -581,11 +585,11 @@ class OSPDopenvas(OSPDaemon):
         logger.debug('pid = {0}'.format(ovas_pid))
 
         no_id_found = False
-        while 1:
+        while True:
             time.sleep(3)
 
             # Check if the client stopped the whole scan
-            if self.scan_is_stopped(scan_id):
+            if self.scan_is_stopped(openvas_scan_id):
                 self.do_cleanup(ovas_pid)
 
             for i in range(1, openvas_db.MAX_DBINDEX):
@@ -596,13 +600,13 @@ class OSPDopenvas(OSPDaemon):
                 id_aux = openvas_db.item_get_single('internal/scan_id')
                 if not id_aux:
                     continue
-                if id_aux == scan_id:
+                if id_aux == openvas_scan_id:
                     no_id_found = False
                     self.get_openvas_timestamp_scan_host(scan_id, target)
                     self.get_openvas_result(scan_id)
                     self.get_openvas_status(scan_id, target)
 
-                    if self.scan_is_finished(scan_id):
+                    if self.scan_is_finished(openvas_scan_id):
                         openvas_db.release_db(i)
             # Scan end. No kb in use for this scan id
             if no_id_found:
