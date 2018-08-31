@@ -114,14 +114,30 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         port = int(options['port'])
         timeout = int(options['ssh_timeout'])
 
-        try:
+        # For backward compatibility, consider the legacy mode to get
+        # credentials as scan_option.
+        # First and second modes should be removed in future releases.
+        # On the third case it receives the credentials as a subelement of
+        # the <target>.
+        credentials = self.get_scan_credentials(scan_id, host)
+        if ('username_password' in options and
+                ':' in options['username_password']):
             username, password = options['username_password'].split(':', 1)
-            ssh.connect(hostname=host, username=username, password=password,
-                        timeout=timeout, port=port)
-        except ValueError:
+        elif 'username' in options and options['username']:
+            username = options['username']
+            password = options['password']
+        elif credentials:
+            cred_params = credentials.get('ssh')
+            username = cred_params.get('username', '')
+            password = cred_params.get('password', '')
+        else:
             self.add_scan_error(scan_id, host=host,
                                 value='Erroneous username_password value')
-            return None
+            raise ValueError('Erroneous username_password value')
+
+        try:
+            ssh.connect(hostname=host, username=username, password=password,
+                        timeout=timeout, port=port)
         except (paramiko.ssh_exception.AuthenticationException,
                 socket.error) as err:
             # Errors: No route to host, connection timeout, authentication
