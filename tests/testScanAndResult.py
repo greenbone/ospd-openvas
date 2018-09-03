@@ -267,6 +267,7 @@ class FullTest(unittest.TestCase):
         print(ET.tostring(response))
         self.assertEqual(response.get('status'), '200')
 
+
     def testMultiTargetWithCredentials(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
@@ -295,3 +296,39 @@ class FullTest(unittest.TestCase):
         scan_id = response.findtext('id')
         response = daemon.get_scan_credentials(scan_id, "192.168.0.0/24")
         self.assertEqual(response, cred_dict)
+
+    def testScanGetTarget(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan>' +
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
+                                  '</vts>' +
+                                  '<targets><target>' +
+                                  '<hosts>localhosts</hosts>' +
+                                  '<ports>80,443</ports>' +
+                                  '</target>' +
+                                  '<target><hosts>192.168.0.0/24</hosts>' +
+                                  '<ports>22</ports></target></targets>' +
+                                  '</start_scan>'))
+        scan_id = response.findtext('id')
+        response = secET.fromstring(
+            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
+        print(ET.tostring(response))
+        scan_res = response.find('scan')
+        self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
+
+    def testScanGetLegacyTarget(self):
+        daemon = DummyWrapper([])
+
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan target="localhosts,192.168.0.0/24" ports="22">' +
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
+                                  '</vts>' +
+                                  '</start_scan>'))
+        scan_id = response.findtext('id')
+        response = secET.fromstring(
+            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
+        print(ET.tostring(response))
+        scan_res = response.find('scan')
+        self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
+

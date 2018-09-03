@@ -116,7 +116,8 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def create_scan(self, scan_id='', targets='', options=dict(), vts=''):
+    def create_scan(self, scan_id='', targets='', target_str=None,
+                    options=dict(), vts=''):
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
@@ -125,6 +126,7 @@ class ScanCollection(object):
         scan_info['results'] = list()
         scan_info['progress'] = 0
         scan_info['targets'] = targets
+        scan_info['legacy_target'] = target_str
         scan_info['vts'] = vts
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
@@ -162,8 +164,14 @@ class ScanCollection(object):
 
     def get_target(self, scan_id):
         """ Get a scan's target list. """
+        if self.scans_table[scan_id]['legacy_target']:
+            return self.scans_table[scan_id]['legacy_target']
 
-        return self.scans_table[scan_id]['targets']
+        target_list=[]
+        for item in self.scans_table[scan_id]['targets']:
+            target_list.append(item[0])
+        separ = ','
+        return separ.join(target_list)
 
     def get_ports(self, scan_id, target):
         """ Get a scan's ports list. If a target is specified

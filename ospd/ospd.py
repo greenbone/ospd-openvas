@@ -573,7 +573,7 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(scan_id, scan_targets, scan_params, vts)
+        scan_id = self.create_scan(scan_id, scan_targets, target_str, scan_params, vts)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id, scan_targets))
         self.scan_processes[scan_id] = scan_process
@@ -1164,7 +1164,7 @@ class OSPDaemon(object):
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
 
-    def create_scan(self, scan_id, targets, options, vts):
+    def create_scan(self, scan_id, targets, target_str, options, vts):
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -1172,7 +1172,7 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
-        return self.scan_collection.create_scan(scan_id, targets, options, vts)
+        return self.scan_collection.create_scan(scan_id, targets, target_str, options, vts)
 
     def get_scan_options(self, scan_id):
         """ Gives a scan's list of options. """
