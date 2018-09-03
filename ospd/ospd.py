@@ -544,7 +544,7 @@ class OSPDaemon(object):
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str])
+                scan_targets.append([single_target, ports_str, ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
