@@ -592,12 +592,14 @@ class OSPDopenvas(OSPDaemon):
             if self.scan_is_stopped(openvas_scan_id):
                 self.do_cleanup(ovas_pid)
 
+            ctx = openvas_db.kb_connect(1)
+            openvas_db.set_global_redisctx(ctx)
+
             for i in range(1, openvas_db.MAX_DBINDEX):
                 if i == MAIN_KBINDEX:
                     continue
-                ctx = openvas_db.kb_connect(i)
-                openvas_db.set_global_redisctx(ctx)
-                id_aux = openvas_db.item_get_single('internal/scan_id')
+                ctx.execute_command('SELECT '+ str(i))
+                id_aux = ctx.execute_command('srandmember internal/scan_id')
                 if not id_aux:
                     continue
                 if id_aux == openvas_scan_id:
