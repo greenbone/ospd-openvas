@@ -523,6 +523,11 @@ class OSPDopenvas(OSPDaemon):
         openvas_db.item_add_single(str('internal/%s/scanprefs' % (openvas_scan_id)),
                                    prefs_val)
 
+        # Store MAIN_KBINDEX as global preference
+        ov_maindbid = ('ov_maindbid|||%d' % MAIN_KBINDEX)
+        openvas_db.item_add_single(('internal/%s/scanprefs' % openvas_scan_id),
+                                   [ov_maindbid, ])
+
         # Set target
         target_aux = ('TARGET|||%s' % target)
         openvas_db.item_add_single(('internal/%s/scanprefs' % openvas_scan_id),
@@ -584,6 +589,10 @@ class OSPDopenvas(OSPDaemon):
         ovas_pid = result.pid
         logger.debug('pid = {0}'.format(ovas_pid))
 
+        # Wait until the scanner starts and loads all the preferences.
+        while openvas_db.item_get_single('internal/'+ openvas_scan_id) == 'new':
+            time.sleep(1)
+
         no_id_found = False
         while True:
             time.sleep(3)
@@ -592,13 +601,14 @@ class OSPDopenvas(OSPDaemon):
             if self.scan_is_stopped(openvas_scan_id):
                 self.do_cleanup(ovas_pid)
 
-            ctx = openvas_db.kb_connect(1)
+            ctx = openvas_db.kb_connect(MAIN_KBINDEX)
             openvas_db.set_global_redisctx(ctx)
-
-            for i in range(1, openvas_db.MAX_DBINDEX):
+            dbs = openvas_db.item_get_set('internal/dbindex')
+            for i in list(dbs):
                 if i == MAIN_KBINDEX:
                     continue
                 ctx.execute_command('SELECT '+ str(i))
+                openvas_db.set_global_redisctx(ctx)
                 id_aux = ctx.execute_command('srandmember internal/scan_id')
                 if not id_aux:
                     continue
@@ -607,9 +617,11 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_timestamp_scan_host(scan_id, target)
                     self.get_openvas_result(scan_id)
                     self.get_openvas_status(scan_id, target)
-
                     if self.scan_is_finished(openvas_scan_id):
                         openvas_db.release_db(i)
+                        ctx.execute_command('SELECT '+ str(MAIN_KBINDEX))
+                        openvas_db.remove_set_member('internal/dbindex', i)
+
             # Scan end. No kb in use for this scan id
             if no_id_found:
                 break

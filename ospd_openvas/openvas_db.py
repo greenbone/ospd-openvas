@@ -188,6 +188,13 @@ def item_get_set(name):
     ctx = get_kb_context()
     return ctx.smembers(name)
 
+def remove_set_member(key, member):
+    """ Remove member of the key set.
+    The right global REDISCONTEXT must be already set.
+    """
+    ctx = get_kb_context()
+    ctx.srem(key, member)
+
 def item_get_single(name):
     """ Get a single KB element. The right global REDISCONTEXT must be
     already set.
