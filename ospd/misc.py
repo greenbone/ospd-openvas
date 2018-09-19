@@ -43,6 +43,7 @@ import time
 import ssl
 import uuid
 import multiprocessing
+import itertools
 
 LOGGER = logging.getLogger(__name__)
 
@@ -580,8 +581,8 @@ def ports_as_list(port_str):
         ports = ports[:b_tcp - 1] + ports[b_tcp:]
     if ports[b_udp - 1] == ',':
         ports = ports[:b_udp - 1] + ports[b_udp:]
-
     ports = port_str_arrange(ports)
+
     tports = ''
     uports = ''
     # TCP ports listed first, then UDP ports
@@ -623,6 +624,27 @@ def get_udp_port_list(port_str):
     """ Return a list with udp ports from a given port list in string format """
     return ports_as_list(port_str)[1]
 
+
+def port_list_compress(port_list):
+    """ Compress a port list and return a string. """
+
+    if not port_list or len(port_list) == 0:
+        LOGGER.info("Invalid or empty port list.")
+        return ''
+
+    port_list = sorted(set(port_list))
+    compressed_list = []
+    for key, group in itertools.groupby(enumerate(port_list),
+                                        lambda t: t[1] - t[0]):
+        group = list(group)
+        if group[0][1] ==  group[-1][1]:
+            compressed_list.append(str(group[0][1]))
+        else:
+            compressed_list.append(str(group[0][1]) +
+                                          '-' +
+                                          str(group[-1][1] ))
+
+    return ','.join(compressed_list)
 
 def valid_uuid(value):
     """ Check if value is a valid UUID. """
