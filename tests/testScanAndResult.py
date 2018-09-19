@@ -69,30 +69,43 @@ class FullTest(unittest.TestCase):
         # The response root element must have the correct name
         self.assertEqual(response.tag, 'get_scanner_details_response')
         # The response must contain a 'scanner_params' element
+        print(ET.tostring(response))
         self.assertIsNotNone(response.find('scanner_params'))
 
     def testGetDefaultHelp(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<help />'))
         print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
         response = secET.fromstring(daemon.handle_command('<help format="xml" />'))
         print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
+        self.assertEqual(response.tag, 'help_response')
 
     def testGetDefaultScannerVersion(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<get_version />'))
         print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
+        self.assertIsNotNone(response.find('protocol'))
 
     def testGetVTs_no_VT(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
         print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
+        self.assertIsNotNone(response.find('vts'))
 
     def testGetVTs_single_VT(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
         print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
+        vts = response.find('vts')
+        self.assertIsNotNone(vts.find('vt'))
+        vt = vts.find('vt')
+        self.assertEqual(vt.get('id'), '1.2.3.4')
 
     def testGetVTs_multiple_VTs(self):
         daemon = DummyWrapper([])
@@ -101,6 +114,9 @@ class FullTest(unittest.TestCase):
         daemon.add_vt('123456789', 'Yet another vulnerability test')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
         print(ET.tostring(response))
+        self.assertEqual(response.get('status'), '200')
+        vts = response.find('vts')
+        self.assertIsNotNone(vts.find('vt'))
 
     def testGetVTs_multiple_VTs_with_custom(self):
         daemon = DummyWrapper([])
@@ -168,15 +184,17 @@ class FullTest(unittest.TestCase):
                                   '<scanner_params /></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
-        time.sleep(0.01)
 
-        response = daemon.stop_scan(scan_id)
-        self.assertEqual(response, None)
+        # Depending on the sistem this test can end with a race condition
+        # because the scanner is already stopped when the <stop_scan> commmand
+        # is run.
+        time.sleep(3)
+        cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
+        self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
 
-        response = secET.fromstring(daemon.handle_command(
-            '<stop_scan scan_id="%s" />' % scan_id))
-        self.assertEqual(response.get('status'), '200')
-        print(ET.tostring(response))
+        cmd = secET.fromstring('<stop_scan />')
+        self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
+
 
     def testScanWithVTs(self):
         daemon = DummyWrapper([])
@@ -331,4 +349,3 @@ class FullTest(unittest.TestCase):
         print(ET.tostring(response))
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
-
