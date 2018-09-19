@@ -28,6 +28,7 @@ import unittest
 from ospd.misc import ports_as_list
 from ospd.misc import get_udp_port_list
 from ospd.misc import get_tcp_port_list
+from ospd.misc import port_list_compress
 
 class FullTest(unittest.TestCase):
 
@@ -128,3 +129,10 @@ class FullTest(unittest.TestCase):
         tports, uports = ports_as_list('U:1-2,U:22')
         self.assertTrue(tports is None)
         self.assertTrue(uports is None)
+
+
+    def testCompressList(self):
+        """ Test different malformed port list. """
+        port_list = [1,2,3,4,5,8,9,10,22,24,29,30]
+        string = port_list_compress(port_list)
+        self.assertEqual(string, '1-5,8-10,22,24,29-30')
