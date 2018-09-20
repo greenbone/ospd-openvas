@@ -40,6 +40,7 @@ import xml.etree.ElementTree as ET
 import defusedxml.ElementTree as secET
 import os
 import re
+import time
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
@@ -73,6 +74,7 @@ COMMANDS_TABLE = {
             'target': 'Target host to scan',
             'ports': 'Ports list to scan',
             'scan_id': 'Optional UUID value to use as scan ID',
+            'parallel': 'Optional nummer of parallel target to scan',
         },
         'elements': None
     },
@@ -550,6 +552,14 @@ class OSPDaemon(object):
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
             raise OSPDError('Invalid scan_id UUID', 'start_scan')
 
+        try:
+            parallel = int(scan_et.attrib.get('parallel', '1'))
+            if parallel < 1 or parallel > 20:
+                parallel = 1
+        except ValueError:
+            raise OSPDError('Invalid value for parallel scans. '
+                            'It must be a number', 'start_scan')
+
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
             raise OSPDError('No scanner_params element', 'start_scan')
@@ -575,7 +585,9 @@ class OSPDaemon(object):
 
         scan_id = self.create_scan(scan_id, scan_targets, target_str, scan_params, vts)
         scan_process = multiprocessing.Process(target=scan_func,
-                                               args=(scan_id, scan_targets))
+                                               args=(scan_id,
+                                                     scan_targets,
+                                                     parallel))
         self.scan_processes[scan_id] = scan_process
         scan_process.start()
         id_ = ET.Element('id')
@@ -756,38 +768,69 @@ class OSPDaemon(object):
             send_method = stream.write
         self.write_to_stream(send_method, response)
 
-    def start_scan(self, scan_id, targets):
+    def parallel_scan(self,scan_id, target):
         """ Starts the scan with scan_id. """
+        try:
+            ret = self.exec_scan(scan_id, target)
+            if ret == 0:
+                self.add_scan_host_detail(scan_id, name='host_status',
+                                          host=target, value='0')
+            elif ret == 1:
+                self.add_scan_host_detail(scan_id, name='host_status',
+                                          host=target, value='1')
+            elif ret == 2:
+                self.add_scan_host_detail(scan_id, name='host_status',
+                                          host=target, value='2')
+            else:
+                logger.debug('{0}: No host status returned'.format(target))
+        except Exception as e:
+            self.add_scan_error(scan_id, name='', host=target,
+                                value='Host process failure (%s).' % e)
+            logger.exception('While scanning {0}:'.format(target))
+        else:
+            logger.info("{0}: Host scan finished.".format(target))
 
+    @staticmethod
+    def check_pending_target(multiscan_proc):
+        """ Check if a scan process is still alive. In case the process
+        finished, removes the process from the multiscan_process list
+
+        @input multiscan_proc A list with the scan process which
+        may still be alive.
+        @return Actualized list with current runnging scan processes
+        """
+        for run_target in multiscan_proc:
+            if not run_target.is_alive():
+                multiscan_proc.remove(run_target)
+        return multiscan_proc
+
+    def start_scan(self, scan_id, targets, parallel=1):
+        """ Handle N parallel scans if 'parallel' is greater than 1. """
         os.setsid()
+        multiscan_proc = []
         logger.info("{0}: Scan started.".format(scan_id))
         target_list = targets
         if target_list is None or not target_list:
             raise OSPDError('Erroneous targets list', 'start_scan')
+
         for index, target in enumerate(target_list):
+            while len(multiscan_proc) >= parallel:
+               multiscan_proc = self.check_pending_target(multiscan_proc)
+               time.sleep(1)
+
             progress = float(index) * 100 / len(target_list)
             self.set_scan_progress(scan_id, int(progress))
             logger.info("{0}: Host scan started on ports {1}.".format(target[0],target[1]))
-            try:
-                ret = self.exec_scan(scan_id, target[0])
-                if ret == 0:
-                    self.add_scan_host_detail(scan_id, name='host_status',
-                                              host=target[0], value='0')
-                elif ret == 1:
-                    self.add_scan_host_detail(scan_id, name='host_status',
-                                              host=target[0], value='1')
-                elif ret == 2:
-                    self.add_scan_host_detail(scan_id, name='host_status',
-                                              host=target[0], value='2')
-                else:
-                    logger.debug('{0}: No host status returned'.format(target[0]))
-            except Exception as e:
-                self.add_scan_error(scan_id, name='', host=target[0],
-                                    value='Host process failure (%s).' % e)
-                logger.exception('While scanning {0}:'.format(target[0]))
-            else:
-                logger.info("{0}: Host scan finished.".format(target[0]))
 
+            scan_process = multiprocessing.Process(target=self.parallel_scan,
+                                               args=(scan_id, target[0]))
+            multiscan_proc.append(scan_process)
+            scan_process.start()
+
+        # Wait until all single target were scanned
+        while multiscan_proc:
+            multiscan_proc = self.check_pending_target(multiscan_proc)
+            time.sleep(1)
         self.finish_scan(scan_id)
 
     def dry_run_scan(self, scan_id, targets):
