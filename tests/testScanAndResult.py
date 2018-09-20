@@ -213,7 +213,7 @@ class FullTest(unittest.TestCase):
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         time.sleep(0.01)
-        self.assertEqual(daemon.get_scan_vts(scan_id), {'1.2.3.4': {}})
+        self.assertEqual(daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vtgroups': []})
         self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
 
         # With out VTS
@@ -249,7 +249,30 @@ class FullTest(unittest.TestCase):
         scan_id = response.findtext('id')
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id),
-                         {'1234': {'ABC': {'type': 'entry', 'value': '200'}}})
+                         {'1234': {'ABC': {'type': 'entry', 'value': '200'}}, 'vtgroups': []})
+
+
+        # Raise because no vtgroup filter attribute
+        cmd = secET.fromstring('<start_scan ' +
+                               'target="localhost" ports="80, 443">' +
+                               '<scanner_params /><vts><vtgroup/>' +
+                               '</vts></start_scan>')
+        print(ET.tostring(cmd))
+        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+
+        # No error
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan ' +
+                                  'target="localhost" ports="80, 443">' +
+                                  '<scanner_params /><vts>' +
+                                  '<vtgroup filter="a"/>' +
+                                  '</vts></start_scan>'))
+        print(ET.tostring(response))
+        scan_id = response.findtext('id')
+        time.sleep(0.01)
+        self.assertEqual(daemon.get_scan_vts(scan_id),
+                         {'vtgroups': ['a']})
+
 
     def testBillonLaughs(self):
         daemon = DummyWrapper([])
