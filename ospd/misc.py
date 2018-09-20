@@ -43,6 +43,7 @@ import time
 import ssl
 import uuid
 import multiprocessing
+import itertools
 
 LOGGER = logging.getLogger(__name__)
 
@@ -506,6 +507,144 @@ def resolve_hostname(hostname):
         return socket.gethostbyname(hostname)
     except socket.gaierror:
         return None
+
+
+def port_range_expand(portrange):
+    """
+    Receive a port range and expands it in individual ports.
+
+    @input Port range.
+    e.g. "4-8"
+
+    @return List of integers.
+    e.g. [4, 5, 6, 7, 8]
+    """
+    if not portrange or '-' not in portrange:
+        LOGGER.info("Invalid port range format")
+        return None
+    port_list = list()
+    for single_port in range(int(portrange[:portrange.index('-')]),
+                             int(portrange[portrange.index('-') + 1:]) + 1):
+        port_list.append(single_port)
+    return port_list
+
+def port_str_arrange(ports):
+    """ Gives a str in the format (always tcp listed first).
+    T:<tcp ports/portrange comma separated>U:<udp ports comma separated>
+    """
+    b_tcp = ports.find("T")
+    b_udp = ports.find("U")
+    if (b_udp != -1 and b_tcp != -1)  and b_udp < b_tcp:
+        return ports[b_tcp:] + ports[b_udp:b_tcp]
+
+    return ports
+
+
+def ports_str_check_failed(port_str):
+    """
+    Check if the port string is well formed.
+    Return True if fail, False other case.
+    """
+
+    pattern = r'[^TU:0-9, \-]'
+    if (re.search(pattern, port_str) or
+        port_str.count('T') > 1 or
+        port_str.count('U') > 1 or
+        port_str.count(':') < (port_str.count('T') + port_str.count('U'))):
+        return True
+    return False
+
+def ports_as_list(port_str):
+    """
+    Parses a ports string into two list of idividual tcp and udp ports.
+
+    @input string containing a port list
+    e.g. T:1,2,3,5-8 U:22,80,600-1024
+
+    @return two list of sorted integers, for tcp and udp ports respectively.
+    """
+    if not port_str:
+        LOGGER.info("Invalid port value")
+        return [None, None]
+
+    if ports_str_check_failed(port_str):
+        LOGGER.info("{0}: Port list malformed.")
+        return [None, None]
+
+    tcp_list = list()
+    udp_list = list()
+    ports = port_str.replace(' ', '')
+    b_tcp = ports.find("T")
+    b_udp = ports.find("U")
+
+    if ports[b_tcp - 1] == ',':
+        ports = ports[:b_tcp - 1] + ports[b_tcp:]
+    if ports[b_udp - 1] == ',':
+        ports = ports[:b_udp - 1] + ports[b_udp:]
+    ports = port_str_arrange(ports)
+
+    tports = ''
+    uports = ''
+    # TCP ports listed first, then UDP ports
+    if b_udp != -1 and b_tcp != -1:
+        tports = ports[ports.index('T:') + 2:ports.index('U:')]
+        uports = ports[ports.index('U:') + 2:]
+    # Only UDP ports
+    elif b_tcp == -1 and b_udp != -1:
+        uports = ports[ports.index('U:') + 2:]
+    # Only TCP ports
+    elif b_udp == -1 and b_tcp != -1:
+        tports = ports[ports.index('T:') + 2:]
+    else:
+        tports = ports
+
+    if tports:
+        for port in tports.split(','):
+            if '-' in port:
+                tcp_list.extend(port_range_expand(port))
+            else:
+                tcp_list.append(int(port))
+        tcp_list.sort()
+    if uports:
+        for port in uports.split(','):
+            if '-' in port:
+                udp_list.extend(port_range_expand(port))
+            else:
+                udp_list.append(int(port))
+        udp_list.sort()
+
+    return (tcp_list, udp_list)
+
+def get_tcp_port_list(port_str):
+    """ Return a list with tcp ports from a given port list in string format """
+    return ports_as_list(port_str)[0]
+
+
+def get_udp_port_list(port_str):
+    """ Return a list with udp ports from a given port list in string format """
+    return ports_as_list(port_str)[1]
+
+
+def port_list_compress(port_list):
+    """ Compress a port list and return a string. """
+
+    if not port_list or len(port_list) == 0:
+        LOGGER.info("Invalid or empty port list.")
+        return ''
+
+    port_list = sorted(set(port_list))
+    compressed_list = []
+    for key, group in itertools.groupby(enumerate(port_list),
+                                        lambda t: t[1] - t[0]):
+        group = list(group)
+        if group[0][1] ==  group[-1][1]:
+            compressed_list.append(str(group[0][1]))
+        else:
+            compressed_list.append(str(group[0][1]) +
+                                          '-' +
+                                          str(group[-1][1] ))
+
+    return ','.join(compressed_list)
 
 def valid_uuid(value):
     """ Check if value is a valid UUID. """
