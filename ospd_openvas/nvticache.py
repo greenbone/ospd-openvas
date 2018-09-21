@@ -127,3 +127,8 @@ def get_nvt_name(ctx, oid):
     """ Get the NVT name of the given OID."""
     return ctx.lindex("nvt:%s" % oid,
                       openvas_db.nvt_meta_fields.index("NVT_NAME_POS"))
+
+def get_nvt_family(ctx, oid):
+    """ Get the NVT family of the given OID."""
+    return ctx.lindex("nvt:%s" % oid,
+                      openvas_db.nvt_meta_fields.index("NVT_FAMILY_POS"))
