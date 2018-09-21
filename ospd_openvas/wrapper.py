@@ -400,12 +400,38 @@ class OSPDopenvas(OSPDaemon):
                 logger.debug('Stopping process: {0}'.format(process))
                 os.kill(process.pid, signal.SIGUSR1)
 
+
     @staticmethod
-    def process_vts(vts):
+    def get_vts_in_groups(ctx, filters):
+        """ Return a list of vts which match with the given filter.
+
+        @input filters A list of filters. Each filter has key, operator and
+                       a value. They are separated by a space.
+                       Supported keys: family
+        @return Return a list of vts which match with the given filter.
+        """
+        vts_list = list()
+        oids = nvti.get_oids()
+
+        for elem in filters:
+            key, value = elem.split('=')
+            for oid in oids:
+                if key == 'family' and value == nvti.get_nvt_family(ctx, oid[1]):
+                    vts_list.append(oid[1])
+        return vts_list
+
+
+    def process_vts(self, vts):
         """ Add single VTs and their parameters. """
         vts_list = []
         vts_params = []
+        vtgroups = vts.pop('vtgroups')
+
         ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
+        openvas_db.set_global_redisctx(ctx)
+        if vtgroups:
+            vts_list = self.get_vts_in_groups(ctx, vtgroups)
+
         for memb in vts.items():
             vts_list.append(memb[0])
             nvt_name = nvti.get_nvt_name(ctx, memb[0])
@@ -548,6 +574,9 @@ class OSPDopenvas(OSPDaemon):
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
+            # Select the scan KB again.
+            ctx.execute_command('SELECT '+ str(MAIN_KBINDEX))
+            openvas_db.set_global_redisctx(ctx)
             # Add nvts list
             separ = ';'
             plugin_list = ('plugin_set|||%s' % separ.join(nvts_list))
