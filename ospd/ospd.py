@@ -403,25 +403,38 @@ class OSPDaemon(object):
                   <vt id='vt2'>
                     <vt_param name='param1' type='type'>value</vt_param>
                   </vt>
+                  <vtgroup filter='family = debian'/>
+                  <vtgroup filter='family = general'/>
                 <vts>
 
         @return: Dictionary containing the vts attribute and subelements,
                  like the VT's id and VT's parameters.
                  Example form:
-                 {v1, vt2: {param1: {'type': type', 'value': value}}}
+                 {'v1',
+                  'vt2': {param1: {'type': type', 'value': value}},
+                  'vtgroups': ['family = debian', 'family = general']}
         """
         vts = {}
+        filters = list()
         for vt in scanner_vts:
-            vt_id = vt.attrib.get('id')
-            vts[vt_id] = {}
-            for param in vt:
-                if not param.attrib.get('name'):
-                    raise OSPDError('Invalid NVT parameter. No parameter name',
+            if vt.tag == 'vt':
+                vt_id = vt.attrib.get('id')
+                vts[vt_id] = {}
+                for param in vt:
+                    if not param.attrib.get('name'):
+                        raise OSPDError('Invalid VT parameter. No parameter name',
+                                        'start_scan')
+                    ptype = param.attrib.get('type', 'entry')
+                    pvalue = param.text if param.text else ''
+                    pname = param.attrib.get('name')
+                    vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
+            if vt.tag == 'vtgroup':
+                vts_filter = vt.attrib.get('filter', None)
+                if vts_filter is None:
+                    raise OSPDError('Invalid VT group. No filter given.',
                                     'start_scan')
-                ptype = param.attrib.get('type', 'entry')
-                pvalue = param.text if param.text else ''
-                pname = param.attrib.get('name')
-                vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
+                filters.append(vts_filter)
+        vts['vtgroups'] = filters
         return vts
 
     @staticmethod
