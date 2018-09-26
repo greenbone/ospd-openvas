@@ -51,7 +51,7 @@ class DummyWrapper(OSPDaemon):
             if res.result_type == 'error':
                 self.add_scan_error(scan_id, res.host or target, res.name, res.value, res.port)
             elif res.result_type == 'host-detail':
-                self.add_scan_error(scan_id, res.host or target, res.name, res.value)
+                self.add_scan_host_detail(scan_id, res.host or target, res.name, res.value)
             elif res.result_type == 'alarm':
                 self.add_scan_alarm(scan_id, res.host or target, res.name, res.value, res.port, res.test_id, res.severity, res.qod)
             else:
@@ -175,6 +175,49 @@ class FullTest(unittest.TestCase):
         response = secET.fromstring(daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
         print(ET.tostring(response))
+
+
+    def testGetScanPop(self):
+        daemon = DummyWrapper([
+            Result('host-detail', value='Some Host Detail'),
+        ])
+
+        response = secET.fromstring(daemon.handle_command('<start_scan target="localhost" ports="80, 443"><scanner_params /></start_scan>'))
+        print(ET.tostring(response))
+        scan_id = response.findtext('id')
+        time.sleep(1)
+
+        response = secET.fromstring(
+            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
+        self.assertEqual(response.findtext('scan/results/result'),
+                         'Some Host Detail')
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans details="0" pop_results="1"/>'))
+        self.assertEqual(response.findtext('scan/results/result'),
+                         None)
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" pop_results="1"/>' % scan_id))
+        self.assertEqual(response.findtext('scan/results/result'),
+                         'Some Host Detail')
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" pop_results="1"/>' % scan_id))
+        self.assertNotEqual(response.findtext('scan/results/result'),
+                         'Some Host Detail')
+        self.assertEqual(response.findtext('scan/results/result'),
+                         None)
+
+        time.sleep(1)
+        response = secET.fromstring(
+            daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
+        self.assertEqual(response.get('status'), '200')
+        print(ET.tostring(response))
+
 
     def testStopScan(self):
         daemon = DummyWrapper([])
