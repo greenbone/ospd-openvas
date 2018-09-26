@@ -33,7 +33,7 @@ import xml.etree.ElementTree as ET
 import ospd_openvas.openvas_db as openvas_db
 
 
-NVTICACHE_STR = 'nvticache10'
+NVTICACHE_STR = 'nvticache1.0.0'
 
 def get_feed_version():
     """ Get feed version.
