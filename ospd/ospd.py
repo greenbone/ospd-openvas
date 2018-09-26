@@ -887,15 +887,20 @@ class OSPDaemon(object):
 
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
+        pop_res = scan_et.attrib.get('pop_results')
         if details and details == '0':
             details = False
         else:
             details = True
+            if pop_res and pop_res == '1':
+                pop_res = True
+            else:
+                pop_res = False
 
         responses = []
         if scan_id and scan_id in self.scan_collection.ids_iterator():
             self.check_scan_process(scan_id)
-            scan = self.get_scan_xml(scan_id, details)
+            scan = self.get_scan_xml(scan_id, details, pop_res)
             responses.append(scan)
         elif scan_id:
             text = "Failed to find scan '{0}'".format(scan_id)
@@ -903,7 +908,7 @@ class OSPDaemon(object):
         else:
             for scan_id in self.scan_collection.ids_iterator():
                 self.check_scan_process(scan_id)
-                scan = self.get_scan_xml(scan_id, details)
+                scan = self.get_scan_xml(scan_id, details, pop_res)
                 responses.append(scan)
         return simple_response_str('get_scans', 200, 'OK', responses)
 
@@ -1008,13 +1013,13 @@ class OSPDaemon(object):
             logger.debug('Scan process for {0} not found'.format(scan_id))
         return self.scan_collection.delete_scan(scan_id)
 
-    def get_scan_results_xml(self, scan_id):
+    def get_scan_results_xml(self, scan_id, pop_res):
         """ Gets scan_id scan's results in XML format.
 
         @return: String of scan results in xml.
         """
         results = ET.Element('results')
-        for result in self.scan_collection.results_iterator(scan_id):
+        for result in self.scan_collection.results_iterator(scan_id, pop_res):
             results.append(get_result_xml(result))
 
         logger.info('Returning %d results', len(results))
@@ -1042,7 +1047,7 @@ class OSPDaemon(object):
             responses.append(elem)
         return responses
 
-    def get_scan_xml(self, scan_id, detailed=True):
+    def get_scan_xml(self, scan_id, detailed=True, pop_res=False):
         """ Gets scan in XML format.
 
         @return: String of scan in XML format.
@@ -1062,7 +1067,7 @@ class OSPDaemon(object):
                             ('end_time', end_time)]:
             response.set(name, str(value))
         if detailed:
-            response.append(self.get_scan_results_xml(scan_id))
+            response.append(self.get_scan_results_xml(scan_id, pop_res))
         return response
 
     def get_custom_vt_as_xml_str(self, custom):
