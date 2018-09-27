@@ -107,8 +107,14 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def results_iterator(self, scan_id):
-        """ Returns an iterator over scan_id scan's results. """
+    def results_iterator(self, scan_id, pop_res):
+        """ Returns an iterator over scan_id scan's results. If pop_res is True,
+        it removed the fetched results from the list.
+        """
+        if pop_res:
+            result_aux = self.scans_table[scan_id]['results']
+            self.scans_table[scan_id]['results'] = list()
+            return iter(result_aux)
 
         return iter(self.scans_table[scan_id]['results'])
 
