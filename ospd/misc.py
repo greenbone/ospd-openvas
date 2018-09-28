@@ -107,6 +107,16 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
+    def set_target_progress(self, scan_id, target, progress):
+        """ Sets scan_id scan's progress. """
+        if progress > 0 and progress <= 100:
+            target_process = dict()
+            target_process = self.scans_table[scan_id]['target_progress']
+            target_process[target] = progress
+            # Set scan_info's target_progress to propagate progresses
+            # to parent process.
+            self.scans_table[scan_id]['target_progress'] = target_process
+
     def results_iterator(self, scan_id, pop_res):
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
@@ -132,6 +142,7 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['progress'] = 0
+        scan_info['target_progress'] = dict([[elem[0], 0] for elem in targets])
         scan_info['targets'] = targets
         scan_info['legacy_target'] = target_str
         scan_info['vts'] = vts
@@ -158,6 +169,11 @@ class ScanCollection(object):
         """ Get a scan's current progress value. """
 
         return self.scans_table[scan_id]['progress']
+
+    def get_target_progress(self, scan_id):
+        """ Get a scan's current progress value. """
+
+        return self.scans_table[scan_id]['target_progress']
 
     def get_start_time(self, scan_id):
         """ Get a scan's start time. """

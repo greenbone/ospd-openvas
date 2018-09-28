@@ -803,22 +803,38 @@ class OSPDaemon(object):
         else:
             logger.info("{0}: Host scan finished.".format(target))
 
-    @staticmethod
-    def check_pending_target(multiscan_proc):
+    def check_pending_target(self, scan_id, multiscan_proc):
         """ Check if a scan process is still alive. In case the process
-        finished, removes the process from the multiscan_process list
+        finished, removes the process from the multiscan_process list.
+        In case of the progress is not set from the wrapper for a single
+        target, it will be automatically set if the target scan finished.
 
+        @input scan_id        Scan_id of the whole scan.
         @input multiscan_proc A list with the scan process which
-        may still be alive.
-        @return Actualized list with current runnging scan processes
-        """
-        for run_target in multiscan_proc:
-            if not run_target.is_alive():
-                multiscan_proc.remove(run_target)
+                              may still be alive.
+
+        @return Actualized list with current runnging scan processes."""
+
+        for running_target in multiscan_proc:
+            if not running_target[0].is_alive():
+                target_prog = self.get_scan_target_progress(scan_id)
+                if target_prog[running_target[1]] < 100:
+                    self.set_scan_target_progress(scan_id,
+                                                  running_target[1],
+                                                  100)
+                multiscan_proc.remove(running_target)
         return multiscan_proc
+
+    def calculate_progress(self, scan_id):
+        """ Calculate the total scan progress from the
+        partial target progress. """
+
+        target_progress = self.get_scan_target_progress(scan_id)
+        return sum(target_progress.values())/len(target_progress)
 
     def start_scan(self, scan_id, targets, parallel=1):
         """ Handle N parallel scans if 'parallel' is greater than 1. """
+
         os.setsid()
         multiscan_proc = []
         logger.info("{0}: Scan started.".format(scan_id))
@@ -828,22 +844,26 @@ class OSPDaemon(object):
 
         for index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
-               multiscan_proc = self.check_pending_target(multiscan_proc)
-               time.sleep(1)
+                multiscan_proc = self.check_pending_target(scan_id,
+                                                           multiscan_proc)
+                progress = self.calculate_progress(scan_id)
+                self.set_scan_progress(scan_id, progress)
+                time.sleep(1)
 
-            progress = float(index) * 100 / len(target_list)
-            self.set_scan_progress(scan_id, int(progress))
             logger.info("{0}: Host scan started on ports {1}.".format(target[0],target[1]))
-
             scan_process = multiprocessing.Process(target=self.parallel_scan,
                                                args=(scan_id, target[0]))
-            multiscan_proc.append(scan_process)
+            multiscan_proc.append((scan_process, target[0]))
             scan_process.start()
 
         # Wait until all single target were scanned
         while multiscan_proc:
-            multiscan_proc = self.check_pending_target(multiscan_proc)
+            multiscan_proc = self.check_pending_target(scan_id, multiscan_proc)
+            if multiscan_proc:
+                progress = self.calculate_progress(scan_id)
+                self.set_scan_progress(scan_id, progress)
             time.sleep(1)
+
         self.finish_scan(scan_id)
 
     def dry_run_scan(self, scan_id, targets):
@@ -871,6 +891,10 @@ class OSPDaemon(object):
     def set_scan_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress which is a number between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
+
+    def set_scan_target_progress(self, scan_id, target, progress):
+        """ Sets target's progress. """
+        self.scan_collection.set_target_progress(scan_id, target, progress)
 
     def scan_exists(self, scan_id):
         """ Checks if a scan with ID scan_id is in collection.
@@ -1278,6 +1302,10 @@ class OSPDaemon(object):
     def get_scan_progress(self, scan_id):
         """ Gives a scan's current progress value. """
         return self.scan_collection.get_progress(scan_id)
+
+    def get_scan_target_progress(self, scan_id):
+        """ Gives a list with scan's current progress value of each target. """
+        return self.scan_collection.get_target_progress(scan_id)
 
     def get_scan_target(self, scan_id):
         """ Gives a scan's target. """
