@@ -431,7 +431,7 @@ class FullTest(unittest.TestCase):
 
     def testScanMultiTargetParallel100(self):
         daemon = DummyWrapper([])
-        cmd = response = secET.fromstring(
+        response = secET.fromstring(
             daemon.handle_command('<start_scan parallel="100">' +
                                   '<scanner_params />' +
                                   '<targets><target>' +
@@ -440,6 +440,23 @@ class FullTest(unittest.TestCase):
                                   '</target></targets>' +
                                   '</start_scan>'))
         time.sleep(1)
-        print(ET.tostring(cmd))
+        print(ET.tostring(response))
         self.assertEqual(response.get('status'), '200')
 
+    def testProgress(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan parallel="2">' +
+                                  '<scanner_params />' +
+                                  '<targets><target>' +
+                                  '<hosts>localhost1</hosts>' +
+                                  '<ports>22</ports>' +
+                                  '</target><target>' +
+                                  '<hosts>localhost2</hosts>' +
+                                  '<ports>22</ports>' +
+                                  '</target></targets>' +
+                                  '</start_scan>'))
+        scan_id = response.findtext('id')
+        daemon.set_scan_target_progress(scan_id, 'localhost1', 75)
+        daemon.set_scan_target_progress(scan_id, 'localhost2', 25)
+        self.assertEqual(daemon.calculate_progress(scan_id), 50)
