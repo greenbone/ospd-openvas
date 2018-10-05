@@ -34,6 +34,23 @@ import ospd_openvas.openvas_db as openvas_db
 
 
 NVTICACHE_STR = 'nvticache1.0.0'
+QoD_TYPES = {
+    'exploit': '100',
+    'remote_vul': '99',
+    'remote_app': '98',
+    'package': '97',
+    'registry': '97',
+    'remote_active': '95',
+    'remote_banner': '80',
+    'executable_version': '80',
+    'remote_analysis': '70',
+    'remote_probe': '50',
+    'remote_banner_unreliable': '30',
+    'executable_version_unreliable': '30',
+    'general_note': '1',
+    'default': '70',
+}
+
 
 def get_feed_version():
     """ Get feed version.
@@ -125,10 +142,56 @@ def get_nvt_metadata(oid, str_format=False):
 
 def get_nvt_name(ctx, oid):
     """ Get the NVT name of the given OID."""
-    return ctx.lindex("nvt:%s" % oid,
-                      openvas_db.nvt_meta_fields.index("NVT_NAME_POS"))
+    return ctx.lindex('nvt:%s' % oid,
+                      openvas_db.nvt_meta_fields.index('NVT_NAME_POS'))
 
 def get_nvt_family(ctx, oid):
     """ Get the NVT family of the given OID."""
-    return ctx.lindex("nvt:%s" % oid,
-                      openvas_db.nvt_meta_fields.index("NVT_FAMILY_POS"))
+    return ctx.lindex('nvt:%s' % oid,
+                      openvas_db.nvt_meta_fields.index('NVT_FAMILY_POS'))
+
+def get_nvt_tag(ctx, oid):
+    """ Get a dictionary with the NVT Tags of the given OID."""
+    tag = ctx.lindex('nvt:%s' % oid,
+                      openvas_db.nvt_meta_fields.index('NVT_TAGS_POS'))
+    tags = tag.split('|')
+
+    return dict([item.split('=', 1) for item in tags])
+
+def get_nvt_qod(ctx, tag=None, oid=None):
+    """ Get the NVT QoD from a tag or from the given OID.
+    @in tag A dictionary with the NVT tags
+    @in oid The NVT OID
+    @return QoD value as string.
+    """
+    if not tag:
+        if oid:
+            tag = get_nvt_tag(ctx, oid)
+        else:
+            return 0
+
+    if tag and 'qod_type' in tag:
+        qodtype = tag['qod_type']
+        return QoD_TYPES[qodtype]
+    elif tag and 'qod' in tag:
+        return tag['qod']
+
+    return QoD_TYPES['default']
+
+def get_nvt_severity(ctx, tag=None, oid=None):
+    """ Get the NVT Severity from a tag or from the given OID.
+    @in tag A dictionary with the NVT tags
+    @in oid The NVT OID
+    @return Severity (cvess_base) value as string.
+
+    """
+    if not tag:
+        if oid:
+            tag = get_nvt_tag(ctx, oid)
+        else:
+            return '10'
+
+    if tag and 'cvess_base' in tag:
+        return tag['cvess_base']
+
+    return ''
