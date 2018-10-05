@@ -317,8 +317,8 @@ class OSPDopenvas(OSPDaemon):
         host_prog = (float(prog[0]) / float(prog[1])) * 100
         host_progress_dict[target] = host_prog
         total_host = len(target_str_to_list(target))
-        self.set_scan_progress(scan_id,
-                               sum(host_progress_dict.values()) / total_host)
+        self.set_scan_target_progress(scan_id, target,
+                                      sum(host_progress_dict.values()) / total_host)
 
     def get_openvas_status(self, scan_id, target):
         """ Get all status entries from redis kb. """
