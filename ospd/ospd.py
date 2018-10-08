@@ -622,6 +622,7 @@ class OSPDaemon(object):
         if not scan_process.is_alive():
             raise OSPDError('Scan already stopped or finished.', 'stop_scan')
 
+        self.set_scan_status(scan_id, "stopped")
         logger.info('{0}: Scan stopping {1}.'.format(scan_id, scan_process.ident))
         self.stop_scan(scan_id)
         scan_process.terminate()
@@ -850,6 +851,10 @@ class OSPDaemon(object):
                 self.set_scan_progress(scan_id, progress)
                 time.sleep(1)
 
+            if self.get_scan_status(scan_id) == "stopped":
+                self.finish_scan(scan_id)
+                return
+
             logger.info("{0}: Host scan started on ports {1}.".format(target[0],target[1]))
             scan_process = multiprocessing.Process(target=self.parallel_scan,
                                                args=(scan_id, target[0]))
@@ -895,6 +900,14 @@ class OSPDaemon(object):
     def set_scan_target_progress(self, scan_id, target, progress):
         """ Sets target's progress. """
         self.scan_collection.set_target_progress(scan_id, target, progress)
+
+    def set_scan_status(self, scan_id, status):
+        """ Set the scan's status."""
+        self.scan_collection.set_status(scan_id, status)
+
+    def get_scan_status(self, scan_id):
+        """ Get scan_id scans's status."""
+        return self.scan_collection.get_status(scan_id)
 
     def scan_exists(self, scan_id):
         """ Checks if a scan with ID scan_id is in collection.
