@@ -36,29 +36,44 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <type>
     <name>integer</name>
     <summary>An integer</summary>
+    <pattern>
+      <e>integer</e>
+    </pattern>
   </type>
   <type>
     <name>string</name>
     <summary>A string</summary>
+    <pattern>
+      <e>text</e>
+    </pattern>
   </type>
   <type>
     <name>boolean</name>
     <summary>0 or 1</summary>
+    <pattern>
+      <e>text</e>
+    </pattern>
   </type>
   <type>
     <name>uuid</name>
     <summary>A Universally Unique Identifier (UUID)</summary>
-    <pattern>xsd:token { pattern = "[0-9abcdefABCDEF\-]{1,40}" }</pattern>
+    <pattern>
+      <e>xsd:token { pattern = "[0-9abcdefABCDEF\-]{1,40}" }</e>
+    </pattern>
   </type>
   <type>
     <name>epoch_time</name>
     <summary>A date, in unix format</summary>
-    <pattern>integer</pattern>
+    <pattern>
+      <e>integer</e>
+    </pattern>
   </type>
   <type>
     <name>vt_id</name>
     <summary>Identifier for a vulnerability test</summary>
-    <pattern>xsd:token { pattern = "[0-9a-zA-Z_\-.:]{1,80}" }</pattern>
+    <pattern>
+      <e>xsd:token { pattern = "[0-9a-zA-Z_\-.:]{1,80}" }</e>
+    </pattern>
   </type>
 
   <!-- Elements. -->
