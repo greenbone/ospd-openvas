@@ -212,7 +212,16 @@ class FullTest(unittest.TestCase):
         self.assertEqual(response.findtext('scan/results/result'),
                          None)
 
-        time.sleep(1)
+        while True:
+            response = secET.fromstring(
+                daemon.handle_command(
+                    '<get_scans scan_id="%s" details="0"/>' % scan_id))
+            scans = response.findall('scan')
+            self.assertEqual(1, len(scans))
+            scan = scans[0]
+            if int(scan.get('progress')) == 100:
+                break
+
         response = secET.fromstring(
             daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
