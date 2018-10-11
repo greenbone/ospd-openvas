@@ -149,11 +149,21 @@ class ScanCollection(object):
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = "0"
+        scan_info['status'] = ""
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
         self.scans_table[scan_id] = scan_info
         return scan_id
+
+    def set_status(self, scan_id, status):
+        """ Sets scan_id scan's status. """
+        self.scans_table[scan_id]['status'] = status
+
+    def get_status(self, scan_id):
+        """ Get scan_id scans's status."""
+
+        return self.scans_table[scan_id]['status']
 
     def get_options(self, scan_id):
         """ Get scan_id scan's options list. """
