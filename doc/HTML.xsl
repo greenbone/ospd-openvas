@@ -358,6 +358,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         </div>
       </div>
 
+      <xsl:choose>
+        <xsl:when test="count(example) &gt; 0">
+          <xsl:for-each select="example">
+            <h4><xsl:value-of select="$index"/>.3 Example: <xsl:value-of select="summary"/></h4>
+            <xsl:apply-templates select="description"/>
+            <div style="margin-left: 5%; margin-right: 5%;">
+              <i><xsl:value-of select="name"/></i>
+              <div style="margin-left: 2%; margin-right: 2%;">
+                <xsl:for-each select="e/*">
+                  <pre>
+                    <xsl:call-template name="pretty"/>
+                  </pre>
+                </xsl:for-each>
+              </div>
+            </div>
+          </xsl:for-each>
+        </xsl:when>
+        <xsl:otherwise>
+        </xsl:otherwise>
+      </xsl:choose>
+
     </div>
   </xsl:template>
 
@@ -549,6 +570,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </xsl:for-each>
         </li>
       </ul>
+
+      <h4><xsl:value-of select="$index"/>.2 RNC</h4>
+
+      <div style="border: 1px solid; padding:10px; width: 85%; align: center; margin-left: auto; margin-right: auto; background: #d5d5d5;">
+        <div style="margin-left: 5%">
+          <xsl:call-template name="command-relax"/>
+        </div>
+      </div>
 
       <xsl:choose>
         <xsl:when test="count(example) &gt; 0">
