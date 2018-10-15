@@ -24,7 +24,6 @@
 
 import subprocess
 import time
-import os
 import signal
 import psutil
 import uuid
@@ -385,30 +384,27 @@ class OSPDopenvas(OSPDaemon):
         status = openvas_db.item_get_single(('internal/%s' % scan_id))
         return status == 'stop_all'
 
-    def stop_scan(self, scan_id):
-        """ Set a key in redis to indicate the wrapper process that it
-        must kill the childs. It is done through redis because this a new
-        multiprocess instance and it is not possible to reach the variables
-        of the grandchild process. Then, a clean up is performed before
-        terminating. """
-        ctx = openvas_db.db_find('internal/%s' % scan_id)
-        openvas_db.set_global_redisctx(ctx)
-        openvas_db.item_set_single(('internal/%s' % scan_id), ['stop_all', ])
-        while 1:
-            time.sleep(1)
-            if openvas_db.item_get_single('internal/%s' % scan_id):
-                continue
-            break
-
-    def do_cleanup(self, ovas_pid):
-        """ Send SIGUSR1 to OpenVAS process to stop the scan. """
-        parent = psutil.Process(ovas_pid)
-        children = parent.children(recursive=True)
-        for process in children:
-            if process.ppid() == int(ovas_pid):
-                logger.debug('Stopping process: {0}'.format(process))
-                os.kill(process.pid, signal.SIGUSR1)
-
+    @staticmethod
+    def stop_scan(global_scan_id):
+        """ Set a key in redis to indicate the wrapper is stopped.
+        It is done through redis because it is a new multiprocess
+        instance and it is not possible to reach the variables
+        of the grandchild process. Send SIGUSR2 to openvas to stop
+        each running scan."""
+        ctx = openvas_db.kb_connect()
+        for current_kbi in range(0, openvas_db.MAX_DBINDEX):
+            ctx.execute_command('SELECT '+ str(current_kbi))
+            openvas_db.set_global_redisctx(ctx)
+            scan_id = openvas_db.item_get_single(
+                ('internal/%s/globalscanid' % global_scan_id))
+            if scan_id:
+                openvas_db.item_set_single(('internal/%s' % scan_id),
+                                           ['stop_all', ])
+                ovas_pid = openvas_db.item_get_single('internal/ovas_pid')
+                parent = psutil.Process(int(ovas_pid))
+                openvas_db.release_db(current_kbi)
+                parent.send_signal(signal.SIGUSR2)
+                logger.debug('Stopping process: {0}'.format(parent))
 
     @staticmethod
     def get_vts_in_groups(ctx, filters):
@@ -544,6 +540,7 @@ class OSPDopenvas(OSPDaemon):
         # new uuid is used internaly for each scan.
         openvas_scan_id = str(uuid.uuid4())
         openvas_db.item_add_single(('internal/%s' % openvas_scan_id), ['new', ])
+        openvas_db.item_add_single(('internal/%s/globalscanid' % scan_id), [openvas_scan_id, ])
 
         # Set scan preferences
         for item in options.items():
@@ -626,6 +623,7 @@ class OSPDopenvas(OSPDaemon):
 
         ovas_pid = result.pid
         logger.debug('pid = {0}'.format(ovas_pid))
+        openvas_db.item_add_single(('internal/ovas_pid'), [ovas_pid, ])
 
         # Wait until the scanner starts and loads all the preferences.
         while openvas_db.item_get_single('internal/'+ openvas_scan_id) == 'new':
@@ -637,7 +635,7 @@ class OSPDopenvas(OSPDaemon):
 
             # Check if the client stopped the whole scan
             if self.scan_is_stopped(openvas_scan_id):
-                self.do_cleanup(ovas_pid)
+                return 1
 
             ctx = openvas_db.kb_connect(MAIN_KBINDEX)
             openvas_db.set_global_redisctx(ctx)
@@ -656,9 +654,9 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_result(scan_id)
                     self.get_openvas_status(scan_id, target)
                     if self.scan_is_finished(openvas_scan_id):
-                        openvas_db.release_db(i)
                         ctx.execute_command('SELECT '+ str(MAIN_KBINDEX))
                         openvas_db.remove_set_member('internal/dbindex', i)
+                        openvas_db.release_db(i)
 
             # Scan end. No kb in use for this scan id
             if no_id_found:
