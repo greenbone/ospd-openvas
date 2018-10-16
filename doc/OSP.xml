@@ -79,25 +79,185 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <!-- Elements. -->
 
   <element>
-    <name>target</name>
-    <summary>A scan target consisting of hosts, a port selection and credentials</summary>
+    <name>scanner_params</name>
+    <summary>Contains elements that represent scanner specific parameters</summary>
     <pattern>
-      <e>hosts</e>
-      <e>ports</e>
-      <e>credentials</e>
+      <e>e</e>
     </pattern>
     <ele>
-      <name>hosts</name>
-      <summary>One or many hosts. The list is comma-separated. Each entry can be a IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6</summary>
+      <name>e</name>
+      <summary>Element that represents a scanner specific parameters</summary>
+      <type>string</type>
+      <pattern>string</pattern>
+    </ele>
+    <example>
+      <summary>scanner_params</summary>
+      <e>
+        <scanner_params>
+          <target_port>443</target_port>
+          <use_https>1</use_https>
+          <profile>fast_scan</profile>
+        </scanner_params>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>targets</name>
+    <summary>List of targets</summary>
+    <pattern>
+      <e>target</e>
+    </pattern>
+    <ele>
+      <name>target</name>
+      <summary>A scan target consisting of hosts, a port selection and credentials</summary>
+      <pattern>
+        <e>hosts</e>
+        <e>ports</e>
+        <e>credentials</e>
+      </pattern>
+      <ele>
+        <name>hosts</name>
+        <summary>One or many hosts. The list is comma-separated. Each entry can be a IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6</summary>
+        <type>string</type>
+      </ele>
+      <ele>
+        <name>ports</name>
+        <type>string</type>
+        <summary>A list of ports that is the same for the given hosts</summary>
+      </ele>
+      <ele>
+        <name>credentials</name>
+        <summary>One or many credentials containing the credential for the given hosts.</summary>
+        <pattern>
+          <attrib>
+            <name>type</name>
+            <type>string</type>
+            <required>1</required>
+          </attrib>
+          <attrib>
+            <name>service</name>
+            <type>string</type>
+            <required>1</required>
+          </attrib>
+          <attrib>
+            <name>port</name>
+            <type>string</type>
+          </attrib>
+          <e>username</e>
+          <e>password</e>
+        </pattern>
+        <ele>
+          <name>username</name>
+          <pattern>text</pattern>
+        </ele>
+        <ele>
+          <name>password</name>
+          <pattern>text</pattern>
+        </ele>
+      </ele>
+    </ele>
+    <example>
+      <summary>Two targets without credentials.</summary>
+      <e>
+        <targets>
+          <target>
+            <hosts>example.org</hosts>
+            <ports>T:22,U:5060</ports>
+          </target>
+          <target>
+            <hosts>localhost</hosts>
+            <ports>80,443</ports>
+          </target>
+        </targets>
+      </e>
+    </example>
+    <example>
+      <summary>Target without credentials.</summary>
+      <e>
+        <targets>
+          <target>
+            <hosts>192.168.1.0/24</hosts>
+            <ports>1,2,3,80,443</ports>
+            <credentials>
+              <credential type="up" service="ssh" port="22">
+                <username>scanuser</username>
+                <password>mypass</password>
+              </credential>
+              <credential type="up" service="smb">
+                <username>smbuser</username>
+                <password>mypass</password>
+              </credential>
+            </credentials>
+          </target>
+        </targets>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>vts</name>
+    <summary>Contanins elements that represent Vulnerability Test or a collection of Vulnerability Test to be excecute and their parameters.</summary>
+    <pattern>
+      <o><e>vt</e></o>
+      <any><e>vtgroup</e></any>
+    </pattern>
+    <ele>
+      <name>vt</name>
+      <summary>Elements that represent Vulnerability Test.</summary>
+      <pattern>
+        <attrib>
+          <name>vt_id</name>
+          <summary>Identifier for a vulnerability test</summary>
+          <type>vt_id</type>
+          <required>1</required>
+        </attrib>
+        <e>vt_param</e>
+      </pattern>
+      <ele>
+        <name>vt_param</name>
+        <summary>Vulnerability Test parameter.</summary>
+          <pattern>
+            <attrib>
+              <name>name</name>
+              <type>string</type>
+              <required>1</required>
+            </attrib>
+            <attrib>
+              <name>type</name>
+              <type>string</type>
+              <required>1</required>
+            </attrib>
+            string
+          </pattern>
+      </ele>
     </ele>
     <ele>
-      <name>ports</name>
-      <summary>A list of ports that is the same for the given hosts</summary>
+      <name>vtgroup</name>
+      <summary>Collection of Vulnerability Test</summary>
+      <pattern>
+        <attrib>
+          <name>filter</name>
+          <type>string</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
     </ele>
-    <ele>
-      <name>credentials</name>
-      <summary>One or many credentials containing the credential for the given hosts.</summary>
-    </ele>
+    <example>
+      <summary>VT with parameters and VT group </summary>
+      <e>
+        <vts>
+          <vt id='1.3.6.1.4.1.25623.1.0.10662'>
+            <vt_param name='XYZ JKL' type='entry'>200</vt_param>
+            <vt_param name='ABC' type='checkbox'>yes</vt_param>
+          </vt>
+          <vt id='1.3.6.1.4.1.25623.1.0.10330'></vt>
+          <vt id='1.3.6.1.4.1.25623.1.0.100034'></vt>
+          <vtgroup filter='family=general'/>
+          <vtgroup filter='family=debian'/>
+        </vts>
+      </e>
+    </example>
   </element>
 
   <!-- Commands. -->
@@ -175,7 +335,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <scan_id>Optional UUID value to set as scan ID</scan_id>
               <target>Target hosts to scan in a comma-separated list</target>
               <ports>Ports list to scan as comma-separated list</ports>
-	      <parallel>Optional number of parallel scans to run</parallel>
+              <parallel>Optional number of parallel scans to run</parallel>
             </attributes>
             <elements>
               <scanner_params>
@@ -729,7 +889,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </ele>
     </response>
     <example>
-      <summary>Start a new scan</summary>
+      <summary>Start a new scan. Legacy mode</summary>
       <request>
         <start_scan target='localhost' ports='80, 443'>
           <scanner_params>
@@ -746,58 +906,24 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
     <example>
-      <summary>Start a new scan with a VT selection and VT's parameters</summary>
-      <request>
-        <start_scan target='localhost' ports='80, 443'>
-          <scanner_params />
-          <vts>
-            <vt id='1.3.6.1.4.1.25623.1.0.10662'>
-              <vt_param name='XYZ JKL' type='entry'>200</vt_param>
-              <vt_param name='ABC' type='checkbox'>yes</vt_param>
-            </vt>
-            <vt id='1.3.6.1.4.1.25623.1.0.10330'></vt>
-            <vt id='1.3.6.1.4.1.25623.1.0.100034'></vt>
-            <vtgroup filter='family=general'/>
-            <vtgroup filter='family=debian'/>
-          </vts>
-        </start_scan>
-      </request>
-      <response>
-        <start_scan_response status_text="OK" status="200">
-          <id>2f616d53-595f-4785-9b97-4395116ca118</id>
-        </start_scan_response>
-      </response>
-    </example>
-    <example>
       <summary>Start a new scan with multi-targets running simultaneously. Each one has a different port list and one of them has credentials for authenticated scans.</summary>
       <request>
         <start_scan parallel='10'>
-          <scanner_params />
+          <scanner_params>
+            ...
+          </scanner_params>
           <vts>
-            <vt id='1.3.6.1.4.1.25623.1.0.10662'>
-              <vt_param name='XYZ JKL' type='entry'>200</vt_param>
-              <vt_param name='ABC' type='checkbox'>yes</vt_param>
-            </vt>
-            <vtgroup filter='family=debian'/>
-            <vtgroup filter='family=general'/>
+            ....
           </vts>
           <targets>
             <target>
-              <hosts>localhost</hosts>
-              <ports>80,443</ports>
+              ...
             </target>
             <target>
               <hosts>192.168.1.0/24</hosts>
               <ports>1,2,3,80,443</ports>
               <credentials>
-                <credential type="up" service="ssh" port="22">
-                  <username>scanuser</username>
-                  <password>mypass</password>
-                </credential>
-                <credential type="up" service="smb">
-                  <username>smbuser</username>
-                  <password>mypass</password>
-                </credential>
+                ...
               </credentials>
             </target>
           </targets>
