@@ -633,7 +633,8 @@ class OSPDaemon(object):
         logger.info('{0}: Scan stopped.'.format(scan_id))
         return simple_response_str('stop_scan', 200, 'OK')
 
-    def stop_scan(self, scan_id):
+    @staticmethod
+    def stop_scan(scan_id):
         """ Should be implemented by subclass in case of a clean up before
         terminating is needed. """
 
