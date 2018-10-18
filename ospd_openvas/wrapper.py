@@ -25,8 +25,9 @@
 import subprocess
 import time
 import signal
-import psutil
 import uuid
+import xml.etree.ElementTree as ET
+import psutil
 
 from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
@@ -266,7 +267,7 @@ class OSPDopenvas(OSPDaemon):
             filename = oid[0].split(':')
             ret = self.add_vt(vt_id,
                               name=filename[1],
-                              vt_params=nvti.get_nvt_params(vt_id, str_out),
+                              vt_params=nvti.get_nvt_params(vt_id),
                               custom=nvti.get_nvt_metadata(vt_id, str_out))
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -281,7 +282,23 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_params_vt_as_xml_str(vt_params):
         """ Return custom since it is already formated as string. """
-        return vt_params
+        vt_params_xml = ET.Element('vt_params')
+        for prefs in vt_params.items():
+            vt_param = ET.Element('vt_param')
+            vt_param.set('id', prefs[0])
+            vt_param.set('type', prefs[1]['type'])
+            xml_name = ET.SubElement(vt_param, 'name')
+            xml_name.text = prefs[1]['name']
+            if prefs[1]['default']:
+                xml_def = ET.SubElement(vt_param, 'default')
+                xml_def.text = prefs[1]['default']
+            vt_params_xml.append(vt_param)
+
+        params_list = vt_params_xml.findall("vt_param")
+        params = ''
+        for param in params_list:
+            params += (ET.tostring(param).decode('utf-8'))
+        return params
 
     def check(self):
         """ Checks that openvassd command line tool is found and
