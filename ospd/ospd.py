@@ -398,44 +398,43 @@ class OSPDaemon(object):
                 id attribute. Optinal parameters can be included
                 as vt child.
                 Example form:
-                <vts>
-                  <vt id='vt1' />
-                  <vt id='vt2'>
-                    <vt_param name='param1' type='type'>value</vt_param>
-                  </vt>
-                  <vtgroup filter='family = debian'/>
-                  <vtgroup filter='family = general'/>
-                <vts>
+                <vt_selection>
+                  <vt_single id='vt1' />
+                  <vt_single id='vt2'>
+                    <vt_value id='param1'>value</vt_value>
+                  </vt_single>
+                  <vt_group filter='family=debian'/>
+                  <vt_group filter='family=general'/>
+                </vt_selection>
 
         @return: Dictionary containing the vts attribute and subelements,
                  like the VT's id and VT's parameters.
                  Example form:
-                 {'v1',
-                  'vt2': {param1: {'type': type', 'value': value}},
-                  'vtgroups': ['family = debian', 'family = general']}
+                 {'vt1': {},
+                  'vt2': {'value_id': 'value'},
+                  'vt_groups': ['family=debian', 'family=general']}
         """
-        vts = {}
+        vt_selection = {}
         filters = list()
         for vt in scanner_vts:
-            if vt.tag == 'vt':
+            if vt.tag == 'vt_single':
                 vt_id = vt.attrib.get('id')
-                vts[vt_id] = {}
-                for param in vt:
-                    if not param.attrib.get('name'):
-                        raise OSPDError('Invalid VT parameter. No parameter name',
+                vt_selection[vt_id] = {}
+                for vt_value in vt:
+                    if not vt_value.attrib.get('id'):
+                        raise OSPDError('Invalid VT preference. No attribute id',
                                         'start_scan')
-                    ptype = param.attrib.get('type', 'entry')
-                    pvalue = param.text if param.text else ''
-                    pname = param.attrib.get('name')
-                    vts[vt_id][pname] = {'type': ptype, 'value': pvalue}
-            if vt.tag == 'vtgroup':
+                    vt_value_id = vt_value.attrib.get('id')
+                    vt_value_value = vt_value.text if vt_value.text else ''
+                    vt_selection[vt_id][vt_value_id] = vt_value_value
+            if vt.tag == 'vt_group':
                 vts_filter = vt.attrib.get('filter', None)
                 if vts_filter is None:
                     raise OSPDError('Invalid VT group. No filter given.',
                                     'start_scan')
                 filters.append(vts_filter)
-        vts['vtgroups'] = filters
-        return vts
+        vt_selection['vt_groups'] = filters
+        return vt_selection
 
     @staticmethod
     def process_credentials_elements(cred_tree):
@@ -580,13 +579,13 @@ class OSPDaemon(object):
         params = self._preprocess_scan_params(scanner_params)
 
         # VTS is an optional element. If present should not be empty.
-        vts = {}
-        scanner_vts = scan_et.find('vts')
+        vt_selection = {}
+        scanner_vts = scan_et.find('vt_selection')
         if scanner_vts is not None:
             if not scanner_vts:
                 raise OSPDError('VTs list is empty', 'start_scan')
             else:
-                vts = self.process_vts_params(scanner_vts)
+                vt_selection = self.process_vts_params(scanner_vts)
 
         # Dry run case.
         if 'dry_run' in params and int(params['dry_run']):
@@ -596,7 +595,9 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(scan_id, scan_targets, target_str, scan_params, vts)
+        scan_id = self.create_scan(scan_id, scan_targets,
+                                   target_str, scan_params,
+                                   vt_selection)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id,
                                                      scan_targets,
