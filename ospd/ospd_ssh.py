@@ -1,13 +1,6 @@
-# -*- coding: utf-8 -*-
-# $Id$
-# Description:
-# OSP Daemon class for simple remote SSH-based command execution.
+# Copyright (C) 2015-2018 Greenbone Networks GmbH
 #
-# Authors:
-# Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2015 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -23,7 +16,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-""" OSP Daemon class for simple remote SSH-based command execution. """
+""" OSP Daemon class for simple remote SSH-based command execution.
+"""
+
 
 # This is needed for older pythons as our current module is called the same
 # as the ospd package
