@@ -272,7 +272,7 @@ class FullTest(unittest.TestCase):
         daemon = DummyWrapper([])
         cmd = secET.fromstring('<start_scan ' +
                                'target="localhost" ports="80, 443">' +
-                               '<scanner_params /><vts /></start_scan>')
+                               '<scanner_params /><vt_selection /></start_scan>')
         print(ET.tostring(cmd))
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
@@ -280,12 +280,12 @@ class FullTest(unittest.TestCase):
         response = secET.fromstring(
             daemon.handle_command('<start_scan ' +
                                   'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
-                                  '</vts></start_scan>'))
+                                  '<scanner_params /><vt_selection><vt_single id="1.2.3.4" />' +
+                                  '</vt_selection></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         time.sleep(0.01)
-        self.assertEqual(daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vtgroups': []})
+        self.assertEqual(daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vt_groups': []})
         self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
 
         # With out VTS
@@ -301,12 +301,12 @@ class FullTest(unittest.TestCase):
     def testScanWithVTs_and_param(self):
         daemon = DummyWrapper([])
 
-        # Raise because no vt_param name attribute
+        # Raise because no vt_param id attribute
         cmd = secET.fromstring('<start_scan ' +
                                'target="localhost" ports="80, 443">' +
-                               '<scanner_params /><vts><vt id="1234">' +
-                               '<vt_param type="entry">200</vt_param>' +
-                               '</vt></vts></start_scan>')
+                               '<scanner_params /><vt_selection><vt_single id="1234">' +
+                               '<vt_value>200</vt_value>' +
+                               '</vt_single></vt_selection></start_scan>')
         print(ET.tostring(cmd))
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
@@ -314,21 +314,21 @@ class FullTest(unittest.TestCase):
         response = secET.fromstring(
             daemon.handle_command('<start_scan ' +
                                   'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vts><vt id="1234">' +
-                                  '<vt_param name="ABC" type="entry">200' +
-                                  '</vt_param></vt></vts></start_scan>'))
+                                  '<scanner_params /><vt_selection><vt_single id="1234">' +
+                                  '<vt_value id="ABC">200' +
+                                  '</vt_value></vt_single></vt_selection></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id),
-                         {'1234': {'ABC': {'type': 'entry', 'value': '200'}}, 'vtgroups': []})
+                         {'1234': {'ABC': '200'}, 'vt_groups': []})
 
 
         # Raise because no vtgroup filter attribute
         cmd = secET.fromstring('<start_scan ' +
                                'target="localhost" ports="80, 443">' +
-                               '<scanner_params /><vts><vtgroup/>' +
-                               '</vts></start_scan>')
+                               '<scanner_params /><vt_selection><vt_group/>' +
+                               '</vt_selection></start_scan>')
         print(ET.tostring(cmd))
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
@@ -336,14 +336,14 @@ class FullTest(unittest.TestCase):
         response = secET.fromstring(
             daemon.handle_command('<start_scan ' +
                                   'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vts>' +
-                                  '<vtgroup filter="a"/>' +
-                                  '</vts></start_scan>'))
+                                  '<scanner_params /><vt_selection>' +
+                                  '<vt_group filter="a"/>' +
+                                  '</vt_selection></start_scan>'))
         print(ET.tostring(response))
         scan_id = response.findtext('id')
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id),
-                         {'vtgroups': ['a']})
+                         {'vt_groups': ['a']})
 
 
     def testBillonLaughs(self):

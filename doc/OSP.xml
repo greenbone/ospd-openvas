@@ -196,14 +196,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </element>
 
   <element>
-    <name>vts</name>
+    <name>vt_selection</name>
     <summary>Contanins elements that represent Vulnerability Test or a collection of Vulnerability Test to be excecute and their parameters.</summary>
     <pattern>
-      <o><e>vt</e></o>
-      <any><e>vtgroup</e></any>
+      <o><e>vt_single</e></o>
+      <any><e>vt_group</e></any>
     </pattern>
     <ele>
-      <name>vt</name>
+      <name>vt_single</name>
       <summary>Elements that represent Vulnerability Test.</summary>
       <pattern>
         <attrib>
@@ -212,19 +212,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <type>vt_id</type>
           <required>1</required>
         </attrib>
-        <e>vt_param</e>
+        <e>vt_value</e>
       </pattern>
       <ele>
-        <name>vt_param</name>
+        <name>vt_value</name>
         <summary>Vulnerability Test parameter.</summary>
           <pattern>
             <attrib>
-              <name>name</name>
-              <type>string</type>
-              <required>1</required>
-            </attrib>
-            <attrib>
-              <name>type</name>
+              <name>id</name>
               <type>string</type>
               <required>1</required>
             </attrib>
@@ -233,7 +228,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </ele>
     </ele>
     <ele>
-      <name>vtgroup</name>
+      <name>vt_group</name>
       <summary>Collection of Vulnerability Test</summary>
       <pattern>
         <attrib>
@@ -246,16 +241,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <example>
       <summary>VT with parameters and VT group </summary>
       <e>
-        <vts>
-          <vt id='1.3.6.1.4.1.25623.1.0.10662'>
-            <vt_param name='XYZ JKL' type='entry'>200</vt_param>
-            <vt_param name='ABC' type='checkbox'>yes</vt_param>
-          </vt>
-          <vt id='1.3.6.1.4.1.25623.1.0.10330'></vt>
-          <vt id='1.3.6.1.4.1.25623.1.0.100034'></vt>
-          <vtgroup filter='family=general'/>
-          <vtgroup filter='family=debian'/>
-        </vts>
+        <vt_selection>
+          <vt_single id='1.3.6.1.4.1.25623.1.0.10662'>
+            <vt_value id='XYZ JKL'>200</vt_value>
+            <vt_value id='ABC'>yes</vt_value>
+          </vt_single>
+          <vt_single id='1.3.6.1.4.1.25623.1.0.10330'></vt_single>
+          <vt_single id='1.3.6.1.4.1.25623.1.0.100034'></vt_single>
+          <vt_group filter='family=general'/>
+          <vt_group filter='family=debian'/>
+        </vt_selection>
       </e>
     </example>
   </element>
@@ -854,7 +849,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <type>integer</type>
       </attrib>
       <e>scanner_params</e>
-      <e>vts</e>
+      <e>vt_selection</e>
       <e>targets</e>
     </pattern>
     <ele>
@@ -862,7 +857,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <summary>Contains elements that represent scanner specific parameters</summary>
     </ele>
     <ele>
-      <name>vts</name>
+      <name>vt_selection</name>
       <summary>Contanins elements that represent Vulnerability Test or a collection of Vulnerability Test to be excecute and their parameters</summary>
     </ele>
     <ele>
@@ -912,9 +907,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <scanner_params>
             ...
           </scanner_params>
-          <vts>
+          <vt_selection>
             ....
-          </vts>
+          </vt_selection>
           <targets>
             <target>
               ...
