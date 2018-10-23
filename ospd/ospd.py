@@ -1,15 +1,6 @@
-# -*- coding: utf-8 -*-
-# $Id$
-# Description:
-# OSP Daemon core class.
+# Copyright (C) 2014-2018 Greenbone Networks GmbH
 #
-# Authors:
-# Hani Benhabiles <hani.benhabiles@greenbone.net>
-# Benoît Allard <benoit.allard@greenbone.net>
-# Jan-Oliver Wahmer <jan-oliver.wagner@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2014, 2015, 2018 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,7 +16,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-""" OSP Daemon core class. """
+""" OSP Daemon core class.
+"""
+
 
 # This is needed for older pythons as our current module is called the same
 # as the package we are in ...

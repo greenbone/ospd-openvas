@@ -1,12 +1,6 @@
-# $Id$
-# Description:
-# Setup management for module ospd
+# Copyright (C) 2014-2018 Greenbone Networks GmbH
 #
-# Authors:
-# Torsten Irlaender <torsten.irlaender@intevation.de>
-#
-# Copyright:
-# Copyright (C) 2014 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -21,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+
+""" Setup configuration and management for module ospd
+
+Standard Python setup configuration, including support for PyPI.
+"""
 
 from setuptools import setup, find_packages # Always prefer setuptools over distutils
 from codecs import open # To use a consistent encoding
