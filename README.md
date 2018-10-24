@@ -1,9 +1,12 @@
-[![PyPI](https://img.shields.io/pypi/v/ospd.svg)](https://pypi.org/project/ospd/)
-[![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/master)
-[![Codecov](https://codecov.io/gh/greenbone/ospd/branch/master/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
+![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_logo_resilience_horizontal.png)
 
-About OSPD
-----------
+# OSPD
+
+[![GitHub releases](https://img.shields.io/github/release/greenbone/ospd.svg)](https://github.com/greenbone/ospd/releases)
+[![PyPI](https://img.shields.io/pypi/v/ospd.svg)](https://pypi.org/project/ospd/)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/ospd/?branch=master)
+[![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/master/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
+[![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/master)
 
 OSPD is a base class for scanner wrappers which share the same communication
 protocol: OSP (Open Scanner Protocol). OSP creates a unified interface for
@@ -17,21 +20,42 @@ The design supports wrapping arbitrary scanners with same protocol OSP,
 sharing the core daemon options while adding scanner specific parameters and
 options.
 
-OSPD is licensed under GNU General Public License Version 2 or
-any later version.  Please see file COPYING for details.
+## Table of Contents
 
-All parts of OSPD are Copyright (C) by Greenbone Networks GmbH
-(see http://www.greenbone.net).
+* [OSPD](#ospd)
+  * [Table of Contents](#table-of-contents)
+  * [Installation](#installation)
+    * [Requirements](#requirements)
+    * [Install using pip](#install-using-pip)
+  * [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
+  * [Support](#support)
+  * [Maintainer](#maintainer)
+  * [Contributing](#contributing)
+  * [License](#license)
 
-How to install OSPD?
---------------------
+## Installation
+
+### Requirements
+
+OSPD requires Python >= 3.5 along with the following libraries:
+
+    - python3-paramiko
+
+    - python3-lxml
+
+    - python3-defusedxml
+
+### Install using pip
 
 You can install ospd from the Python Package Index using [pip](https://pip.pypa.io/):
 
     pip install ospd
 
-How to write your own OSP Scanner Wrapper
------------------------------------------
+alternatively download or clone this repository and install the latest development version:
+
+    pip install .
+
+## How to write your own OSP Scanner Wrapper
 
 As a core you need to derive from the class OSPDaemon from ospd.py.
 See the documentation there for the single steps to establish the
@@ -44,11 +68,20 @@ GUI integration for the Greenbone Security Assistant (GSA).
 There are some online resources about this topic:
 http://docs.greenbone.net/GSM-Manual/gos-3.1/en/osp.html#how-to-write-your-own-osp-wrapper
 
+## Support
 
-Module structure
-----------------
+For any question on the usage of OSPD please use the [Greenbone Community Portal](https://community.greenbone.net/c/osp). If you found a problem with the software, please [create an issue](https://github.com/greenbone/ospd/issues) on GitHub.
 
-* ospd/ospd.py:       Core OSP Daemon class.
-* ospd/misc.py:       Miscellaneous code and classes related to OSPD.
-* ospd/ospd_ssh.py:   OSP Daemon class for simple remote SSH-based command execution.
-* ospd/win_socket.py: Network class/functions for running a OSP daemon on Windows systems.
+## Maintainer
+
+This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.net/).
+
+## Contributing
+
+Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/ospd/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/ospd/issues).
+
+## License
+
+Copyright (C) 2009-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+
+Licensed under the [GNU General Public License v2.0 or later](COPYING).
