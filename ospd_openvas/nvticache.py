@@ -62,47 +62,33 @@ def get_oids():
     """
     return openvas_db.get_elem_pattern_by_index('filename:*')
 
-def get_nvt_params(oid, str_format=False):
+def get_nvt_params(oid):
     """ Get NVT's preferences.
-        @Return XML tree with preferences
+        @Return dictonary with preferences and timeout.
     """
     ctx = openvas_db.get_kb_context()
-    resp = ctx.smembers('oid:%s:prefs' % oid)
-    timeout = ctx.lindex('nvt:%s' % oid,
-                         openvas_db.nvt_meta_fields.index("NVT_TIMEOUT_POS"))
-    vt_params = ET.Element('vt_params')
+    prefs = get_nvt_prefs(ctx, oid)
+    timeout = get_nvt_timeout(ctx, oid)
+
+    vt_params = {}
     if int(timeout) > 0:
-        vt_param = ET.Element('vt_param')
-        vt_param.set('id', 'timeout')
-        vt_param.set('type', 'entry')
-        xml_name = ET.SubElement(vt_param, 'name')
-        xml_name.text = "Timeout"
-        xml_desc =  ET.SubElement(vt_param, 'description')
-        xml_desc.text = "Script Timeout"
-        xml_def = ET.SubElement(vt_param, 'default')
-        xml_def.text = timeout
-        vt_params.append(vt_param)
+        vt_params['timeout'] = dict()
+        vt_params['timeout']['type'] = 'entry'
+        vt_params['timeout']['name'] = 'timeout'
+        vt_params['timeout']['description'] = 'Script Timeout'
+        vt_params['timeout']['default'] = timeout
 
-    if resp:
-        for nvt_pref in resp:
+    if prefs:
+        for nvt_pref in prefs:
             elem = nvt_pref.split('|||')
-            vt_param = ET.Element('vt_param')
-            vt_param.set('id', elem[0])
-            vt_param.set('type', elem[1])
-            xml_name = ET.SubElement(vt_param, 'name')
-            xml_name.text = elem[0]
+            vt_params[elem[0]] = dict()
+            vt_params[elem[0]]['type'] = elem[1]
+            vt_params[elem[0]]['name'] = elem[0]
+            vt_params[elem[0]]['description'] = 'Description'
             if elem[2]:
-                xml_def = ET.SubElement(vt_param, 'default')
-                xml_def.text = elem[2]
-            xml_desc =  ET.SubElement(vt_param, 'description')
-            vt_params.append(vt_param)
-
-    if str_format:
-        params_list = vt_params.findall("vt_param")
-        params = ''
-        for param in params_list:
-            params += (ET.tostring(param).decode('utf-8'))
-        return params
+                vt_params[elem[0]]['default'] = elem[2]
+            else:
+                vt_params[elem[0]]['default'] = ''
 
     return vt_params
 
@@ -149,6 +135,17 @@ def get_nvt_family(ctx, oid):
     """ Get the NVT family of the given OID."""
     return ctx.lindex('nvt:%s' % oid,
                       openvas_db.nvt_meta_fields.index('NVT_FAMILY_POS'))
+
+def get_nvt_prefs(ctx, oid):
+    """ Get NVT preferences. """
+    prefs = ctx.smembers('oid:%s:prefs' % oid)
+    return prefs
+
+def get_nvt_timeout(ctx, oid):
+    """ Get NVT timeout"""
+    timeout = ctx.lindex('nvt:%s' % oid,
+                         openvas_db.nvt_meta_fields.index("NVT_TIMEOUT_POS"))
+    return timeout
 
 def get_nvt_tag(ctx, oid):
     """ Get a dictionary with the NVT Tags of the given OID."""
