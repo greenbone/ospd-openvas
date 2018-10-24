@@ -268,7 +268,7 @@ class OSPDopenvas(OSPDaemon):
             ret = self.add_vt(vt_id,
                               name=filename[1],
                               vt_params=nvti.get_nvt_params(vt_id),
-                              custom=nvti.get_nvt_metadata(vt_id, str_out))
+                              custom=nvti.get_nvt_metadata(vt_id))
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
@@ -277,7 +277,18 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_custom_vt_as_xml_str(custom):
         """ Return custom since it is already formated as string. """
-        return custom
+
+        nvt = ET.Element('vt')
+        for key, val in custom.items():
+            xml_key = ET.SubElement(nvt, key)
+            xml_key.text = val
+
+        itera = nvt.iter()
+        metadata = ''
+        for elem in itera:
+            if elem.tag != 'vt' and elem.tag != 'file_name':
+                metadata += (ET.tostring(elem).decode('utf-8'))
+        return metadata
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_params):
@@ -433,13 +444,18 @@ class OSPDopenvas(OSPDaemon):
         @return Return a list of vts which match with the given filter.
         """
         vts_list = list()
+        families = dict()
         oids = nvti.get_oids()
+        for oid in oids:
+            family = nvti.get_nvt_family(ctx, oid[1])
+            if family not in families:
+                families[family] = list()
+            families[family].append(oid[1])
+
         for elem in filters:
             key, value = elem.split('=')
-            for oid in oids:
-                if (key == 'family' and
-                        value == nvti.get_nvt_family(ctx, oid[1])):
-                    vts_list.append(oid[1])
+            if key == 'family' and value in families:
+                vts_list.extend(families[value])
         return vts_list
 
     def get_vt_param_type(self, vtid, vt_param_id):

@@ -92,39 +92,26 @@ def get_nvt_params(oid):
 
     return vt_params
 
-def get_nvt_metadata(oid, str_format=False):
+def get_nvt_metadata(oid):
     """ Get a full NVT. Returns an XML tree with the NVT metadata.
     """
     ctx = openvas_db.get_kb_context()
-
     resp = ctx.lrange("nvt:%s" % oid,
                       openvas_db.nvt_meta_fields.index("NVT_FILENAME_POS"),
                       openvas_db.nvt_meta_fields.index("NVT_VERSION_POS"))
     if (isinstance(resp, list) and resp) is False:
         return None
 
-    nvt = ET.Element('vt')
-    nvt.set('id', oid)
-
     subelem = ['file_name', 'required_keys', 'mandatory_keys',
                'excluded_keys', 'required_udp_ports', 'required_ports',
                'dependencies', 'tag', 'cve', 'bid', 'xref', 'category',
-               'timeout', 'family', 'copyright', 'name', 'version']
+               'timeout', 'family', 'copyright', 'name', 'version',]
 
-    for elem in subelem:
-        ET.SubElement(nvt, elem)
-    for child, res in zip(list(nvt), resp):
-        child.text = res
+    custom = dict()
+    for child, res in zip(subelem, resp):
+        custom[child] = res
 
-    if str_format:
-        itera = nvt.iter()
-        metadata = ''
-        for elem in itera:
-            if elem.tag != 'vt' and elem.tag != 'file_name':
-                metadata += (ET.tostring(elem).decode('utf-8'))
-        return metadata
-
-    return nvt
+    return custom
 
 def get_nvt_name(ctx, oid):
     """ Get the NVT name of the given OID."""
