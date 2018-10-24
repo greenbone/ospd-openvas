@@ -720,6 +720,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             </attrib>
             <e>name</e>
             <e>vt_params</e>
+            <e>vt_refs</e>
             <e>custom</e>
           </pattern>
           <ele>
@@ -727,6 +728,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>vt_params</name>
+          </ele>
+          <ele>
+            <name>vt_refs</name>
           </ele>
           <ele>
             <name>custom</name>
@@ -808,6 +812,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   <default>1</default>
                 </vt_param>
               </vt_params>
+              <vt_refs>
+                <ref type="cve" id="CVE-2010-4480"/>
+                <ref type="url" id="http://www.exploit-db.com/exploits/15699/"/>
+                <ref type="url" id="http://www.vupen.com/english/advisories/2010/3133"/>
+              </vt_refs>
               <custom>
                 <my_element>First custom element</my_element>
                 <my_other_element>second custom element</my_other_element>
