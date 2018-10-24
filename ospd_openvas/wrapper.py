@@ -268,6 +268,7 @@ class OSPDopenvas(OSPDaemon):
             ret = self.add_vt(vt_id,
                               name=filename[1],
                               vt_params=nvti.get_nvt_params(vt_id),
+                              vt_refs=nvti.get_nvt_refs(vt_id),
                               custom=nvti.get_nvt_metadata(vt_id))
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
