@@ -294,7 +294,7 @@ class OSPDaemon(object):
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
-    def add_vt(self, vt_id, name='', vt_params=None, custom=None):
+    def add_vt(self, vt_id, name='', vt_params=None, vt_refs=None, custom=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -317,6 +317,8 @@ class OSPDaemon(object):
             self.vts[vt_id]["custom"] = custom
         if vt_params is not None:
             self.vts[vt_id]["vt_params"] = vt_params
+        if vt_refs is not None:
+            self.vts[vt_id]["vt_refs"] = vt_refs
 
         return len(self.vts)
 
@@ -1128,6 +1130,19 @@ class OSPDaemon(object):
         """
         return ''
 
+    def get_refs_vt_as_xml_str(self, vt_refs):
+        """ Create a string representation of the XML object from the
+        vt_refs data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_refs elements for VTs are used.
+
+        The vt_refs XML object which is returned will be embedded
+        into a <vt_refs></vt_refs> element.
+
+        @return: XML object as string for vt references data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -1153,6 +1168,10 @@ class OSPDaemon(object):
         if vt.get('vt_params'):
             params_xml_str = '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(vt.get('vt_params'))
             vt_xml.append(secET.fromstring(params_xml_str))
+
+        if vt.get('vt_refs'):
+            refs_xml_str = '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(vt.get('vt_refs'))
+            vt_xml.append(secET.fromstring(refs_xml_str))
 
         return vt_xml
 
