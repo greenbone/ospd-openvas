@@ -312,6 +312,23 @@ class OSPDopenvas(OSPDaemon):
             params += (ET.tostring(param).decode('utf-8'))
         return params
 
+    @staticmethod
+    def get_refs_vt_as_xml_str(vt_refs):
+        """ Return custom since it is already formated as string. """
+        vt_refs_xml = ET.Element('vt_prefs')
+        for ref_type, ref_values in vt_refs.items():
+            for value in ref_values:
+                vt_ref = ET.Element('ref')
+                vt_ref.set('type', ref_type)
+                vt_ref.set('id', value)
+                vt_refs_xml.append(vt_ref)
+
+        refs_list = vt_refs_xml.findall("ref")
+        refs = ''
+        for ref in refs_list:
+            refs += (ET.tostring(ref).decode('utf-8'))
+        return refs
+
     def check(self):
         """ Checks that openvassd command line tool is found and
         is executable. """
