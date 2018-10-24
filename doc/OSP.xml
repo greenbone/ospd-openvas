@@ -1,14 +1,9 @@
+<?xml version="1.0"?>
+
 <!--
-OSPD
-$Id$
-Description: OSP schema with embedded documentation, in OSP.
+Copyright (C) 2014-2018 Greenbone Networks GmbH
 
-Authors:
-Hani Benhabiles <hani.benhabiles@greenbone.net>
-Jan-Oliver Wagner <jan-oliver.wagner@greenbone.net>
-
-Copyright:
-Copyright (C) 2014, 2015, 2018 Greenbone Networks GmbH
+SPDX-License-Identifier: GPL-2.0-or-later
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -197,7 +192,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   <element>
     <name>vt_selection</name>
-    <summary>Contanins elements that represent Vulnerability Test or a collection of Vulnerability Test to be excecute and their parameters.</summary>
+    <summary>Contains elements that represent a Vulnerability Test or a collection of Vulnerability Tests to be executed and their parameters.</summary>
     <pattern>
       <o><e>vt_single</e></o>
       <any><e>vt_group</e></any>
@@ -752,10 +747,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <get_vts_response status_text="OK" status="200">
           <vts>
             <vt id="1.2.3.4.5">
-              <name>Check for presence of vulnerabilty X</name>
+              <name>Check for presence of vulnerability X</name>
             </vt>
             <vt id="ad45h67">
-              <name>Check for presence of vulnerabilty Y</name>
+              <name>Check for presence of vulnerability Y</name>
             </vt>
           </vts>
         </get_vts_response>
@@ -770,7 +765,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <get_vts_response status_text="OK" status="200">
           <vts>
             <vt id="1.2.3.4.5">
-              <name>Check for presence of vulnerabilty X</name>
+              <name>Check for presence of vulnerability X</name>
             </vt>
           </vts>
         </get_vts_response>
@@ -785,7 +780,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <get_vts_response status_text="OK" status="200">
           <vts>
             <vt id="1.2.3.4.5">
-              <name>Check for presence of vulnerabilty X</name>
+              <name>Check for presence of vulnerability X</name>
               <custom>
                 <my_element>First custom element</my_element>
                 <my_other_element>second custom element</my_other_element>
@@ -804,7 +799,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <get_vts_response status_text="OK" status="200">
           <vts>
             <vt id="1.2.3.4.5">
-              <name>Check for presence of vulnerabilty X</name>
+              <name>Check for presence of vulnerability X</name>
               <vt_params>
                 <vt_param id="timeout" type="integer">
                   <name>Timeout</name>
@@ -867,11 +862,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </ele>
     <ele>
       <name>vt_selection</name>
-      <summary>Contanins elements that represent Vulnerability Test or a collection of Vulnerability Test to be excecute and their parameters</summary>
+      <summary>Contains elements that represent a Vulnerability Test or a collection of Vulnerability Tests to be executed and their parameters</summary>
     </ele>
     <ele>
       <name>targets</name>
-      <summary>Contanins elements that represent a target to execute a scan against. If target and port attributes are present this elemen is not take in account</summary>
+      <summary>Contains elements that represent a target to execute a scan against. If target and port attributes are present this element is not take into account</summary>
     </ele>
     <response>
       <pattern>
@@ -1033,9 +1028,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </change>
   <change>
     <command>START_SCAN</command>
-    <summary> parallel attribut added </summary>
+    <summary> parallel attribute added </summary>
     <description>
-      Added optional attribut parallel to specify the number of simultaneous scan to be run.
+      Added optional attribute parallel to specify the number of simultaneous scans to be run.
     </description>
     <version>1.2</version>
   </change>
