@@ -22,16 +22,14 @@ options.
 
 ## Table of Contents
 
-* [OSPD](#ospd)
-  * [Table of Contents](#table-of-contents)
-  * [Installation](#installation)
-    * [Requirements](#requirements)
-    * [Install using pip](#install-using-pip)
-  * [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
-  * [Support](#support)
-  * [Maintainer](#maintainer)
-  * [Contributing](#contributing)
-  * [License](#license)
+* [Installation](#installation)
+  * [Requirements](#requirements)
+  * [Install using pip](#install-using-pip)
+* [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
+* [Support](#support)
+* [Maintainer](#maintainer)
+* [Contributing](#contributing)
+* [License](#license)
 
 ## Installation
 
