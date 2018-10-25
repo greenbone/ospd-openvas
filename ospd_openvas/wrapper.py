@@ -434,32 +434,68 @@ class OSPDopenvas(OSPDaemon):
         """
         vts_list = list()
         oids = nvti.get_oids()
-
         for elem in filters:
             key, value = elem.split('=')
             for oid in oids:
-                if key == 'family' and value == nvti.get_nvt_family(ctx, oid[1]):
+                if (key == 'family' and
+                        value == nvti.get_nvt_family(ctx, oid[1])):
                     vts_list.append(oid[1])
         return vts_list
 
+    def get_vt_param_type(self, vtid, vt_param_id):
+        """ Return the type of the vt paramater from the vts dictionary. """
+        vt_params_list = self.vts[vtid].get("vt_params")
+        return vt_params_list[vt_param_id]["type"]
+
+    @staticmethod
+    def check_param_type(vt_param_value, param_type):
+        """ Check if the value of a vt parameter matches with
+        the type founded.
+        """
+        if (param_type in ['entry',
+                           'file',
+                           'password',
+                           'radio',
+                           'sshlogin', ] and isinstance(vt_param_value, str)):
+            return None
+        elif (param_type == 'checkbox' and
+              (vt_param_value == 'yes' or vt_param_value == 'no')):
+            return None
+        elif param_type == 'integer':
+            try:
+                int(vt_param_value)
+            except ValueError:
+                return 1
+            return None
+
+        return 1
 
     def process_vts(self, vts):
         """ Add single VTs and their parameters. """
         vts_list = []
         vts_params = []
-        vtgroups = vts.pop('vtgroups')
+        vtgroups = vts.pop('vt_groups')
 
         ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
         openvas_db.set_global_redisctx(ctx)
         if vtgroups:
             vts_list = self.get_vts_in_groups(ctx, vtgroups)
 
-        for memb in vts.items():
-            vts_list.append(memb[0])
-            nvt_name = nvti.get_nvt_name(ctx, memb[0])
-            for i in memb[1].items():
-                param = ["{0}[{1}]:{2}".format(nvt_name, i[1]['type'], i[0]),
-                         str(i[1]['value'])]
+        for vtid, vt_params in vts.items():
+            vts_list.append(vtid)
+            nvt_name = nvti.get_nvt_name(ctx, vtid)
+            for vt_param_id, vt_param_value in vt_params.items():
+                param_type = self.get_vt_param_type(vtid, vt_param_id)
+                if vt_param_id == 'timeout':
+                    type_aux = 'integer'
+                else:
+                    type_aux = param_type
+                if self.check_param_type(vt_param_value, type_aux):
+                    logger.debug('Expected {} type for parameter value {}'
+                                 .format(type_aux, str(vt_param_value)))
+                param = ["{0}[{1}]:{2}".format(nvt_name, param_type,
+                                               vt_param_id),
+                         str(vt_param_value)]
                 vts_params.append(param)
         return vts_list, vts_params
 
