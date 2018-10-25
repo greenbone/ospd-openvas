@@ -29,11 +29,11 @@ import logging
 import socket
 import ssl
 import multiprocessing
-import xml.etree.ElementTree as ET
-import defusedxml.ElementTree as secET
-import os
 import re
 import time
+from xml.etree.ElementTree import tostring, Element, SubElement
+import defusedxml.ElementTree as secET
+import os
 
 from ospd import __version__
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
@@ -122,7 +122,7 @@ COMMANDS_TABLE = {
 
 def get_result_xml(result):
     """ Formats a scan result to XML format. """
-    result_xml = ET.Element('result')
+    result_xml = Element('result')
     for name, value in [('name', result['name']),
                         ('type', ResultType.get_str(result['type'])),
                         ('severity', result['severity']),
@@ -145,17 +145,17 @@ def simple_response_str(command, status, status_text, content=""):
 
     @return: String of response in xml format.
     """
-    response = ET.Element('%s_response' % command)
+    response = Element('%s_response' % command)
     for name, value in [('status', str(status)), ('status_text', status_text)]:
         response.set(name, str(value))
     if isinstance(content, list):
         for elem in content:
             response.append(elem)
-    elif isinstance(content, ET.Element):
+    elif isinstance(content, Element):
         response.append(content)
     else:
         response.text = content
-    return ET.tostring(response)
+    return tostring(response)
 
 
 class OSPDError(Exception):
@@ -599,7 +599,7 @@ class OSPDaemon(object):
                                                      parallel))
         self.scan_processes[scan_id] = scan_process
         scan_process.start()
-        id_ = ET.Element('id')
+        id_ = Element('id')
         id_.text = scan_id
         return simple_response_str('start_scan', 200, 'OK', id_)
 
@@ -677,9 +677,9 @@ class OSPDaemon(object):
 
     def get_scanner_params_xml(self):
         """ Returns the OSP Daemon's scanner params in xml format. """
-        scanner_params = ET.Element('scanner_params')
+        scanner_params = Element('scanner_params')
         for param_id, param in self.scanner_params.items():
-            param_xml = ET.SubElement(scanner_params, 'scanner_param')
+            param_xml = SubElement(scanner_params, 'scanner_param')
             for name, value in [('id', param_id),
                                 ('type', param['type'])]:
                 param_xml.set(name, value)
@@ -687,7 +687,7 @@ class OSPDaemon(object):
                                 ('description', param['description']),
                                 ('default', param['default']),
                                 ('mandatory', param['mandatory'])]:
-                elem = ET.SubElement(param_xml, name)
+                elem = SubElement(param_xml, name)
                 elem.text = str(value)
         return scanner_params
 
@@ -1052,7 +1052,7 @@ class OSPDaemon(object):
 
         @return: String of scan results in xml.
         """
-        results = ET.Element('results')
+        results = Element('results')
         for result in self.scan_collection.results_iterator(scan_id, pop_res):
             results.append(get_result_xml(result))
 
@@ -1069,7 +1069,7 @@ class OSPDaemon(object):
 
         responses = []
         for tag, value in data.items():
-            elem = ET.Element(tag)
+            elem = Element(tag)
             if isinstance(value, dict):
                 for value in self.get_xml_str(value):
                     elem.append(value)
@@ -1087,13 +1087,13 @@ class OSPDaemon(object):
         @return: String of scan in XML format.
         """
         if not scan_id:
-            return ET.Element('scan')
+            return Element('scan')
 
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
-        response = ET.Element('scan')
+        response = Element('scan')
         for name, value in [('id', scan_id),
                             ('target', target),
                             ('progress', progress),
@@ -1152,16 +1152,16 @@ class OSPDaemon(object):
         @return: String of single vulnerability test information in XML format.
         """
         if not vt_id:
-            return ET.Element('vt')
+            return Element('vt')
 
         vt = self.vts.get(vt_id)
 
         name = vt.get('name')
-        vt_xml = ET.Element('vt')
+        vt_xml = Element('vt')
         vt_xml.set('id', vt_id)
 
         for name, value in [('name', name)]:
-            elem = ET.SubElement(vt_xml, name)
+            elem = SubElement(vt_xml, name)
             elem.text = str(value)
 
         if vt.get('custom'):
@@ -1186,7 +1186,7 @@ class OSPDaemon(object):
         @return: String of collection of vulnerability test information in XML format.
         """
 
-        vts_xml = ET.Element('vts')
+        vts_xml = Element('vts')
 
         if vt_id != '':
             vts_xml.append(self.get_vt_xml(vt_id))
@@ -1201,7 +1201,7 @@ class OSPDaemon(object):
 
         @return: Response string for <get_scanner_details> command.
         """
-        desc_xml = ET.Element('description')
+        desc_xml = Element('description')
         desc_xml.text = self.get_scanner_description()
         details = [
             desc_xml,
@@ -1214,19 +1214,19 @@ class OSPDaemon(object):
 
         @return: Response string for <get_version> command.
         """
-        protocol = ET.Element('protocol')
+        protocol = Element('protocol')
         for name, value in [('name', 'OSP'), ('version', self.get_protocol_version())]:
-            elem = ET.SubElement(protocol, name)
+            elem = SubElement(protocol, name)
             elem.text = value
 
-        daemon = ET.Element('daemon')
+        daemon = Element('daemon')
         for name, value in [('name', self.get_daemon_name()), ('version', self.get_daemon_version())]:
-            elem = ET.SubElement(daemon, name)
+            elem = SubElement(daemon, name)
             elem.text = value
 
-        scanner = ET.Element('scanner')
+        scanner = Element('scanner')
         for name, value in [('name', self.get_scanner_name()), ('version', self.get_scanner_version())]:
-            elem = ET.SubElement(scanner, name)
+            elem = SubElement(scanner, name)
             elem.text = value
 
         return simple_response_str('get_version', 200, 'OK', [protocol, daemon, scanner])
