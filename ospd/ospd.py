@@ -1104,7 +1104,8 @@ class OSPDaemon(object):
             response.append(self.get_scan_results_xml(scan_id, pop_res))
         return response
 
-    def get_custom_vt_as_xml_str(self, custom):
+    @staticmethod
+    def get_custom_vt_as_xml_str(custom):
         """ Create a string representation of the XML object from the
         custom data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1117,7 +1118,8 @@ class OSPDaemon(object):
         """
         return ''
 
-    def get_params_vt_as_xml_str(self, vt_params):
+    @staticmethod
+    def get_params_vt_as_xml_str(vt_params):
         """ Create a string representation of the XML object from the
         vt_params data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1130,7 +1132,8 @@ class OSPDaemon(object):
         """
         return ''
 
-    def get_refs_vt_as_xml_str(self, vt_refs):
+    @staticmethod
+    def get_refs_vt_as_xml_str(vt_refs):
         """ Create a string representation of the XML object from the
         vt_refs data object.
         This needs to be implemented by each ospd wrapper, in case
