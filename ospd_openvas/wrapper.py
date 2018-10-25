@@ -26,7 +26,7 @@ import subprocess
 import time
 import signal
 import uuid
-import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import tostring, SubElement, Element
 import psutil
 
 from ospd.ospd import OSPDaemon, logger
@@ -279,46 +279,46 @@ class OSPDopenvas(OSPDaemon):
     def get_custom_vt_as_xml_str(custom):
         """ Return custom since it is already formated as string. """
 
-        nvt = ET.Element('vt')
+        nvt = Element('vt')
         for key, val in custom.items():
-            xml_key = ET.SubElement(nvt, key)
+            xml_key = SubElement(nvt, key)
             xml_key.text = val
 
         itera = nvt.iter()
         metadata = ''
         for elem in itera:
             if elem.tag != 'vt' and elem.tag != 'file_name':
-                metadata += (ET.tostring(elem).decode('utf-8'))
+                metadata += (tostring(elem).decode('utf-8'))
         return metadata
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_params):
         """ Return custom since it is already formated as string. """
-        vt_params_xml = ET.Element('vt_params')
+        vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
-            vt_param = ET.Element('vt_param')
+            vt_param = Element('vt_param')
             vt_param.set('id', prefs[0])
             vt_param.set('type', prefs[1]['type'])
-            xml_name = ET.SubElement(vt_param, 'name')
+            xml_name = SubElement(vt_param, 'name')
             xml_name.text = prefs[1]['name']
             if prefs[1]['default']:
-                xml_def = ET.SubElement(vt_param, 'default')
+                xml_def = SubElement(vt_param, 'default')
                 xml_def.text = prefs[1]['default']
             vt_params_xml.append(vt_param)
 
         params_list = vt_params_xml.findall("vt_param")
         params = ''
         for param in params_list:
-            params += (ET.tostring(param).decode('utf-8'))
+            params += (tostring(param).decode('utf-8'))
         return params
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_refs):
         """ Return custom since it is already formated as string. """
-        vt_refs_xml = ET.Element('vt_prefs')
+        vt_refs_xml = Element('vt_prefs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
-                vt_ref = ET.Element('ref')
+                vt_ref = Element('ref')
                 vt_ref.set('type', ref_type)
                 vt_ref.set('id', value)
                 vt_refs_xml.append(vt_ref)
@@ -326,7 +326,7 @@ class OSPDopenvas(OSPDaemon):
         refs_list = vt_refs_xml.findall("ref")
         refs = ''
         for ref in refs_list:
-            refs += (ET.tostring(ref).decode('utf-8'))
+            refs += (tostring(ref).decode('utf-8'))
         return refs
 
     def check(self):
