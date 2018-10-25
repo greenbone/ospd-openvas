@@ -268,6 +268,7 @@ class OSPDopenvas(OSPDaemon):
             ret = self.add_vt(vt_id,
                               name=filename[1],
                               vt_params=nvti.get_nvt_params(vt_id),
+                              vt_refs=nvti.get_nvt_refs(vt_id),
                               custom=nvti.get_nvt_metadata(vt_id))
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -310,6 +311,23 @@ class OSPDopenvas(OSPDaemon):
         for param in params_list:
             params += (ET.tostring(param).decode('utf-8'))
         return params
+
+    @staticmethod
+    def get_refs_vt_as_xml_str(vt_refs):
+        """ Return custom since it is already formated as string. """
+        vt_refs_xml = ET.Element('vt_prefs')
+        for ref_type, ref_values in vt_refs.items():
+            for value in ref_values:
+                vt_ref = ET.Element('ref')
+                vt_ref.set('type', ref_type)
+                vt_ref.set('id', value)
+                vt_refs_xml.append(vt_ref)
+
+        refs_list = vt_refs_xml.findall("ref")
+        refs = ''
+        for ref in refs_list:
+            refs += (ET.tostring(ref).decode('utf-8'))
+        return refs
 
     def check(self):
         """ Checks that openvassd command line tool is found and

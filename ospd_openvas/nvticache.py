@@ -109,9 +109,28 @@ def get_nvt_metadata(oid):
 
     custom = dict()
     for child, res in zip(subelem, resp):
-        custom[child] = res
+        if child not in ['cve', 'bid', 'xref', ]:
+            custom[child] = res
 
     return custom
+
+def get_nvt_refs(oid):
+    """ Get a full NVT. Returns an XML tree with the NVT references.
+    """
+    ctx = openvas_db.get_kb_context()
+    resp = ctx.lrange("nvt:%s" % oid,
+                      openvas_db.nvt_meta_fields.index("NVT_CVES_POS"),
+                      openvas_db.nvt_meta_fields.index("NVT_XREFS_POS"))
+    if (isinstance(resp, list) and resp) is False:
+        return None
+
+    subelem = ['cve', 'bid', 'xref',]
+
+    refs = dict()
+    for child, res in zip(subelem, resp):
+        refs[child] = res.split(", ")
+
+    return refs
 
 def get_nvt_name(ctx, oid):
     """ Get the NVT name of the given OID."""
