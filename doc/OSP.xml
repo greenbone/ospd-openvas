@@ -29,10 +29,31 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <!-- Types. -->
 
   <type>
+    <name>boolean</name>
+    <summary>0 or 1</summary>
+    <pattern>
+      <e>xsd:token { pattern = "[01]" }</e>
+    </pattern>
+  </type>
+  <type>
+    <name>epoch_time</name>
+    <summary>A date, in unix format</summary>
+    <pattern>
+      <e>integer</e>
+    </pattern>
+  </type>
+  <type>
     <name>integer</name>
     <summary>An integer</summary>
     <pattern>
       <e>integer</e>
+    </pattern>
+  </type>
+  <type>
+    <name>status</name>
+    <summary>Status code describing the result of a command</summary>
+    <pattern>
+      <e>xsd:token { pattern = "[1-5][0-9][0-9]" }</e>
     </pattern>
   </type>
   <type>
@@ -43,24 +64,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </pattern>
   </type>
   <type>
-    <name>boolean</name>
-    <summary>0 or 1</summary>
-    <pattern>
-      <e>text</e>
-    </pattern>
-  </type>
-  <type>
     <name>uuid</name>
     <summary>A Universally Unique Identifier (UUID)</summary>
     <pattern>
       <e>xsd:token { pattern = "[0-9abcdefABCDEF\-]{1,40}" }</e>
-    </pattern>
-  </type>
-  <type>
-    <name>epoch_time</name>
-    <summary>A date, in unix format</summary>
-    <pattern>
-      <e>integer</e>
     </pattern>
   </type>
   <type>
@@ -271,7 +278,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <pattern>
         <attrib>
           <name>status</name>
-          <type>integer</type>
+          <type>status</type>
           <required>1</required>
         </attrib>
         <attrib>
@@ -696,7 +703,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <pattern>
         <attrib>
           <name>status</name>
-          <type>integer</type>
+          <type>status</type>
           <required>1</required>
         </attrib>
         <attrib>
@@ -872,7 +879,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <pattern>
         <attrib>
           <name>status</name>
-          <type>integer</type>
+          <type>status</type>
           <required>1</required>
         </attrib>
         <attrib>
@@ -950,7 +957,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <pattern>
         <attrib>
           <name>status</name>
-          <type>integer</type>
+          <type>status</type>
           <required>1</required>
         </attrib>
         <attrib>
