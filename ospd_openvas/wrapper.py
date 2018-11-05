@@ -277,7 +277,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(custom):
-        """ Return custom since it is already formated as string. """
+        """ Return custom since it is already formatted as string. """
 
         nvt = Element('vt')
         for key, val in custom.items():
@@ -293,7 +293,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_params):
-        """ Return custom since it is already formated as string. """
+        """ Return custom since it is already formatted as string. """
         vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
             vt_param = Element('vt_param')
@@ -314,7 +314,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_refs):
-        """ Return custom since it is already formated as string. """
+        """ Return custom since it is already formatted as string. """
         vt_refs_xml = Element('vt_prefs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
@@ -421,9 +421,9 @@ class OSPDopenvas(OSPDaemon):
         return status == 'finished'
 
     def scan_is_stopped(self, scan_id):
-        """ Check if the parent process has recieved the stop_scan order.
+        """ Check if the parent process has received the stop_scan order.
         @in scan_id: ID to identify the scan to be stopped.
-        @return 1 if yes, None in oder case.
+        @return 1 if yes, None in other case.
         """
         ctx = openvas_db.kb_connect(dbnum=MAIN_KBINDEX)
         openvas_db.set_global_redisctx(ctx)
@@ -477,7 +477,7 @@ class OSPDopenvas(OSPDaemon):
         return vts_list
 
     def get_vt_param_type(self, vtid, vt_param_id):
-        """ Return the type of the vt paramater from the vts dictionary. """
+        """ Return the type of the vt parameter from the vts dictionary. """
         vt_params_list = self.vts[vtid].get("vt_params")
         return vt_params_list[vt_param_id]["type"]
 
@@ -624,7 +624,7 @@ class OSPDopenvas(OSPDaemon):
         MAIN_KBINDEX = openvas_db.DB_INDEX
 
         # To avoid interference between scan process during a parallel scanning
-        # new uuid is used internaly for each scan.
+        # new uuid is used internally for each scan.
         openvas_scan_id = str(uuid.uuid4())
         openvas_db.item_add_single(('internal/%s' % openvas_scan_id), ['new', ])
         openvas_db.item_add_single(('internal/%s/globalscanid' % scan_id), [openvas_scan_id, ])
