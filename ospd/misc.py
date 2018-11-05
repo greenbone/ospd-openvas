@@ -584,7 +584,7 @@ def ports_str_check_failed(port_str):
 
 def ports_as_list(port_str):
     """
-    Parses a ports string into two list of idividual tcp and udp ports.
+    Parses a ports string into two list of individual tcp and udp ports.
 
     @input string containing a port list
     e.g. T:1,2,3,5-8 U:22,80,600-1024
