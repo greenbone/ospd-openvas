@@ -22,7 +22,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-""" Functios to retrieve and store data from redis-based OpenVAS Scanner database. """
+""" Functions to retrieve and store data from redis-based OpenVAS Scanner database. """
 
 # Needed to say that when we import ospd, we mean the package and not the
 # module in that directory.
@@ -63,7 +63,7 @@ nvt_meta_fields = [
     "NVT_VERSION_POS",]
 
 def get_db_connection():
-    """ Retrive the db address from openvassd config.
+    """ Retrieve the db address from openvassd config.
     """
     global DB_ADDRESS
     try:
