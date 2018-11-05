@@ -286,7 +286,7 @@ class FullTest(unittest.TestCase):
         scan_id = response.findtext('id')
 
         # Depending on the sistem this test can end with a race condition
-        # because the scanner is already stopped when the <stop_scan> commmand
+        # because the scanner is already stopped when the <stop_scan> command
         # is run.
         time.sleep(3)
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
