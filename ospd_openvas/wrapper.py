@@ -26,7 +26,7 @@ import subprocess
 import time
 import signal
 import uuid
-from xml.etree.ElementTree import tostring, SubElement, Element
+from lxml.etree import tostring, SubElement, Element
 import psutil
 
 from ospd.ospd import OSPDaemon, logger
@@ -297,8 +297,8 @@ class OSPDopenvas(OSPDaemon):
         vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
             vt_param = Element('vt_param')
-            vt_param.set('id', prefs[0])
             vt_param.set('type', prefs[1]['type'])
+            vt_param.set('id', prefs[0])
             xml_name = SubElement(vt_param, 'name')
             xml_name.text = prefs[1]['name']
             if prefs[1]['default']:
@@ -315,12 +315,24 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_refs_vt_as_xml_str(vt_refs):
         """ Return custom since it is already formatted as string. """
-        vt_refs_xml = Element('vt_prefs')
+        vt_refs_xml = Element('vt_refs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
                 vt_ref = Element('ref')
-                vt_ref.set('type', ref_type)
-                vt_ref.set('id', value)
+                if ref_type == "xref" and value:
+                    for xref in value.split(', '):
+                        try:
+                            _type, _id = xref.split(':', 1)
+                        except ValueError:
+                            logger.error('Not possible to parse xref')
+                            continue
+                        vt_ref.set('type', _type.lower())
+                        vt_ref.set('id', _id)
+                elif value:
+                    vt_ref.set('type', ref_type.lower())
+                    vt_ref.set('id', value)
+                else:
+                    continue
                 vt_refs_xml.append(vt_ref)
 
         refs_list = vt_refs_xml.findall("ref")
