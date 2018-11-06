@@ -277,7 +277,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(custom):
-        """ Return custom since it is already formatted as string. """
+        """ Return an xml element with custom metadata formatted as string."""
 
         nvt = Element('vt')
         for key, val in custom.items():
@@ -293,7 +293,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_params):
-        """ Return custom since it is already formatted as string. """
+        """ Return an xml element with params formatted as string."""
         vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
             vt_param = Element('vt_param')
@@ -314,7 +314,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_refs):
-        """ Return custom since it is already formatted as string. """
+        """ Return an xml element with references formatted as string."""
         vt_refs_xml = Element('vt_refs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
