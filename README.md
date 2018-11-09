@@ -49,7 +49,7 @@ You can install ospd from the Python Package Index using [pip](https://pip.pypa.
 
     pip install ospd
 
-alternatively download or clone this repository and install the latest development version:
+Alternatively download or clone this repository and install the latest development version:
 
     pip install .
 
@@ -59,12 +59,12 @@ As a core you need to derive from the class OSPDaemon from ospd.py.
 See the documentation there for the single steps to establish the
 full wrapper.
 
-See the file doc/INSTALL-ospd-scanner about how to register a OSP scanner at
+See the file [doc/INSTALL-ospd-scanner](doc/INSTALL-ospd-scanner) about how to register a OSP scanner at
 the Greenbone Vulnerability Manager which will automatically establish a full
 GUI integration for the Greenbone Security Assistant (GSA).
 
 There are some online resources about this topic:
-http://docs.greenbone.net/GSM-Manual/gos-3.1/en/osp.html#how-to-write-your-own-osp-wrapper
+<https://docs.greenbone.net/GSM-Manual/gos-3.1/en/osp.html#how-to-write-your-own-osp-wrapper>
 
 ## Support
 
