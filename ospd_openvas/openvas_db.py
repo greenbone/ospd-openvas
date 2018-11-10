@@ -58,9 +58,7 @@ nvt_meta_fields = [
     "NVT_CATEGORY_POS",
     "NVT_TIMEOUT_POS",
     "NVT_FAMILY_POS",
-    "NVT_COPYRIGHT_POS",
-    "NVT_NAME_POS",
-    "NVT_VERSION_POS",]
+    "NVT_NAME_POS",]
 
 def get_db_connection():
     """ Retrieve the db address from openvassd config.
