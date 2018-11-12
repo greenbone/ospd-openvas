@@ -294,8 +294,8 @@ class OSPDaemon(object):
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
-    def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None, custom=None
-               vt_creation_time=None, vt_modification_time=None):
+    def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
+               custom=None, vt_creation_time=None, vt_modification_time=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -323,9 +323,9 @@ class OSPDaemon(object):
             self.vts[vt_id]["vt_params"] = vt_params
         if vt_refs is not None:
             self.vts[vt_id]["vt_refs"] = vt_refs
-        if vt_creationtime is not None:
+        if vt_creation_time is not None:
             self.vts[vt_id]["creation_time"] = vt_creation_time
-        if vt_modificationtime is not none:
+        if vt_modification_time is not None:
             self.vts[vt_id]["modification_time"] = vt_modification_time
         return len(self.vts)
 
@@ -1200,16 +1200,36 @@ class OSPDaemon(object):
             elem.text = str(value)
 
         if vt.get('custom'):
-            custom_xml_str = '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(vt.get('custom'))
+            custom_xml_str = (
+                '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(
+                    vt.get('custom')))
             vt_xml.append(secET.fromstring(custom_xml_str))
 
         if vt.get('vt_params'):
-            params_xml_str = '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(vt.get('vt_params'))
+            params_xml_str = (
+                '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(
+                    vt.get('vt_params')))
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
-            refs_xml_str = '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(vt.get('vt_refs'))
+            refs_xml_str = (
+                '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(
+                    vt.get('vt_refs')))
             vt_xml.append(secET.fromstring(refs_xml_str))
+
+        if vt.get('creation_time'):
+            vt_ctime =  self.get_creation_time_vt_as_xml_str(
+                vt.get('creation_time'))
+            creation_time_xml_str = (
+                '<creation_time>%s</creation_time>' % vt_ctime)
+            vt_xml.append(secET.fromstring(creation_time_xml_str))
+
+        if vt.get('modification_time'):
+            vt_mtime =  self.get_modification_time_vt_as_xml_str(
+                vt.get('modification_time'))
+            modification_time_xml_str = (
+                '<modification_time>%s</modification_time>' % vt_mtime)
+            vt_xml.append(secET.fromstring(modification_time_xml_str))
 
         return vt_xml
 
