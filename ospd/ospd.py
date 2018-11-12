@@ -294,8 +294,8 @@ class OSPDaemon(object):
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
-    def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
-               custom=None):
+    def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None, custom=None
+               vt_creation_time=None, vt_modification_time=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -323,7 +323,10 @@ class OSPDaemon(object):
             self.vts[vt_id]["vt_params"] = vt_params
         if vt_refs is not None:
             self.vts[vt_id]["vt_refs"] = vt_refs
-
+        if vt_creationtime is not None:
+            self.vts[vt_id]["creation_time"] = vt_creation_time
+        if vt_modificationtime is not none:
+            self.vts[vt_id]["modification_time"] = vt_modification_time
         return len(self.vts)
 
     def command_exists(self, name):
