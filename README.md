@@ -78,6 +78,20 @@ This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.ne
 
 Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/ospd/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/ospd/issues).
 
+For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+to keep you python packages separated in different environments. First install
+pipenv via pip
+
+    pip install --user pipenv
+
+Afterwards run
+
+    pipenv install --dev
+
+in the checkout directory of ospd (the directory containing the Pipfile)
+to install all dependencies including the packages only required for
+development.
+
 ## License
 
 Copyright (C) 2009-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
