@@ -1153,6 +1153,34 @@ class OSPDaemon(object):
         """
         return ''
 
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(vt_creation_time):
+        """ Create a string representation of the XML object from the
+        vt_creation_time data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_creation_time elements for VTs are used.
+
+        The vt_creation_time XML object which is returned will be embedded
+        into a <vt_creation_time></vt_creation_time> element.
+
+        @return: XML object as string for vt creation time data.
+        """
+        return ''
+
+    @staticmethod
+    def get_modification_time_vt_as_xml_str(vt_modification_time):
+        """ Create a string representation of the XML object from the
+        vt_modification_time data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_modification_time elements for VTs are used.
+
+        The vt_modification_time XML object which is returned will be embedded
+        into a <vt_modification_time></vt_modification_time> element.
+
+        @return: XML object as string for vt references data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
