@@ -109,7 +109,7 @@ def get_nvt_metadata(oid):
 
     custom = dict()
     for child, res in zip(subelem, resp):
-        if child not in ['cve', 'bid', 'xref', 'tag',]:
+        if child not in ['cve', 'bid', 'xref', 'tag',] and res:
             custom[child] = res
         elif child == 'tag':
             tags = res.split('|')
