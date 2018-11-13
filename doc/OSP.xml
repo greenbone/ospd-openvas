@@ -815,7 +815,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <example>
       <summary>Get information for a single vulnerability test</summary>
       <request>
-        <get_vts id='1.2.3.4.5'/>
+        <get_vts vt_id='1.2.3.4.5'/>
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
@@ -830,7 +830,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <example>
       <summary>Get information for a vulnerability test with custom data</summary>
       <request>
-        <get_vts id='1.2.3.4.5'/>
+        <get_vts vt_id='1.2.3.4.5'/>
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
@@ -849,7 +849,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <example>
       <summary>Get information for a vulnerability test with VT parameters data</summary>
       <request>
-        <get_vts id='1.2.3.4.5'/>
+        <get_vts vt_id='1.2.3.4.5'/>
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
