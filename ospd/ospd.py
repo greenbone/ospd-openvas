@@ -294,7 +294,8 @@ class OSPDaemon(object):
             'scanner_params':
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
-    def add_vt(self, vt_id, name='', vt_params=None, vt_refs=None, custom=None):
+    def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
+               custom=None, vt_creation_time=None, vt_modification_time=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -312,6 +313,9 @@ class OSPDaemon(object):
         if vt_id in self.vts:
             return -1  # The VT was already in the list.
 
+        if name is None:
+            name = ''
+
         self.vts[vt_id] = {'name': name}
         if custom is not None:
             self.vts[vt_id]["custom"] = custom
@@ -319,7 +323,10 @@ class OSPDaemon(object):
             self.vts[vt_id]["vt_params"] = vt_params
         if vt_refs is not None:
             self.vts[vt_id]["vt_refs"] = vt_refs
-
+        if vt_creation_time is not None:
+            self.vts[vt_id]["creation_time"] = vt_creation_time
+        if vt_modification_time is not None:
+            self.vts[vt_id]["modification_time"] = vt_modification_time
         return len(self.vts)
 
     def command_exists(self, name):
@@ -1146,6 +1153,34 @@ class OSPDaemon(object):
         """
         return ''
 
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(vt_creation_time):
+        """ Create a string representation of the XML object from the
+        vt_creation_time data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_creation_time elements for VTs are used.
+
+        The vt_creation_time XML object which is returned will be embedded
+        into a <vt_creation_time></vt_creation_time> element.
+
+        @return: XML object as string for vt creation time data.
+        """
+        return ''
+
+    @staticmethod
+    def get_modification_time_vt_as_xml_str(vt_modification_time):
+        """ Create a string representation of the XML object from the
+        vt_modification_time data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_modification_time elements for VTs are used.
+
+        The vt_modification_time XML object which is returned will be embedded
+        into a <vt_modification_time></vt_modification_time> element.
+
+        @return: XML object as string for vt references data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -1165,16 +1200,36 @@ class OSPDaemon(object):
             elem.text = str(value)
 
         if vt.get('custom'):
-            custom_xml_str = '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(vt.get('custom'))
+            custom_xml_str = (
+                '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(
+                    vt.get('custom')))
             vt_xml.append(secET.fromstring(custom_xml_str))
 
         if vt.get('vt_params'):
-            params_xml_str = '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(vt.get('vt_params'))
+            params_xml_str = (
+                '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(
+                    vt.get('vt_params')))
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
-            refs_xml_str = '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(vt.get('vt_refs'))
+            refs_xml_str = (
+                '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(
+                    vt.get('vt_refs')))
             vt_xml.append(secET.fromstring(refs_xml_str))
+
+        if vt.get('creation_time'):
+            vt_ctime = self.get_creation_time_vt_as_xml_str(
+                vt.get('creation_time'))
+            creation_time_xml_str = (
+                '<creation_time>%s</creation_time>' % vt_ctime)
+            vt_xml.append(secET.fromstring(creation_time_xml_str))
+
+        if vt.get('modification_time'):
+            vt_mtime = self.get_modification_time_vt_as_xml_str(
+                vt.get('modification_time'))
+            modification_time_xml_str = (
+                '<modification_time>%s</modification_time>' % vt_mtime)
+            vt_xml.append(secET.fromstring(modification_time_xml_str))
 
         return vt_xml
 
