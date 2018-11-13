@@ -203,7 +203,7 @@ def get_nvt_severity(ctx, tag=None, oid=None):
         else:
             return '10'
 
-    if tag and 'cvess_base' in tag:
-        return tag['cvess_base']
+    if tag and 'cvss_base' in tag:
+        return tag['cvss_base']
 
     return ''

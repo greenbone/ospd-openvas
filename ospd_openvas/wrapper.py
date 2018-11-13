@@ -413,7 +413,7 @@ class OSPDopenvas(OSPDaemon):
             msg = res.split('|||')
             host_aux = openvas_db.item_get_single('internal/ip')
             roid = msg[3]
-            tag = nvti.get_nvt_tag(ctx, roid)
+            tag = self.vts[roid].get('custom')
             rqod = nvti.get_nvt_qod(ctx, tag)
             rseverity = nvti.get_nvt_severity(ctx, tag)
             rname = nvti.get_nvt_name(ctx, roid)
