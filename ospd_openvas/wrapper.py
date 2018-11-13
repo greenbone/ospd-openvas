@@ -264,12 +264,23 @@ class OSPDopenvas(OSPDaemon):
         str_out = True
         for oid in oids:
             vt_id = oid[1]
-            filename = oid[0].split(':')
-            ret = self.add_vt(vt_id,
-                              name=filename[1],
-                              vt_params=nvti.get_nvt_params(vt_id),
-                              vt_refs=nvti.get_nvt_refs(vt_id),
-                              custom=nvti.get_nvt_metadata(vt_id))
+
+            _vt_params = nvti.get_nvt_params(vt_id)
+            _vt_refs = nvti.get_nvt_refs(vt_id)
+            _filename = oid[0].split(':')
+            _custom = nvti.get_nvt_metadata(vt_id)
+            _vt_creation_time = _custom.pop('creation_date')
+            _vt_modification_time = _custom.pop('last_modification')
+
+            ret = self.add_vt(
+                vt_id,
+                name=_filename[1],
+                vt_params=_vt_params,
+                vt_refs=_vt_refs,
+                custom=_custom,
+                vt_creation_time=_vt_creation_time,
+                vt_modification_time=_vt_modification_time
+            )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
@@ -341,6 +352,16 @@ class OSPDopenvas(OSPDaemon):
             refs += (tostring(ref).decode('utf-8'))
         return refs
 
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(creation_time):
+        """ Return creation time as string."""
+        return creation_time
+
+    @staticmethod
+    def get_modification_time_vt_as_xml_str(modification_time):
+        """ Return modification time as string."""
+        return modification_time
+
     def check(self):
         """ Checks that openvassd command line tool is found and
         is executable. """
@@ -392,7 +413,7 @@ class OSPDopenvas(OSPDaemon):
             msg = res.split('|||')
             host_aux = openvas_db.item_get_single('internal/ip')
             roid = msg[3]
-            tag = nvti.get_nvt_tag(ctx, roid)
+            tag = self.vts[roid].get('custom')
             rqod = nvti.get_nvt_qod(ctx, tag)
             rseverity = nvti.get_nvt_severity(ctx, tag)
             rname = nvti.get_nvt_name(ctx, roid)

@@ -109,8 +109,17 @@ def get_nvt_metadata(oid):
 
     custom = dict()
     for child, res in zip(subelem, resp):
-        if child not in ['cve', 'bid', 'xref', ]:
+        if child not in ['cve', 'bid', 'xref', 'tag',] and res:
             custom[child] = res
+        elif child == 'tag':
+            tags = res.split('|')
+            for tag in tags:
+                try:
+                    _tag, _value = tag.split('=', 1)
+                except ValueError:
+                    logger.error('Tag %s in %s has no value.' % (_tag, oid))
+                    continue
+                custom[_tag] = _value
 
     return custom
 
@@ -194,7 +203,7 @@ def get_nvt_severity(ctx, tag=None, oid=None):
         else:
             return '10'
 
-    if tag and 'cvess_base' in tag:
-        return tag['cvess_base']
+    if tag and 'cvss_base' in tag:
+        return tag['cvss_base']
 
     return ''
