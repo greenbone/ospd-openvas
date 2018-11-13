@@ -775,12 +775,20 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <type>vt_id</type>
             </attrib>
             <e>name</e>
+            <e>creation_time</e>
+            <e>modification_time</e>
             <e>vt_params</e>
             <e>vt_refs</e>
             <e>custom</e>
           </pattern>
           <ele>
             <name>name</name>
+          </ele>
+          <ele>
+            <creation_time>creation_time</creation_time>
+          </ele>
+          <ele>
+            <modification_time>modification_time</modification_time>
           </ele>
           <ele>
             <name>vt_params</name>
@@ -813,7 +821,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
     <example>
-      <summary>Get information for a single vulnerability test</summary>
+      <summary>Get information for a single vulnerability test with creation and modification times</summary>
       <request>
         <get_vts vt_id='1.2.3.4.5'/>
       </request>
@@ -822,6 +830,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
+              <creation_time>1900-01-01</creation_time>
+              <modification_time>2000-01-01</modification_time>
             </vt>
           </vts>
         </get_vts_response>
