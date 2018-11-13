@@ -264,12 +264,23 @@ class OSPDopenvas(OSPDaemon):
         str_out = True
         for oid in oids:
             vt_id = oid[1]
-            filename = oid[0].split(':')
-            ret = self.add_vt(vt_id,
-                              name=filename[1],
-                              vt_params=nvti.get_nvt_params(vt_id),
-                              vt_refs=nvti.get_nvt_refs(vt_id),
-                              custom=nvti.get_nvt_metadata(vt_id))
+
+            _vt_params = nvti.get_nvt_params(vt_id)
+            _vt_refs = nvti.get_nvt_refs(vt_id)
+            _filename = oid[0].split(':')
+            _custom = nvti.get_nvt_metadata(vt_id)
+            _vt_creation_time = _custom.pop('creation_date')
+            _vt_modification_time = _custom.pop('last_modification')
+
+            ret = self.add_vt(
+                vt_id,
+                name=_filename[1],
+                vt_params=_vt_params,
+                vt_refs=_vt_refs,
+                custom=_custom,
+                vt_creation_time=_vt_creation_time,
+                vt_modification_time=_vt_modification_time
+            )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
