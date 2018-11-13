@@ -352,6 +352,16 @@ class OSPDopenvas(OSPDaemon):
             refs += (tostring(ref).decode('utf-8'))
         return refs
 
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(creation_time):
+        """ Return creation time as string."""
+        return creation_time
+
+    @staticmethod
+    def get_modification_time_vt_as_xml_str(modification_time):
+        """ Return modification time as string."""
+        return modification_time
+
     def check(self):
         """ Checks that openvassd command line tool is found and
         is executable. """
