@@ -102,7 +102,7 @@ def get_nvt_metadata(oid):
     if (isinstance(resp, list) and resp) is False:
         return None
 
-    subelem = ['file_name', 'required_keys', 'mandatory_keys',
+    subelem = ['filename', 'required_keys', 'mandatory_keys',
                'excluded_keys', 'required_udp_ports', 'required_ports',
                'dependencies', 'tag', 'cve', 'bid', 'xref', 'category',
                'timeout', 'family', 'name', ]
