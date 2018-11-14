@@ -482,8 +482,7 @@ class OSPDopenvas(OSPDaemon):
                 parent.send_signal(signal.SIGUSR2)
                 logger.debug('Stopping process: {0}'.format(parent))
 
-    @staticmethod
-    def get_vts_in_groups(ctx, filters):
+    def get_vts_in_groups(self, ctx, filters):
         """ Return a list of vts which match with the given filter.
 
         @input filters A list of filters. Each filter has key, operator and
@@ -494,11 +493,11 @@ class OSPDopenvas(OSPDaemon):
         vts_list = list()
         families = dict()
         oids = nvti.get_oids()
-        for oid in oids:
-            family = nvti.get_nvt_family(ctx, oid[1])
+        for filename, oid in oids:
+            family = self.vts[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
-            families[family].append(oid[1])
+            families[family].append(oid)
 
         for elem in filters:
             key, value = elem.split('=')
