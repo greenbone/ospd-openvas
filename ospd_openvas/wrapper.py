@@ -261,20 +261,17 @@ class OSPDopenvas(OSPDaemon):
         """ Load the NVT's OIDs and their filename into the vts
         global  dictionary. """
         oids = nvti.get_oids()
-        str_out = True
-        for oid in oids:
-            vt_id = oid[1]
-
+        for filename, vt_id in oids:
             _vt_params = nvti.get_nvt_params(vt_id)
             _vt_refs = nvti.get_nvt_refs(vt_id)
-            _filename = oid[0].split(':')
             _custom = nvti.get_nvt_metadata(vt_id)
+            _name = _custom.pop('name')
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
 
             ret = self.add_vt(
                 vt_id,
-                name=_filename[1],
+                name=_name,
                 vt_params=_vt_params,
                 vt_refs=_vt_refs,
                 custom=_custom,
@@ -298,7 +295,7 @@ class OSPDopenvas(OSPDaemon):
         itera = nvt.iter()
         metadata = ''
         for elem in itera:
-            if elem.tag != 'vt' and elem.tag != 'file_name':
+            if elem.tag != 'vt':
                 metadata += (tostring(elem).decode('utf-8'))
         return metadata
 
