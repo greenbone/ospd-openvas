@@ -413,7 +413,7 @@ class OSPDopenvas(OSPDaemon):
             tag = self.vts[roid].get('custom')
             rqod = nvti.get_nvt_qod(ctx, tag)
             rseverity = nvti.get_nvt_severity(ctx, tag)
-            rname = nvti.get_nvt_name(ctx, roid)
+            rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(scan_id, host=host_aux,
@@ -547,7 +547,7 @@ class OSPDopenvas(OSPDaemon):
 
         for vtid, vt_params in vts.items():
             vts_list.append(vtid)
-            nvt_name = nvti.get_nvt_name(ctx, vtid)
+            nvt_name = self.vts[vtid].get('name')
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 if vt_param_id == 'timeout':
