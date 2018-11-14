@@ -102,7 +102,7 @@ def get_nvt_metadata(oid):
     if (isinstance(resp, list) and resp) is False:
         return None
 
-    subelem = ['file_name', 'required_keys', 'mandatory_keys',
+    subelem = ['filename', 'required_keys', 'mandatory_keys',
                'excluded_keys', 'required_udp_ports', 'required_ports',
                'dependencies', 'tag', 'cve', 'bid', 'xref', 'category',
                'timeout', 'family', 'name', ]
@@ -140,16 +140,6 @@ def get_nvt_refs(oid):
         refs[child] = res.split(", ")
 
     return refs
-
-def get_nvt_name(ctx, oid):
-    """ Get the NVT name of the given OID."""
-    return ctx.lindex('nvt:%s' % oid,
-                      openvas_db.nvt_meta_fields.index('NVT_NAME_POS'))
-
-def get_nvt_family(ctx, oid):
-    """ Get the NVT family of the given OID."""
-    return ctx.lindex('nvt:%s' % oid,
-                      openvas_db.nvt_meta_fields.index('NVT_FAMILY_POS'))
 
 def get_nvt_prefs(ctx, oid):
     """ Get NVT preferences. """

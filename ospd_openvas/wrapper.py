@@ -261,20 +261,17 @@ class OSPDopenvas(OSPDaemon):
         """ Load the NVT's OIDs and their filename into the vts
         global  dictionary. """
         oids = nvti.get_oids()
-        str_out = True
-        for oid in oids:
-            vt_id = oid[1]
-
+        for filename, vt_id in oids:
             _vt_params = nvti.get_nvt_params(vt_id)
             _vt_refs = nvti.get_nvt_refs(vt_id)
-            _filename = oid[0].split(':')
             _custom = nvti.get_nvt_metadata(vt_id)
+            _name = _custom.pop('name')
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
 
             ret = self.add_vt(
                 vt_id,
-                name=_filename[1],
+                name=_name,
                 vt_params=_vt_params,
                 vt_refs=_vt_refs,
                 custom=_custom,
@@ -298,7 +295,7 @@ class OSPDopenvas(OSPDaemon):
         itera = nvt.iter()
         metadata = ''
         for elem in itera:
-            if elem.tag != 'vt' and elem.tag != 'file_name':
+            if elem.tag != 'vt':
                 metadata += (tostring(elem).decode('utf-8'))
         return metadata
 
@@ -416,7 +413,7 @@ class OSPDopenvas(OSPDaemon):
             tag = self.vts[roid].get('custom')
             rqod = nvti.get_nvt_qod(ctx, tag)
             rseverity = nvti.get_nvt_severity(ctx, tag)
-            rname = nvti.get_nvt_name(ctx, roid)
+            rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(scan_id, host=host_aux,
@@ -485,8 +482,7 @@ class OSPDopenvas(OSPDaemon):
                 parent.send_signal(signal.SIGUSR2)
                 logger.debug('Stopping process: {0}'.format(parent))
 
-    @staticmethod
-    def get_vts_in_groups(ctx, filters):
+    def get_vts_in_groups(self, ctx, filters):
         """ Return a list of vts which match with the given filter.
 
         @input filters A list of filters. Each filter has key, operator and
@@ -497,11 +493,11 @@ class OSPDopenvas(OSPDaemon):
         vts_list = list()
         families = dict()
         oids = nvti.get_oids()
-        for oid in oids:
-            family = nvti.get_nvt_family(ctx, oid[1])
+        for filename, oid in oids:
+            family = self.vts[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
-            families[family].append(oid[1])
+            families[family].append(oid)
 
         for elem in filters:
             key, value = elem.split('=')
@@ -550,7 +546,7 @@ class OSPDopenvas(OSPDaemon):
 
         for vtid, vt_params in vts.items():
             vts_list.append(vtid)
-            nvt_name = nvti.get_nvt_name(ctx, vtid)
+            nvt_name = self.vts[vtid].get('name')
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 if vt_param_id == 'timeout':
