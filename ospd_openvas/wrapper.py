@@ -258,16 +258,23 @@ class OSPDopenvas(OSPDaemon):
             raise err
 
     def load_vts(self):
-        """ Load the NVT's OIDs and their filename into the vts
+        """ Load the NVT's metadata into the vts
         global  dictionary. """
-        oids = nvti.get_oids()
-        for filename, vt_id in oids:
+        oids = dict(nvti.get_oids())
+        for filename, vt_id in oids.items():
             _vt_params = nvti.get_nvt_params(vt_id)
             _vt_refs = nvti.get_nvt_refs(vt_id)
             _custom = nvti.get_nvt_metadata(vt_id)
             _name = _custom.pop('name')
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
+
+            _vt_dependencies = list()
+            if 'dependencies' in _custom:
+                _deps = _custom.pop('dependencies')
+                _deps_list = _deps.split(', ')
+                for dep in _deps_list:
+                    _vt_dependencies.append(oids.get('filename:' + dep))
 
             ret = self.add_vt(
                 vt_id,
@@ -276,7 +283,8 @@ class OSPDopenvas(OSPDaemon):
                 vt_refs=_vt_refs,
                 custom=_custom,
                 vt_creation_time=_vt_creation_time,
-                vt_modification_time=_vt_modification_time
+                vt_modification_time=_vt_modification_time,
+                vt_dependencies=_vt_dependencies
             )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -348,6 +356,21 @@ class OSPDopenvas(OSPDaemon):
         for ref in refs_list:
             refs += (tostring(ref).decode('utf-8'))
         return refs
+
+    @staticmethod
+    def get_dependencies_vt_as_xml_str(dep_list):
+        """ Return  an xml element with dependencies as string."""
+        vt_deps_xml = Element('vt_deps')
+        for dep in dep_list:
+            _vt_dep = Element('dependency')
+            _vt_dep.set('vt_id', dep)
+            vt_deps_xml.append(_vt_dep)
+
+        _deps_list = vt_deps_xml.findall("dependency")
+        deps = ''
+        for _dep in _deps_list:
+            deps += (tostring(_dep).decode('utf-8'))
+        return deps
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(creation_time):
