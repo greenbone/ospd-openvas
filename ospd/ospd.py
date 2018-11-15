@@ -295,7 +295,8 @@ class OSPDaemon(object):
                 {k: v['name'] for k, v in self.scanner_params.items()}}
 
     def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
-               custom=None, vt_creation_time=None, vt_modification_time=None):
+               custom=None, vt_creation_time=None, vt_modification_time=None,
+               vt_dependencies=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -323,6 +324,8 @@ class OSPDaemon(object):
             self.vts[vt_id]["vt_params"] = vt_params
         if vt_refs is not None:
             self.vts[vt_id]["vt_refs"] = vt_refs
+        if vt_dependencies is not None:
+            self.vts[vt_id]["vt_dependencies"] = vt_dependencies
         if vt_creation_time is not None:
             self.vts[vt_id]["creation_time"] = vt_creation_time
         if vt_modification_time is not None:
@@ -1154,6 +1157,20 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
+    def get_dependencies_vt_as_xml_str(vt_dependencies):
+        """ Create a string representation of the XML object from the
+        vt_dependencies data object.
+        This needs to be implemented by each ospd wrapper, in case
+        vt_dependencies elements for VTs are used.
+
+        The vt_dependencies XML object which is returned will be embedded
+        into a <dependencies></dependencies> element.
+
+        @return: XML object as string for vt dependencies data.
+        """
+        return ''
+
+    @staticmethod
     def get_creation_time_vt_as_xml_str(vt_creation_time):
         """ Create a string representation of the XML object from the
         vt_creation_time data object.
@@ -1216,6 +1233,13 @@ class OSPDaemon(object):
                 '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(
                     vt.get('vt_refs')))
             vt_xml.append(secET.fromstring(refs_xml_str))
+
+        if vt.get('vt_dependencies'):
+            dependencies = self.get_dependencies_vt_as_xml_str(
+                    vt.get('vt_dependencies'))
+            deps_xml_str = (
+                '<dependencies>%s</dependencies>' % dependencies)
+            vt_xml.append(secET.fromstring(deps_xml_str))
 
         if vt.get('creation_time'):
             vt_ctime = self.get_creation_time_vt_as_xml_str(
