@@ -296,7 +296,8 @@ class OSPDaemon(object):
 
     def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
                custom=None, vt_creation_time=None, vt_modification_time=None,
-               vt_dependencies=None):
+               vt_dependencies=None, summary=None, impact=None, affected=None,
+               insight=None,  ):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -330,6 +331,14 @@ class OSPDaemon(object):
             self.vts[vt_id]["creation_time"] = vt_creation_time
         if vt_modification_time is not None:
             self.vts[vt_id]["modification_time"] = vt_modification_time
+        if summary is not None:
+            self.vts[vt_id]["summary"] = summary
+        if impact is not None:
+            self.vts[vt_id]["impact"] = impact
+        if affected is not None:
+            self.vts[vt_id]["affected"] = affected
+        if insight is not None:
+            self.vts[vt_id]["insight"] = insight
         return len(self.vts)
 
     def command_exists(self, name):
@@ -1198,6 +1207,62 @@ class OSPDaemon(object):
         """
         return ''
 
+    @staticmethod
+    def get_summary_vt_as_xml_str(summary):
+        """ Create a string representation of the XML object from the
+        summary data object.
+        This needs to be implemented by each ospd wrapper, in case
+        summary elements for VTs are used.
+
+        The summary XML object which is returned will be embedded
+        into a <summary></summary> element.
+
+        @return: XML object as string for summary data.
+        """
+        return ''
+
+    @staticmethod
+    def get_impact_vt_as_xml_str(impact):
+        """ Create a string representation of the XML object from the
+        impact data object.
+        This needs to be implemented by each ospd wrapper, in case
+        impact elements for VTs are used.
+
+        The impact XML object which is returned will be embedded
+        into a <impact></impact> element.
+
+        @return: XML object as string for impact data.
+        """
+        return ''
+
+    @staticmethod
+    def get_affected_vt_as_xml_str(affected):
+        """ Create a string representation of the XML object from the
+        affected data object.
+        This needs to be implemented by each ospd wrapper, in case
+        affected elements for VTs are used.
+
+        The affected XML object which is returned will be embedded
+        into a <affected></affected> element.
+
+        @return: XML object as string for affected data.
+        """
+        return ''
+
+    @staticmethod
+    def get_insight_vt_as_xml_str(insight):
+        """ Create a string representation of the XML object from the
+        insight data object.
+        This needs to be implemented by each ospd wrapper, in case
+        insight elements for VTs are used.
+
+        The insight XML object which is returned will be embedded
+        into a <insight></insight> element.
+
+        @return: XML object as string for insight data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -1254,6 +1319,26 @@ class OSPDaemon(object):
             modification_time_xml_str = (
                 '<modification_time>%s</modification_time>' % vt_mtime)
             vt_xml.append(secET.fromstring(modification_time_xml_str))
+
+        if vt.get('summary'):
+            summary_xml_str = self.get_summary_vt_as_xml_str(
+                vt.get('summary'))
+            vt_xml.append(secET.fromstring(summary_xml_str))
+
+        if vt.get('impact'):
+            impact_xml_str = self.get_impact_vt_as_xml_str(
+                vt.get('impact'))
+            vt_xml.append(secET.fromstring(impact_xml_str))
+
+        if vt.get('affected'):
+            affected_xml_str =  self.get_affected_vt_as_xml_str(
+                vt.get('affected'))
+            vt_xml.append(secET.fromstring(affected_xml_str))
+
+        if vt.get('insight'):
+            insight_xml_str = self.get_insight_vt_as_xml_str(
+                vt.get('insight'))
+            vt_xml.append(secET.fromstring(insight_xml_str))
 
         return vt_xml
 
