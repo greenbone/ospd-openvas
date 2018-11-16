@@ -298,7 +298,7 @@ class OSPDaemon(object):
                custom=None, vt_creation_time=None, vt_modification_time=None,
                vt_dependencies=None, summary=None, impact=None, affected=None,
                insight=None, solution=None, solution_t=None, detection=None,
-               qod_t=None):
+               qod_t=None, qod_v=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -346,8 +346,10 @@ class OSPDaemon(object):
                 self.vts[vt_id]["solution_type"] = solution_t
         if detection is not None:
             self.vts[vt_id]["detection"] = detection
-            if qod_t is not None:
-                self.vts[vt_id]["qod_type"] = qod_t
+        if qod_t is not None:
+            self.vts[vt_id]["qod_type"] = qod_t
+        elif qod_v is not None:
+            self.vts[vt_id]["qod"] = qod_v
         return len(self.vts)
 
     def command_exists(self, name):
@@ -1287,7 +1289,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_detection_vt_as_xml_str(detection, qod_type=None):
+    def get_detection_vt_as_xml_str(detection=None, qod_type=None, qod=None):
         """ Create a string representation of the XML object from the
         detection data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1376,9 +1378,9 @@ class OSPDaemon(object):
                 vt.get('solution'), vt.get('solution_type'))
             vt_xml.append(secET.fromstring(solution_xml_str))
 
-        if vt.get('detection'):
+        if vt.get('detection') or vt.get('qod_type') or vt.get('qod'):
             detection_xml_str = self.get_detection_vt_as_xml_str(
-                vt.get('detection'), vt.get('qod_type'))
+                vt.get('detection'), vt.get('qod_type'), vt.get('qod'))
             vt_xml.append(secET.fromstring(detection_xml_str))
 
         if vt.get('custom'):
