@@ -1318,12 +1318,6 @@ class OSPDaemon(object):
             elem = SubElement(vt_xml, name)
             elem.text = str(value)
 
-        if vt.get('custom'):
-            custom_xml_str = (
-                '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(
-                    vt.get('custom')))
-            vt_xml.append(secET.fromstring(custom_xml_str))
-
         if vt.get('vt_params'):
             params_xml_str = (
                 '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(
@@ -1386,6 +1380,12 @@ class OSPDaemon(object):
             detection_xml_str = self.get_detection_vt_as_xml_str(
                 vt.get('detection'), vt.get('qod_type'))
             vt_xml.append(secET.fromstring(detection_xml_str))
+
+        if vt.get('custom'):
+            custom_xml_str = (
+                '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(
+                    vt.get('custom')))
+            vt_xml.append(secET.fromstring(custom_xml_str))
 
         return vt_xml
 
