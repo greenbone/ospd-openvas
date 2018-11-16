@@ -273,6 +273,8 @@ class OSPDopenvas(OSPDaemon):
             _impact=None
             _affected=None
             _insight=None
+            _solution=None
+            _solution_t=None
             if 'summary' in _custom:
                 _summary  = _custom.pop('summary')
             if 'impact' in _custom:
@@ -281,6 +283,10 @@ class OSPDopenvas(OSPDaemon):
                 _affected = _custom.pop('affected')
             if 'insight' in _custom :
                 _insight  = _custom.pop('insight')
+            if 'solution' in _custom:
+                _solution  = _custom.pop('solution')
+                if 'solution_type' in _custom:
+                    _solution_t  = _custom.pop('solution_type')
 
             _vt_dependencies = list()
             if 'dependencies' in _custom:
@@ -301,7 +307,9 @@ class OSPDopenvas(OSPDaemon):
                 summary=_summary,
                 impact=_impact,
                 affected=_affected,
-                insight=_insight
+                insight=_insight,
+                solution=_solution,
+                solution_t=_solution_t
             )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -426,6 +434,15 @@ class OSPDopenvas(OSPDaemon):
         _insight = Element('insight')
         _insight.text = insight
         return tostring(_insight).decode('utf-8')
+
+    @staticmethod
+    def get_solution_vt_as_xml_str(solution, solution_type=None):
+        """ Return solution as string."""
+        _solution = Element('solution')
+        _solution.text = solution
+        if solution_type:
+            _solution.set('type', solution_type)
+        return tostring(_solution).decode('utf-8')
 
     def check(self):
         """ Checks that openvassd command line tool is found and
