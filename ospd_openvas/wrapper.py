@@ -277,6 +277,7 @@ class OSPDopenvas(OSPDaemon):
             _solution_t=None
             _vuldetect=None
             _qod_t=None
+            _qod_v=None
             if 'summary' in _custom:
                 _summary  = _custom.pop('summary')
             if 'impact' in _custom:
@@ -289,10 +290,13 @@ class OSPDopenvas(OSPDaemon):
                 _solution  = _custom.pop('solution')
                 if 'solution_type' in _custom:
                     _solution_t  = _custom.pop('solution_type')
+
             if 'vuldetect' in _custom:
                 _vuldetect  = _custom.pop('vuldetect')
-                if 'qod_type' in _custom:
-                    _qod_t  = _custom.pop('qod_type')
+            if 'qod_type' in _custom:
+                _qod_t  = _custom.pop('qod_type')
+            elif 'qod' in _custom:
+                _qod_v  = _custom.pop('qod')
 
             _vt_dependencies = list()
             if 'dependencies' in _custom:
@@ -317,7 +321,8 @@ class OSPDopenvas(OSPDaemon):
                 solution=_solution,
                 solution_t=_solution_t,
                 detection=_vuldetect,
-                qod_t=_qod_t
+                qod_t=_qod_t,
+                qod_v=_qod_v
             )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -453,12 +458,16 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_solution).decode('utf-8')
 
     @staticmethod
-    def get_detection_vt_as_xml_str(vuldetect, qod_type=None):
+    def get_detection_vt_as_xml_str(vuldetect=None, qod_type=None, qod=None):
         """ Return detection as string."""
         _detection = Element('detection')
-        _detection.text = vuldetect
+        if vuldetect:
+            _detection.text = vuldetect
         if qod_type:
             _detection.set('qod_type', qod_type)
+        elif qod:
+            _detection.set('qod', qod)
+
         return tostring(_detection).decode('utf-8')
 
     def check(self):
