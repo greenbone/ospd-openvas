@@ -297,7 +297,8 @@ class OSPDaemon(object):
     def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
                custom=None, vt_creation_time=None, vt_modification_time=None,
                vt_dependencies=None, summary=None, impact=None, affected=None,
-               insight=None, solution=None, solution_t=None ):
+               insight=None, solution=None, solution_t=None, detection=None,
+               qod_t=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -343,6 +344,10 @@ class OSPDaemon(object):
             self.vts[vt_id]["solution"] = solution
             if solution_t is not None:
                 self.vts[vt_id]["solution_type"] = solution_t
+        if detection is not None:
+            self.vts[vt_id]["detection"] = detection
+            if qod_t is not None:
+                self.vts[vt_id]["qod_type"] = qod_t
         return len(self.vts)
 
     def command_exists(self, name):
@@ -1281,6 +1286,20 @@ class OSPDaemon(object):
         """
         return ''
 
+    @staticmethod
+    def get_detection_vt_as_xml_str(detection, qod_type=None):
+        """ Create a string representation of the XML object from the
+        detection data object.
+        This needs to be implemented by each ospd wrapper, in case
+        detection elements for VTs are used.
+
+        The detection XML object which is returned is an element with
+        tag <detection></detection> element
+
+        @return: XML object as string for detection data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -1362,6 +1381,11 @@ class OSPDaemon(object):
             solution_xml_str = self.get_solution_vt_as_xml_str(
                 vt.get('solution'), vt.get('solution_type'))
             vt_xml.append(secET.fromstring(solution_xml_str))
+
+        if vt.get('detection'):
+            detection_xml_str = self.get_detection_vt_as_xml_str(
+                vt.get('detection'), vt.get('qod_type'))
+            vt_xml.append(secET.fromstring(detection_xml_str))
 
         return vt_xml
 
