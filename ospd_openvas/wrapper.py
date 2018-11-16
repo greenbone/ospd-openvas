@@ -269,6 +269,19 @@ class OSPDopenvas(OSPDaemon):
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
 
+            _summary=None
+            _impact=None
+            _affected=None
+            _insight=None
+            if 'summary' in _custom:
+                _summary  = _custom.pop('summary')
+            if 'impact' in _custom:
+                _impact   = _custom.pop('impact')
+            if 'affected' in _custom:
+                _affected = _custom.pop('affected')
+            if 'insight' in _custom :
+                _insight  = _custom.pop('insight')
+
             _vt_dependencies = list()
             if 'dependencies' in _custom:
                 _deps = _custom.pop('dependencies')
@@ -284,7 +297,11 @@ class OSPDopenvas(OSPDaemon):
                 custom=_custom,
                 vt_creation_time=_vt_creation_time,
                 vt_modification_time=_vt_modification_time,
-                vt_dependencies=_vt_dependencies
+                vt_dependencies=_vt_dependencies,
+                summary=_summary,
+                impact=_impact,
+                affected=_affected,
+                insight=_insight
             )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -381,6 +398,34 @@ class OSPDopenvas(OSPDaemon):
     def get_modification_time_vt_as_xml_str(modification_time):
         """ Return modification time as string."""
         return modification_time
+
+    @staticmethod
+    def get_summary_vt_as_xml_str(summary):
+        """ Return summary as string."""
+        _summary = Element('summary')
+        _summary.text = summary
+        return tostring(_summary).decode('utf-8')
+
+    @staticmethod
+    def get_impact_vt_as_xml_str(impact):
+        """ Return impact as string."""
+        _impact = Element('impact')
+        _impact.text = impact
+        return tostring(_impact).decode('utf-8')
+
+    @staticmethod
+    def get_affected_vt_as_xml_str(affected):
+        """ Return affected as string."""
+        _affected = Element('affected')
+        _affected.text = affected
+        return tostring(_affected).decode('utf-8')
+
+    @staticmethod
+    def get_insight_vt_as_xml_str(insight):
+        """ Return insight as string."""
+        _insight = Element('insight')
+        _insight.text = insight
+        return tostring(_insight).decode('utf-8')
 
     def check(self):
         """ Checks that openvassd command line tool is found and
