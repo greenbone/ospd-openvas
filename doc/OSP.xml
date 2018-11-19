@@ -779,6 +779,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <e>modification_time</e>
             <e>vt_params</e>
             <e>vt_refs</e>
+            <e>dependencies</e>
+            <e>summary</e>
+            <e>impact</e>
+            <e>affected</e>
+            <e>insight</e>
+            <e>solution</e>
+            <e>detection</e>
+            <e>severities</e>
             <e>custom</e>
           </pattern>
           <ele>
@@ -795,6 +803,63 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>vt_refs</name>
+            <pattern>
+              <e>ref</e>
+            </pattern>
+            <ele>
+              <name>ref</name>
+              <pattern>
+                <attrib>
+                    <name>type</name>
+                    <type>string</type>
+                </attrib>
+                <attrib>
+                  <name>id</name>
+                  <type>string</type>
+                </attrib>
+              </pattern>
+            </ele>
+          </ele>
+          <ele>
+            <name>dependencies</name>
+          </ele>
+          <ele>
+            <name>summary</name>
+          </ele>
+          <ele>
+            <name>impact</name>
+          </ele>
+          <ele>
+            <name>affected</name>
+          </ele>
+          <ele>
+            <name>insight</name>
+          </ele>
+          <ele>
+            <name>solution</name>
+          </ele>
+          <ele>
+            <name>detection</name>
+          </ele>
+          <ele>
+            <name>severities</name>
+            <pattern>
+              <e>seveirty</e>
+            </pattern>
+            <ele>
+              <name>seveirty</name>
+              <pattern>
+                <attrib>
+                  <name>type</name>
+                  <type>string</type>
+                </attrib>
+                <attrib>
+                  <name>origin</name>
+                  <summary>Optional reference to the origin of the severity</summary>
+                  <type>string</type>
+                </attrib>
+              </pattern>
+            </ele>
           </ele>
           <ele>
             <name>custom</name>
@@ -821,7 +886,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
     <example>
-      <summary>Get information for a single vulnerability test with creation and modification times</summary>
+      <summary>Get information for a single vulnerability test</summary>
       <request>
         <get_vts vt_id='1.2.3.4.5'/>
       </request>
@@ -830,8 +895,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
-              <creation_time>1900-01-01</creation_time>
-              <modification_time>2000-01-01</modification_time>
+              <vt_refs>
+                <ref id="2014-16494" type="fedora" />
+                <ref id="https://lists.fedoraproject.org/" type="url" />
+                <ref id="CVE-2014-9116" type="cve" />
+              </vt_refs>
+              <dependencies>
+                <dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />
+              </dependencies>
+              <creation_time>2015-02-15 05:47:27 +0100 (Sun, 15 Feb 2015)</creation_time>
+              <modification_time>$Date: 2017-07-10 08:34:32 +0200 (Mon, 10 Jul 2017) $</modification_time>
+              <summary>Check the version of App</summary>
+              <affected>App in OS v2</affected>
+              <insight>App is a small but very powerful app.</insight>
+              <solution type="VendorFix">Please Install the Updated Packages.
+              </solution>
+              <detection qod_type="package">Get the installed version with the help of detect NVT and check if the version is vulnerable or not.</detection>
+              <severities>
+                <severity type="cvss_base_v2" origin="CVE-2014-9116">AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>
+              </severities>
             </vt>
           </vts>
         </get_vts_response>
