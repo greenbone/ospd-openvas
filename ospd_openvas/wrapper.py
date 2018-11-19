@@ -278,6 +278,7 @@ class OSPDopenvas(OSPDaemon):
             _vuldetect=None
             _qod_t=None
             _qod_v=None
+
             if 'summary' in _custom:
                 _summary  = _custom.pop('summary')
             if 'impact' in _custom:
@@ -297,6 +298,20 @@ class OSPDopenvas(OSPDaemon):
                 _qod_t  = _custom.pop('qod_type')
             elif 'qod' in _custom:
                 _qod_v  = _custom.pop('qod')
+
+            _severity = dict()
+            if 'severity_base_vector' in _custom:
+                _severity_vector = _custom.pop('severity_base_vector')
+            else:
+                _severity_vector = _custom.pop('cvss_base_vector')
+            _severity['severity_base_vector'] = _severity_vector
+            if 'severity_type' in _custom:
+                _severity_type = custom.pop('severity_type')
+            else:
+                _severity_type = 'cvss_base_v2'
+            _severity['severity_type'] = _severity_type
+            if 'severity_origin' in _custom:
+                _severity['severity_origin'] = _custom.pop('severity_origin')
 
             _vt_dependencies = list()
             if 'dependencies' in _custom:
@@ -322,7 +337,8 @@ class OSPDopenvas(OSPDaemon):
                 solution_t=_solution_t,
                 detection=_vuldetect,
                 qod_t=_qod_t,
-                qod_v=_qod_v
+                qod_v=_qod_v,
+                severities=_severity
             )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -344,6 +360,20 @@ class OSPDopenvas(OSPDaemon):
             if elem.tag != 'vt':
                 metadata += (tostring(elem).decode('utf-8'))
         return metadata
+
+    @staticmethod
+    def get_severities_vt_as_xml_str(severities):
+        """ Return an xml element with severities as string."""
+
+        _severity = Element('severity')
+        if 'severity_base_vector' in severities:
+            _severity.text = severities.pop('severity_base_vector')
+        if 'severity_origin' in severities:
+            _severity.set('origin', severities.pop('severity_origin'))
+        if 'severity_type' in severities:
+            _severity.set('type', severities.pop('severity_type'))
+
+        return tostring(_severity).decode('utf-8')
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_params):
@@ -529,8 +559,7 @@ class OSPDopenvas(OSPDaemon):
             elif self.vts[roid].get('qod'):
                 rqod = self.vts[roid].get('qod')
 
-            tag = self.vts[roid].get('custom')
-            rseverity = nvti.get_nvt_severity(ctx, tag)
+            rseverity = self.vts[roid]['severities'].get('cvss_base')
             rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':

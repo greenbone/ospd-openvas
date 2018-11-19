@@ -159,21 +159,3 @@ def get_nvt_tag(ctx, oid):
     tags = tag.split('|')
 
     return dict([item.split('=', 1) for item in tags])
-
-def get_nvt_severity(ctx, tag=None, oid=None):
-    """ Get the NVT Severity from a tag or from the given OID.
-    @in tag A dictionary with the NVT tags
-    @in oid The NVT OID
-    @return Severity (cvess_base) value as string.
-
-    """
-    if not tag:
-        if oid:
-            tag = get_nvt_tag(ctx, oid)
-        else:
-            return '10'
-
-    if tag and 'cvss_base' in tag:
-        return tag['cvss_base']
-
-    return ''
