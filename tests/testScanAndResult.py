@@ -52,10 +52,12 @@ class DummyWrapper(OSPDaemon):
     def check(self):
         return self.checkresults
 
-    def get_custom_vt_as_xml_str(self, custom):
+    @staticmethod
+    def get_custom_vt_as_xml_str(custom):
         return '<mytest>static test</mytest>'
 
-    def get_params_vt_as_xml_str(self, vt_param):
+    @staticmethod
+    def get_params_vt_as_xml_str(vt_params):
         return ('<vt_param id="abc" type="string">'
                 '<name>ABC</name><description>Test ABC</description><default>yes</default>'
                 '</vt_param>'
@@ -63,9 +65,61 @@ class DummyWrapper(OSPDaemon):
                 '<name>DEF</name><description>Test DEF</description><default>no</default>'
                 '</vt_param>')
 
-    def get_refs_vt_as_xml_str(self, vt_refs):
+    @staticmethod
+    def get_refs_vt_as_xml_str(vt_refs):
         response = ('<ref type="cve" id="CVE-2010-4480"/>' +
                     '<ref type="url" id="http://example.com"/>')
+        return response
+
+    @staticmethod
+    def get_dependencies_vt_as_xml_str(vt_dependencies):
+        response = ('<dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />' +
+                    '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50283" />')
+
+        return response
+
+    @staticmethod
+    def get_severities_vt_as_xml_str(severities):
+        response = ('<severity cvss_base="5.0" cvss_type="cvss_base_v2">' +
+                    'AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>')
+
+        return response
+
+    @staticmethod
+    def get_detection_vt_as_xml_str(detection=None,
+                                    qod_type=None, qod=None):
+        response = ('<detection qod_type="package">some detection</detection>')
+
+        return response
+
+    @staticmethod
+    def get_summary_vt_as_xml_str(summary):
+        response = ('<summary>Some summary</summary>')
+
+        return response
+
+    @staticmethod
+    def get_affected_vt_as_xml_str(affected):
+        response = ('<affected>Some affected</affected>')
+
+        return response
+
+    @staticmethod
+    def get_impact_vt_as_xml_str(impact):
+        response = ('<impact>Some impact</impact>')
+
+        return response
+
+    @staticmethod
+    def get_insight_vt_as_xml_str(insight):
+        response = ('<insight>Some insight</insight>')
+
+        return response
+
+    @staticmethod
+    def get_solution_vt_as_xml_str(solution, solution_type=None):
+        response = ('<solution>Some solution</solution>')
+
         return response
 
     def exec_scan(self, scan_id, target):
@@ -181,6 +235,117 @@ class FullTest(unittest.TestCase):
         self.assertEqual(1, len(custom))
         refs = response.findall('vts/vt/vt_refs/ref')
         self.assertEqual(2, len(refs))
+
+    def testGetVTs_VTs_with_dependencies(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      vt_dependencies="c",)
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        deps = response.findall('vts/vt/dependencies/dependency')
+        self.assertEqual(2, len(deps))
+
+    def testGetVTs_VTs_with_severities(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      severities="c",)
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        severity = response.findall('vts/vt/severities/severity')
+        self.assertEqual(1, len(severity))
+
+    def testGetVTs_VTs_with_detection_qodt(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      detection="c",
+                      qod_t="d")
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        detection = response.findall('vts/vt/detection')
+        self.assertEqual(1, len(detection))
+
+    def testGetVTs_VTs_with_detection_qodv(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      detection="c",
+                      qod_v="d")
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        detection = response.findall('vts/vt/detection')
+        self.assertEqual(1, len(detection))
+
+    def testGetVTs_VTs_with_summary(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      summary="c",)
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        summary = response.findall('vts/vt/summary')
+        self.assertEqual(1, len(summary))
+
+    def testGetVTs_VTs_with_impact(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      impact="c",)
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        impact = response.findall('vts/vt/impact')
+        self.assertEqual(1, len(impact))
+
+    def testGetVTs_VTs_with_affected(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      affected="c",)
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        affect = response.findall('vts/vt/affected')
+        self.assertEqual(1, len(affect))
+
+    def testGetVTs_VTs_with_insight(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      insight="c",)
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        insight = response.findall('vts/vt/insight')
+        self.assertEqual(1, len(insight))
+
+    def testGetVTs_VTs_with_solution(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      custom="b",
+                      solution="c",
+                      solution_t="d")
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        solution = response.findall('vts/vt/solution')
+        self.assertEqual(1, len(solution))
 
     def testiScanWithError(self):
         daemon = DummyWrapper([
