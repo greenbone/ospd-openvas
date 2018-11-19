@@ -298,7 +298,7 @@ class OSPDaemon(object):
                custom=None, vt_creation_time=None, vt_modification_time=None,
                vt_dependencies=None, summary=None, impact=None, affected=None,
                insight=None, solution=None, solution_t=None, detection=None,
-               qod_t=None, qod_v=None):
+               qod_t=None, qod_v=None, severities=None):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -350,6 +350,9 @@ class OSPDaemon(object):
             self.vts[vt_id]["qod_type"] = qod_t
         elif qod_v is not None:
             self.vts[vt_id]["qod"] = qod_v
+        if severities is not None:
+            self.vts[vt_id]["severities"] = severities
+
         return len(self.vts)
 
     def command_exists(self, name):
@@ -1302,6 +1305,20 @@ class OSPDaemon(object):
         """
         return ''
 
+    @staticmethod
+    def get_severities_vt_as_xml_str(severities):
+        """ Create a string representation of the XML object from the
+        severities data object.
+        This needs to be implemented by each ospd wrapper, in case
+        severities elements for VTs are used.
+
+        The severities XML objects which are returned will be embedded
+        into a <severities></severities> element.
+
+        @return: XML object as string for severities data.
+        """
+        return ''
+
     def get_vt_xml(self, vt_id):
         """ Gets a single vulnerability test information in XML format.
 
@@ -1382,6 +1399,12 @@ class OSPDaemon(object):
             detection_xml_str = self.get_detection_vt_as_xml_str(
                 vt.get('detection'), vt.get('qod_type'), vt.get('qod'))
             vt_xml.append(secET.fromstring(detection_xml_str))
+
+        if vt.get('severities'):
+            severities_xml_str = (
+                '<severities>%s</severities>' % self.get_severities_vt_as_xml_str(
+                    vt.get('severities')))
+            vt_xml.append(secET.fromstring(severities_xml_str))
 
         if vt.get('custom'):
             custom_xml_str = (
