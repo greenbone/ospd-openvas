@@ -53,11 +53,11 @@ class DummyWrapper(OSPDaemon):
         return self.checkresults
 
     @staticmethod
-    def get_custom_vt_as_xml_str(custom):
+    def get_custom_vt_as_xml_str(vt_id, custom):
         return '<mytest>static test</mytest>'
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_params):
+    def get_params_vt_as_xml_str(vt_id, vt_params):
         return ('<vt_param id="abc" type="string">'
                 '<name>ABC</name><description>Test ABC</description><default>yes</default>'
                 '</vt_param>'
@@ -66,58 +66,58 @@ class DummyWrapper(OSPDaemon):
                 '</vt_param>')
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_refs):
+    def get_refs_vt_as_xml_str(vt_id, vt_refs):
         response = ('<ref type="cve" id="CVE-2010-4480"/>' +
                     '<ref type="url" id="http://example.com"/>')
         return response
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(vt_dependencies):
+    def get_dependencies_vt_as_xml_str(vt_id, vt_dependencies):
         response = ('<dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />' +
                     '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50283" />')
 
         return response
 
     @staticmethod
-    def get_severities_vt_as_xml_str(severities):
+    def get_severities_vt_as_xml_str(vt_id, severities):
         response = ('<severity cvss_base="5.0" cvss_type="cvss_base_v2">' +
                     'AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>')
 
         return response
 
     @staticmethod
-    def get_detection_vt_as_xml_str(detection=None,
+    def get_detection_vt_as_xml_str(vt_id, detection=None,
                                     qod_type=None, qod=None):
         response = ('<detection qod_type="package">some detection</detection>')
 
         return response
 
     @staticmethod
-    def get_summary_vt_as_xml_str(summary):
+    def get_summary_vt_as_xml_str(vt_id, summary):
         response = ('<summary>Some summary</summary>')
 
         return response
 
     @staticmethod
-    def get_affected_vt_as_xml_str(affected):
+    def get_affected_vt_as_xml_str(vt_id, affected):
         response = ('<affected>Some affected</affected>')
 
         return response
 
     @staticmethod
-    def get_impact_vt_as_xml_str(impact):
+    def get_impact_vt_as_xml_str(vt_id, impact):
         response = ('<impact>Some impact</impact>')
 
         return response
 
     @staticmethod
-    def get_insight_vt_as_xml_str(insight):
+    def get_insight_vt_as_xml_str(vt_id, insight):
         response = ('<insight>Some insight</insight>')
 
         return response
 
     @staticmethod
-    def get_solution_vt_as_xml_str(solution, solution_type=None):
+    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
         response = ('<solution>Some solution</solution>')
 
         return response

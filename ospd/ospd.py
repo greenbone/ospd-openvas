@@ -1138,7 +1138,7 @@ class OSPDaemon(object):
         return response
 
     @staticmethod
-    def get_custom_vt_as_xml_str(custom):
+    def get_custom_vt_as_xml_str(vt_id, custom):
         """ Create a string representation of the XML object from the
         custom data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1152,7 +1152,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_params):
+    def get_params_vt_as_xml_str(vt_id, vt_params):
         """ Create a string representation of the XML object from the
         vt_params data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1166,7 +1166,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_refs):
+    def get_refs_vt_as_xml_str(vt_id, vt_refs):
         """ Create a string representation of the XML object from the
         vt_refs data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1180,7 +1180,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(vt_dependencies):
+    def get_dependencies_vt_as_xml_str(vt_id, vt_dependencies):
         """ Create a string representation of the XML object from the
         vt_dependencies data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1194,7 +1194,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(vt_creation_time):
+    def get_creation_time_vt_as_xml_str(vt_id, vt_creation_time):
         """ Create a string representation of the XML object from the
         vt_creation_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1208,7 +1208,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(vt_modification_time):
+    def get_modification_time_vt_as_xml_str(vt_id, vt_modification_time):
         """ Create a string representation of the XML object from the
         vt_modification_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1222,7 +1222,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_summary_vt_as_xml_str(summary):
+    def get_summary_vt_as_xml_str(vt_id, summary):
         """ Create a string representation of the XML object from the
         summary data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1236,7 +1236,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_impact_vt_as_xml_str(impact):
+    def get_impact_vt_as_xml_str(vt_id, impact):
         """ Create a string representation of the XML object from the
         impact data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1250,7 +1250,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_affected_vt_as_xml_str(affected):
+    def get_affected_vt_as_xml_str(vt_id, affected):
         """ Create a string representation of the XML object from the
         affected data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1264,7 +1264,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_insight_vt_as_xml_str(insight):
+    def get_insight_vt_as_xml_str(vt_id, insight):
         """ Create a string representation of the XML object from the
         insight data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1278,7 +1278,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_solution_vt_as_xml_str(solution, solution_type=None):
+    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
         """ Create a string representation of the XML object from the
         solution data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1292,7 +1292,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_detection_vt_as_xml_str(detection=None, qod_type=None, qod=None):
+    def get_detection_vt_as_xml_str(vt_id, detection=None, qod_type=None, qod=None):
         """ Create a string representation of the XML object from the
         detection data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1306,7 +1306,7 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_severities_vt_as_xml_str(severities):
+    def get_severities_vt_as_xml_str(vt_id, severities):
         """ Create a string representation of the XML object from the
         severities data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1340,76 +1340,76 @@ class OSPDaemon(object):
         if vt.get('vt_params'):
             params_xml_str = (
                 '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(
-                    vt.get('vt_params')))
+                    vt_id, vt.get('vt_params')))
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
             refs_xml_str = (
                 '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(
-                    vt.get('vt_refs')))
+                    vt_id, vt.get('vt_refs')))
             vt_xml.append(secET.fromstring(refs_xml_str))
 
         if vt.get('vt_dependencies'):
             dependencies = self.get_dependencies_vt_as_xml_str(
-                vt.get('vt_dependencies'))
+                vt_id, vt.get('vt_dependencies'))
             deps_xml_str = (
                 '<dependencies>%s</dependencies>' % dependencies)
             vt_xml.append(secET.fromstring(deps_xml_str))
 
         if vt.get('creation_time'):
             vt_ctime = self.get_creation_time_vt_as_xml_str(
-                vt.get('creation_time'))
+                vt_id, vt.get('creation_time'))
             creation_time_xml_str = (
                 '<creation_time>%s</creation_time>' % vt_ctime)
             vt_xml.append(secET.fromstring(creation_time_xml_str))
 
         if vt.get('modification_time'):
             vt_mtime = self.get_modification_time_vt_as_xml_str(
-                vt.get('modification_time'))
+                vt_id, vt.get('modification_time'))
             modification_time_xml_str = (
                 '<modification_time>%s</modification_time>' % vt_mtime)
             vt_xml.append(secET.fromstring(modification_time_xml_str))
 
         if vt.get('summary'):
             summary_xml_str = self.get_summary_vt_as_xml_str(
-                vt.get('summary'))
+                vt_id, vt.get('summary'))
             vt_xml.append(secET.fromstring(summary_xml_str))
 
         if vt.get('impact'):
             impact_xml_str = self.get_impact_vt_as_xml_str(
-                vt.get('impact'))
+                vt_id, vt.get('impact'))
             vt_xml.append(secET.fromstring(impact_xml_str))
 
         if vt.get('affected'):
             affected_xml_str = self.get_affected_vt_as_xml_str(
-                vt.get('affected'))
+                vt_id, vt.get('affected'))
             vt_xml.append(secET.fromstring(affected_xml_str))
 
         if vt.get('insight'):
             insight_xml_str = self.get_insight_vt_as_xml_str(
-                vt.get('insight'))
+                vt_id, vt.get('insight'))
             vt_xml.append(secET.fromstring(insight_xml_str))
 
         if vt.get('solution'):
             solution_xml_str = self.get_solution_vt_as_xml_str(
-                vt.get('solution'), vt.get('solution_type'))
+                vt_id, vt.get('solution'), vt.get('solution_type'))
             vt_xml.append(secET.fromstring(solution_xml_str))
 
         if vt.get('detection') or vt.get('qod_type') or vt.get('qod'):
             detection_xml_str = self.get_detection_vt_as_xml_str(
-                vt.get('detection'), vt.get('qod_type'), vt.get('qod'))
+                vt_id, vt.get('detection'), vt.get('qod_type'), vt.get('qod'))
             vt_xml.append(secET.fromstring(detection_xml_str))
 
         if vt.get('severities'):
             severities_xml_str = (
                 '<severities>%s</severities>' % self.get_severities_vt_as_xml_str(
-                    vt.get('severities')))
+                    vt_id, vt.get('severities')))
             vt_xml.append(secET.fromstring(severities_xml_str))
 
         if vt.get('custom'):
             custom_xml_str = (
                 '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(
-                    vt.get('custom')))
+                    vt_id, vt.get('custom')))
             vt_xml.append(secET.fromstring(custom_xml_str))
 
         return vt_xml
