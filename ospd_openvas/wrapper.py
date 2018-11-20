@@ -346,7 +346,7 @@ class OSPDopenvas(OSPDaemon):
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
     @staticmethod
-    def get_custom_vt_as_xml_str(custom):
+    def get_custom_vt_as_xml_str(vt_id, custom):
         """ Return an xml element with custom metadata formatted as string."""
 
         nvt = Element('vt')
@@ -362,7 +362,7 @@ class OSPDopenvas(OSPDaemon):
         return metadata
 
     @staticmethod
-    def get_severities_vt_as_xml_str(severities):
+    def get_severities_vt_as_xml_str(vt_id, severities):
         """ Return an xml element with severities as string."""
 
         _severity = Element('severity')
@@ -376,7 +376,7 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_severity).decode('utf-8')
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_params):
+    def get_params_vt_as_xml_str(vt_id, vt_params):
         """ Return an xml element with params formatted as string."""
         vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
@@ -397,7 +397,7 @@ class OSPDopenvas(OSPDaemon):
         return params
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_refs):
+    def get_refs_vt_as_xml_str(vt_id, vt_refs):
         """ Return an xml element with references formatted as string."""
         vt_refs_xml = Element('vt_refs')
         for ref_type, ref_values in vt_refs.items():
@@ -408,7 +408,9 @@ class OSPDopenvas(OSPDaemon):
                         try:
                             _type, _id = xref.split(':', 1)
                         except ValueError:
-                            logger.error('Not possible to parse xref')
+                            logger.error(
+                                'Not possible to parse xref %s for vt %s' % (
+                                    xref, vt_id))
                             continue
                         vt_ref.set('type', _type.lower())
                         vt_ref.set('id', _id)
@@ -426,12 +428,17 @@ class OSPDopenvas(OSPDaemon):
         return refs
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(dep_list):
+    def get_dependencies_vt_as_xml_str(vt_id, dep_list):
         """ Return  an xml element with dependencies as string."""
         vt_deps_xml = Element('vt_deps')
         for dep in dep_list:
             _vt_dep = Element('dependency')
-            _vt_dep.set('vt_id', dep)
+            try:
+                _vt_dep.set('vt_id', dep)
+            except TypeError:
+                logger.error('Not possible to add dependency %s for vt %s' % (
+                    dep, vt_id))
+                continue
             vt_deps_xml.append(_vt_dep)
 
         _deps_list = vt_deps_xml.findall("dependency")
@@ -441,45 +448,45 @@ class OSPDopenvas(OSPDaemon):
         return deps
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(creation_time):
+    def get_creation_time_vt_as_xml_str(vt_id, creation_time):
         """ Return creation time as string."""
         return creation_time
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(modification_time):
+    def get_modification_time_vt_as_xml_str(vt_id, modification_time):
         """ Return modification time as string."""
         return modification_time
 
     @staticmethod
-    def get_summary_vt_as_xml_str(summary):
+    def get_summary_vt_as_xml_str(vt_id, summary):
         """ Return summary as string."""
         _summary = Element('summary')
         _summary.text = summary
         return tostring(_summary).decode('utf-8')
 
     @staticmethod
-    def get_impact_vt_as_xml_str(impact):
+    def get_impact_vt_as_xml_str(vt_id, impact):
         """ Return impact as string."""
         _impact = Element('impact')
         _impact.text = impact
         return tostring(_impact).decode('utf-8')
 
     @staticmethod
-    def get_affected_vt_as_xml_str(affected):
+    def get_affected_vt_as_xml_str(vt_id, affected):
         """ Return affected as string."""
         _affected = Element('affected')
         _affected.text = affected
         return tostring(_affected).decode('utf-8')
 
     @staticmethod
-    def get_insight_vt_as_xml_str(insight):
+    def get_insight_vt_as_xml_str(vt_id, insight):
         """ Return insight as string."""
         _insight = Element('insight')
         _insight.text = insight
         return tostring(_insight).decode('utf-8')
 
     @staticmethod
-    def get_solution_vt_as_xml_str(solution, solution_type=None):
+    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
         """ Return solution as string."""
         _solution = Element('solution')
         _solution.text = solution
@@ -488,7 +495,7 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_solution).decode('utf-8')
 
     @staticmethod
-    def get_detection_vt_as_xml_str(vuldetect=None, qod_type=None, qod=None):
+    def get_detection_vt_as_xml_str(vt_id, vuldetect=None, qod_type=None, qod=None):
         """ Return detection as string."""
         _detection = Element('detection')
         if vuldetect:
