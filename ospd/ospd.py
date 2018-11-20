@@ -1351,7 +1351,7 @@ class OSPDaemon(object):
 
         if vt.get('vt_dependencies'):
             dependencies = self.get_dependencies_vt_as_xml_str(
-                    vt.get('vt_dependencies'))
+                vt.get('vt_dependencies'))
             deps_xml_str = (
                 '<dependencies>%s</dependencies>' % dependencies)
             vt_xml.append(secET.fromstring(deps_xml_str))
@@ -1381,7 +1381,7 @@ class OSPDaemon(object):
             vt_xml.append(secET.fromstring(impact_xml_str))
 
         if vt.get('affected'):
-            affected_xml_str =  self.get_affected_vt_as_xml_str(
+            affected_xml_str = self.get_affected_vt_as_xml_str(
                 vt.get('affected'))
             vt_xml.append(secET.fromstring(affected_xml_str))
 
