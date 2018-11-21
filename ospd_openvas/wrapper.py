@@ -345,6 +345,9 @@ class OSPDopenvas(OSPDaemon):
             if ret == -2:
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
+        _feed_version = nvti.get_feed_version()
+        self.set_feed_version(feed_version=_feed_version)
+
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
         """ Return an xml element with custom metadata formatted as string."""
