@@ -258,16 +258,67 @@ class OSPDopenvas(OSPDaemon):
             raise err
 
     def load_vts(self):
-        """ Load the NVT's OIDs and their filename into the vts
+        """ Load the NVT's metadata into the vts
         global  dictionary. """
-        oids = nvti.get_oids()
-        for filename, vt_id in oids:
+        oids = dict(nvti.get_oids())
+        for filename, vt_id in oids.items():
             _vt_params = nvti.get_nvt_params(vt_id)
             _vt_refs = nvti.get_nvt_refs(vt_id)
             _custom = nvti.get_nvt_metadata(vt_id)
             _name = _custom.pop('name')
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
+
+            _summary=None
+            _impact=None
+            _affected=None
+            _insight=None
+            _solution=None
+            _solution_t=None
+            _vuldetect=None
+            _qod_t=None
+            _qod_v=None
+
+            if 'summary' in _custom:
+                _summary  = _custom.pop('summary')
+            if 'impact' in _custom:
+                _impact   = _custom.pop('impact')
+            if 'affected' in _custom:
+                _affected = _custom.pop('affected')
+            if 'insight' in _custom :
+                _insight  = _custom.pop('insight')
+            if 'solution' in _custom:
+                _solution  = _custom.pop('solution')
+                if 'solution_type' in _custom:
+                    _solution_t  = _custom.pop('solution_type')
+
+            if 'vuldetect' in _custom:
+                _vuldetect  = _custom.pop('vuldetect')
+            if 'qod_type' in _custom:
+                _qod_t  = _custom.pop('qod_type')
+            elif 'qod' in _custom:
+                _qod_v  = _custom.pop('qod')
+
+            _severity = dict()
+            if 'severity_base_vector' in _custom:
+                _severity_vector = _custom.pop('severity_base_vector')
+            else:
+                _severity_vector = _custom.pop('cvss_base_vector')
+            _severity['severity_base_vector'] = _severity_vector
+            if 'severity_type' in _custom:
+                _severity_type = custom.pop('severity_type')
+            else:
+                _severity_type = 'cvss_base_v2'
+            _severity['severity_type'] = _severity_type
+            if 'severity_origin' in _custom:
+                _severity['severity_origin'] = _custom.pop('severity_origin')
+
+            _vt_dependencies = list()
+            if 'dependencies' in _custom:
+                _deps = _custom.pop('dependencies')
+                _deps_list = _deps.split(', ')
+                for dep in _deps_list:
+                    _vt_dependencies.append(oids.get('filename:' + dep))
 
             ret = self.add_vt(
                 vt_id,
@@ -276,7 +327,18 @@ class OSPDopenvas(OSPDaemon):
                 vt_refs=_vt_refs,
                 custom=_custom,
                 vt_creation_time=_vt_creation_time,
-                vt_modification_time=_vt_modification_time
+                vt_modification_time=_vt_modification_time,
+                vt_dependencies=_vt_dependencies,
+                summary=_summary,
+                impact=_impact,
+                affected=_affected,
+                insight=_insight,
+                solution=_solution,
+                solution_t=_solution_t,
+                detection=_vuldetect,
+                qod_t=_qod_t,
+                qod_v=_qod_v,
+                severities=_severity
             )
             if ret == -1:
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
@@ -284,7 +346,7 @@ class OSPDopenvas(OSPDaemon):
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
     @staticmethod
-    def get_custom_vt_as_xml_str(custom):
+    def get_custom_vt_as_xml_str(vt_id, custom):
         """ Return an xml element with custom metadata formatted as string."""
 
         nvt = Element('vt')
@@ -300,7 +362,21 @@ class OSPDopenvas(OSPDaemon):
         return metadata
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_params):
+    def get_severities_vt_as_xml_str(vt_id, severities):
+        """ Return an xml element with severities as string."""
+
+        _severity = Element('severity')
+        if 'severity_base_vector' in severities:
+            _severity.text = severities.pop('severity_base_vector')
+        if 'severity_origin' in severities:
+            _severity.set('origin', severities.pop('severity_origin'))
+        if 'severity_type' in severities:
+            _severity.set('type', severities.pop('severity_type'))
+
+        return tostring(_severity).decode('utf-8')
+
+    @staticmethod
+    def get_params_vt_as_xml_str(vt_id, vt_params):
         """ Return an xml element with params formatted as string."""
         vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
@@ -321,7 +397,7 @@ class OSPDopenvas(OSPDaemon):
         return params
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_refs):
+    def get_refs_vt_as_xml_str(vt_id, vt_refs):
         """ Return an xml element with references formatted as string."""
         vt_refs_xml = Element('vt_refs')
         for ref_type, ref_values in vt_refs.items():
@@ -332,7 +408,9 @@ class OSPDopenvas(OSPDaemon):
                         try:
                             _type, _id = xref.split(':', 1)
                         except ValueError:
-                            logger.error('Not possible to parse xref')
+                            logger.error(
+                                'Not possible to parse xref %s for vt %s' % (
+                                    xref, vt_id))
                             continue
                         vt_ref.set('type', _type.lower())
                         vt_ref.set('id', _id)
@@ -350,14 +428,84 @@ class OSPDopenvas(OSPDaemon):
         return refs
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(creation_time):
+    def get_dependencies_vt_as_xml_str(vt_id, dep_list):
+        """ Return  an xml element with dependencies as string."""
+        vt_deps_xml = Element('vt_deps')
+        for dep in dep_list:
+            _vt_dep = Element('dependency')
+            try:
+                _vt_dep.set('vt_id', dep)
+            except TypeError:
+                logger.error('Not possible to add dependency %s for vt %s' % (
+                    dep, vt_id))
+                continue
+            vt_deps_xml.append(_vt_dep)
+
+        _deps_list = vt_deps_xml.findall("dependency")
+        deps = ''
+        for _dep in _deps_list:
+            deps += (tostring(_dep).decode('utf-8'))
+        return deps
+
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(vt_id, creation_time):
         """ Return creation time as string."""
         return creation_time
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(modification_time):
+    def get_modification_time_vt_as_xml_str(vt_id, modification_time):
         """ Return modification time as string."""
         return modification_time
+
+    @staticmethod
+    def get_summary_vt_as_xml_str(vt_id, summary):
+        """ Return summary as string."""
+        _summary = Element('summary')
+        _summary.text = summary
+        return tostring(_summary).decode('utf-8')
+
+    @staticmethod
+    def get_impact_vt_as_xml_str(vt_id, impact):
+        """ Return impact as string."""
+        _impact = Element('impact')
+        _impact.text = impact
+        return tostring(_impact).decode('utf-8')
+
+    @staticmethod
+    def get_affected_vt_as_xml_str(vt_id, affected):
+        """ Return affected as string."""
+        _affected = Element('affected')
+        _affected.text = affected
+        return tostring(_affected).decode('utf-8')
+
+    @staticmethod
+    def get_insight_vt_as_xml_str(vt_id, insight):
+        """ Return insight as string."""
+        _insight = Element('insight')
+        _insight.text = insight
+        return tostring(_insight).decode('utf-8')
+
+    @staticmethod
+    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
+        """ Return solution as string."""
+        _solution = Element('solution')
+        _solution.text = solution
+        if solution_type:
+            _solution.set('type', solution_type)
+        return tostring(_solution).decode('utf-8')
+
+    @staticmethod
+    def get_detection_vt_as_xml_str(vt_id, vuldetect=None, qod_type=None, qod=None):
+        """ Return detection as string."""
+        _detection = Element('detection')
+        if vuldetect:
+            _detection.text = vuldetect
+        if qod_type:
+            _detection.set('qod_type', qod_type)
+        elif qod:
+            _detection.set('qod', qod)
+
+        return tostring(_detection).decode('utf-8')
 
     def check(self):
         """ Checks that openvassd command line tool is found and
@@ -410,9 +558,15 @@ class OSPDopenvas(OSPDaemon):
             msg = res.split('|||')
             host_aux = openvas_db.item_get_single('internal/ip')
             roid = msg[3]
-            tag = self.vts[roid].get('custom')
-            rqod = nvti.get_nvt_qod(ctx, tag)
-            rseverity = nvti.get_nvt_severity(ctx, tag)
+
+            rqod = ''
+            if self.vts[roid].get('qod_type'):
+                qod_t = self.vts[roid].get('qod_type')
+                rqod = nvti.QoD_TYPES[qod_t]
+            elif self.vts[roid].get('qod'):
+                rqod = self.vts[roid].get('qod')
+
+            rseverity = self.vts[roid]['severities'].get('cvss_base')
             rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':
