@@ -551,7 +551,7 @@ class OSPDaemon(object):
 
         target_list = []
         for target in scanner_target:
-            ports= ''
+            ports = ''
             credentials = {}
             for child in target:
                 if child.tag == 'hosts':
@@ -812,7 +812,7 @@ class OSPDaemon(object):
             send_method = stream.write
         self.write_to_stream(send_method, response)
 
-    def parallel_scan(self,scan_id, target):
+    def parallel_scan(self, scan_id, target):
         """ Starts the scan with scan_id. """
         try:
             ret = self.exec_scan(scan_id, target)
@@ -885,9 +885,9 @@ class OSPDaemon(object):
                 self.finish_scan(scan_id)
                 return
 
-            logger.info("{0}: Host scan started on ports {1}.".format(target[0],target[1]))
+            logger.info("{0}: Host scan started on ports {1}.".format(target[0], target[1]))
             scan_process = multiprocessing.Process(target=self.parallel_scan,
-                                               args=(scan_id, target[0]))
+                                                   args=(scan_id, target[0]))
             multiscan_proc.append((scan_process, target[0]))
             scan_process.start()
 
