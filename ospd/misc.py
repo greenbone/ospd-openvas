@@ -196,7 +196,7 @@ class ScanCollection(object):
         if self.scans_table[scan_id]['legacy_target']:
             return self.scans_table[scan_id]['legacy_target']
 
-        target_list=[]
+        target_list = []
         for item in self.scans_table[scan_id]['targets']:
             target_list.append(item[0])
         separ = ','
@@ -283,7 +283,10 @@ class ResultType(object):
         else:
             assert False, "Erroneous result name {0}.".format(result_name)
 
+
 __inet_pton = None
+
+
 def inet_pton(address_family, ip_string):
     """ A platform independent version of inet_pton """
     global __inet_pton
@@ -296,7 +299,10 @@ def inet_pton(address_family, ip_string):
 
     return __inet_pton(address_family, ip_string)
 
+
 __inet_ntop = None
+
+
 def inet_ntop(address_family, packed_ip):
     """ A platform independent version of inet_ntop """
     global __inet_ntop
@@ -556,13 +562,14 @@ def port_range_expand(portrange):
         port_list.append(single_port)
     return port_list
 
+
 def port_str_arrange(ports):
     """ Gives a str in the format (always tcp listed first).
     T:<tcp ports/portrange comma separated>U:<udp ports comma separated>
     """
     b_tcp = ports.find("T")
     b_udp = ports.find("U")
-    if (b_udp != -1 and b_tcp != -1)  and b_udp < b_tcp:
+    if (b_udp != -1 and b_tcp != -1) and b_udp < b_tcp:
         return ports[b_tcp:] + ports[b_udp:b_tcp]
 
     return ports
@@ -575,12 +582,15 @@ def ports_str_check_failed(port_str):
     """
 
     pattern = r'[^TU:0-9, \-]'
-    if (re.search(pattern, port_str) or
-        port_str.count('T') > 1 or
-        port_str.count('U') > 1 or
-        port_str.count(':') < (port_str.count('T') + port_str.count('U'))):
+    if (
+        re.search(pattern, port_str)
+        or port_str.count('T') > 1
+        or port_str.count('U') > 1
+        or port_str.count(':') < (port_str.count('T') + port_str.count('U'))
+    ):
         return True
     return False
+
 
 def ports_as_list(port_str):
     """
@@ -643,6 +653,7 @@ def ports_as_list(port_str):
 
     return (tcp_list, udp_list)
 
+
 def get_tcp_port_list(port_str):
     """ Return a list with tcp ports from a given port list in string format """
     return ports_as_list(port_str)[0]
@@ -665,14 +676,13 @@ def port_list_compress(port_list):
     for key, group in itertools.groupby(enumerate(port_list),
                                         lambda t: t[1] - t[0]):
         group = list(group)
-        if group[0][1] ==  group[-1][1]:
+        if group[0][1] == group[-1][1]:
             compressed_list.append(str(group[0][1]))
         else:
-            compressed_list.append(str(group[0][1]) +
-                                          '-' +
-                                          str(group[-1][1] ))
+            compressed_list.append(str(group[0][1]) + '-' + str(group[-1][1]))
 
     return ','.join(compressed_list)
+
 
 def valid_uuid(value):
     """ Check if value is a valid UUID. """
