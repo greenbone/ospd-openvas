@@ -257,6 +257,12 @@ class OSPDopenvas(OSPDaemon):
             logger.error('OpenVAS Scanner failed to load NVTs.')
             raise err
 
+    def scheduler(self):
+        """This method is called periodically to run another tasks."""
+        if self.get_feed_version() != nvti.get_feed_version():
+            self.vts = dict()
+            self.load_vts()
+
     def load_vts(self):
         """ Load the NVT's metadata into the vts
         global  dictionary. """
