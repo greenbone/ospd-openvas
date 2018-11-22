@@ -824,6 +824,16 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
+        if PENDING_FEED:
+            logger.info(
+                '%s: There is a pending feed update. '
+                'The scan can not be started.' % scan_id)
+            self.add_scan_error(
+                scan_id, name='', host=target,
+                value=('It was not possible to start the scan,'
+                'because a pending feed update. Please try later'))
+            return 2
+
         global MAIN_KBINDEX
         ports = self.get_scan_ports(scan_id, target)
         if not ports:
