@@ -26,7 +26,7 @@ installation guide for ospd-based scanners.
 
 Please follow the general installation guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/master/doc/INSTALL-ospd-scanner>
+  <https://github.com/greenbone/ospd/blob/master/doc/INSTALL-ospd-scanner.md>
 
 ## Usage
 
@@ -35,7 +35,7 @@ guide.
 
 Please follow the general usage guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/master/doc/USAGE-ospd-scanner>
+  <https://github.com/greenbone/ospd/blob/master/doc/USAGE-ospd-scanner.md>
 
 ## Support
 
