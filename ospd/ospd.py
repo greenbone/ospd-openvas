@@ -183,11 +183,10 @@ def bind_socket(address, port):
     try:
         bindsocket.bind((address, port))
     except socket.error:
-        logger.error("Couldn't bind socket on {0}:{1}"
-                     .format(address, port))
+        logger.error("Couldn't bind socket on %s:%s", address, port)
         return None
 
-    logger.info('Listening on {0}:{1}'.format(address, port))
+    logger.info('Listening on %s:%s', address, port)
     bindsocket.listen(0)
     return bindsocket
 
@@ -204,10 +203,10 @@ def bind_unix_socket(path):
     try:
         bindsocket.bind(path)
     except socket.error:
-        logger.error("Couldn't bind socket on {0}".format(path))
+        logger.error("Couldn't bind socket on %s", path)
         return None
 
-    logger.info('Listening on {0}'.format(path))
+    logger.info('Listening on %s', path)
     bindsocket.listen(0)
     return bindsocket
 
@@ -217,12 +216,12 @@ def close_client_stream(client_stream, unix_path):
     try:
         client_stream.shutdown(socket.SHUT_RDWR)
         if unix_path:
-            logger.debug('{0}: Connection closed'.format(unix_path))
+            logger.debug('%s: Connection closed', unix_path)
         else:
             peer = client_stream.getpeername()
-            logger.debug('{0}:{1}: Connection closed'.format(peer[0], peer[1]))
+            logger.debug('%s:%s: Connection closed', peer[0], peer[1])
     except (socket.error, OSError) as exception:
-        logger.debug('Connection closing error: {0}'.format(exception))
+        logger.debug('Connection closing error: %s', exception)
     client_stream.close()
 
 
@@ -652,14 +651,14 @@ class OSPDaemon(object):
             raise OSPDError('Scan already stopped or finished.', 'stop_scan')
 
         self.set_scan_status(scan_id, "stopped")
-        logger.info('{0}: Scan stopping {1}.'.format(scan_id, scan_process.ident))
+        logger.info('%s: Scan stopping %s.', scan_id, scan_process.ident)
         self.stop_scan(scan_id)
         scan_process.terminate()
         os.killpg(os.getpgid(scan_process.ident), 15)
         scan_process.join()
         self.set_scan_progress(scan_id, 100)
         self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
-        logger.info('{0}: Scan stopped.'.format(scan_id))
+        logger.info('%s: Scan stopped.', scan_id)
         return simple_response_str('stop_scan', 200, 'OK')
 
     @staticmethod
@@ -674,7 +673,7 @@ class OSPDaemon(object):
     def finish_scan(self, scan_id):
         """ Sets a scan as finished. """
         self.set_scan_progress(scan_id, 100)
-        logger.info("{0}: Scan finished.".format(scan_id))
+        logger.info("%s: Scan finished.", scan_id)
 
     def get_daemon_name(self):
         """ Gives osp daemon's name. """
@@ -730,7 +729,7 @@ class OSPDaemon(object):
         assert sock
         newsocket, fromaddr = sock.accept()
         logger.debug("New connection from"
-                     " {0}:{1}".format(fromaddr[0], fromaddr[1]))
+                     " %s:%s", fromaddr[0], fromaddr[1])
         # NB: Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
         # protocol version that both the client and server support. In modern
         # Python versions (>= 3.4) it supports TLS >= 1.0 with SSLv2 and SSLv3
@@ -766,7 +765,7 @@ class OSPDaemon(object):
                 i_start = i_end
                 i_end += block_len
         except (socket.timeout, socket.error) as exception:
-            logger.debug('Error sending response to the client: {0}'.format(exception))
+            logger.debug('Error sending response to the client: %s', exception)
 
     def handle_client_stream(self, stream, is_unix=False):
         """ Handles stream of data received from client. """
@@ -788,10 +787,10 @@ class OSPDaemon(object):
                 logger.error(message)
                 return
             except (ssl.SSLError) as exception:
-                logger.debug('Error: {0}'.format(exception[0]))
+                logger.debug('Error: %s', exception[0])
                 break
             except (socket.timeout) as exception:
-                logger.debug('Error: {0}'.format(exception))
+                logger.debug('Error: %s', exception)
                 break
         data = b''.join(data)
         if len(data) <= 0:
@@ -801,7 +800,7 @@ class OSPDaemon(object):
             response = self.handle_command(data)
         except OSPDError as exception:
             response = exception.as_xml()
-            logger.debug('Command error: {0}'.format(exception.message))
+            logger.debug('Command error: %s', exception.message)
         except Exception:
             logger.exception('While handling client command:')
             exception = OSPDError('Fatal error', 'error')
@@ -826,13 +825,13 @@ class OSPDaemon(object):
                 self.add_scan_host_detail(scan_id, name='host_status',
                                           host=target, value='2')
             else:
-                logger.debug('{0}: No host status returned'.format(target))
+                logger.debug('%s: No host status returned', target)
         except Exception as e:
             self.add_scan_error(scan_id, name='', host=target,
                                 value='Host process failure (%s).' % e)
-            logger.exception('While scanning {0}:'.format(target))
+            logger.exception('While scanning %s:', target)
         else:
-            logger.info("{0}: Host scan finished.".format(target))
+            logger.info("%s: Host scan finished.", target)
 
     def check_pending_target(self, scan_id, multiscan_proc):
         """ Check if a scan process is still alive. In case the process
@@ -868,7 +867,7 @@ class OSPDaemon(object):
 
         os.setsid()
         multiscan_proc = []
-        logger.info("{0}: Scan started.".format(scan_id))
+        logger.info("%s: Scan started.", scan_id)
         target_list = targets
         if target_list is None or not target_list:
             raise OSPDError('Erroneous targets list', 'start_scan')
@@ -885,7 +884,7 @@ class OSPDaemon(object):
                 self.finish_scan(scan_id)
                 return
 
-            logger.info("{0}: Host scan started on ports {1}.".format(target[0], target[1]))
+            logger.info("%s: Host scan started on ports %s.", target[0], target[1])
             scan_process = multiprocessing.Process(target=self.parallel_scan,
                                                    args=(scan_id, target[0]))
             multiscan_proc.append((scan_process, target[0]))
@@ -909,10 +908,10 @@ class OSPDaemon(object):
         for _, target in enumerate(targets):
             host = resolve_hostname(target[0])
             if host is None:
-                logger.info("Couldn't resolve {0}.".format(target[0]))
+                logger.info("Couldn't resolve %s.", target[0])
                 continue
             port = self.get_scan_ports(scan_id, target=target[0])
-            logger.info("{0}:{1}: Dry run mode.".format(host, port))
+            logger.info("%s:%s: Dry run mode.", host, port)
             self.add_scan_log(scan_id, name='', host=host,
                               value='Dry run result')
         self.finish_scan(scan_id)
@@ -1077,7 +1076,7 @@ class OSPDaemon(object):
         try:
             del self.scan_processes[scan_id]
         except KeyError:
-            logger.debug('Scan process for {0} not found'.format(scan_id))
+            logger.debug('Scan process for %s not found', scan_id)
         return self.scan_collection.delete_scan(scan_id)
 
     def get_scan_results_xml(self, scan_id, pop_res):
@@ -1475,7 +1474,7 @@ class OSPDaemon(object):
         try:
             tree = secET.fromstring(command)
         except secET.ParseError:
-            logger.debug("Erroneous client input: {0}".format(command))
+            logger.debug("Erroneous client input: %s", command)
             raise OSPDError('Invalid data')
 
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
@@ -1521,7 +1520,7 @@ class OSPDaemon(object):
             while True:
                 if unix_path:
                     client_stream, _ = sock.accept()
-                    logger.debug("New connection from {0}".format(unix_path))
+                    logger.debug("New connection from %s", unix_path)
                     self.handle_client_stream(client_stream, True)
                 else:
                     client_stream = self.new_client_stream(sock)
@@ -1561,7 +1560,7 @@ class OSPDaemon(object):
             self.set_scan_progress(scan_id, 100)
             self.add_scan_error(scan_id, name="", host="",
                                 value="Scan process failure.")
-            logger.info("{0}: Scan terminated.".format(scan_id))
+            logger.info("%s: Scan terminated.", scan_id)
         elif progress == 100:
             scan_process.join()
 
