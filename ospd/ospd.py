@@ -275,6 +275,7 @@ class OSPDaemon(object):
             self.add_scanner_param(name, param)
         self.vts = dict()
         self.vt_id_pattern = re.compile("[0-9a-zA-Z_\-:.]{1,80}")
+        self.vts_version = None
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -353,6 +354,23 @@ class OSPDaemon(object):
             self.vts[vt_id]["severities"] = severities
 
         return len(self.vts)
+
+    def set_vts_version(self, vts_version):
+        """ Add into the vts dictionary an entry to identify the
+        vts version.
+
+        Parameters:
+            vts_version (str): Identifies a unique vts version.
+        """
+        if not vts_version:
+            raise OSPDError('A vts_version parameter is required',
+                            'set_vts_version')
+        self.vts_version = vts_version
+
+    def get_vts_version(self):
+        """Return the vts version.
+        """
+        return self.vts_version
 
     def command_exists(self, name):
         """ Checks if a commands exists. """
@@ -1463,7 +1481,15 @@ class OSPDaemon(object):
             elem = SubElement(scanner, name)
             elem.text = value
 
-        return simple_response_str('get_version', 200, 'OK', [protocol, daemon, scanner])
+        content = [protocol, daemon, scanner]
+
+        if self.get_vts_version():
+            vts = Element('vts')
+            elem = SubElement(vts, 'version')
+            elem.text = self.get_vts_version()
+            content.append(vts)
+
+        return simple_response_str('get_version', 200, 'OK', content)
 
     def handle_command(self, command):
         """ Handles an osp command in a string.
