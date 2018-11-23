@@ -1482,7 +1482,15 @@ class OSPDaemon(object):
             elem = SubElement(scanner, name)
             elem.text = value
 
-        return simple_response_str('get_version', 200, 'OK', [protocol, daemon, scanner])
+        content = [protocol, daemon, scanner]
+
+        if self.get_vts_version():
+            vts = Element('vts')
+            elem = SubElement(vts, 'version')
+            elem.text = self.get_vts_version()
+            content.append(vts)
+
+        return simple_response_str('get_version', 200, 'OK', content)
 
     def handle_command(self, command):
         """ Handles an osp command in a string.
