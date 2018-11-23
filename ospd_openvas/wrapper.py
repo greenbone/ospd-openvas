@@ -221,6 +221,7 @@ class OSPDopenvas(OSPDaemon):
                          'to find db_connection.')
             raise Exception
 
+        self.pending_feed = None
         ctx = openvas_db.db_find(nvti.NVTICACHE_STR)
         if not ctx:
             self.redis_nvticache_init()
@@ -257,9 +258,39 @@ class OSPDopenvas(OSPDaemon):
             logger.error('OpenVAS Scanner failed to load NVTs.')
             raise err
 
+    def check_feed(self):
+        """ Check if there is a feed update. Wait until all the running
+        scans finished. Set a flag to anounce there is a pending feed update,
+        which avoid to start a new scan.
+        """
+        _running_scan = False
+        for scan_id in self.scan_processes:
+            if self.scan_processes[scan_id].is_alive():
+                _running_scan = True
+
+        if self.pending_feed:
+            _pending_feed = True
+        else:
+            _pending_feed = self.get_vts_version() != nvti.get_feed_version()
+
+        if _running_scan and _pending_feed:
+            if not self.pending_feed:
+                self.pending_feed = True
+                logger.debug(
+                    'There is a running scan. Therefore the feed '
+                    'update will be performed later.')
+        elif not _running_scan and _pending_feed:
+            self.vts = dict()
+            self.load_vts()
+
+    def scheduler(self):
+        """This method is called periodically to run tasks."""
+        self.check_feed()
+
     def load_vts(self):
         """ Load the NVT's metadata into the vts
         global  dictionary. """
+        logger.debug('Loading vts in memory.')
         oids = dict(nvti.get_oids())
         for filename, vt_id in oids.items():
             _vt_params = nvti.get_nvt_params(vt_id)
@@ -344,6 +375,11 @@ class OSPDopenvas(OSPDaemon):
                 logger.info("Dupplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
                 logger.info("{0}: Invalid OID.".format(vt_id))
+
+        _feed_version = nvti.get_feed_version()
+        self.set_vts_version(vts_version=_feed_version)
+        self.pending_feed = False
+        logger.debug('Finish loading up vts.')
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
@@ -792,6 +828,16 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
+        if self.pending_feed:
+            logger.info(
+                '%s: There is a pending feed update. '
+                'The scan can not be started.' % scan_id)
+            self.add_scan_error(
+                scan_id, name='', host=target,
+                value=('It was not possible to start the scan,'
+                'because a pending feed update. Please try later'))
+            return 2
+
         global MAIN_KBINDEX
         ports = self.get_scan_ports(scan_id, target)
         if not ports:
