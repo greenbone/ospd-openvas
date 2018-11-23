@@ -777,9 +777,13 @@ class OSPDaemon(object):
         while True:
             try:
                 if is_unix:
-                    data.append(stream.recv(1024))
+                    buf = stream.recv(1024)
                 else:
-                    data.append(stream.read(1024))
+                    buf = stream.read(1024)
+                if len(buf):
+                    data.append(buf)
+                else:
+                    break
                 if len(data) == 0:
                     logger.warning(
                         "Empty client stream (Connection unexpectedly closed)")
