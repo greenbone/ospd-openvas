@@ -780,14 +780,9 @@ class OSPDaemon(object):
                     buf = stream.recv(1024)
                 else:
                     buf = stream.read(1024)
-                if len(buf):
-                    data.append(buf)
-                else:
+                if not buf:
                     break
-                if len(data) == 0:
-                    logger.warning(
-                        "Empty client stream (Connection unexpectedly closed)")
-                    return
+                data.append(buf)
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
