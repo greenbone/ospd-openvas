@@ -271,7 +271,7 @@ class OSPDopenvas(OSPDaemon):
         if self.pending_feed:
             _pending_feed = True
         else:
-            _pending_feed = self.get_feed_version() != nvti.get_feed_version()
+            _pending_feed = self.get_vts_version() != nvti.get_feed_version()
 
         if _running_scan and _pending_feed:
             if not self.pending_feed:
@@ -377,7 +377,7 @@ class OSPDopenvas(OSPDaemon):
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
         _feed_version = nvti.get_feed_version()
-        self.set_feed_version(feed_version=_feed_version)
+        self.set_vts_version(vts_version=_feed_version)
         self.pending_feed = False
         logger.debug('Finish loading up vts.')
 
