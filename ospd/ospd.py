@@ -26,6 +26,7 @@
 from __future__ import absolute_import
 
 import logging
+import select
 import socket
 import ssl
 import multiprocessing
@@ -42,6 +43,8 @@ from ospd.misc import resolve_hostname, valid_uuid
 logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "1.2"
+
+SCHEDULER_CHECK_PERIOD = 5  #in seconds
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -1516,23 +1519,34 @@ class OSPDaemon(object):
         if sock is None:
             return False
 
+        sock.setblocking(False)
+        inputs = [sock]
+        outputs = []
         try:
             while True:
-                if unix_path:
-                    client_stream, _ = sock.accept()
-                    logger.debug("New connection from %s", unix_path)
-                    self.handle_client_stream(client_stream, True)
-                else:
-                    client_stream = self.new_client_stream(sock)
-                    if client_stream is None:
-                        continue
-                    self.handle_client_stream(client_stream, False)
-                close_client_stream(client_stream, unix_path)
+                readable, _, _ = select.select(
+                    inputs, outputs, inputs, SCHEDULER_CHECK_PERIOD)
+                for r_socket in readable:
+                    if unix_path and r_socket is sock:
+                        client_stream, _ = sock.accept()
+                        logger.debug("New connection from %s", unix_path)
+                        self.handle_client_stream(client_stream, True)
+                    else:
+                        client_stream = self.new_client_stream(sock)
+                        if client_stream is None:
+                            continue
+                        self.handle_client_stream(client_stream, False)
+                    close_client_stream(client_stream, unix_path)
+                self.scheduler()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
         finally:
             sock.shutdown(socket.SHUT_RDWR)
             sock.close()
+
+    def scheduler(self):
+        """ Should be implemented by subclass in case of need
+        to run tasks periodically. """
 
     def create_scan(self, scan_id, targets, target_str, options, vts):
         """ Creates a new scan.
