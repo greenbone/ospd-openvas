@@ -143,7 +143,8 @@ def get_nvt_refs(oid):
 
 def get_nvt_prefs(ctx, oid):
     """ Get NVT preferences. """
-    prefs = ctx.smembers('oid:%s:prefs' % oid)
+    key = ('oid:%s:prefs' % oid)
+    prefs = ctx.lrange(key, 0, -1)
     return prefs
 
 def get_nvt_timeout(ctx, oid):
