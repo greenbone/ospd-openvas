@@ -30,7 +30,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import xml.etree.ElementTree as ET
-import ospd_openvas.openvas_db as openvas_db
+from ospd_openvas.openvas_db import OpenvasDB as openvas_db
+from ospd_openvas.openvas_db import NVT_META_FIELDS
 
 
 NVTICACHE_STR = 'nvticache1.0.0'
@@ -97,8 +98,8 @@ def get_nvt_metadata(oid):
     """
     ctx = openvas_db.get_kb_context()
     resp = ctx.lrange("nvt:%s" % oid,
-                      openvas_db.nvt_meta_fields.index("NVT_FILENAME_POS"),
-                      openvas_db.nvt_meta_fields.index("NVT_NAME_POS"))
+                      NVT_META_FIELDS.index("NVT_FILENAME_POS"),
+                      NVT_META_FIELDS.index("NVT_NAME_POS"))
     if (isinstance(resp, list) and resp) is False:
         return None
 
@@ -128,8 +129,8 @@ def get_nvt_refs(oid):
     """
     ctx = openvas_db.get_kb_context()
     resp = ctx.lrange("nvt:%s" % oid,
-                      openvas_db.nvt_meta_fields.index("NVT_CVES_POS"),
-                      openvas_db.nvt_meta_fields.index("NVT_XREFS_POS"))
+                      NVT_META_FIELDS.index("NVT_CVES_POS"),
+                      NVT_META_FIELDS.index("NVT_XREFS_POS"))
     if (isinstance(resp, list) and resp) is False:
         return None
 
@@ -150,13 +151,13 @@ def get_nvt_prefs(ctx, oid):
 def get_nvt_timeout(ctx, oid):
     """ Get NVT timeout"""
     timeout = ctx.lindex('nvt:%s' % oid,
-                         openvas_db.nvt_meta_fields.index("NVT_TIMEOUT_POS"))
+                         NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
     return timeout
 
 def get_nvt_tag(ctx, oid):
     """ Get a dictionary with the NVT Tags of the given OID."""
     tag = ctx.lindex('nvt:%s' % oid,
-                      openvas_db.nvt_meta_fields.index('NVT_TAGS_POS'))
+                      NVT_META_FIELDS.index('NVT_TAGS_POS'))
     tags = tag.split('|')
 
     return dict([item.split('=', 1) for item in tags])
