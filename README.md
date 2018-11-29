@@ -59,7 +59,7 @@ As a core you need to derive from the class OSPDaemon from ospd.py.
 See the documentation there for the single steps to establish the
 full wrapper.
 
-See the file [doc/INSTALL-ospd-scanner](doc/INSTALL-ospd-scanner) about how to register a OSP scanner at
+See the file [doc/INSTALL-ospd-scanner.md](doc/INSTALL-ospd-scanner.md) about how to register a OSP scanner at
 the Greenbone Vulnerability Manager which will automatically establish a full
 GUI integration for the Greenbone Security Assistant (GSA).
 
