@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Provide functions to handle NVT Info Cache
-#
-# Authors:
-# Juan José Nicola <juan.nicola@greenbone.net>
-#
-# Copyright:
 # Copyright (C) 2018 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,10 +17,11 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-""" Functions related to the NVT information. """
-
 # Needed to say that when we import ospd, we mean the package and not the
 # module in that directory.
+
+""" Provide functions to handle NVT Info Cache. """
+
 from __future__ import absolute_import
 from __future__ import print_function
 

@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Access management for redis-based OpenVAS Scanner Database
-#
-# Authors:
-# Juan José Nicola <juan.nicola@greenbone.net>
-#
-# Copyright:
 # Copyright (C) 2018 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,8 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-""" Functions to retrieve and store data from redis-based
-    OpenVAS Scanner database. """
+""" Access management for redis-based OpenVAS Scanner Database."""
 
 import redis
 import subprocess
