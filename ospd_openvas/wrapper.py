@@ -215,10 +215,7 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db = OpenvasDB()
         self.nvti = NVTICache(self.openvas_db)
 
-        if self.openvas_db.db_init() is False:
-            logger.error('OpenVAS Redis Error: Not possible '
-                         'to find db_connection.')
-            raise Exception
+        self.openvas_db.db_init()
 
         self.pending_feed = None
         ctx = self.openvas_db.db_find(self.nvti.nvticache_str)

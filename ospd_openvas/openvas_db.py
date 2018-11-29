@@ -22,6 +22,8 @@
 import redis
 import subprocess
 
+from ospd_openvas.errors import OSPDOpenvasError
+
 SOCKET_TIMEOUT = 60  # in seconds
 
 # Possible positions of nvt values in cache list.
@@ -60,25 +62,20 @@ class OpenvasDB(object):
     def get_db_connection(self):
         """ Retrieve the db address from openvassd config.
         """
-        try:
-            result = subprocess.check_output(['openvassd', '-s'],
-                                             stderr=subprocess.STDOUT)
-            result = result.decode('ascii')
-        except OSError:
-            # the command is not available
-            return 2
-
-        if result is None:
-            return 2
+        result = subprocess.check_output(
+            ['openvassd', '-s'], stderr=subprocess.STDOUT)
 
         path = None
-        for conf in result.split('\n'):
-            if conf.find("db_address") == 0:
-                path = conf.split('=')
-                break
+        if result:
+            result = result.decode('ascii')
+            for conf in result.split('\n'):
+                if conf.find('db_address') == 0:
+                    path = conf.split('=')
+                    break
 
-        if path is None:
-            return 2
+        if not path:
+            raise OSPDOpenvasError('Not possible to find the path to '
+                               'the redis socket.')
 
         self.db_address = str.strip(path[1])
 
@@ -86,19 +83,14 @@ class OpenvasDB(object):
     def max_db_index(self):
         """Set the number of databases have been configured into kbr struct.
         """
-        try:
-            ctx = self.kb_connect()
-            resp = ctx.config_get("databases")
-        except redis.RedisError:
-            return 2
+        ctx = self.kb_connect()
+        resp = ctx.config_get('databases')
 
-        if isinstance(resp, dict) is False:
-            return 2
         if len(resp) == 1:
-            self.max_dbindex = int(resp["databases"])
+            self.max_dbindex = int(resp.get('databases'))
         else:
-            print("Redis: unexpected reply length %d" % len(resp))
-            return 2
+            raise OSPDOpenvasError('Redis Error: Not possible '
+                         'to get max_dbindex.')
 
     def set_redisctx(self, ctx):
         """ Set the current rediscontext.
@@ -107,9 +99,8 @@ class OpenvasDB(object):
 
     def db_init(self):
         """ Set db_address and max_db_index. """
-        if self.get_db_connection() or self.max_db_index():
-            return False
-        return True
+        self.get_db_connection()
+        self.max_db_index()
 
     def try_database_index(self, ctx, i):
         """ Check if it is already in use. If not set it as in use and return.
@@ -127,9 +118,13 @@ class OpenvasDB(object):
 
     def kb_connect(self, dbnum=0):
         """ Connect to redis to the given database or to the default db 0 .
+        Arguments:
+            dbnum (int): The db number to connect to.
+
+        Return a redis context on success or 2 on error
         """
-        if self.get_db_connection() is 2:
-            return 2
+        self.get_db_connection()
+
         try:
             ctx = redis.Redis(unix_socket_path=self.db_address,
                               db=dbnum,
