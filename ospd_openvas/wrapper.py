@@ -34,7 +34,7 @@ from ospd.misc import main as daemon_main
 from ospd.misc import target_str_to_list
 from ospd_openvas import __version__
 
-import ospd_openvas.nvticache as nvti
+from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.openvas_db import OpenvasDB
 
 OSPD_DESC = """
@@ -216,6 +216,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.main_kbindex = None
         self.openvas_db = OpenvasDB()
+        self.nvti = NVTICache(self.openvas_db)
 
         if self.openvas_db.db_init() is False:
             logger.error('OpenVAS Redis Error: Not possible '
@@ -223,10 +224,10 @@ class OSPDopenvas(OSPDaemon):
             raise Exception
 
         self.pending_feed = None
-        ctx = self.openvas_db.db_find(nvti.NVTICACHE_STR)
+        ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
         if not ctx:
             self.redis_nvticache_init()
-            ctx = self.openvas_db.db_find(nvti.NVTICACHE_STR)
+            ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
         self.openvas_db.set_redisctx(ctx)
         self.load_vts()
 
@@ -272,7 +273,7 @@ class OSPDopenvas(OSPDaemon):
         if self.pending_feed:
             _pending_feed = True
         else:
-            _pending_feed = self.get_vts_version() != nvti.get_feed_version()
+            _pending_feed = self.get_vts_version() != self.nvti.get_feed_version()
 
         if _running_scan and _pending_feed:
             if not self.pending_feed:
@@ -292,11 +293,11 @@ class OSPDopenvas(OSPDaemon):
         """ Load the NVT's metadata into the vts
         global  dictionary. """
         logger.debug('Loading vts in memory.')
-        oids = dict(nvti.get_oids())
+        oids = dict(self.nvti.get_oids())
         for filename, vt_id in oids.items():
-            _vt_params = nvti.get_nvt_params(vt_id)
-            _vt_refs = nvti.get_nvt_refs(vt_id)
-            _custom = nvti.get_nvt_metadata(vt_id)
+            _vt_params = self.nvti.get_nvt_params(vt_id)
+            _vt_refs = self.nvti.get_nvt_refs(vt_id)
+            _custom = self.nvti.get_nvt_metadata(vt_id)
             _name = _custom.pop('name')
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
@@ -377,7 +378,7 @@ class OSPDopenvas(OSPDaemon):
             if ret == -2:
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
-        _feed_version = nvti.get_feed_version()
+        _feed_version = self.nvti.get_feed_version()
         self.set_vts_version(vts_version=_feed_version)
         self.pending_feed = False
         logger.debug('Finish loading up vts.')
@@ -590,7 +591,7 @@ class OSPDopenvas(OSPDaemon):
     def get_openvas_result(self, scan_id):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
-        ctx = self.openvas_db.db_find(nvti.NVTICACHE_STR)
+        ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
         while res:
             msg = res.split('|||')
             host_aux = self.openvas_db.item_get_single('internal/ip')
@@ -599,7 +600,7 @@ class OSPDopenvas(OSPDaemon):
             rqod = ''
             if self.vts[roid].get('qod_type'):
                 qod_t = self.vts[roid].get('qod_type')
-                rqod = nvti.QoD_TYPES[qod_t]
+                rqod = self.nvti.QoD_TYPES[qod_t]
             elif self.vts[roid].get('qod'):
                 rqod = self.vts[roid].get('qod')
 
@@ -683,7 +684,7 @@ class OSPDopenvas(OSPDaemon):
         """
         vts_list = list()
         families = dict()
-        oids = nvti.get_oids()
+        oids = self.nvti.get_oids()
         for filename, oid in oids:
             family = self.vts[oid]['custom'].get('family')
             if family not in families:
@@ -730,7 +731,7 @@ class OSPDopenvas(OSPDaemon):
         vts_params = []
         vtgroups = vts.pop('vt_groups')
 
-        ctx = self.openvas_db.db_find(nvti.nvticache_str)
+        ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
         self.openvas_db.set_redisctx(ctx)
         if vtgroups:
             vts_list = self.get_vts_in_groups(ctx, vtgroups)
@@ -930,7 +931,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.add_scan_log(scan_id, host=target, name='Feed Update',
                           value='Feed version: %s.'
-                          % nvti.get_feed_version())
+                          % self.nvti.get_feed_version())
 
         cmd = ['openvassd', '--scan-start', openvas_scan_id]
         try:
