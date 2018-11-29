@@ -17,13 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-# Needed to say that when we import ospd, we mean the package and not the
-# module in that directory.
-
 """ Provide functions to handle NVT Info Cache. """
-
-from __future__ import absolute_import
-from __future__ import print_function
 
 import xml.etree.ElementTree as ET
 from ospd_openvas.openvas_db import OpenvasDB
