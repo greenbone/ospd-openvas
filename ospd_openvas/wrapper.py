@@ -661,8 +661,7 @@ class OSPDopenvas(OSPDaemon):
         each running scan."""
         ctx = self.openvas_db.kb_connect()
         for current_kbi in range(0, self.openvas_db.max_dbindex):
-            ctx.execute_command('SELECT '+ str(current_kbi))
-            self.openvas_db.set_redisctx(ctx)
+            self.openvas_db.select_kb(ctx, str(current_kbi), set_global=True)
             scan_id = self.openvas_db.item_get_single(
                 ('internal/%s/globalscanid' % global_scan_id))
             if scan_id:
@@ -900,8 +899,8 @@ class OSPDopenvas(OSPDaemon):
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
             # Select the scan KB again.
-            ctx.execute_command('SELECT '+ str(self.main_kbindex))
-            self.openvas_db.set_redisctx(ctx)
+            self.openvas_db.select_kb(ctx, str(self.main_kbindex),
+                                      set_global=True)
             # Add nvts list
             separ = ';'
             plugin_list = ('plugin_set|||%s' % separ.join(nvts_list))
@@ -962,8 +961,7 @@ class OSPDopenvas(OSPDaemon):
             for i in list(dbs):
                 if i == self.main_kbindex:
                     continue
-                ctx.execute_command('SELECT '+ str(i))
-                self.openvas_db.set_redisctx(ctx)
+                self.openvas_db.select_kb(ctx, str(i), set_global=True)
                 id_aux = self.openvas_db.item_get_single('internal/scan_id')
                 if not id_aux:
                     continue
@@ -973,7 +971,8 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_result(scan_id)
                     self.get_openvas_status(scan_id, target)
                     if self.scan_is_finished(openvas_scan_id):
-                        ctx.execute_command('SELECT '+ str(self.main_kbindex))
+                        self.openvas_db.select_kb(
+                            ctx, str(self.main_kbindex), set_global=False)
                         self.openvas_db.remove_list_item('internal/dbindex', i)
                         self.openvas_db.release_db(i)
 

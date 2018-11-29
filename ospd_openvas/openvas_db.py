@@ -177,6 +177,18 @@ class OpenvasDB(object):
 
         return self.rediscontext
 
+    def select_kb(self, ctx, kbindex, set_global=False):
+        """ Use an existent redis connection and select a redis kb.
+        If needed, set the ctx as global.
+        Parameters:
+            ctx (redis obj): Redis context to use.
+            newdb (str):  The new kb to select
+            set_global (bool, optional): If should be the global context.
+        """
+        ctx.execute_command('SELECT '+ str(kbindex))
+        if set_global:
+            self.set_redisctx(ctx)
+
     def item_get_list(self, name):
         """ Get all values under a KB key list.
         The right rediscontext must be already set.
