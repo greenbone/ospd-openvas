@@ -201,14 +201,14 @@ class OpenvasDB(object):
         ctx = self.get_kb_context()
         return ctx.lindex(name, index=LIST_FIRST_POS)
 
-    def item_add_single(self, name, values):
+    def add_single_item(self, name, values):
         """ Add a single KB element with one or more values.
         The right rediscontext must be already set.
         """
         ctx = self.get_kb_context()
         ctx.rpush(name, *set(values))
 
-    def item_set_single(self, name, value):
+    def set_single_item(self, name, value):
         """ Set (replace) a new single KB element. The right
         rediscontext must be already set.
         """

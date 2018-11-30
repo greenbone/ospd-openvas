@@ -659,7 +659,7 @@ class OSPDopenvas(OSPDaemon):
             scan_id = self.openvas_db.get_single_item(
                 ('internal/%s/globalscanid' % global_scan_id))
             if scan_id:
-                self.openvas_db.item_set_single(('internal/%s' % scan_id),
+                self.openvas_db.set_single_item(('internal/%s' % scan_id),
                                            ['stop_all', ])
                 ovas_pid = self.openvas_db.get_single_item('internal/ovas_pid')
                 parent = psutil.Process(int(ovas_pid))
@@ -849,9 +849,9 @@ class OSPDopenvas(OSPDaemon):
         # To avoid interference between scan process during a parallel scanning
         # new uuid is used internally for each scan.
         openvas_scan_id = str(uuid.uuid4())
-        self.openvas_db.item_add_single(
+        self.openvas_db.add_single_item(
             ('internal/%s' % openvas_scan_id), ['new', ])
-        self.openvas_db.item_add_single(
+        self.openvas_db.add_single_item(
             ('internal/%s/globalscanid' % scan_id), [openvas_scan_id, ])
 
         # Set scan preferences
@@ -864,28 +864,28 @@ class OSPDopenvas(OSPDaemon):
             else:
                 val = str(value)
             prefs_val.append(key + "|||" + val)
-        self.openvas_db.item_add_single(
+        self.openvas_db.add_single_item(
             str('internal/%s/scanprefs' % (openvas_scan_id)), prefs_val)
 
         # Store main_kbindex as global preference
         ov_maindbid = ('ov_maindbid|||%d' % self.main_kbindex)
-        self.openvas_db.item_add_single(
+        self.openvas_db.add_single_item(
             ('internal/%s/scanprefs' % openvas_scan_id), [ov_maindbid, ])
 
         # Set target
         target_aux = ('TARGET|||%s' % target)
-        self.openvas_db.item_add_single(
+        self.openvas_db.add_single_item(
             ('internal/%s/scanprefs' % openvas_scan_id), [target_aux, ])
         # Set port range
         port_range = ('port_range|||%s' % ports)
-        self.openvas_db.item_add_single(
+        self.openvas_db.add_single_item(
             ('internal/%s/scanprefs' % openvas_scan_id), [port_range, ])
 
         # Set credentials
         credentials = self.get_scan_credentials(scan_id, target)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
-            self.openvas_db.item_add_single(
+            self.openvas_db.add_single_item(
                 str('internal/%s/scanprefs' % openvas_scan_id), cred_prefs)
 
         # Set plugins to run
@@ -898,12 +898,12 @@ class OSPDopenvas(OSPDaemon):
             # Add nvts list
             separ = ';'
             plugin_list = ('plugin_set|||%s' % separ.join(nvts_list))
-            self.openvas_db.item_add_single(
+            self.openvas_db.add_single_item(
                 ('internal/%s/scanprefs' % openvas_scan_id), [plugin_list, ])
             # Add nvts parameters
             for elem in nvts_params:
                 item = ('%s|||%s' % (elem[0], elem[1]))
-                self.openvas_db.item_add_single(
+                self.openvas_db.add_single_item(
                     ('internal/%s/scanprefs' % openvas_scan_id), [item, ])
         else:
             self.openvas_db.release_db(self.main_kbindex)
@@ -935,7 +935,7 @@ class OSPDopenvas(OSPDaemon):
 
         ovas_pid = result.pid
         logger.debug('pid = {0}'.format(ovas_pid))
-        self.openvas_db.item_add_single(('internal/ovas_pid'), [ovas_pid, ])
+        self.openvas_db.add_single_item(('internal/ovas_pid'), [ovas_pid, ])
 
         # Wait until the scanner starts and loads all the preferences.
         while self.openvas_db.get_single_item('internal/'+ openvas_scan_id) == 'new':
