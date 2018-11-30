@@ -218,13 +218,6 @@ class OpenvasDB(object):
         pipe.rpush(name, *set(value))
         pipe.execute()
 
-    def item_del_single(self, name):
-        """ Delete a single KB element. The right rediscontext must be
-        already set.
-        """
-        ctx = self.get_kb_context()
-        ctx.delete(name)
-
     def get_pattern(self, pattern):
         """ Get all items stored under a given pattern.
         """
