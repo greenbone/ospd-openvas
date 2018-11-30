@@ -20,8 +20,8 @@
 """ Provide functions to handle NVT Info Cache. """
 
 import xml.etree.ElementTree as ET
-from ospd_openvas.openvas_db import OpenvasDB
-from ospd_openvas.openvas_db import NVT_META_FIELDS
+from ospd_openvas.db import OpenvasDB
+from ospd_openvas.db import NVT_META_FIELDS
 
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1

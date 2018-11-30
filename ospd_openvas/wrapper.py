@@ -32,7 +32,7 @@ from ospd.misc import target_str_to_list
 from ospd_openvas import __version__
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.openvas_db import OpenvasDB
+from ospd_openvas.db import OpenvasDB
 
 OSPD_DESC = """
 This scanner runs 'OpenVAS Scanner' to scan the target hosts.
