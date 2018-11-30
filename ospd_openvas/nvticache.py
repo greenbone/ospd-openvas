@@ -45,14 +45,15 @@ class NVTICache(object):
         'default': '70',
     }
 
+    NVTICACHE_STR = 'nvticache1.0.0'
+
     def __init__(self, openvas_db):
         self._openvas_db = openvas_db
-        self.nvticache_str = 'nvticache1.0.0'
 
     def get_feed_version(self):
         """ Get feed version.
         """
-        return self._openvas_db.get_single_item(self.nvticache_str)
+        return self._openvas_db.get_single_item(self.NVTICACHE_STR)
 
     def get_oids(self):
         """ Get the list of NVT OIDs.

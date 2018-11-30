@@ -218,10 +218,10 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db.db_init()
 
         self.pending_feed = None
-        ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
+        ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
         if not ctx:
             self.redis_nvticache_init()
-            ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
+            ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
         self.openvas_db.set_redisctx(ctx)
         self.load_vts()
 
@@ -585,7 +585,7 @@ class OSPDopenvas(OSPDaemon):
     def get_openvas_result(self, scan_id):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
-        ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
+        ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
         while res:
             msg = res.split('|||')
             host_aux = self.openvas_db.get_single_item('internal/ip')
@@ -724,7 +724,7 @@ class OSPDopenvas(OSPDaemon):
         vts_params = []
         vtgroups = vts.pop('vt_groups')
 
-        ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
+        ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
         self.openvas_db.set_redisctx(ctx)
         if vtgroups:
             vts_list = self.get_vts_in_groups(ctx, vtgroups)
