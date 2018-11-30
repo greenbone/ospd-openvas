@@ -179,33 +179,33 @@ def get_kb_context():
 
     return REDISCONTEXT
 
-def item_get_set(name):
-    """ Get all values under a KB elements.
+def item_get_list(name):
+    """ Get all values under a KB key list.
     The right global REDISCONTEXT must be already set.
     """
     ctx = get_kb_context()
-    return ctx.smembers(name)
+    return ctx.lrange(name, 0, -1)
 
-def remove_set_member(key, member):
-    """ Remove member of the key set.
+def remove_list_item(key, value):
+    """ Remove item from the key list.
     The right global REDISCONTEXT must be already set.
     """
     ctx = get_kb_context()
-    ctx.srem(key, member)
+    ctx.lrem(key, 0, value)
 
 def item_get_single(name):
     """ Get a single KB element. The right global REDISCONTEXT must be
     already set.
     """
     ctx = get_kb_context()
-    return ctx.srandmember(name)
+    return ctx.lindex(name, 0)
 
 def item_add_single(name, values):
     """ Add a single KB element with one or more values.
     The right global REDISCONTEXT must be already set.
     """
     ctx = get_kb_context()
-    ctx.sadd(name, *set(values))
+    ctx.rpush(name, *set(values))
 
 def item_set_single(name, value):
     """ Set (replace) a new single KB element. The right global
@@ -214,7 +214,7 @@ def item_set_single(name, value):
     ctx = get_kb_context()
     pipe = ctx.pipeline()
     pipe.delete(name)
-    pipe.sadd(name, *set(value))
+    pipe.rpush(name, *set(value))
     pipe.execute()
 
 def item_del_single(name):
@@ -232,7 +232,7 @@ def get_pattern(pattern):
 
     elem_list = []
     for item in items:
-        elem_list.append([item, ctx.smembers(item)])
+        elem_list.append([item, ctx.lrange(item, 0, -1)])
     return elem_list
 
 def get_elem_pattern_by_index(pattern, index=1):

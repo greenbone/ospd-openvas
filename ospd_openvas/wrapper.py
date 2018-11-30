@@ -955,13 +955,13 @@ class OSPDopenvas(OSPDaemon):
 
             ctx = openvas_db.kb_connect(MAIN_KBINDEX)
             openvas_db.set_global_redisctx(ctx)
-            dbs = openvas_db.item_get_set('internal/dbindex')
+            dbs = openvas_db.item_get_list('internal/dbindex')
             for i in list(dbs):
                 if i == MAIN_KBINDEX:
                     continue
                 ctx.execute_command('SELECT '+ str(i))
                 openvas_db.set_global_redisctx(ctx)
-                id_aux = ctx.execute_command('srandmember internal/scan_id')
+                id_aux = openvas_db.item_get_single('internal/scan_id')
                 if not id_aux:
                     continue
                 if id_aux == openvas_scan_id:
@@ -971,7 +971,7 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_status(scan_id, target)
                     if self.scan_is_finished(openvas_scan_id):
                         ctx.execute_command('SELECT '+ str(MAIN_KBINDEX))
-                        openvas_db.remove_set_member('internal/dbindex', i)
+                        openvas_db.remove_list_item('internal/dbindex', i)
                         openvas_db.release_db(i)
 
             # Scan end. No kb in use for this scan id
