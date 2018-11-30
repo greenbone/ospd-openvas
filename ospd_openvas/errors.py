@@ -19,23 +19,25 @@
 Module for OSPD OpenVAS errors
 """
 
+from ospd.ospd import OSPDError
 
-class OSPDOpenvasError(Exception):
+
+class OSPDOpenvasError(OSPDError):
     """An exception for gvm errors
 
     Base class for all exceptions originated in ospd-openvas.
     """
-    pass
-
+    def __init__(self, message):
+        pass
 
 class InvalidArgument(OSPDOpenvasError):
     """Raised if an invalid argument/parameter is passed
 
-    Derives from :py:class:`OpenvasError`
+    Derives from :py:class:`OSPDOpenvasError`
     """
 
 class RequiredArgument(OSPDOpenvasError):
     """Raised if a required argument/parameter is missing
 
-    Derives from :py:class:`OpenvasError`
+    Derives from :py:class:`OSPDOpenvasError`
     """

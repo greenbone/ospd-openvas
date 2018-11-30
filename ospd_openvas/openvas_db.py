@@ -78,10 +78,9 @@ class OpenvasDB(object):
 
         if not path:
             raise OSPDOpenvasError('Not possible to find the path to '
-                               'the redis socket.')
+                                   'the redis socket.')
 
         self.db_address = str.strip(path[1])
-
 
     def max_db_index(self):
         """Set the number of databases have been configured into kbr struct.
