@@ -23,6 +23,8 @@ import xml.etree.ElementTree as ET
 from ospd_openvas.openvas_db import OpenvasDB
 from ospd_openvas.openvas_db import NVT_META_FIELDS
 
+LIST_FIRST_POS = 0
+LIST_LAST_POS = -1
 
 class NVTICache(object):
 
@@ -138,8 +140,9 @@ class NVTICache(object):
 
     def get_nvt_prefs(self, ctx, oid):
         """ Get NVT preferences. """
-        key = ('oid:%s:prefs' % oid)
-        prefs = ctx.lrange(key, 0, -1)
+        key = 'oid:%s:prefs' % oid
+        prefs = ctx.lrange(key, start=LIST_FIRST_POS,
+                           end=LIST_LAST_POS)
         return prefs
 
     def get_nvt_timeout(self, ctx, oid):

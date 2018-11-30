@@ -25,6 +25,9 @@ import subprocess
 from ospd_openvas.errors import OSPDOpenvasError
 
 SOCKET_TIMEOUT = 60  # in seconds
+LIST_FIRST_POS = 0
+LIST_LAST_POS = -1
+LIST_ALL = 0
 
 # Possible positions of nvt values in cache list.
 NVT_META_FIELDS = [
@@ -183,21 +186,21 @@ class OpenvasDB(object):
         The right rediscontext must be already set.
         """
         ctx = self.get_kb_context()
-        return ctx.lrange(name, 0, -1)
+        return ctx.lrange(name, start=LIST_FIRST_POS, end=LIST_LAST_POS)
 
     def remove_list_item(self, key, value):
         """ Remove item from the key list.
         The right rediscontext must be already set.
         """
         ctx = self.get_kb_context()
-        ctx.lrem(key, 0, value)
+        ctx.lrem(key, count=LIST_ALL, value=value)
 
     def item_get_single(self, name):
         """ Get a single KB element. The right rediscontext must be
         already set.
         """
         ctx = self.get_kb_context()
-        return ctx.lindex(name, 0)
+        return ctx.lindex(name, index=LIST_FIRST_POS)
 
     def item_add_single(self, name, values):
         """ Add a single KB element with one or more values.
@@ -231,7 +234,8 @@ class OpenvasDB(object):
 
         elem_list = []
         for item in items:
-            elem_list.append([item, ctx.lrange(item, 0, -1)])
+            elem_list.append([item,
+                              ctx.lrange(item, start=LIST_FIRST_POS, end=LIST_LAST_POS)])
         return elem_list
 
     def get_elem_pattern_by_index(self, pattern, index=1):
