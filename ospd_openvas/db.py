@@ -180,7 +180,7 @@ class OpenvasDB(object):
         if set_global:
             self.set_redisctx(ctx)
 
-    def item_get_list(self, name):
+    def get_list_item(self, name):
         """ Get all values under a KB key list.
         The right rediscontext must be already set.
         """

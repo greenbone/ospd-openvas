@@ -951,7 +951,7 @@ class OSPDopenvas(OSPDaemon):
 
             ctx = self.openvas_db.kb_connect(self.main_kbindex)
             self.openvas_db.set_redisctx(ctx)
-            dbs = self.openvas_db.item_get_list('internal/dbindex')
+            dbs = self.openvas_db.get_list_item('internal/dbindex')
             for i in list(dbs):
                 if i == self.main_kbindex:
                     continue
