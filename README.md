@@ -2,6 +2,8 @@
 
 # ospd-openvas
 
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/?branch=master)
+
 This is an OSP server implementation to allow GVM to remotely control
 an OpenVAS Scanner, see <https://github.com/greenbone/openvas-scanner>.
 
