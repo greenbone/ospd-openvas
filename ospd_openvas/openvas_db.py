@@ -195,7 +195,7 @@ class OpenvasDB(object):
         ctx = self.get_kb_context()
         ctx.lrem(key, count=LIST_ALL, value=value)
 
-    def item_get_single(self, name):
+    def get_single_item(self, name):
         """ Get a single KB element. The right rediscontext must be
         already set.
         """

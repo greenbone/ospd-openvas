@@ -52,7 +52,7 @@ class NVTICache(object):
     def get_feed_version(self):
         """ Get feed version.
         """
-        return self._openvas_db.item_get_single(self.nvticache_str)
+        return self._openvas_db.get_single_item(self.nvticache_str)
 
     def get_oids(self):
         """ Get the list of NVT OIDs.

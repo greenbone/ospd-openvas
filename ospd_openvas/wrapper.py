@@ -588,7 +588,7 @@ class OSPDopenvas(OSPDaemon):
         ctx = self.openvas_db.db_find(self.nvti.nvticache_str)
         while res:
             msg = res.split('|||')
-            host_aux = self.openvas_db.item_get_single('internal/ip')
+            host_aux = self.openvas_db.get_single_item('internal/ip')
             roid = msg[3]
 
             rqod = ''
@@ -633,7 +633,7 @@ class OSPDopenvas(OSPDaemon):
 
     def scan_is_finished(self, scan_id):
         """ Check if the scan has finished. """
-        status = self.openvas_db.item_get_single(('internal/%s' % scan_id))
+        status = self.openvas_db.get_single_item(('internal/%s' % scan_id))
         return status == 'finished'
 
     def scan_is_stopped(self, scan_id):
@@ -643,7 +643,7 @@ class OSPDopenvas(OSPDaemon):
         """
         ctx = self.openvas_db.kb_connect(dbnum=self.main_kbindex)
         self.openvas_db.set_redisctx(ctx)
-        status = self.openvas_db.item_get_single(('internal/%s' % scan_id))
+        status = self.openvas_db.get_single_item(('internal/%s' % scan_id))
         return status == 'stop_all'
 
     @staticmethod
@@ -656,12 +656,12 @@ class OSPDopenvas(OSPDaemon):
         ctx = self.openvas_db.kb_connect()
         for current_kbi in range(0, self.openvas_db.max_dbindex):
             self.openvas_db.select_kb(ctx, str(current_kbi), set_global=True)
-            scan_id = self.openvas_db.item_get_single(
+            scan_id = self.openvas_db.get_single_item(
                 ('internal/%s/globalscanid' % global_scan_id))
             if scan_id:
                 self.openvas_db.item_set_single(('internal/%s' % scan_id),
                                            ['stop_all', ])
-                ovas_pid = self.openvas_db.item_get_single('internal/ovas_pid')
+                ovas_pid = self.openvas_db.get_single_item('internal/ovas_pid')
                 parent = psutil.Process(int(ovas_pid))
                 self.openvas_db.release_db(current_kbi)
                 parent.send_signal(signal.SIGUSR2)
@@ -938,7 +938,7 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db.item_add_single(('internal/ovas_pid'), [ovas_pid, ])
 
         # Wait until the scanner starts and loads all the preferences.
-        while self.openvas_db.item_get_single('internal/'+ openvas_scan_id) == 'new':
+        while self.openvas_db.get_single_item('internal/'+ openvas_scan_id) == 'new':
             time.sleep(1)
 
         no_id_found = False
@@ -956,7 +956,7 @@ class OSPDopenvas(OSPDaemon):
                 if i == self.main_kbindex:
                     continue
                 self.openvas_db.select_kb(ctx, str(i), set_global=True)
-                id_aux = self.openvas_db.item_get_single('internal/scan_id')
+                id_aux = self.openvas_db.get_single_item('internal/scan_id')
                 if not id_aux:
                     continue
                 if id_aux == openvas_scan_id:
