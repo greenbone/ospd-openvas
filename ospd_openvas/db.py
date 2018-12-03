@@ -23,6 +23,7 @@ import redis
 import subprocess
 
 from ospd_openvas.errors import OSPDOpenvasError
+from ospd.ospd import logger
 
 SOCKET_TIMEOUT = 60  # in seconds
 LIST_FIRST_POS = 0
@@ -77,7 +78,7 @@ class OpenvasDB(object):
                     break
 
         if not path:
-            raise OSPDOpenvasError('Not possible to find the path to '
+            raise OSPDOpenvasError('Redis Error: Not possible to find the path to '
                                    'the redis socket.')
 
         self.db_address = str.strip(path[1])
@@ -133,7 +134,8 @@ class OpenvasDB(object):
                               socket_timeout=SOCKET_TIMEOUT, charset="latin-1",
                               decode_responses=True)
         except ConnectionError as e:
-            return {"error": str(e)}
+            raise OSPDOpenvasError('Redis Error: Not possible '
+                         'to connect to the kb.')
         self.db_index = dbnum
         return ctx
 
@@ -141,7 +143,7 @@ class OpenvasDB(object):
         """ Search a pattern inside all kbs. When find it return it.
         """
         for i in range(0, self.max_dbindex):
-            ctx = self.kb_connect (i)
+            ctx = self.kb_connect(i)
             if ctx.keys(patt):
                 return ctx
 
@@ -163,8 +165,7 @@ class OpenvasDB(object):
         self.rediscontext = self.db_find(self.dbindex_name)
 
         if self.rediscontext is None:
-            print("Problem retrieving Redis Context")
-            return 2
+            raise OSPDOpenvasError('Redis Error: Problem retrieving Redis Context')
 
         return self.rediscontext
 
