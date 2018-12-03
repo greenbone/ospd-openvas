@@ -106,19 +106,19 @@ class OpenvasDB(object):
         self.get_db_connection()
         self.max_db_index()
 
-    def try_database_index(self, ctx, i):
+    def try_database_index(self, ctx, kb):
         """ Check if it is already in use. If not set it as in use and return.
         """
+        _IN_USE = 1
         try:
-            resp = ctx.hsetnx(self.DBINDEX_NAME, i, 1)
+            resp = ctx.hsetnx(self.DBINDEX_NAME, kb, _IN_USE)
         except:
-            return 2
-
-        if isinstance(resp, int) is False:
-            return 2
+            raise OSPDOpenvasError('Redis Error: Not possible '
+                                   'to set %s.' % self.DBINDEX_NAME)
 
         if resp == 1:
-            return 1
+            return True
+        return False
 
     def kb_connect(self, dbnum=0):
         """ Connect to redis to the given database or to the default db 0 .
@@ -148,14 +148,18 @@ class OpenvasDB(object):
             if ctx.keys(patt):
                 return ctx
 
+        return None
+
     def kb_new(self):
         """ Return a new kb context to an empty kb.
         """
         ctx = self.db_find(self.DBINDEX_NAME)
         for index in range(1, self.max_dbindex):
-                if self.try_database_index(ctx, index) == 1:
-                    ctx = self.kb_connect(index)
-                    return ctx
+            if self.try_database_index(ctx, index):
+                ctx = self.kb_connect(index)
+                return ctx
+
+        return None
 
     def get_kb_context(self):
         """ Get redis context if it is already connected or do a connection.
