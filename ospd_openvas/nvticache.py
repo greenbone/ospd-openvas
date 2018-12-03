@@ -96,7 +96,7 @@ class NVTICache(object):
         resp = ctx.lrange("nvt:%s" % oid,
                           NVT_META_FIELDS.index("NVT_FILENAME_POS"),
                           NVT_META_FIELDS.index("NVT_NAME_POS"))
-        if (isinstance(resp, list) and resp) is False:
+        if not isinstance(resp, list) or len(resp) == 0:
             return None
 
         subelem = ['filename', 'required_keys', 'mandatory_keys',
@@ -127,7 +127,7 @@ class NVTICache(object):
         resp = ctx.lrange("nvt:%s" % oid,
                           NVT_META_FIELDS.index("NVT_CVES_POS"),
                           NVT_META_FIELDS.index("NVT_XREFS_POS"))
-        if (isinstance(resp, list) and resp) is False:
+        if not isinstance(resp, list) or len(resp) == 0:
             return None
 
         subelem = ['cve', 'bid', 'xref',]
