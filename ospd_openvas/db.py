@@ -265,11 +265,10 @@ class OpenvasDB(object):
         """ Connect to redis and select the db by index.
         Flush db and delete the index from dbindex_name list.
         """
-        if kbindex:
-            ctx = self.kb_connect(kbindex)
-            ctx.flushdb()
-            ctx = self.kb_connect()
-            ctx.hdel(self.DBINDEX_NAME, kbindex)
+        ctx = self.kb_connect(kbindex)
+        ctx.flushdb()
+        ctx = self.kb_connect()
+        ctx.hdel(self.DBINDEX_NAME, kbindex)
 
     def get_result(self):
         """ Get and remove the oldest result from the list. """
