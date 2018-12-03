@@ -89,6 +89,27 @@ class NVTICache(object):
 
         return vt_params
 
+    @staticmethod
+    def _parse_metadata_tags(tags_str):
+        """ Parse a string with multiple tags.
+
+        Arguments:
+            tags_str (str) String with tags separated by `|`.
+
+        Return a dictionary with the tags.
+        """
+        tags_dict = dict()
+        tags = tags_str.split('|')
+        for tag in tags:
+            try:
+                _tag, _value = tag.split('=', 1)
+            except ValueError:
+                logger.error('Tag %s in %s has no value.' % (_tag, oid))
+                continue
+            tags_dict[_tag] = _value
+
+        return tags_dict
+
     def get_nvt_metadata(self, oid):
         """ Get a full NVT. Returns an XML tree with the NVT metadata.
         """
@@ -109,14 +130,7 @@ class NVTICache(object):
             if child not in ['cve', 'bid', 'xref', 'tag',] and res:
                 custom[child] = res
             elif child == 'tag':
-                tags = res.split('|')
-                for tag in tags:
-                    try:
-                        _tag, _value = tag.split('=', 1)
-                    except ValueError:
-                        logger.error('Tag %s in %s has no value.' % (_tag, oid))
-                        continue
-                    custom[_tag] = _value
+                custom.update(self._parse_metadata_tags(res))
 
         return custom
 
