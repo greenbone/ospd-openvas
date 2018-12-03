@@ -46,7 +46,8 @@ NVT_META_FIELDS = [
     "NVT_CATEGORY_POS",
     "NVT_TIMEOUT_POS",
     "NVT_FAMILY_POS",
-    "NVT_NAME_POS",]
+    "NVT_NAME_POS",
+]
 
 
 class OpenvasDB(object):
@@ -78,8 +79,8 @@ class OpenvasDB(object):
                     break
 
         if not path:
-            raise OSPDOpenvasError('Redis Error: Not possible to find the path to '
-                                   'the redis socket.')
+            raise OSPDOpenvasError('Redis Error: Not possible to '
+                                   'find the path to the redis socket.')
 
         self.db_address = str.strip(path[1])
 
@@ -93,7 +94,7 @@ class OpenvasDB(object):
             self.max_dbindex = int(resp.get('databases'))
         else:
             raise OSPDOpenvasError('Redis Error: Not possible '
-                         'to get max_dbindex.')
+                                   'to get max_dbindex.')
 
     def set_redisctx(self, ctx):
         """ Set the current rediscontext.
@@ -135,7 +136,7 @@ class OpenvasDB(object):
                               decode_responses=True)
         except ConnectionError as e:
             raise OSPDOpenvasError('Redis Error: Not possible '
-                         'to connect to the kb.')
+                                   'to connect to the kb.') from e
         self.db_index = dbnum
         return ctx
 
@@ -165,7 +166,8 @@ class OpenvasDB(object):
         self.rediscontext = self.db_find(self.DBINDEX_NAME)
 
         if self.rediscontext is None:
-            raise OSPDOpenvasError('Redis Error: Problem retrieving Redis Context')
+            raise OSPDOpenvasError('Redis Error: Problem retrieving '
+                                   'Redis Context')
 
         return self.rediscontext
 
@@ -177,7 +179,7 @@ class OpenvasDB(object):
             newdb (str):  The new kb to select
             set_global (bool, optional): If should be the global context.
         """
-        ctx.execute_command('SELECT '+ str(kbindex))
+        ctx.execute_command('SELECT ' + str(kbindex))
         if set_global:
             self.set_redisctx(ctx)
 
@@ -227,8 +229,10 @@ class OpenvasDB(object):
 
         elem_list = []
         for item in items:
-            elem_list.append([item,
-                              ctx.lrange(item, start=LIST_FIRST_POS, end=LIST_LAST_POS)])
+            elem_list.append([
+                item,
+                ctx.lrange(item, start=LIST_FIRST_POS, end=LIST_LAST_POS),
+            ])
         return elem_list
 
     def get_elem_pattern_by_index(self, pattern, index=1):
