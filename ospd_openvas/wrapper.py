@@ -195,6 +195,12 @@ OSPD_PARAMS = {
 }
 
 
+def _from_bool_to_str(value):
+    """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
+    uses 1 and 0."""
+    return 'yes' if value == 1 else 'no'
+
+
 class OSPDopenvas(OSPDaemon):
 
     """ Class for ospd-openvas daemon. """
@@ -859,8 +865,8 @@ class OSPDopenvas(OSPDaemon):
             item_type = ''
             if key in OSPD_PARAMS:
                 item_type = OSPD_PARAMS[key].get('type')
-            if item_type == 'boolean' and value == 1:
-                val = 'yes'
+            if item_type == 'boolean':
+                val =  _from_bool_to_str(value)
             else:
                 val = str(value)
             prefs_val.append(key + "|||" + val)
