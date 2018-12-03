@@ -52,13 +52,13 @@ NVT_META_FIELDS = [
 class OpenvasDB(object):
     """ Class to connect to redis, to perform queries, and to move
     from a KB to another."""
+    # Name of the namespace usage bitmap in redis.
+    DBINDEX_NAME = "GVM.__GlobalDBIndex"
 
     def __init__(self):
         # Path to the Redis socket.
         self.db_address = None
 
-        # Name of the namespace usage bitmap in redis.
-        self.dbindex_name = "GVM.__GlobalDBIndex"
         self.max_dbindex = 0
         self.db_index = 0
         self.rediscontext = None
@@ -109,7 +109,7 @@ class OpenvasDB(object):
         """ Check if it is already in use. If not set it as in use and return.
         """
         try:
-            resp = ctx.hsetnx(self.dbindex_name, i, 1)
+            resp = ctx.hsetnx(self.DBINDEX_NAME, i, 1)
         except:
             return 2
 
@@ -150,7 +150,7 @@ class OpenvasDB(object):
     def kb_new(self):
         """ Return a new kb context to an empty kb.
         """
-        ctx = self.db_find(self.dbindex_name)
+        ctx = self.db_find(self.DBINDEX_NAME)
         for index in range(1, self.max_dbindex):
                 if self.try_database_index(ctx, index) == 1:
                     ctx = self.kb_connect(index)
@@ -162,7 +162,7 @@ class OpenvasDB(object):
         if self.rediscontext is not None:
             return self.rediscontext
 
-        self.rediscontext = self.db_find(self.dbindex_name)
+        self.rediscontext = self.db_find(self.DBINDEX_NAME)
 
         if self.rediscontext is None:
             raise OSPDOpenvasError('Redis Error: Problem retrieving Redis Context')
@@ -251,7 +251,7 @@ class OpenvasDB(object):
             ctx = self.kb_connect(kbindex)
             ctx.flushdb()
             ctx = self.kb_connect()
-            ctx.hdel(self.dbindex_name, kbindex)
+            ctx.hdel(self.DBINDEX_NAME, kbindex)
 
     def get_result(self):
         """ Get and remove the oldest result from the list. """
