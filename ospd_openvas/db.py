@@ -55,7 +55,7 @@ class OpenvasDB(object):
 
     def __init__(self):
         # Path to the Redis socket.
-        self.db_address = ""
+        self.db_address = None
 
         # Name of the namespace usage bitmap in redis.
         self.dbindex_name = "GVM.__GlobalDBIndex"
