@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# Provide functions to handle NVT Info Cache
-#
-# Authors:
-# Juan José Nicola <juan.nicola@greenbone.net>
-#
-# Copyright:
 # Copyright (C) 2018 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,141 +17,158 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-""" Functions related to the NVT information. """
-
-# Needed to say that when we import ospd, we mean the package and not the
-# module in that directory.
-from __future__ import absolute_import
-from __future__ import print_function
+""" Provide functions to handle NVT Info Cache. """
 
 import xml.etree.ElementTree as ET
-import ospd_openvas.openvas_db as openvas_db
+from ospd_openvas.db import NVT_META_FIELDS
 
+LIST_FIRST_POS = 0
+LIST_LAST_POS = -1
 
-NVTICACHE_STR = 'nvticache1.0.0'
-QoD_TYPES = {
-    'exploit': '100',
-    'remote_vul': '99',
-    'remote_app': '98',
-    'package': '97',
-    'registry': '97',
-    'remote_active': '95',
-    'remote_banner': '80',
-    'executable_version': '80',
-    'remote_analysis': '70',
-    'remote_probe': '50',
-    'remote_banner_unreliable': '30',
-    'executable_version_unreliable': '30',
-    'general_note': '1',
-    'default': '70',
-}
+class NVTICache(object):
 
+    QoD_TYPES = {
+        'exploit': '100',
+        'remote_vul': '99',
+        'remote_app': '98',
+        'package': '97',
+        'registry': '97',
+        'remote_active': '95',
+        'remote_banner': '80',
+        'executable_version': '80',
+        'remote_analysis': '70',
+        'remote_probe': '50',
+        'remote_banner_unreliable': '30',
+        'executable_version_unreliable': '30',
+        'general_note': '1',
+        'default': '70',
+    }
 
-def get_feed_version():
-    """ Get feed version.
-    """
-    return openvas_db.item_get_single(NVTICACHE_STR)
+    NVTICACHE_STR = 'nvticache1.0.0'
 
-def get_oids():
-    """ Get the list of NVT OIDs.
-    """
-    return openvas_db.get_elem_pattern_by_index('filename:*')
+    def __init__(self, openvas_db):
+        self._openvas_db = openvas_db
 
-def get_nvt_params(oid):
-    """ Get NVT's preferences.
-        @Return dictonary with preferences and timeout.
-    """
-    ctx = openvas_db.get_kb_context()
-    prefs = get_nvt_prefs(ctx, oid)
-    timeout = get_nvt_timeout(ctx, oid)
+    def get_feed_version(self):
+        """ Get feed version.
+        """
+        return self._openvas_db.get_single_item(self.NVTICACHE_STR)
 
-    vt_params = {}
-    if int(timeout) > 0:
-        vt_params['timeout'] = dict()
-        vt_params['timeout']['type'] = 'entry'
-        vt_params['timeout']['name'] = 'timeout'
-        vt_params['timeout']['description'] = 'Script Timeout'
-        vt_params['timeout']['default'] = timeout
+    def get_oids(self):
+        """ Get the list of NVT OIDs.
+        """
+        return self._openvas_db.get_elem_pattern_by_index('filename:*')
 
-    if prefs:
-        for nvt_pref in prefs:
-            elem = nvt_pref.split('|||')
-            vt_params[elem[0]] = dict()
-            vt_params[elem[0]]['type'] = elem[1]
-            vt_params[elem[0]]['name'] = elem[0]
-            vt_params[elem[0]]['description'] = 'Description'
-            if elem[2]:
-                vt_params[elem[0]]['default'] = elem[2]
-            else:
-                vt_params[elem[0]]['default'] = ''
+    def get_nvt_params(self, oid):
+        """ Get NVT's preferences.
+            @Return dictonary with preferences and timeout.
+        """
+        ctx = self._openvas_db.get_kb_context()
+        prefs = self.get_nvt_prefs(ctx, oid)
+        timeout = self.get_nvt_timeout(ctx, oid)
 
-    return vt_params
+        vt_params = {}
+        if int(timeout) > 0:
+            vt_params['timeout'] = dict()
+            vt_params['timeout']['type'] = 'entry'
+            vt_params['timeout']['name'] = 'timeout'
+            vt_params['timeout']['description'] = 'Script Timeout'
+            vt_params['timeout']['default'] = timeout
 
-def get_nvt_metadata(oid):
-    """ Get a full NVT. Returns an XML tree with the NVT metadata.
-    """
-    ctx = openvas_db.get_kb_context()
-    resp = ctx.lrange("nvt:%s" % oid,
-                      openvas_db.nvt_meta_fields.index("NVT_FILENAME_POS"),
-                      openvas_db.nvt_meta_fields.index("NVT_NAME_POS"))
-    if (isinstance(resp, list) and resp) is False:
-        return None
+        if prefs:
+            for nvt_pref in prefs:
+                elem = nvt_pref.split('|||')
+                vt_params[elem[0]] = dict()
+                vt_params[elem[0]]['type'] = elem[1]
+                vt_params[elem[0]]['name'] = elem[0]
+                vt_params[elem[0]]['description'] = 'Description'
+                if elem[2]:
+                    vt_params[elem[0]]['default'] = elem[2]
+                else:
+                    vt_params[elem[0]]['default'] = ''
 
-    subelem = ['filename', 'required_keys', 'mandatory_keys',
-               'excluded_keys', 'required_udp_ports', 'required_ports',
-               'dependencies', 'tag', 'cve', 'bid', 'xref', 'category',
-               'timeout', 'family', 'name', ]
+        return vt_params
 
-    custom = dict()
-    for child, res in zip(subelem, resp):
-        if child not in ['cve', 'bid', 'xref', 'tag',] and res:
-            custom[child] = res
-        elif child == 'tag':
-            tags = res.split('|')
-            for tag in tags:
-                try:
-                    _tag, _value = tag.split('=', 1)
-                except ValueError:
-                    logger.error('Tag %s in %s has no value.' % (_tag, oid))
-                    continue
-                custom[_tag] = _value
+    @staticmethod
+    def _parse_metadata_tags(tags_str):
+        """ Parse a string with multiple tags.
 
-    return custom
+        Arguments:
+            tags_str (str) String with tags separated by `|`.
 
-def get_nvt_refs(oid):
-    """ Get a full NVT. Returns an XML tree with the NVT references.
-    """
-    ctx = openvas_db.get_kb_context()
-    resp = ctx.lrange("nvt:%s" % oid,
-                      openvas_db.nvt_meta_fields.index("NVT_CVES_POS"),
-                      openvas_db.nvt_meta_fields.index("NVT_XREFS_POS"))
-    if (isinstance(resp, list) and resp) is False:
-        return None
+        Return a dictionary with the tags.
+        """
+        tags_dict = dict()
+        tags = tags_str.split('|')
+        for tag in tags:
+            try:
+                _tag, _value = tag.split('=', 1)
+            except ValueError:
+                logger.error('Tag %s in %s has no value.' % (_tag, oid))
+                continue
+            tags_dict[_tag] = _value
 
-    subelem = ['cve', 'bid', 'xref',]
+        return tags_dict
 
-    refs = dict()
-    for child, res in zip(subelem, resp):
-        refs[child] = res.split(", ")
+    def get_nvt_metadata(self, oid):
+        """ Get a full NVT. Returns an XML tree with the NVT metadata.
+        """
+        ctx = self._openvas_db.get_kb_context()
+        resp = ctx.lrange("nvt:%s" % oid,
+                          NVT_META_FIELDS.index("NVT_FILENAME_POS"),
+                          NVT_META_FIELDS.index("NVT_NAME_POS"))
+        if not isinstance(resp, list) or len(resp) == 0:
+            return None
 
-    return refs
+        subelem = ['filename', 'required_keys', 'mandatory_keys',
+                   'excluded_keys', 'required_udp_ports', 'required_ports',
+                   'dependencies', 'tag', 'cve', 'bid', 'xref', 'category',
+                   'timeout', 'family', 'name', ]
 
-def get_nvt_prefs(ctx, oid):
-    """ Get NVT preferences. """
-    key = ('oid:%s:prefs' % oid)
-    prefs = ctx.lrange(key, 0, -1)
-    return prefs
+        custom = dict()
+        for child, res in zip(subelem, resp):
+            if child not in ['cve', 'bid', 'xref', 'tag',] and res:
+                custom[child] = res
+            elif child == 'tag':
+                custom.update(self._parse_metadata_tags(res))
 
-def get_nvt_timeout(ctx, oid):
-    """ Get NVT timeout"""
-    timeout = ctx.lindex('nvt:%s' % oid,
-                         openvas_db.nvt_meta_fields.index("NVT_TIMEOUT_POS"))
-    return timeout
+        return custom
 
-def get_nvt_tag(ctx, oid):
-    """ Get a dictionary with the NVT Tags of the given OID."""
-    tag = ctx.lindex('nvt:%s' % oid,
-                      openvas_db.nvt_meta_fields.index('NVT_TAGS_POS'))
-    tags = tag.split('|')
+    def get_nvt_refs(self, oid):
+        """ Get a full NVT. Returns an XML tree with the NVT references.
+        """
+        ctx = self._openvas_db.get_kb_context()
+        resp = ctx.lrange("nvt:%s" % oid,
+                          NVT_META_FIELDS.index("NVT_CVES_POS"),
+                          NVT_META_FIELDS.index("NVT_XREFS_POS"))
+        if not isinstance(resp, list) or len(resp) == 0:
+            return None
 
-    return dict([item.split('=', 1) for item in tags])
+        subelem = ['cve', 'bid', 'xref',]
+
+        refs = dict()
+        for child, res in zip(subelem, resp):
+            refs[child] = res.split(", ")
+
+        return refs
+
+    def get_nvt_prefs(self, ctx, oid):
+        """ Get NVT preferences. """
+        key = 'oid:%s:prefs' % oid
+        prefs = ctx.lrange(key, start=LIST_FIRST_POS,
+                           end=LIST_LAST_POS)
+        return prefs
+
+    def get_nvt_timeout(self, ctx, oid):
+        """ Get NVT timeout"""
+        timeout = ctx.lindex('nvt:%s' % oid,
+                             NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
+        return timeout
+
+    def get_nvt_tag(self, ctx, oid):
+        """ Get a dictionary with the NVT Tags of the given OID."""
+        tag = ctx.lindex('nvt:%s' % oid,
+                          NVT_META_FIELDS.index('NVT_TAGS_POS'))
+        tags = tag.split('|')
+
+        return dict([item.split('=', 1) for item in tags])
