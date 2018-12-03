@@ -64,25 +64,35 @@ class OpenvasDB(object):
         self.db_index = 0
         self.rediscontext = None
 
+    @staticmethod
+    def _parse_openvassd_db_address(result):
+        """ Return the path to the redis socket.
+        Arguments:
+            result (bytes) Output of `openvassd -s`
+        Return redis unix socket path.
+        """
+        path = None
+        result = result.decode('ascii')
+        for conf in result.split('\n'):
+            if conf.find('db_address') == 0:
+                path = conf.split('=')
+                break
+
+        if not path:
+            raise OSPDOpenvasError('Redis Error: Not possible to '
+                                   'find the path to the redis socket.')
+        return path[1].strip()
+
     def get_db_connection(self):
         """ Retrieve the db address from openvassd config.
         """
         result = subprocess.check_output(
             ['openvassd', '-s'], stderr=subprocess.STDOUT)
 
-        path = None
         if result:
-            result = result.decode('ascii')
-            for conf in result.split('\n'):
-                if conf.find('db_address') == 0:
-                    path = conf.split('=')
-                    break
+            path = self._parse_openvassd_db_address(result)
 
-        if not path:
-            raise OSPDOpenvasError('Redis Error: Not possible to '
-                                   'find the path to the redis socket.')
-
-        self.db_address = str.strip(path[1])
+        self.db_address = path
 
     def max_db_index(self):
         """Set the number of databases have been configured into kbr struct.
