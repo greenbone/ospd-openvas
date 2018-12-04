@@ -1,0 +1,11 @@
+[[source]]
+verify_ssl = true
+name = "pypi"
+url = "https://pypi.org/simple"
+
+[packages]
+psutil = "*"
+redis = ">=3.0.1"
+ospd = {git = "https://github.com/greenbone/ospd.git", ref = "master", editable = true}
+
+[dev-packages]

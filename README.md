@@ -60,6 +60,20 @@ request](https://github.com/greenbone/ospd-openvas/pulls) on GitHub. Bigger
 changes need to be discussed with the development team via the [issues section
 at GitHub](https://github.com/greenbone/ospd-openvas/issues) first.
 
+For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+to keep you python packages separated in different environments. First install
+pipenv via pip
+
+    pip install --user pipenv
+
+Afterwards run
+
+    pipenv install --dev
+
+in the checkout directory of ospd-openvas (the directory containing the Pipfile)
+to install all dependencies including the packages only required for
+development.
+
 ## License
 
 Copyright (C) 2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
