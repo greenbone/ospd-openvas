@@ -622,21 +622,46 @@ class OSPDopenvas(OSPDaemon):
             rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':
-                self.add_scan_error(scan_id, host=host_aux,
-                                    name=rname, value=msg[4], port=msg[2])
+                self.add_scan_error(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                    port=msg[2],
+                )
+
             if msg[0] == 'LOG':
-                self.add_scan_log(scan_id, host=host_aux, name=rname,
-                                  value=msg[4], port=msg[2], qod=rqod,
-                                  test_id=roid)
+                self.add_scan_log(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                    port=msg[2],
+                    qod=rqod,
+                    test_id=roid,
+                )
+
             if msg[0] == 'HOST_DETAIL':
-                self.add_scan_log(scan_id, host=host_aux, name=rname,
-                                  value=msg[4])
+                self.add_scan_log(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                )
+
             if msg[0] == 'ALARM':
                 rseverity = self.get_severity_score(roid)
-                self.add_scan_alarm(scan_id, host=host_aux, name=rname,
-                                    value=msg[4], port=msg[2],
-                                    test_id=roid, severity=rseverity,
-                                    qod=rqod)
+                self.add_scan_alarm(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                    port=msg[2],
+                    test_id=roid,
+                    severity=rseverity,
+                    qod=rqod,
+                )
+
             res = self.openvas_db.get_result()
 
     def get_openvas_timestamp_scan_host(self, scan_id, target):
