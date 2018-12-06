@@ -18,21 +18,39 @@
 
 """ Common Vulnerability Scoring System handling class. """
 
-cvss_base_v2 = {
+import math
+
+cvss_v2_metrics = {
     'AV': {'L': 0.395, 'A': 0.646, 'N': 1.0},
     'AC': {'H': 0.35 , 'M': 0.61, 'L': 0.71},
-    'Au': {'M': 0.45, 'S': 0.56,'N': 0.704},
-    'C': {'N': 0.0, 'P': 0.275,'C': 0.660},
-    'I': {'N': 0.0, 'P': 0.275,'C': 0.660},
-    'A': {'N': 0.0, 'P': 0.275,'C': 0.660},
+    'Au': {'M': 0.45, 'S': 0.56, 'N': 0.704},
+    'C': {'N': 0.0, 'P': 0.275, 'C': 0.660},
+    'I': {'N': 0.0, 'P': 0.275, 'C': 0.660},
+    'A': {'N': 0.0, 'P': 0.275, 'C': 0.660},
 }
 
+cvss_v3_metrics = {
+    'AV': {'N': 0.85, 'A': 0.62, 'L': 0.55, 'P': 0.2},
+    'AC': {'L': 0.77, 'H': 0.44},
+    'PR_SU': {'N': 0.85, 'L': 0.62, 'H': 0.27},
+    'PR_SC': {'N': 0.85, 'L': 0.68, 'H': 0.50},
+    'UI': {'N': 0.85, 'R': 0.62},
+    'S': {'U': False, 'C': True},
+    'C': {'H': 0.56, 'L': 0.22, 'N': 0},
+    'I': {'H': 0.56, 'L': 0.22, 'N': 0},
+    'A': {'H': 0.56, 'L': 0.22, 'N': 0},
+}
 
 class CVSS(object):
-    """ Handle cvss vectors """
+    """ Handle cvss vectors and calculate the cvss scoring"""
 
     @staticmethod
-    def _parse_cvss_v2_base_vector(cvss_vector):
+    def roundup(value):
+        """It rounds up to 1 decimal. """
+        return math.ceil(value * 10) / 10
+
+    @staticmethod
+    def _parse_cvss_base_vector(cvss_vector):
         """Parse a string containing a cvss base vector.
 
         Arguments:
@@ -55,19 +73,67 @@ class CVSS(object):
         if not cvss_base_vector:
             return None
 
-        _av, _ac, _au, _c, _i, _a = cls._parse_cvss_v2_base_vector(
+        _av, _ac, _au, _c, _i, _a = cls._parse_cvss_base_vector(
             cvss_base_vector)
 
-        _impact = 10.41 * (1 - (1 - cvss_base_v2['C'].get(_c)) *
-                           (1 - cvss_base_v2['I'].get(_i)) *
-                           (1 - cvss_base_v2['A'].get(_a)))
+        _impact = 10.41 * (1 - (1 - cvss_v2_metrics['C'].get(_c)) *
+                           (1 - cvss_v2_metrics['I'].get(_i)) *
+                           (1 - cvss_v2_metrics['A'].get(_a)))
 
-        _exploitability = (20 * cvss_base_v2['AV'].get(_av) *
-                           cvss_base_v2['AC'].get(_ac) *
-                           cvss_base_v2['Au'].get(_au))
+        _exploitability = (20 * cvss_v2_metrics['AV'].get(_av) *
+                           cvss_v2_metrics['AC'].get(_ac) *
+                           cvss_v2_metrics['Au'].get(_au))
 
         f_impact = 0 if _impact == 0 else 1.176
 
         cvss_base = ((0.6 * _impact) + (0.4 * _exploitability) - 1.5) * f_impact
 
         return round(cvss_base, 1)
+
+    @classmethod
+    def cvss_base_v3_value(cls, cvss_base_vector):
+        """ Calculate the cvss base score from a cvss base vector
+        for cvss version 3.
+        Arguments:
+            cvss_base_vector (str) Cvss base vector v3.
+
+        Return the calculated score, None on fail.
+        """
+        if not cvss_base_vector:
+            return None
+        _ver, _av, _ac, _pr, _ui, _s, _c, _i, _a = cls._parse_cvss_base_vector(
+            cvss_base_vector)
+
+        scope_changed = cvss_v3_metrics['S'].get(_s)
+
+        isc_base = 1 - (
+            (1 - cvss_v3_metrics['C'].get(_c)) *
+            (1 - cvss_v3_metrics['I'].get(_i)) *
+            (1 - cvss_v3_metrics['A'].get(_a))
+        )
+
+        if scope_changed:
+            _priv_req = cvss_v3_metrics['PR_SC'].get(_pr)
+        else:
+            _priv_req = cvss_v3_metrics['PR_SU'].get(_pr)
+
+        _exploitability = (
+            8.22 *
+            cvss_v3_metrics['AV'].get(_av) *
+            cvss_v3_metrics['AC'].get(_ac) *
+            _priv_req *
+            cvss_v3_metrics['UI'].get(_ui)
+        )
+
+        if scope_changed:
+            _impact = (7.52 * (isc_base - 0.029) -
+                       3.25 * pow(isc_base - 0.02, 15))
+            _base_score = min (1.08 * (_impact + _exploitability), 10)
+        else:
+            _impact = 6.42 * isc_base
+            _base_score = min (_impact + _exploitability, 10)
+
+        if _impact > 0 :
+            return cls.roundup(_base_score)
+
+        return 0
