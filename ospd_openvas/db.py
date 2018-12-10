@@ -208,17 +208,18 @@ class OpenvasDB(object):
         if set_global:
             self.set_redisctx(ctx)
 
-    def get_list_item(self, name):
+    def get_list_item(self, name, ctx=None):
         """ Get all values under a KB key list.
         The right rediscontext must be already set.
         """
         if not name:
             raise RequiredArgument('get_list_item requires a name argument.')
 
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.lrange(name, start=LIST_FIRST_POS, end=LIST_LAST_POS)
 
-    def remove_list_item(self, key, value):
+    def remove_list_item(self, key, value, ctx=None):
         """ Remove item from the key list.
         The right rediscontext must be already set.
         """
@@ -228,19 +229,22 @@ class OpenvasDB(object):
             raise RequiredArgument('remove_list_item requires a value '
                                    'argument.')
 
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         ctx.lrem(key, count=LIST_ALL, value=value)
 
-    def get_single_item(self, name):
+    def get_single_item(self, name, ctx=None):
         """ Get a single KB element. The right rediscontext must be
         already set.
         """
         if not name:
             raise RequiredArgument('get_single_item requires a name argument.')
-        ctx = self.get_kb_context()
+
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.lindex(name, index=LIST_FIRST_POS)
 
-    def add_single_item(self, name, values):
+    def add_single_item(self, name, values, ctx=None):
         """ Add a single KB element with one or more values.
         The right rediscontext must be already set.
         """
@@ -249,10 +253,11 @@ class OpenvasDB(object):
         if not values:
             raise RequiredArgument('add_list_item requires a value argument.')
 
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         ctx.rpush(name, *set(values))
 
-    def set_single_item(self, name, value):
+    def set_single_item(self, name, value, ctx=None):
         """ Set (replace) a new single KB element. The right
         rediscontext must be already set.
         """
@@ -261,19 +266,21 @@ class OpenvasDB(object):
         if not value:
             raise RequiredArgument('set_single_item requires a value argument.')
 
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         pipe = ctx.pipeline()
         pipe.delete(name)
         pipe.rpush(name, *set(value))
         pipe.execute()
 
-    def get_pattern(self, pattern):
+    def get_pattern(self, pattern, ctx=None):
         """ Get all items stored under a given pattern.
         """
         if not pattern:
             raise RequiredArgument('get_pattern requires a pattern argument.')
 
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         items = ctx.keys(pattern)
 
         elem_list = []
@@ -284,7 +291,7 @@ class OpenvasDB(object):
             ])
         return elem_list
 
-    def get_elem_pattern_by_index(self, pattern, index=1):
+    def get_elem_pattern_by_index(self, pattern, index=1, ctx=None):
         """ Get all items with index 'index', stored under
         a given pattern.
         """
@@ -292,7 +299,8 @@ class OpenvasDB(object):
             raise RequiredArgument('get_elem_pattern_by_index '
                                    'requires a pattern argument.')
 
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         items = ctx.keys(pattern)
 
         elem_list = []
@@ -309,22 +317,26 @@ class OpenvasDB(object):
         ctx = self.kb_connect()
         ctx.hdel(self.DBINDEX_NAME, kbindex)
 
-    def get_result(self):
+    def get_result(self, ctx=None):
         """ Get and remove the oldest result from the list. """
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/results")
 
-    def get_status(self):
+    def get_status(self, ctx=None):
         """ Get and remove the oldest host scan status from the list. """
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/status")
 
-    def get_host_scan_scan_start_time(self):
+    def get_host_scan_scan_start_time(self, ctx=None):
         """ Get the timestamp of the scan start from redis. """
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/start_time")
 
-    def get_host_scan_scan_end_time(self):
+    def get_host_scan_scan_end_time(self, ctx=None):
         """ Get the timestamp of the scan end from redis. """
-        ctx = self.get_kb_context()
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/end_time")
