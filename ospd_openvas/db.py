@@ -23,6 +23,7 @@ import redis
 import subprocess
 
 from ospd_openvas.errors import OSPDOpenvasError
+from ospd_openvas.errors import RequiredArgument
 from ospd.ospd import logger
 
 SOCKET_TIMEOUT = 60  # in seconds
@@ -109,6 +110,9 @@ class OpenvasDB(object):
     def set_redisctx(self, ctx):
         """ Set the current rediscontext.
         """
+        if not ctx:
+            raise RequiredArgument('set_redisctx: A valid Redis context is '
+            'required.')
         self.rediscontext = ctx
 
     def db_init(self):
@@ -190,9 +194,16 @@ class OpenvasDB(object):
         If needed, set the ctx as global.
         Parameters:
             ctx (redis obj): Redis context to use.
-            newdb (str):  The new kb to select
+            kbindex (str):  The new kb to select
             set_global (bool, optional): If should be the global context.
         """
+        if not ctx:
+            raise RequiredArgument('select_kb(): A valid Redis context is '
+            'required.')
+        if not kbindex:
+            raise RequiredArgument('select_kb(): A valid KB index is '
+            'required.')
+
         ctx.execute_command('SELECT ' + str(kbindex))
         if set_global:
             self.set_redisctx(ctx)
@@ -201,6 +212,9 @@ class OpenvasDB(object):
         """ Get all values under a KB key list.
         The right rediscontext must be already set.
         """
+        if not name:
+            raise RequiredArgument('get_list_item requires a name argument.')
+
         ctx = self.get_kb_context()
         return ctx.lrange(name, start=LIST_FIRST_POS, end=LIST_LAST_POS)
 
@@ -208,6 +222,12 @@ class OpenvasDB(object):
         """ Remove item from the key list.
         The right rediscontext must be already set.
         """
+        if not key:
+            raise RequiredArgument('remove_list_item requires a key argument.')
+        if not value:
+            raise RequiredArgument('remove_list_item requires a value '
+                                   'argument.')
+
         ctx = self.get_kb_context()
         ctx.lrem(key, count=LIST_ALL, value=value)
 
@@ -215,6 +235,8 @@ class OpenvasDB(object):
         """ Get a single KB element. The right rediscontext must be
         already set.
         """
+        if not name:
+            raise RequiredArgument('get_single_item requires a name argument.')
         ctx = self.get_kb_context()
         return ctx.lindex(name, index=LIST_FIRST_POS)
 
@@ -222,6 +244,11 @@ class OpenvasDB(object):
         """ Add a single KB element with one or more values.
         The right rediscontext must be already set.
         """
+        if not name:
+            raise RequiredArgument('add_list_item requires a name argument.')
+        if not values:
+            raise RequiredArgument('add_list_item requires a value argument.')
+
         ctx = self.get_kb_context()
         ctx.rpush(name, *set(values))
 
@@ -229,6 +256,11 @@ class OpenvasDB(object):
         """ Set (replace) a new single KB element. The right
         rediscontext must be already set.
         """
+        if not name:
+            raise RequiredArgument('set_single_item requires a name argument.')
+        if not value:
+            raise RequiredArgument('set_single_item requires a value argument.')
+
         ctx = self.get_kb_context()
         pipe = ctx.pipeline()
         pipe.delete(name)
@@ -238,6 +270,9 @@ class OpenvasDB(object):
     def get_pattern(self, pattern):
         """ Get all items stored under a given pattern.
         """
+        if not pattern:
+            raise RequiredArgument('get_pattern requires a pattern argument.')
+
         ctx = self.get_kb_context()
         items = ctx.keys(pattern)
 
@@ -253,6 +288,10 @@ class OpenvasDB(object):
         """ Get all items with index 'index', stored under
         a given pattern.
         """
+        if not pattern:
+            raise RequiredArgument('get_elem_pattern_by_index '
+                                   'requires a pattern argument.')
+
         ctx = self.get_kb_context()
         items = ctx.keys(pattern)
 
