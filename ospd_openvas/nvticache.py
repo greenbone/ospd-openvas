@@ -164,14 +164,17 @@ class NVTICache(object):
 
     def get_nvt_timeout(self, ctx, oid):
         """ Get NVT timeout"""
-        timeout = ctx.lindex('nvt:%s' % oid,
-                             NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
+        timeout = self._openvas_db.get_single_item(
+            'nvt:%s' % oid, ctx=ctx,
+            index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
+
         return timeout
 
     def get_nvt_tag(self, ctx, oid):
         """ Get a dictionary with the NVT Tags of the given OID."""
-        tag = ctx.lindex('nvt:%s' % oid,
-                          NVT_META_FIELDS.index('NVT_TAGS_POS'))
+        tag = self._openvas_db.get_single_item(
+            'nvt:%s' % oid, ctx=ctx,
+            index=NVT_META_FIELDS.index('NVT_TAGS_POS'))
         tags = tag.split('|')
 
         return dict([item.split('=', 1) for item in tags])

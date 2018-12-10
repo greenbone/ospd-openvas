@@ -234,7 +234,7 @@ class OpenvasDB(object):
             ctx = self.get_kb_context()
         ctx.lrem(key, count=LIST_ALL, value=value)
 
-    def get_single_item(self, name, ctx=None):
+    def get_single_item(self, name, ctx=None, index=LIST_FIRST_POS):
         """ Get a single KB element. The right rediscontext must be
         already set.
         """
@@ -243,7 +243,7 @@ class OpenvasDB(object):
 
         if not ctx:
             ctx = self.get_kb_context()
-        return ctx.lindex(name, index=LIST_FIRST_POS)
+        return ctx.lindex(name, index)
 
     def add_single_item(self, name, values, ctx=None):
         """ Add a single KB element with one or more values.
