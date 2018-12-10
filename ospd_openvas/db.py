@@ -208,7 +208,8 @@ class OpenvasDB(object):
         if set_global:
             self.set_redisctx(ctx)
 
-    def get_list_item(self, name, ctx=None):
+    def get_list_item(self, name, ctx=None, start=LIST_FIRST_POS,
+                      end=LIST_LAST_POS):
         """ Get all values under a KB key list.
         The right rediscontext must be already set.
         """
@@ -217,7 +218,7 @@ class OpenvasDB(object):
 
         if not ctx:
             ctx = self.get_kb_context()
-        return ctx.lrange(name, start=LIST_FIRST_POS, end=LIST_LAST_POS)
+        return ctx.lrange(name, start, end)
 
     def remove_list_item(self, key, value, ctx=None):
         """ Remove item from the key list.
