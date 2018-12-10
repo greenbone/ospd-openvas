@@ -591,7 +591,6 @@ class OSPDopenvas(OSPDaemon):
     def get_openvas_result(self, scan_id):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
-        ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
         while res:
             msg = res.split('|||')
             host_aux = self.openvas_db.get_single_item('internal/ip')
