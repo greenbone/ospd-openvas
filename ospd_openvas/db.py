@@ -114,7 +114,7 @@ class OpenvasDB(object):
         """
         if not ctx:
             raise RequiredArgument('set_redisctx: A valid Redis context is '
-            'required.')
+                                   'required.')
         self.rediscontext = ctx
 
     def db_init(self):
@@ -210,10 +210,10 @@ class OpenvasDB(object):
         """
         if not ctx:
             raise RequiredArgument('select_kb(): A valid Redis context is '
-            'required.')
+                                   'required.')
         if not kbindex:
             raise RequiredArgument('select_kb(): A valid KB index is '
-            'required.')
+                                   'required.')
 
         ctx.execute_command('SELECT ' + str(kbindex))
         if set_global:
