@@ -591,7 +591,6 @@ class OSPDopenvas(OSPDaemon):
     def get_openvas_result(self, scan_id):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
-        ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
         while res:
             msg = res.split('|||')
             host_aux = self.openvas_db.get_single_item('internal/ip')
@@ -673,7 +672,7 @@ class OSPDopenvas(OSPDaemon):
                 parent.send_signal(signal.SIGUSR2)
                 logger.debug('Stopping process: {0}'.format(parent))
 
-    def get_vts_in_groups(self, ctx, filters):
+    def get_vts_in_groups(self, filters):
         """ Return a list of vts which match with the given filter.
 
         @input filters A list of filters. Each filter has key, operator and
@@ -683,8 +682,7 @@ class OSPDopenvas(OSPDaemon):
         """
         vts_list = list()
         families = dict()
-        oids = self.nvti.get_oids()
-        for filename, oid in oids:
+        for oid in self.vts:
             family = self.vts[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
@@ -730,10 +728,8 @@ class OSPDopenvas(OSPDaemon):
         vts_params = []
         vtgroups = vts.pop('vt_groups')
 
-        ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
-        self.openvas_db.set_redisctx(ctx)
         if vtgroups:
-            vts_list = self.get_vts_in_groups(ctx, vtgroups)
+            vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
             vts_list.append(vtid)
@@ -898,9 +894,7 @@ class OSPDopenvas(OSPDaemon):
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
-            # Select the scan KB again.
-            self.openvas_db.select_kb(ctx, str(self.main_kbindex),
-                                      set_global=True)
+           
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)

@@ -114,9 +114,11 @@ class NVTICache(object):
         """ Get a full NVT. Returns an XML tree with the NVT metadata.
         """
         ctx = self._openvas_db.get_kb_context()
-        resp = ctx.lrange("nvt:%s" % oid,
-                          NVT_META_FIELDS.index("NVT_FILENAME_POS"),
-                          NVT_META_FIELDS.index("NVT_NAME_POS"))
+        resp = self._openvas_db.get_list_item(
+            "nvt:%s" % oid, ctx=ctx,
+            start=NVT_META_FIELDS.index("NVT_FILENAME_POS"),
+            end=NVT_META_FIELDS.index("NVT_NAME_POS"))
+
         if not isinstance(resp, list) or len(resp) == 0:
             return None
 
@@ -138,9 +140,11 @@ class NVTICache(object):
         """ Get a full NVT. Returns an XML tree with the NVT references.
         """
         ctx = self._openvas_db.get_kb_context()
-        resp = ctx.lrange("nvt:%s" % oid,
-                          NVT_META_FIELDS.index("NVT_CVES_POS"),
-                          NVT_META_FIELDS.index("NVT_XREFS_POS"))
+        resp = self._openvas_db.get_list_item(
+            "nvt:%s" % oid, ctx=ctx,
+            start=NVT_META_FIELDS.index("NVT_CVES_POS"),
+            end=NVT_META_FIELDS.index("NVT_XREFS_POS"))
+
         if not isinstance(resp, list) or len(resp) == 0:
             return None
 
@@ -155,20 +159,22 @@ class NVTICache(object):
     def get_nvt_prefs(self, ctx, oid):
         """ Get NVT preferences. """
         key = 'oid:%s:prefs' % oid
-        prefs = ctx.lrange(key, start=LIST_FIRST_POS,
-                           end=LIST_LAST_POS)
+        prefs = self._openvas_db.get_list_item(key, ctx=ctx)
         return prefs
 
     def get_nvt_timeout(self, ctx, oid):
         """ Get NVT timeout"""
-        timeout = ctx.lindex('nvt:%s' % oid,
-                             NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
+        timeout = self._openvas_db.get_single_item(
+            'nvt:%s' % oid, ctx=ctx,
+            index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
+
         return timeout
 
     def get_nvt_tag(self, ctx, oid):
         """ Get a dictionary with the NVT Tags of the given OID."""
-        tag = ctx.lindex('nvt:%s' % oid,
-                          NVT_META_FIELDS.index('NVT_TAGS_POS'))
+        tag = self._openvas_db.get_single_item(
+            'nvt:%s' % oid, ctx=ctx,
+            index=NVT_META_FIELDS.index('NVT_TAGS_POS'))
         tags = tag.split('|')
 
         return dict([item.split('=', 1) for item in tags])

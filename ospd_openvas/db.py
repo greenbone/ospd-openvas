@@ -23,6 +23,7 @@ import redis
 import subprocess
 
 from ospd_openvas.errors import OSPDOpenvasError
+from ospd_openvas.errors import RequiredArgument
 from ospd.ospd import logger
 
 SOCKET_TIMEOUT = 60  # in seconds
@@ -108,7 +109,12 @@ class OpenvasDB(object):
 
     def set_redisctx(self, ctx):
         """ Set the current rediscontext.
+        Arguments:
+            ctx (object): Redis context to be set as default.
         """
+        if not ctx:
+            raise RequiredArgument('set_redisctx: A valid Redis context is '
+                                   'required.')
         self.rediscontext = ctx
 
     def db_init(self):
@@ -117,7 +123,15 @@ class OpenvasDB(object):
         self.max_db_index()
 
     def try_database_index(self, ctx, kb):
-        """ Check if it is already in use. If not set it as in use and return.
+        """ Check if a redis kb is already in use. If not, set it
+        as in use and return.
+        Arguments:
+            ctx (object): Redis object connected to the kb with the
+                DBINDEX_NAME key.
+            kb (int): Kb number intended to be used.
+
+        Return True if it is possible to use the kb. False if the given kb
+            number is already in use.
         """
         _IN_USE = 1
         try:
@@ -132,10 +146,11 @@ class OpenvasDB(object):
 
     def kb_connect(self, dbnum=0):
         """ Connect to redis to the given database or to the default db 0 .
-        Arguments:
-            dbnum (int): The db number to connect to.
 
-        Return a redis context on success or 2 on error
+        Arguments:
+            dbnum (int, optional): The db number to connect to.
+
+        Return a redis context on success.
         """
         self.get_db_connection()
 
@@ -188,57 +203,122 @@ class OpenvasDB(object):
     def select_kb(self, ctx, kbindex, set_global=False):
         """ Use an existent redis connection and select a redis kb.
         If needed, set the ctx as global.
-        Parameters:
+        Arguments:
             ctx (redis obj): Redis context to use.
-            newdb (str):  The new kb to select
+            kbindex (str): The new kb to select
             set_global (bool, optional): If should be the global context.
         """
+        if not ctx:
+            raise RequiredArgument('select_kb(): A valid Redis context is '
+                                   'required.')
+        if not kbindex:
+            raise RequiredArgument('select_kb(): A valid KB index is '
+                                   'required.')
+
         ctx.execute_command('SELECT ' + str(kbindex))
         if set_global:
             self.set_redisctx(ctx)
+            self.db_index = str(kbindex)
 
-    def get_list_item(self, name):
-        """ Get all values under a KB key list.
-        The right rediscontext must be already set.
+    def get_list_item(self, name, ctx=None, start=LIST_FIRST_POS,
+                      end=LIST_LAST_POS):
+        """ Returns the specified elements from `start` to `end` of the
+        list stored as `name`.
+
+        Arguments:
+            name (str): key name of a list.
+            ctx (redis obj, optional): Redis context to use.
+            start (int, optional): first range element to get.
+            end (int, optional): last range element to get.
+
+        Return List specified elements in the key.
         """
-        ctx = self.get_kb_context()
-        return ctx.lrange(name, start=LIST_FIRST_POS, end=LIST_LAST_POS)
+        if not name:
+            raise RequiredArgument('get_list_item requires a name argument.')
 
-    def remove_list_item(self, key, value):
+        if not ctx:
+            ctx = self.get_kb_context()
+        return ctx.lrange(name, start, end)
+
+    def remove_list_item(self, key, value, ctx=None):
         """ Remove item from the key list.
-        The right rediscontext must be already set.
+        Arguments:
+            key (str): key name of a list.
+            value (str): Value to be removed from the key.
+            ctx (redis obj, optional): Redis context to use.
         """
-        ctx = self.get_kb_context()
+        if not key:
+            raise RequiredArgument('remove_list_item requires a key argument.')
+        if not value:
+            raise RequiredArgument('remove_list_item requires a value '
+                                   'argument.')
+
+        if not ctx:
+            ctx = self.get_kb_context()
         ctx.lrem(key, count=LIST_ALL, value=value)
 
-    def get_single_item(self, name):
-        """ Get a single KB element. The right rediscontext must be
-        already set.
+    def get_single_item(self, name, ctx=None, index=LIST_FIRST_POS):
+        """ Get a single KB element.
+        Arguments:
+            name (str): key name of a list.
+            ctx (redis obj, optional): Redis context to use.
+            index (int, optional): index of the element to be return.
+        Return an element.
         """
-        ctx = self.get_kb_context()
-        return ctx.lindex(name, index=LIST_FIRST_POS)
+        if not name:
+            raise RequiredArgument('get_single_item requires a name argument.')
 
-    def add_single_item(self, name, values):
+        if not ctx:
+            ctx = self.get_kb_context()
+        return ctx.lindex(name, index)
+
+    def add_single_item(self, name, values, ctx=None):
         """ Add a single KB element with one or more values.
-        The right rediscontext must be already set.
+        Arguments:
+            name (str): key name of a list.
+            value (list): Elements to add to the key.
+            ctx (redis obj, optional): Redis context to use.
         """
-        ctx = self.get_kb_context()
+        if not name:
+            raise RequiredArgument('add_list_item requires a name argument.')
+        if not values:
+            raise RequiredArgument('add_list_item requires a value argument.')
+
+        if not ctx:
+            ctx = self.get_kb_context()
         ctx.rpush(name, *set(values))
 
-    def set_single_item(self, name, value):
-        """ Set (replace) a new single KB element. The right
-        rediscontext must be already set.
+    def set_single_item(self, name, value, ctx=None):
+        """ Set (replace) a single KB element.
+        Arguments:
+            name (str): key name of a list.
+            value (list): New elements to add to the key.
+            ctx (redis obj, optional): Redis context to use.
         """
-        ctx = self.get_kb_context()
+        if not name:
+            raise RequiredArgument('set_single_item requires a name argument.')
+        if not value:
+            raise RequiredArgument('set_single_item requires a value argument.')
+
+        if not ctx:
+            ctx = self.get_kb_context()
         pipe = ctx.pipeline()
         pipe.delete(name)
         pipe.rpush(name, *set(value))
         pipe.execute()
 
-    def get_pattern(self, pattern):
+    def get_pattern(self, pattern, ctx=None):
         """ Get all items stored under a given pattern.
+        Arguments:
+            pattern (str): key pattern to match.
+            ctx (redis obj, optional): Redis context to use.
+        Return a list with the elements under the matched key.
         """
-        ctx = self.get_kb_context()
+        if not pattern:
+            raise RequiredArgument('get_pattern requires a pattern argument.')
+
+        if not ctx:
+            ctx = self.get_kb_context()
         items = ctx.keys(pattern)
 
         elem_list = []
@@ -249,11 +329,21 @@ class OpenvasDB(object):
             ])
         return elem_list
 
-    def get_elem_pattern_by_index(self, pattern, index=1):
+    def get_elem_pattern_by_index(self, pattern, index=1, ctx=None):
         """ Get all items with index 'index', stored under
         a given pattern.
+        Arguments:
+            pattern (str): key pattern to match.
+            index (int, optional): Index of the element to get from the list.
+            ctx (redis obj, optional): Redis context to use.
+        Return a list with the elements under the matched key and given index.
         """
-        ctx = self.get_kb_context()
+        if not pattern:
+            raise RequiredArgument('get_elem_pattern_by_index '
+                                   'requires a pattern argument.')
+
+        if not ctx:
+            ctx = self.get_kb_context()
         items = ctx.keys(pattern)
 
         elem_list = []
@@ -264,28 +354,50 @@ class OpenvasDB(object):
     def release_db(self, kbindex=0):
         """ Connect to redis and select the db by index.
         Flush db and delete the index from dbindex_name list.
+        Arguments:
+            kbindex (int, optional): KB index to flush and release.
         """
         ctx = self.kb_connect(kbindex)
         ctx.flushdb()
         ctx = self.kb_connect()
         ctx.hdel(self.DBINDEX_NAME, kbindex)
 
-    def get_result(self):
-        """ Get and remove the oldest result from the list. """
-        ctx = self.get_kb_context()
+    def get_result(self, ctx=None):
+        """ Get and remove the oldest result from the list.
+        Arguments:
+            ctx (redis obj, optional): Redis context to use.
+        Return a list with scan results
+        """
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/results")
 
-    def get_status(self):
-        """ Get and remove the oldest host scan status from the list. """
-        ctx = self.get_kb_context()
+    def get_status(self, ctx=None):
+        """ Get and remove the oldest host scan status from the list.
+        Arguments:
+            ctx (redis obj, optional): Redis context to use.
+        Return a string which represents the host scan status.
+        """
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/status")
 
-    def get_host_scan_scan_start_time(self):
-        """ Get the timestamp of the scan start from redis. """
-        ctx = self.get_kb_context()
+    def get_host_scan_scan_start_time(self, ctx=None):
+        """ Get the timestamp of the scan start from redis.
+        Arguments:
+            ctx (redis obj, optional): Redis context to use.
+        Return a string with the timestamp of the scan start.
+        """
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/start_time")
 
-    def get_host_scan_scan_end_time(self):
-        """ Get the timestamp of the scan end from redis. """
-        ctx = self.get_kb_context()
+    def get_host_scan_scan_end_time(self, ctx=None):
+        """ Get the timestamp of the scan end from redis.
+        Arguments:
+            ctx (redis obj, optional): Redis context to use.
+        Return a string with the timestamp of scan end .
+        """
+        if not ctx:
+            ctx = self.get_kb_context()
         return ctx.rpop("internal/end_time")
