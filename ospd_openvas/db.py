@@ -218,6 +218,7 @@ class OpenvasDB(object):
         ctx.execute_command('SELECT ' + str(kbindex))
         if set_global:
             self.set_redisctx(ctx)
+            self.db_index = str(kbindex)
 
     def get_list_item(self, name, ctx=None, start=LIST_FIRST_POS,
                       end=LIST_LAST_POS):
