@@ -29,6 +29,7 @@ import psutil
 from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
 from ospd.misc import target_str_to_list
+from ospd.cvss import CVSS
 from ospd_openvas import __version__
 
 from ospd_openvas.nvticache import NVTICache
@@ -302,28 +303,28 @@ class OSPDopenvas(OSPDaemon):
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
 
-            _summary=None
-            _impact=None
-            _affected=None
-            _insight=None
-            _solution=None
-            _solution_t=None
-            _vuldetect=None
-            _qod_t=None
-            _qod_v=None
+            _summary = None
+            _impact = None
+            _affected = None
+            _insight = None
+            _solution = None
+            _solution_t = None
+            _vuldetect = None
+            _qod_t = None
+            _qod_v = None
 
             if 'summary' in _custom:
-                _summary  = _custom.pop('summary')
+                _summary = _custom.pop('summary')
             if 'impact' in _custom:
-                _impact   = _custom.pop('impact')
+                _impact = _custom.pop('impact')
             if 'affected' in _custom:
                 _affected = _custom.pop('affected')
             if 'insight' in _custom :
-                _insight  = _custom.pop('insight')
+                _insight = _custom.pop('insight')
             if 'solution' in _custom:
-                _solution  = _custom.pop('solution')
+                _solution = _custom.pop('solution')
                 if 'solution_type' in _custom:
-                    _solution_t  = _custom.pop('solution_type')
+                    _solution_t = _custom.pop('solution_type')
 
             if 'vuldetect' in _custom:
                 _vuldetect  = _custom.pop('vuldetect')
@@ -588,6 +589,20 @@ class OSPDopenvas(OSPDaemon):
             self.update_progress(scan_id, target, res)
             res = self.openvas_db.get_status()
 
+
+    def get_severity_score(self, oid):
+        """ Return the severity score for the given oid. """
+        severity_type = (
+            self.vts[oid]['severities'].get('severity_type'))
+
+        severity_vector = (
+            self.vts[oid]['severities'].get('severity_base_vector'))
+
+        if severity_type == "cvss_base_v2" and severity_vector:
+            return CVSS.cvss_base_v2_value(severity_vector)
+
+        return None
+
     def get_openvas_result(self, scan_id):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
@@ -603,24 +618,49 @@ class OSPDopenvas(OSPDaemon):
             elif self.vts[roid].get('qod'):
                 rqod = self.vts[roid].get('qod')
 
-            rseverity = self.vts[roid]['severities'].get('cvss_base')
             rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':
-                self.add_scan_error(scan_id, host=host_aux,
-                                    name=rname, value=msg[4], port=msg[2])
+                self.add_scan_error(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                    port=msg[2],
+                )
+
             if msg[0] == 'LOG':
-                self.add_scan_log(scan_id, host=host_aux, name=rname,
-                                  value=msg[4], port=msg[2], qod=rqod,
-                                  test_id=roid)
+                self.add_scan_log(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                    port=msg[2],
+                    qod=rqod,
+                    test_id=roid,
+                )
+
             if msg[0] == 'HOST_DETAIL':
-                self.add_scan_log(scan_id, host=host_aux, name=rname,
-                                  value=msg[4])
+                self.add_scan_log(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                )
+
             if msg[0] == 'ALARM':
-                self.add_scan_alarm(scan_id, host=host_aux, name=rname,
-                                    value=msg[4], port=msg[2],
-                                    test_id=roid, severity=rseverity,
-                                    qod=rqod)
+                rseverity = self.get_severity_score(roid)
+                self.add_scan_alarm(
+                    scan_id,
+                    host=host_aux,
+                    name=rname,
+                    value=msg[4],
+                    port=msg[2],
+                    test_id=roid,
+                    severity=rseverity,
+                    qod=rqod,
+                )
+
             res = self.openvas_db.get_result()
 
     def get_openvas_timestamp_scan_host(self, scan_id, target):
