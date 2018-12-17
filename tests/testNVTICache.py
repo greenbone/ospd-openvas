@@ -89,7 +89,6 @@ class TestNVTICache(TestCase):
         custom = {
             'category': '3',
             'creation_date': '2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)',
-            'cvss_base': '0.0',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
             'dependencies': 'find_service.nasl, http_version.nasl',
             'excluded_keys': 'Settings/disable_cgi_scanning',
