@@ -13,7 +13,7 @@ you can create scan tasks to use this scanner.
 
 ### Requirements
 
-Python 3 and later is supported.
+Python 3.5 and later is supported.
 
 Beyond the [ospd base library](https://github.com/greenbone/ospd),
 `ospd-openvas` has dependencies on the following Python packages:
