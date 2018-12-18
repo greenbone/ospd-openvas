@@ -37,6 +37,7 @@ setup(
     author_email='info@greenbone.net',
 
     license='GPLV2+',
+    python_requires='>=3.5',
     install_requires=['ospd>=1.4b1', 'ospd<=1.5.0', 'redis', 'psutil'],
 
     entry_points={
