@@ -1,0 +1,68 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.5
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "Pipfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: |
+            pipenv install
+      - save_cache:
+          paths:
+            - ./.venv
+          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Install OSPD OpenVAS
+          command: |
+            pipenv install .
+  test:
+    docker:
+      - image: circleci/python:3.5
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "Pipfile.lock" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: |
+            pipenv install --dev
+            pipenv install -e git+https://github.com/greenbone/ospd.git#egg=ospd
+      - save_cache:
+          paths:
+            - ./.venv
+          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+      - run:
+          name: Install codecov
+          command: |
+            pipenv install codecov
+      - run:
+          name: Run unit tests
+          command: |
+            pipenv run coverage run -m unittest
+      - run:
+          name: Upload coverage to Codecov
+          command: |
+            pipenv run codecov
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test
