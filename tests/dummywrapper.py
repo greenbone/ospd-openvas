@@ -17,10 +17,14 @@ class DummyWrapper(OSPDopenvas):
                                       '10 Aug 2018) $'),
                 'name': 'Mantis Detection',
                 'qod_type': 'remote_banner',
+                'insight': 'some insight',
                 'severities': {
                     'severity_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
                     'severity_type': 'cvss_base_v2'},
-                'summary': 'Detects the installed version of\n  Mantis a free popular web-based bugtracking system.\n\n  This script sends HTTP GET request and try to get the version from the\n  response, and sets the result in KB.',
+                'solution': 'some solution',
+                'solution_type': 'WillNotFix',
+                'impact': 'some impact',
+                'summary': 'some summary',
                 'vt_dependencies': [],
                 'vt_params': {
                     'Data length : ': {
@@ -72,11 +76,11 @@ class DummyWrapper(OSPDopenvas):
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
-            'summary': (
-                'Detects the installed version of\n  Mantis a free popular '
-                'web-based bugtracking system.\n\n  This script sends HTTP '
-                'GET request and try to get the version from the\n  respons'
-                'e, and sets the result in KB.'),
+            'solution': 'some solution',
+            'solution_type': 'WillNotFix',
+            'impact': 'some impact',
+            'insight': 'some insight',
+            'summary': ('some summary'),
             'timeout': '0'
         }
 
