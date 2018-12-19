@@ -19,14 +19,9 @@
 
 """ Unit Test for ospd-openvas """
 
-import subprocess
 import unittest
-from unittest.mock import patch, create_autospec
-from redis import Redis
-from ospd_openvas.db import OpenvasDB
-from ospd_openvas.nvticache import NVTICache
+from unittest.mock import patch
 from ospd_openvas.wrapper import OSPD_PARAMS
-from ospd.ospd import OSPDaemon, logger
 from tests.dummywrapper import DummyWrapper
 
 OSPD_PARAMS_OUT = {
