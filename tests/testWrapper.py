@@ -247,3 +247,12 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', dep)
 
         self.assertEqual(res, out)
+
+    def test_get_ctime_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)')
+        ctime = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('creation_time')
+        res = w.get_creation_time_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', ctime)
+
+        self.assertEqual(res, out)
