@@ -265,3 +265,12 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', mtime)
 
         self.assertEqual(res, out)
+
+    def test_get_summary_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<summary>Detects the installed version of\n  Mantis a free popular web-based bugtracking system.\n\n  This script sends HTTP GET request and try to get the version from the\n  response, and sets the result in KB.</summary>')
+        summary = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('summary')
+        res = w.get_summary_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', summary)
+
+        self.assertEqual(res, out)
