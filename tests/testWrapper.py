@@ -168,10 +168,11 @@ OSPD_PARAMS_OUT = {
     },
 }
 
+
+@patch('ospd_openvas.db.OpenvasDB')
+@patch('ospd_openvas.nvticache.NVTICache')
 class TestOspdOpenvas(unittest.TestCase):
 
-    @patch('ospd_openvas.db.OpenvasDB')
-    @patch('ospd_openvas.nvticache.NVTICache')
     @patch('ospd_openvas.wrapper.subprocess')
     def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = True
@@ -179,8 +180,6 @@ class TestOspdOpenvas(unittest.TestCase):
         w.redis_nvticache_init()
         self.assertEqual(mock_subproc.check_call.call_count, 1)
 
-    @patch('ospd_openvas.db.OpenvasDB')
-    @patch('ospd_openvas.nvticache.NVTICache')
     @patch('ospd_openvas.wrapper.subprocess')
     def test_parse_param(self, mock_subproc, mock_nvti, mock_db):
 
@@ -191,16 +190,12 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(mock_subproc.check_output.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
 
-    @patch('ospd_openvas.db.OpenvasDB')
-    @patch('ospd_openvas.nvticache.NVTICache')
     def test_load_vts(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
         self.maxDiff = None
         self.assertEqual(w.vts, w.VT)
 
-    @patch('ospd_openvas.db.OpenvasDB')
-    @patch('ospd_openvas.nvticache.NVTICache')
     def test_get_custom_xml(self, mock_nvti, mock_db):
         out = ('<required_ports>Services/www, 80</re'
                'quired_ports><category>3</category><'
@@ -215,8 +210,6 @@ class TestOspdOpenvas(unittest.TestCase):
             w.VT['1.3.6.1.4.1.25623.1.0.100061']['custom'])
         self.assertEqual(len(res), len(out))
 
-    @patch('ospd_openvas.db.OpenvasDB')
-    @patch('ospd_openvas.nvticache.NVTICache')
     def test_get_severities_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
         out = ('<severity type="cvss_base_v2">'
@@ -228,8 +221,6 @@ class TestOspdOpenvas(unittest.TestCase):
 
         self.assertEqual(res, out)
 
-    @patch('ospd_openvas.db.OpenvasDB')
-    @patch('ospd_openvas.nvticache.NVTICache')
     def test_get_params_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
         out = ('<vt_param type="checkbox" id="Do not randomize the  order  in  which ports are scanned"><name>Do not randomize the  order  in  which ports are scanned</name><default>no</default></vt_param><vt_param type="entry" id="Data length : "><name>Data length : </name></vt_param>')
