@@ -22,15 +22,39 @@ class DummyWrapper(OSPDopenvas):
                     'severity_type': 'cvss_base_v2'},
                 'summary': 'Detects the installed version of\n  Mantis a free popular web-based bugtracking system.\n\n  This script sends HTTP GET request and try to get the version from the\n  response, and sets the result in KB.',
                 'vt_dependencies': [],
-                'vt_params': {},
-                'vt_refs': {'bid': [''],
-                            'cve': [''],
-                            'xref': ['URL:http://www.mantisbt.org/']}}
-        }
+                'vt_params': {
+                    'Data length : ': {
+                        'default': '',
+                        'description': 'Description',
+                        'name': 'Data length : ',
+                        'type': 'entry'},
+                    'Do not randomize the  order  in  which ports are scanned': {
+                        'default': 'no',
+                        'description': 'Description',
+                        'name': 'Do not randomize the  order  in  which ports are scanned',
+                        'type': 'checkbox'},
+                },
+                'vt_refs': {
+                    'bid': [''],
+                    'cve': [''],
+                    'xref': ['URL:http://www.mantisbt.org/']}}
+            }
 
         oids = [['mantis_detect.nasl', '1.3.6.1.4.1.25623.1.0.100061']]
         nvti.get_oids.return_value = oids
-        nvti.get_nvt_params.return_value = {}
+        nvti.get_nvt_params.return_value = {
+            'Data length : ': {
+                'default': '',
+                'description': 'Description',
+                'name': 'Data length : ',
+                'type': 'entry'
+            },
+            'Do not randomize the  order  in  which ports are scanned': {
+                'default': 'no',
+                'description': 'Description',
+                'name': 'Do not randomize the  order  in  which ports are scanned',
+                'type': 'checkbox'},
+        }
         nvti.get_nvt_refs.return_value = {
             'bid': [''],
             'cve': [''],

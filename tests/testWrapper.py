@@ -227,3 +227,14 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', severities)
 
         self.assertEqual(res, out)
+
+    @patch('ospd_openvas.db.OpenvasDB')
+    @patch('ospd_openvas.nvticache.NVTICache')
+    def test_get_params_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<vt_param type="checkbox" id="Do not randomize the  order  in  which ports are scanned"><name>Do not randomize the  order  in  which ports are scanned</name><default>no</default></vt_param><vt_param type="entry" id="Data length : "><name>Data length : </name></vt_param>')
+
+        params = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('vt_params')
+        res = w.get_params_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', params)
+        self.assertEqual(len(res), len(out))
