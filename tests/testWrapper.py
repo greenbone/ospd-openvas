@@ -256,3 +256,12 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', ctime)
 
         self.assertEqual(res, out)
+
+    def test_get_mtime_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('$Date: 2018-08-10 15:09:25 +0200 (Fri, 10 Aug 2018) $')
+        mtime = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('modification_time')
+        res = w.get_modification_time_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', mtime)
+
+        self.assertEqual(res, out)
