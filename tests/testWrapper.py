@@ -229,3 +229,12 @@ class TestOspdOpenvas(unittest.TestCase):
         res = w.get_params_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', params)
         self.assertEqual(len(res), len(out))
+
+    def test_get_refs_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<ref type="url" id="http://www.mantisbt.org/"/>')
+        refs = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('vt_refs')
+        res = w.get_refs_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', refs)
+
+        self.assertEqual(res, out)
