@@ -292,3 +292,15 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', insight)
 
         self.assertEqual(res, out)
+
+    def test_get_solution_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<solution type="WillNotFix">some solution</solution>')
+        solution = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('solution')
+        solution_type = (
+            w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('solution_type'))
+
+        res = w.get_solution_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type)
+
+        self.assertEqual(res, out)
