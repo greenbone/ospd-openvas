@@ -175,26 +175,30 @@ OSPD_PARAMS_OUT = {
 
 class TestOspdOpenvas(unittest.TestCase):
 
+    @patch('ospd_openvas.db.OpenvasDB')
+    @patch('ospd_openvas.nvticache.NVTICache')
     @patch('ospd_openvas.wrapper.subprocess')
-    def test_redis_nvticache_init(self, mock_subproc):
+    def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = True
-        OSPDopenvas.redis_nvticache_init(self)
+        w = DummyWrapper(mock_nvti, mock_db)
+        w.redis_nvticache_init()
         self.assertEqual(mock_subproc.check_call.call_count, 1)
 
+    @patch('ospd_openvas.db.OpenvasDB')
+    @patch('ospd_openvas.nvticache.NVTICache')
     @patch('ospd_openvas.wrapper.subprocess')
-    def test_parse_param(self, mock_subproc):
+    def test_parse_param(self, mock_subproc, mock_nvti, mock_db):
 
         mock_subproc.check_output.return_value = (
             'non_simult_ports = 22'.encode())
-        OSPDopenvas.parse_param(self)
+        w =  DummyWrapper(mock_nvti, mock_db)
+        w.parse_param()
         self.assertEqual(mock_subproc.check_output.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
 
     @patch('ospd_openvas.db.OpenvasDB')
     @patch('ospd_openvas.nvticache.NVTICache')
     def test_load_vts(self, mock_nvti, mock_db):
-        mock_db.return_value = True
-        mock_nvti.return_value = True
         w =  DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
 
