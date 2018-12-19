@@ -201,5 +201,34 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_load_vts(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
+        self.maxDiff = None
+        self.assertEqual(w.vts, w.VT)
 
-        self.assertEqual(w.vts, VT)
+    @patch('ospd_openvas.db.OpenvasDB')
+    @patch('ospd_openvas.nvticache.NVTICache')
+    def test_get_custom_xml(self, mock_nvti, mock_db):
+        out = ('<required_ports>Services/www, 80</re'
+               'quired_ports><category>3</category><'
+               'excluded_keys>Settings/disable_cgi_s'
+               'canning</excluded_keys><family>Produ'
+               'ct detection</family><filename>manti'
+               's_detect.nasl</filename><timeout>0</'
+               'timeout>')
+        w =  DummyWrapper(mock_nvti, mock_db)
+        res = w.get_custom_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061',
+            w.VT['1.3.6.1.4.1.25623.1.0.100061']['custom'])
+        self.assertEqual(len(res), len(out))
+
+    @patch('ospd_openvas.db.OpenvasDB')
+    @patch('ospd_openvas.nvticache.NVTICache')
+    def test_get_severities_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<severity type="cvss_base_v2">'
+               'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity>')
+
+        severities = w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('severities')
+        res = w.get_severities_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', severities)
+
+        self.assertEqual(res, out)
