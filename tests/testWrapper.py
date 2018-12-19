@@ -304,3 +304,14 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type)
 
         self.assertEqual(res, out)
+
+    def test_get_detection_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<detection qod_type="remote_banner"/>')
+        detection_type = (
+            w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('qod_type'))
+
+        res = w.get_detection_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', qod_type=detection_type)
+
+        self.assertEqual(res, out)
