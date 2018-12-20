@@ -108,3 +108,37 @@ class TestDB(TestCase):
             ret = self.db.get_list_item("name", ctx=None)
         self.assertEqual(ret, ['1234'])
 
+    def test_rm_list_item(self, mock_redis):
+        mock_redis.lrem.return_value = 1
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.remove_list_item("name", "1234",ctx=None)
+        mock_redis.lrem.assert_called_once_with("name", count=0, value="1234")
+
+    def test_rm_list_item_error(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.remove_list_item, "1", None)
+
+    def test_rm_list_item_error1(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.remove_list_item, None, "1")
+
+    def test_get_single_item_error(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.get_single_item, None, "1")
+
+    def test_get_single_item(self, mock_redis):
+        mock_redis.lindex.return_value = 'a'
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_single_item("a", ctx=None)
+
+    def test_add_single_item(self, mock_redis):
+        mock_redis.rpush.return_value = 1
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.add_single_item('a', ['12'], ctx=None)
+        mock_redis.rpush.assert_called_once_with('a', '12')
+
+    def test_add_single_item_error(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.add_single_item, None, "1")
+
+    def test_add_single_item_error1(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.add_single_item, "1", None)
