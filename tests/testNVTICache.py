@@ -32,6 +32,20 @@ class TestNVTICache(TestCase):
         self.db = OpenvasDB()
         self.nvti = NVTICache(self.db)
 
+    def test_get_feed_version(self, mock_redis):
+        with patch.object(OpenvasDB,
+                          'db_find', return_value=mock_redis):
+            with patch.object(OpenvasDB,
+                              'get_single_item', return_value='1234'):
+                resp = self.nvti.get_feed_version()
+        self.assertEqual(resp, '1234')
+
+    def test_get_oids(self, mock_redis):
+        with patch.object(OpenvasDB,
+                          'get_elem_pattern_by_index', return_value=['oids']):
+                resp = self.nvti.get_oids()
+        self.assertEqual(resp, ['oids'])
+
     def test_get_nvt_params(self, mock_redis):
         prefs = ['dns-fuzz.timelimit|||entry|||']
         timeout = '300'
