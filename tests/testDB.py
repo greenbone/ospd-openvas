@@ -36,7 +36,7 @@ class TestDB(TestCase):
 
     def test_set_ctx(self, mock_redis):
         self.db.set_redisctx(mock_redis)
-        assert self.db.rediscontext == mock_redis
+        self.assertIs(self.db.rediscontext, mock_redis)
 
     def test_try_db_index_success(self, mock_redis):
         mock_redis.hsetnx.return_value = 1
@@ -72,12 +72,12 @@ class TestDB(TestCase):
                                   'kb_connect', return_value=mock_redis):
                     self.db.max_dbindex = 10
                     ret = self.db.kb_new()
-        assert ret == mock_redis
+        self.assertIs(ret, mock_redis)
 
     def test_get_kb_context(self, mock_redis):
         self.db.rediscontext = mock_redis
         ret = self.db.get_kb_context()
-        assert ret == mock_redis
+        self.assertIs(ret, mock_redis)
 
     def test_get_kb_context_fail(self, mock_redis):
         with patch.object(OpenvasDB,
@@ -96,7 +96,7 @@ class TestDB(TestCase):
         mock_redis.execute_command.return_value = mock_redis
         self.db.select_kb(mock_redis, 1, True)
         self.assertEqual(self.db.db_index, "1")
-        assert self.db.rediscontext is mock_redis
+        self.assertIs(self.db.rediscontext, mock_redis)
 
     def test_get_list_item_fail(self, mock_redis):
         self.assertRaises(RequiredArgument, self.db.get_list_item, None)
@@ -149,7 +149,7 @@ class TestDB(TestCase):
     def test_set_single_item_error1(self, mock_redis):
         self.assertRaises(RequiredArgument, self.db.set_single_item, "1", None)
 
-    def test_add_single_item(self, mock_redis):
+    def test_set_single_item(self, mock_redis):
         mock_redis.pipeline.return_value = mock_redis.pipeline
         mock_redis.pipeline.delete.return_value = None
         mock_redis.pipeline.rpush.return_value = None
