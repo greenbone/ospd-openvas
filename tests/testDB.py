@@ -142,3 +142,31 @@ class TestDB(TestCase):
 
     def test_add_single_item_error1(self, mock_redis):
         self.assertRaises(RequiredArgument, self.db.add_single_item, "1", None)
+
+    def test_set_single_item_error(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.set_single_item, None, "1")
+
+    def test_set_single_item_error1(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.set_single_item, "1", None)
+
+    def test_add_single_item(self, mock_redis):
+        mock_redis.pipeline.return_value = mock_redis.pipeline
+        mock_redis.pipeline.delete.return_value = None
+        mock_redis.pipeline.rpush.return_value = None
+        mock_redis.execute.return_value = None
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.set_single_item('a', ['12'], ctx=None)
+        mock_redis.pipeline.rpush.assert_called_once_with('a', '12')
+        mock_redis.pipeline.delete.assert_called_once_with('a')
+
+    def test_get_pattern(self, mock_redis):
+        mock_redis.keys.return_value = ['a', 'b']
+        mock_redis.lrange.return_value = [1, 2, 3]
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_pattern('a')
+        self.assertEqual(ret, [['a', [1, 2, 3]], ['b', [1, 2, 3]]])
+
+    def test_get_pattern_error(self, mock_redis):
+        self.assertRaises(RequiredArgument, self.db.get_pattern, None)
