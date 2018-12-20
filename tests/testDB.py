@@ -31,6 +31,17 @@ class TestDB(TestCase):
     def setUp(self):
         self.db = OpenvasDB()
 
+    def test_parse_openvassd_db_addres(self, mock_redis):
+        self.assertRaises(OSPDOpenvasError,
+                          self.db._parse_openvassd_db_address, b'somedata')
+
+    def test_max_db_index_fail(self, mock_redis):
+        mock_redis.config_get.return_value = {}
+        with patch.object(OpenvasDB,
+                          'kb_connect', return_value=mock_redis):
+            self.assertRaises(OSPDOpenvasError,
+                              self.db.max_db_index)
+
     def test_set_ctx_with_error(self, mock_redis):
         self.assertRaises(RequiredArgument, self.db.set_redisctx, None)
 
@@ -170,3 +181,52 @@ class TestDB(TestCase):
 
     def test_get_pattern_error(self, mock_redis):
         self.assertRaises(RequiredArgument, self.db.get_pattern, None)
+
+    def test_get_elem_pattern_by_index_error(self, mock_redis):
+        self.assertRaises(RequiredArgument,
+                          self.db.get_elem_pattern_by_index, None)
+
+    def test_get_elem_pattern_by_index(self, mock_redis):
+        mock_redis.keys.return_value = ['aa', 'ab']
+        mock_redis.lindex.side_effect = [1, 2]
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_elem_pattern_by_index('a')
+        self.assertEqual(ret, [['aa', 1], ['ab', 2]])
+
+    def test_release_db(self, mock_redis):
+        mock_redis.delete.return_value = None
+        mock_redis.flushdb.return_value = None
+        mock_redis.hdel.return_value = 1
+        with patch.object(OpenvasDB,
+                          'kb_connect', return_value=mock_redis):
+            self.db.release_db(3)
+        mock_redis.hdel.assert_called_once_with('GVM.__GlobalDBIndex', 3)
+
+    def test_get_result(self, mock_redis):
+        mock_redis.rpop.return_value = 'some result'
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_result()
+        self.assertEqual(ret, 'some result')
+
+    def test_get_status(self, mock_redis):
+        mock_redis.rpop.return_value = 'some status'
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_status()
+        self.assertEqual(ret, 'some status')
+
+    def test_get_stime(self, mock_redis):
+        mock_redis.rpop.return_value = 'some start time'
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_host_scan_scan_start_time()
+        self.assertEqual(ret, 'some start time')
+
+    def test_get_etime(self, mock_redis):
+        mock_redis.rpop.return_value = 'some end time'
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_host_scan_scan_end_time()
+        self.assertEqual(ret, 'some end time')
