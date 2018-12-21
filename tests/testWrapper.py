@@ -326,3 +326,109 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', affected=affected)
 
         self.assertEqual(res, out)
+
+    def test_build_credentials(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        cred_out = [
+            'auth_port_ssh|||22',
+            'SSH Authorization[entry]:SSH login name:|||username',
+            'SSH Authorization[password]:SSH key passphrase:|||pass',
+            'SSH Authorization[file]:SSH private key:|||',
+            'SMB Authorization[entry]:SMB login:|||username',
+            'SMB Authorization[password]:SMB password :|||pass',
+            'SNMP Authorization[password]:SNMP Community:some comunity',
+            'SNMP Authorization[entry]:SNMPv3 Username:username',
+            'SNMP Authorization[password]:SNMPv3 Password:pass',
+            'SNMP Authorization[radio]:SNMPv3 Authentication Algorithm:some auth algo',
+            'SNMP Authorization[password]:SNMPv3 Privacy Password:privacy pass',
+            'SNMP Authorization[radio]:SNMPv3 Privacy Algorithm:privacy algo',
+            'ESXi Authorization[entry]:ESXi login name:|||username',
+            'ESXi Authorization[password]:ESXi login password:|||pass']
+        cred_dict = {
+            'ssh': {'type': 'ssh',
+                    'port': '22',
+                    'username': 'username',
+                    'password': 'pass',
+            },
+            'smb': {'type': 'smb',
+                    'username': 'username',
+                    'password': 'pass',
+            },
+            'esxi': {'type': 'esxi',
+                    'username': 'username',
+                    'password': 'pass',
+            },
+            'snmp': {'type': 'snmp',
+                     'username': 'username',
+                     'password': 'pass',
+                     'community': 'some comunity',
+                     'auth_algorithm': 'some auth algo',
+                     'privacy_password': 'privacy pass',
+                     'privacy_algorithm': 'privacy algo',
+            },
+        }
+        self.maxDiff=None
+        ret = w.build_credentials_as_prefs(cred_dict)
+        self.assertEqual(len(ret), len(cred_out))
+        self.assertIn('auth_port_ssh|||22', cred_out)
+
+    def test_build_credentials_ssh_up(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        cred_out = [
+            'auth_port_ssh|||22',
+            'SSH Authorization[entry]:SSH login name:|||username',
+            'SSH Authorization[password]:SSH password (unsafe!):|||pass']
+        cred_dict = {
+            'ssh': {'type': 'up',
+                    'port': '22',
+                    'username': 'username',
+                    'password': 'pass',
+            }
+        }
+        self.maxDiff=None
+        ret = w.build_credentials_as_prefs(cred_dict)
+        self.assertEqual(ret, cred_out)
+
+    def test_process_vts(self, mock_nvti, mock_db):
+        vts = {
+            '1.3.6.1.4.1.25623.1.0.100061': {
+                'Data length : ': 'new value',
+                'Do not randomize the  order  in  which ports are scanned': 'new value'},
+            'vt_groups': ['family=debian', 'family=general']
+        }
+        vt_out = ['1.3.6.1.4.1.25623.1.0.100061'], [['Mantis Detection[checkbox]:Do not randomize the  order  in  which ports are scanned', 'new value'], ['Mantis Detection[entry]:Data length : ', 'new value']]
+        w =  DummyWrapper(mock_nvti, mock_db)
+        w.load_vts()
+        ret = w.process_vts(vts)
+        self.assertEqual(len(ret), len(vt_out))
+
+    def test_get_openvas_timestamp_scan_host_end(self, mock_nvti, mock_db):
+        mock_db.get_host_scan_scan_end_time.return_value = '12345'
+        w =  DummyWrapper(mock_nvti, mock_db)
+        w.create_scan('123-456', '192.168.0.1', '192.168.0.1', None, [] )
+        w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
+        for result in  w.scan_collection.results_iterator('123-456', False):
+            self.assertEqual(result.get('value'), '12345')
+
+    def test_get_openvas_timestamp_scan_host_start(self, mock_nvti, mock_db):
+        mock_db.get_host_scan_scan_end_time.return_value = None
+        mock_db.get_host_scan_scan_end_time.return_value = '54321'
+        w =  DummyWrapper(mock_nvti, mock_db)
+        w.create_scan('123-456', '192.168.0.1', '192.168.0.1', None, [] )
+        w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
+        for result in  w.scan_collection.results_iterator('123-456', False):
+            self.assertEqual(result.get('value'), '54321')
+
+    def test_scan_is_finished(self, mock_nvti, mock_db):
+        mock_db.get_single_item.return_value = 'finished'
+        w =  DummyWrapper(mock_nvti, mock_db)
+        ret = w.scan_is_finished('123-456')
+        self.assertEqual(ret, True)
+
+    def test_scan_is_stopped(self, mock_nvti, mock_db):
+        mock_db.get_single_item.return_value = 'stop_all'
+        mock_db.kb_connect_item.return_value = mock_db
+        mock_db.set_redisctx.return_value = None
+        w =  DummyWrapper(mock_nvti, mock_db)
+        ret = w.scan_is_stopped('123-456')
+        self.assertEqual(ret, True)
