@@ -315,3 +315,14 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.100061', qod_type=detection_type)
 
         self.assertEqual(res, out)
+
+    def test_get_affected_xml(self, mock_nvti, mock_db):
+        w =  DummyWrapper(mock_nvti, mock_db)
+        out = ('<affected>some affection</affected>')
+        affected = (
+            w.VT['1.3.6.1.4.1.25623.1.0.100061'].get('affected'))
+
+        res = w.get_affected_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', affected=affected)
+
+        self.assertEqual(res, out)

@@ -25,6 +25,7 @@ class DummyWrapper(OSPDopenvas):
                 'solution_type': 'WillNotFix',
                 'impact': 'some impact',
                 'summary': 'some summary',
+                'affected': 'some affection',
                 'vt_dependencies': [],
                 'vt_params': {
                     'Data length : ': {
@@ -81,6 +82,7 @@ class DummyWrapper(OSPDopenvas):
             'impact': 'some impact',
             'insight': 'some insight',
             'summary': ('some summary'),
+            'affected': 'some affection',
             'timeout': '0'
         }
 
