@@ -123,7 +123,7 @@ class TestDB(TestCase):
         mock_redis.lrem.return_value = 1
         with patch.object(OpenvasDB,
                           'get_kb_context', return_value=mock_redis):
-            ret = self.db.remove_list_item("name", "1234",ctx=None)
+            self.db.remove_list_item("name", "1234",ctx=None)
         mock_redis.lrem.assert_called_once_with("name", count=0, value="1234")
 
     def test_rm_list_item_error(self, mock_redis):
@@ -139,13 +139,14 @@ class TestDB(TestCase):
         mock_redis.lindex.return_value = 'a'
         with patch.object(OpenvasDB,
                           'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_single_item("a", ctx=None)
+            self.db.get_single_item('a', ctx=None)
+        mock_redis.lindex.assert_called_once_with('a', 0)
 
     def test_add_single_item(self, mock_redis):
         mock_redis.rpush.return_value = 1
         with patch.object(OpenvasDB,
                           'get_kb_context', return_value=mock_redis):
-            ret = self.db.add_single_item('a', ['12'], ctx=None)
+            self.db.add_single_item('a', ['12'], ctx=None)
         mock_redis.rpush.assert_called_once_with('a', '12')
 
     def test_add_single_item_error(self, mock_redis):
@@ -167,7 +168,7 @@ class TestDB(TestCase):
         mock_redis.execute.return_value = None
         with patch.object(OpenvasDB,
                           'get_kb_context', return_value=mock_redis):
-            ret = self.db.set_single_item('a', ['12'], ctx=None)
+            self.db.set_single_item('a', ['12'], ctx=None)
         mock_redis.pipeline.rpush.assert_called_once_with('a', '12')
         mock_redis.pipeline.delete.assert_called_once_with('a')
 
