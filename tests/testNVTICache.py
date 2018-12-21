@@ -55,9 +55,25 @@ class TestNVTICache(TestCase):
         self.assertEqual(ret, {})
 
     def test_get_nvt_params(self, mock_redis):
-        prefs = ['dns-fuzz.timelimit|||entry|||']
+        prefs = ['dns-fuzz.timelimit|||entry|||default']
+        prefs1 = ['dns-fuzz.timelimit|||entry|||']
+
         timeout = '300'
         out_dict = {
+            'dns-fuzz.timelimit': {
+                'type': 'entry',
+                'default': 'default',
+                'name': 'dns-fuzz.timelimit',
+                'description': 'Description'},
+            'timeout': {
+                'type': 'entry',
+                'default': '300',
+                'name': 'timeout',
+                'description': 'Script Timeout'
+            }
+        }
+
+        out_dict1 = {
             'dns-fuzz.timelimit': {
                 'type': 'entry',
                 'default': '',
@@ -70,7 +86,6 @@ class TestNVTICache(TestCase):
                 'description': 'Script Timeout'
             }
         }
-
         with patch.object(OpenvasDB,
                           'get_kb_context', return_value=mock_redis):
             with patch.object(NVTICache,
@@ -79,7 +94,13 @@ class TestNVTICache(TestCase):
                                   'get_nvt_prefs', return_value=prefs):
 
                     resp = self.nvti.get_nvt_params('1.2.3.4')
+
+                with patch.object(NVTICache,
+                                  'get_nvt_prefs', return_value=prefs1):
+
+                    resp1 = self.nvti.get_nvt_params('1.2.3.4')
         self.assertEqual(resp, out_dict)
+        self.assertEqual(resp1, out_dict1)
 
     @patch('ospd_openvas.db.subprocess')
     def test_get_nvt_metadata(self, mock_subps, mock_redis):
@@ -167,7 +188,7 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, out_dict)
 
     def test_get_nvt_prefs(self, mock_redis):
-        prefs = ['dns-fuzz.timelimit|||entry|||']
+        prefs = ['dns-fuzz.timelimit|||entry|||default']
         mock_redis.lrange.return_value = prefs
         mock_redis.return_value = mock_redis
         resp = self.nvti.get_nvt_prefs(mock_redis(), '1.2.3.4')
