@@ -165,6 +165,22 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, custom)
 
     @patch('ospd_openvas.db.subprocess')
+    def test_get_nvt_metadata_fail(self, mock_subps, mock_redis):
+        mock_subps.check_output.return_value = (
+            'use_mac_addr = no\ndb_address = '
+            '/tmp/redis.sock\ndrop_privileges = no').encode()
+
+        mock_redis.return_value = mock_redis
+        mock_redis.config_get.return_value = {'databases': '513'}
+        mock_redis.lrange.return_value = {}
+        mock_redis.keys.return_value = 1
+
+        self.db.db_init()
+
+        resp = self.nvti.get_nvt_metadata('1.2.3.4')
+        self.assertEqual(resp, None)
+
+    @patch('ospd_openvas.db.subprocess')
     def test_get_nvt_refs(self, mock_subps, mock_redis):
         refs = ['', '', 'URL:http://www.mantisbt.org/']
         out_dict = {
