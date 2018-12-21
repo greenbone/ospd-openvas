@@ -1,5 +1,5 @@
-from ospd_openvas.wrapper import OSPDopenvas, OSPD_PARAMS
-
+from ospd_openvas.wrapper import OSPDopenvas
+from unittest.mock import patch
 
 class DummyWrapper(OSPDopenvas):
     def __init__(self, nvti, redis):
@@ -88,4 +88,7 @@ class DummyWrapper(OSPDopenvas):
 
         self.openvas_db = redis
         self.nvti = nvti
-        super(OSPDopenvas, self).__init__('cert', 'key', 'ca')
+        with patch('ospd_openvas.wrapper.OpenvasDB', return_value=redis):
+            with patch('ospd_openvas.wrapper.NVTICache', return_value=nvti):
+                with patch.object(OSPDopenvas, 'load_vts', return_value=None):
+                    super().__init__('cert', 'key', 'ca')
