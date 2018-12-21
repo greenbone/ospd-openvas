@@ -21,6 +21,7 @@
 
 import xml.etree.ElementTree as ET
 from ospd_openvas.db import NVT_META_FIELDS
+from ospd.ospd import logger
 
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
@@ -91,7 +92,7 @@ class NVTICache(object):
         return vt_params
 
     @staticmethod
-    def _parse_metadata_tags(tags_str):
+    def _parse_metadata_tags(tags_str, oid):
         """ Parse a string with multiple tags.
 
         Arguments:
@@ -105,7 +106,7 @@ class NVTICache(object):
             try:
                 _tag, _value = tag.split('=', 1)
             except ValueError:
-                logger.error('Tag %s in %s has no value.' % (_tag, oid))
+                logger.error('Tag %s in %s has no value.' % (tag, oid))
                 continue
             if _tag not in ['cvss_base']:
                 tags_dict[_tag] = _value
@@ -134,7 +135,7 @@ class NVTICache(object):
             if child not in ['cve', 'bid', 'xref', 'tag',] and res:
                 custom[child] = res
             elif child == 'tag':
-                custom.update(self._parse_metadata_tags(res))
+                custom.update(self._parse_metadata_tags(res, oid))
 
         return custom
 
