@@ -203,6 +203,22 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_refs('1.2.3.4')
         self.assertEqual(resp, out_dict)
 
+    @patch('ospd_openvas.db.subprocess')
+    def test_get_nvt_refs_fail(self, mock_subps, mock_redis):
+        mock_subps.check_output.return_value = (
+            'use_mac_addr = no\ndb_address = '
+            '/tmp/redis.sock\ndrop_privileges = no').encode()
+
+        mock_redis.return_value = mock_redis
+        mock_redis.config_get.return_value = {'databases': '513'}
+        mock_redis.lrange.return_value = {}
+        mock_redis.keys.return_value = 1
+
+        self.db.db_init()
+
+        resp = self.nvti.get_nvt_refs('1.2.3.4')
+        self.assertEqual(resp, None)
+
     def test_get_nvt_prefs(self, mock_redis):
         prefs = ['dns-fuzz.timelimit|||entry|||default']
         mock_redis.lrange.return_value = prefs
