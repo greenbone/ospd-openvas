@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
-# Description:
-# OSP Daemon module definition.
+# Copyright (C) 2014-2018 Greenbone Networks GmbH
 #
-# Authors:
-# Benoît Allard <benoit.allard@greenbone.net>
-#
-# Copyright:
-# Copyright (C) 2014, 2015 Greenbone Networks GmbH
+# SPDX-License-Identifier: GPL-2.0-or-later
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
