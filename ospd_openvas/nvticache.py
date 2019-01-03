@@ -66,8 +66,8 @@ class NVTICache(object):
     def get_nvt_params(self, oid):
         """ Get NVT's preferences.
         Arguments:
-            oid (str) VT oid from which to get the paramas.
-        Return dictonary with preferences and timeout.
+            oid (str) OID of VT from which to get the parameters.
+        Return dictionary with preferences and timeout.
         """
         ctx = self._openvas_db.get_kb_context()
         prefs = self.get_nvt_prefs(ctx, oid)
@@ -101,7 +101,7 @@ class NVTICache(object):
 
         Arguments:
             tags_str (str) String with tags separated by `|`.
-            oid (str) VT oid. Only use to log in case of problem.
+            oid (str) VT OID. Only used for logging in error case.
 
         Return a dictionary with the tags.
         """
@@ -121,7 +121,7 @@ class NVTICache(object):
     def get_nvt_metadata(self, oid):
         """ Get a full NVT. Returns an XML tree with the NVT metadata.
         Arguments:
-            oid (str) VT oid from which to get the metadata.
+            oid (str) OID of VT from which to get the metadata.
         Return dictonary with the VT metadata.
         """
         ctx = self._openvas_db.get_kb_context()
@@ -150,7 +150,7 @@ class NVTICache(object):
     def get_nvt_refs(self, oid):
         """ Get a full NVT.
         Arguments:
-            oid (str) VT oid from which to get the vt references.
+            oid (str) OID of VT from which to get the VT references.
         Returns a dictionary with the VT references.
         """
         ctx = self._openvas_db.get_kb_context()
@@ -174,7 +174,7 @@ class NVTICache(object):
         """ Get NVT preferences.
         Arguments:
             ctx (object): Redis context to be used.
-            oid (str) VT oid from which to get the vt preferences.
+            oid (str) OID of VT from which to get the VT preferences.
         Returns a list with the VT preferences.
         """
         key = 'oid:%s:prefs' % oid
@@ -185,7 +185,7 @@ class NVTICache(object):
         """ Get NVT timeout
         Arguments:
             ctx (object): Redis context to be used.
-            oid (str) VT oid from which to get the sript timeout.
+            oid (str) OID of VT from which to get the script timeout.
         Returns the timeout string
         """
         timeout = self._openvas_db.get_single_item(
@@ -198,7 +198,7 @@ class NVTICache(object):
         """ Get Tags of the given OID.
         Arguments:
             ctx (object): Redis context to be used.
-            oid (str) VT oid from which to get the VT tags.
+            oid (str) OID of VT from which to get the VT tags.
         Returns a dictionary with the VT tags.
         """
         tag = self._openvas_db.get_single_item(
