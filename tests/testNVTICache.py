@@ -48,7 +48,7 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, ['oids'])
 
     def test_parse_metadata_tags(self, mock_redis):
-        tags = "tag1"
+        tags = 'tag1'
         with patch.object(logger, 'error', return_value=None) as log:
             ret = self.nvti._parse_metadata_tags(tags, '1.2.3')
         log.assert_called_with('Tag tag1 in 1.2.3 has no value.')
@@ -166,9 +166,9 @@ class TestNVTICache(TestCase):
 
     @patch('ospd_openvas.db.subprocess')
     def test_get_nvt_metadata_fail(self, mock_subps, mock_redis):
-        mock_subps.check_output.return_value = (
-            'use_mac_addr = no\ndb_address = '
-            '/tmp/redis.sock\ndrop_privileges = no').encode()
+        mock_subps.check_output.return_value = \
+            'use_mac_addr = no\ndb_address = ' \
+            '/tmp/redis.sock\ndrop_privileges = no'.encode()
 
         mock_redis.return_value = mock_redis
         mock_redis.config_get.return_value = {'databases': '513'}
@@ -205,9 +205,9 @@ class TestNVTICache(TestCase):
 
     @patch('ospd_openvas.db.subprocess')
     def test_get_nvt_refs_fail(self, mock_subps, mock_redis):
-        mock_subps.check_output.return_value = (
-            'use_mac_addr = no\ndb_address = '
-            '/tmp/redis.sock\ndrop_privileges = no').encode()
+        mock_subps.check_output.return_value = \
+            'use_mac_addr = no\ndb_address = ' \
+            '/tmp/redis.sock\ndrop_privileges = no'.encode()
 
         mock_redis.return_value = mock_redis
         mock_redis.config_get.return_value = {'databases': '513'}
@@ -233,16 +233,16 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, '300')
 
     def test_get_nvt_tag(self, mock_redis):
-        tag = ('last_modification=$Date: 2018-07-10 10:12:26 +0200 '
-               '(Tue, 10 Jul 2018) $|creation_date=2018-04-02 00:00'
-               ':00 +0200 (Mon, 02 Apr 2018)|cvss_base=7.5|cvss_bas'
-               'e_vector=AV:N/AC:L/Au:N/C:P/I:P/A:P|solution_type=V'
-               'endorFix|qod_type=package|affected=rubygems on Debi'
-               'an Linux')
+        tag = 'last_modification=$Date: 2018-07-10 10:12:26 +0200 ' \
+              '(Tue, 10 Jul 2018) $|creation_date=2018-04-02 00:00' \
+              ':00 +0200 (Mon, 02 Apr 2018)|cvss_base=7.5|cvss_bas' \
+              'e_vector=AV:N/AC:L/Au:N/C:P/I:P/A:P|solution_type=V' \
+              'endorFix|qod_type=package|affected=rubygems on Debi' \
+              'an Linux'
 
         out_dict = {
-            'last_modification': (
-                '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $'),
+            'last_modification': \
+                '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $',
             'creation_date': '2018-04-02 00:00:00 +0200 (Mon, 02 Apr 2018)',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:P/I:P/A:P',
             'solution_type': 'VendorFix',
