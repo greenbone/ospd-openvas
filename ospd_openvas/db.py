@@ -157,7 +157,7 @@ class OpenvasDB(object):
         try:
             ctx = redis.Redis(unix_socket_path=self.db_address,
                               db=dbnum,
-                              socket_timeout=SOCKET_TIMEOUT, charset="latin-1",
+                              socket_timeout=SOCKET_TIMEOUT, encoding="latin-1",
                               decode_responses=True)
         except ConnectionError as e:
             raise OSPDOpenvasError('Redis Error: Not possible '

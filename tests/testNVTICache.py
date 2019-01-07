@@ -23,6 +23,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from ospd_openvas.db import OpenvasDB
 from ospd_openvas.nvticache import NVTICache
+from ospd.ospd import logger
 
 
 @patch('ospd_openvas.db.redis.Redis')
@@ -32,10 +33,47 @@ class TestNVTICache(TestCase):
         self.db = OpenvasDB()
         self.nvti = NVTICache(self.db)
 
+    def test_get_feed_version(self, mock_redis):
+        with patch.object(OpenvasDB,
+                          'db_find', return_value=mock_redis):
+            with patch.object(OpenvasDB,
+                              'get_single_item', return_value='1234'):
+                resp = self.nvti.get_feed_version()
+        self.assertEqual(resp, '1234')
+
+    def test_get_oids(self, mock_redis):
+        with patch.object(OpenvasDB,
+                          'get_elem_pattern_by_index', return_value=['oids']):
+                resp = self.nvti.get_oids()
+        self.assertEqual(resp, ['oids'])
+
+    def test_parse_metadata_tags(self, mock_redis):
+        tags = 'tag1'
+        with patch.object(logger, 'error', return_value=None) as log:
+            ret = self.nvti._parse_metadata_tags(tags, '1.2.3')
+        log.assert_called_with('Tag tag1 in 1.2.3 has no value.')
+        self.assertEqual(ret, {})
+
     def test_get_nvt_params(self, mock_redis):
-        prefs = ['dns-fuzz.timelimit|||entry|||']
+        prefs = ['dns-fuzz.timelimit|||entry|||default']
+        prefs1 = ['dns-fuzz.timelimit|||entry|||']
+
         timeout = '300'
         out_dict = {
+            'dns-fuzz.timelimit': {
+                'type': 'entry',
+                'default': 'default',
+                'name': 'dns-fuzz.timelimit',
+                'description': 'Description'},
+            'timeout': {
+                'type': 'entry',
+                'default': '300',
+                'name': 'timeout',
+                'description': 'Script Timeout'
+            }
+        }
+
+        out_dict1 = {
             'dns-fuzz.timelimit': {
                 'type': 'entry',
                 'default': '',
@@ -48,7 +86,6 @@ class TestNVTICache(TestCase):
                 'description': 'Script Timeout'
             }
         }
-
         with patch.object(OpenvasDB,
                           'get_kb_context', return_value=mock_redis):
             with patch.object(NVTICache,
@@ -57,7 +94,13 @@ class TestNVTICache(TestCase):
                                   'get_nvt_prefs', return_value=prefs):
 
                     resp = self.nvti.get_nvt_params('1.2.3.4')
+
+                with patch.object(NVTICache,
+                                  'get_nvt_prefs', return_value=prefs1):
+
+                    resp1 = self.nvti.get_nvt_params('1.2.3.4')
         self.assertEqual(resp, out_dict)
+        self.assertEqual(resp1, out_dict1)
 
     @patch('ospd_openvas.db.subprocess')
     def test_get_nvt_metadata(self, mock_subps, mock_redis):
@@ -89,7 +132,6 @@ class TestNVTICache(TestCase):
         custom = {
             'category': '3',
             'creation_date': '2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)',
-            'cvss_base': '0.0',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
             'dependencies': 'find_service.nasl, http_version.nasl',
             'excluded_keys': 'Settings/disable_cgi_scanning',
@@ -123,6 +165,22 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, custom)
 
     @patch('ospd_openvas.db.subprocess')
+    def test_get_nvt_metadata_fail(self, mock_subps, mock_redis):
+        mock_subps.check_output.return_value = \
+            'use_mac_addr = no\ndb_address = ' \
+            '/tmp/redis.sock\ndrop_privileges = no'.encode()
+
+        mock_redis.return_value = mock_redis
+        mock_redis.config_get.return_value = {'databases': '513'}
+        mock_redis.lrange.return_value = {}
+        mock_redis.keys.return_value = 1
+
+        self.db.db_init()
+
+        resp = self.nvti.get_nvt_metadata('1.2.3.4')
+        self.assertEqual(resp, None)
+
+    @patch('ospd_openvas.db.subprocess')
     def test_get_nvt_refs(self, mock_subps, mock_redis):
         refs = ['', '', 'URL:http://www.mantisbt.org/']
         out_dict = {
@@ -145,8 +203,24 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_refs('1.2.3.4')
         self.assertEqual(resp, out_dict)
 
+    @patch('ospd_openvas.db.subprocess')
+    def test_get_nvt_refs_fail(self, mock_subps, mock_redis):
+        mock_subps.check_output.return_value = \
+            'use_mac_addr = no\ndb_address = ' \
+            '/tmp/redis.sock\ndrop_privileges = no'.encode()
+
+        mock_redis.return_value = mock_redis
+        mock_redis.config_get.return_value = {'databases': '513'}
+        mock_redis.lrange.return_value = {}
+        mock_redis.keys.return_value = 1
+
+        self.db.db_init()
+
+        resp = self.nvti.get_nvt_refs('1.2.3.4')
+        self.assertEqual(resp, None)
+
     def test_get_nvt_prefs(self, mock_redis):
-        prefs = ['dns-fuzz.timelimit|||entry|||']
+        prefs = ['dns-fuzz.timelimit|||entry|||default']
         mock_redis.lrange.return_value = prefs
         mock_redis.return_value = mock_redis
         resp = self.nvti.get_nvt_prefs(mock_redis(), '1.2.3.4')
@@ -159,16 +233,16 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, '300')
 
     def test_get_nvt_tag(self, mock_redis):
-        tag = ('last_modification=$Date: 2018-07-10 10:12:26 +0200 '
-               '(Tue, 10 Jul 2018) $|creation_date=2018-04-02 00:00'
-               ':00 +0200 (Mon, 02 Apr 2018)|cvss_base=7.5|cvss_bas'
-               'e_vector=AV:N/AC:L/Au:N/C:P/I:P/A:P|solution_type=V'
-               'endorFix|qod_type=package|affected=rubygems on Debi'
-               'an Linux')
+        tag = 'last_modification=$Date: 2018-07-10 10:12:26 +0200 ' \
+              '(Tue, 10 Jul 2018) $|creation_date=2018-04-02 00:00' \
+              ':00 +0200 (Mon, 02 Apr 2018)|cvss_base=7.5|cvss_bas' \
+              'e_vector=AV:N/AC:L/Au:N/C:P/I:P/A:P|solution_type=V' \
+              'endorFix|qod_type=package|affected=rubygems on Debi' \
+              'an Linux'
 
         out_dict = {
-            'last_modification': (
-                '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $'),
+            'last_modification': \
+                '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $',
             'creation_date': '2018-04-02 00:00:00 +0200 (Mon, 02 Apr 2018)',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:P/I:P/A:P',
             'solution_type': 'VendorFix',
