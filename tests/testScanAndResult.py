@@ -73,8 +73,10 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(vt_id, vt_dependencies):
-        response = ('<dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />' +
-                    '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50283" />')
+        response = '<dependencies>' \
+                   '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />' \
+                   '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50283" />' \
+                   '</dependencies>'
 
         return response
 

@@ -1369,9 +1369,7 @@ class OSPDaemon(object):
         if vt.get('vt_dependencies'):
             dependencies = self.get_dependencies_vt_as_xml_str(
                 vt_id, vt.get('vt_dependencies'))
-            deps_xml_str = (
-                '<dependencies>%s</dependencies>' % dependencies)
-            vt_xml.append(secET.fromstring(deps_xml_str))
+            vt_xml.append(secET.fromstring(dependencies))
 
         if vt.get('creation_time'):
             vt_ctime = self.get_creation_time_vt_as_xml_str(
