@@ -67,8 +67,8 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
-        response = ('<ref type="cve" id="CVE-2010-4480"/>' +
-                    '<ref type="url" id="http://example.com"/>')
+        response = '<vt_refs><ref type="cve" id="CVE-2010-4480"/>' \
+                    '<ref type="url" id="http://example.com"/></vt_refs>'
         return response
 
     @staticmethod

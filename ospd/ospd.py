@@ -1362,9 +1362,8 @@ class OSPDaemon(object):
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
-            refs_xml_str = (
-                '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(
-                    vt_id, vt.get('vt_refs')))
+            refs_xml_str = self.get_refs_vt_as_xml_str(
+                vt_id, vt.get('vt_refs'))
             vt_xml.append(secET.fromstring(refs_xml_str))
 
         if vt.get('vt_dependencies'):
