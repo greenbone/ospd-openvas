@@ -80,8 +80,8 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_severities_vt_as_xml_str(vt_id, severities):
-        response = ('<severity cvss_base="5.0" cvss_type="cvss_base_v2">' +
-                    'AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>')
+        response = ('<severities><severity cvss_base="5.0" cvss_type="cvss_base_v2">' +
+                    'AV:N/AC:L/Au:N/C:N/I:N/A:P</severity></severities>')
 
         return response
 

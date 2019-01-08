@@ -1420,9 +1420,8 @@ class OSPDaemon(object):
             vt_xml.append(secET.fromstring(detection_xml_str))
 
         if vt.get('severities'):
-            severities_xml_str = (
-                '<severities>%s</severities>' % self.get_severities_vt_as_xml_str(
-                    vt_id, vt.get('severities')))
+            severities_xml_str = self.get_severities_vt_as_xml_str(
+                    vt_id, vt.get('severities'))
             vt_xml.append(secET.fromstring(severities_xml_str))
 
         if vt.get('custom'):
