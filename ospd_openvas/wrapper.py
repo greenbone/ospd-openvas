@@ -457,7 +457,7 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_dependencies_vt_as_xml_str(vt_id, dep_list):
         """ Return  an xml element with dependencies as string."""
-        vt_deps_xml = Element('vt_deps')
+        vt_deps_xml = Element('dependencies')
         for dep in dep_list:
             _vt_dep = Element('dependency')
             try:
@@ -468,11 +468,7 @@ class OSPDopenvas(OSPDaemon):
                 continue
             vt_deps_xml.append(_vt_dep)
 
-        _deps_list = vt_deps_xml.findall("dependency")
-        deps = ''
-        for _dep in _deps_list:
-            deps += (tostring(_dep).decode('utf-8'))
-        return deps
+        return tostring(vt_deps_xml).decode('utf-8')
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(vt_id, creation_time):

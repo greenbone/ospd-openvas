@@ -250,7 +250,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_dependencies_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<dependency vt_id="1.2.3.4"/><dependency vt_id="4.3.2.1"/>'
+        out = '<dependencies><dependency vt_id="1.2.3.4"/><dependency vt' \
+              '_id="4.3.2.1"/></dependencies>'
         dep = ['1.2.3.4', '4.3.2.1']
         res = w.get_dependencies_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', dep)
