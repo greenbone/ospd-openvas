@@ -478,7 +478,9 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_modification_time_vt_as_xml_str(vt_id, modification_time):
         """ Return modification time as string."""
-        return modification_time
+        _time = Element('modification_time')
+        _time.text = modification_time
+        return tostring(_time).decode('utf-8')
 
     @staticmethod
     def get_summary_vt_as_xml_str(vt_id, summary):
