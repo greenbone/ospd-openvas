@@ -425,11 +425,7 @@ class OSPDopenvas(OSPDaemon):
                 xml_def.text = prefs[1]['default']
             vt_params_xml.append(vt_param)
 
-        params_list = vt_params_xml.findall("vt_param")
-        params = ''
-        for param in params_list:
-            params += (tostring(param).decode('utf-8'))
-        return params
+        return tostring(vt_params_xml).decode('utf-8')
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
