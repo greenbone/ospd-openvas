@@ -213,8 +213,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_severities_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<severity type="cvss_base_v2">' \
-              'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity>'
+        out = '<severities><severity type="cvss_base_v2">' \
+              'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity></severities>'
         vt =w.VT['1.3.6.1.4.1.25623.1.0.100061']
         severities = vt.get('severities')
         res = w.get_severities_vt_as_xml_str(

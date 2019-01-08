@@ -399,7 +399,8 @@ class OSPDopenvas(OSPDaemon):
     def get_severities_vt_as_xml_str(vt_id, severities):
         """ Return an xml element with severities as string."""
 
-        _severity = Element('severity')
+        _severities = Element('severities')
+        _severity = SubElement(_severities, 'severity')
         if 'severity_base_vector' in severities:
             _severity.text = severities.pop('severity_base_vector')
         if 'severity_origin' in severities:
@@ -407,7 +408,7 @@ class OSPDopenvas(OSPDaemon):
         if 'severity_type' in severities:
             _severity.set('type', severities.pop('severity_type'))
 
-        return tostring(_severity).decode('utf-8')
+        return tostring(_severities).decode('utf-8')
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
