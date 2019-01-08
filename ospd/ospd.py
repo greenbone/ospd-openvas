@@ -1357,9 +1357,8 @@ class OSPDaemon(object):
             elem.text = str(value)
 
         if vt.get('vt_params'):
-            params_xml_str = (
-                '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(
-                    vt_id, vt.get('vt_params')))
+            params_xml_str = self.get_params_vt_as_xml_str(
+                vt_id, vt.get('vt_params'))
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):

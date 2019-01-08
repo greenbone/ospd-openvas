@@ -58,12 +58,12 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
-        return ('<vt_param id="abc" type="string">'
+        return ('<vt_params><vt_param id="abc" type="string">'
                 '<name>ABC</name><description>Test ABC</description><default>yes</default>'
                 '</vt_param>'
                 '<vt_param id="def" type="string">'
                 '<name>DEF</name><description>Test DEF</description><default>no</default>'
-                '</vt_param>')
+                '</vt_param></vt_params>')
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
