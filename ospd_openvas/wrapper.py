@@ -388,17 +388,12 @@ class OSPDopenvas(OSPDaemon):
     def get_custom_vt_as_xml_str(vt_id, custom):
         """ Return an xml element with custom metadata formatted as string."""
 
-        nvt = Element('vt')
+        _custom = Element('custom')
         for key, val in custom.items():
-            xml_key = SubElement(nvt, key)
+            xml_key = SubElement(_custom, key)
             xml_key.text = val
 
-        itera = nvt.iter()
-        metadata = ''
-        for elem in itera:
-            if elem.tag != 'vt':
-                metadata += (tostring(elem).decode('utf-8'))
-        return metadata
+        return tostring(_custom).decode('utf-8')
 
     @staticmethod
     def get_severities_vt_as_xml_str(vt_id, severities):

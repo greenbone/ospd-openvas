@@ -197,13 +197,13 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(w.vts, w.VT)
 
     def test_get_custom_xml(self, mock_nvti, mock_db):
-        out = '<required_ports>Services/www, 80</re' \
+        out = '<custom><required_ports>Services/www, 80</re' \
               'quired_ports><category>3</category><' \
               'excluded_keys>Settings/disable_cgi_s' \
               'canning</excluded_keys><family>Produ' \
               'ct detection</family><filename>manti' \
               's_detect.nasl</filename><timeout>0</' \
-              'timeout>'
+              'timeout></custom>'
         w =  DummyWrapper(mock_nvti, mock_db)
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         res = w.get_custom_vt_as_xml_str(
