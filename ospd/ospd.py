@@ -1381,9 +1381,7 @@ class OSPDaemon(object):
         if vt.get('modification_time'):
             vt_mtime = self.get_modification_time_vt_as_xml_str(
                 vt_id, vt.get('modification_time'))
-            modification_time_xml_str = (
-                '<modification_time>%s</modification_time>' % vt_mtime)
-            vt_xml.append(secET.fromstring(modification_time_xml_str))
+            vt_xml.append(secET.fromstring(vt_mtime))
 
         if vt.get('summary'):
             summary_xml_str = self.get_summary_vt_as_xml_str(
