@@ -54,7 +54,7 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
-        return '<mytest>static test</mytest>'
+        return '<custom><mytest>static test</mytest></custom>'
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
