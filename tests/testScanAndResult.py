@@ -124,6 +124,18 @@ class DummyWrapper(OSPDaemon):
 
         return response
 
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(vt_id, creation_time):
+        response = '<creation_time>01-01-1900</creation_time>'
+
+        return response
+
+    @staticmethod
+    def get_modification_time_vt_as_xml_str(vt_id, modification_time):
+        response = '<modification_time>02-01-1900</modification_time>'
+
+        return response
+
     def exec_scan(self, scan_id, target):
         time.sleep(0.01)
         for res in self.results:
@@ -348,6 +360,32 @@ class FullTest(unittest.TestCase):
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
         solution = response.findall('vts/vt/solution')
         self.assertEqual(1, len(solution))
+
+    def testGetVTs_VTs_with_ctime(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      vt_creation_time='01-01-1900')
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        creation_time = response.findall('vts/vt/creation_time')
+
+        self.assertEqual('<creation_time>01-01-1900</creation_time>',
+                         ET.tostring(creation_time[0]).decode('utf-8'))
+
+    def testGetVTs_VTs_with_mtime(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      vt_modification_time='02-01-1900')
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        modification_time = response.findall('vts/vt/modification_time')
+
+        self.assertEqual('<modification_time>02-01-1900</modification_time>',
+                         ET.tostring(modification_time[0]).decode('utf-8'))
 
     def testiScanWithError(self):
         daemon = DummyWrapper([
