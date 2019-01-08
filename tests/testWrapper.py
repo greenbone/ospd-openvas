@@ -239,7 +239,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_refs_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<ref type="url" id="http://www.mantisbt.org/"/>'
+        out = '<vt_refs><ref type="url" id="http://www.mantisbt.org/"/>' \
+              '</vt_refs>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         refs = vt.get('vt_refs')
         res = w.get_refs_vt_as_xml_str(

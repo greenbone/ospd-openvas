@@ -452,11 +452,7 @@ class OSPDopenvas(OSPDaemon):
                     continue
                 vt_refs_xml.append(vt_ref)
 
-        refs_list = vt_refs_xml.findall("ref")
-        refs = ''
-        for ref in refs_list:
-            refs += (tostring(ref).decode('utf-8'))
-        return refs
+        return tostring(vt_refs_xml).decode('utf-8')
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(vt_id, dep_list):
