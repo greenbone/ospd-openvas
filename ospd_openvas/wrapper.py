@@ -386,7 +386,13 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
-        """ Return an xml element with custom metadata formatted as string."""
+        """ Return an xml element with custom metadata formatted as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            custom (dict): Dictionary with the custom metadata.
+        Return:
+            string: xml element as string.
+        """
 
         _custom = Element('custom')
         for key, val in custom.items():
@@ -397,8 +403,13 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_severities_vt_as_xml_str(vt_id, severities):
-        """ Return an xml element with severities as string."""
-
+        """ Return an xml element with severities as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            severities (dict): Dictionary with the severities.
+        Return:
+            string: xml element as string.
+        """
         _severities = Element('severities')
         _severity = SubElement(_severities, 'severity')
         if 'severity_base_vector' in severities:
@@ -412,7 +423,13 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
-        """ Return an xml element with params formatted as string."""
+        """ Return an xml element with params formatted as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            vt_params (dict): Dictionary with the VT paramaters.
+        Return:
+            string: xml element as string.
+        """
         vt_params_xml = Element('vt_params')
         for prefs in vt_params.items():
             vt_param = Element('vt_param')
@@ -429,7 +446,13 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
-        """ Return an xml element with references formatted as string."""
+        """ Return an xml element with references formatted as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            vt_refs (dict): Dictionary with the VT references.
+        Return:
+            string: xml element as string.
+        """
         vt_refs_xml = Element('vt_refs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
@@ -456,7 +479,13 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(vt_id, dep_list):
-        """ Return  an xml element with dependencies as string."""
+        """ Return  an xml element with dependencies as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            dep_list (List): List with the VT dependencies.
+        Return:
+            string: xml element as string.
+        """
         vt_deps_xml = Element('dependencies')
         for dep in dep_list:
             _vt_dep = Element('dependency')
@@ -472,49 +501,93 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(vt_id, creation_time):
-        """ Return creation time as string."""
+        """ Return creation time as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            creation_time (str): String with the VT creation time.
+        Return:
+            string: xml element as string.
+        """
         _time = Element('creation_time')
         _time.text = creation_time
         return tostring(_time).decode('utf-8')
 
     @staticmethod
     def get_modification_time_vt_as_xml_str(vt_id, modification_time):
-        """ Return modification time as string."""
+        """ Return modification time as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            modification_time (str): String with the VT modification time.
+        Return:
+            string: xml element as string.
+        """
         _time = Element('modification_time')
         _time.text = modification_time
         return tostring(_time).decode('utf-8')
 
     @staticmethod
     def get_summary_vt_as_xml_str(vt_id, summary):
-        """ Return summary as string."""
+        """ Return summary as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            summary (str): String with a VT summary.
+        Return:
+            string: xml element as string.
+        """
         _summary = Element('summary')
         _summary.text = summary
         return tostring(_summary).decode('utf-8')
 
     @staticmethod
     def get_impact_vt_as_xml_str(vt_id, impact):
-        """ Return impact as string."""
+        """ Return impact as string.
+
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            impact (str): String which explain the vulneravility impact.
+        Return:
+            string: xml element as string.
+        """
         _impact = Element('impact')
         _impact.text = impact
         return tostring(_impact).decode('utf-8')
 
     @staticmethod
     def get_affected_vt_as_xml_str(vt_id, affected):
-        """ Return affected as string."""
+        """ Return affected as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            affected (str): String which explain what is affected.
+        Return:
+            string: xml element as string.
+        """
         _affected = Element('affected')
         _affected.text = affected
         return tostring(_affected).decode('utf-8')
 
     @staticmethod
     def get_insight_vt_as_xml_str(vt_id, insight):
-        """ Return insight as string."""
+        """ Return insight as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            insight (str): String giving an insight of the vulnerability.
+        Return:
+            string: xml element as string.
+        """
         _insight = Element('insight')
         _insight.text = insight
         return tostring(_insight).decode('utf-8')
 
     @staticmethod
     def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
-        """ Return solution as string."""
+        """ Return solution as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            solution (str): String giving a possible solution.
+            solution_type (str): A solution type
+        Return:
+            string: xml element as string.
+        """
         _solution = Element('solution')
         _solution.text = solution
         if solution_type:
@@ -522,8 +595,18 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_solution).decode('utf-8')
 
     @staticmethod
-    def get_detection_vt_as_xml_str(vt_id, vuldetect=None, qod_type=None, qod=None):
-        """ Return detection as string."""
+    def get_detection_vt_as_xml_str(vt_id, vuldetect=None,
+                                    qod_type=None, qod=None):
+        """ Return detection as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            vuldetect (str, opt): String which explain how the vulnerability
+                was detected.
+            qod_type (str, opt): qod type.
+            qod (str, opt): qod value.
+        Return:
+            string: xml element as string.
+        """
         _detection = Element('detection')
         if vuldetect:
             _detection.text = vuldetect
