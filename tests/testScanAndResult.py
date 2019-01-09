@@ -214,10 +214,13 @@ class FullTest(unittest.TestCase):
 
     def testGetVTs_multiple_VTs_with_custom(self):
         daemon = DummyWrapper([])
-        daemon.add_vt('1.2.3.4', 'A vulnerability test')
-        daemon.add_vt('some id', 'Another vulnerability test with custom info', {'depencency': '1.2.3.4'})
-        daemon.add_vt('123456789', 'Yet another vulnerability test')
+        daemon.add_vt('1.2.3.4', 'A vulnerability test', custom='b')
+        daemon.add_vt('4.3.2.1', 'Another vulnerability test with custom info',
+                      custom='b')
+        daemon.add_vt('123456789', 'Yet another vulnerability test', custom='b')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
+        custom = response.findall('vts/vt/custom')
+        self.assertEqual(3, len(custom))
 
     def testGetVTs_VTs_with_params(self):
         daemon = DummyWrapper([])
