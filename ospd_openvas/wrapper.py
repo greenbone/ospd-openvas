@@ -641,25 +641,37 @@ class OSPDopenvas(OSPDaemon):
         return True
 
     def update_progress(self, scan_id, target, msg):
-        """ Calculate porcentage and update the scan status
-        for the progress bar. """
+        """ Calculate percentage and update the scan status of a target
+        for the progress bar.
+        Arguments:
+            scan_id (uuid): Scan ID to identify the current scan process.
+            target (str): Target to be updated with the calculated
+                          scan progress.
+            msg (str): String with launched and total plugins.
+        """
         host_progress_dict = dict()
-        prog = str.split(msg, '/')
-        if float(prog[1]) == 0:
+        try:
+            launched, total = msg.split('/')
+        except ValueError:
             return
-        host_prog = (float(prog[0]) / float(prog[1])) * 100
+        if float(total) == 0:
+            return
+        host_prog = (float(launched) / float(total)) * 100
         host_progress_dict[target] = host_prog
         total_host = len(target_str_to_list(target))
-        self.set_scan_target_progress(scan_id, target,
-                                      sum(host_progress_dict.values()) / total_host)
+        target_progress = sum(host_progress_dict.values()) / total_host
+        self.set_scan_target_progress(scan_id, target, target_progress)
 
     def get_openvas_status(self, scan_id, target):
-        """ Get all status entries from redis kb. """
+        """ Get all status entries from redis kb.
+        Arguments:
+            scan_id (uuid): Scan ID to identify the current scan.
+            target (str): Target progress to be updated.
+        """
         res = self.openvas_db.get_status()
         while res:
             self.update_progress(scan_id, target, res)
             res = self.openvas_db.get_status()
-
 
     def get_severity_score(self, oid):
         """ Return the severity score for the given oid. """
