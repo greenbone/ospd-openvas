@@ -674,10 +674,15 @@ class OSPDopenvas(OSPDaemon):
             res = self.openvas_db.get_status()
 
     def get_severity_score(self, oid):
-        """ Return the severity score for the given oid. """
+        """ Return the severity score for the given oid.
+        Arguments:
+            oid (str): VT OID from which to get the severity vector
+        Returns:
+            The calculated cvss base value. None if there is no severity
+            vector or severity type is not cvss base version 2.
+        """
         severity_type = (
             self.vts[oid]['severities'].get('severity_type'))
-
         severity_vector = (
             self.vts[oid]['severities'].get('severity_base_vector'))
 
@@ -1016,7 +1021,6 @@ class OSPDopenvas(OSPDaemon):
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
-           
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
