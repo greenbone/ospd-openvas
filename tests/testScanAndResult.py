@@ -29,6 +29,7 @@ from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon, OSPDError
 
+
 class Result(object):
     def __init__(self, type_, **kwargs):
         self.result_type = type_
@@ -54,71 +55,87 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
-        return '<mytest>static test</mytest>'
+        return '<custom><mytest>static test</mytest></custom>'
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
-        return ('<vt_param id="abc" type="string">'
-                '<name>ABC</name><description>Test ABC</description><default>yes</default>'
-                '</vt_param>'
-                '<vt_param id="def" type="string">'
-                '<name>DEF</name><description>Test DEF</description><default>no</default>'
-                '</vt_param>')
+        return '<vt_params><vt_param id="abc" type="string">' \
+               '<name>ABC</name><description>Test ABC</description>' \
+               '<default>yes</default></vt_param>' \
+               '<vt_param id="def" type="string">' \
+               '<name>DEF</name><description>Test DEF</description>' \
+               '<default>no</default></vt_param></vt_params>'
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
-        response = ('<ref type="cve" id="CVE-2010-4480"/>' +
-                    '<ref type="url" id="http://example.com"/>')
+        response = '<vt_refs><ref type="cve" id="CVE-2010-4480"/>' \
+                    '<ref type="url" id="http://example.com"/></vt_refs>'
         return response
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(vt_id, vt_dependencies):
-        response = ('<dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />' +
-                    '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50283" />')
+        response = '<dependencies>' \
+                   '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />' \
+                   '<dependency vt_id="1.3.6.1.4.1.25623.1.0.50283" />' \
+                   '</dependencies>'
 
         return response
 
     @staticmethod
     def get_severities_vt_as_xml_str(vt_id, severities):
-        response = ('<severity cvss_base="5.0" cvss_type="cvss_base_v2">' +
-                    'AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>')
+        response = '<severities><severity cvss_base="5.0" cvss_' \
+                   'type="cvss_base_v2">AV:N/AC:L/Au:N/C:N/I:N/' \
+                   'A:P</severity></severities>'
 
         return response
 
     @staticmethod
     def get_detection_vt_as_xml_str(vt_id, detection=None,
                                     qod_type=None, qod=None):
-        response = ('<detection qod_type="package">some detection</detection>')
+        response = '<detection qod_type="package">some detection</detection>'
 
         return response
 
     @staticmethod
     def get_summary_vt_as_xml_str(vt_id, summary):
-        response = ('<summary>Some summary</summary>')
+        response = '<summary>Some summary</summary>'
 
         return response
 
     @staticmethod
     def get_affected_vt_as_xml_str(vt_id, affected):
-        response = ('<affected>Some affected</affected>')
+        response = '<affected>Some affected</affected>'
 
         return response
 
     @staticmethod
     def get_impact_vt_as_xml_str(vt_id, impact):
-        response = ('<impact>Some impact</impact>')
+        response = '<impact>Some impact</impact>'
 
         return response
 
     @staticmethod
     def get_insight_vt_as_xml_str(vt_id, insight):
-        response = ('<insight>Some insight</insight>')
+        response = '<insight>Some insight</insight>'
 
         return response
 
     @staticmethod
     def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
-        response = ('<solution>Some solution</solution>')
+        response = '<solution>Some solution</solution>'
+
+        return response
+
+    @staticmethod
+    def get_creation_time_vt_as_xml_str(vt_id, creation_time):
+        response = '<creation_time>%s</creation_time>' % creation_time
+
+        return response
+
+    @staticmethod
+    def get_modification_time_vt_as_xml_str(vt_id, modification_time):
+        response = (
+            '<modification_time>%s</modification_time>' % modification_time)
 
         return response
 
@@ -126,13 +143,18 @@ class DummyWrapper(OSPDaemon):
         time.sleep(0.01)
         for res in self.results:
             if res.result_type == 'log':
-                self.add_scan_log(scan_id, res.host or target, res.name, res.value, res.port)
+                self.add_scan_log(
+                    scan_id, res.host or target, res.name, res.value, res.port)
             if res.result_type == 'error':
-                self.add_scan_error(scan_id, res.host or target, res.name, res.value, res.port)
+                self.add_scan_error(
+                    scan_id, res.host or target, res.name, res.value, res.port)
             elif res.result_type == 'host-detail':
-                self.add_scan_host_detail(scan_id, res.host or target, res.name, res.value)
+                self.add_scan_host_detail(
+                    scan_id, res.host or target, res.name, res.value)
             elif res.result_type == 'alarm':
-                self.add_scan_alarm(scan_id, res.host or target, res.name, res.value, res.port, res.test_id, res.severity, res.qod)
+                self.add_scan_alarm(
+                    scan_id, res.host or target, res.name, res.value,
+                    res.port, res.test_id, res.severity, res.qod)
             else:
                 raise ValueError(res.result_type)
 
@@ -142,7 +164,8 @@ class FullTest(unittest.TestCase):
 
     def testGetDefaultScannerParams(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(daemon.handle_command('<get_scanner_details />'))
+        response = secET.fromstring(
+            daemon.handle_command('<get_scanner_details />'))
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
         # The response root element must have the correct name
@@ -154,7 +177,8 @@ class FullTest(unittest.TestCase):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<help />'))
         self.assertEqual(response.get('status'), '200')
-        response = secET.fromstring(daemon.handle_command('<help format="xml" />'))
+        response = secET.fromstring(
+            daemon.handle_command('<help format="xml" />'))
         self.assertEqual(response.get('status'), '200')
         self.assertEqual(response.tag, 'help_response')
 
@@ -192,15 +216,21 @@ class FullTest(unittest.TestCase):
 
     def testGetVTs_multiple_VTs_with_custom(self):
         daemon = DummyWrapper([])
-        daemon.add_vt('1.2.3.4', 'A vulnerability test')
-        daemon.add_vt('some id', 'Another vulnerability test with custom info', {'depencency': '1.2.3.4'})
-        daemon.add_vt('123456789', 'Yet another vulnerability test')
+        daemon.add_vt('1.2.3.4', 'A vulnerability test', custom='b')
+        daemon.add_vt('4.3.2.1', 'Another vulnerability test with custom info',
+                      custom='b')
+        daemon.add_vt('123456789', 'Yet another vulnerability test',
+                      custom='b')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
+        custom = response.findall('vts/vt/custom')
+        self.assertEqual(3, len(custom))
 
     def testGetVTs_VTs_with_params(self):
         daemon = DummyWrapper([])
-        daemon.add_vt('1.2.3.4', 'A vulnerability test', vt_params="a", custom="b")
-        response = secET.fromstring(daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        daemon.add_vt('1.2.3.4', 'A vulnerability test',
+                      vt_params="a", custom="b")
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
         # The response root element must have the correct name
@@ -347,16 +377,46 @@ class FullTest(unittest.TestCase):
         solution = response.findall('vts/vt/solution')
         self.assertEqual(1, len(solution))
 
+    def testGetVTs_VTs_with_ctime(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      vt_creation_time='01-01-1900')
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        creation_time = response.findall('vts/vt/creation_time')
+
+        self.assertEqual('<creation_time>01-01-1900</creation_time>',
+                         ET.tostring(creation_time[0]).decode('utf-8'))
+
+    def testGetVTs_VTs_with_mtime(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      vt_modification_time='02-01-1900')
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>'))
+        modification_time = response.findall('vts/vt/modification_time')
+
+        self.assertEqual('<modification_time>02-01-1900</modification_time>',
+                         ET.tostring(modification_time[0]).decode('utf-8'))
+
     def testiScanWithError(self):
         daemon = DummyWrapper([
             Result('error', value='something went wrong'),
         ])
 
-        response = secET.fromstring(daemon.handle_command('<start_scan target="localhost" ports="80, 443"><scanner_params /></start_scan>'))
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan target="localhost" ports="80, '
+                                  '443"><scanner_params /></start_scan>'))
         scan_id = response.findtext('id')
         finished = False
         while not finished:
-            response = secET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="0"/>' % scan_id))
+            response = secET.fromstring(
+                daemon.handle_command(
+                    '<get_scans scan_id="%s" details="0"/>' % scan_id))
             scans = response.findall('scan')
             self.assertEqual(1, len(scans))
             scan = scans[0]
@@ -365,21 +425,27 @@ class FullTest(unittest.TestCase):
                 time.sleep(.010)
             else:
                 finished = True
-        response = secET.fromstring(daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
+        response = secET.fromstring(
+            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
         response = secET.fromstring(daemon.handle_command('<get_scans />'))
-        response = secET.fromstring(daemon.handle_command('<get_scans scan_id="%s" details="1"/>' % scan_id))
-        self.assertEqual(response.findtext('scan/results/result'), 'something went wrong')
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" details="1"/>' % scan_id))
+        self.assertEqual(response.findtext('scan/results/result'),
+                         'something went wrong')
 
-        response = secET.fromstring(daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
+        response = secET.fromstring(
+            daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
-
 
     def testGetScanPop(self):
         daemon = DummyWrapper([
             Result('host-detail', value='Some Host Detail'),
         ])
 
-        response = secET.fromstring(daemon.handle_command('<start_scan target="localhost" ports="80, 443"><scanner_params /></start_scan>'))
+        response = secET.fromstring(daemon.handle_command(
+            '<start_scan target="localhost" ports="80, 443">'
+            '<scanner_params /></start_scan>'))
         scan_id = response.findtext('id')
         time.sleep(1)
 
@@ -404,7 +470,7 @@ class FullTest(unittest.TestCase):
             daemon.handle_command(
                 '<get_scans scan_id="%s" pop_results="1"/>' % scan_id))
         self.assertNotEqual(response.findtext('scan/results/result'),
-                         'Some Host Detail')
+                            'Some Host Detail')
         self.assertEqual(response.findtext('scan/results/result'),
                          None)
 
@@ -422,18 +488,17 @@ class FullTest(unittest.TestCase):
             daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id))
         self.assertEqual(response.get('status'), '200')
 
-
     def testStopScan(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan ' +
-                                  'target="localhost" ports="80, 443">' +
+            daemon.handle_command('<start_scan '
+                                  'target="localhost" ports="80, 443">'
                                   '<scanner_params /></start_scan>'))
         scan_id = response.findtext('id')
 
         # Depending on the sistem this test can end with a race condition
-        # because the scanner is already stopped when the <stop_scan> command
-        # is run.
+        # because the scanner is already stopped when the <stop_scan>
+        # command is run.
         time.sleep(3)
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
         self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
@@ -441,29 +506,31 @@ class FullTest(unittest.TestCase):
         cmd = secET.fromstring('<stop_scan />')
         self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
 
-
     def testScanWithVTs(self):
         daemon = DummyWrapper([])
-        cmd = secET.fromstring('<start_scan ' +
-                               'target="localhost" ports="80, 443">' +
-                               '<scanner_params /><vt_selection /></start_scan>')
+        cmd = secET.fromstring('<start_scan '
+                               'target="localhost" ports="80, 443">'
+                               '<scanner_params /><vt_selection />'
+                               '</start_scan>')
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
         # With one VT, without params
         response = secET.fromstring(
-            daemon.handle_command('<start_scan ' +
-                                  'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vt_selection><vt_single id="1.2.3.4" />' +
+            daemon.handle_command('<start_scan '
+                                  'target="localhost" ports="80, 443">'
+                                  '<scanner_params /><vt_selection>'
+                                  '<vt_single id="1.2.3.4" />'
                                   '</vt_selection></start_scan>'))
         scan_id = response.findtext('id')
         time.sleep(0.01)
-        self.assertEqual(daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vt_groups': []})
+        self.assertEqual(
+            daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vt_groups': []})
         self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
 
         # With out VTS
         response = secET.fromstring(
-            daemon.handle_command('<start_scan ' +
-                                  'target="localhost" ports="80, 443">' +
+            daemon.handle_command('<start_scan '
+                                  'target="localhost" ports="80, 443">'
                                   '<scanner_params /></start_scan>'))
         scan_id = response.findtext('id')
         time.sleep(0.01)
@@ -473,104 +540,104 @@ class FullTest(unittest.TestCase):
         daemon = DummyWrapper([])
 
         # Raise because no vt_param id attribute
-        cmd = secET.fromstring('<start_scan ' +
-                               'target="localhost" ports="80, 443">' +
-                               '<scanner_params /><vt_selection><vt_single id="1234">' +
-                               '<vt_value>200</vt_value>' +
+        cmd = secET.fromstring('<start_scan '
+                               'target="localhost" ports="80, 443">'
+                               '<scanner_params /><vt_selection><vt_si'
+                               'ngle id="1234"><vt_value>200</vt_value>'
                                '</vt_single></vt_selection></start_scan>')
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
         # No error
         response = secET.fromstring(
-            daemon.handle_command('<start_scan ' +
-                                  'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vt_selection><vt_single id="1234">' +
-                                  '<vt_value id="ABC">200' +
-                                  '</vt_value></vt_single></vt_selection></start_scan>'))
+            daemon.handle_command('<start_scan '
+                                  'target="localhost" ports="80, 443">'
+                                  '<scanner_params /><vt_selection><vt'
+                                  '_single id="1234"><vt_value id="ABC">200'
+                                  '</vt_value></vt_single></vt_selection>'
+                                  '</start_scan>'))
         scan_id = response.findtext('id')
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id),
                          {'1234': {'ABC': '200'}, 'vt_groups': []})
 
-
         # Raise because no vtgroup filter attribute
-        cmd = secET.fromstring('<start_scan ' +
-                               'target="localhost" ports="80, 443">' +
-                               '<scanner_params /><vt_selection><vt_group/>' +
+        cmd = secET.fromstring('<start_scan '
+                               'target="localhost" ports="80, 443">'
+                               '<scanner_params /><vt_selection><vt_group/>'
                                '</vt_selection></start_scan>')
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
         # No error
         response = secET.fromstring(
-            daemon.handle_command('<start_scan ' +
-                                  'target="localhost" ports="80, 443">' +
-                                  '<scanner_params /><vt_selection>' +
-                                  '<vt_group filter="a"/>' +
+            daemon.handle_command('<start_scan '
+                                  'target="localhost" ports="80, 443">'
+                                  '<scanner_params /><vt_selection>'
+                                  '<vt_group filter="a"/>'
                                   '</vt_selection></start_scan>'))
         scan_id = response.findtext('id')
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id),
                          {'vt_groups': ['a']})
 
-
     def testBillonLaughs(self):
         daemon = DummyWrapper([])
-        lol = ('<?xml version="1.0"?>' +
-               '<!DOCTYPE lolz [' +
-               ' <!ENTITY lol "lol">' +
-               ' <!ELEMENT lolz (#PCDATA)>' +
-               ' <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">' +
-               ' <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">' +
-               ' <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">' +
-               ' <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">' +
-               ' <!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">' +
-               ' <!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">' +
-               ' <!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">' +
-               ' <!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">' +
-               ' <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">' +
-               ']>')
+        lol = '<?xml version="1.0"?>' \
+              '<!DOCTYPE lolz [' \
+              ' <!ENTITY lol "lol">' \
+              ' <!ELEMENT lolz (#PCDATA)>' \
+              ' <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">' \
+              ' <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">' \
+              ' <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">' \
+              ' <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">' \
+              ' <!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">' \
+              ' <!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">' \
+              ' <!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">' \
+              ' <!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">' \
+              ' <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">' \
+              ']>'
         self.assertRaises(EntitiesForbidden, daemon.handle_command, lol)
 
     def testScanMultiTarget(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan>' +
-                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
-                                  '</vts>' +
-                                  '<targets><target>' +
-                                  '<hosts>localhosts</hosts>' +
-                                  '<ports>80,443</ports>' +
-                                  '</target>' +
-                                  '<target><hosts>192.168.0.0/24</hosts>' +
-                                  '<ports>22</ports></target></targets>' +
+            daemon.handle_command('<start_scan>'
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />'
+                                  '</vts>'
+                                  '<targets><target>'
+                                  '<hosts>localhosts</hosts>'
+                                  '<ports>80,443</ports>'
+                                  '</target>'
+                                  '<target><hosts>192.168.0.0/24</hosts>'
+                                  '<ports>22</ports></target></targets>'
                                   '</start_scan>'))
         self.assertEqual(response.get('status'), '200')
-
 
     def testMultiTargetWithCredentials(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan>' +
-                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
-                                  '</vts>' +
-                                  '<targets><target><hosts>localhosts</hosts>' +
-                                  '<ports>80,443</ports></target><target>' +
-                                  '<hosts>192.168.0.0/24</hosts><ports>22' +
-                                  '</ports><credentials>' +
-                                  '<credential type="up" service="ssh" port="22">' +
-                                  '<username>scanuser</username>' +
-                                  '<password>mypass</password>' +
-                                  '</credential><credential type="up" service="smb">' +
-                                  '<username>smbuser</username>' +
-                                  '<password>mypass</password></credential>' +
-                                  '</credentials>' +
-                                  '</target></targets>' +
-                                  '</start_scan>'))
+            daemon.handle_command(
+                '<start_scan>'
+                '<scanner_params /><vts><vt id="1.2.3.4" />'
+                '</vts>'
+                '<targets><target><hosts>localhosts</hosts>'
+                '<ports>80,443</ports></target><target>'
+                '<hosts>192.168.0.0/24</hosts><ports>22'
+                '</ports><credentials>'
+                '<credential type="up" service="ssh" port="22">'
+                '<username>scanuser</username>'
+                '<password>mypass</password>'
+                '</credential><credential type="up" service="smb">'
+                '<username>smbuser</username>'
+                '<password>mypass</password></credential>'
+                '</credentials>'
+                '</target></targets>'
+                '</start_scan>'))
+
         self.assertEqual(response.get('status'), '200')
         cred_dict = {'ssh': {'type': 'up', 'password':
-                    'mypass', 'port': '22', 'username':
-                    'scanuser'}, 'smb': {'type': 'up',
-                    'password': 'mypass', 'username': 'smbuser'}}
+                             'mypass', 'port': '22', 'username': 'scanuser'},
+                     'smb': {'type': 'up', 'password': 'mypass',
+                             'username': 'smbuser'}}
         scan_id = response.findtext('id')
         response = daemon.get_scan_credentials(scan_id, "192.168.0.0/24")
         self.assertEqual(response, cred_dict)
@@ -578,15 +645,15 @@ class FullTest(unittest.TestCase):
     def testScanGetTarget(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan>' +
-                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
-                                  '</vts>' +
-                                  '<targets><target>' +
-                                  '<hosts>localhosts</hosts>' +
-                                  '<ports>80,443</ports>' +
-                                  '</target>' +
-                                  '<target><hosts>192.168.0.0/24</hosts>' +
-                                  '<ports>22</ports></target></targets>' +
+            daemon.handle_command('<start_scan>'
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />'
+                                  '</vts>'
+                                  '<targets><target>'
+                                  '<hosts>localhosts</hosts>'
+                                  '<ports>80,443</ports>'
+                                  '</target>'
+                                  '<target><hosts>192.168.0.0/24</hosts>'
+                                  '<ports>22</ports></target></targets>'
                                   '</start_scan>'))
         scan_id = response.findtext('id')
         response = secET.fromstring(
@@ -598,10 +665,11 @@ class FullTest(unittest.TestCase):
         daemon = DummyWrapper([])
 
         response = secET.fromstring(
-            daemon.handle_command('<start_scan target="localhosts,192.168.0.0/24" ports="22">' +
-                                  '<scanner_params /><vts><vt id="1.2.3.4" />' +
-                                  '</vts>' +
-                                  '</start_scan>'))
+            daemon.handle_command(
+                '<start_scan target="localhosts,192.168.0.0/24" ports="22">'
+                '<scanner_params /><vts><vt id="1.2.3.4" />'
+                '</vts>'
+                '</start_scan>'))
         scan_id = response.findtext('id')
         response = secET.fromstring(
             daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
@@ -610,12 +678,12 @@ class FullTest(unittest.TestCase):
 
     def testScanMultiTargetParallelWithError(self):
         daemon = DummyWrapper([])
-        cmd = secET.fromstring('<start_scan parallel="100a">' +
-                               '<scanner_params />' +
-                               '<targets><target>' +
-                               '<hosts>localhosts</hosts>' +
-                               '<ports>22</ports>' +
-                               '</target></targets>' +
+        cmd = secET.fromstring('<start_scan parallel="100a">'
+                               '<scanner_params />'
+                               '<targets><target>'
+                               '<hosts>localhosts</hosts>'
+                               '<ports>22</ports>'
+                               '</target></targets>'
                                '</start_scan>')
         time.sleep(1)
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
@@ -623,12 +691,12 @@ class FullTest(unittest.TestCase):
     def testScanMultiTargetParallel100(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan parallel="100">' +
-                                  '<scanner_params />' +
-                                  '<targets><target>' +
-                                  '<hosts>localhosts</hosts>' +
-                                  '<ports>22</ports>' +
-                                  '</target></targets>' +
+            daemon.handle_command('<start_scan parallel="100">'
+                                  '<scanner_params />'
+                                  '<targets><target>'
+                                  '<hosts>localhosts</hosts>'
+                                  '<ports>22</ports>'
+                                  '</target></targets>'
                                   '</start_scan>'))
         time.sleep(1)
         self.assertEqual(response.get('status'), '200')
@@ -636,15 +704,15 @@ class FullTest(unittest.TestCase):
     def testProgress(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan parallel="2">' +
-                                  '<scanner_params />' +
-                                  '<targets><target>' +
-                                  '<hosts>localhost1</hosts>' +
-                                  '<ports>22</ports>' +
-                                  '</target><target>' +
-                                  '<hosts>localhost2</hosts>' +
-                                  '<ports>22</ports>' +
-                                  '</target></targets>' +
+            daemon.handle_command('<start_scan parallel="2">'
+                                  '<scanner_params />'
+                                  '<targets><target>'
+                                  '<hosts>localhost1</hosts>'
+                                  '<ports>22</ports>'
+                                  '</target><target>'
+                                  '<hosts>localhost2</hosts>'
+                                  '<ports>22</ports>'
+                                  '</target></targets>'
                                   '</start_scan>'))
         scan_id = response.findtext('id')
         daemon.set_scan_target_progress(scan_id, 'localhost1', 75)

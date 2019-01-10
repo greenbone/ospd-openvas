@@ -1357,37 +1357,29 @@ class OSPDaemon(object):
             elem.text = str(value)
 
         if vt.get('vt_params'):
-            params_xml_str = (
-                '<vt_params>%s</vt_params>' % self.get_params_vt_as_xml_str(
-                    vt_id, vt.get('vt_params')))
+            params_xml_str = self.get_params_vt_as_xml_str(
+                vt_id, vt.get('vt_params'))
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
-            refs_xml_str = (
-                '<vt_refs>%s</vt_refs>' % self.get_refs_vt_as_xml_str(
-                    vt_id, vt.get('vt_refs')))
+            refs_xml_str = self.get_refs_vt_as_xml_str(
+                vt_id, vt.get('vt_refs'))
             vt_xml.append(secET.fromstring(refs_xml_str))
 
         if vt.get('vt_dependencies'):
             dependencies = self.get_dependencies_vt_as_xml_str(
                 vt_id, vt.get('vt_dependencies'))
-            deps_xml_str = (
-                '<dependencies>%s</dependencies>' % dependencies)
-            vt_xml.append(secET.fromstring(deps_xml_str))
+            vt_xml.append(secET.fromstring(dependencies))
 
         if vt.get('creation_time'):
             vt_ctime = self.get_creation_time_vt_as_xml_str(
                 vt_id, vt.get('creation_time'))
-            creation_time_xml_str = (
-                '<creation_time>%s</creation_time>' % vt_ctime)
-            vt_xml.append(secET.fromstring(creation_time_xml_str))
+            vt_xml.append(secET.fromstring(vt_ctime))
 
         if vt.get('modification_time'):
             vt_mtime = self.get_modification_time_vt_as_xml_str(
                 vt_id, vt.get('modification_time'))
-            modification_time_xml_str = (
-                '<modification_time>%s</modification_time>' % vt_mtime)
-            vt_xml.append(secET.fromstring(modification_time_xml_str))
+            vt_xml.append(secET.fromstring(vt_mtime))
 
         if vt.get('summary'):
             summary_xml_str = self.get_summary_vt_as_xml_str(
@@ -1420,15 +1412,13 @@ class OSPDaemon(object):
             vt_xml.append(secET.fromstring(detection_xml_str))
 
         if vt.get('severities'):
-            severities_xml_str = (
-                '<severities>%s</severities>' % self.get_severities_vt_as_xml_str(
-                    vt_id, vt.get('severities')))
+            severities_xml_str = self.get_severities_vt_as_xml_str(
+                    vt_id, vt.get('severities'))
             vt_xml.append(secET.fromstring(severities_xml_str))
 
         if vt.get('custom'):
-            custom_xml_str = (
-                '<custom>%s</custom>' % self.get_custom_vt_as_xml_str(
-                    vt_id, vt.get('custom')))
+            custom_xml_str = self.get_custom_vt_as_xml_str(
+                vt_id, vt.get('custom'))
             vt_xml.append(secET.fromstring(custom_xml_str))
 
         return vt_xml
