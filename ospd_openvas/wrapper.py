@@ -431,15 +431,15 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         vt_params_xml = Element('vt_params')
-        for prefs in vt_params.items():
+        for pref_name, prefs in vt_params.items():
             vt_param = Element('vt_param')
-            vt_param.set('type', prefs[1]['type'])
-            vt_param.set('id', prefs[0])
+            vt_param.set('type', prefs['type'])
+            vt_param.set('id', pref_name)
             xml_name = SubElement(vt_param, 'name')
-            xml_name.text = prefs[1]['name']
-            if prefs[1]['default']:
+            xml_name.text = prefs['name']
+            if prefs['default']:
                 xml_def = SubElement(vt_param, 'default')
-                xml_def.text = prefs[1]['default']
+                xml_def.text = prefs['default']
             vt_params_xml.append(vt_param)
 
         return tostring(vt_params_xml).decode('utf-8')
