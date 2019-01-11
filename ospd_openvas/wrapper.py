@@ -386,25 +386,32 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
-        """ Return an xml element with custom metadata formatted as string."""
+        """ Return an xml element with custom metadata formatted as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            custom (dict): Dictionary with the custom metadata.
+        Return:
+            string: xml element as string.
+        """
 
-        nvt = Element('vt')
+        _custom = Element('custom')
         for key, val in custom.items():
-            xml_key = SubElement(nvt, key)
+            xml_key = SubElement(_custom, key)
             xml_key.text = val
 
-        itera = nvt.iter()
-        metadata = ''
-        for elem in itera:
-            if elem.tag != 'vt':
-                metadata += (tostring(elem).decode('utf-8'))
-        return metadata
+        return tostring(_custom).decode('utf-8')
 
     @staticmethod
     def get_severities_vt_as_xml_str(vt_id, severities):
-        """ Return an xml element with severities as string."""
-
-        _severity = Element('severity')
+        """ Return an xml element with severities as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            severities (dict): Dictionary with the severities.
+        Return:
+            string: xml element as string.
+        """
+        _severities = Element('severities')
+        _severity = SubElement(_severities, 'severity')
         if 'severity_base_vector' in severities:
             _severity.text = severities.pop('severity_base_vector')
         if 'severity_origin' in severities:
@@ -412,32 +419,40 @@ class OSPDopenvas(OSPDaemon):
         if 'severity_type' in severities:
             _severity.set('type', severities.pop('severity_type'))
 
-        return tostring(_severity).decode('utf-8')
+        return tostring(_severities).decode('utf-8')
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
-        """ Return an xml element with params formatted as string."""
+        """ Return an xml element with params formatted as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            vt_params (dict): Dictionary with the VT paramaters.
+        Return:
+            string: xml element as string.
+        """
         vt_params_xml = Element('vt_params')
-        for prefs in vt_params.items():
+        for pref_name, prefs in vt_params.items():
             vt_param = Element('vt_param')
-            vt_param.set('type', prefs[1]['type'])
-            vt_param.set('id', prefs[0])
+            vt_param.set('type', prefs['type'])
+            vt_param.set('id', pref_name)
             xml_name = SubElement(vt_param, 'name')
-            xml_name.text = prefs[1]['name']
-            if prefs[1]['default']:
+            xml_name.text = prefs['name']
+            if prefs['default']:
                 xml_def = SubElement(vt_param, 'default')
-                xml_def.text = prefs[1]['default']
+                xml_def.text = prefs['default']
             vt_params_xml.append(vt_param)
 
-        params_list = vt_params_xml.findall("vt_param")
-        params = ''
-        for param in params_list:
-            params += (tostring(param).decode('utf-8'))
-        return params
+        return tostring(vt_params_xml).decode('utf-8')
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
-        """ Return an xml element with references formatted as string."""
+        """ Return an xml element with references formatted as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            vt_refs (dict): Dictionary with the VT references.
+        Return:
+            string: xml element as string.
+        """
         vt_refs_xml = Element('vt_refs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
@@ -460,16 +475,18 @@ class OSPDopenvas(OSPDaemon):
                     continue
                 vt_refs_xml.append(vt_ref)
 
-        refs_list = vt_refs_xml.findall("ref")
-        refs = ''
-        for ref in refs_list:
-            refs += (tostring(ref).decode('utf-8'))
-        return refs
+        return tostring(vt_refs_xml).decode('utf-8')
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(vt_id, dep_list):
-        """ Return  an xml element with dependencies as string."""
-        vt_deps_xml = Element('vt_deps')
+        """ Return  an xml element with dependencies as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            dep_list (List): List with the VT dependencies.
+        Return:
+            string: xml element as string.
+        """
+        vt_deps_xml = Element('dependencies')
         for dep in dep_list:
             _vt_dep = Element('dependency')
             try:
@@ -480,53 +497,97 @@ class OSPDopenvas(OSPDaemon):
                 continue
             vt_deps_xml.append(_vt_dep)
 
-        _deps_list = vt_deps_xml.findall("dependency")
-        deps = ''
-        for _dep in _deps_list:
-            deps += (tostring(_dep).decode('utf-8'))
-        return deps
+        return tostring(vt_deps_xml).decode('utf-8')
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(vt_id, creation_time):
-        """ Return creation time as string."""
-        return creation_time
+        """ Return creation time as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            creation_time (str): String with the VT creation time.
+        Return:
+            string: xml element as string.
+        """
+        _time = Element('creation_time')
+        _time.text = creation_time
+        return tostring(_time).decode('utf-8')
 
     @staticmethod
     def get_modification_time_vt_as_xml_str(vt_id, modification_time):
-        """ Return modification time as string."""
-        return modification_time
+        """ Return modification time as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            modification_time (str): String with the VT modification time.
+        Return:
+            string: xml element as string.
+        """
+        _time = Element('modification_time')
+        _time.text = modification_time
+        return tostring(_time).decode('utf-8')
 
     @staticmethod
     def get_summary_vt_as_xml_str(vt_id, summary):
-        """ Return summary as string."""
+        """ Return summary as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            summary (str): String with a VT summary.
+        Return:
+            string: xml element as string.
+        """
         _summary = Element('summary')
         _summary.text = summary
         return tostring(_summary).decode('utf-8')
 
     @staticmethod
     def get_impact_vt_as_xml_str(vt_id, impact):
-        """ Return impact as string."""
+        """ Return impact as string.
+
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            impact (str): String which explain the vulneravility impact.
+        Return:
+            string: xml element as string.
+        """
         _impact = Element('impact')
         _impact.text = impact
         return tostring(_impact).decode('utf-8')
 
     @staticmethod
     def get_affected_vt_as_xml_str(vt_id, affected):
-        """ Return affected as string."""
+        """ Return affected as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            affected (str): String which explain what is affected.
+        Return:
+            string: xml element as string.
+        """
         _affected = Element('affected')
         _affected.text = affected
         return tostring(_affected).decode('utf-8')
 
     @staticmethod
     def get_insight_vt_as_xml_str(vt_id, insight):
-        """ Return insight as string."""
+        """ Return insight as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            insight (str): String giving an insight of the vulnerability.
+        Return:
+            string: xml element as string.
+        """
         _insight = Element('insight')
         _insight.text = insight
         return tostring(_insight).decode('utf-8')
 
     @staticmethod
     def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
-        """ Return solution as string."""
+        """ Return solution as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            solution (str): String giving a possible solution.
+            solution_type (str): A solution type
+        Return:
+            string: xml element as string.
+        """
         _solution = Element('solution')
         _solution.text = solution
         if solution_type:
@@ -534,8 +595,18 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_solution).decode('utf-8')
 
     @staticmethod
-    def get_detection_vt_as_xml_str(vt_id, vuldetect=None, qod_type=None, qod=None):
-        """ Return detection as string."""
+    def get_detection_vt_as_xml_str(vt_id, vuldetect=None,
+                                    qod_type=None, qod=None):
+        """ Return detection as string.
+        Arguments:
+            vt_id (str): VT OID. Only used for logging in error case.
+            vuldetect (str, opt): String which explain how the vulnerability
+                was detected.
+            qod_type (str, opt): qod type.
+            qod (str, opt): qod value.
+        Return:
+            string: xml element as string.
+        """
         _detection = Element('detection')
         if vuldetect:
             _detection.text = vuldetect
@@ -570,31 +641,48 @@ class OSPDopenvas(OSPDaemon):
         return True
 
     def update_progress(self, scan_id, target, msg):
-        """ Calculate porcentage and update the scan status
-        for the progress bar. """
+        """ Calculate percentage and update the scan status of a target
+        for the progress bar.
+        Arguments:
+            scan_id (uuid): Scan ID to identify the current scan process.
+            target (str): Target to be updated with the calculated
+                          scan progress.
+            msg (str): String with launched and total plugins.
+        """
         host_progress_dict = dict()
-        prog = str.split(msg, '/')
-        if float(prog[1]) == 0:
+        try:
+            launched, total = msg.split('/')
+        except ValueError:
             return
-        host_prog = (float(prog[0]) / float(prog[1])) * 100
+        if float(total) == 0:
+            return
+        host_prog = (float(launched) / float(total)) * 100
         host_progress_dict[target] = host_prog
         total_host = len(target_str_to_list(target))
-        self.set_scan_target_progress(scan_id, target,
-                                      sum(host_progress_dict.values()) / total_host)
+        target_progress = sum(host_progress_dict.values()) / total_host
+        self.set_scan_target_progress(scan_id, target, target_progress)
 
     def get_openvas_status(self, scan_id, target):
-        """ Get all status entries from redis kb. """
+        """ Get all status entries from redis kb.
+        Arguments:
+            scan_id (uuid): Scan ID to identify the current scan.
+            target (str): Target progress to be updated.
+        """
         res = self.openvas_db.get_status()
         while res:
             self.update_progress(scan_id, target, res)
             res = self.openvas_db.get_status()
 
-
     def get_severity_score(self, oid):
-        """ Return the severity score for the given oid. """
+        """ Return the severity score for the given oid.
+        Arguments:
+            oid (str): VT OID from which to get the severity vector
+        Returns:
+            The calculated cvss base value. None if there is no severity
+            vector or severity type is not cvss base version 2.
+        """
         severity_type = (
             self.vts[oid]['severities'].get('severity_type'))
-
         severity_vector = (
             self.vts[oid]['severities'].get('severity_base_vector'))
 
@@ -933,7 +1021,6 @@ class OSPDopenvas(OSPDaemon):
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
-           
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)

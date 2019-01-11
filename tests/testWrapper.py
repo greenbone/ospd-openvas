@@ -197,13 +197,13 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(w.vts, w.VT)
 
     def test_get_custom_xml(self, mock_nvti, mock_db):
-        out = '<required_ports>Services/www, 80</re' \
+        out = '<custom><required_ports>Services/www, 80</re' \
               'quired_ports><category>3</category><' \
               'excluded_keys>Settings/disable_cgi_s' \
               'canning</excluded_keys><family>Produ' \
               'ct detection</family><filename>manti' \
               's_detect.nasl</filename><timeout>0</' \
-              'timeout>'
+              'timeout></custom>'
         w =  DummyWrapper(mock_nvti, mock_db)
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         res = w.get_custom_vt_as_xml_str(
@@ -213,8 +213,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_severities_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<severity type="cvss_base_v2">' \
-              'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity>'
+        out = '<severities><severity type="cvss_base_v2">' \
+              'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity></severities>'
         vt =w.VT['1.3.6.1.4.1.25623.1.0.100061']
         severities = vt.get('severities')
         res = w.get_severities_vt_as_xml_str(
@@ -224,12 +224,12 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_params_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<vt_param type="checkbox" id="Do not randomize the  ' \
+        out = '<vt_params><vt_param type="checkbox" id="Do not randomize the  ' \
               'order  in  which ports are scanned"><name>Do not ran' \
               'domize the  order  in  which ports are scanned</name' \
               '><default>no</default></vt_param><vt_param type="ent' \
               'ry" id="Data length : "><name>Data length : </name><' \
-              '/vt_param>'
+              '/vt_param></vt_params>'
 
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         params = vt.get('vt_params')
@@ -239,7 +239,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_refs_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<ref type="url" id="http://www.mantisbt.org/"/>'
+        out = '<vt_refs><ref type="url" id="http://www.mantisbt.org/"/>' \
+              '</vt_refs>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         refs = vt.get('vt_refs')
         res = w.get_refs_vt_as_xml_str(
@@ -249,7 +250,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_dependencies_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<dependency vt_id="1.2.3.4"/><dependency vt_id="4.3.2.1"/>'
+        out = '<dependencies><dependency vt_id="1.2.3.4"/><dependency vt' \
+              '_id="4.3.2.1"/></dependencies>'
         dep = ['1.2.3.4', '4.3.2.1']
         res = w.get_dependencies_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', dep)
@@ -258,7 +260,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_ctime_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)'
+        out = '<creation_time>2009-03-19 11:22:36 +0100 ' \
+              '(Thu, 19 Mar 2009)</creation_time>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         ctime = vt.get('creation_time')
         res = w.get_creation_time_vt_as_xml_str(
@@ -268,7 +271,8 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_mtime_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '$Date: 2018-08-10 15:09:25 +0200 (Fri, 10 Aug 2018) $'
+        out = '<modification_time>$Date: 2018-08-10 15:09:25 +0200 ' \
+              '(Fri, 10 Aug 2018) $</modification_time>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         mtime = vt.get('modification_time')
         res = w.get_modification_time_vt_as_xml_str(
