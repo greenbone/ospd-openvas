@@ -426,7 +426,7 @@ class OSPDopenvas(OSPDaemon):
         """ Return an xml element with params formatted as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
-            vt_params (dict): Dictionary with the VT paramaters.
+            vt_params (dict): Dictionary with the VT parameters.
         Return:
             string: xml element as string.
         """
