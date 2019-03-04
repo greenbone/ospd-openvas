@@ -413,11 +413,11 @@ class OSPDopenvas(OSPDaemon):
         _severities = Element('severities')
         _severity = SubElement(_severities, 'severity')
         if 'severity_base_vector' in severities:
-            _severity.text = severities.pop('severity_base_vector')
+            _severity.text = severities.get('severity_base_vector')
         if 'severity_origin' in severities:
-            _severity.set('origin', severities.pop('severity_origin'))
+            _severity.set('origin', severities.get('severity_origin'))
         if 'severity_type' in severities:
-            _severity.set('type', severities.pop('severity_type'))
+            _severity.set('type', severities.get('severity_type'))
 
         return tostring(_severities).decode('utf-8')
 
