@@ -824,7 +824,9 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_type(self, vtid, vt_param_id):
         """ Return the type of the vt parameter from the vts dictionary. """
         vt_params_list = self.vts[vtid].get("vt_params")
-        return vt_params_list[vt_param_id]["type"]
+        if vt_params_list.get(vt_param_id):
+            return vt_params_list[vt_param_id]["type"]
+        return False
 
     @staticmethod
     def check_param_type(vt_param_value, param_type):
@@ -863,6 +865,10 @@ class OSPDopenvas(OSPDaemon):
             nvt_name = self.vts[vtid].get('name')
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
+                if not param_type:
+                    logger.debug('The vt parameter %s for %s could not be loaded.',
+                                 vt_param_id, vtid)
+                    continue
                 if vt_param_id == 'timeout':
                     type_aux = 'integer'
                 else:
