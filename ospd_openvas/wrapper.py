@@ -729,7 +729,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             if msg[0] == 'HOST_DETAIL':
-                self.add_scan_log(
+                self.add_scan_host_detail(
                     scan_id,
                     host=host_aux,
                     name=rname,
