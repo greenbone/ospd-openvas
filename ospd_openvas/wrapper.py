@@ -862,7 +862,6 @@ class OSPDopenvas(OSPDaemon):
 
         for vtid, vt_params in vts.items():
             vts_list.append(vtid)
-            nvt_name = self.vts[vtid].get('name')
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 if not param_type:
@@ -876,7 +875,7 @@ class OSPDopenvas(OSPDaemon):
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug('Expected {} type for parameter value {}'
                                  .format(type_aux, str(vt_param_value)))
-                param = ["{0}[{1}]:{2}".format(nvt_name, param_type,
+                param = ["{0}:{1}:{2}".format(vtid, param_type,
                                                vt_param_id),
                          str(vt_param_value)]
                 vts_params.append(param)
