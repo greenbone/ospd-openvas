@@ -55,12 +55,13 @@ class TestNVTICache(TestCase):
         self.assertEqual(ret, {})
 
     def test_get_nvt_params(self, mock_redis):
-        prefs = ['dns-fuzz.timelimit|||entry|||default']
-        prefs1 = ['dns-fuzz.timelimit|||entry|||']
+        prefs = ['1|||dns-fuzz.timelimit|||entry|||default']
+        prefs1 = ['1|||dns-fuzz.timelimit|||entry|||']
 
         timeout = '300'
         out_dict = {
             'dns-fuzz.timelimit': {
+                'id': '1',
                 'type': 'entry',
                 'default': 'default',
                 'name': 'dns-fuzz.timelimit',
@@ -75,6 +76,7 @@ class TestNVTICache(TestCase):
 
         out_dict1 = {
             'dns-fuzz.timelimit': {
+                'id': '1',
                 'type': 'entry',
                 'default': '',
                 'name': 'dns-fuzz.timelimit',
