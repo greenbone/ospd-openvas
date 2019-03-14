@@ -86,13 +86,14 @@ class NVTICache(object):
         if prefs:
             for nvt_pref in prefs:
                 elem = nvt_pref.split('|||')
-                _param_name = elem[0].strip()
+                _param_name = elem[1].strip()
                 vt_params[_param_name] = dict()
-                vt_params[_param_name]['type'] = elem[1]
+                vt_params[_param_name]['id'] = elem[0]
+                vt_params[_param_name]['type'] = elem[2]
                 vt_params[_param_name]['name'] = _param_name
                 vt_params[_param_name]['description'] = 'Description'
                 if elem[2]:
-                    vt_params[_param_name]['default'] = elem[2]
+                    vt_params[_param_name]['default'] = elem[3]
                 else:
                     vt_params[_param_name]['default'] = ''
 
