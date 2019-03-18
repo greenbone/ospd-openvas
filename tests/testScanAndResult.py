@@ -68,8 +68,8 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
-        response = '<vt_refs><ref type="cve" id="CVE-2010-4480"/>' \
-                    '<ref type="url" id="http://example.com"/></vt_refs>'
+        response = '<refs><ref type="cve" id="CVE-2010-4480"/>' \
+                    '<ref type="url" id="http://example.com"/></refs>'
         return response
 
     @staticmethod
@@ -263,7 +263,7 @@ class FullTest(unittest.TestCase):
         self.assertEqual(1, len(vt_params))
         custom = response[0][0].findall('custom')
         self.assertEqual(1, len(custom))
-        refs = response.findall('vts/vt/vt_refs/ref')
+        refs = response.findall('vts/vt/refs/ref')
         self.assertEqual(2, len(refs))
 
     def testGetVTs_VTs_with_dependencies(self):

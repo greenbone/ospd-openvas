@@ -1187,12 +1187,12 @@ class OSPDaemon(object):
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
         """ Create a string representation of the XML object from the
-        vt_refs data object.
+        refs data object.
         This needs to be implemented by each ospd wrapper, in case
-        vt_refs elements for VTs are used.
+        refs elements for VTs are used.
 
-        The vt_refs XML object which is returned will be embedded
-        into a <vt_refs></vt_refs> element.
+        The refs XML object which is returned will be embedded
+        into a <refs></refs> element.
 
         @return: XML object as string for vt references data.
         """
