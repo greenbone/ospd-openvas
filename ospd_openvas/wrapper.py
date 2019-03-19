@@ -453,7 +453,7 @@ class OSPDopenvas(OSPDaemon):
         Return:
             string: xml element as string.
         """
-        vt_refs_xml = Element('vt_refs')
+        vt_refs_xml = Element('refs')
         for ref_type, ref_values in vt_refs.items():
             for value in ref_values:
                 vt_ref = Element('ref')
