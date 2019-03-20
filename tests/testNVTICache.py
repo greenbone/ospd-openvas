@@ -68,6 +68,7 @@ class TestNVTICache(TestCase):
                 'description': 'Description'},
             'timeout': {
                 'type': 'entry',
+                'id': 'timeout',
                 'default': '300',
                 'name': 'timeout',
                 'description': 'Script Timeout'
@@ -83,6 +84,7 @@ class TestNVTICache(TestCase):
                 'description': 'Description'},
             'timeout': {
                 'type': 'entry',
+                'id': 'timeout',
                 'default': '300',
                 'name': 'timeout',
                 'description': 'Script Timeout'

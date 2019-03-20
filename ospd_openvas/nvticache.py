@@ -78,6 +78,7 @@ class NVTICache(object):
         vt_params = {}
         if int(timeout) > 0:
             vt_params['timeout'] = dict()
+            vt_params['timeout']['id'] = 'timeout'
             vt_params['timeout']['type'] = 'entry'
             vt_params['timeout']['name'] = 'timeout'
             vt_params['timeout']['description'] = 'Script Timeout'
