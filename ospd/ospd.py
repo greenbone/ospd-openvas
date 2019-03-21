@@ -37,6 +37,7 @@ import defusedxml.ElementTree as secET
 import os
 
 from ospd import __version__
+from ospd.vtfilter import VtsFilter
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
 from ospd.misc import resolve_hostname, valid_uuid
 
@@ -99,7 +100,8 @@ COMMANDS_TABLE = {
     'get_vts': {
         'description': 'List of available vulnerability tests.',
         'attributes': {
-            'vt_id': 'ID of a specific vulnerability test to get.'
+            'vt_id': 'ID of a specific vulnerability test to get.',
+            'filter': 'Optional filter to get an specific vt collection.'
         },
         'elements': None
     },
@@ -248,7 +250,7 @@ class OSPDaemon(object):
       specific options eg. the w3af profile for w3af wrapper.
     """
 
-    def __init__(self, certfile, keyfile, cafile):
+    def __init__(self, certfile, keyfile, cafile, customvtfilter=None):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
         #        a separate function because it is not mandatory anymore to
@@ -279,6 +281,10 @@ class OSPDaemon(object):
         self.vts = dict()
         self.vt_id_pattern = re.compile("[0-9a-zA-Z_\-:.]{1,80}")
         self.vts_version = None
+        if customvtfilter:
+            self.vts_filter = customvtfilter
+        else:
+            self.vts_filter = VtsFilter()
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -1005,6 +1011,7 @@ class OSPDaemon(object):
         """
 
         vt_id = vt_et.attrib.get('vt_id')
+        vt_filter = vt_et.attrib.get('filter')
 
         if vt_id and vt_id not in self.vts:
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
@@ -1012,10 +1019,7 @@ class OSPDaemon(object):
 
         responses = []
 
-        if vt_id:
-            vts_xml = self.get_vts_xml(vt_id)
-        else:
-            vts_xml = self.get_vts_xml()
+        vts_xml = self.get_vts_xml(vt_id, vt_filter)
 
         responses.append(vts_xml)
 
@@ -1423,18 +1427,31 @@ class OSPDaemon(object):
 
         return vt_xml
 
-    def get_vts_xml(self, vt_id=''):
+    def get_vts_xml(self, vt_id=None, vt_filter=None):
         """ Gets collection of vulnerability test information in XML format.
-        If vt_id is specified, the collection will contain only this vt, of found.
-        If no vt_id is specified, the collection will contain all vts.
+        If vt_id is specified, the collection will contain only this vt, if
+        found.
+        If no vt_id is specified, the collection will contain all vts or those
+        which match with a given filter.
 
-        @return: String of collection of vulnerability test information in XML format.
+        Arguments:
+            vt_id (vt_id): ID of the vt to get.
+            vt_filter (string): Filter to use in the vts collection.
+
+        Return:
+            String of collection of vulnerability test information in
+            XML format.
         """
 
         vts_xml = Element('vts')
 
-        if vt_id != '':
+        if vt_id:
             vts_xml.append(self.get_vt_xml(vt_id))
+        elif vt_filter:
+            filtered_vts = self.vts_filter.get_filtered_vts_list(
+                self.vts, vt_filter)
+            for vt_id in filtered_vts:
+                vts_xml.append(self.get_vt_xml(vt_id))
         else:
             for vt_id in self.vts:
                 vts_xml.append(self.get_vt_xml(vt_id))
