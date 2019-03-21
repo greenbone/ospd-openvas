@@ -79,7 +79,7 @@ class VtsFilter(object):
         format_func = self.allowed_filter.get(element)
         return format_func(value)
 
-    def get_filtered_vts_list(self, vts, vt_filter=None):
+    def get_filtered_vts_list(self, vts, vt_filter):
         """ Gets a collection of vulnerability test from the vts dictionary,
         which match the filter.
 
