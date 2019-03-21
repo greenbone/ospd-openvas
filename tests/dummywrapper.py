@@ -95,4 +95,4 @@ class DummyWrapper(OSPDopenvas):
         with patch('ospd_openvas.wrapper.OpenvasDB', return_value=redis):
             with patch('ospd_openvas.wrapper.NVTICache', return_value=nvti):
                 with patch.object(OSPDopenvas, 'load_vts', return_value=None):
-                    super().__init__('cert', 'key', 'ca')
+                    super().__init__('cert', 'key', 'ca', None)
