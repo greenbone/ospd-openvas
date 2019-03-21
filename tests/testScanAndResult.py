@@ -204,6 +204,40 @@ class FullTest(unittest.TestCase):
         vt = vts.find('vt')
         self.assertEqual(vt.get('id'), '1.2.3.4')
 
+    def testGetVTs_filter_positive(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      vt_modification_time='19000202')
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts filter="modification_time&gt;19000201"></get_vts>'))
+        self.assertEqual(response.get('status'), '200')
+        vts = response.find('vts')
+        self.assertIsNotNone(vts.find('vt'))
+        vt = vts.find('vt')
+        self.assertEqual(vt.get('id'), '1.2.3.4')
+        modification_time = response.findall('vts/vt/modification_time')
+        self.assertEqual('<modification_time>19000202</modification_time>',
+                         ET.tostring(modification_time[0]).decode('utf-8'))
+
+    def testGetVTs_filter_negative(self):
+        daemon = DummyWrapper([])
+        daemon.add_vt('1.2.3.4',
+                      'A vulnerability test',
+                      vt_params="a",
+                      vt_modification_time='19000202')
+        response = secET.fromstring(
+            daemon.handle_command('<get_vts filter="modification_time&lt;19000203"></get_vts>'))
+        self.assertEqual(response.get('status'), '200')
+        vts = response.find('vts')
+        self.assertIsNotNone(vts.find('vt'))
+        vt = vts.find('vt')
+        self.assertEqual(vt.get('id'), '1.2.3.4')
+        modification_time = response.findall('vts/vt/modification_time')
+        self.assertEqual('<modification_time>19000202</modification_time>',
+                         ET.tostring(modification_time[0]).decode('utf-8'))
+
     def testGetVTs_multiple_VTs(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
