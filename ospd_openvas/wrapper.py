@@ -222,7 +222,7 @@ class OSPDopenvas(OSPDaemon):
 
     """ Class for ospd-openvas daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, customvtfilter):
+    def __init__(self, certfile, keyfile, cafile):
         """ Initializes the ospd-openvas daemon's internal data. """
 
         super(OSPDopenvas, self).__init__(certfile=certfile, keyfile=keyfile,
