@@ -225,9 +225,8 @@ class OSPDopenvas(OSPDaemon):
     def __init__(self, certfile, keyfile, cafile):
         """ Initializes the ospd-openvas daemon's internal data. """
 
-        super(OSPDopenvas, self).__init__(certfile=certfile, keyfile=keyfile,
-                                          cafile=cafile,
-                                          customvtfilter=OpenVasVtsFilter())
+        super().__init__(certfile=certfile, keyfile=keyfile, cafile=cafile,
+                         customvtfilter=OpenVasVtsFilter())
         self.server_version = __version__
         self.scanner_info['name'] = 'openvassd'
         self.scanner_info['version'] = ''  # achieved during self.check()
