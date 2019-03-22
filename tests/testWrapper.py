@@ -23,6 +23,7 @@ import unittest
 from unittest.mock import patch
 from ospd_openvas.wrapper import OSPD_PARAMS
 from tests.dummywrapper import DummyWrapper
+from  ospd_openvas.wrapper import OpenVasVtsFilter
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {
@@ -454,3 +455,11 @@ class TestOspdOpenvas(unittest.TestCase):
         w =  DummyWrapper(mock_nvti, mock_db)
         ret = w.scan_is_stopped('123-456')
         self.assertEqual(ret, True)
+
+class TestFilters(unittest.TestCase):
+
+    def test_format_vt_modification_time(self):
+        ovformat = OpenVasVtsFilter()
+        td = '$Date: 2018-02-01 02:09:01 +0200 (Thu, 18 Oct 2018) $'
+        formated = ovformat.format_vt_modification_time(td)
+        self.assertEqual(formated, "20180201020901")

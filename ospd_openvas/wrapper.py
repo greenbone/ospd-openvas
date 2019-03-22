@@ -24,12 +24,14 @@ import time
 import signal
 import uuid
 from lxml.etree import tostring, SubElement, Element
+from datetime import datetime
 import psutil
 
 from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
 from ospd.misc import target_str_to_list
 from ospd.cvss import CVSS
+from ospd.vtfilter import VtsFilter
 from ospd_openvas import __version__
 
 from ospd_openvas.nvticache import NVTICache
@@ -201,6 +203,20 @@ def _from_bool_to_str(value):
     uses 1 and 0."""
     return 'yes' if value == 1 else 'no'
 
+class OpenVasVtsFilter(VtsFilter):
+    """ Methods to overwrite the ones in the original class.
+    Each method formats the value to be compatible with the filter
+    """
+    def format_vt_modification_time(self, value):
+        """ Convert the datetime value in an 19 character string
+        representing YearMonthDateHourMinuteSecond.
+        e.g. 20190319122532
+        """
+
+        date = value[7:26].replace(" ", "")
+        date = date.replace("-", "")
+        date = date.replace(":","")
+        return date
 
 class OSPDopenvas(OSPDaemon):
 
@@ -210,7 +226,8 @@ class OSPDopenvas(OSPDaemon):
         """ Initializes the ospd-openvas daemon's internal data. """
 
         super(OSPDopenvas, self).__init__(certfile=certfile, keyfile=keyfile,
-                                          cafile=cafile)
+                                          cafile=cafile,
+                                          customvtfilter=OpenVasVtsFilter())
         self.server_version = __version__
         self.scanner_info['name'] = 'openvassd'
         self.scanner_info['version'] = ''  # achieved during self.check()
