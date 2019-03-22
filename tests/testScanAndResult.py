@@ -27,7 +27,9 @@ import xml.etree.ElementTree as ET
 import defusedxml.lxml as secET
 from defusedxml.common import EntitiesForbidden
 
-from ospd.ospd import OSPDaemon, OSPDError
+from ospd.ospd import OSPDaemon
+from ospd.error import OSPDError
+from ospd.xml import simple_response_str, get_result_xml
 
 
 class Result(object):
