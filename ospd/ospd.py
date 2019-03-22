@@ -966,9 +966,14 @@ class OSPDaemon(object):
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
             return simple_response_str('get_vts', 404, text)
 
+        filtered_vts = None
+        if vt_filter:
+            filtered_vts = self.vts_filter.get_filtered_vts_list(
+                self.vts, vt_filter)
+
         responses = []
 
-        vts_xml = self.get_vts_xml(vt_id, vt_filter)
+        vts_xml = self.get_vts_xml(vt_id, filtered_vts)
 
         responses.append(vts_xml)
 
@@ -1376,16 +1381,16 @@ class OSPDaemon(object):
 
         return vt_xml
 
-    def get_vts_xml(self, vt_id=None, vt_filter=None):
+    def get_vts_xml(self, vt_id=None, filtered_vts=None):
         """ Gets collection of vulnerability test information in XML format.
         If vt_id is specified, the collection will contain only this vt, if
         found.
         If no vt_id is specified, the collection will contain all vts or those
-        which match with a given filter.
+        passed in filtered_vts.
 
         Arguments:
-            vt_id (vt_id): ID of the vt to get.
-            vt_filter (string): Filter to use in the vts collection.
+            vt_id (vt_id, optional): ID of the vt to get.
+            filtered_vts (dict, optional): Filtered VTs collection.
 
         Return:
             String of collection of vulnerability test information in
@@ -1396,9 +1401,7 @@ class OSPDaemon(object):
 
         if vt_id:
             vts_xml.append(self.get_vt_xml(vt_id))
-        elif vt_filter:
-            filtered_vts = self.vts_filter.get_filtered_vts_list(
-                self.vts, vt_filter)
+        elif filtered_vts:
             for vt_id in filtered_vts:
                 vts_xml.append(self.get_vt_xml(vt_id))
         else:
