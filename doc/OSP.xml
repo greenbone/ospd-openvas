@@ -747,6 +747,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <summary>Identifier for vulnerability test</summary>
         <type>vt_id</type>
       </attrib>
+      <attrib>
+        <name>filter</name>
+        <summary>Filter to get a sub group of a VT collection</summary>
+        <type>string</type>
+      </attrib>
     </pattern>
     <response>
       <pattern>
@@ -905,6 +910,40 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               </dependencies>
               <creation_time>2015-02-15 05:47:27 +0100 (Sun, 15 Feb 2015)</creation_time>
               <modification_time>$Date: 2017-07-10 08:34:32 +0200 (Mon, 10 Jul 2017) $</modification_time>
+              <summary>Check the version of App</summary>
+              <affected>App in OS v2</affected>
+              <insight>App is a small but very powerful app.</insight>
+              <solution type="VendorFix">Please Install the Updated Packages.
+              </solution>
+              <detection qod_type="package">Get the installed version with the help of detect NVT and check if the version is vulnerable or not.</detection>
+              <severities>
+                <severity type="cvss_base_v2" origin="CVE-2014-9116">AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>
+              </severities>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a filtered collection of vulnerability test</summary>
+      <request>
+        <get_vts filter='modification_time&gt;201903150834;modification_time&lt;201903150835'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts>
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerability X</name>
+              <refs>
+                <ref id="2014-16494" type="fedora" />
+                <ref id="https://lists.fedoraproject.org/" type="url" />
+                <ref id="CVE-2014-9116" type="cve" />
+              </refs>
+              <dependencies>
+                <dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />
+              </dependencies>
+              <creation_time>2015-02-15 05:47:27 +0100 (Sun, 15 Feb 2015)</creation_time>
+              <modification_time>$Date: 2019-03-15 08:34:32 +0200 (Mon, 10 Jul 2017) $</modification_time>
               <summary>Check the version of App</summary>
               <affected>App in OS v2</affected>
               <insight>App is a small but very powerful app.</insight>
