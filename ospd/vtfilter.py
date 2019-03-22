@@ -20,6 +20,7 @@
 """
 import re
 import operator
+from ospd.error import OSPDError
 
 class VtsFilter(object):
     """ Helper class to filter Vulnerability Tests """
@@ -52,11 +53,16 @@ class VtsFilter(object):
         filter_list = vt_filter.split(';')
         filters = list()
         for single_filter in filter_list:
-           filters.append(re.split('(\W)', single_filter, 1))
+            filter_aux = re.split('(\W)', single_filter, 1)
+            if len(filter_aux) < 3:
+                raise OSPDError("Invalid number of argument in the filter", "get_vts")
+            _element, _oper, _val = filter_aux
+            if _element not in self.allowed_filter:
+                raise OSPDError("Invalid filter element", "get_vts")
+            if _oper not in self.filter_operator:
+                raise OSPDError("Invalid filter operator", "get_vts")
 
-        for _element, _oper, _val in filters:
-            if _element not in self.allowed_filter or _oper not in self.filter_operator:
-                filters.remove([_element, _oper, _val])
+            filters.append(filter_aux)
 
         return filters
 
@@ -75,6 +81,14 @@ class VtsFilter(object):
     def format_filter_value(self, element, value):
         """ Calls the specific function to format value,
         depending on the given element.
+
+        Arguments:
+            element (string): The element of the VT to be formated.
+            value (dictionary): The element value.
+
+        Returns:
+            Returns a formated value.
+
         """
         format_func = self.allowed_filter.get(element)
         return format_func(value)
@@ -85,6 +99,7 @@ class VtsFilter(object):
 
         Arguments:
             vt_filter (string): Filter to apply to the vts collection.
+            vts (dictionary): The complete vts collection.
 
         Returns:
             Dictionary with filtered vulnerability tests.

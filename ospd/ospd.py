@@ -40,6 +40,8 @@ from ospd import __version__
 from ospd.vtfilter import VtsFilter
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
 from ospd.misc import resolve_hostname, valid_uuid
+from ospd.xml import simple_response_str, get_result_xml
+from ospd.error import OSPDError
 
 logger = logging.getLogger(__name__)
 
@@ -124,59 +126,6 @@ COMMANDS_TABLE = {
     }
 }
 
-
-def get_result_xml(result):
-    """ Formats a scan result to XML format. """
-    result_xml = Element('result')
-    for name, value in [('name', result['name']),
-                        ('type', ResultType.get_str(result['type'])),
-                        ('severity', result['severity']),
-                        ('host', result['host']),
-                        ('test_id', result['test_id']),
-                        ('port', result['port']),
-                        ('qod', result['qod'])]:
-        result_xml.set(name, str(value))
-    result_xml.text = result['value']
-    return result_xml
-
-
-def simple_response_str(command, status, status_text, content=""):
-    """ Creates an OSP response XML string.
-
-    @param: OSP Command to respond to.
-    @param: Status of the response.
-    @param: Status text of the response.
-    @param: Text part of the response XML element.
-
-    @return: String of response in xml format.
-    """
-    response = Element('%s_response' % command)
-    for name, value in [('status', str(status)), ('status_text', status_text)]:
-        response.set(name, str(value))
-    if isinstance(content, list):
-        for elem in content:
-            response.append(elem)
-    elif isinstance(content, Element):
-        response.append(content)
-    else:
-        response.text = content
-    return tostring(response)
-
-
-class OSPDError(Exception):
-
-    """ This is an exception that will result in an error message to the
-    client """
-
-    def __init__(self, message, command='osp', status=400):
-        super(OSPDError, self).__init__()
-        self.message = message
-        self.command = command
-        self.status = status
-
-    def as_xml(self):
-        """ Return the error in xml format. """
-        return simple_response_str(self.command, self.status, self.message)
 
 
 def bind_socket(address, port):
@@ -1017,9 +966,14 @@ class OSPDaemon(object):
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
             return simple_response_str('get_vts', 404, text)
 
+        filtered_vts = None
+        if vt_filter:
+            filtered_vts = self.vts_filter.get_filtered_vts_list(
+                self.vts, vt_filter)
+
         responses = []
 
-        vts_xml = self.get_vts_xml(vt_id, vt_filter)
+        vts_xml = self.get_vts_xml(vt_id, filtered_vts)
 
         responses.append(vts_xml)
 
@@ -1427,16 +1381,16 @@ class OSPDaemon(object):
 
         return vt_xml
 
-    def get_vts_xml(self, vt_id=None, vt_filter=None):
+    def get_vts_xml(self, vt_id=None, filtered_vts=None):
         """ Gets collection of vulnerability test information in XML format.
         If vt_id is specified, the collection will contain only this vt, if
         found.
         If no vt_id is specified, the collection will contain all vts or those
-        which match with a given filter.
+        passed in filtered_vts.
 
         Arguments:
-            vt_id (vt_id): ID of the vt to get.
-            vt_filter (string): Filter to use in the vts collection.
+            vt_id (vt_id, optional): ID of the vt to get.
+            filtered_vts (dict, optional): Filtered VTs collection.
 
         Return:
             String of collection of vulnerability test information in
@@ -1447,9 +1401,7 @@ class OSPDaemon(object):
 
         if vt_id:
             vts_xml.append(self.get_vt_xml(vt_id))
-        elif vt_filter:
-            filtered_vts = self.vts_filter.get_filtered_vts_list(
-                self.vts, vt_filter)
+        elif filtered_vts:
             for vt_id in filtered_vts:
                 vts_xml.append(self.get_vt_xml(vt_id))
         else:
