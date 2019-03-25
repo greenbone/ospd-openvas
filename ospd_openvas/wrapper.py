@@ -26,6 +26,7 @@ import uuid
 from lxml.etree import tostring, SubElement, Element
 from datetime import datetime
 import psutil
+from os import path
 
 from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
@@ -33,6 +34,7 @@ from ospd.misc import target_str_to_list
 from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
 from ospd_openvas import __version__
+from ospd_openvas.errors import OSPDOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
@@ -234,6 +236,7 @@ class OSPDopenvas(OSPDaemon):
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
 
+        self.scan_only_params = dict()
         self.main_kbindex = None
         self.openvas_db = OpenvasDB()
         self.nvti = NVTICache(self.openvas_db)
@@ -267,6 +270,9 @@ class OSPDopenvas(OSPDaemon):
         for elem in OSPD_PARAMS:
             if elem in param_list:
                 OSPD_PARAMS[elem]['default'] = param_list[elem]
+        for elem in param_list:
+            if elem not in OSPD_PARAMS:
+                self.scan_only_params[elem] = param_list[elem]
 
     def redis_nvticache_init(self):
         """ Loads NVT's metadata into Redis DB. """
@@ -277,16 +283,44 @@ class OSPDopenvas(OSPDaemon):
             logger.error('OpenVAS Scanner failed to load NVTs.')
             raise err
 
+    def feed_is_outdated(self):
+        """ Compare the current feed with the one in the disk.
+
+        Return:
+            False if there is no new feed. True if the feed version in disk
+            is newer than the feed in redis cache.
+        """
+        plugins_folder = self.scan_only_params.get('plugins_folder')
+        if not plugins_folder:
+            raise OSPDOpenvasError("Error: Path to plugins folder not found.")
+        feed_info_file = path.join(plugins_folder, 'plugin_feed_info.inc')
+        fcontent = open(feed_info_file)
+        for line in fcontent:
+            if "PLUGIN_SET" in line:
+                date = line.split(' = ')[1]
+                date = date.replace(';', '')
+                date = date.replace('"', '')
+        current_feed =  self.nvti.get_feed_version()
+        if int(current_feed) < int(date):
+            return True
+        return False
+
     def check_feed(self):
         """ Check if there is a feed update. Wait until all the running
         scans finished. Set a flag to anounce there is a pending feed update,
         which avoid to start a new scan.
         """
+
+        # Check if the nvticache in redis is outdated
+        if self.feed_is_outdated():
+            self.redis_nvticache_init()
+
         _running_scan = False
         for scan_id in self.scan_processes:
             if self.scan_processes[scan_id].is_alive():
                 _running_scan = True
 
+        # Check if the NVT dict is outdated
         if self.pending_feed:
             _pending_feed = True
         else:
