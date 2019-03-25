@@ -461,5 +461,5 @@ class TestFilters(unittest.TestCase):
     def test_format_vt_modification_time(self):
         ovformat = OpenVasVtsFilter()
         td = '$Date: 2018-02-01 02:09:01 +0200 (Thu, 18 Oct 2018) $'
-        formated = ovformat.format_vt_modification_time(td)
-        self.assertEqual(formated, "20180201020901")
+        formatted = ovformat.format_vt_modification_time(td)
+        self.assertEqual(formatted, "20180201020901")
