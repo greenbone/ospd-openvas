@@ -19,7 +19,7 @@
 Module for OSPD OpenVAS errors
 """
 
-from ospd.ospd import OSPDError
+from ospd.error import OSPDError
 
 
 class OSPDOpenvasError(OSPDError):
