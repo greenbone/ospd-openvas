@@ -24,6 +24,7 @@ from unittest.mock import patch
 from ospd_openvas.wrapper import OSPD_PARAMS
 from tests.dummywrapper import DummyWrapper
 from  ospd_openvas.wrapper import OpenVasVtsFilter
+from ospd_openvas.errors import OSPDOpenvasError
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {
@@ -456,6 +457,22 @@ class TestOspdOpenvas(unittest.TestCase):
         w =  DummyWrapper(mock_nvti, mock_db)
         ret = w.scan_is_stopped('123-456')
         self.assertEqual(ret, True)
+
+    @patch('ospd_openvas.wrapper.open')
+    def test_feed_is_outdated(self, mock_open, mock_nvti, mock_db):
+        mock_nvti.get_feed_version.return_value = '1234'
+        mock_open.return_value = ['PLUGIN_SET = "1234";']
+        w =  DummyWrapper(mock_nvti, mock_db)
+        self.assertRaises(OSPDOpenvasError, w.feed_is_outdated)
+        # Return False
+        w.scan_only_params['plugins_folder'] = '/foo/bar'
+        ret = w.feed_is_outdated()
+        self.assertFalse(ret)
+
+        # Return true
+        mock_open.return_value = ['PLUGIN_SET = "1235";']
+        ret = w.feed_is_outdated()
+        self.assertTrue(ret)
 
 class TestFilters(unittest.TestCase):
 
