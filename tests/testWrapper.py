@@ -185,11 +185,12 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_parse_param(self, mock_subproc, mock_nvti, mock_db):
 
         mock_subproc.check_output.return_value = \
-            'non_simult_ports = 22'.encode()
+            'non_simult_ports = 22\nplugins_folder = /foo/bar'.encode()
         w =  DummyWrapper(mock_nvti, mock_db)
         w.parse_param()
         self.assertEqual(mock_subproc.check_output.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
+        self.assertEqual(w.scan_only_params.get('plugins_folder'), '/foo/bar')
 
     def test_load_vts(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
