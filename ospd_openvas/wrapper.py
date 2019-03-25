@@ -34,6 +34,7 @@ from ospd.misc import target_str_to_list
 from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
 from ospd_openvas import __version__
+from ospd_openvas.errors import OSPDOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
@@ -300,7 +301,6 @@ class OSPDopenvas(OSPDaemon):
                 date = date.replace(';', '')
                 date = date.replace('"', '')
         current_feed =  self.nvti.get_feed_version()
-
         if int(current_feed) < int(date):
             return True
         return False
