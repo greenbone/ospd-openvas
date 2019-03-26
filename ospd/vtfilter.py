@@ -67,13 +67,13 @@ class VtsFilter(object):
         return filters
 
     def format_vt_creation_time(self, value):
-        """ In case the given creationdatetime value must be formated,
+        """ In case the given creationdatetime value must be formatted,
         this function must be implemented by the wrapper
         """
         return value
 
     def format_vt_modification_time(self, value):
-        """ In case the given modification datetime value must be formated,
+        """ In case the given modification datetime value must be formatted,
         this function must be implemented by the wrapper
         """
         return value
@@ -83,11 +83,11 @@ class VtsFilter(object):
         depending on the given element.
 
         Arguments:
-            element (string): The element of the VT to be formated.
+            element (string): The element of the VT to be formatted.
             value (dictionary): The element value.
 
         Returns:
-            Returns a formated value.
+            Returns a formatted value.
 
         """
         format_func = self.allowed_filter.get(element)
