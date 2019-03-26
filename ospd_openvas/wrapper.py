@@ -19,6 +19,7 @@
 
 """ Setup for the OSP OpenVAS Server. """
 
+import logging
 import subprocess
 import time
 import signal
@@ -38,6 +39,8 @@ from ospd_openvas.errors import OSPDOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
+
+logger = logging.getLogger(__name__)
 
 OSPD_DESC = """
 This scanner runs 'OpenVAS Scanner' to scan the target hosts.
@@ -228,7 +231,9 @@ class OSPDopenvas(OSPDaemon):
         """ Initializes the ospd-openvas daemon's internal data. """
 
         super().__init__(certfile=certfile, keyfile=keyfile, cafile=cafile,
-                         customvtfilter=OpenVasVtsFilter())
+                         customvtfilter=OpenVasVtsFilter(),
+                         wrapper_logger=logger)
+
         self.server_version = __version__
         self.scanner_info['name'] = 'openvassd'
         self.scanner_info['version'] = ''  # achieved during self.check()
