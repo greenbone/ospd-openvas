@@ -199,7 +199,8 @@ class OSPDaemon(object):
       specific options eg. the w3af profile for w3af wrapper.
     """
 
-    def __init__(self, certfile, keyfile, cafile, customvtfilter=None):
+    def __init__(self, certfile, keyfile, cafile,
+                 customvtfilter=None, wrapper_logger=None):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
         #        a separate function because it is not mandatory anymore to
@@ -234,6 +235,9 @@ class OSPDaemon(object):
             self.vts_filter = customvtfilter
         else:
             self.vts_filter = VtsFilter()
+        if wrapper_logger:
+            global logger
+            logger = wrapper_logger
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
