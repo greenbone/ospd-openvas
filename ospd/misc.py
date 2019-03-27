@@ -764,8 +764,10 @@ def create_args_parser(description):
                         help='Wished level of logging. Default: WARNING')
     parser.add_argument('--syslog', action='store_true',
                         help='Use syslog for logging.')
+    parser.add_argument('-l', '--log-file', type=filename,
+                        help='Path to the logging file.')
     parser.add_argument('--background', action='store_true',
-                        help='Run in background. Implies --syslog.')
+                        help='Run in background. Implies --syslog or --log-file.')
     parser.add_argument('--version', action='store_true',
                         help='Print version then exit.')
     return parser
@@ -818,7 +820,8 @@ def get_common_args(parser, args=None):
     common_args['cafile'] = cafile
     common_args['log_level'] = log_level
     common_args['syslog'] = options.syslog or options.background
-    common_args['background'] = options.background
+    common_args['log_file'] = options.log_file
+    common_args['background'] = options.background or options.log_file
     common_args['version'] = options.version
 
     return common_args
@@ -857,7 +860,14 @@ def main(name, klass):
     if cargs['version']:
         print_version(wrapper)
         sys.exit()
-    if cargs['syslog']:
+
+    if cargs['log_file']:
+        logfile = logging.handlers.WatchedFileHandler(cargs['log_file'])
+        logfile.setFormatter(
+            logging.Formatter(
+                '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
+        logging.getLogger().addHandler(logfile)
+    elif cargs['syslog']:
         syslog = logging.handlers.SysLogHandler('/dev/log')
         syslog.setFormatter(
             logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
