@@ -763,7 +763,7 @@ def create_args_parser(description):
     parser.add_argument('-L', '--log-level', default='warning', type=log_level,
                         help='Wished level of logging. Default: WARNING')
     parser.add_argument('--foreground', action='store_true',
-                        help='Run in foreground and logs in all in console.')
+                        help='Run in foreground and logs all messages to console.')
     parser.add_argument('-l', '--log-file', type=filename,
                         help='Path to the logging file.')
     parser.add_argument('--version', action='store_true',
