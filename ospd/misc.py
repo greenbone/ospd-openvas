@@ -762,12 +762,10 @@ def create_args_parser(description):
                         help='CA cert file. Default: {0}'.format(CA_FILE))
     parser.add_argument('-L', '--log-level', default='warning', type=log_level,
                         help='Wished level of logging. Default: WARNING')
-    parser.add_argument('--syslog', action='store_true',
-                        help='Use syslog for logging.')
+    parser.add_argument('--foreground', action='store_true',
+                        help='Run in foreground and logs in all in console.')
     parser.add_argument('-l', '--log-file', type=filename,
                         help='Path to the logging file.')
-    parser.add_argument('--background', action='store_true',
-                        help='Run in background. Implies --syslog or --log-file.')
     parser.add_argument('--version', action='store_true',
                         help='Print version then exit.')
     return parser
@@ -819,9 +817,8 @@ def get_common_args(parser, args=None):
     common_args['certfile'] = certfile
     common_args['cafile'] = cafile
     common_args['log_level'] = log_level
-    common_args['syslog'] = options.syslog or options.background
+    common_args['foreground'] = options.foreground
     common_args['log_file'] = options.log_file
-    common_args['background'] = options.background or options.log_file
     common_args['version'] = options.version
 
     return common_args
@@ -861,13 +858,20 @@ def main(name, klass):
         print_version(wrapper)
         sys.exit()
 
-    if cargs['log_file']:
+    if cargs['foreground']:
+        console = logging.StreamHandler()
+        console.setFormatter(
+            logging.Formatter(
+                '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
+        logging.getLogger().addHandler(console)
+    elif cargs['log_file']:
         logfile = logging.handlers.WatchedFileHandler(cargs['log_file'])
         logfile.setFormatter(
             logging.Formatter(
                 '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
         logging.getLogger().addHandler(logfile)
-    elif cargs['syslog']:
+        go_to_background()
+    else:
         syslog = logging.handlers.SysLogHandler('/dev/log')
         syslog.setFormatter(
             logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
@@ -876,14 +880,6 @@ def main(name, klass):
         syslog_fd = syslog.socket.fileno()
         os.dup2(syslog_fd, 1)
         os.dup2(syslog_fd, 2)
-    else:
-        console = logging.StreamHandler()
-        console.setFormatter(
-            logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
-        logging.getLogger().addHandler(console)
-
-    if cargs['background']:
         go_to_background()
 
     if not wrapper.check():
