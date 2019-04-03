@@ -306,7 +306,10 @@ class OSPDopenvas(OSPDaemon):
                 date = date.replace(';', '')
                 date = date.replace('"', '')
         current_feed =  self.nvti.get_feed_version()
-        if int(current_feed) < int(date):
+
+        if not current_feed:
+            return True
+        elif int(current_feed) < int(date):
             return True
         return False
 
@@ -319,6 +322,9 @@ class OSPDopenvas(OSPDaemon):
         # Check if the nvticache in redis is outdated
         if self.feed_is_outdated():
             self.redis_nvticache_init()
+            ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
+            self.openvas_db.set_redisctx(ctx)
+            self.pending_feed = True
 
         _running_scan = False
         for scan_id in self.scan_processes:
