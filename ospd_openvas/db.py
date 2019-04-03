@@ -182,6 +182,7 @@ class OpenvasDB(object):
         for index in range(1, self.max_dbindex):
             if self.try_database_index(ctx, index):
                 ctx = self.kb_connect(index)
+                ctx.flushdb()
                 return ctx
 
         return None
