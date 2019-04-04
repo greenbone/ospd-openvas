@@ -243,7 +243,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
         self.main_kbindex = None
-        self.openvas_db = OpenvasDB()
+        self.openvas_db = OpenvasDB(logger)
         self.nvti = NVTICache(self.openvas_db)
 
         self.openvas_db.db_init()

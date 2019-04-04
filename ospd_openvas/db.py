@@ -57,13 +57,14 @@ class OpenvasDB(object):
     # Name of the namespace usage bitmap in redis.
     DBINDEX_NAME = "GVM.__GlobalDBIndex"
 
-    def __init__(self):
+    def __init__(self, wrapper_logger=None):
         # Path to the Redis socket.
         self.db_address = None
 
         self.max_dbindex = 0
         self.db_index = 0
         self.rediscontext = None
+        self.logger = wrapper_logger.getChild('db') if wrapper_logger else logger
 
     @staticmethod
     def _parse_openvassd_db_address(result):
