@@ -45,7 +45,7 @@ class NVTICache(object):
         'default': '70',
     }
 
-    NVTICACHE_STR = 'nvticache1.0.0'
+    NVTICACHE_STR = 'nvticache11.0.0'
 
     def __init__(self, openvas_db):
         self._openvas_db = openvas_db
