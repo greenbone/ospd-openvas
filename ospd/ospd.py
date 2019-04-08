@@ -901,6 +901,10 @@ class OSPDaemon(object):
                             value="{0} exec timeout."
                             .format(self.get_scanner_name()))
 
+    def set_scan_host_finished(self, scan_id, target, host):
+        """ Add the host in a list of finished hosts """
+        self.scan_collection.set_host_finished(scan_id, target, host)
+
     def set_scan_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress which is a number between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)

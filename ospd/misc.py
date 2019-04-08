@@ -113,6 +113,12 @@ class ScanCollection(object):
             # to parent process.
             self.scans_table[scan_id]['target_progress'] = target_process
 
+    def set_host_finished(self, scan_id, target, host):
+        """ Add the host in a list of finished hosts """
+        finished_hosts = self.scans_table[scan_id]['finished_hosts']
+        finished_hosts[target].extend(host)
+        self.scans_table[scan_id]['finished_hosts'] = finished_hosts
+
     def results_iterator(self, scan_id, pop_res):
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
@@ -137,8 +143,11 @@ class ScanCollection(object):
             self.data_manager = multiprocessing.Manager()
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
+        scan_info['finished_hosts'] = dict(
+            [[target, []] for target, _, _ in targets])
         scan_info['progress'] = 0
-        scan_info['target_progress'] = dict([[elem[0], 0] for elem in targets])
+        scan_info['target_progress'] = dict(
+            [[target, 0] for target, _, _ in targets])
         scan_info['targets'] = targets
         scan_info['legacy_target'] = target_str
         scan_info['vts'] = vts
