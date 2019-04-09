@@ -31,5 +31,10 @@ class testTargetLists(unittest.TestCase):
         self.assertEqual(len(addresses), 254)
         for i in range(1, 255):
             self.assertTrue('195.70.81.%d' % i in addresses)
-       
-        
+
+    def testRange(self):
+        addresses = target_str_to_list('195.70.81.1-10')
+        self.assertFalse(addresses is None)
+        self.assertEqual(len(addresses), 10)
+        for i in range(1, 10):
+            self.assertTrue('195.70.81.%d' % i in addresses)

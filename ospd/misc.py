@@ -359,7 +359,7 @@ def target_to_ipv4_short(target):
         end_value = int(splitted[1])
     except (socket.error, ValueError):
         return None
-    start_value = int(binascii.hexlify(start_packed[3]), 16)
+    start_value = int(binascii.hexlify(bytes(start_packed[3])), 16)
     if end_value < 0 or end_value > 255 or end_value < start_value:
         return None
     end_packed = start_packed[0:3] + struct.pack('B', end_value)
