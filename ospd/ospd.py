@@ -1109,12 +1109,14 @@ class OSPDaemon(object):
 
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
+        status = self.get_scan_status(scan_id)
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
         response = Element('scan')
         for name, value in [('id', scan_id),
                             ('target', target),
                             ('progress', progress),
+                            ('status', status),
                             ('start_time', start_time),
                             ('end_time', end_time)]:
             response.set(name, str(value))
