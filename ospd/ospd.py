@@ -869,6 +869,7 @@ class OSPDaemon(object):
                                                    args=(scan_id, target[0]))
             multiscan_proc.append((scan_process, target[0]))
             scan_process.start()
+            self.set_scan_status(scan_id, "running")
 
         # Wait until all single target were scanned
         while multiscan_proc:
