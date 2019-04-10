@@ -246,7 +246,7 @@ class ScanCollection(object):
     def delete_scan(self, scan_id):
         """ Delete a scan if fully finished. """
 
-        if self.get_progress(scan_id) < 100:
+        if self.get_status(scan_id) == "running":
             return False
         self.scans_table.pop(scan_id)
         if len(self.scans_table) == 0:
