@@ -243,7 +243,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
         self.main_kbindex = None
-        self.openvas_db = OpenvasDB()
+        self.openvas_db = OpenvasDB(logger)
         self.nvti = NVTICache(self.openvas_db)
 
         self.openvas_db.db_init()
@@ -288,7 +288,7 @@ class OSPDopenvas(OSPDaemon):
             logger.error('OpenVAS Scanner failed to load NVTs.')
             raise err
 
-    def feed_is_outdated(self):
+    def feed_is_outdated(self, current_feed):
         """ Compare the current feed with the one in the disk.
 
         Return:
@@ -305,7 +305,6 @@ class OSPDopenvas(OSPDaemon):
                 date = line.split(' = ')[1]
                 date = date.replace(';', '')
                 date = date.replace('"', '')
-        current_feed =  self.nvti.get_feed_version()
         if int(current_feed) < int(date):
             return True
         return False
@@ -317,8 +316,12 @@ class OSPDopenvas(OSPDaemon):
         """
 
         # Check if the nvticache in redis is outdated
-        if self.feed_is_outdated():
+        current_feed =  self.nvti.get_feed_version()
+        if not current_feed or self.feed_is_outdated(current_feed):
             self.redis_nvticache_init()
+            ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
+            self.openvas_db.set_redisctx(ctx)
+            self.pending_feed = True
 
         _running_scan = False
         for scan_id in self.scan_processes:

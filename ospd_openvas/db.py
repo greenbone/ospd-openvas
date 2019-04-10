@@ -21,6 +21,7 @@
 
 import redis
 import subprocess
+import time
 
 from ospd_openvas.errors import OSPDOpenvasError
 from ospd_openvas.errors import RequiredArgument
@@ -57,13 +58,14 @@ class OpenvasDB(object):
     # Name of the namespace usage bitmap in redis.
     DBINDEX_NAME = "GVM.__GlobalDBIndex"
 
-    def __init__(self):
+    def __init__(self, wrapper_logger=None):
         # Path to the Redis socket.
         self.db_address = None
 
         self.max_dbindex = 0
         self.db_index = 0
         self.rediscontext = None
+        self.logger = wrapper_logger.getChild('db') if wrapper_logger else logger
 
     @staticmethod
     def _parse_openvassd_db_address(result):
@@ -153,15 +155,26 @@ class OpenvasDB(object):
         Return a redis context on success.
         """
         self.get_db_connection()
+        tries = 5
+        while (tries):
+            try:
+                ctx = redis.Redis(unix_socket_path=self.db_address,
+                                  db=dbnum,
+                                  socket_timeout=SOCKET_TIMEOUT, encoding="latin-1",
+                                  decode_responses=True)
+                ctx.keys("test")
+            except:
+                self.logger.debug('Redis connection lost. Trying again in 5 seconds.')
+                tries = tries - 1
+                time.sleep(5)
+                continue
+            break
 
-        try:
-            ctx = redis.Redis(unix_socket_path=self.db_address,
-                              db=dbnum,
-                              socket_timeout=SOCKET_TIMEOUT, encoding="latin-1",
-                              decode_responses=True)
-        except ConnectionError as e:
+        if not tries:
             raise OSPDOpenvasError('Redis Error: Not possible '
-                                   'to connect to the kb.') from e
+                                   'to connect to the kb.')
+
+
         self.db_index = dbnum
         return ctx
 
@@ -182,6 +195,7 @@ class OpenvasDB(object):
         for index in range(1, self.max_dbindex):
             if self.try_database_index(ctx, index):
                 ctx = self.kb_connect(index)
+                ctx.flushdb()
                 return ctx
 
         return None
