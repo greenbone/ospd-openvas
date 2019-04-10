@@ -653,6 +653,7 @@ class OSPDaemon(object):
     def finish_scan(self, scan_id):
         """ Sets a scan as finished. """
         self.set_scan_progress(scan_id, 100)
+        self.set_scan_status(scan_id, 'finished')
         logger.info("%s: Scan finished.", scan_id)
 
     def get_daemon_name(self):
