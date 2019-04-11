@@ -415,3 +415,13 @@ class OpenvasDB(object):
         if not ctx:
             ctx = self.get_kb_context()
         return ctx.rpop("internal/end_time")
+
+    def get_host_ip(self, ctx=None):
+        """ Get the ip of host_kb.
+        Arguments:
+            ctx (redis obj, optional): Redis context to use.
+        Return a string with the ip of the host being scanned.
+        """
+        if not ctx:
+            ctx = self.get_kb_context()
+        return self.get_list_item("internal/ip")

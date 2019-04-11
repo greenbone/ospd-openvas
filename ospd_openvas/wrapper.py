@@ -837,7 +837,7 @@ class OSPDopenvas(OSPDaemon):
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'stop_all'
 
-    def stop_scan(self, global_scan_id):
+    def stop_scan_cleanup(self, global_scan_id):
         """ Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
@@ -1154,6 +1154,9 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_result(scan_id)
                     self.get_openvas_status(scan_id, target)
                     if self.scan_is_finished(openvas_scan_id):
+                        current_host=self.openvas_db.get_host_ip()
+                        self.set_scan_host_finished(
+                            scan_id, target, current_host)
                         self.openvas_db.select_kb(
                             ctx, str(self.main_kbindex), set_global=False)
                         self.openvas_db.remove_list_item('internal/dbindex', i)
