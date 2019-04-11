@@ -458,7 +458,7 @@ class FullTest(unittest.TestCase):
             self.assertEqual(1, len(scans))
             scan = scans[0]
             status = scan.get('status')
-            if not status or status == 'running':
+            if status == "init" or status == "running":
                 self.assertEqual('0', scan.get('end_time'))
                 time.sleep(.010)
             else:

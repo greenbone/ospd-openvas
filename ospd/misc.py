@@ -40,6 +40,7 @@ import ssl
 import uuid
 import multiprocessing
 import itertools
+from enum import Enum, IntEnum
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,6 +51,14 @@ CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
 
 PORT = 1234
 ADDRESS = "0.0.0.0"
+
+class ScanStatus(Enum):
+    """Scan status. """
+    INIT = 0
+    RUNNING = 1
+    STOPPED = 2
+    FINISHED = 3
+
 
 
 class ScanCollection(object):
@@ -154,7 +163,7 @@ class ScanCollection(object):
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = "0"
-        scan_info['status'] = ""
+        scan_info['status'] = ScanStatus.INIT
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
@@ -246,7 +255,7 @@ class ScanCollection(object):
     def delete_scan(self, scan_id):
         """ Delete a scan if fully finished. """
 
-        if self.get_status(scan_id) == "running":
+        if self.get_status(scan_id) == ScanStatus.RUNNING:
             return False
         self.scans_table.pop(scan_id)
         if len(self.scans_table) == 0:

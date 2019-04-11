@@ -40,6 +40,7 @@ from ospd import __version__
 from ospd.vtfilter import VtsFilter
 from ospd.misc import ScanCollection, ResultType, target_str_to_list
 from ospd.misc import resolve_hostname, valid_uuid
+from ospd.misc import ScanStatus
 from ospd.xml import simple_response_str, get_result_xml
 from ospd.error import OSPDError
 
@@ -635,7 +636,7 @@ class OSPDaemon(object):
         if not scan_process.is_alive():
             raise OSPDError('Scan already stopped or finished.', 'stop_scan')
 
-        self.set_scan_status(scan_id, "stopped")
+        self.set_scan_status(scan_id, ScanStatus.STOPPED)
         logger.info('%s: Scan stopping %s.', scan_id, scan_process.ident)
         self.stop_scan_cleanup(scan_id)
         try:
@@ -661,7 +662,7 @@ class OSPDaemon(object):
     def finish_scan(self, scan_id):
         """ Sets a scan as finished. """
         self.set_scan_progress(scan_id, 100)
-        self.set_scan_status(scan_id, 'finished')
+        self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
     def get_daemon_name(self):
@@ -870,7 +871,7 @@ class OSPDaemon(object):
                 time.sleep(1)
 
             #If the scan status is stopped, does not launch anymore target scans
-            if self.get_scan_status(scan_id) == "stopped":
+            if self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 return
 
             logger.info("%s: Host scan started on ports %s.", target[0], target[1])
@@ -878,7 +879,7 @@ class OSPDaemon(object):
                                                    args=(scan_id, target[0]))
             multiscan_proc.append((scan_process, target[0]))
             scan_process.start()
-            self.set_scan_status(scan_id, "running")
+            self.set_scan_status(scan_id, ScanStatus.RUNNING)
 
         # Wait until all single target were scanned
         while multiscan_proc:
@@ -889,7 +890,7 @@ class OSPDaemon(object):
             time.sleep(1)
 
         # Only set the scan as finished if the scan was not stopped.
-        if self.get_scan_status(scan_id) != "stopped":
+        if self.get_scan_status(scan_id) != ScanStatus.STOPPED:
             self.finish_scan(scan_id)
 
     def dry_run_scan(self, scan_id, targets):
@@ -1129,7 +1130,7 @@ class OSPDaemon(object):
         for name, value in [('id', scan_id),
                             ('target', target),
                             ('progress', progress),
-                            ('status', status),
+                            ('status', status.name.lower()),
                             ('start_time', start_time),
                             ('end_time', end_time)]:
             response.set(name, str(value))
@@ -1578,7 +1579,7 @@ class OSPDaemon(object):
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
         if progress < 100 and not scan_process.is_alive():
-            self.set_scan_status(scan_id, 'stopped')
+            self.set_scan_status(scan_id, ScanStatus.STOPPED)
             self.add_scan_error(scan_id, name="", host="",
                                 value="Scan process failure.")
             logger.info("%s: Scan stopped with errors.", scan_id)
