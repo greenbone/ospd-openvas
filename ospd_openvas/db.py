@@ -163,8 +163,8 @@ class OpenvasDB(object):
                                   socket_timeout=SOCKET_TIMEOUT, encoding="latin-1",
                                   decode_responses=True)
                 ctx.keys("test")
-            except:
-                self.logger.debug('Redis connection lost. Trying again in 5 seconds.')
+            except (redis.exceptions.ConnectionError, FileNotFoundError) as err:
+                self.logger.debug('Redis connection lost: %s. Trying again in 5 seconds.', err)
                 tries = tries - 1
                 time.sleep(5)
                 continue
