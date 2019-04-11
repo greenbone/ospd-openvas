@@ -469,6 +469,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <name>progress</name>
             <type>integer</type>
           </attrib>
+          <attrib>
+            <name>status</name>
+            <type>string</type>
+          </attrib>
           <ele>
             <name>results</name>
           </ele>
@@ -483,7 +487,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <response>
         <get_scans_response status_text="OK" status="200">
           <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
-                end_time="1432824234" progress="100" start_time="1432824206">
+                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
              <results>
                <result host="192.168.1.252" severity="2.5" port="443/tcp"
                        test_id="" name="Path disclosure vulnerability"

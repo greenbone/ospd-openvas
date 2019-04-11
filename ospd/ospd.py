@@ -624,6 +624,11 @@ class OSPDaemon(object):
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is None or scan_id == '':
             raise OSPDError('No scan_id attribute', 'stop_scan')
+        self.stop_scan(scan_id)
+
+        return simple_response_str('stop_scan', 200, 'OK')
+
+    def stop_scan(self, scan_id):
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
             raise OSPDError('Scan not found {0}.'.format(scan_id), 'stop_scan')
@@ -632,17 +637,20 @@ class OSPDaemon(object):
 
         self.set_scan_status(scan_id, "stopped")
         logger.info('%s: Scan stopping %s.', scan_id, scan_process.ident)
-        self.stop_scan(scan_id)
-        scan_process.terminate()
+        self.stop_scan_cleanup(scan_id)
+        try:
+            scan_process.terminate()
+        except AttributeError:
+            logger.debug('%s: The scanner task stopped unexpectedly.', scan_id)
+            self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
+
         os.killpg(os.getpgid(scan_process.ident), 15)
         scan_process.join()
-        self.set_scan_progress(scan_id, 100)
         self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
         logger.info('%s: Scan stopped.', scan_id)
-        return simple_response_str('stop_scan', 200, 'OK')
 
     @staticmethod
-    def stop_scan(scan_id):
+    def stop_scan_cleanup(scan_id):
         """ Should be implemented by subclass in case of a clean up before
         terminating is needed. """
 
@@ -653,6 +661,7 @@ class OSPDaemon(object):
     def finish_scan(self, scan_id):
         """ Sets a scan as finished. """
         self.set_scan_progress(scan_id, 100)
+        self.set_scan_status(scan_id, 'finished')
         logger.info("%s: Scan finished.", scan_id)
 
     def get_daemon_name(self):
@@ -814,23 +823,24 @@ class OSPDaemon(object):
 
     def check_pending_target(self, scan_id, multiscan_proc):
         """ Check if a scan process is still alive. In case the process
-        finished, removes the process from the multiscan_process list.
-        In case of the progress is not set from the wrapper for a single
-        target, it will be automatically set if the target scan finished.
+        finished or is stopped, removes the process from the multiscan
+        _process list.
+        Processes dead and with progress < 100% are considered stopped
+        or with failures. Then will try to stop the other runnings (target)
+        scans owned by the same task.
 
         @input scan_id        Scan_id of the whole scan.
         @input multiscan_proc A list with the scan process which
                               may still be alive.
 
-        @return Actualized list with current runnging scan processes."""
-
-        for running_target in multiscan_proc:
-            if not running_target[0].is_alive():
+        @return Actualized list with current runnging scan processes.
+        """
+        for running_target_proc, running_target_id in multiscan_proc:
+            if not running_target_proc.is_alive():
                 target_prog = self.get_scan_target_progress(scan_id)
-                if target_prog[running_target[1]] < 100:
-                    self.set_scan_target_progress(scan_id,
-                                                  running_target[1],
-                                                  100)
+                if target_prog[running_target_id] < 100:
+                    self.stop_scan(scan_id)
+                running_target = (running_target_proc, running_target_id)
                 multiscan_proc.remove(running_target)
         return multiscan_proc
 
@@ -859,8 +869,8 @@ class OSPDaemon(object):
                 self.set_scan_progress(scan_id, progress)
                 time.sleep(1)
 
+            #If the scan status is stopped, does not launch anymore target scans
             if self.get_scan_status(scan_id) == "stopped":
-                self.finish_scan(scan_id)
                 return
 
             logger.info("%s: Host scan started on ports %s.", target[0], target[1])
@@ -868,6 +878,7 @@ class OSPDaemon(object):
                                                    args=(scan_id, target[0]))
             multiscan_proc.append((scan_process, target[0]))
             scan_process.start()
+            self.set_scan_status(scan_id, "running")
 
         # Wait until all single target were scanned
         while multiscan_proc:
@@ -877,7 +888,9 @@ class OSPDaemon(object):
                 self.set_scan_progress(scan_id, progress)
             time.sleep(1)
 
-        self.finish_scan(scan_id)
+        # Only set the scan as finished if the scan was not stopped.
+        if self.get_scan_status(scan_id) != "stopped":
+            self.finish_scan(scan_id)
 
     def dry_run_scan(self, scan_id, targets):
         """ Dry runs a scan. """
@@ -900,6 +913,10 @@ class OSPDaemon(object):
         self.add_scan_error(scan_id, host=host, name="Timeout",
                             value="{0} exec timeout."
                             .format(self.get_scanner_name()))
+
+    def set_scan_host_finished(self, scan_id, target, host):
+        """ Add the host in a list of finished hosts """
+        self.scan_collection.set_host_finished(scan_id, target, host)
 
     def set_scan_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress which is a number between 0 and 100. """
@@ -1105,12 +1122,14 @@ class OSPDaemon(object):
 
         target = self.get_scan_target(scan_id)
         progress = self.get_scan_progress(scan_id)
+        status = self.get_scan_status(scan_id)
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
         response = Element('scan')
         for name, value in [('id', scan_id),
                             ('target', target),
                             ('progress', progress),
+                            ('status', status),
                             ('start_time', start_time),
                             ('end_time', end_time)]:
             response.set(name, str(value))
@@ -1559,10 +1578,10 @@ class OSPDaemon(object):
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
         if progress < 100 and not scan_process.is_alive():
-            self.set_scan_progress(scan_id, 100)
+            self.set_scan_status(scan_id, 'stopped')
             self.add_scan_error(scan_id, name="", host="",
                                 value="Scan process failure.")
-            logger.info("%s: Scan terminated.", scan_id)
+            logger.info("%s: Scan stopped with errors.", scan_id)
         elif progress == 100:
             scan_process.join()
 
