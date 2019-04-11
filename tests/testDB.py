@@ -23,7 +23,7 @@ from unittest import TestCase
 from unittest.mock import patch
 from ospd_openvas.db import OpenvasDB
 from ospd_openvas.errors import OSPDOpenvasError, RequiredArgument
-
+from redis.exceptions import ConnectionError as RCE
 
 @patch('ospd_openvas.db.redis.Redis')
 class TestDB(TestCase):
@@ -66,7 +66,7 @@ class TestDB(TestCase):
             self.db.try_database_index(mock_redis, 1)
 
     def test_kb_connect(self, mock_redis):
-        mock_redis.side_effect = ConnectionError
+        mock_redis.side_effect = RCE
         with patch.object(OpenvasDB,
                           'get_db_connection', return_value=None):
             with self.assertRaises(OSPDOpenvasError):
