@@ -40,7 +40,7 @@ import ssl
 import uuid
 import multiprocessing
 import itertools
-from enum import Enum, IntEnum
+from enum import Enum
 
 LOGGER = logging.getLogger(__name__)
 
@@ -143,11 +143,13 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def create_scan(self, scan_id='', targets='', options=dict(), vts=''):
+    def create_scan(self, scan_id='', targets='', options=None, vts=''):
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
+        if not options:
+            options = Dict()
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(

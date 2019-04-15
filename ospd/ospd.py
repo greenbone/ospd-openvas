@@ -839,7 +839,6 @@ class OSPDaemon(object):
             if not running_target_proc.is_alive():
                 target_prog = self.get_scan_target_progress(
                     scan_id, running_target_id)
-                target_status = self.get_scan_status(scan_id)
                 if target_prog < 100:
                     self.stop_scan(scan_id)
                 running_target = (running_target_proc, running_target_id)
