@@ -699,7 +699,7 @@ class OSPDopenvas(OSPDaemon):
         return True
 
     def update_progress(self, scan_id, target, msg):
-        """ Calculate percentage and update the scan status of a hots
+        """ Calculate percentage and update the scan status of a host
         for the progress bar.
         Arguments:
             scan_id (uuid): Scan ID to identify the current scan process.
