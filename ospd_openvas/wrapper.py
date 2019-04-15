@@ -699,7 +699,7 @@ class OSPDopenvas(OSPDaemon):
         return True
 
     def update_progress(self, scan_id, target, msg):
-        """ Calculate percentage and update the scan status of a target
+        """ Calculate percentage and update the scan status of a host
         for the progress bar.
         Arguments:
             scan_id (uuid): Scan ID to identify the current scan process.
@@ -707,18 +707,15 @@ class OSPDopenvas(OSPDaemon):
                           scan progress.
             msg (str): String with launched and total plugins.
         """
-        host_progress_dict = dict()
         try:
             launched, total = msg.split('/')
         except ValueError:
             return
         if float(total) == 0:
             return
+        current_host = self.openvas_db.get_host_ip().pop()
         host_prog = (float(launched) / float(total)) * 100
-        host_progress_dict[target] = host_prog
-        total_host = len(target_str_to_list(target))
-        target_progress = sum(host_progress_dict.values()) / total_host
-        self.set_scan_target_progress(scan_id, target, target_progress)
+        self.set_scan_target_progress(scan_id, target, current_host, host_prog)
 
     def get_openvas_status(self, scan_id, target):
         """ Get all status entries from redis kb.
@@ -1157,6 +1154,7 @@ class OSPDopenvas(OSPDaemon):
                         current_host=self.openvas_db.get_host_ip()
                         self.set_scan_host_finished(
                             scan_id, target, current_host)
+                        self.get_openvas_status(scan_id, target)
                         self.openvas_db.select_kb(
                             ctx, str(self.main_kbindex), set_global=False)
                         self.openvas_db.remove_list_item('internal/dbindex', i)

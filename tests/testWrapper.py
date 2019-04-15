@@ -431,7 +431,7 @@ class TestOspdOpenvas(unittest.TestCase):
         mock_db.get_host_scan_scan_end_time.return_value = '12345'
         w =  DummyWrapper(mock_nvti, mock_db)
         targets = [['192.168.0.1', 'port', 'cred']]
-        w.create_scan('123-456', targets, '192.168.0.1', None, [])
+        w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
         for result in  w.scan_collection.results_iterator('123-456', False):
             self.assertEqual(result.get('value'), '12345')
@@ -441,7 +441,7 @@ class TestOspdOpenvas(unittest.TestCase):
         mock_db.get_host_scan_scan_end_time.return_value = '54321'
         w =  DummyWrapper(mock_nvti, mock_db)
         targets = [['192.168.0.1', 'port', 'cred']]
-        w.create_scan('123-456', targets, '192.168.0.1', None, [])
+        w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
         for result in  w.scan_collection.results_iterator('123-456', False):
             self.assertEqual(result.get('value'), '54321')
