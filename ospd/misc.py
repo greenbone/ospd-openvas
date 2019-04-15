@@ -112,15 +112,14 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_target_progress(self, scan_id, target, progress):
+    def set_target_progress(self, scan_id, target, host, progress):
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
-            target_process = dict()
-            target_process = self.scans_table[scan_id]['target_progress']
-            target_process[target] = progress
+            targets =  self.scans_table[scan_id]['target_progress']
+            targets[target][host] = progress
             # Set scan_info's target_progress to propagate progresses
             # to parent process.
-            self.scans_table[scan_id]['target_progress'] = target_process
+            self.scans_table[scan_id]['target_progress'] = targets
 
     def set_host_finished(self, scan_id, target, host):
         """ Add the host in a list of finished hosts """
@@ -155,7 +154,7 @@ class ScanCollection(object):
             [[target, []] for target, _, _ in targets])
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, 0] for target, _, _ in targets])
+            [[target, {}] for target, _, _ in targets])
         scan_info['targets'] = targets
         scan_info['vts'] = vts
         scan_info['options'] = options
@@ -192,10 +191,15 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['progress']
 
-    def get_target_progress(self, scan_id):
-        """ Get a scan's current progress value. """
+    def get_target_progress(self, scan_id, target):
+        """ Get a target's current progress value.
+        The value is calculated with the progress of each single host
+        in the target."""
 
-        return self.scans_table[scan_id]['target_progress']
+        total_hosts = len(target_str_to_list(target))
+        host_progresses = self.scans_table[scan_id]['target_progress'].get(target)
+        t_prog = sum(host_progresses.values()) / total_hosts
+        return t_prog
 
     def get_start_time(self, scan_id):
         """ Get a scan's start time. """
@@ -211,10 +215,9 @@ class ScanCollection(object):
         """ Get a scan's target list. """
 
         target_list = []
-        for item in self.scans_table[scan_id]['targets']:
-            target_list.append(item[0])
-        separ = ','
-        return separ.join(target_list)
+        for target, _, _ in self.scans_table[scan_id]['targets']:
+            target_list.append(target)
+        return target_list
 
     def get_ports(self, scan_id, target):
         """ Get a scan's ports list. If a target is specified

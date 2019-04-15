@@ -735,8 +735,8 @@ class FullTest(unittest.TestCase):
                                   '</target></targets>'
                                   '</start_scan>'))
         scan_id = response.findtext('id')
-        daemon.set_scan_target_progress(scan_id, 'localhost1', 75)
-        daemon.set_scan_target_progress(scan_id, 'localhost2', 25)
+        daemon.set_scan_target_progress(scan_id, 'localhost1', 'localhost1', 75)
+        daemon.set_scan_target_progress(scan_id, 'localhost2', 'localhost2', 25)
         self.assertEqual(daemon.calculate_progress(scan_id), 50)
 
     def testSetGetVtsVersion(self):

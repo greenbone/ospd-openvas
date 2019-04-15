@@ -837,8 +837,10 @@ class OSPDaemon(object):
         """
         for running_target_proc, running_target_id in multiscan_proc:
             if not running_target_proc.is_alive():
-                target_prog = self.get_scan_target_progress(scan_id)
-                if target_prog[running_target_id] < 100:
+                target_prog = self.get_scan_target_progress(
+                    scan_id, running_target_id)
+                target_status = self.get_scan_status(scan_id)
+                if target_prog < 100:
                     self.stop_scan(scan_id)
                 running_target = (running_target_proc, running_target_id)
                 multiscan_proc.remove(running_target)
@@ -848,8 +850,10 @@ class OSPDaemon(object):
         """ Calculate the total scan progress from the
         partial target progress. """
 
-        target_progress = self.get_scan_target_progress(scan_id)
-        return sum(target_progress.values())/len(target_progress)
+        t_prog = dict()
+        for target in self.get_scan_target(scan_id):
+            t_prog[target] = self.get_scan_target_progress(scan_id, target)
+        return sum(t_prog.values())/len(t_prog)
 
     def start_scan(self, scan_id, targets, parallel=1):
         """ Handle N parallel scans if 'parallel' is greater than 1. """
@@ -863,10 +867,10 @@ class OSPDaemon(object):
 
         for index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
-                multiscan_proc = self.check_pending_target(scan_id,
-                                                           multiscan_proc)
                 progress = self.calculate_progress(scan_id)
                 self.set_scan_progress(scan_id, progress)
+                multiscan_proc = self.check_pending_target(scan_id,
+                                                           multiscan_proc)
                 time.sleep(1)
 
             #If the scan status is stopped, does not launch anymore target scans
@@ -918,12 +922,15 @@ class OSPDaemon(object):
         self.scan_collection.set_host_finished(scan_id, target, host)
 
     def set_scan_progress(self, scan_id, progress):
-        """ Sets scan_id scan's progress which is a number between 0 and 100. """
+        """ Sets scan_id scan's progress which is a number
+        between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
-    def set_scan_target_progress(self, scan_id, target, progress):
-        """ Sets target's progress. """
-        self.scan_collection.set_target_progress(scan_id, target, progress)
+    def set_scan_target_progress(
+            self, scan_id, target, host, progress):
+        """ Sets host's progress which is part of target. """
+        self.scan_collection.set_target_progress(
+            scan_id, target, host, progress)
 
     def set_scan_status(self, scan_id, status):
         """ Set the scan's status."""
@@ -1119,7 +1126,7 @@ class OSPDaemon(object):
         if not scan_id:
             return Element('scan')
 
-        target = self.get_scan_target(scan_id)
+        target = ','.join(self.get_scan_target(scan_id))
         progress = self.get_scan_progress(scan_id)
         status = self.get_scan_status(scan_id)
         start_time = self.get_scan_start_time(scan_id)
@@ -1588,9 +1595,9 @@ class OSPDaemon(object):
         """ Gives a scan's current progress value. """
         return self.scan_collection.get_progress(scan_id)
 
-    def get_scan_target_progress(self, scan_id):
+    def get_scan_target_progress(self, scan_id, target):
         """ Gives a list with scan's current progress value of each target. """
-        return self.scan_collection.get_target_progress(scan_id)
+        return self.scan_collection.get_target_progress(scan_id, target)
 
     def get_scan_target(self, scan_id):
         """ Gives a scan's target. """
