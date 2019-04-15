@@ -1603,7 +1603,7 @@ class OSPDaemon(object):
 
     def get_scan_target(self, scan_id):
         """ Gives a scan's target. """
-        return self.scan_collection.get_target(scan_id)
+        return self.scan_collection.get_target_list(scan_id)
 
     def get_scan_ports(self, scan_id, target=''):
         """ Gives a scan's ports list. """

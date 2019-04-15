@@ -149,7 +149,7 @@ class ScanCollection(object):
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
         if not options:
-            options = Dict()
+            options = dict()
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
@@ -200,7 +200,11 @@ class ScanCollection(object):
 
         total_hosts = len(target_str_to_list(target))
         host_progresses = self.scans_table[scan_id]['target_progress'].get(target)
-        t_prog = sum(host_progresses.values()) / total_hosts
+        try:
+            t_prog = sum(host_progresses.values()) / total_hosts
+        except ZeroDivisionError:
+            LOGGER.error("Zero division error in ", get_target_progress.__name__)
+            raise
         return t_prog
 
     def get_start_time(self, scan_id):
@@ -213,7 +217,7 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['end_time']
 
-    def get_target(self, scan_id):
+    def get_target_list(self, scan_id):
         """ Get a scan's target list. """
 
         target_list = []
