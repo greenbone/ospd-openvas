@@ -696,21 +696,6 @@ class FullTest(unittest.TestCase):
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
 
-    def testScanGetLegacyTarget(self):
-        daemon = DummyWrapper([])
-
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan target="localhosts,192.168.0.0/24" ports="22">'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '</start_scan>'))
-        scan_id = response.findtext('id')
-        response = secET.fromstring(
-            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
-        scan_res = response.find('scan')
-        self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
-
     def testScanMultiTargetParallelWithError(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring('<start_scan parallel="100a">'

@@ -604,8 +604,7 @@ class OSPDaemon(object):
             scan_params = self.process_scan_params(params)
 
         scan_id = self.create_scan(scan_id, scan_targets,
-                                   target_str, scan_params,
-                                   vt_selection)
+                                   scan_params, vt_selection)
         scan_process = multiprocessing.Process(target=scan_func,
                                                args=(scan_id,
                                                      scan_targets,
@@ -897,7 +896,6 @@ class OSPDaemon(object):
         """ Dry runs a scan. """
 
         os.setsid()
-        #target_list = target_str_to_list(target_str)
         for _, target in enumerate(targets):
             host = resolve_hostname(target[0])
             if host is None:
@@ -1556,7 +1554,7 @@ class OSPDaemon(object):
         """ Should be implemented by subclass in case of need
         to run tasks periodically. """
 
-    def create_scan(self, scan_id, targets, target_str, options, vts):
+    def create_scan(self, scan_id, targets, options, vts):
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -1564,7 +1562,7 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
-        return self.scan_collection.create_scan(scan_id, targets, target_str, options, vts)
+        return self.scan_collection.create_scan(scan_id, targets, options, vts)
 
     def get_scan_options(self, scan_id):
         """ Gives a scan's list of options. """
