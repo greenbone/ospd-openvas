@@ -1078,6 +1078,9 @@ class OSPDaemon(object):
 
         @return: 1 if scan deleted, 0 otherwise.
         """
+        if self.get_scan_status(scan_id) == ScanStatus.RUNNING:
+            return 0
+
         try:
             del self.scan_processes[scan_id]
         except KeyError:
