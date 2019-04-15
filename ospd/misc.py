@@ -40,6 +40,7 @@ import ssl
 import uuid
 import multiprocessing
 import itertools
+from enum import Enum
 
 LOGGER = logging.getLogger(__name__)
 
@@ -50,6 +51,14 @@ CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
 
 PORT = 1234
 ADDRESS = "0.0.0.0"
+
+class ScanStatus(Enum):
+    """Scan status. """
+    INIT = 0
+    RUNNING = 1
+    STOPPED = 2
+    FINISHED = 3
+
 
 
 class ScanCollection(object):
@@ -103,15 +112,14 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_target_progress(self, scan_id, target, progress):
+    def set_target_progress(self, scan_id, target, host, progress):
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
-            target_process = dict()
-            target_process = self.scans_table[scan_id]['target_progress']
-            target_process[target] = progress
+            targets =  self.scans_table[scan_id]['target_progress']
+            targets[target][host] = progress
             # Set scan_info's target_progress to propagate progresses
             # to parent process.
-            self.scans_table[scan_id]['target_progress'] = target_process
+            self.scans_table[scan_id]['target_progress'] = targets
 
     def set_host_finished(self, scan_id, target, host):
         """ Add the host in a list of finished hosts """
@@ -135,26 +143,26 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def create_scan(self, scan_id='', targets='', target_str=None,
-                    options=dict(), vts=''):
+    def create_scan(self, scan_id='', targets='', options=None, vts=''):
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
+        if not options:
+            options = dict()
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
             [[target, []] for target, _, _ in targets])
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, 0] for target, _, _ in targets])
+            [[target, {}] for target, _, _ in targets])
         scan_info['targets'] = targets
-        scan_info['legacy_target'] = target_str
         scan_info['vts'] = vts
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = "0"
-        scan_info['status'] = ""
+        scan_info['status'] = ScanStatus.INIT
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
         scan_info['scan_id'] = scan_id
@@ -185,10 +193,19 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['progress']
 
-    def get_target_progress(self, scan_id):
-        """ Get a scan's current progress value. """
+    def get_target_progress(self, scan_id, target):
+        """ Get a target's current progress value.
+        The value is calculated with the progress of each single host
+        in the target."""
 
-        return self.scans_table[scan_id]['target_progress']
+        total_hosts = len(target_str_to_list(target))
+        host_progresses = self.scans_table[scan_id]['target_progress'].get(target)
+        try:
+            t_prog = sum(host_progresses.values()) / total_hosts
+        except ZeroDivisionError:
+            LOGGER.error("Zero division error in ", get_target_progress.__name__)
+            raise
+        return t_prog
 
     def get_start_time(self, scan_id):
         """ Get a scan's start time. """
@@ -200,16 +217,13 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['end_time']
 
-    def get_target(self, scan_id):
+    def get_target_list(self, scan_id):
         """ Get a scan's target list. """
-        if self.scans_table[scan_id]['legacy_target']:
-            return self.scans_table[scan_id]['legacy_target']
 
         target_list = []
-        for item in self.scans_table[scan_id]['targets']:
-            target_list.append(item[0])
-        separ = ','
-        return separ.join(target_list)
+        for target, _, _ in self.scans_table[scan_id]['targets']:
+            target_list.append(target)
+        return target_list
 
     def get_ports(self, scan_id, target):
         """ Get a scan's ports list. If a target is specified
@@ -246,7 +260,7 @@ class ScanCollection(object):
     def delete_scan(self, scan_id):
         """ Delete a scan if fully finished. """
 
-        if self.get_status(scan_id) == "running":
+        if self.get_status(scan_id) == ScanStatus.RUNNING:
             return False
         self.scans_table.pop(scan_id)
         if len(self.scans_table) == 0:

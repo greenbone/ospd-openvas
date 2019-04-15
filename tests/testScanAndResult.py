@@ -458,7 +458,7 @@ class FullTest(unittest.TestCase):
             self.assertEqual(1, len(scans))
             scan = scans[0]
             status = scan.get('status')
-            if not status or status == 'running':
+            if status == "init" or status == "running":
                 self.assertEqual('0', scan.get('end_time'))
                 time.sleep(.010)
             else:
@@ -696,21 +696,6 @@ class FullTest(unittest.TestCase):
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
 
-    def testScanGetLegacyTarget(self):
-        daemon = DummyWrapper([])
-
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan target="localhosts,192.168.0.0/24" ports="22">'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '</start_scan>'))
-        scan_id = response.findtext('id')
-        response = secET.fromstring(
-            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id))
-        scan_res = response.find('scan')
-        self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
-
     def testScanMultiTargetParallelWithError(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring('<start_scan parallel="100a">'
@@ -750,8 +735,8 @@ class FullTest(unittest.TestCase):
                                   '</target></targets>'
                                   '</start_scan>'))
         scan_id = response.findtext('id')
-        daemon.set_scan_target_progress(scan_id, 'localhost1', 75)
-        daemon.set_scan_target_progress(scan_id, 'localhost2', 25)
+        daemon.set_scan_target_progress(scan_id, 'localhost1', 'localhost1', 75)
+        daemon.set_scan_target_progress(scan_id, 'localhost2', 'localhost2', 25)
         self.assertEqual(daemon.calculate_progress(scan_id), 50)
 
     def testSetGetVtsVersion(self):
