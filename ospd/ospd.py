@@ -1571,6 +1571,9 @@ class OSPDaemon(object):
 
         @return: New scan's ID.
         """
+        if self.scan_exists(scan_id):
+            logger.info("Scan %s exists. Resuming scan.", scan_id)
+
         return self.scan_collection.create_scan(scan_id, targets, options, vts)
 
     def get_scan_options(self, scan_id):

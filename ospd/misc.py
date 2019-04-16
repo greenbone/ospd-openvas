@@ -127,6 +127,18 @@ class ScanCollection(object):
         finished_hosts[target].extend(host)
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
+    def get_hosts_unfinished(self, scan_id):
+        """ Get a list of finished hosts."""
+
+        unfinished_hosts = list()
+        for target in self.scans_table[scan_id]['finished_hosts']:
+            unfinished_hosts.extend(target_str_to_list(target))
+        for target in self.scans_table[scan_id]['finished_hosts']:
+           for host in self.scans_table[scan_id]['finished_hosts'][target]:
+               unfinished_hosts.remove(host)
+
+        return unfinished_hosts
+
     def results_iterator(self, scan_id, pop_res):
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
@@ -143,11 +155,51 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
+    def remove_single_result(self, scan_id, result):
+        """Removes a single result from the result list in scan_table"""
+        del self.scans_table[scan_id]['results'][result]
+
+    def del_results_for_stopped_hosts(self, scan_id):
+        """ Remove results from the result table for those host
+        """
+        unfinished_hosts = self.get_hosts_unfinished(scan_id)
+        for result in self.results_iterator(scan_id, False):
+            if result['host'] in unfinished_hosts:
+                self.remove_single_result(scan_id, result)
+
+    def resume_scan(self, scan_id, options):
+        """ Reset the scan status in the scan_table to INIT.
+        Also, overwrite the options, because a resume task cmd
+        can add some new option. E.g. exclude hosts list.
+        Parameters:
+            scan_id (uuid): Scan ID to identify the scan process to be resumed.
+            options (dict): Options for the scan to be resumed. This options
+                            are not added to the already existent ones.
+                            The old ones are removed
+
+        Return:
+            Scan ID which identifies the current scan.
+        """
+        self.scans_table[scan_id]['status'] = ScanStatus.INIT
+        if options:
+            self.scans_table[scan_id]['options'] = options
+
+        self.del_results_for_stopped_hosts(scan_id)
+
+        return scan_id
+
     def create_scan(self, scan_id='', targets='', options=None, vts=''):
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
+
+        # Check if it is possible to resume task. To avoid to resume, the
+        # scan must be deleted from the scans_table.
+        if scan_id and self.id_exists(scan_id) and (
+                self.get_status(scan_id) == ScanStatus.STOPPED):
+            return self.resume_scan(scan_id, options)
+
         if not options:
             options = dict()
         scan_info = self.data_manager.dict()
