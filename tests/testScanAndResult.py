@@ -748,3 +748,20 @@ class FullTest(unittest.TestCase):
     def testSetGetVtsVersion_Error(self):
         daemon = DummyWrapper([])
         self.assertRaises(TypeError, daemon.set_vts_version)
+
+    def testResumeTask(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan '
+                                  'target="localhost" ports="80, 443">'
+                                  '<scanner_params /></start_scan>'))
+        scan_id = response.findtext('id')
+        time.sleep(3)
+        cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
+        self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
+        time.sleep(3)
+        cmd = '<start_scan scan_id="%s" target="localhost" ports="80, 443"><scanner_params /></start_scan>' % scan_id
+        response = secET.fromstring(
+            daemon.handle_command(cmd))
+        self.assertEqual(response.findtext('id'), scan_id)
+        self.assertEqual(daemon.scan_collection.get_hosts_unfinished(scan_id), ['localhost'])
