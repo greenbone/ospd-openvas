@@ -128,7 +128,7 @@ class ScanCollection(object):
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
     def get_hosts_unfinished(self, scan_id):
-        """ Get a list of finished hosts."""
+        """ Get a list of unfinished hosts."""
 
         unfinished_hosts = list()
         for target in self.scans_table[scan_id]['finished_hosts']:
