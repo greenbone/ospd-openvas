@@ -1621,6 +1621,14 @@ class OSPDaemon(object):
         """ Gives a scan's vts list. """
         return self.scan_collection.get_vts(scan_id)
 
+    def get_scan_unfinished_hosts(self, scan_id):
+        """ Get a list of unfinished hosts."""
+        return self.scan_collection.get_hosts_unfinished(scan_id)
+
+    def get_scan_finished_hosts(self, scan_id):
+        """ Get a list of unfinished hosts."""
+        return self.scan_collection.get_hosts_finished(scan_id)
+
     def get_scan_start_time(self, scan_id):
         """ Gives a scan's start time. """
         return self.scan_collection.get_start_time(scan_id)

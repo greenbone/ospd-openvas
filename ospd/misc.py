@@ -139,6 +139,15 @@ class ScanCollection(object):
 
         return unfinished_hosts
 
+    def get_hosts_finished(self, scan_id):
+        """ Get a list of finished hosts."""
+
+        finished_hosts = list()
+        for target in self.scans_table[scan_id]['finished_hosts']:
+            finished_hosts.extend(target_str_to_list(target))
+
+        return finished_hosts
+
     def results_iterator(self, scan_id, pop_res):
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
