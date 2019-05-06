@@ -202,6 +202,10 @@ OSPD_PARAMS = {
     },
 }
 
+OID_SSH_AUTH = "1.3.6.1.4.1.25623.1.0.103591"
+OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
+OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
+OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 
 def _from_bool_to_str(value):
     """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
@@ -956,31 +960,33 @@ class OSPDopenvas(OSPDaemon):
                 port = cred_params.get('port', '')
                 cred_prefs_list.append('auth_port_ssh|||' +
                                        '{0}'.format(port))
-                cred_prefs_list.append('SSH Authorization[entry]:SSH login ' +
+                cred_prefs_list.append(OID_SSH_AUTH + ':1:' +
+                                       'entry:SSH login ' +
                                        'name:|||{0}'.format(username))
                 if cred_type == 'up':
-                    cred_prefs_list.append('SSH Authorization[password]:' +
-                                           'SSH password (unsafe!):|||' +
-                                           '{0}'.format(password))
+                    cred_prefs_list.append(OID_SSH_AUTH + ':3:' +
+                                           'password:SSH password ' +
+                                           '(unsafe!):|||{0}'.format(password))
                 else:
                     private = cred_params.get('private', '')
-                    cred_prefs_list.append('SSH Authorization[password]:' +
-                                           'SSH key passphrase:|||' +
+                    cred_prefs_list.append(OID_SSH_AUTH + ':2:'+
+                                           'password:SSH key passphrase:|||' +
                                            '{0}'.format(password))
-                    cred_prefs_list.append('SSH Authorization[file]:' +
-                                           'SSH private key:|||' +
+                    cred_prefs_list.append(OID_SSH_AUTH + ':4:' +
+                                           'file:SSH private key:|||' +
                                            '{0}'.format(private))
             if service == 'smb':
-                cred_prefs_list.append('SMB Authorization[entry]:SMB login:' +
-                                       '|||{0}'.format(username))
-                cred_prefs_list.append('SMB Authorization[password]:' +
-                                       'SMB password :|||' +
+                cred_prefs_list.append(OID_SMB_AUTH + ':1:entry' +
+                                       ':SMB login:|||{0}'.format(username))
+                cred_prefs_list.append(OID_SMB_AUTH + ':2:' +
+                                       'password]:SMB password :|||' +
                                        '{0}'.format(password))
             if service == 'esxi':
-                cred_prefs_list.append('ESXi Authorization[entry]:ESXi login ' +
-                                       'name:|||{0}'.format(username))
-                cred_prefs_list.append('ESXi Authorization[password]:' +
-                                       'ESXi login password:|||' +
+                cred_prefs_list.append(OID_ESXI_AUTH + ':1:entry:' +
+                                       'ESXi login name:|||' +
+                                       '{0}'.format(username))
+                cred_prefs_list.append(OID_ESXI_AUTH + ':2:' +
+                                       'password:ESXi login password:|||' +
                                        '{0}'.format(password))
 
             if service == 'snmp':
@@ -989,23 +995,23 @@ class OSPDopenvas(OSPDaemon):
                 privacy_password = cred_params.get('privacy_password', '')
                 privacy_algorithm = cred_params.get('privacy_algorithm', '')
 
-                cred_prefs_list.append('SNMP Authorization[password]:' +
-                                       'SNMP Community:' +
+                cred_prefs_list.append(OID_SNMP_AUTH + ':1:' +
+                                       'password:SNMP Community:' +
                                        '{0}'.format(community))
-                cred_prefs_list.append('SNMP Authorization[entry]:' +
-                                       'SNMPv3 Username:' +
+                cred_prefs_list.append(OID_SNMP_AUTH + ':2:' +
+                                       'entry:SNMPv3 Username:' +
                                        '{0}'.format(username))
-                cred_prefs_list.append('SNMP Authorization[password]:' +
-                                       'SNMPv3 Password:' +
+                cred_prefs_list.append(OID_SNMP_AUTH + ':3:'
+                                       'password:SNMPv3 Password:' +
                                        '{0}'.format(password))
-                cred_prefs_list.append('SNMP Authorization[radio]:' +
-                                       'SNMPv3 Authentication Algorithm:' +
-                                       '{0}'.format(auth_algorithm))
-                cred_prefs_list.append('SNMP Authorization[password]:' +
-                                       'SNMPv3 Privacy Password:' +
+                cred_prefs_list.append(OID_SNMP_AUTH + ':4:' +
+                                       'radio:SNMPv3 Authentication ' +
+                                       'Algorithm:{0}'.format(auth_algorithm))
+                cred_prefs_list.append(OID_SNMP_AUTH + ':5:' +
+                                       'password:SNMPv3 Privacy Password:' +
                                        '{0}'.format(privacy_password))
-                cred_prefs_list.append('SNMP Authorization[radio]:' +
-                                       'SNMPv3 Privacy Algorithm:' +
+                cred_prefs_list.append(OID_SNMP_AUTH + ':6:' +
+                                       'radio:SNMPv3 Privacy Algorithm:' +
                                        '{0}'.format(privacy_algorithm))
 
         return cred_prefs_list
