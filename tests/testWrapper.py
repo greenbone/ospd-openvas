@@ -348,21 +348,22 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_build_credentials(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
+
         cred_out = [
+            '1.3.6.1.4.1.25623.1.0.105058:1:entry:ESXi login name:|||username',
+            '1.3.6.1.4.1.25623.1.0.105058:2:password:ESXi login password:|||pass',
             'auth_port_ssh|||22',
-            'SSH Authorization[entry]:SSH login name:|||username',
-            'SSH Authorization[password]:SSH key passphrase:|||pass',
-            'SSH Authorization[file]:SSH private key:|||',
-            'SMB Authorization[entry]:SMB login:|||username',
-            'SMB Authorization[password]:SMB password :|||pass',
-            'SNMP Authorization[password]:SNMP Community:some comunity',
-            'SNMP Authorization[entry]:SNMPv3 Username:username',
-            'SNMP Authorization[password]:SNMPv3 Password:pass',
-            'SNMP Authorization[radio]:SNMPv3 Authentication Algorithm:some auth algo',
-            'SNMP Authorization[password]:SNMPv3 Privacy Password:privacy pass',
-            'SNMP Authorization[radio]:SNMPv3 Privacy Algorithm:privacy algo',
-            'ESXi Authorization[entry]:ESXi login name:|||username',
-            'ESXi Authorization[password]:ESXi login password:|||pass']
+            '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
+            '1.3.6.1.4.1.25623.1.0.103591:2:password:SSH key passphrase:|||pass',
+            '1.3.6.1.4.1.25623.1.0.103591:4:file:SSH private key:|||',
+            '1.3.6.1.4.1.25623.1.0.90023:1:entry:SMB login:|||username',
+            '1.3.6.1.4.1.25623.1.0.90023:2:password]:SMB password :|||pass',
+            '1.3.6.1.4.1.25623.1.0.105076:1:password:SNMP Community:some comunity',
+            '1.3.6.1.4.1.25623.1.0.105076:2:entry:SNMPv3 Username:username',
+            '1.3.6.1.4.1.25623.1.0.105076:3:password:SNMPv3 Password:pass',
+            '1.3.6.1.4.1.25623.1.0.105076:4:radio:SNMPv3 Authentication Algorithm:some auth algo',
+            '1.3.6.1.4.1.25623.1.0.105076:5:password:SNMPv3 Privacy Password:privacy pass',
+            '1.3.6.1.4.1.25623.1.0.105076:6:radio:SNMPv3 Privacy Algorithm:privacy algo']
         cred_dict = {
             'ssh': {'type': 'ssh',
                     'port': '22',
@@ -390,13 +391,16 @@ class TestOspdOpenvas(unittest.TestCase):
         ret = w.build_credentials_as_prefs(cred_dict)
         self.assertEqual(len(ret), len(cred_out))
         self.assertIn('auth_port_ssh|||22', cred_out)
+        self.assertIn(
+            '1.3.6.1.4.1.25623.1.0.90023:1:entry:SMB login:|||username',
+            cred_out)
 
     def test_build_credentials_ssh_up(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
         cred_out = [
             'auth_port_ssh|||22',
-            'SSH Authorization[entry]:SSH login name:|||username',
-            'SSH Authorization[password]:SSH password (unsafe!):|||pass']
+            '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
+            '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass']
         cred_dict = {
             'ssh': {'type': 'up',
                     'port': '22',
