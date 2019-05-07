@@ -1108,14 +1108,6 @@ class OSPDopenvas(OSPDaemon):
                           value='An OpenVAS Scanner was started for %s.'
                           % target)
 
-        self.add_scan_log(scan_id, host=target, name='KB location Found',
-                          value='KB location path was found: %s.'
-                          % self.openvas_db.db_address)
-
-        self.add_scan_log(scan_id, host=target, name='Feed Update',
-                          value='Feed version: %s.'
-                          % self.nvti.get_feed_version())
-
         cmd = ['openvassd', '--scan-start', openvas_scan_id]
         try:
             result = subprocess.Popen(cmd, shell=False)
