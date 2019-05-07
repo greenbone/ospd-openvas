@@ -702,7 +702,7 @@ class OSPDopenvas(OSPDaemon):
 
         return True
 
-    def update_progress(self, scan_id, target, msg):
+    def update_progress(self, scan_id, target, current_host, msg):
         """ Calculate percentage and update the scan status of a host
         for the progress bar.
         Arguments:
@@ -717,11 +717,10 @@ class OSPDopenvas(OSPDaemon):
             return
         if float(total) == 0:
             return
-        current_host = self.openvas_db.get_host_ip().pop()
         host_prog = (float(launched) / float(total)) * 100
         self.set_scan_target_progress(scan_id, target, current_host, host_prog)
 
-    def get_openvas_status(self, scan_id, target):
+    def get_openvas_status(self, scan_id, target, current_host):
         """ Get all status entries from redis kb.
         Arguments:
             scan_id (uuid): Scan ID to identify the current scan.
@@ -729,7 +728,7 @@ class OSPDopenvas(OSPDaemon):
         """
         res = self.openvas_db.get_status()
         while res:
-            self.update_progress(scan_id, target, res)
+            self.update_progress(scan_id, target, current_host, res)
             res = self.openvas_db.get_status()
 
     def get_severity_score(self, oid):
@@ -750,12 +749,11 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def get_openvas_result(self, scan_id):
+    def get_openvas_result(self, scan_id, current_host):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
         while res:
             msg = res.split('|||')
-            host_aux = self.openvas_db.get_single_item('internal/ip')
             roid = msg[3]
 
             rqod = ''
@@ -770,7 +768,7 @@ class OSPDopenvas(OSPDaemon):
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
                     scan_id,
-                    host=host_aux,
+                    host=current_host,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
@@ -779,7 +777,7 @@ class OSPDopenvas(OSPDaemon):
             if msg[0] == 'LOG':
                 self.add_scan_log(
                     scan_id,
-                    host=host_aux,
+                    host=current_host,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
@@ -790,7 +788,7 @@ class OSPDopenvas(OSPDaemon):
             if msg[0] == 'HOST_DETAIL':
                 self.add_scan_host_detail(
                     scan_id,
-                    host=host_aux,
+                    host=current_host,
                     name=rname,
                     value=msg[4],
                 )
@@ -799,7 +797,7 @@ class OSPDopenvas(OSPDaemon):
                 rseverity = self.get_severity_score(roid)
                 self.add_scan_alarm(
                     scan_id,
-                    host=host_aux,
+                    host=current_host,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
@@ -1154,13 +1152,13 @@ class OSPDopenvas(OSPDaemon):
                 if id_aux == openvas_scan_id:
                     no_id_found = False
                     self.get_openvas_timestamp_scan_host(scan_id, target)
-                    self.get_openvas_result(scan_id)
-                    self.get_openvas_status(scan_id, target)
+                    current_host = self.openvas_db.get_host_ip()
+                    self.get_openvas_result(scan_id, current_host)
+                    self.get_openvas_status(scan_id, target, current_host)
                     if self.scan_is_finished(openvas_scan_id):
-                        current_host=self.openvas_db.get_host_ip()
                         self.set_scan_host_finished(
                             scan_id, target, current_host)
-                        self.get_openvas_status(scan_id, target)
+                        self.get_openvas_status(scan_id, target, current_host)
                         self.openvas_db.select_kb(
                             ctx, str(self.main_kbindex), set_global=False)
                         self.openvas_db.remove_list_item('internal/dbindex', i)
