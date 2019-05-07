@@ -124,11 +124,11 @@ class ScanCollection(object):
     def set_host_finished(self, scan_id, target, host):
         """ Add the host in a list of finished hosts """
         finished_hosts = self.scans_table[scan_id]['finished_hosts']
-        finished_hosts[target].extend(host)
+        finished_hosts[target].append(host)
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
     def get_hosts_unfinished(self, scan_id):
-        """ Get a list of finished hosts."""
+        """ Get a list of unfinished hosts."""
 
         unfinished_hosts = list()
         for target in self.scans_table[scan_id]['finished_hosts']:
@@ -138,6 +138,16 @@ class ScanCollection(object):
                unfinished_hosts.remove(host)
 
         return unfinished_hosts
+
+    def get_hosts_finished(self, scan_id):
+        """ Get a list of finished hosts."""
+
+        finished_hosts = list()
+        for target in self.scans_table[scan_id]['finished_hosts']:
+            finished_hosts.extend(
+                self.scans_table[scan_id]['finished_hosts'].get(target))
+
+        return finished_hosts
 
     def results_iterator(self, scan_id, pop_res):
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
@@ -156,8 +166,15 @@ class ScanCollection(object):
         return iter(self.scans_table.keys())
 
     def remove_single_result(self, scan_id, result):
-        """Removes a single result from the result list in scan_table"""
-        del self.scans_table[scan_id]['results'][result]
+        """Removes a single result from the result list in scan_table.
+
+        Parameters:
+            scan_id (uuid): Scan ID to identify the scan process to be resumed.
+            result (dict): The result to be removed from the results list.
+        """
+        results = self.scans_table[scan_id]['results']
+        results.remove(result)
+        self.scans_table[scan_id]['results'] = results
 
     def del_results_for_stopped_hosts(self, scan_id):
         """ Remove results from the result table for those host

@@ -31,7 +31,6 @@ from ospd.ospd import OSPDaemon
 from ospd.error import OSPDError
 from ospd.xml import simple_response_str, get_result_xml
 
-
 class Result(object):
     def __init__(self, type_, **kwargs):
         self.result_type = type_
@@ -750,18 +749,45 @@ class FullTest(unittest.TestCase):
         self.assertRaises(TypeError, daemon.set_vts_version)
 
     def testResumeTask(self):
-        daemon = DummyWrapper([])
+        daemon = DummyWrapper([
+            Result('host-detail', host='localhost', value='Some Host Detail'),
+            Result('host-detail', host='localhost', value='Some Host Detail2'),
+        ])
         response = secET.fromstring(
-            daemon.handle_command('<start_scan '
-                                  'target="localhost" ports="80, 443">'
-                                  '<scanner_params /></start_scan>'))
+            daemon.handle_command('<start_scan parallel="2">'
+                                  '<scanner_params />'
+                                  '<targets><target>'
+                                  '<hosts>localhost</hosts>'
+                                  '<ports>22</ports>'
+                                  '</target></targets>'
+                                  '</start_scan>'))
         scan_id = response.findtext('id')
+
         time.sleep(3)
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
         self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
-        time.sleep(3)
+
+        response = secET.fromstring(daemon.handle_command(
+            '<get_scans scan_id="%s" details="1"/>' % scan_id))
+        result = response.findall('scan/results/result')
+        self.assertEqual(len(result), 4)
+
+        # Resume the task
         cmd = '<start_scan scan_id="%s" target="localhost" ports="80, 443"><scanner_params /></start_scan>' % scan_id
         response = secET.fromstring(
             daemon.handle_command(cmd))
+
+        # Check unfinished host
         self.assertEqual(response.findtext('id'), scan_id)
-        self.assertEqual(daemon.scan_collection.get_hosts_unfinished(scan_id), ['localhost'])
+        self.assertEqual(daemon.get_scan_unfinished_hosts(scan_id), ['localhost'])
+        # Finished the host and check unfinished again.
+        daemon.set_scan_host_finished(scan_id, "localhost", "localhost")
+        self.assertEqual(daemon.get_scan_unfinished_hosts(scan_id), [])
+        # Check finished hosts
+        self.assertEqual(daemon.scan_collection.get_hosts_finished(scan_id), ['localhost'])
+
+        # Check if the result was removed.
+        response = secET.fromstring(daemon.handle_command(
+            '<get_scans scan_id="%s" details="1"/>' % scan_id))
+        result = response.findall('scan/results/result')
+        self.assertEqual(len(result), 2)
