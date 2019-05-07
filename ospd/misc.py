@@ -166,8 +166,15 @@ class ScanCollection(object):
         return iter(self.scans_table.keys())
 
     def remove_single_result(self, scan_id, result):
-        """Removes a single result from the result list in scan_table"""
-        del self.scans_table[scan_id]['results'][result]
+        """Removes a single result from the result list in scan_table.
+
+        Parameters:
+            scan_id (uuid): Scan ID to identify the scan process to be resumed.
+            result (dict): The result to be removed from the results list.
+        """
+        results = self.scans_table[scan_id]['results']
+        results.remove(result)
+        self.scans_table[scan_id]['results'] = results
 
     def del_results_for_stopped_hosts(self, scan_id):
         """ Remove results from the result table for those host
