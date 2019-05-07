@@ -424,4 +424,4 @@ class OpenvasDB(object):
         """
         if not ctx:
             ctx = self.get_kb_context()
-        return self.get_list_item("internal/ip")
+        return self.get_single_item("internal/ip")
