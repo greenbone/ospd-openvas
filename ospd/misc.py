@@ -124,7 +124,7 @@ class ScanCollection(object):
     def set_host_finished(self, scan_id, target, host):
         """ Add the host in a list of finished hosts """
         finished_hosts = self.scans_table[scan_id]['finished_hosts']
-        finished_hosts[target].extend(host)
+        finished_hosts[target].append(host)
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
     def get_hosts_unfinished(self, scan_id):
@@ -144,7 +144,8 @@ class ScanCollection(object):
 
         finished_hosts = list()
         for target in self.scans_table[scan_id]['finished_hosts']:
-            finished_hosts.extend(target_str_to_list(target))
+            finished_hosts.extend(
+                self.scans_table[scan_id]['finished_hosts'].get(target))
 
         return finished_hosts
 
