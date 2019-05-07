@@ -243,3 +243,10 @@ class TestDB(TestCase):
                           'get_kb_context', return_value=mock_redis):
             ret = self.db.get_host_scan_scan_end_time()
         self.assertEqual(ret, 'some end time')
+
+    def test_get_host_ip(self, mock_redis):
+        mock_redis.lindex.return_value = '192.168.0.1'
+        with patch.object(OpenvasDB,
+                          'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_host_ip()
+        self.assertEqual(ret, '192.168.0.1')
