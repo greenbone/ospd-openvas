@@ -717,7 +717,10 @@ class OSPDopenvas(OSPDaemon):
             return
         if float(total) == 0:
             return
-        host_prog = (float(launched) / float(total)) * 100
+        elif float(total) == -1:
+            host_prog = 100
+        else:
+            host_prog = (float(launched) / float(total)) * 100
         self.set_scan_target_progress(scan_id, target, current_host, host_prog)
 
     def get_openvas_status(self, scan_id, target, current_host):
@@ -755,15 +758,18 @@ class OSPDopenvas(OSPDaemon):
         while res:
             msg = res.split('|||')
             roid = msg[3]
-
             rqod = ''
-            if self.vts[roid].get('qod_type'):
-                qod_t = self.vts[roid].get('qod_type')
-                rqod = self.nvti.QoD_TYPES[qod_t]
-            elif self.vts[roid].get('qod'):
-                rqod = self.vts[roid].get('qod')
+            rname = ''
+            host_is_dead = "Host dead" in msg[4]
 
-            rname = self.vts[roid].get('name')
+            if not host_is_dead:
+                if self.vts[roid].get('qod_type'):
+                    qod_t = self.vts[roid].get('qod_type')
+                    rqod = self.nvti.QoD_TYPES[qod_t]
+                elif self.vts[roid].get('qod'):
+                    rqod = self.vts[roid].get('qod')
+
+                rname = self.vts[roid].get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
