@@ -19,4 +19,4 @@
 
 """ OSPd core module. """
 
-__version__ = '1.4b1'
+__version__ = '2.0a1'
