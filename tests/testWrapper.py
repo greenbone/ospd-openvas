@@ -479,6 +479,42 @@ class TestOspdOpenvas(unittest.TestCase):
         ret = w.feed_is_outdated('1234')
         self.assertTrue(ret)
 
+    @patch('ospd_openvas.wrapper.OSPDaemon.add_scan_log')
+    def test_get_openvas_result(self, mock_ospd, mock_nvti, mock_db):
+        results = [
+            "LOG||| |||general/Host_Details||| |||Host dead",
+            None
+            ]
+        mock_db.get_result.side_effect = results
+        w =  DummyWrapper(mock_nvti, mock_db)
+        w.load_vts()
+        mock_ospd.return_value = None
+        w.get_openvas_result('123-456', 'localhost')
+        mock_ospd.assert_called_with(
+            '123-456',
+            host='localhost',
+            name='',
+            port='general/Host_Details',
+            qod='',
+            test_id=' ',
+            value='Host dead')
+
+    @patch('ospd_openvas.wrapper.OSPDaemon.set_scan_target_progress')
+    def test_update_progress(self, mock_ospd, mock_nvti, mock_db):
+        msg = '0/-1'
+        targets = [['localhost', 'port', 'cred']]
+        w =  DummyWrapper(mock_nvti, mock_db)
+        w.create_scan('123-456', targets, None, [])
+
+        mock_ospd.return_value = None
+        w.update_progress('123-456', 'localhost', 'localhost', msg)
+        mock_ospd.assert_called_with(
+            '123-456',
+            'localhost',
+            'localhost',
+            100,
+        )
+
 class TestFilters(unittest.TestCase):
 
     def test_format_vt_modification_time(self):
