@@ -492,9 +492,9 @@ class OSPDopenvas(OSPDaemon):
         Return:
             string: xml element as string.
         """
-        vt_params_xml = Element('vt_params')
+        vt_params_xml = Element('params')
         for pref_name, prefs in vt_params.items():
-            vt_param = Element('vt_param')
+            vt_param = Element('param')
             vt_param.set('type', prefs['type'])
             vt_param.set('id', prefs['id'])
             xml_name = SubElement(vt_param, 'name')
