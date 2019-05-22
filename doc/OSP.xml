@@ -786,7 +786,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <e>name</e>
             <e>creation_time</e>
             <e>modification_time</e>
-            <e>vt_params</e>
+            <e>params</e>
             <e>refs</e>
             <e>dependencies</e>
             <e>summary</e>
@@ -808,7 +808,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <modification_time>modification_time</modification_time>
           </ele>
           <ele>
-            <name>vt_params</name>
+            <name>params</name>
           </ele>
           <ele>
             <name>refs</name>
@@ -991,18 +991,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
-              <vt_params>
-                <vt_param id="timeout" type="integer">
+              <params>
+                <param id="timeout" type="integer">
                   <name>Timeout</name>
                   <description>Vulnerability Test Timeout</description>
                   <default>300</default>
-                </vt_param>
-                <vt_param id="scan.udp" type="boolean">
+                </param>
+                <param id="scan.udp" type="boolean">
                   <name>Scan UDP</name>
                   <description />
                   <default>1</default>
-                </vt_param>
-              </vt_params>
+                </param>
+              </params>
               <refs>
                 <ref type="cve" id="CVE-2010-4480"/>
                 <ref type="url" id="http://www.exploit-db.com/exploits/15699/"/>

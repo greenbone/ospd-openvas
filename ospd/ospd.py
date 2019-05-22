@@ -1166,8 +1166,8 @@ class OSPDaemon(object):
         This needs to be implemented by each ospd wrapper, in case
         vt_params elements for VTs are used.
 
-        The vt_params XML object which is returned will be embedded
-        into a <vt_params></vt_params> element.
+        The params XML object which is returned will be embedded
+        into a <params></params> element.
 
         @return: XML object as string for vt parameters data.
         """
