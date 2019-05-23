@@ -60,12 +60,12 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id, vt_params):
-        return '<vt_params><vt_param id="abc" type="string">' \
+        return '<params><param id="abc" type="string">' \
                '<name>ABC</name><description>Test ABC</description>' \
-               '<default>yes</default></vt_param>' \
-               '<vt_param id="def" type="string">' \
+               '<default>yes</default></param>' \
+               '<param id="def" type="string">' \
                '<name>DEF</name><description>Test DEF</description>' \
-               '<default>no</default></vt_param></vt_params>'
+               '<default>no</default></param></params>'
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id, vt_refs):
@@ -272,11 +272,11 @@ class FullTest(unittest.TestCase):
         self.assertEqual(response.tag, 'get_vts_response')
         # The response must contain a 'scanner_params' element
         self.assertIsNotNone(response.find('vts'))
-        vt_params = response[0][0].findall('vt_params')
+        vt_params = response[0][0].findall('params')
         self.assertEqual(1, len(vt_params))
         custom = response[0][0].findall('custom')
         self.assertEqual(1, len(custom))
-        params = response.findall('vts/vt/vt_params/vt_param')
+        params = response.findall('vts/vt/params/param')
         self.assertEqual(2, len(params))
 
     def testGetVTs_VTs_with_refs(self):
@@ -294,7 +294,7 @@ class FullTest(unittest.TestCase):
         self.assertEqual(response.tag, 'get_vts_response')
         # The response must contain a 'vts' element
         self.assertIsNotNone(response.find('vts'))
-        vt_params = response[0][0].findall('vt_params')
+        vt_params = response[0][0].findall('params')
         self.assertEqual(1, len(vt_params))
         custom = response[0][0].findall('custom')
         self.assertEqual(1, len(custom))
