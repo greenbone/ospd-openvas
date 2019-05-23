@@ -227,11 +227,11 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_params_xml(self, mock_nvti, mock_db):
         w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<vt_params><vt_param type="checkbox" id="2"><name>Do ' \
+        out = '<params><param type="checkbox" id="2"><name>Do ' \
               'not randomize the  order  in  which ports are scanned</name' \
-              '><default>no</default></vt_param><vt_param type="ent' \
+              '><default>no</default></param><param type="ent' \
               'ry" id="1"><name>Data length :</name><' \
-              '/vt_param></vt_params>'
+              '/param></params>'
 
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         params = vt.get('vt_params')
