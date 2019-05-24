@@ -833,7 +833,7 @@ class OSPDaemon(object):
         @input multiscan_proc A list with the scan process which
                               may still be alive.
 
-        @return Actualized list with current runnging scan processes.
+        @return Actualized list with current running scan processes.
         """
         for running_target_proc, running_target_id in multiscan_proc:
             if not running_target_proc.is_alive():
