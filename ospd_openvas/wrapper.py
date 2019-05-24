@@ -437,7 +437,7 @@ class OSPDopenvas(OSPDaemon):
                 severities=_severity
             )
             if ret == -1:
-                logger.info("Dupplicated VT with OID: {0}".format(vt_id))
+                logger.info("Duplicated VT with OID: {0}".format(vt_id))
             if ret == -2:
                 logger.info("{0}: Invalid OID.".format(vt_id))
 
