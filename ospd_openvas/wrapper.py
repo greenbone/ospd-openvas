@@ -289,8 +289,7 @@ class OSPDopenvas(OSPDaemon):
             logger.debug('Loading NVTs in Redis DB')
             subprocess.check_call(['openvassd', '-C'])
         except subprocess.CalledProcessError as err:
-            logger.error('OpenVAS Scanner failed to load NVTs.')
-            raise err
+            logger.error('OpenVAS Scanner failed to load NVTs. %s' % err)
 
     def feed_is_outdated(self, current_feed):
         """ Compare the current feed with the one in the disk.
