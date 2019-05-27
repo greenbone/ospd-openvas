@@ -22,6 +22,7 @@
 import redis
 import subprocess
 import time
+import sys
 
 from ospd_openvas.errors import OSPDOpenvasError
 from ospd_openvas.errors import RequiredArgument
@@ -89,9 +90,13 @@ class OpenvasDB(object):
     def get_db_connection(self):
         """ Retrieve the db address from openvassd config.
         """
-        result = subprocess.check_output(
-            ['openvassd', '-s'], stderr=subprocess.STDOUT)
-
+        try:
+            result = subprocess.check_output(
+                ['openvassd', '-s'], stderr=subprocess.STDOUT)
+        except PermissionError:
+            sys.exit("ERROR: %s: Not possible to run openvassd. "
+                     "Check permissions and/or path to the binary." \
+                     % self.get_db_connection.__name__)
         if result:
             path = self._parse_openvassd_db_address(result)
 
