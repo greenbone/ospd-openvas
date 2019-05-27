@@ -1161,14 +1161,15 @@ class OSPDopenvas(OSPDaemon):
                     continue
                 if id_aux == openvas_scan_id:
                     no_id_found = False
-                    self.get_openvas_timestamp_scan_host(scan_id, target)
                     current_host = self.openvas_db.get_host_ip()
                     self.get_openvas_result(scan_id, current_host)
                     self.get_openvas_status(scan_id, target, current_host)
+                    self.get_openvas_timestamp_scan_host(scan_id, current_host)
                     if self.scan_is_finished(openvas_scan_id):
                         self.set_scan_host_finished(
                             scan_id, target, current_host)
                         self.get_openvas_status(scan_id, target, current_host)
+                        self.get_openvas_timestamp_scan_host(scan_id, current_host)
                         self.openvas_db.select_kb(
                             ctx, str(self.main_kbindex), set_global=False)
                         self.openvas_db.remove_list_item('internal/dbindex', i)
