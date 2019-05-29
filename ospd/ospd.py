@@ -858,6 +858,21 @@ class OSPDaemon(object):
             t_prog[target] = self.get_scan_target_progress(scan_id, target)
         return sum(t_prog.values())/len(t_prog)
 
+    def process_exclude_hosts(self, scan_id, target_list):
+        """ Process the exclude hosts before launching the scans.
+        Set exclude hosts as finished with 100% to calculate
+        the scan progress."""
+
+        for target, _, _, exclude_hosts in target_list:
+            exc_hosts_list = ''
+            if not exclude_hosts:
+                continue
+            exc_hosts_list = target_str_to_list(exclude_hosts)
+            for host in exc_hosts_list:
+                self.set_scan_host_finished(scan_id, target, host)
+                self.set_scan_target_progress(
+                    scan_id, target, host, 100)
+
     def start_scan(self, scan_id, targets, parallel=1):
         """ Handle N parallel scans if 'parallel' is greater than 1. """
 
@@ -867,6 +882,8 @@ class OSPDaemon(object):
         target_list = targets
         if target_list is None or not target_list:
             raise OSPDError('Erroneous targets list', 'start_scan')
+
+        self.process_exclude_hosts(scan_id, target_list)
 
         for index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
