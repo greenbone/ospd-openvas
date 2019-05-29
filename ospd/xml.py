@@ -36,6 +36,7 @@ def get_result_xml(result):
                         ('type', ResultType.get_str(result['type'])),
                         ('severity', result['severity']),
                         ('host', result['host']),
+                        ('hostname', result['hostname']),
                         ('test_id', result['test_id']),
                         ('port', result['port']),
                         ('qod', result['qod'])]:

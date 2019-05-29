@@ -97,6 +97,7 @@ class ScanCollection(object):
         result['test_id'] = test_id
         result['value'] = value
         result['host'] = host
+        result['hostname'] = get_hostname_by_address(host)
         result['port'] = port
         result['qod'] = qod
         results = self.scans_table[scan_id]['results']
@@ -641,6 +642,21 @@ def resolve_hostname(hostname):
         return socket.gethostbyname(hostname)
     except socket.gaierror:
         return None
+
+
+def get_hostname_by_address(address):
+    """ Returns hostname of an address. """
+
+    if not address:
+        return ''
+    try:
+        hostname = socket.getfqdn(address)
+    except (socket.gaierror, socket.herror):
+        return ''
+
+    if hostname == address:
+        return ''
+    return hostname
 
 
 def port_range_expand(portrange):
