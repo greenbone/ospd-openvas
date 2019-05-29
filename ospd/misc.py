@@ -222,10 +222,10 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
-            [[target, []] for target, _, _ in targets])
+            [[target, []] for target, _, _, _ in targets])
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, {}] for target, _, _ in targets])
+            [[target, {}] for target, _, _, _ in targets])
         scan_info['targets'] = targets
         scan_info['vts'] = vts
         scan_info['options'] = options
@@ -290,7 +290,7 @@ class ScanCollection(object):
         """ Get a scan's target list. """
 
         target_list = []
-        for target, _, _ in self.scans_table[scan_id]['targets']:
+        for target, _, _, _ in self.scans_table[scan_id]['targets']:
             target_list.append(target)
         return target_list
 
@@ -306,6 +306,14 @@ class ScanCollection(object):
                     return item[1]
 
         return self.scans_table[scan_id]['targets'][0][1]
+
+    def get_exclude_hosts(self, scan_id, target):
+        """ Get an exclude host list for a given target.
+        """
+        if target:
+            for item in self.scans_table[scan_id]['targets']:
+                if target == item[0]:
+                    return item[3]
 
     def get_credentials(self, scan_id, target):
         """ Get a scan's credential list. It return dictionary with

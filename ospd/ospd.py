@@ -501,6 +501,7 @@ class OSPDaemon(object):
                 <targets>
                   <target>
                     <hosts>localhosts</hosts>
+                    <exclude_hosts>localhost1</exclude_hosts>
                     <ports>80,443</ports>
                   </target>
                   <target>
@@ -519,29 +520,32 @@ class OSPDaemon(object):
                   </target>
                 </targets>
 
-        @return: A list of (hosts, port) tuples.
+        @return: A list of [hosts, port, {credentials}, exclude_hosts] list.
                  Example form:
-                 [['localhost', '80,43'],
+                 [['localhosts', '80,43', '', 'localhosts1'],
                   ['192.168.0.0/24', '22', {'smb': {'type': type,
                                                     'port': port,
                                                     'username': username,
                                                     'password': pass,
-                                                   }}]]
+                                                   }}], '']
         """
 
         target_list = []
         for target in scanner_target:
+            exclude_hosts = ''
             ports = ''
             credentials = {}
             for child in target:
                 if child.tag == 'hosts':
                     hosts = child.text
+                if child.tag == 'exclude_hosts':
+                    exclude_hosts = child.text
                 if child.tag == 'ports':
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([hosts, ports, credentials])
+                target_list.append([hosts, ports, credentials, exclude_hosts])
             else:
                 raise OSPDError('No target to scan', 'start_scan')
 
@@ -566,7 +570,7 @@ class OSPDaemon(object):
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, ''])
+                scan_targets.append([single_target, ports_str, '', ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -1611,6 +1615,11 @@ class OSPDaemon(object):
     def get_scan_ports(self, scan_id, target=''):
         """ Gives a scan's ports list. """
         return self.scan_collection.get_ports(scan_id, target)
+
+    def get_scan_exclude_hosts(self, scan_id, target=''):
+        """ Gives a scan's exclude host list. If a target is passed gives
+        the exclude host list for the given target. """
+        return self.scan_collection.get_exclude_hosts(scan_id, target)
 
     def get_scan_credentials(self, scan_id, target=''):
         """ Gives a scan's credential list. If a target is passed gives

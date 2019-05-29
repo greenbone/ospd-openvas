@@ -69,7 +69,7 @@ class TestSSH(unittest.TestCase):
     def testRunCommand(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca')
-        scanid = daemon.create_scan(None, [['host.example.com', '80, 443', ''],],
+        scanid = daemon.create_scan(None, [['host.example.com', '80, 443', '', ''],],
                                     dict(port=5, ssh_timeout=15,
                                          username_password='dummy:pw'), '')
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
@@ -79,7 +79,7 @@ class TestSSH(unittest.TestCase):
     def testRunCommandLegacyCredential(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca')
-        scanid = daemon.create_scan(None, [['host.example.com', '80, 443', ''],],
+        scanid = daemon.create_scan(None, [['host.example.com', '80, 443', '', ''],],
                                     dict(port=5, ssh_timeout=15,
                                          username='dummy', password='pw'), '')
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
@@ -99,7 +99,7 @@ class TestSSH(unittest.TestCase):
                              'username': 'smbuser'}}
 
         scanid = daemon.create_scan(None,
-                                    [['host.example.com', '80, 443', cred_dict],],
+                                    [['host.example.com', '80, 443', cred_dict, ''],],
                                     dict(port=5, ssh_timeout=15), '')
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
         self.assertTrue(isinstance(res, list))
@@ -108,7 +108,7 @@ class TestSSH(unittest.TestCase):
     def testRunCommandNoCredential(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca')
-        scanid = daemon.create_scan(None, [['host.example.com', '80, 443', ''],],
+        scanid = daemon.create_scan(None, [['host.example.com', '80, 443', '', ''],],
                                     dict(port=5, ssh_timeout=15), '')
         self.assertRaises(ValueError, daemon.run_command,
                           scanid, 'host.example.com', 'cat /etc/passwd'  )
