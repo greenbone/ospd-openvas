@@ -1053,15 +1053,19 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db.add_single_item(
             'internal/%s/globalscanid' % scan_id, [openvas_scan_id])
 
+        exclude_hosts = self.get_scan_exclude_hosts(scan_id, target)
+        if exclude_hosts:
+            options['exclude_hosts'] = exclude_hosts
+
         # Get unfinished hosts, in case it is a resumed scan. And added
         # into exclude_hosts scan preference. Set progress for the finished ones
         # to 100%.
         finished_hosts = self.get_scan_finished_hosts(scan_id)
-        exclude_hosts = options.get('exclude_hosts')
         if finished_hosts:
             if exclude_hosts:
                 finished_hosts_str = ','.join(finished_hosts)
-                options['exclude_hosts'] = exlude_hosts + ',' + finished_hosts_str
+                exclude_hosts = exclude_hosts + ',' + finished_hosts_str
+                options['exclude_hosts'] = exclude_hosts
             else:
                 options['exclude_hosts'] = ','.join(finished_hosts)
 

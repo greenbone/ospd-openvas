@@ -434,7 +434,7 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_get_openvas_timestamp_scan_host_end(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = '12345'
         w =  DummyWrapper(mock_nvti, mock_db)
-        targets = [['192.168.0.1', 'port', 'cred']]
+        targets = [['192.168.0.1', 'port', 'cred', 'exclude_host']]
         w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
         for result in  w.scan_collection.results_iterator('123-456', False):
@@ -444,7 +444,7 @@ class TestOspdOpenvas(unittest.TestCase):
         mock_db.get_host_scan_scan_end_time.return_value = None
         mock_db.get_host_scan_scan_end_time.return_value = '54321'
         w =  DummyWrapper(mock_nvti, mock_db)
-        targets = [['192.168.0.1', 'port', 'cred']]
+        targets = [['192.168.0.1', 'port', 'cred', 'exclude_host']]
         w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
         for result in  w.scan_collection.results_iterator('123-456', False):
@@ -502,7 +502,7 @@ class TestOspdOpenvas(unittest.TestCase):
     @patch('ospd_openvas.wrapper.OSPDaemon.set_scan_target_progress')
     def test_update_progress(self, mock_ospd, mock_nvti, mock_db):
         msg = '0/-1'
-        targets = [['localhost', 'port', 'cred']]
+        targets = [['localhost', 'port', 'cred', 'exclude_host']]
         w =  DummyWrapper(mock_nvti, mock_db)
         w.create_scan('123-456', targets, None, [])
 
