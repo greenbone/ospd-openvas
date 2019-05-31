@@ -760,6 +760,7 @@ class OSPDopenvas(OSPDaemon):
             roid = msg[3]
             rqod = ''
             rname = ''
+            rhostname = msg[1] if msg[1] else ''
             host_is_dead = "Host dead" in msg[4]
 
             if not host_is_dead:
@@ -775,6 +776,7 @@ class OSPDopenvas(OSPDaemon):
                 self.add_scan_error(
                     scan_id,
                     host=current_host,
+                    hostname=rhostname,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
@@ -784,6 +786,7 @@ class OSPDopenvas(OSPDaemon):
                 self.add_scan_log(
                     scan_id,
                     host=current_host,
+                    hostname=rhostname,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
@@ -795,6 +798,7 @@ class OSPDopenvas(OSPDaemon):
                 self.add_scan_host_detail(
                     scan_id,
                     host=current_host,
+                    hostname=rhostname,
                     name=rname,
                     value=msg[4],
                 )
@@ -804,6 +808,7 @@ class OSPDopenvas(OSPDaemon):
                 self.add_scan_alarm(
                     scan_id,
                     host=current_host,
+                    hostname=rhostname,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
