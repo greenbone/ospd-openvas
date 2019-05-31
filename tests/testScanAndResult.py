@@ -713,7 +713,6 @@ class FullTest(unittest.TestCase):
                                   '</start_scan>'))
         scan_id = response.findtext('id')
         time.sleep(1)
-        target_list = daemon.scan_collection.scans_table[scan_id]['targets']
         finished = daemon.get_scan_finished_hosts(scan_id)
         self.assertEqual(finished, ['192.168.10.23', '192.168.10.24'])
 
