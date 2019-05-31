@@ -84,8 +84,8 @@ class ScanCollection(object):
         self.data_manager = None
         self.scans_table = dict()
 
-    def add_result(self, scan_id, result_type, host='', name='', value='',
-                   port='', test_id='', severity='', qod=''):
+    def add_result(self, scan_id, result_type, host='', hostname='', name='',
+                   value='', port='', test_id='', severity='', qod=''):
         """ Add a result to a scan in the table. """
 
         assert scan_id
@@ -97,7 +97,7 @@ class ScanCollection(object):
         result['test_id'] = test_id
         result['value'] = value
         result['host'] = host
-        result['hostname'] = get_hostname_by_address(host)
+        result['hostname'] = hostname
         result['port'] = port
         result['qod'] = qod
         results = self.scans_table[scan_id]['results']

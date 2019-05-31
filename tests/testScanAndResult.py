@@ -35,6 +35,7 @@ class Result(object):
     def __init__(self, type_, **kwargs):
         self.result_type = type_
         self.host = ''
+        self.hostname = ''
         self.name = ''
         self.value = ''
         self.port = ''
@@ -145,16 +146,16 @@ class DummyWrapper(OSPDaemon):
         for res in self.results:
             if res.result_type == 'log':
                 self.add_scan_log(
-                    scan_id, res.host or target, res.name, res.value, res.port)
+                    scan_id, res.host or target, res.hostname, res.name, res.value, res.port)
             if res.result_type == 'error':
                 self.add_scan_error(
-                    scan_id, res.host or target, res.name, res.value, res.port)
+                    scan_id, res.host or target, res.hostname, res.name, res.value, res.port)
             elif res.result_type == 'host-detail':
                 self.add_scan_host_detail(
-                    scan_id, res.host or target, res.name, res.value)
+                    scan_id, res.host or target, res.hostname, res.name, res.value)
             elif res.result_type == 'alarm':
                 self.add_scan_alarm(
-                    scan_id, res.host or target, res.name, res.value,
+                    scan_id, res.host or target, res.hostname, res.name, res.value,
                     res.port, res.test_id, res.severity, res.qod)
             else:
                 raise ValueError(res.result_type)
