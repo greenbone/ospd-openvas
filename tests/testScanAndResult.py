@@ -695,6 +695,27 @@ class FullTest(unittest.TestCase):
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
 
+    def testScanGetExcludeHosts(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command('<start_scan>'
+                                  '<scanner_params /><vts><vt id="1.2.3.4" />'
+                                  '</vts>'
+                                  '<targets><target>'
+                                  '<hosts>192.168.10.20-25</hosts>'
+                                  '<ports>80,443</ports>'
+                                  '<exclude_hosts>192.168.10.23-24'
+                                  '</exclude_hosts>'
+                                  '</target>'
+                                  '<target><hosts>192.168.0.0/24</hosts>'
+                                  '<ports>22</ports></target>'
+                                  '</targets>'
+                                  '</start_scan>'))
+        scan_id = response.findtext('id')
+        time.sleep(1)
+        finished = daemon.get_scan_finished_hosts(scan_id)
+        self.assertEqual(finished, ['192.168.10.23', '192.168.10.24'])
+
     def testScanMultiTargetParallelWithError(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring('<start_scan parallel="100a">'

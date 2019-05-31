@@ -501,6 +501,7 @@ class OSPDaemon(object):
                 <targets>
                   <target>
                     <hosts>localhosts</hosts>
+                    <exclude_hosts>localhost1</exclude_hosts>
                     <ports>80,443</ports>
                   </target>
                   <target>
@@ -519,29 +520,32 @@ class OSPDaemon(object):
                   </target>
                 </targets>
 
-        @return: A list of (hosts, port) tuples.
+        @return: A list of [hosts, port, {credentials}, exclude_hosts] list.
                  Example form:
-                 [['localhost', '80,43'],
+                 [['localhosts', '80,43', '', 'localhosts1'],
                   ['192.168.0.0/24', '22', {'smb': {'type': type,
                                                     'port': port,
                                                     'username': username,
                                                     'password': pass,
-                                                   }}]]
+                                                   }}], '']
         """
 
         target_list = []
         for target in scanner_target:
+            exclude_hosts = ''
             ports = ''
             credentials = {}
             for child in target:
                 if child.tag == 'hosts':
                     hosts = child.text
+                if child.tag == 'exclude_hosts':
+                    exclude_hosts = child.text
                 if child.tag == 'ports':
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([hosts, ports, credentials])
+                target_list.append([hosts, ports, credentials, exclude_hosts])
             else:
                 raise OSPDError('No target to scan', 'start_scan')
 
@@ -566,7 +570,7 @@ class OSPDaemon(object):
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, ''])
+                scan_targets.append([single_target, ports_str, '', ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -854,6 +858,21 @@ class OSPDaemon(object):
             t_prog[target] = self.get_scan_target_progress(scan_id, target)
         return sum(t_prog.values())/len(t_prog)
 
+    def process_exclude_hosts(self, scan_id, target_list):
+        """ Process the exclude hosts before launching the scans.
+        Set exclude hosts as finished with 100% to calculate
+        the scan progress."""
+
+        for target, _, _, exclude_hosts in target_list:
+            exc_hosts_list = ''
+            if not exclude_hosts:
+                continue
+            exc_hosts_list = target_str_to_list(exclude_hosts)
+            for host in exc_hosts_list:
+                self.set_scan_host_finished(scan_id, target, host)
+                self.set_scan_target_progress(
+                    scan_id, target, host, 100)
+
     def start_scan(self, scan_id, targets, parallel=1):
         """ Handle N parallel scans if 'parallel' is greater than 1. """
 
@@ -863,6 +882,8 @@ class OSPDaemon(object):
         target_list = targets
         if target_list is None or not target_list:
             raise OSPDError('Erroneous targets list', 'start_scan')
+
+        self.process_exclude_hosts(scan_id, target_list)
 
         for index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
@@ -1611,6 +1632,11 @@ class OSPDaemon(object):
     def get_scan_ports(self, scan_id, target=''):
         """ Gives a scan's ports list. """
         return self.scan_collection.get_ports(scan_id, target)
+
+    def get_scan_exclude_hosts(self, scan_id, target=''):
+        """ Gives a scan's exclude host list. If a target is passed gives
+        the exclude host list for the given target. """
+        return self.scan_collection.get_exclude_hosts(scan_id, target)
 
     def get_scan_credentials(self, scan_id, target=''):
         """ Gives a scan's credential list. If a target is passed gives

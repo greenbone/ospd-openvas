@@ -177,6 +177,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <e>hosts</e>
       <e>ports</e>
       <e>credentials</e>
+      <e>exclude_hosts</e>
     </pattern>
     <ele>
       <name>hosts</name>
@@ -195,7 +196,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <e>credential</e>
       </pattern>
     </ele>
-        <example>
+    <ele>
+      <name>exclude_hosts</name>
+      <summary>One or many hosts to exclude. The list is comma-separated. Each entry can be a IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6. The listed hosts will be set as finished before starting the scan. Each wrapper must handle the exclude hosts.
+      </summary>
+      <type>string</type>
+    </ele>
+    <example>
       <summary>Target without credentials.</summary>
       <e>
         <target>
@@ -214,6 +221,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <credential>...</credential>
             <credential>...</credential>
           </credentials>
+          <exclude_hosts>192.168.1.10-15</exclude_hosts>
         </target>
       </e>
     </example>
@@ -1115,6 +1123,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <credentials>
                 ...
               </credentials>
+              <exclude_hosts>192.168.1.10-15</exclude_hosts>
             </target>
           </targets>
         </start_scan>
