@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Greenbone Networks GmbH
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -69,10 +69,10 @@ class OpenvasDB(object):
         self.logger = wrapper_logger.getChild('db') if wrapper_logger else logger
 
     @staticmethod
-    def _parse_openvassd_db_address(result):
+    def _parse_openvas_db_address(result):
         """ Return the path to the redis socket.
         Arguments:
-            result (bytes) Output of `openvassd -s`
+            result (bytes) Output of `openvas -s`
         Return redis unix socket path.
         """
         path = None
@@ -88,17 +88,17 @@ class OpenvasDB(object):
         return path[1].strip()
 
     def get_db_connection(self):
-        """ Retrieve the db address from openvassd config.
+        """ Retrieve the db address from openvas config.
         """
         try:
             result = subprocess.check_output(
-                ['openvassd', '-s'], stderr=subprocess.STDOUT)
+                ['openvas', '-s'], stderr=subprocess.STDOUT)
         except PermissionError:
-            sys.exit("ERROR: %s: Not possible to run openvassd. "
+            sys.exit("ERROR: %s: Not possible to run openvas. "
                      "Check permissions and/or path to the binary." \
                      % self.get_db_connection.__name__)
         if result:
-            path = self._parse_openvassd_db_address(result)
+            path = self._parse_openvas_db_address(result)
 
         self.db_address = path
 
