@@ -77,7 +77,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
     an array.
     """
 
-    def __init__(self, certfile, keyfile, cafile, niceness):
+    def __init__(self, certfile, keyfile, cafile, niceness=None):
         """ Initializes the daemon and add parameters needed to remote SSH execution. """
 
         super(OSPDaemonSimpleSSH, self).__init__(certfile=certfile, keyfile=keyfile,
