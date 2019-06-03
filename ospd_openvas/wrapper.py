@@ -231,14 +231,15 @@ class OSPDopenvas(OSPDaemon):
 
     """ Class for ospd-openvas daemon. """
 
-    def __init__(self, certfile, keyfile, cafile):
+    def __init__(self, certfile, keyfile, cafile, niceness):
         """ Initializes the ospd-openvas daemon's internal data. """
 
         super().__init__(certfile=certfile, keyfile=keyfile, cafile=cafile,
-                         customvtfilter=OpenVasVtsFilter(),
+                         niceness=niceness, customvtfilter=OpenVasVtsFilter(),
                          wrapper_logger=logger)
 
         self.server_version = __version__
+        self.NICENESS = str(niceness)
         self.scanner_info['name'] = 'openvassd'
         self.scanner_info['version'] = ''  # achieved during self.check()
         self.scanner_info['description'] = OSPD_DESC
@@ -1130,7 +1131,15 @@ class OSPDopenvas(OSPDaemon):
                           value='An OpenVAS Scanner was started for %s.'
                           % target)
 
-        cmd = ['openvassd', '--scan-start', openvas_scan_id]
+        cmd = [
+            'nice',
+            '-n',
+            self.NICENESS,
+            'openvassd',
+            '--scan-start',
+            openvas_scan_id,
+        ]
+        logger.debug("NICENESS: %s" % self.NICENESS)
         try:
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
