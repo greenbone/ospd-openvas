@@ -83,7 +83,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         super(OSPDaemonSimpleSSH, self).__init__(certfile=certfile, keyfile=keyfile,
                                                  cafile=cafile, niceness=niceness)
 
-        self.NICENESS = niceness
+        self._niceness = niceness
 
         if paramiko is None:
             raise ImportError('paramiko needs to be installed in order to use'
@@ -142,7 +142,8 @@ class OSPDaemonSimpleSSH(OSPDaemon):
             self.add_scan_error(scan_id, host=host, value=str(err))
             return None
 
-        cmd = "nice -n %s %s" % (self.NICENESS, cmd)
+        if self._niceness is not None:
+            cmd = "nice -n %s %s" % (self._niceness, cmd)
         _, stdout, _ = ssh.exec_command(cmd)
         result = stdout.readlines()
         ssh.close()
