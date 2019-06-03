@@ -289,8 +289,7 @@ class OSPDopenvas(OSPDaemon):
             logger.debug('Loading NVTs in Redis DB')
             subprocess.check_call(['openvassd', '-C'])
         except subprocess.CalledProcessError as err:
-            logger.error('OpenVAS Scanner failed to load NVTs.')
-            raise err
+            logger.error('OpenVAS Scanner failed to load NVTs. %s' % err)
 
     def feed_is_outdated(self, current_feed):
         """ Compare the current feed with the one in the disk.
@@ -857,10 +856,15 @@ class OSPDopenvas(OSPDaemon):
                 self.openvas_db.set_single_item('internal/%s' % scan_id,
                                            ['stop_all', ])
                 ovas_pid = self.openvas_db.get_single_item('internal/ovas_pid')
-                parent = psutil.Process(int(ovas_pid))
+                parent = None
+                try:
+                    parent = psutil.Process(int(ovas_pid))
+                except psutil._exceptions.NoSuchProcess:
+                    logger.debug('Process with pid {0} already stopped'.format(ovas_pid))
                 self.openvas_db.release_db(current_kbi)
-                parent.send_signal(signal.SIGUSR2)
-                logger.debug('Stopping process: {0}'.format(parent))
+                if parent:
+                    parent.send_signal(signal.SIGUSR2)
+                    logger.debug('Stopping process: {0}'.format(parent))
 
     def get_vts_in_groups(self, filters):
         """ Return a list of vts which match with the given filter.
@@ -1135,6 +1139,7 @@ class OSPDopenvas(OSPDaemon):
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
             # the command is not available
+            print ("Estoy en el except")
             return False
 
         ovas_pid = result.pid
@@ -1143,12 +1148,18 @@ class OSPDopenvas(OSPDaemon):
 
         # Wait until the scanner starts and loads all the preferences.
         while self.openvas_db.get_single_item('internal/'+ openvas_scan_id) == 'new':
+            res = result.poll()
+            if res and res < 0:
+                self.stop_scan_cleanup(scan_id)
+                msg = 'It was not possible run the task %s, since openvassd ended ' \
+                      'unexpectedly with errors during launching.' % scan_id
+                logger.error(msg)
+                return 1
             time.sleep(1)
 
         no_id_found = False
         while True:
             time.sleep(3)
-
             # Check if the client stopped the whole scan
             if self.scan_is_stopped(openvas_scan_id):
                 return 1
