@@ -200,7 +200,7 @@ class OSPDaemon(object):
       specific options eg. the w3af profile for w3af wrapper.
     """
 
-    def __init__(self, certfile, keyfile, cafile, niceness,
+    def __init__(self, certfile, keyfile, cafile, niceness=None,
                  customvtfilter=None, wrapper_logger=None):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
