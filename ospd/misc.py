@@ -870,7 +870,7 @@ def create_args_parser(description):
     parser.add_argument('--version', action='store_true',
                         help='Print version then exit.')
     parser.add_argument('--niceness', default=NICENESS, type=int,
-                        help='Start the scan with the given niceness. Default 10')
+                        help='Start the scan with the given niceness. Default %(default)s')
 
     return parser
 
