@@ -43,6 +43,7 @@ import itertools
 from enum import Enum
 
 LOGGER = logging.getLogger(__name__)
+NICENESS = 10
 
 # Default file locations as used by a OpenVAS default installation
 KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
@@ -808,6 +809,15 @@ def create_args_parser(description):
                 'port must be in ]0,65535] interval')
         return value
 
+    def niceness(string):
+        """ Check if provided string is a valid niceness value. """
+        try:
+            value = int(string)
+        except ValueError:
+            raise argparse.ArgumentTypeError(
+                'niceness must be an integer')
+        return value
+
     def cacert_file(cacert):
         """ Check if provided file is a valid CA Certificate """
         try:
@@ -868,6 +878,9 @@ def create_args_parser(description):
                         help='Path to the logging file.')
     parser.add_argument('--version', action='store_true',
                         help='Print version then exit.')
+    parser.add_argument('--niceness', default=NICENESS, type=niceness,
+                        help='Start the scan with the given niceness. Default 10')
+
     return parser
 
 
@@ -920,6 +933,7 @@ def get_common_args(parser, args=None):
     common_args['foreground'] = options.foreground
     common_args['log_file'] = options.log_file
     common_args['version'] = options.version
+    common_args['niceness'] = options.niceness
 
     return common_args
 
@@ -952,7 +966,7 @@ def main(name, klass):
     cargs = get_common_args(parser)
     logging.getLogger().setLevel(cargs['log_level'])
     wrapper = klass(certfile=cargs['certfile'], keyfile=cargs['keyfile'],
-                    cafile=cargs['cafile'])
+                    cafile=cargs['cafile'], niceness=cargs['niceness'])
 
     if cargs['version']:
         print_version(wrapper)
