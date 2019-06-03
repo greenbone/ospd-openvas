@@ -22,6 +22,7 @@
 import unittest
 
 from ospd.misc import target_str_to_list
+from ospd.misc import get_hostname_by_address
 
 class testTargetLists(unittest.TestCase):
 
@@ -38,3 +39,11 @@ class testTargetLists(unittest.TestCase):
         self.assertEqual(len(addresses), 10)
         for i in range(1, 10):
             self.assertTrue('195.70.81.%d' % i in addresses)
+
+    def testGetHostnameByAddress(self):
+        hostname = get_hostname_by_address('127.0.0.1')
+        self.assertEqual(hostname, 'localhost')
+        hostname = get_hostname_by_address('')
+        self.assertTrue(hostname is '')
+        hostname = get_hostname_by_address('127.0.0.1111')
+        self.assertTrue(hostname is '')

@@ -85,8 +85,8 @@ class ScanCollection(object):
         self.data_manager = None
         self.scans_table = dict()
 
-    def add_result(self, scan_id, result_type, host='', name='', value='',
-                   port='', test_id='', severity='', qod=''):
+    def add_result(self, scan_id, result_type, host='', hostname='', name='',
+                   value='', port='', test_id='', severity='', qod=''):
         """ Add a result to a scan in the table. """
 
         assert scan_id
@@ -98,6 +98,7 @@ class ScanCollection(object):
         result['test_id'] = test_id
         result['value'] = value
         result['host'] = host
+        result['hostname'] = hostname
         result['port'] = port
         result['qod'] = qod
         results = self.scans_table[scan_id]['results']
@@ -642,6 +643,21 @@ def resolve_hostname(hostname):
         return socket.gethostbyname(hostname)
     except socket.gaierror:
         return None
+
+
+def get_hostname_by_address(address):
+    """ Returns hostname of an address. """
+
+    if not address:
+        return ''
+    try:
+        hostname = socket.getfqdn(address)
+    except (socket.gaierror, socket.herror):
+        return ''
+
+    if hostname == address:
+        return ''
+    return hostname
 
 
 def port_range_expand(portrange):
