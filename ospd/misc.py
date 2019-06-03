@@ -809,15 +809,6 @@ def create_args_parser(description):
                 'port must be in ]0,65535] interval')
         return value
 
-    def niceness(string):
-        """ Check if provided string is a valid niceness value. """
-        try:
-            value = int(string)
-        except ValueError:
-            raise argparse.ArgumentTypeError(
-                'niceness must be an integer')
-        return value
-
     def cacert_file(cacert):
         """ Check if provided file is a valid CA Certificate """
         try:
@@ -878,7 +869,7 @@ def create_args_parser(description):
                         help='Path to the logging file.')
     parser.add_argument('--version', action='store_true',
                         help='Print version then exit.')
-    parser.add_argument('--niceness', default=NICENESS, type=niceness,
+    parser.add_argument('--niceness', default=NICENESS, type=int,
                         help='Start the scan with the given niceness. Default 10')
 
     return parser
