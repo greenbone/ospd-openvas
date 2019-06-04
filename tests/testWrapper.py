@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Greenbone Networks GmbH
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -92,7 +92,7 @@ OSPD_PARAMS_OUT = {
         'name': 'optimize_test',
         'default': 5,
         'mandatory': 0,
-        'description': 'By default, openvassd does not trust the remote ' \
+        'description': 'By default, openvas does not trust the remote ' \
                        'host banners.',
     },
     'plugins_timeout': {

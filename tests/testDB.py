@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Greenbone Networks GmbH
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -31,9 +31,9 @@ class TestDB(TestCase):
     def setUp(self):
         self.db = OpenvasDB()
 
-    def test_parse_openvassd_db_addres(self, mock_redis):
+    def test_parse_openvas_db_addres(self, mock_redis):
         with self.assertRaises(OSPDOpenvasError):
-            self.db._parse_openvassd_db_address(b'somedata')
+            self.db._parse_openvas_db_address(b'somedata')
 
     def test_max_db_index_fail(self, mock_redis):
         mock_redis.config_get.return_value = {}
