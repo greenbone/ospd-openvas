@@ -124,7 +124,7 @@ OSPD_PARAMS = {
         'name': 'optimize_test',
         'default': 5,
         'mandatory': 0,
-        'description': ('By default, openvassd does not trust the remote ' +
+        'description': ('By default, openvas does not trust the remote ' +
                         'host banners.'),
     },
     'plugins_timeout': {
@@ -240,7 +240,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.server_version = __version__
         self._niceness = str(niceness)
-        self.scanner_info['name'] = 'openvassd'
+        self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.check()
         self.scanner_info['description'] = OSPD_DESC
         for name, param in OSPD_PARAMS.items():
@@ -266,7 +266,7 @@ class OSPDopenvas(OSPDaemon):
         global OSPD_PARAMS
         bool_dict = {'no': 0, 'yes': 1}
 
-        result = subprocess.check_output(['openvassd', '-s'],
+        result = subprocess.check_output(['openvas', '-s'],
                                          stderr=subprocess.STDOUT)
         result = result.decode('ascii')
         param_list = dict()
@@ -288,7 +288,7 @@ class OSPDopenvas(OSPDaemon):
         """ Loads NVT's metadata into Redis DB. """
         try:
             logger.debug('Loading NVTs in Redis DB')
-            subprocess.check_call(['openvassd', '-C'])
+            subprocess.check_call(['openvas', '--update-vt-info'])
         except subprocess.CalledProcessError as err:
             logger.error('OpenVAS Scanner failed to load NVTs. %s' % err)
 
@@ -680,10 +680,10 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_detection).decode('utf-8')
 
     def check(self):
-        """ Checks that openvassd command line tool is found and
+        """ Checks that openvas command line tool is found and
         is executable. """
         try:
-            result = subprocess.check_output(['openvassd', '-V'],
+            result = subprocess.check_output(['openvas', '-V'],
                                              stderr=subprocess.STDOUT)
             result = result.decode('ascii')
         except OSError:
@@ -1140,7 +1140,7 @@ class OSPDopenvas(OSPDaemon):
                           value='An OpenVAS Scanner was started for %s.'
                           % target)
 
-        cmd = ['openvassd', '--scan-start', openvas_scan_id]
+        cmd = ['openvas', '--scan-start', openvas_scan_id]
         if self._niceness is not None:
             cmd_nice = ['nice', '-n', self._niceness]
             cmd_nice.extend(cmd)
@@ -1162,7 +1162,7 @@ class OSPDopenvas(OSPDaemon):
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
-                msg = 'It was not possible run the task %s, since openvassd ended ' \
+                msg = 'It was not possible run the task %s, since openvas ended ' \
                       'unexpectedly with errors during launching.' % scan_id
                 logger.error(msg)
                 return 1
