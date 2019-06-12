@@ -1140,7 +1140,7 @@ class OSPDopenvas(OSPDaemon):
                           value='An OpenVAS Scanner was started for %s.'
                           % target)
 
-        cmd = ['openvas', '--scan-start', openvas_scan_id]
+        cmd = ['sudo', 'openvas', '--scan-start', openvas_scan_id]
         if self._niceness is not None:
             cmd_nice = ['nice', '-n', self._niceness]
             cmd_nice.extend(cmd)
