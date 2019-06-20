@@ -569,7 +569,9 @@ class OSPDopenvas(OSPDaemon):
         return tostring(vt_refs_xml).decode('utf-8')
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(vt_id, dep_list):
+    def get_dependencies_vt_as_xml_str(
+        vt_id, dep_list
+    ):  # pylint: disable=arguments-differ
         """ Return  an xml element with dependencies as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
@@ -592,7 +594,9 @@ class OSPDopenvas(OSPDaemon):
         return tostring(vt_deps_xml).decode('utf-8')
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(vt_id, creation_time):
+    def get_creation_time_vt_as_xml_str(
+        vt_id, creation_time
+    ):  # pylint: disable=arguments-differ
         """ Return creation time as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
@@ -605,7 +609,9 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_time).decode('utf-8')
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(vt_id, modification_time):
+    def get_modification_time_vt_as_xml_str(
+        vt_id, modification_time
+    ):  # pylint: disable=arguments-differ
         """ Return modification time as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
@@ -689,7 +695,7 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_detection_vt_as_xml_str(
         vt_id, vuldetect=None, qod_type=None, qod=None
-    ):
+    ):  # pylint: disable=arguments-differ
         """ Return detection as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
@@ -881,7 +887,9 @@ class OSPDopenvas(OSPDaemon):
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'stop_all'
 
-    def stop_scan_cleanup(self, global_scan_id):
+    def stop_scan_cleanup(
+        self, global_scan_id
+    ):  # pylint: disable=arguments-differ
         """ Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
