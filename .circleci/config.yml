@@ -12,8 +12,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "Pipfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
       - run:
           name: Install dependencies
           command: |
@@ -37,8 +35,6 @@ jobs:
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "Pipfile.lock" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
       - run:
           name: Install dependencies
           command: |
