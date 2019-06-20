@@ -28,7 +28,7 @@ class OSPDOpenvasError(OSPDError):
     Base class for all exceptions originated in ospd-openvas.
     """
 
-    def __init__(self, message):
+    def __init__(self, message):  # pylint: disable=super-init-not-called
         pass
 
 
