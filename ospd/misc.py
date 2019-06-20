@@ -410,12 +410,12 @@ class ResultType(object):
             assert False, "Erroneous result name {0}.".format(result_name)
 
 
-__inet_pton = None
+__inet_pton = None  # pylint: disable=invalid-name
 
 
 def inet_pton(address_family, ip_string):
     """ A platform independent version of inet_pton """
-    global __inet_pton
+    global __inet_pton  # pylint: disable=global-statement, invalid-name
     if __inet_pton is None:
         if hasattr(socket, 'inet_pton'):
             __inet_pton = socket.inet_pton
@@ -427,12 +427,12 @@ def inet_pton(address_family, ip_string):
     return __inet_pton(address_family, ip_string)
 
 
-__inet_ntop = None
+__inet_ntop = None  # pylint: disable=invalid-name
 
 
 def inet_ntop(address_family, packed_ip):
     """ A platform independent version of inet_ntop """
-    global __inet_ntop
+    global __inet_ntop  # pylint: disable=global-statement, invalid-name
     if __inet_ntop is None:
         if hasattr(socket, 'inet_ntop'):
             __inet_ntop = socket.inet_ntop
