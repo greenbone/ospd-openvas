@@ -29,7 +29,7 @@ LIST_LAST_POS = -1
 
 class NVTICache(object):
 
-    QoD_TYPES = {
+    QOD_TYPES = {
         'exploit': '100',
         'remote_vul': '99',
         'remote_app': '98',

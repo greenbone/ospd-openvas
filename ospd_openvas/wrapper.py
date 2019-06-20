@@ -797,7 +797,7 @@ class OSPDopenvas(OSPDaemon):
             if not host_is_dead:
                 if self.vts[roid].get('qod_type'):
                     qod_t = self.vts[roid].get('qod_type')
-                    rqod = self.nvti.QoD_TYPES[qod_t]
+                    rqod = self.nvti.QOD_TYPES[qod_t]
                 elif self.vts[roid].get('qod'):
                     rqod = self.vts[roid].get('qod')
 
