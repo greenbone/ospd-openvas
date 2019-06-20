@@ -108,7 +108,7 @@ class VtsFilter(object):
             Dictionary with filtered vulnerability tests.
         """
         if not vt_filter:
-            raise RequiredArgument('vt_filter: A valid filter is required.')
+            raise OSPDError('vt_filter: A valid filter is required.')
 
         filters = self.parse_filters(vt_filter)
         if not filters:
