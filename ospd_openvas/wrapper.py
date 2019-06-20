@@ -78,8 +78,10 @@ OSPD_PARAMS = {
         'name': 'checks_read_timeout',
         'default': 5,
         'mandatory': 1,
-        'description': ('Number  of seconds that the security checks will ' +
-                        'wait for when doing a recv()'),
+        'description': (
+            'Number  of seconds that the security checks will '
+            + 'wait for when doing a recv()'
+        ),
     },
     'drop_privileges': {
         'type': 'boolean',
@@ -100,32 +102,38 @@ OSPD_PARAMS = {
         'name': 'non_simult_ports',
         'default': '139, 445, 3389, Services/irc',
         'mandatory': 1,
-        'description': ('Prevent to make two connections on the same given ' +
-                        'ports at the same time.'),
+        'description': (
+            'Prevent to make two connections on the same given '
+            + 'ports at the same time.'
+        ),
     },
     'open_sock_max_attempts': {
         'type': 'integer',
         'name': 'open_sock_max_attempts',
         'default': 5,
         'mandatory': 0,
-        'description': ('Number of unsuccessful retries to open the socket ' +
-                        'before to set the port as closed.'),
+        'description': (
+            'Number of unsuccessful retries to open the socket '
+            + 'before to set the port as closed.'
+        ),
     },
     'timeout_retry': {
         'type': 'integer',
         'name': 'timeout_retry',
         'default': 5,
         'mandatory': 0,
-        'description': ('Number of retries when a socket connection attempt ' +
-                        'timesout.'),
+        'description': (
+            'Number of retries when a socket connection attempt ' + 'timesout.'
+        ),
     },
     'optimize_test': {
         'type': 'integer',
         'name': 'optimize_test',
         'default': 5,
         'mandatory': 0,
-        'description': ('By default, openvas does not trust the remote ' +
-                        'host banners.'),
+        'description': (
+            'By default, openvas does not trust the remote ' + 'host banners.'
+        ),
     },
     'plugins_timeout': {
         'type': 'integer',
@@ -146,8 +154,10 @@ OSPD_PARAMS = {
         'name': 'safe_checks',
         'default': 1,
         'mandatory': 1,
-        'description': ('Disable the plugins with potential to crash ' +
-                        'the remote services'),
+        'description': (
+            'Disable the plugins with potential to crash '
+            + 'the remote services'
+        ),
     },
     'scanner_plugins_timeout': {
         'type': 'integer',
@@ -161,8 +171,10 @@ OSPD_PARAMS = {
         'name': 'time_between_request',
         'default': 0,
         'mandatory': 0,
-        'description': ('Allow to set a wait time between two actions ' +
-                        '(open, send, close).'),
+        'description': (
+            'Allow to set a wait time between two actions '
+            + '(open, send, close).'
+        ),
     },
     'unscanned_closed': {
         'type': 'boolean',
@@ -183,8 +195,8 @@ OSPD_PARAMS = {
         'name': 'use_mac_addr',
         'default': 0,
         'mandatory': 0,
-        'description': 'To test the local network. ' +
-                       'Hosts will be referred to by their MAC address.',
+        'description': 'To test the local network. '
+        + 'Hosts will be referred to by their MAC address.',
     },
     'vhosts': {
         'type': 'string',
@@ -207,15 +219,18 @@ OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
 OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
 OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 
+
 def _from_bool_to_str(value):
     """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
     uses 1 and 0."""
     return 'yes' if value == 1 else 'no'
 
+
 class OpenVasVtsFilter(VtsFilter):
     """ Methods to overwrite the ones in the original class.
     Each method formats the value to be compatible with the filter
     """
+
     def format_vt_modification_time(self, value):
         """ Convert the datetime value in an 19 character string
         representing YearMonthDateHourMinuteSecond.
@@ -224,8 +239,9 @@ class OpenVasVtsFilter(VtsFilter):
 
         date = value[7:26].replace(" ", "")
         date = date.replace("-", "")
-        date = date.replace(":","")
+        date = date.replace(":", "")
         return date
+
 
 class OSPDopenvas(OSPDaemon):
 
@@ -234,9 +250,14 @@ class OSPDopenvas(OSPDaemon):
     def __init__(self, certfile, keyfile, cafile, niceness=None):
         """ Initializes the ospd-openvas daemon's internal data. """
 
-        super().__init__(certfile=certfile, keyfile=keyfile, cafile=cafile,
-                         niceness=niceness, customvtfilter=OpenVasVtsFilter(),
-                         wrapper_logger=logger)
+        super().__init__(
+            certfile=certfile,
+            keyfile=keyfile,
+            cafile=cafile,
+            niceness=niceness,
+            customvtfilter=OpenVasVtsFilter(),
+            wrapper_logger=logger,
+        )
 
         self.server_version = __version__
         self._niceness = str(niceness)
@@ -266,8 +287,9 @@ class OSPDopenvas(OSPDaemon):
         global OSPD_PARAMS
         bool_dict = {'no': 0, 'yes': 1}
 
-        result = subprocess.check_output(['openvas', '-s'],
-                                         stderr=subprocess.STDOUT)
+        result = subprocess.check_output(
+            ['openvas', '-s'], stderr=subprocess.STDOUT
+        )
         result = result.decode('ascii')
         param_list = dict()
         for conf in result.split('\n'):
@@ -320,7 +342,7 @@ class OSPDopenvas(OSPDaemon):
         """
 
         # Check if the nvticache in redis is outdated
-        current_feed =  self.nvti.get_feed_version()
+        current_feed = self.nvti.get_feed_version()
         if not current_feed or self.feed_is_outdated(current_feed):
             self.redis_nvticache_init()
             ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
@@ -336,14 +358,17 @@ class OSPDopenvas(OSPDaemon):
         if self.pending_feed:
             _pending_feed = True
         else:
-            _pending_feed = self.get_vts_version() != self.nvti.get_feed_version()
+            _pending_feed = (
+                self.get_vts_version() != self.nvti.get_feed_version()
+            )
 
         if _running_scan and _pending_feed:
             if not self.pending_feed:
                 self.pending_feed = True
                 logger.debug(
                     'There is a running scan. Therefore the feed '
-                    'update will be performed later.')
+                    'update will be performed later.'
+                )
         elif not _running_scan and _pending_feed:
             self.vts = dict()
             self.load_vts()
@@ -381,7 +406,7 @@ class OSPDopenvas(OSPDaemon):
                 _impact = _custom.pop('impact')
             if 'affected' in _custom:
                 _affected = _custom.pop('affected')
-            if 'insight' in _custom :
+            if 'insight' in _custom:
                 _insight = _custom.pop('insight')
             if 'solution' in _custom:
                 _solution = _custom.pop('solution')
@@ -389,11 +414,11 @@ class OSPDopenvas(OSPDaemon):
                     _solution_t = _custom.pop('solution_type')
 
             if 'vuldetect' in _custom:
-                _vuldetect  = _custom.pop('vuldetect')
+                _vuldetect = _custom.pop('vuldetect')
             if 'qod_type' in _custom:
-                _qod_t  = _custom.pop('qod_type')
+                _qod_t = _custom.pop('qod_type')
             elif 'qod' in _custom:
-                _qod_v  = _custom.pop('qod')
+                _qod_v = _custom.pop('qod')
 
             _severity = dict()
             if 'severity_base_vector' in _custom:
@@ -434,7 +459,7 @@ class OSPDopenvas(OSPDaemon):
                 detection=_vuldetect,
                 qod_t=_qod_t,
                 qod_v=_qod_v,
-                severities=_severity
+                severities=_severity,
             )
             if ret == -1:
                 logger.info("Duplicated VT with OID: {0}".format(vt_id))
@@ -525,8 +550,9 @@ class OSPDopenvas(OSPDaemon):
                             _type, _id = xref.split(':', 1)
                         except ValueError:
                             logger.error(
-                                'Not possible to parse xref %s for vt %s' % (
-                                    xref, vt_id))
+                                'Not possible to parse xref %s for vt %s'
+                                % (xref, vt_id)
+                            )
                             continue
                         vt_ref.set('type', _type.lower())
                         vt_ref.set('id', _id)
@@ -554,8 +580,9 @@ class OSPDopenvas(OSPDaemon):
             try:
                 _vt_dep.set('vt_id', dep)
             except TypeError:
-                logger.error('Not possible to add dependency %s for vt %s' % (
-                    dep, vt_id))
+                logger.error(
+                    'Not possible to add dependency %s for vt %s' % (dep, vt_id)
+                )
                 continue
             vt_deps_xml.append(_vt_dep)
 
@@ -657,8 +684,9 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_solution).decode('utf-8')
 
     @staticmethod
-    def get_detection_vt_as_xml_str(vt_id, vuldetect=None,
-                                    qod_type=None, qod=None):
+    def get_detection_vt_as_xml_str(
+        vt_id, vuldetect=None, qod_type=None, qod=None
+    ):
         """ Return detection as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
@@ -683,8 +711,9 @@ class OSPDopenvas(OSPDaemon):
         """ Checks that openvas command line tool is found and
         is executable. """
         try:
-            result = subprocess.check_output(['openvas', '-V'],
-                                             stderr=subprocess.STDOUT)
+            result = subprocess.check_output(
+                ['openvas', '-V'], stderr=subprocess.STDOUT
+            )
             result = result.decode('ascii')
         except OSError:
             # The command is not available
@@ -742,10 +771,10 @@ class OSPDopenvas(OSPDaemon):
             The calculated cvss base value. None if there is no severity
             vector or severity type is not cvss base version 2.
         """
-        severity_type = (
-            self.vts[oid]['severities'].get('severity_type'))
-        severity_vector = (
-            self.vts[oid]['severities'].get('severity_base_vector'))
+        severity_type = self.vts[oid]['severities'].get('severity_type')
+        severity_vector = self.vts[oid]['severities'].get(
+            'severity_base_vector'
+        )
 
         if severity_type == "cvss_base_v2" and severity_vector:
             return CVSS.cvss_base_v2_value(severity_vector)
@@ -823,13 +852,15 @@ class OSPDopenvas(OSPDaemon):
         """ Get start and end timestamp of a host scan from redis kb. """
         timestamp = self.openvas_db.get_host_scan_scan_end_time()
         if timestamp:
-            self.add_scan_log(scan_id, host=target, name='HOST_END',
-                              value=timestamp)
+            self.add_scan_log(
+                scan_id, host=target, name='HOST_END', value=timestamp
+            )
             return
         timestamp = self.openvas_db.get_host_scan_scan_start_time()
         if timestamp:
-            self.add_scan_log(scan_id, host=target, name='HOST_START',
-                              value=timestamp)
+            self.add_scan_log(
+                scan_id, host=target, name='HOST_START', value=timestamp
+            )
             return
 
     def scan_is_finished(self, scan_id):
@@ -857,16 +888,20 @@ class OSPDopenvas(OSPDaemon):
         for current_kbi in range(0, self.openvas_db.max_dbindex):
             self.openvas_db.select_kb(ctx, str(current_kbi), set_global=True)
             scan_id = self.openvas_db.get_single_item(
-                'internal/%s/globalscanid' % global_scan_id)
+                'internal/%s/globalscanid' % global_scan_id
+            )
             if scan_id:
-                self.openvas_db.set_single_item('internal/%s' % scan_id,
-                                           ['stop_all', ])
+                self.openvas_db.set_single_item(
+                    'internal/%s' % scan_id, ['stop_all']
+                )
                 ovas_pid = self.openvas_db.get_single_item('internal/ovas_pid')
                 parent = None
                 try:
                     parent = psutil.Process(int(ovas_pid))
                 except psutil._exceptions.NoSuchProcess:
-                    logger.debug('Process with pid {0} already stopped'.format(ovas_pid))
+                    logger.debug(
+                        'Process with pid {0} already stopped'.format(ovas_pid)
+                    )
                 self.openvas_db.release_db(current_kbi)
                 if parent:
                     parent.send_signal(signal.SIGUSR2)
@@ -906,14 +941,17 @@ class OSPDopenvas(OSPDaemon):
         """ Check if the value of a vt parameter matches with
         the type founded.
         """
-        if (param_type in ['entry',
-                           'file',
-                           'password',
-                           'radio',
-                           'sshlogin', ] and isinstance(vt_param_value, str)):
+        if param_type in [
+            'entry',
+            'file',
+            'password',
+            'radio',
+            'sshlogin',
+        ] and isinstance(vt_param_value, str):
             return None
-        elif (param_type == 'checkbox' and
-              (vt_param_value == 'yes' or vt_param_value == 'no')):
+        elif param_type == 'checkbox' and (
+            vt_param_value == 'yes' or vt_param_value == 'no'
+        ):
             return None
         elif param_type == 'integer':
             try:
@@ -938,19 +976,26 @@ class OSPDopenvas(OSPDaemon):
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 if not param_type:
-                    logger.debug('The vt parameter %s for %s could not be loaded.',
-                                 vt_param_id, vtid)
+                    logger.debug(
+                        'The vt parameter %s for %s could not be loaded.',
+                        vt_param_id,
+                        vtid,
+                    )
                     continue
                 if vt_param_id == 'timeout':
                     type_aux = 'integer'
                 else:
                     type_aux = param_type
                 if self.check_param_type(vt_param_value, type_aux):
-                    logger.debug('Expected {} type for parameter value {}'
-                                 .format(type_aux, str(vt_param_value)))
-                param = ["{0}:{1}:{2}".format(vtid, param_type,
-                                               vt_param_id),
-                         str(vt_param_value)]
+                    logger.debug(
+                        'Expected {} type for parameter value {}'.format(
+                            type_aux, str(vt_param_value)
+                        )
+                    )
+                param = [
+                    "{0}:{1}:{2}".format(vtid, param_type, vt_param_id),
+                    str(vt_param_value),
+                ]
                 vts_params.append(param)
         return vts_list, vts_params
 
@@ -972,36 +1017,59 @@ class OSPDopenvas(OSPDaemon):
 
             if service == 'ssh':
                 port = cred_params.get('port', '')
-                cred_prefs_list.append('auth_port_ssh|||' +
-                                       '{0}'.format(port))
-                cred_prefs_list.append(OID_SSH_AUTH + ':1:' +
-                                       'entry:SSH login ' +
-                                       'name:|||{0}'.format(username))
+                cred_prefs_list.append('auth_port_ssh|||' + '{0}'.format(port))
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':1:'
+                    + 'entry:SSH login '
+                    + 'name:|||{0}'.format(username)
+                )
                 if cred_type == 'up':
-                    cred_prefs_list.append(OID_SSH_AUTH + ':3:' +
-                                           'password:SSH password ' +
-                                           '(unsafe!):|||{0}'.format(password))
+                    cred_prefs_list.append(
+                        OID_SSH_AUTH
+                        + ':3:'
+                        + 'password:SSH password '
+                        + '(unsafe!):|||{0}'.format(password)
+                    )
                 else:
                     private = cred_params.get('private', '')
-                    cred_prefs_list.append(OID_SSH_AUTH + ':2:'+
-                                           'password:SSH key passphrase:|||' +
-                                           '{0}'.format(password))
-                    cred_prefs_list.append(OID_SSH_AUTH + ':4:' +
-                                           'file:SSH private key:|||' +
-                                           '{0}'.format(private))
+                    cred_prefs_list.append(
+                        OID_SSH_AUTH
+                        + ':2:'
+                        + 'password:SSH key passphrase:|||'
+                        + '{0}'.format(password)
+                    )
+                    cred_prefs_list.append(
+                        OID_SSH_AUTH
+                        + ':4:'
+                        + 'file:SSH private key:|||'
+                        + '{0}'.format(private)
+                    )
             if service == 'smb':
-                cred_prefs_list.append(OID_SMB_AUTH + ':1:entry' +
-                                       ':SMB login:|||{0}'.format(username))
-                cred_prefs_list.append(OID_SMB_AUTH + ':2:' +
-                                       'password]:SMB password :|||' +
-                                       '{0}'.format(password))
+                cred_prefs_list.append(
+                    OID_SMB_AUTH
+                    + ':1:entry'
+                    + ':SMB login:|||{0}'.format(username)
+                )
+                cred_prefs_list.append(
+                    OID_SMB_AUTH
+                    + ':2:'
+                    + 'password]:SMB password :|||'
+                    + '{0}'.format(password)
+                )
             if service == 'esxi':
-                cred_prefs_list.append(OID_ESXI_AUTH + ':1:entry:' +
-                                       'ESXi login name:|||' +
-                                       '{0}'.format(username))
-                cred_prefs_list.append(OID_ESXI_AUTH + ':2:' +
-                                       'password:ESXi login password:|||' +
-                                       '{0}'.format(password))
+                cred_prefs_list.append(
+                    OID_ESXI_AUTH
+                    + ':1:entry:'
+                    + 'ESXi login name:|||'
+                    + '{0}'.format(username)
+                )
+                cred_prefs_list.append(
+                    OID_ESXI_AUTH
+                    + ':2:'
+                    + 'password:ESXi login password:|||'
+                    + '{0}'.format(password)
+                )
 
             if service == 'snmp':
                 community = cred_params.get('community', '')
@@ -1009,24 +1077,40 @@ class OSPDopenvas(OSPDaemon):
                 privacy_password = cred_params.get('privacy_password', '')
                 privacy_algorithm = cred_params.get('privacy_algorithm', '')
 
-                cred_prefs_list.append(OID_SNMP_AUTH + ':1:' +
-                                       'password:SNMP Community:' +
-                                       '{0}'.format(community))
-                cred_prefs_list.append(OID_SNMP_AUTH + ':2:' +
-                                       'entry:SNMPv3 Username:' +
-                                       '{0}'.format(username))
-                cred_prefs_list.append(OID_SNMP_AUTH + ':3:'
-                                       'password:SNMPv3 Password:' +
-                                       '{0}'.format(password))
-                cred_prefs_list.append(OID_SNMP_AUTH + ':4:' +
-                                       'radio:SNMPv3 Authentication ' +
-                                       'Algorithm:{0}'.format(auth_algorithm))
-                cred_prefs_list.append(OID_SNMP_AUTH + ':5:' +
-                                       'password:SNMPv3 Privacy Password:' +
-                                       '{0}'.format(privacy_password))
-                cred_prefs_list.append(OID_SNMP_AUTH + ':6:' +
-                                       'radio:SNMPv3 Privacy Algorithm:' +
-                                       '{0}'.format(privacy_algorithm))
+                cred_prefs_list.append(
+                    OID_SNMP_AUTH
+                    + ':1:'
+                    + 'password:SNMP Community:'
+                    + '{0}'.format(community)
+                )
+                cred_prefs_list.append(
+                    OID_SNMP_AUTH
+                    + ':2:'
+                    + 'entry:SNMPv3 Username:'
+                    + '{0}'.format(username)
+                )
+                cred_prefs_list.append(
+                    OID_SNMP_AUTH + ':3:'
+                    'password:SNMPv3 Password:' + '{0}'.format(password)
+                )
+                cred_prefs_list.append(
+                    OID_SNMP_AUTH
+                    + ':4:'
+                    + 'radio:SNMPv3 Authentication '
+                    + 'Algorithm:{0}'.format(auth_algorithm)
+                )
+                cred_prefs_list.append(
+                    OID_SNMP_AUTH
+                    + ':5:'
+                    + 'password:SNMPv3 Privacy Password:'
+                    + '{0}'.format(privacy_password)
+                )
+                cred_prefs_list.append(
+                    OID_SNMP_AUTH
+                    + ':6:'
+                    + 'radio:SNMPv3 Privacy Algorithm:'
+                    + '{0}'.format(privacy_algorithm)
+                )
 
         return cred_prefs_list
 
@@ -1035,17 +1119,24 @@ class OSPDopenvas(OSPDaemon):
         if self.pending_feed:
             logger.info(
                 '%s: There is a pending feed update. '
-                'The scan can not be started.' % scan_id)
+                'The scan can not be started.' % scan_id
+            )
             self.add_scan_error(
-                scan_id, name='', host=target,
-                value=('It was not possible to start the scan,'
-                'because a pending feed update. Please try later'))
+                scan_id,
+                name='',
+                host=target,
+                value=(
+                    'It was not possible to start the scan,'
+                    'because a pending feed update. Please try later'
+                ),
+            )
             return 2
 
         ports = self.get_scan_ports(scan_id, target)
         if not ports:
-            self.add_scan_error(scan_id, name='', host=target,
-                                value='No port list defined.')
+            self.add_scan_error(
+                scan_id, name='', host=target, value='No port list defined.'
+            )
             return 2
 
         # Get scan options
@@ -1059,9 +1150,11 @@ class OSPDopenvas(OSPDaemon):
         # new uuid is used internally for each scan.
         openvas_scan_id = str(uuid.uuid4())
         self.openvas_db.add_single_item(
-            'internal/%s' % openvas_scan_id, ['new'])
+            'internal/%s' % openvas_scan_id, ['new']
+        )
         self.openvas_db.add_single_item(
-            'internal/%s/globalscanid' % scan_id, [openvas_scan_id])
+            'internal/%s/globalscanid' % scan_id, [openvas_scan_id]
+        )
 
         exclude_hosts = self.get_scan_exclude_hosts(scan_id, target)
         if exclude_hosts:
@@ -1085,33 +1178,38 @@ class OSPDopenvas(OSPDaemon):
             if key in OSPD_PARAMS:
                 item_type = OSPD_PARAMS[key].get('type')
             if item_type == 'boolean':
-                val =  _from_bool_to_str(value)
+                val = _from_bool_to_str(value)
             else:
                 val = str(value)
             prefs_val.append(key + "|||" + val)
         self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, prefs_val)
+            'internal/%s/scanprefs' % openvas_scan_id, prefs_val
+        )
 
         # Store main_kbindex as global preference
-        ov_maindbid = ('ov_maindbid|||%d' % self.main_kbindex)
+        ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
         self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, [ov_maindbid])
+            'internal/%s/scanprefs' % openvas_scan_id, [ov_maindbid]
+        )
 
         # Set target
-        target_aux = ('TARGET|||%s' % target)
+        target_aux = 'TARGET|||%s' % target
         self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, [target_aux])
+            'internal/%s/scanprefs' % openvas_scan_id, [target_aux]
+        )
         # Set port range
-        port_range = ('port_range|||%s' % ports)
+        port_range = 'port_range|||%s' % ports
         self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, [port_range])
+            'internal/%s/scanprefs' % openvas_scan_id, [port_range]
+        )
 
         # Set credentials
         credentials = self.get_scan_credentials(scan_id, target)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             self.openvas_db.add_single_item(
-                'internal/%s/scanprefs' % openvas_scan_id, cred_prefs)
+                'internal/%s/scanprefs' % openvas_scan_id, cred_prefs
+            )
 
         # Set plugins to run
         nvts = self.get_scan_vts(scan_id)
@@ -1121,24 +1219,30 @@ class OSPDopenvas(OSPDaemon):
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
             self.openvas_db.add_single_item(
-                'internal/%s/scanprefs' % openvas_scan_id, [plugin_list])
+                'internal/%s/scanprefs' % openvas_scan_id, [plugin_list]
+            )
             # Add nvts parameters
             for elem in nvts_params:
                 item = '%s|||%s' % (elem[0], elem[1])
                 self.openvas_db.add_single_item(
-                    'internal/%s/scanprefs' % openvas_scan_id, [item])
+                    'internal/%s/scanprefs' % openvas_scan_id, [item]
+                )
         else:
             self.openvas_db.release_db(self.main_kbindex)
-            self.add_scan_error(scan_id, name='', host=target,
-                                value='No VTS to run.')
+            self.add_scan_error(
+                scan_id, name='', host=target, value='No VTS to run.'
+            )
             return 2
 
         # Create a general log entry about executing OpenVAS
         # It is important to send at least one result, otherwise
         # the host details won't be stored.
-        self.add_scan_log(scan_id, host=target, name='OpenVAS summary',
-                          value='An OpenVAS Scanner was started for %s.'
-                          % target)
+        self.add_scan_log(
+            scan_id,
+            host=target,
+            name='OpenVAS summary',
+            value='An OpenVAS Scanner was started for %s.' % target,
+        )
 
         cmd = ['sudo', 'openvas', '--scan-start', openvas_scan_id]
         if self._niceness is not None:
@@ -1150,7 +1254,7 @@ class OSPDopenvas(OSPDaemon):
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
             # the command is not available
-            print ("Estoy en el except")
+            print("Estoy en el except")
             return False
 
         ovas_pid = result.pid
@@ -1158,12 +1262,17 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db.add_single_item('internal/ovas_pid', [ovas_pid])
 
         # Wait until the scanner starts and loads all the preferences.
-        while self.openvas_db.get_single_item('internal/'+ openvas_scan_id) == 'new':
+        while (
+            self.openvas_db.get_single_item('internal/' + openvas_scan_id)
+            == 'new'
+        ):
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
-                msg = 'It was not possible run the task %s, since openvas ended ' \
-                      'unexpectedly with errors during launching.' % scan_id
+                msg = (
+                    'It was not possible run the task %s, since openvas ended '
+                    'unexpectedly with errors during launching.' % scan_id
+                )
                 logger.error(msg)
                 return 1
             time.sleep(1)
@@ -1193,11 +1302,15 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_timestamp_scan_host(scan_id, current_host)
                     if self.scan_is_finished(openvas_scan_id):
                         self.set_scan_host_finished(
-                            scan_id, target, current_host)
+                            scan_id, target, current_host
+                        )
                         self.get_openvas_status(scan_id, target, current_host)
-                        self.get_openvas_timestamp_scan_host(scan_id, current_host)
+                        self.get_openvas_timestamp_scan_host(
+                            scan_id, current_host
+                        )
                         self.openvas_db.select_kb(
-                            ctx, str(self.main_kbindex), set_global=False)
+                            ctx, str(self.main_kbindex), set_global=False
+                        )
                         self.openvas_db.remove_list_item('internal/dbindex', i)
                         self.openvas_db.release_db(i)
 
