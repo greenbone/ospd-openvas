@@ -203,7 +203,7 @@ class OSPDaemon(object):
         certfile,
         keyfile,
         cafile,
-        niceness=None,
+        niceness=None,  # pylint: disable=unused-argument
         customvtfilter=None,
         wrapper_logger=None,
     ):
@@ -242,7 +242,7 @@ class OSPDaemon(object):
         else:
             self.vts_filter = VtsFilter()
         if wrapper_logger:
-            global logger
+            global logger  # pylint: disable=global-statement
             logger = wrapper_logger
 
     def set_command_attributes(self, name, attributes):
@@ -826,7 +826,7 @@ class OSPDaemon(object):
         except OSPDError as exception:
             response = exception.as_xml()
             logger.debug('Command error: %s', exception.message)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.exception('While handling client command:')
             exception = OSPDError('Fatal error', 'error')
             response = exception.as_xml()
@@ -854,7 +854,7 @@ class OSPDaemon(object):
                 )
             else:
                 logger.debug('%s: No host status returned', target)
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             self.add_scan_error(
                 scan_id,
                 name='',
@@ -1224,7 +1224,9 @@ class OSPDaemon(object):
         return response
 
     @staticmethod
-    def get_custom_vt_as_xml_str(vt_id, custom):
+    def get_custom_vt_as_xml_str(
+        vt_id, custom
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         custom data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1238,7 +1240,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_id, vt_params):
+    def get_params_vt_as_xml_str(
+        vt_id, vt_params
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_params data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1252,7 +1256,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_id, vt_refs):
+    def get_refs_vt_as_xml_str(
+        vt_id, vt_refs
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         refs data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1266,7 +1272,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(vt_id, vt_dependencies):
+    def get_dependencies_vt_as_xml_str(
+        vt_id, vt_dependencies
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_dependencies data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1280,7 +1288,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(vt_id, vt_creation_time):
+    def get_creation_time_vt_as_xml_str(
+        vt_id, vt_creation_time
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_creation_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1294,7 +1304,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(vt_id, vt_modification_time):
+    def get_modification_time_vt_as_xml_str(
+        vt_id, vt_modification_time
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_modification_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1308,7 +1320,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_summary_vt_as_xml_str(vt_id, summary):
+    def get_summary_vt_as_xml_str(
+        vt_id, summary
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         summary data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1322,7 +1336,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_impact_vt_as_xml_str(vt_id, impact):
+    def get_impact_vt_as_xml_str(
+        vt_id, impact
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         impact data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1336,7 +1352,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_affected_vt_as_xml_str(vt_id, affected):
+    def get_affected_vt_as_xml_str(
+        vt_id, affected
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         affected data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1350,7 +1368,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_insight_vt_as_xml_str(vt_id, insight):
+    def get_insight_vt_as_xml_str(
+        vt_id, insight
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         insight data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1364,7 +1384,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
+    def get_solution_vt_as_xml_str(
+        vt_id, solution, solution_type=None
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         solution data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1380,7 +1402,7 @@ class OSPDaemon(object):
     @staticmethod
     def get_detection_vt_as_xml_str(
         vt_id, detection=None, qod_type=None, qod=None
-    ):
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         detection data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1394,7 +1416,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_severities_vt_as_xml_str(vt_id, severities):
+    def get_severities_vt_as_xml_str(
+        vt_id, severities
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         severities data object.
         This needs to be implemented by each ospd wrapper, in case

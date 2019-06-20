@@ -63,7 +63,7 @@ SSH_SCANNER_PARAMS = {
     },
 }
 
-
+# pylint: disable=abstract-method
 class OSPDaemonSimpleSSH(OSPDaemon):
 
     """
