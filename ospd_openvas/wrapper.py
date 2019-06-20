@@ -429,7 +429,7 @@ class OSPDopenvas(OSPDaemon):
                 _severity_vector = _custom.pop('cvss_base_vector')
             _severity['severity_base_vector'] = _severity_vector
             if 'severity_type' in _custom:
-                _severity_type = custom.pop('severity_type')
+                _severity_type = _custom.pop('severity_type')
             else:
                 _severity_type = 'cvss_base_v2'
             _severity['severity_type'] = _severity_type
