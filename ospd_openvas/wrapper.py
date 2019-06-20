@@ -909,7 +909,7 @@ class OSPDopenvas(OSPDaemon):
                 parent = None
                 try:
                     parent = psutil.Process(int(ovas_pid))
-                except psutil._exceptions.NoSuchProcess:
+                except psutil.NoSuchProcess:
                     logger.debug(
                         'Process with pid %s already stopped', ovas_pid
                     )
