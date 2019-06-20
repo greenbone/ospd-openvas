@@ -54,7 +54,7 @@ class VtsFilter(object):
         filter_list = vt_filter.split(';')
         filters = list()
         for single_filter in filter_list:
-            filter_aux = re.split('(\W)', single_filter, 1)
+            filter_aux = re.split(r'(\W)', single_filter, 1)
             if len(filter_aux) < 3:
                 raise OSPDError(
                     "Invalid number of argument in the filter", "get_vts"
