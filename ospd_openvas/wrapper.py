@@ -384,7 +384,7 @@ class OSPDopenvas(OSPDaemon):
         global  dictionary. """
         logger.debug('Loading vts in memory.')
         oids = dict(self.nvti.get_oids())
-        for filename, vt_id in oids.items():
+        for _filename, vt_id in oids.items():
             _vt_params = self.nvti.get_nvt_params(vt_id)
             _vt_refs = self.nvti.get_nvt_refs(vt_id)
             _custom = self.nvti.get_nvt_metadata(vt_id)
@@ -520,7 +520,7 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         vt_params_xml = Element('params')
-        for pref_name, prefs in vt_params.items():
+        for _pref_name, prefs in vt_params.items():
             vt_param = Element('param')
             vt_param.set('type', prefs['type'])
             vt_param.set('id', prefs['id'])
