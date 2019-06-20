@@ -80,10 +80,10 @@ commands:
             pipenv run pylint --score=n --disable=R ospd
 
 jobs:
-  # lint-python-files:
-  #   executor: python-36
-  #   steps:
-  #     - lint
+  lint-python-files:
+    executor: python-36
+    steps:
+      - lint
   build-35:
     executor: python-35
     steps:
