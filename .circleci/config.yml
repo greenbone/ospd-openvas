@@ -42,7 +42,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pipenv install --dev
+            pipenv install
             pipenv install -e git+https://github.com/greenbone/ospd.git#egg=ospd
       - save_cache:
           paths:
