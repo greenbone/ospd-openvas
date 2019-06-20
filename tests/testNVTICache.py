@@ -51,7 +51,7 @@ class TestNVTICache(TestCase):
         tags = 'tag1'
         with patch.object(logger, 'error', return_value=None) as log:
             ret = self.nvti._parse_metadata_tags(tags, '1.2.3')
-        log.assert_called_with('Tag tag1 in 1.2.3 has no value.')
+        log.assert_called_with('Tag %s in %s has no value.', 'tag1', '1.2.3')
         self.assertEqual(ret, {})
 
     def test_get_nvt_params(self, mock_redis):
