@@ -313,7 +313,7 @@ class OSPDopenvas(OSPDaemon):
             logger.debug('Loading NVTs in Redis DB')
             subprocess.check_call(['openvas', '--update-vt-info'])
         except subprocess.CalledProcessError as err:
-            logger.error('OpenVAS Scanner failed to load NVTs. %s' % err)
+            logger.error('OpenVAS Scanner failed to load NVTs. %s', err)
 
     def feed_is_outdated(self, current_feed):
         """ Compare the current feed with the one in the disk.
@@ -463,9 +463,9 @@ class OSPDopenvas(OSPDaemon):
                 severities=_severity,
             )
             if ret == -1:
-                logger.info("Duplicated VT with OID: {0}".format(vt_id))
+                logger.info("Duplicated VT with OID: %s", vt_id)
             if ret == -2:
-                logger.info("{0}: Invalid OID.".format(vt_id))
+                logger.info("%s: Invalid OID.", vt_id)
 
         _feed_version = self.nvti.get_feed_version()
         self.set_vts_version(vts_version=_feed_version)
@@ -551,8 +551,9 @@ class OSPDopenvas(OSPDaemon):
                             _type, _id = xref.split(':', 1)
                         except ValueError:
                             logger.error(
-                                'Not possible to parse xref %s for vt %s'
-                                % (xref, vt_id)
+                                'Not possible to parse xref %s for vt %s',
+                                xref,
+                                vt_id,
                             )
                             continue
                         vt_ref.set('type', _type.lower())
@@ -582,7 +583,7 @@ class OSPDopenvas(OSPDaemon):
                 _vt_dep.set('vt_id', dep)
             except TypeError:
                 logger.error(
-                    'Not possible to add dependency %s for vt %s' % (dep, vt_id)
+                    'Not possible to add dependency %s for vt %s', dep, vt_id
                 )
                 continue
             vt_deps_xml.append(_vt_dep)
@@ -901,12 +902,12 @@ class OSPDopenvas(OSPDaemon):
                     parent = psutil.Process(int(ovas_pid))
                 except psutil._exceptions.NoSuchProcess:
                     logger.debug(
-                        'Process with pid {0} already stopped'.format(ovas_pid)
+                        'Process with pid %s already stopped', ovas_pid
                     )
                 self.openvas_db.release_db(current_kbi)
                 if parent:
                     parent.send_signal(signal.SIGUSR2)
-                    logger.debug('Stopping process: {0}'.format(parent))
+                    logger.debug('Stopping process: %s', parent)
 
     def get_vts_in_groups(self, filters):
         """ Return a list of vts which match with the given filter.
@@ -989,9 +990,9 @@ class OSPDopenvas(OSPDaemon):
                     type_aux = param_type
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
-                        'Expected {} type for parameter value {}'.format(
-                            type_aux, str(vt_param_value)
-                        )
+                        'Expected %s type for parameter value %s',
+                        type_aux,
+                        str(vt_param_value),
                     )
                 param = [
                     "{0}:{1}:{2}".format(vtid, param_type, vt_param_id),
@@ -1120,7 +1121,8 @@ class OSPDopenvas(OSPDaemon):
         if self.pending_feed:
             logger.info(
                 '%s: There is a pending feed update. '
-                'The scan can not be started.' % scan_id
+                'The scan can not be started.',
+                scan_id,
             )
             self.add_scan_error(
                 scan_id,
@@ -1250,7 +1252,7 @@ class OSPDopenvas(OSPDaemon):
             cmd_nice = ['nice', '-n', self._niceness]
             cmd_nice.extend(cmd)
             cmd = cmd_nice
-        logger.debug("Running scan with niceness %s" % self._niceness)
+        logger.debug("Running scan with niceness %s", self._niceness)
         try:
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
@@ -1259,7 +1261,7 @@ class OSPDopenvas(OSPDaemon):
             return False
 
         ovas_pid = result.pid
-        logger.debug('pid = {0}'.format(ovas_pid))
+        logger.debug('pid = %s', ovas_pid)
         self.openvas_db.add_single_item('internal/ovas_pid', [ovas_pid])
 
         # Wait until the scanner starts and loads all the preferences.
