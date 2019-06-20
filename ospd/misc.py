@@ -653,7 +653,7 @@ def target_str_to_list(target_str):
         if target_list:
             new_list.extend(target_list)
         else:
-            LOGGER.info("{0}: Invalid target value".format(target))
+            LOGGER.info("%s: Invalid target value", target)
             return None
     return list(collections.OrderedDict.fromkeys(new_list))
 
@@ -960,7 +960,7 @@ def go_to_background():
         if os.fork():
             sys.exit()
     except OSError as errmsg:
-        LOGGER.error('Fork failed: {0}'.format(errmsg))
+        LOGGER.error('Fork failed: %s', errmsg)
         sys.exit('Fork failed')
 
 
