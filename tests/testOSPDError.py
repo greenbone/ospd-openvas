@@ -23,8 +23,8 @@ import unittest
 
 from ospd.ospd import OSPDError
 
+
 class testOSPDError(unittest.TestCase):
-    
     def testDefaultParams(self):
         e = OSPDError('message')
         self.assertEqual('message', e.message)
@@ -40,5 +40,5 @@ class testOSPDError(unittest.TestCase):
     def testasXML(self):
         e = OSPDError('message')
         self.assertEqual(
-            b'<osp_response status="400" status_text="message" />',
-            e.as_xml())
+            b'<osp_response status="400" status_text="message" />', e.as_xml()
+        )

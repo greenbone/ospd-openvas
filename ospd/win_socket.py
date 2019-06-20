@@ -10,11 +10,14 @@ import ctypes
 
 
 class sockaddr(ctypes.Structure):
-    _fields_ = [("sa_family", ctypes.c_short),
-                ("__pad1", ctypes.c_ushort),
-                ("ipv4_addr", ctypes.c_byte * 4),
-                ("ipv6_addr", ctypes.c_byte * 16),
-                ("__pad2", ctypes.c_ulong)]
+    _fields_ = [
+        ("sa_family", ctypes.c_short),
+        ("__pad1", ctypes.c_ushort),
+        ("ipv4_addr", ctypes.c_byte * 4),
+        ("ipv6_addr", ctypes.c_byte * 16),
+        ("__pad2", ctypes.c_ulong),
+    ]
+
 
 WSAStringToAddressA = ctypes.windll.ws2_32.WSAStringToAddressA
 WSAAddressToStringA = ctypes.windll.ws2_32.WSAAddressToStringA
@@ -25,7 +28,16 @@ def inet_pton(address_family, ip_string):
     addr.sa_family = address_family
     addr_size = ctypes.c_int(ctypes.sizeof(addr))
 
-    if WSAStringToAddressA(ip_string, address_family, None, ctypes.byref(addr), ctypes.byref(addr_size)) != 0:
+    if (
+        WSAStringToAddressA(
+            ip_string,
+            address_family,
+            None,
+            ctypes.byref(addr),
+            ctypes.byref(addr_size),
+        )
+        != 0
+    ):
         raise socket.error(ctypes.FormatError())
 
     if address_family == socket.AF_INET:
@@ -54,7 +66,16 @@ def inet_ntop(address_family, packed_ip):
     else:
         raise socket.error('unknown address family')
 
-    if WSAAddressToStringA(ctypes.byref(addr), addr_size, None, ip_string, ctypes.byref(ip_string_size)) != 0:
+    if (
+        WSAAddressToStringA(
+            ctypes.byref(addr),
+            addr_size,
+            None,
+            ip_string,
+            ctypes.byref(ip_string_size),
+        )
+        != 0
+    ):
         raise socket.error(ctypes.FormatError())
 
-    return ip_string[:ip_string_size.value - 1]
+    return ip_string[: ip_string_size.value - 1]

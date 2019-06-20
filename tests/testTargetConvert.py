@@ -24,8 +24,8 @@ import unittest
 from ospd.misc import target_str_to_list
 from ospd.misc import get_hostname_by_address
 
-class testTargetLists(unittest.TestCase):
 
+class testTargetLists(unittest.TestCase):
     def test24Net(self):
         addresses = target_str_to_list('195.70.81.0/24')
         self.assertFalse(addresses is None)

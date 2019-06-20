@@ -28,6 +28,7 @@ from __future__ import absolute_import
 from ospd.ospd import OSPDaemon
 
 import socket
+
 try:
     import paramiko
 except ImportError:
@@ -40,10 +41,10 @@ SSH_SCANNER_PARAMS = {
         'default': '',
         'mandatory': 0,
         'description': 'The SSH credentials in username:password format. Used'
-                       ' to log into the target and to run the commands on'
-                       ' that target. This should not be a privileged user'
-                       ' like "root", a regular privileged user account'
-                       ' should be sufficient in most cases.',
+        ' to log into the target and to run the commands on'
+        ' that target. This should not be a privileged user'
+        ' like "root", a regular privileged user account'
+        ' should be sufficient in most cases.',
     },
     'port': {
         'type': 'integer',
@@ -51,7 +52,7 @@ SSH_SCANNER_PARAMS = {
         'default': 22,
         'mandatory': 0,
         'description': 'The SSH port which to use for logging in with the'
-                       ' given username_password.',
+        ' given username_password.',
     },
     'ssh_timeout': {
         'type': 'integer',
@@ -80,18 +81,20 @@ class OSPDaemonSimpleSSH(OSPDaemon):
     def __init__(self, certfile, keyfile, cafile, niceness=None):
         """ Initializes the daemon and add parameters needed to remote SSH execution. """
 
-        super(OSPDaemonSimpleSSH, self).__init__(certfile=certfile, keyfile=keyfile,
-                                                 cafile=cafile, niceness=niceness)
+        super(OSPDaemonSimpleSSH, self).__init__(
+            certfile=certfile, keyfile=keyfile, cafile=cafile, niceness=niceness
+        )
 
         self._niceness = niceness
 
         if paramiko is None:
-            raise ImportError('paramiko needs to be installed in order to use'
-                              ' the %s class.' % self.__class__.__name__)
+            raise ImportError(
+                'paramiko needs to be installed in order to use'
+                ' the %s class.' % self.__class__.__name__
+            )
 
         for name, param in SSH_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
-
 
     def run_command(self, scan_id, host, cmd):
         """
@@ -117,8 +120,10 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         # On the third case it receives the credentials as a subelement of
         # the <target>.
         credentials = self.get_scan_credentials(scan_id, host)
-        if ('username_password' in options and
-                ':' in options['username_password']):
+        if (
+            'username_password' in options
+            and ':' in options['username_password']
+        ):
             username, password = options['username_password'].split(':', 1)
         elif 'username' in options and options['username']:
             username = options['username']
@@ -128,15 +133,23 @@ class OSPDaemonSimpleSSH(OSPDaemon):
             username = cred_params.get('username', '')
             password = cred_params.get('password', '')
         else:
-            self.add_scan_error(scan_id, host=host,
-                                value='Erroneous username_password value')
+            self.add_scan_error(
+                scan_id, host=host, value='Erroneous username_password value'
+            )
             raise ValueError('Erroneous username_password value')
 
         try:
-            ssh.connect(hostname=host, username=username, password=password,
-                        timeout=timeout, port=port)
-        except (paramiko.ssh_exception.AuthenticationException,
-                socket.error) as err:
+            ssh.connect(
+                hostname=host,
+                username=username,
+                password=password,
+                timeout=timeout,
+                port=port,
+            )
+        except (
+            paramiko.ssh_exception.AuthenticationException,
+            socket.error,
+        ) as err:
             # Errors: No route to host, connection timeout, authentication
             # failure etc,.
             self.add_scan_error(scan_id, host=host, value=str(err))

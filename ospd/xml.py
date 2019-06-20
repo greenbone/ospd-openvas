@@ -22,6 +22,7 @@
 from xml.etree.ElementTree import tostring, Element, SubElement
 from ospd.misc import ResultType
 
+
 def get_result_xml(result):
     """ Formats a scan result to XML format.
 
@@ -32,14 +33,16 @@ def get_result_xml(result):
         Result as xml element object.
     """
     result_xml = Element('result')
-    for name, value in [('name', result['name']),
-                        ('type', ResultType.get_str(result['type'])),
-                        ('severity', result['severity']),
-                        ('host', result['host']),
-                        ('hostname', result['hostname']),
-                        ('test_id', result['test_id']),
-                        ('port', result['port']),
-                        ('qod', result['qod'])]:
+    for name, value in [
+        ('name', result['name']),
+        ('type', ResultType.get_str(result['type'])),
+        ('severity', result['severity']),
+        ('host', result['host']),
+        ('hostname', result['hostname']),
+        ('test_id', result['test_id']),
+        ('port', result['port']),
+        ('qod', result['qod']),
+    ]:
         result_xml.set(name, str(value))
     result_xml.text = result['value']
     return result_xml

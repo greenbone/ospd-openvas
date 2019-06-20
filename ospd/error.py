@@ -21,6 +21,7 @@
 
 from ospd.xml import simple_response_str, get_result_xml
 
+
 class OSPDError(Exception):
 
     """ This is an exception that will result in an error message to the

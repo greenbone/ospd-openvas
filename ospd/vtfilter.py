@@ -22,6 +22,7 @@ import re
 import operator
 from ospd.error import OSPDError
 
+
 class VtsFilter(object):
     """ Helper class to filter Vulnerability Tests """
 
@@ -55,7 +56,9 @@ class VtsFilter(object):
         for single_filter in filter_list:
             filter_aux = re.split('(\W)', single_filter, 1)
             if len(filter_aux) < 3:
-                raise OSPDError("Invalid number of argument in the filter", "get_vts")
+                raise OSPDError(
+                    "Invalid number of argument in the filter", "get_vts"
+                )
             _element, _oper, _val = filter_aux
             if _element not in self.allowed_filter:
                 raise OSPDError("Invalid filter element", "get_vts")

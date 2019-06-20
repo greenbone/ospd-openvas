@@ -24,7 +24,6 @@ from ospd.cvss import CVSS
 
 
 class FullTest(unittest.TestCase):
-
     def testcvssv2(self):
         vector = 'AV:A/AC:L/Au:S/C:P/I:P/A:P'
         cvss_base = CVSS.cvss_base_v2_value(vector)
