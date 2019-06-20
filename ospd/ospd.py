@@ -934,7 +934,8 @@ class OSPDaemon(object):
                 )
                 time.sleep(1)
 
-            # If the scan status is stopped, does not launch anymore target scans
+            # If the scan status is stopped, does not launch anymore target
+            # scans
             if self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 return
 
