@@ -20,7 +20,7 @@
 
 import math
 
-cvss_v2_metrics = {
+CVSS_V2_METRICS = {
     'AV': {'L': 0.395, 'A': 0.646, 'N': 1.0},
     'AC': {'H': 0.35, 'M': 0.61, 'L': 0.71},
     'Au': {'M': 0.45, 'S': 0.56, 'N': 0.704},
@@ -29,7 +29,7 @@ cvss_v2_metrics = {
     'A': {'N': 0.0, 'P': 0.275, 'C': 0.660},
 }
 
-cvss_v3_metrics = {
+CVSS_V3_METRICS = {
     'AV': {'N': 0.85, 'A': 0.62, 'L': 0.55, 'P': 0.2},
     'AC': {'L': 0.77, 'H': 0.44},
     'PR_SU': {'N': 0.85, 'L': 0.62, 'H': 0.27},
@@ -80,16 +80,16 @@ class CVSS(object):
 
         _impact = 10.41 * (
             1
-            - (1 - cvss_v2_metrics['C'].get(_c))
-            * (1 - cvss_v2_metrics['I'].get(_i))
-            * (1 - cvss_v2_metrics['A'].get(_a))
+            - (1 - CVSS_V2_METRICS['C'].get(_c))
+            * (1 - CVSS_V2_METRICS['I'].get(_i))
+            * (1 - CVSS_V2_METRICS['A'].get(_a))
         )
 
         _exploitability = (
             20
-            * cvss_v2_metrics['AV'].get(_av)
-            * cvss_v2_metrics['AC'].get(_ac)
-            * cvss_v2_metrics['Au'].get(_au)
+            * CVSS_V2_METRICS['AV'].get(_av)
+            * CVSS_V2_METRICS['AC'].get(_ac)
+            * CVSS_V2_METRICS['Au'].get(_au)
         )
 
         f_impact = 0 if _impact == 0 else 1.176
@@ -113,25 +113,25 @@ class CVSS(object):
             cvss_base_vector
         )
 
-        scope_changed = cvss_v3_metrics['S'].get(_s)
+        scope_changed = CVSS_V3_METRICS['S'].get(_s)
 
         isc_base = 1 - (
-            (1 - cvss_v3_metrics['C'].get(_c))
-            * (1 - cvss_v3_metrics['I'].get(_i))
-            * (1 - cvss_v3_metrics['A'].get(_a))
+            (1 - CVSS_V3_METRICS['C'].get(_c))
+            * (1 - CVSS_V3_METRICS['I'].get(_i))
+            * (1 - CVSS_V3_METRICS['A'].get(_a))
         )
 
         if scope_changed:
-            _priv_req = cvss_v3_metrics['PR_SC'].get(_pr)
+            _priv_req = CVSS_V3_METRICS['PR_SC'].get(_pr)
         else:
-            _priv_req = cvss_v3_metrics['PR_SU'].get(_pr)
+            _priv_req = CVSS_V3_METRICS['PR_SU'].get(_pr)
 
         _exploitability = (
             8.22
-            * cvss_v3_metrics['AV'].get(_av)
-            * cvss_v3_metrics['AC'].get(_ac)
+            * CVSS_V3_METRICS['AV'].get(_av)
+            * CVSS_V3_METRICS['AC'].get(_ac)
             * _priv_req
-            * cvss_v3_metrics['UI'].get(_ui)
+            * CVSS_V3_METRICS['UI'].get(_ui)
         )
 
         if scope_changed:
