@@ -817,7 +817,7 @@ def port_list_compress(port_list):
 
     port_list = sorted(set(port_list))
     compressed_list = []
-    for key, group in itertools.groupby(
+    for _key, group in itertools.groupby(
         enumerate(port_list), lambda t: t[1] - t[0]
     ):
         group = list(group)

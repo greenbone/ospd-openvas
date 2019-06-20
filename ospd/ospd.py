@@ -925,7 +925,7 @@ class OSPDaemon(object):
 
         self.process_exclude_hosts(scan_id, target_list)
 
-        for index, target in enumerate(target_list):
+        for _index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
                 progress = self.calculate_progress(scan_id)
                 self.set_scan_progress(scan_id, progress)
