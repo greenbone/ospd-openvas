@@ -287,7 +287,6 @@ class OSPDopenvas(OSPDaemon):
 
     def parse_param(self):
         """ Set OSPD_PARAMS with the params taken from the openvas_scanner. """
-        global OSPD_PARAMS
         bool_dict = {'no': 0, 'yes': 1}
 
         result = subprocess.check_output(
