@@ -24,14 +24,15 @@ import subprocess
 import time
 import signal
 import uuid
-from lxml.etree import tostring, SubElement, Element
-from datetime import datetime
-import psutil
+
 from os import path
+
+from lxml.etree import tostring, SubElement, Element
+
+import psutil
 
 from ospd.ospd import OSPDaemon, logger
 from ospd.misc import main as daemon_main
-from ospd.misc import target_str_to_list
 from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
 from ospd_openvas import __version__

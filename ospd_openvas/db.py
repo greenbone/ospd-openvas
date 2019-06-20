@@ -19,14 +19,15 @@
 
 """ Access management for redis-based OpenVAS Scanner Database."""
 
-import redis
 import subprocess
-import time
 import sys
+import time
 
-from ospd_openvas.errors import OSPDOpenvasError
-from ospd_openvas.errors import RequiredArgument
+import redis
+
 from ospd.ospd import logger
+
+from ospd_openvas.errors import OSPDOpenvasError, RequiredArgument
 
 SOCKET_TIMEOUT = 60  # in seconds
 LIST_FIRST_POS = 0
