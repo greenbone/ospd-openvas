@@ -1,47 +1,122 @@
-version: 2
-jobs:
+version: 2.1
+
+executors:
+  python-35:
+    docker:
+      - image: circleci/python:3.5
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+  python-36:
+    docker:
+      - image: circleci/python:3.6
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+  python-37:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+
+commands:
   build:
-    docker:
-      - image: circleci/python:3.6.4
-    working_directory: ~/repo
+    description: "Download and build"
     steps:
       - checkout
-      - run:
-          name: Install OSPD
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install .
-  test:
-    docker:
-      - image: circleci/python:3.6.4
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: Install coverage.py and codecov
-          command: |
-            python3 -m venv venv
-            . venv/bin/activate
-            pip install coverage codecov
       - run:
           name: Install dependencies
           command: |
-            . venv/bin/activate
-            pip install .
+            pipenv install
+
+      - run:
+          name: Install ospd
+          command: |
+            pipenv run pip install .
+  test:
+    description: "Download and run tests"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pipenv install
+      - run:
+          name: Run unit tests
+          command: pipenv run python -m unittest
+  test-with-codecov:
+    description: "Download and run tests with code coverage"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
+      - run:
+          name: Install codecov
+          command: |
+            pipenv run pip install codecov
       - run:
           name: Run unit tests
           command: |
-            . venv/bin/activate
-            coverage run -m unittest
+            pipenv run coverage run -m unittest
       - run:
           name: Upload coverage to Codecov
+          command: pipenv run codecov
+  lint:
+    description: "Lint python files"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
+      - run:
+          name: Install pylint
           command: |
-            . venv/bin/activate
-            codecov
+            pipenv run pip install pylint
+      - run:
+          name: Run pylint
+          command: |
+            pipenv run pylint --score=n --disable=R ospd
+
+jobs:
+  # lint-python-files:
+  #   executor: python-36
+  #   steps:
+  #     - lint
+  build-35:
+    executor: python-35
+    steps:
+      - build
+  test-35:
+    executor: python-35
+    steps:
+      - test
+  build-36:
+    executor: python-36
+    steps:
+      - build
+  test-36:
+    executor: python-36
+    steps:
+      - test
+  build-37:
+    executor: python-37
+    steps:
+      - build
+  test-37:
+    executor: python-37
+    steps:
+      - test-with-codecov
+
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - test
+      # - lint-python-files
+      - build-35
+      - test-35
+      - build-36
+      - test-36
+      - build-37
+      - test-37
