@@ -295,7 +295,7 @@ class ScanCollection(object):
             t_prog = sum(host_progresses.values()) / total_hosts
         except ZeroDivisionError:
             LOGGER.error(
-                "Zero division error in ", get_target_progress.__name__
+                "Zero division error in %s", self.get_target_progress.__name__
             )
             raise
         return t_prog
