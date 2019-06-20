@@ -23,7 +23,7 @@ import unittest
 from unittest.mock import patch
 from ospd_openvas.wrapper import OSPD_PARAMS
 from tests.dummywrapper import DummyWrapper
-from  ospd_openvas.wrapper import OpenVasVtsFilter
+from ospd_openvas.wrapper import OpenVasVtsFilter
 from ospd_openvas.errors import OSPDOpenvasError
 
 OSPD_PARAMS_OUT = {
@@ -46,8 +46,8 @@ OSPD_PARAMS_OUT = {
         'name': 'checks_read_timeout',
         'default': 5,
         'mandatory': 1,
-        'description': 'Number  of seconds that the security checks will ' \
-                       'wait for when doing a recv()',
+        'description': 'Number  of seconds that the security checks will '
+        'wait for when doing a recv()',
     },
     'drop_privileges': {
         'type': 'boolean',
@@ -68,32 +68,32 @@ OSPD_PARAMS_OUT = {
         'name': 'non_simult_ports',
         'default': '22',
         'mandatory': 1,
-        'description': 'Prevent to make two connections on the same given ' \
-                       'ports at the same time.',
+        'description': 'Prevent to make two connections on the same given '
+        'ports at the same time.',
     },
     'open_sock_max_attempts': {
         'type': 'integer',
         'name': 'open_sock_max_attempts',
         'default': 5,
         'mandatory': 0,
-        'description': 'Number of unsuccessful retries to open the socket ' \
-                       'before to set the port as closed.',
+        'description': 'Number of unsuccessful retries to open the socket '
+        'before to set the port as closed.',
     },
     'timeout_retry': {
         'type': 'integer',
         'name': 'timeout_retry',
         'default': 5,
         'mandatory': 0,
-        'description': 'Number of retries when a socket connection attempt ' \
-                       'timesout.',
+        'description': 'Number of retries when a socket connection attempt '
+        'timesout.',
     },
     'optimize_test': {
         'type': 'integer',
         'name': 'optimize_test',
         'default': 5,
         'mandatory': 0,
-        'description': 'By default, openvas does not trust the remote ' \
-                       'host banners.',
+        'description': 'By default, openvas does not trust the remote '
+        'host banners.',
     },
     'plugins_timeout': {
         'type': 'integer',
@@ -114,8 +114,8 @@ OSPD_PARAMS_OUT = {
         'name': 'safe_checks',
         'default': 1,
         'mandatory': 1,
-        'description': 'Disable the plugins with potential to crash ' \
-                       'the remote services',
+        'description': 'Disable the plugins with potential to crash '
+        'the remote services',
     },
     'scanner_plugins_timeout': {
         'type': 'integer',
@@ -129,8 +129,8 @@ OSPD_PARAMS_OUT = {
         'name': 'time_between_request',
         'default': 0,
         'mandatory': 0,
-        'description': 'Allow to set a wait time between two actions ' \
-                       '(open, send, close).',
+        'description': 'Allow to set a wait time between two actions '
+        '(open, send, close).',
     },
     'unscanned_closed': {
         'type': 'boolean',
@@ -151,8 +151,8 @@ OSPD_PARAMS_OUT = {
         'name': 'use_mac_addr',
         'default': 0,
         'mandatory': 0,
-        'description': 'To test the local network. ' \
-                       'Hosts will be referred to by their MAC address.',
+        'description': 'To test the local network. '
+        'Hosts will be referred to by their MAC address.',
     },
     'vhosts': {
         'type': 'string',
@@ -174,7 +174,6 @@ OSPD_PARAMS_OUT = {
 @patch('ospd_openvas.db.OpenvasDB')
 @patch('ospd_openvas.nvticache.NVTICache')
 class TestOspdOpenvas(unittest.TestCase):
-
     @patch('ospd_openvas.wrapper.subprocess')
     def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = True
@@ -185,169 +184,187 @@ class TestOspdOpenvas(unittest.TestCase):
     @patch('ospd_openvas.wrapper.subprocess')
     def test_parse_param(self, mock_subproc, mock_nvti, mock_db):
 
-        mock_subproc.check_output.return_value = \
+        mock_subproc.check_output.return_value = (
             'non_simult_ports = 22\nplugins_folder = /foo/bar'.encode()
-        w =  DummyWrapper(mock_nvti, mock_db)
+        )
+        w = DummyWrapper(mock_nvti, mock_db)
         w.parse_param()
         self.assertEqual(mock_subproc.check_output.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
         self.assertEqual(w.scan_only_params.get('plugins_folder'), '/foo/bar')
 
     def test_load_vts(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
         self.maxDiff = None
         self.assertEqual(w.vts, w.VT)
 
     def test_get_custom_xml(self, mock_nvti, mock_db):
-        out = '<custom><required_ports>Services/www, 80</re' \
-              'quired_ports><category>3</category><' \
-              'excluded_keys>Settings/disable_cgi_s' \
-              'canning</excluded_keys><family>Produ' \
-              'ct detection</family><filename>manti' \
-              's_detect.nasl</filename><timeout>0</' \
-              'timeout></custom>'
-        w =  DummyWrapper(mock_nvti, mock_db)
+        out = (
+            '<custom><required_ports>Services/www, 80</re'
+            'quired_ports><category>3</category><'
+            'excluded_keys>Settings/disable_cgi_s'
+            'canning</excluded_keys><family>Produ'
+            'ct detection</family><filename>manti'
+            's_detect.nasl</filename><timeout>0</'
+            'timeout></custom>'
+        )
+        w = DummyWrapper(mock_nvti, mock_db)
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         res = w.get_custom_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061',
-            vt.get('custom'))
+            '1.3.6.1.4.1.25623.1.0.100061', vt.get('custom')
+        )
         self.assertEqual(len(res), len(out))
 
     def test_get_severities_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<severities><severity type="cvss_base_v2">' \
-              'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity></severities>'
-        vt =w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        w = DummyWrapper(mock_nvti, mock_db)
+        out = (
+            '<severities><severity type="cvss_base_v2">'
+            'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity></severities>'
+        )
+        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         severities = vt.get('severities')
         res = w.get_severities_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', severities)
+            '1.3.6.1.4.1.25623.1.0.100061', severities
+        )
 
         self.assertEqual(res, out)
 
     def test_get_params_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<params><param type="checkbox" id="2"><name>Do ' \
-              'not randomize the  order  in  which ports are scanned</name' \
-              '><default>no</default></param><param type="ent' \
-              'ry" id="1"><name>Data length :</name><' \
-              '/param></params>'
+        w = DummyWrapper(mock_nvti, mock_db)
+        out = (
+            '<params><param type="checkbox" id="2"><name>Do '
+            'not randomize the  order  in  which ports are scanned</name'
+            '><default>no</default></param><param type="ent'
+            'ry" id="1"><name>Data length :</name><'
+            '/param></params>'
+        )
 
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         params = vt.get('vt_params')
-        res = w.get_params_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', params)
+        res = w.get_params_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', params)
         self.assertEqual(len(res), len(out))
 
     def test_get_refs_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<refs><ref type="url" id="http://www.mantisbt.org/"/>' \
-              '</refs>'
+        w = DummyWrapper(mock_nvti, mock_db)
+        out = '<refs><ref type="url" id="http://www.mantisbt.org/"/>' '</refs>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         refs = vt.get('vt_refs')
-        res = w.get_refs_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', refs)
+        res = w.get_refs_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', refs)
 
         self.assertEqual(res, out)
 
     def test_get_dependencies_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<dependencies><dependency vt_id="1.2.3.4"/><dependency vt' \
-              '_id="4.3.2.1"/></dependencies>'
+        w = DummyWrapper(mock_nvti, mock_db)
+        out = (
+            '<dependencies><dependency vt_id="1.2.3.4"/><dependency vt'
+            '_id="4.3.2.1"/></dependencies>'
+        )
         dep = ['1.2.3.4', '4.3.2.1']
         res = w.get_dependencies_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', dep)
+            '1.3.6.1.4.1.25623.1.0.100061', dep
+        )
 
         self.assertEqual(res, out)
 
     def test_get_ctime_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<creation_time>2009-03-19 11:22:36 +0100 ' \
-              '(Thu, 19 Mar 2009)</creation_time>'
+        w = DummyWrapper(mock_nvti, mock_db)
+        out = (
+            '<creation_time>2009-03-19 11:22:36 +0100 '
+            '(Thu, 19 Mar 2009)</creation_time>'
+        )
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         ctime = vt.get('creation_time')
         res = w.get_creation_time_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', ctime)
+            '1.3.6.1.4.1.25623.1.0.100061', ctime
+        )
 
         self.assertEqual(res, out)
 
     def test_get_mtime_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
-        out = '<modification_time>$Date: 2018-08-10 15:09:25 +0200 ' \
-              '(Fri, 10 Aug 2018) $</modification_time>'
+        w = DummyWrapper(mock_nvti, mock_db)
+        out = (
+            '<modification_time>$Date: 2018-08-10 15:09:25 +0200 '
+            '(Fri, 10 Aug 2018) $</modification_time>'
+        )
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         mtime = vt.get('modification_time')
         res = w.get_modification_time_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', mtime)
+            '1.3.6.1.4.1.25623.1.0.100061', mtime
+        )
 
         self.assertEqual(res, out)
 
     def test_get_summary_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         out = '<summary>some summary</summary>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         summary = vt.get('summary')
         res = w.get_summary_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', summary)
+            '1.3.6.1.4.1.25623.1.0.100061', summary
+        )
 
         self.assertEqual(res, out)
 
     def test_get_impact_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         out = '<impact>some impact</impact>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         impact = vt.get('impact')
-        res = w.get_impact_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', impact)
+        res = w.get_impact_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', impact)
 
         self.assertEqual(res, out)
 
     def test_get_insight_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         out = '<insight>some insight</insight>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         insight = vt.get('insight')
         res = w.get_insight_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', insight)
+            '1.3.6.1.4.1.25623.1.0.100061', insight
+        )
 
         self.assertEqual(res, out)
 
     def test_get_solution_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         out = '<solution type="WillNotFix">some solution</solution>'
-        vt =w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         solution = vt.get('solution')
         solution_type = vt.get('solution_type')
 
         res = w.get_solution_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type)
+            '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type
+        )
 
         self.assertEqual(res, out)
 
     def test_get_detection_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         out = '<detection qod_type="remote_banner"/>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         detection_type = vt.get('qod_type')
 
         res = w.get_detection_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', qod_type=detection_type)
+            '1.3.6.1.4.1.25623.1.0.100061', qod_type=detection_type
+        )
 
         self.assertEqual(res, out)
 
     def test_get_affected_xml(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         out = '<affected>some affection</affected>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
-        affected =  vt.get('affected')
+        affected = vt.get('affected')
 
         res = w.get_affected_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', affected=affected)
+            '1.3.6.1.4.1.25623.1.0.100061', affected=affected
+        )
 
         self.assertEqual(res, out)
 
     def test_build_credentials(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
 
         cred_out = [
             '1.3.6.1.4.1.25623.1.0.105058:1:entry:ESXi login name:|||username',
@@ -363,52 +380,56 @@ class TestOspdOpenvas(unittest.TestCase):
             '1.3.6.1.4.1.25623.1.0.105076:3:password:SNMPv3 Password:pass',
             '1.3.6.1.4.1.25623.1.0.105076:4:radio:SNMPv3 Authentication Algorithm:some auth algo',
             '1.3.6.1.4.1.25623.1.0.105076:5:password:SNMPv3 Privacy Password:privacy pass',
-            '1.3.6.1.4.1.25623.1.0.105076:6:radio:SNMPv3 Privacy Algorithm:privacy algo']
+            '1.3.6.1.4.1.25623.1.0.105076:6:radio:SNMPv3 Privacy Algorithm:privacy algo',
+        ]
         cred_dict = {
-            'ssh': {'type': 'ssh',
-                    'port': '22',
-                    'username': 'username',
-                    'password': 'pass',
+            'ssh': {
+                'type': 'ssh',
+                'port': '22',
+                'username': 'username',
+                'password': 'pass',
             },
-            'smb': {'type': 'smb',
-                    'username': 'username',
-                    'password': 'pass',
+            'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
+            'esxi': {
+                'type': 'esxi',
+                'username': 'username',
+                'password': 'pass',
             },
-            'esxi': {'type': 'esxi',
-                    'username': 'username',
-                    'password': 'pass',
-            },
-            'snmp': {'type': 'snmp',
-                     'username': 'username',
-                     'password': 'pass',
-                     'community': 'some comunity',
-                     'auth_algorithm': 'some auth algo',
-                     'privacy_password': 'privacy pass',
-                     'privacy_algorithm': 'privacy algo',
+            'snmp': {
+                'type': 'snmp',
+                'username': 'username',
+                'password': 'pass',
+                'community': 'some comunity',
+                'auth_algorithm': 'some auth algo',
+                'privacy_password': 'privacy pass',
+                'privacy_algorithm': 'privacy algo',
             },
         }
-        self.maxDiff=None
+        self.maxDiff = None
         ret = w.build_credentials_as_prefs(cred_dict)
         self.assertEqual(len(ret), len(cred_out))
         self.assertIn('auth_port_ssh|||22', cred_out)
         self.assertIn(
             '1.3.6.1.4.1.25623.1.0.90023:1:entry:SMB login:|||username',
-            cred_out)
+            cred_out,
+        )
 
     def test_build_credentials_ssh_up(self, mock_nvti, mock_db):
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         cred_out = [
             'auth_port_ssh|||22',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
-            '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass']
+            '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass',
+        ]
         cred_dict = {
-            'ssh': {'type': 'up',
-                    'port': '22',
-                    'username': 'username',
-                    'password': 'pass',
+            'ssh': {
+                'type': 'up',
+                'port': '22',
+                'username': 'username',
+                'password': 'pass',
             }
         }
-        self.maxDiff=None
+        self.maxDiff = None
         ret = w.build_credentials_as_prefs(cred_dict)
         self.assertEqual(ret, cred_out)
 
@@ -416,43 +437,49 @@ class TestOspdOpenvas(unittest.TestCase):
         vts = {
             '1.3.6.1.4.1.25623.1.0.100061': {
                 'Data length :': 'new value',
-                'Do not randomize the  order  in  which ports are ' \
-                'scanned': 'new value'},
-            'vt_groups': ['family=debian', 'family=general']
+                'Do not randomize the  order  in  which ports are '
+                'scanned': 'new value',
+            },
+            'vt_groups': ['family=debian', 'family=general'],
         }
         vt_out = (
             ['1.3.6.1.4.1.25623.1.0.100061'],
-            [['Mantis Detection[checkbox]:Do not randomize the  order  i' \
-              'n  which ports are scanned', 'new value'],
-             ['Mantis Detection[entry]:Data length : ', 'new value']]
-            )
-        w =  DummyWrapper(mock_nvti, mock_db)
+            [
+                [
+                    'Mantis Detection[checkbox]:Do not randomize the  order  i'
+                    'n  which ports are scanned',
+                    'new value',
+                ],
+                ['Mantis Detection[entry]:Data length : ', 'new value'],
+            ],
+        )
+        w = DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
         ret = w.process_vts(vts)
         self.assertEqual(len(ret), len(vt_out))
 
     def test_get_openvas_timestamp_scan_host_end(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = '12345'
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         targets = [['192.168.0.1', 'port', 'cred', 'exclude_host']]
         w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
-        for result in  w.scan_collection.results_iterator('123-456', False):
+        for result in w.scan_collection.results_iterator('123-456', False):
             self.assertEqual(result.get('value'), '12345')
 
     def test_get_openvas_timestamp_scan_host_start(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = None
         mock_db.get_host_scan_scan_end_time.return_value = '54321'
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         targets = [['192.168.0.1', 'port', 'cred', 'exclude_host']]
         w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
-        for result in  w.scan_collection.results_iterator('123-456', False):
+        for result in w.scan_collection.results_iterator('123-456', False):
             self.assertEqual(result.get('value'), '54321')
 
     def test_scan_is_finished(self, mock_nvti, mock_db):
         mock_db.get_single_item.return_value = 'finished'
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         ret = w.scan_is_finished('123-456')
         self.assertEqual(ret, True)
 
@@ -460,14 +487,14 @@ class TestOspdOpenvas(unittest.TestCase):
         mock_db.get_single_item.return_value = 'stop_all'
         mock_db.kb_connect_item.return_value = mock_db
         mock_db.set_redisctx.return_value = None
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         ret = w.scan_is_stopped('123-456')
         self.assertEqual(ret, True)
 
     @patch('ospd_openvas.wrapper.open')
     def test_feed_is_outdated(self, mock_open, mock_nvti, mock_db):
         mock_open.return_value = ['PLUGIN_SET = "1234";']
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         self.assertRaises(OSPDOpenvasError, w.feed_is_outdated, '1234')
         # Return False
         w.scan_only_params['plugins_folder'] = '/foo/bar'
@@ -481,12 +508,9 @@ class TestOspdOpenvas(unittest.TestCase):
 
     @patch('ospd_openvas.wrapper.OSPDaemon.add_scan_log')
     def test_get_openvas_result(self, mock_ospd, mock_nvti, mock_db):
-        results = [
-            "LOG||| |||general/Host_Details||| |||Host dead",
-            None
-            ]
+        results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
         mock_db.get_result.side_effect = results
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
         mock_ospd.return_value = None
         w.get_openvas_result('123-456', 'localhost')
@@ -498,26 +522,22 @@ class TestOspdOpenvas(unittest.TestCase):
             port='general/Host_Details',
             qod='',
             test_id=' ',
-            value='Host dead')
+            value='Host dead',
+        )
 
     @patch('ospd_openvas.wrapper.OSPDaemon.set_scan_target_progress')
     def test_update_progress(self, mock_ospd, mock_nvti, mock_db):
         msg = '0/-1'
         targets = [['localhost', 'port', 'cred', 'exclude_host']]
-        w =  DummyWrapper(mock_nvti, mock_db)
+        w = DummyWrapper(mock_nvti, mock_db)
         w.create_scan('123-456', targets, None, [])
 
         mock_ospd.return_value = None
         w.update_progress('123-456', 'localhost', 'localhost', msg)
-        mock_ospd.assert_called_with(
-            '123-456',
-            'localhost',
-            'localhost',
-            100,
-        )
+        mock_ospd.assert_called_with('123-456', 'localhost', 'localhost', 100)
+
 
 class TestFilters(unittest.TestCase):
-
     def test_format_vt_modification_time(self):
         ovformat = OpenVasVtsFilter()
         td = '$Date: 2018-02-01 02:09:01 +0200 (Thu, 18 Oct 2018) $'
