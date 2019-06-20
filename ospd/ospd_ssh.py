@@ -25,9 +25,9 @@
 # Another solution would be to rename that file.
 from __future__ import absolute_import
 
-from ospd.ospd import OSPDaemon
-
 import socket
+
+from ospd.ospd import OSPDaemon
 
 try:
     import paramiko

@@ -20,6 +20,7 @@
 """
 import re
 import operator
+
 from ospd.error import OSPDError
 
 
