@@ -1,64 +1,145 @@
-version: 2
-jobs:
+version: 2.1
+
+executors:
+  python-35:
+    docker:
+      - image: circleci/python:3.5
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+  python-36:
+    docker:
+      - image: circleci/python:3.6
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+  python-37:
+    docker:
+      - image: circleci/python:3.7
+        environment:
+            PIPENV_VENV_IN_PROJECT: true
+    working_directory: ~/repo
+
+commands:
   build:
-    docker:
-      - image: circleci/python:3.5
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
-    working_directory: ~/repo
+    description: "Download and build"
     steps:
       - checkout
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "Pipfile.lock" }}
       - run:
           name: Install dependencies
           command: |
             pipenv install
-      - save_cache:
-          paths:
-            - ./.venv
-          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+
       - run:
-          name: Install OSPD OpenVAS
+          name: Install osp-openvas
           command: |
-            pipenv install .
+            pipenv run pip install .
   test:
-    docker:
-      - image: circleci/python:3.5
-        environment:
-            PIPENV_VENV_IN_PROJECT: true
-    working_directory: ~/repo
+    description: "Download and run tests"
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "Pipfile.lock" }}
       - run:
           name: Install dependencies
           command: |
             pipenv install
-            pipenv install -e git+https://github.com/greenbone/ospd.git#egg=ospd
-      - save_cache:
-          paths:
-            - ./.venv
-          key: v1-dependencies-{{ checksum "Pipfile.lock" }}
+            pipenv run pip install -e git+https://github.com/greenbone/ospd.git#egg=ospd
+      - run:
+          name: Run unit tests
+          command: pipenv run python -m unittest
+  test-with-codecov:
+    description: "Download and run tests with code coverage"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
       - run:
           name: Install codecov
           command: |
-            pipenv install codecov
+            pipenv run pip install codecov
       - run:
           name: Run unit tests
           command: |
             pipenv run coverage run -m unittest
       - run:
           name: Upload coverage to Codecov
+          command: pipenv run codecov
+  lint:
+    description: "Lint python files"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
+      - run:
+          name: Install pylint
           command: |
-            pipenv run codecov
+            pipenv run pip install pylint
+      - run:
+          name: Run pylint
+          command: |
+            pipenv run pylint --score=n --disable=R gvmtools
+  lint-scripts:
+    description: "Lint GVM scripts"
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: pipenv install
+      - run:
+          name: Install additional script dependencies
+          command: pipenv run pip install -r scripts/requirements.txt
+      - run:
+          name: Install pylint
+          command: |
+            pipenv run pip install pylint
+      - run:
+          name: Run pylint
+          command: |
+            pylint --rcfile=scripts/.pylintrc --disable=R --ignore=requirements.txt scripts/*
+
+jobs:
+  lint-python-files:
+    executor: python-36
+    steps:
+      - lint
+  lint-gvm-scripts:
+    executor: python-36
+    steps:
+      - lint-scripts
+  build-35:
+    executor: python-35
+    steps:
+      - build
+  test-35:
+    executor: python-35
+    steps:
+      - test
+  build-36:
+    executor: python-36
+    steps:
+      - build
+  test-36:
+    executor: python-36
+    steps:
+      - test
+  build-37:
+    executor: python-37
+    steps:
+      - build
+  test-37:
+    executor: python-37
+    steps:
+      - test-with-codecov
+
 workflows:
   version: 2
   build_and_test:
     jobs:
-      - build
-      - test
+      # - lint-python-files
+      - build-35
+      - test-35
+      - build-36
+      - test-36
+      - build-37
+      - test-37
