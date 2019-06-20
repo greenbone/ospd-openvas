@@ -1187,11 +1187,10 @@ class OSPDaemon(object):
         for tag, value in data.items():
             elem = Element(tag)
             if isinstance(value, dict):
-                for value in self.get_xml_str(value):
-                    elem.append(value)
+                for val in self.get_xml_str(value):
+                    elem.append(val)
             elif isinstance(value, list):
-                value = ', '.join([m for m in value])
-                elem.text = value
+                elem.text = ', '.join(value)
             else:
                 elem.text = value
             responses.append(elem)
