@@ -235,7 +235,7 @@ class OSPDaemon(object):
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
         self.vts = dict()
-        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\-:.]{1,80}")
+        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
         self.vts_version = None
         if customvtfilter:
             self.vts_filter = customvtfilter
