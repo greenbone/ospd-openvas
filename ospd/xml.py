@@ -19,7 +19,8 @@
 """ OSP XML utils class.
 """
 
-from xml.etree.ElementTree import tostring, Element, SubElement
+from xml.etree.ElementTree import tostring, Element
+
 from ospd.misc import ResultType
 
 
