@@ -34,9 +34,11 @@ import ssl
 import multiprocessing
 import re
 import time
-from xml.etree.ElementTree import tostring, Element, SubElement
-import defusedxml.ElementTree as secET
 import os
+
+from xml.etree.ElementTree import Element, SubElement
+
+import defusedxml.ElementTree as secET
 
 from ospd import __version__
 from ospd.vtfilter import VtsFilter
