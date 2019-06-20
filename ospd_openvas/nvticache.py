@@ -26,6 +26,7 @@ from ospd.ospd import logger
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
 
+
 class NVTICache(object):
 
     QoD_TYPES = {
@@ -133,21 +134,36 @@ class NVTICache(object):
         """
         ctx = self._openvas_db.get_kb_context()
         resp = self._openvas_db.get_list_item(
-            "nvt:%s" % oid, ctx=ctx,
+            "nvt:%s" % oid,
+            ctx=ctx,
             start=NVT_META_FIELDS.index("NVT_FILENAME_POS"),
-            end=NVT_META_FIELDS.index("NVT_NAME_POS"))
+            end=NVT_META_FIELDS.index("NVT_NAME_POS"),
+        )
 
         if not isinstance(resp, list) or len(resp) == 0:
             return None
 
-        subelem = ['filename', 'required_keys', 'mandatory_keys',
-                   'excluded_keys', 'required_udp_ports', 'required_ports',
-                   'dependencies', 'tag', 'cve', 'bid', 'xref', 'category',
-                   'timeout', 'family', 'name', ]
+        subelem = [
+            'filename',
+            'required_keys',
+            'mandatory_keys',
+            'excluded_keys',
+            'required_udp_ports',
+            'required_ports',
+            'dependencies',
+            'tag',
+            'cve',
+            'bid',
+            'xref',
+            'category',
+            'timeout',
+            'family',
+            'name',
+        ]
 
         custom = dict()
         for child, res in zip(subelem, resp):
-            if child not in ['cve', 'bid', 'xref', 'tag',] and res:
+            if child not in ['cve', 'bid', 'xref', 'tag'] and res:
                 custom[child] = res
             elif child == 'tag':
                 custom.update(self._parse_metadata_tags(res, oid))
@@ -163,14 +179,16 @@ class NVTICache(object):
         """
         ctx = self._openvas_db.get_kb_context()
         resp = self._openvas_db.get_list_item(
-            "nvt:%s" % oid, ctx=ctx,
+            "nvt:%s" % oid,
+            ctx=ctx,
             start=NVT_META_FIELDS.index("NVT_CVES_POS"),
-            end=NVT_META_FIELDS.index("NVT_XREFS_POS"))
+            end=NVT_META_FIELDS.index("NVT_XREFS_POS"),
+        )
 
         if not isinstance(resp, list) or len(resp) == 0:
             return None
 
-        subelem = ['cve', 'bid', 'xref',]
+        subelem = ['cve', 'bid', 'xref']
 
         refs = dict()
         for child, res in zip(subelem, resp):
@@ -199,8 +217,10 @@ class NVTICache(object):
             str: The timeout.
         """
         timeout = self._openvas_db.get_single_item(
-            'nvt:%s' % oid, ctx=ctx,
-            index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"))
+            'nvt:%s' % oid,
+            ctx=ctx,
+            index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"),
+        )
 
         return timeout
 
@@ -213,8 +233,8 @@ class NVTICache(object):
             dict: A dictionary with the VT tags.
         """
         tag = self._openvas_db.get_single_item(
-            'nvt:%s' % oid, ctx=ctx,
-            index=NVT_META_FIELDS.index('NVT_TAGS_POS'))
+            'nvt:%s' % oid, ctx=ctx, index=NVT_META_FIELDS.index('NVT_TAGS_POS')
+        )
         tags = tag.split('|')
 
         return dict([item.split('=', 1) for item in tags])

@@ -27,14 +27,17 @@ class OSPDOpenvasError(OSPDError):
 
     Base class for all exceptions originated in ospd-openvas.
     """
+
     def __init__(self, message):
         pass
+
 
 class InvalidArgument(OSPDOpenvasError):
     """Raised if an invalid argument/parameter is passed
 
     Derives from :py:class:`OSPDOpenvasError`
     """
+
 
 class RequiredArgument(OSPDOpenvasError):
     """Raised if a required argument/parameter is missing
