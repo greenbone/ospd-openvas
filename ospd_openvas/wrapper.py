@@ -34,7 +34,7 @@ from lxml.etree import tostring, SubElement, Element
 import psutil
 
 from ospd.ospd import OSPDaemon
-from ospd.misc import main as daemon_main
+from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
 
