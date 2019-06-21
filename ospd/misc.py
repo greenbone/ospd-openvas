@@ -27,30 +27,20 @@
 from __future__ import absolute_import
 from __future__ import print_function
 
-import argparse
 import logging
 import logging.handlers
 import os
 import sys
 import time
-import ssl
 import uuid
 import multiprocessing
 
 from enum import Enum
 
 from ospd.network import target_str_to_list
+from ospd.parser import create_args_parser, get_common_args
 
 LOGGER = logging.getLogger(__name__)
-NICENESS = 10
-
-# Default file locations as used by a OpenVAS default installation
-KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
-CERT_FILE = "/usr/var/lib/gvm/CA/servercert.pem"
-CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
-
-PORT = 1234
-ADDRESS = "0.0.0.0"
 
 
 class ScanStatus(Enum):
@@ -407,7 +397,6 @@ class ResultType(object):
             assert False, "Erroneous result name {0}.".format(result_name)
 
 
-
 def valid_uuid(value):
     """ Check if value is a valid UUID. """
 
@@ -418,123 +407,6 @@ def valid_uuid(value):
         return False
 
 
-def create_args_parser(description):
-    """ Create a command-line arguments parser for OSPD. """
-
-    parser = argparse.ArgumentParser(description=description)
-
-    def network_port(string):
-        """ Check if provided string is a valid network port. """
-
-        value = int(string)
-        if not 0 < value <= 65535:
-            raise argparse.ArgumentTypeError(
-                'port must be in ]0,65535] interval'
-            )
-        return value
-
-    def cacert_file(cacert):
-        """ Check if provided file is a valid CA Certificate """
-        try:
-            context = ssl.create_default_context(cafile=cacert)
-        except AttributeError:
-            # Python version < 2.7.9
-            return cacert
-        except IOError:
-            raise argparse.ArgumentTypeError('CA Certificate not found')
-        try:
-            not_after = context.get_ca_certs()[0]['notAfter']
-            not_after = ssl.cert_time_to_seconds(not_after)
-            not_before = context.get_ca_certs()[0]['notBefore']
-            not_before = ssl.cert_time_to_seconds(not_before)
-        except (KeyError, IndexError):
-            raise argparse.ArgumentTypeError('CA Certificate is erroneous')
-        if not_after < int(time.time()):
-            raise argparse.ArgumentTypeError('CA Certificate expired')
-        if not_before > int(time.time()):
-            raise argparse.ArgumentTypeError('CA Certificate not active yet')
-        return cacert
-
-    def log_level(string):
-        """ Check if provided string is a valid log level. """
-
-        value = getattr(logging, string.upper(), None)
-        if not isinstance(value, int):
-            raise argparse.ArgumentTypeError(
-                'log level must be one of {debug,info,warning,error,critical}'
-            )
-        return value
-
-    def filename(string):
-        """ Check if provided string is a valid file path. """
-
-        if not os.path.isfile(string):
-            raise argparse.ArgumentTypeError(
-                '%s is not a valid file path' % string
-            )
-        return string
-
-    parser.add_argument(
-        '-p',
-        '--port',
-        default=PORT,
-        type=network_port,
-        help='TCP Port to listen on. Default: {0}'.format(PORT),
-    )
-    parser.add_argument(
-        '-b',
-        '--bind-address',
-        default=ADDRESS,
-        help='Address to listen on. Default: {0}'.format(ADDRESS),
-    )
-    parser.add_argument(
-        '-u', '--unix-socket', help='Unix file socket to listen on.'
-    )
-    parser.add_argument(
-        '-k',
-        '--key-file',
-        type=filename,
-        help='Server key file. Default: {0}'.format(KEY_FILE),
-    )
-    parser.add_argument(
-        '-c',
-        '--cert-file',
-        type=filename,
-        help='Server cert file. Default: {0}'.format(CERT_FILE),
-    )
-    parser.add_argument(
-        '--ca-file',
-        type=cacert_file,
-        help='CA cert file. Default: {0}'.format(CA_FILE),
-    )
-    parser.add_argument(
-        '-L',
-        '--log-level',
-        default='warning',
-        type=log_level,
-        help='Wished level of logging. Default: WARNING',
-    )
-    parser.add_argument(
-        '--foreground',
-        action='store_true',
-        help='Run in foreground and logs all messages to console.',
-    )
-    parser.add_argument(
-        '-l', '--log-file', type=filename, help='Path to the logging file.'
-    )
-    parser.add_argument(
-        '--version', action='store_true', help='Print version then exit.'
-    )
-    parser.add_argument(
-        '--niceness',
-        default=NICENESS,
-        type=int,
-        help='Start the scan with the given niceness. Default %(default)s',
-    )
-
-    return parser
-
-
 def go_to_background():
     """ Daemonize the running process. """
     try:
@@ -543,70 +415,6 @@ def go_to_background():
     except OSError as errmsg:
         LOGGER.error('Fork failed: %s', errmsg)
         sys.exit('Fork failed')
-
-
-def get_common_args(parser, args=None):
-    """ Return list of OSPD common command-line arguments from parser, after
-    validating provided values or setting default ones.
-
-    """
-
-    options = parser.parse_args(args)
-    # TCP Port to listen on.
-    port = options.port
-
-    # Network address to bind listener to
-    address = options.bind_address
-
-    # Unix file socket to listen on
-    unix_socket = options.unix_socket
-
-    # Debug level.
-    log_level = options.log_level
-
-    # Server key path.
-    keyfile = options.key_file or KEY_FILE
-
-    # Server cert path.
-    certfile = options.cert_file or CERT_FILE
-
-    # CA cert path.
-    cafile = options.ca_file or CA_FILE
-
-    common_args = dict()
-    common_args['port'] = port
-    common_args['address'] = address
-    common_args['unix_socket'] = unix_socket
-    common_args['keyfile'] = keyfile
-    common_args['certfile'] = certfile
-    common_args['cafile'] = cafile
-    common_args['log_level'] = log_level
-    common_args['foreground'] = options.foreground
-    common_args['log_file'] = options.log_file
-    common_args['version'] = options.version
-    common_args['niceness'] = options.niceness
-
-    return common_args
-
-
-def print_version(wrapper):
-    """ Prints the server version and license information."""
-
-    scanner_name = wrapper.get_scanner_name()
-    server_version = wrapper.get_server_version()
-    print("OSP Server for {0} version {1}".format(scanner_name, server_version))
-    protocol_version = wrapper.get_protocol_version()
-    print("OSP Version: {0}".format(protocol_version))
-    daemon_name = wrapper.get_daemon_name()
-    daemon_version = wrapper.get_daemon_version()
-    print("Using: {0} {1}".format(daemon_name, daemon_version))
-    print(
-        "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
-        "License GPLv2+: GNU GPL version 2 or later\n"
-        "This is free software: you are free to change"
-        " and redistribute it.\n"
-        "There is NO WARRANTY, to the extent permitted by law."
-    )
 
 
 def main(name, klass):
@@ -661,3 +469,23 @@ def main(name, klass):
     if not wrapper.check():
         return 1
     return wrapper.run(cargs['address'], cargs['port'], cargs['unix_socket'])
+
+
+def print_version(wrapper):
+    """ Prints the server version and license information."""
+
+    scanner_name = wrapper.get_scanner_name()
+    server_version = wrapper.get_server_version()
+    print("OSP Server for {0} version {1}".format(scanner_name, server_version))
+    protocol_version = wrapper.get_protocol_version()
+    print("OSP Version: {0}".format(protocol_version))
+    daemon_name = wrapper.get_daemon_name()
+    daemon_version = wrapper.get_daemon_version()
+    print("Using: {0} {1}".format(daemon_name, daemon_version))
+    print(
+        "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
+        "License GPLv2+: GNU GPL version 2 or later\n"
+        "This is free software: you are free to change"
+        " and redistribute it.\n"
+        "There is NO WARRANTY, to the extent permitted by law."
+    )
