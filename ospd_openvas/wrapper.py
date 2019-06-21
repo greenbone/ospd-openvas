@@ -1338,4 +1338,4 @@ class OSPDopenvas(OSPDaemon):
 
 def main():
     """ OSP openvas main function. """
-    daemon_main('OSPD - openvas wrapper', OSPDopenvas)
+    daemon_main('OSPD - openvas', OSPDopenvas)
