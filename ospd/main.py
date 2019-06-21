@@ -73,7 +73,9 @@ def main(name, klass):
         console = logging.StreamHandler()
         console.setFormatter(
             logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'
+                '%(asctime)s {}: %(levelname)s: (%(name)s) %(message)s'.format(
+                    name
+                )
             )
         )
         logging.getLogger().addHandler(console)
@@ -81,7 +83,9 @@ def main(name, klass):
         logfile = logging.handlers.WatchedFileHandler(cargs['log_file'])
         logfile.setFormatter(
             logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'
+                '%(asctime)s {}: %(levelname)s: (%(name)s) %(message)s'.format(
+                    name
+                )
             )
         )
         logging.getLogger().addHandler(logfile)
@@ -89,7 +93,9 @@ def main(name, klass):
     else:
         syslog = logging.handlers.SysLogHandler('/dev/log')
         syslog.setFormatter(
-            logging.Formatter('%(name)s: %(levelname)s: %(message)s')
+            logging.Formatter(
+                '{}: %(levelname)s: (%(name)s) %(message)s'.format(name)
+            )
         )
         logging.getLogger().addHandler(syslog)
         # Duplicate syslog's file descriptor to stout/stderr.
