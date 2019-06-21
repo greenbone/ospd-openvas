@@ -23,7 +23,6 @@ from unittest import TestCase
 from unittest.mock import patch
 from ospd_openvas.db import OpenvasDB
 from ospd_openvas.nvticache import NVTICache
-from ospd.ospd import logger
 
 
 @patch('ospd_openvas.db.redis.Redis')
@@ -49,9 +48,7 @@ class TestNVTICache(TestCase):
 
     def test_parse_metadata_tags(self, mock_redis):
         tags = 'tag1'
-        with patch.object(logger, 'error', return_value=None) as log:
-            ret = self.nvti._parse_metadata_tags(tags, '1.2.3')
-        log.assert_called_with('Tag %s in %s has no value.', 'tag1', '1.2.3')
+        ret = self.nvti._parse_metadata_tags(tags, '1.2.3')
         self.assertEqual(ret, {})
 
     def test_get_nvt_params(self, mock_redis):
