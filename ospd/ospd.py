@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# pylint: disable=too-many-lines
+
 """ OSP Daemon core class.
 """
 
@@ -32,9 +34,11 @@ import ssl
 import multiprocessing
 import re
 import time
-from xml.etree.ElementTree import tostring, Element, SubElement
-import defusedxml.ElementTree as secET
 import os
+
+from xml.etree.ElementTree import Element, SubElement
+
+import defusedxml.ElementTree as secET
 
 from ospd import __version__
 from ospd.vtfilter import VtsFilter
@@ -48,7 +52,7 @@ logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "1.2"
 
-SCHEDULER_CHECK_PERIOD = 5  #in seconds
+SCHEDULER_CHECK_PERIOD = 5  # in seconds
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -76,57 +80,50 @@ COMMANDS_TABLE = {
             'scan_id': 'Optional UUID value to use as scan ID',
             'parallel': 'Optional nummer of parallel target to scan',
         },
-        'elements': None
+        'elements': None,
     },
     'stop_scan': {
         'description': 'Stop a currently running scan.',
-        'attributes': {
-            'scan_id': 'ID of scan to stop.'
-        },
-        'elements': None
+        'attributes': {'scan_id': 'ID of scan to stop.'},
+        'elements': None,
     },
     'help': {
         'description': 'Print the commands help.',
-        'attributes': {
-            'format': 'Help format. Could be text or xml.'
-        },
-        'elements': None
+        'attributes': {'format': 'Help format. Could be text or xml.'},
+        'elements': None,
     },
     'get_scans': {
         'description': 'List the scans in buffer.',
         'attributes': {
             'scan_id': 'ID of a specific scan to get.',
-            'details': 'Whether to return the full scan report.'
+            'details': 'Whether to return the full scan report.',
         },
-        'elements': None
+        'elements': None,
     },
     'get_vts': {
         'description': 'List of available vulnerability tests.',
         'attributes': {
             'vt_id': 'ID of a specific vulnerability test to get.',
-            'filter': 'Optional filter to get an specific vt collection.'
+            'filter': 'Optional filter to get an specific vt collection.',
         },
-        'elements': None
+        'elements': None,
     },
     'delete_scan': {
         'description': 'Delete a finished scan.',
-        'attributes': {
-            'scan_id': 'ID of scan to delete.'
-        },
-        'elements': None
+        'attributes': {'scan_id': 'ID of scan to delete.'},
+        'elements': None,
     },
     'get_version': {
         'description': 'Return various versions.',
         'attributes': None,
-        'elements': None
+        'elements': None,
     },
     'get_scanner_details': {
         'description': 'Return scanner description and parameters',
         'attributes': None,
-        'elements': None
-    }
+        'elements': None,
+    },
 }
-
 
 
 def bind_socket(address, port):
@@ -144,6 +141,7 @@ def bind_socket(address, port):
     logger.info('Listening on %s:%s', address, port)
     bindsocket.listen(0)
     return bindsocket
+
 
 def bind_unix_socket(path):
     """ Returns a unix file socket bound on (path). """
@@ -200,8 +198,15 @@ class OSPDaemon(object):
       specific options eg. the w3af profile for w3af wrapper.
     """
 
-    def __init__(self, certfile, keyfile, cafile, niceness=None,
-                 customvtfilter=None, wrapper_logger=None):
+    def __init__(
+        self,
+        certfile,
+        keyfile,
+        cafile,
+        niceness=None,  # pylint: disable=unused-argument
+        customvtfilter=None,
+        wrapper_logger=None,
+    ):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
         #        a separate function because it is not mandatory anymore to
@@ -230,14 +235,14 @@ class OSPDaemon(object):
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
         self.vts = dict()
-        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\-:.]{1,80}")
+        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
         self.vts_version = None
         if customvtfilter:
             self.vts_filter = customvtfilter
         else:
             self.vts_filter = VtsFilter()
         if wrapper_logger:
-            global logger
+            global logger  # pylint: disable=global-statement
             logger = wrapper_logger
 
     def set_command_attributes(self, name, attributes):
@@ -254,14 +259,32 @@ class OSPDaemon(object):
         self.scanner_params[name] = scanner_param
         command = self.commands.get('start_scan')
         command['elements'] = {
-            'scanner_params':
-                {k: v['name'] for k, v in self.scanner_params.items()}}
+            'scanner_params': {
+                k: v['name'] for k, v in self.scanner_params.items()
+            }
+        }
 
-    def add_vt(self, vt_id, name=None, vt_params=None, vt_refs=None,
-               custom=None, vt_creation_time=None, vt_modification_time=None,
-               vt_dependencies=None, summary=None, impact=None, affected=None,
-               insight=None, solution=None, solution_t=None, detection=None,
-               qod_t=None, qod_v=None, severities=None):
+    def add_vt(
+        self,
+        vt_id,
+        name=None,
+        vt_params=None,
+        vt_refs=None,
+        custom=None,
+        vt_creation_time=None,
+        vt_modification_time=None,
+        vt_dependencies=None,
+        summary=None,
+        impact=None,
+        affected=None,
+        insight=None,
+        solution=None,
+        solution_t=None,
+        detection=None,
+        qod_t=None,
+        qod_v=None,
+        severities=None,
+    ):
         """ Add a vulnerability test information.
 
         Returns: The new number of stored VTs.
@@ -326,8 +349,9 @@ class OSPDaemon(object):
             vts_version (str): Identifies a unique vts version.
         """
         if not vts_version:
-            raise OSPDError('A vts_version parameter is required',
-                            'set_vts_version')
+            raise OSPDError(
+                'A vts_version parameter is required', 'set_vts_version'
+            )
         self.vts_version = vts_version
 
     def get_vts_version(self):
@@ -389,8 +413,9 @@ class OSPDaemon(object):
                 if params[key] not in selection:
                     raise OSPDError('Invalid %s value' % key, 'start_scan')
             if self.get_scanner_param_mandatory(key) and params[key] == '':
-                    raise OSPDError('Mandatory %s value is missing' % key,
-                                    'start_scan')
+                raise OSPDError(
+                    'Mandatory %s value is missing' % key, 'start_scan'
+                )
         return params
 
     def process_scan_params(self, params):
@@ -430,16 +455,19 @@ class OSPDaemon(object):
                 vt_selection[vt_id] = {}
                 for vt_value in vt:
                     if not vt_value.attrib.get('id'):
-                        raise OSPDError('Invalid VT preference. No attribute id',
-                                        'start_scan')
+                        raise OSPDError(
+                            'Invalid VT preference. No attribute id',
+                            'start_scan',
+                        )
                     vt_value_id = vt_value.attrib.get('id')
                     vt_value_value = vt_value.text if vt_value.text else ''
                     vt_selection[vt_id][vt_value_id] = vt_value_value
             if vt.tag == 'vt_group':
                 vts_filter = vt.attrib.get('filter', None)
                 if vts_filter is None:
-                    raise OSPDError('Invalid VT group. No filter given.',
-                                    'start_scan')
+                    raise OSPDError(
+                        'Invalid VT group. No filter given.', 'start_scan'
+                    )
                 filters.append(vts_filter)
         vt_selection['vt_groups'] = filters
         return vt_selection
@@ -581,8 +609,10 @@ class OSPDaemon(object):
             if parallel < 1 or parallel > 20:
                 parallel = 1
         except ValueError:
-            raise OSPDError('Invalid value for parallel scans. '
-                            'It must be a number', 'start_scan')
+            raise OSPDError(
+                'Invalid value for parallel scans. ' 'It must be a number',
+                'start_scan',
+            )
 
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
@@ -607,12 +637,12 @@ class OSPDaemon(object):
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
-        scan_id = self.create_scan(scan_id, scan_targets,
-                                   scan_params, vt_selection)
-        scan_process = multiprocessing.Process(target=scan_func,
-                                               args=(scan_id,
-                                                     scan_targets,
-                                                     parallel))
+        scan_id = self.create_scan(
+            scan_id, scan_targets, scan_params, vt_selection
+        )
+        scan_process = multiprocessing.Process(
+            target=scan_func, args=(scan_id, scan_targets, parallel)
+        )
         self.scan_processes[scan_id] = scan_process
         scan_process.start()
         id_ = Element('id')
@@ -705,13 +735,14 @@ class OSPDaemon(object):
         scanner_params = Element('scanner_params')
         for param_id, param in self.scanner_params.items():
             param_xml = SubElement(scanner_params, 'scanner_param')
-            for name, value in [('id', param_id),
-                                ('type', param['type'])]:
+            for name, value in [('id', param_id), ('type', param['type'])]:
                 param_xml.set(name, value)
-            for name, value in [('name', param['name']),
-                                ('description', param['description']),
-                                ('default', param['default']),
-                                ('mandatory', param['mandatory'])]:
+            for name, value in [
+                ('name', param['name']),
+                ('description', param['description']),
+                ('default', param['default']),
+                ('mandatory', param['mandatory']),
+            ]:
                 elem = SubElement(param_xml, name)
                 elem.text = str(value)
         return scanner_params
@@ -721,8 +752,7 @@ class OSPDaemon(object):
 
         assert sock
         newsocket, fromaddr = sock.accept()
-        logger.debug("New connection from"
-                     " %s:%s", fromaddr[0], fromaddr[1])
+        logger.debug("New connection from" " %s:%s", fromaddr[0], fromaddr[1])
         # NB: Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
         # protocol version that both the client and server support. In modern
         # Python versions (>= 3.4) it supports TLS >= 1.0 with SSLv2 and SSLv3
@@ -730,12 +760,15 @@ class OSPDaemon(object):
         # PROTOCOL_TLS which should be used once compatibility with Python 3.4
         # is no longer desired.
         try:
-            ssl_socket = ssl.wrap_socket(newsocket, cert_reqs=ssl.CERT_REQUIRED,
-                                         server_side=True,
-                                         certfile=self.certs['cert_file'],
-                                         keyfile=self.certs['key_file'],
-                                         ca_certs=self.certs['ca_file'],
-                                         ssl_version=ssl.PROTOCOL_SSLv23)
+            ssl_socket = ssl.wrap_socket(
+                newsocket,
+                cert_reqs=ssl.CERT_REQUIRED,
+                server_side=True,
+                certfile=self.certs['cert_file'],
+                keyfile=self.certs['key_file'],
+                ca_certs=self.certs['ca_file'],
+                ssl_version=ssl.PROTOCOL_SSLv23,
+            )
         except (ssl.SSLError, socket.error) as message:
             logger.error(message)
             return None
@@ -793,7 +826,7 @@ class OSPDaemon(object):
         except OSPDError as exception:
             response = exception.as_xml()
             logger.debug('Command error: %s', exception.message)
-        except Exception:
+        except Exception:  # pylint: disable=broad-except
             logger.exception('While handling client command:')
             exception = OSPDError('Fatal error', 'error')
             response = exception.as_xml()
@@ -808,19 +841,26 @@ class OSPDaemon(object):
         try:
             ret = self.exec_scan(scan_id, target)
             if ret == 0:
-                self.add_scan_host_detail(scan_id, name='host_status',
-                                          host=target, value='0')
+                self.add_scan_host_detail(
+                    scan_id, name='host_status', host=target, value='0'
+                )
             elif ret == 1:
-                self.add_scan_host_detail(scan_id, name='host_status',
-                                          host=target, value='1')
+                self.add_scan_host_detail(
+                    scan_id, name='host_status', host=target, value='1'
+                )
             elif ret == 2:
-                self.add_scan_host_detail(scan_id, name='host_status',
-                                          host=target, value='2')
+                self.add_scan_host_detail(
+                    scan_id, name='host_status', host=target, value='2'
+                )
             else:
                 logger.debug('%s: No host status returned', target)
-        except Exception as e:
-            self.add_scan_error(scan_id, name='', host=target,
-                                value='Host process failure (%s).' % e)
+        except Exception as e:  # pylint: disable=broad-except
+            self.add_scan_error(
+                scan_id,
+                name='',
+                host=target,
+                value='Host process failure (%s).' % e,
+            )
             logger.exception('While scanning %s:', target)
         else:
             logger.info("%s: Host scan finished.", target)
@@ -842,7 +882,8 @@ class OSPDaemon(object):
         for running_target_proc, running_target_id in multiscan_proc:
             if not running_target_proc.is_alive():
                 target_prog = self.get_scan_target_progress(
-                    scan_id, running_target_id)
+                    scan_id, running_target_id
+                )
                 if target_prog < 100:
                     self.stop_scan(scan_id)
                 running_target = (running_target_proc, running_target_id)
@@ -856,7 +897,7 @@ class OSPDaemon(object):
         t_prog = dict()
         for target in self.get_scan_target(scan_id):
             t_prog[target] = self.get_scan_target_progress(scan_id, target)
-        return sum(t_prog.values())/len(t_prog)
+        return sum(t_prog.values()) / len(t_prog)
 
     def process_exclude_hosts(self, scan_id, target_list):
         """ Process the exclude hosts before launching the scans.
@@ -870,8 +911,7 @@ class OSPDaemon(object):
             exc_hosts_list = target_str_to_list(exclude_hosts)
             for host in exc_hosts_list:
                 self.set_scan_host_finished(scan_id, target, host)
-                self.set_scan_target_progress(
-                    scan_id, target, host, 100)
+                self.set_scan_target_progress(scan_id, target, host, 100)
 
     def start_scan(self, scan_id, targets, parallel=1):
         """ Handle N parallel scans if 'parallel' is greater than 1. """
@@ -885,21 +925,26 @@ class OSPDaemon(object):
 
         self.process_exclude_hosts(scan_id, target_list)
 
-        for index, target in enumerate(target_list):
+        for _index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
                 progress = self.calculate_progress(scan_id)
                 self.set_scan_progress(scan_id, progress)
-                multiscan_proc = self.check_pending_target(scan_id,
-                                                           multiscan_proc)
+                multiscan_proc = self.check_pending_target(
+                    scan_id, multiscan_proc
+                )
                 time.sleep(1)
 
-            #If the scan status is stopped, does not launch anymore target scans
+            # If the scan status is stopped, does not launch anymore target
+            # scans
             if self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 return
 
-            logger.info("%s: Host scan started on ports %s.", target[0], target[1])
-            scan_process = multiprocessing.Process(target=self.parallel_scan,
-                                                   args=(scan_id, target[0]))
+            logger.info(
+                "%s: Host scan started on ports %s.", target[0], target[1]
+            )
+            scan_process = multiprocessing.Process(
+                target=self.parallel_scan, args=(scan_id, target[0])
+            )
             multiscan_proc.append((scan_process, target[0]))
             scan_process.start()
             self.set_scan_status(scan_id, ScanStatus.RUNNING)
@@ -927,15 +972,19 @@ class OSPDaemon(object):
                 continue
             port = self.get_scan_ports(scan_id, target=target[0])
             logger.info("%s:%s: Dry run mode.", host, port)
-            self.add_scan_log(scan_id, name='', host=host,
-                              value='Dry run result')
+            self.add_scan_log(
+                scan_id, name='', host=host, value='Dry run result'
+            )
         self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id, host):
         """ Handles scanner reaching timeout error. """
-        self.add_scan_error(scan_id, host=host, name="Timeout",
-                            value="{0} exec timeout."
-                            .format(self.get_scanner_name()))
+        self.add_scan_error(
+            scan_id,
+            host=host,
+            name="Timeout",
+            value="{0} exec timeout.".format(self.get_scanner_name()),
+        )
 
     def set_scan_host_finished(self, scan_id, target, host):
         """ Add the host in a list of finished hosts """
@@ -946,11 +995,11 @@ class OSPDaemon(object):
         between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
-    def set_scan_target_progress(
-            self, scan_id, target, host, progress):
+    def set_scan_target_progress(self, scan_id, target, host, progress):
         """ Sets host's progress which is part of target. """
         self.scan_collection.set_target_progress(
-            scan_id, target, host, progress)
+            scan_id, target, host, progress
+        )
 
     def set_scan_status(self, scan_id, status):
         """ Set the scan's status."""
@@ -1016,7 +1065,8 @@ class OSPDaemon(object):
         filtered_vts = None
         if vt_filter:
             filtered_vts = self.vts_filter.get_filtered_vts_list(
-                self.vts, vt_filter)
+                self.vts, vt_filter
+            )
 
         responses = []
 
@@ -1034,8 +1084,7 @@ class OSPDaemon(object):
         help_format = scan_et.attrib.get('format')
         if help_format is None or help_format == "text":
             # Default help format is text.
-            return simple_response_str('help', 200, 'OK',
-                                       self.get_help_text())
+            return simple_response_str('help', 200, 'OK', self.get_help_text())
         elif help_format == "xml":
             text = self.get_xml_str(self.commands)
             return simple_response_str('help', 200, 'OK', text)
@@ -1053,8 +1102,13 @@ class OSPDaemon(object):
                     attr_txt = "\t  {0: <22} {1}\n".format(attrname, attrdesc)
                     command_txt = ''.join([command_txt, attr_txt])
             if info['elements']:
-                command_txt = ''.join([command_txt, "\t Elements:\n",
-                                       self.elements_as_text(info['elements'])])
+                command_txt = ''.join(
+                    [
+                        command_txt,
+                        "\t Elements:\n",
+                        self.elements_as_text(info['elements']),
+                    ]
+                )
             txt = ''.join([txt, command_txt])
         return txt
 
@@ -1070,8 +1124,9 @@ class OSPDaemon(object):
                 desc_txt = ''.join([eledesc, '\n'])
             else:
                 assert False, "Only string or dictionary"
-            ele_txt = "\t{0}{1: <22} {2}".format(' ' * indent, elename,
-                                                 desc_txt)
+            ele_txt = "\t{0}{1: <22} {2}".format(
+                ' ' * indent, elename, desc_txt
+            )
             text = ''.join([text, ele_txt])
         return text
 
@@ -1082,8 +1137,9 @@ class OSPDaemon(object):
         """
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is None:
-            return simple_response_str('delete_scan', 404,
-                                       'No scan_id attribute')
+            return simple_response_str(
+                'delete_scan', 404, 'No scan_id attribute'
+            )
 
         if not self.scan_exists(scan_id):
             text = "Failed to find scan '{0}'".format(scan_id)
@@ -1131,11 +1187,10 @@ class OSPDaemon(object):
         for tag, value in data.items():
             elem = Element(tag)
             if isinstance(value, dict):
-                for value in self.get_xml_str(value):
-                    elem.append(value)
+                for val in self.get_xml_str(value):
+                    elem.append(val)
             elif isinstance(value, list):
-                value = ', '.join([m for m in value])
-                elem.text = value
+                elem.text = ', '.join(value)
             else:
                 elem.text = value
             responses.append(elem)
@@ -1155,19 +1210,23 @@ class OSPDaemon(object):
         start_time = self.get_scan_start_time(scan_id)
         end_time = self.get_scan_end_time(scan_id)
         response = Element('scan')
-        for name, value in [('id', scan_id),
-                            ('target', target),
-                            ('progress', progress),
-                            ('status', status.name.lower()),
-                            ('start_time', start_time),
-                            ('end_time', end_time)]:
+        for name, value in [
+            ('id', scan_id),
+            ('target', target),
+            ('progress', progress),
+            ('status', status.name.lower()),
+            ('start_time', start_time),
+            ('end_time', end_time),
+        ]:
             response.set(name, str(value))
         if detailed:
             response.append(self.get_scan_results_xml(scan_id, pop_res))
         return response
 
     @staticmethod
-    def get_custom_vt_as_xml_str(vt_id, custom):
+    def get_custom_vt_as_xml_str(
+        vt_id, custom
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         custom data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1181,7 +1240,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_id, vt_params):
+    def get_params_vt_as_xml_str(
+        vt_id, vt_params
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_params data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1195,7 +1256,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_id, vt_refs):
+    def get_refs_vt_as_xml_str(
+        vt_id, vt_refs
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         refs data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1209,7 +1272,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(vt_id, vt_dependencies):
+    def get_dependencies_vt_as_xml_str(
+        vt_id, vt_dependencies
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_dependencies data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1223,7 +1288,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(vt_id, vt_creation_time):
+    def get_creation_time_vt_as_xml_str(
+        vt_id, vt_creation_time
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_creation_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1237,7 +1304,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(vt_id, vt_modification_time):
+    def get_modification_time_vt_as_xml_str(
+        vt_id, vt_modification_time
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         vt_modification_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1251,7 +1320,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_summary_vt_as_xml_str(vt_id, summary):
+    def get_summary_vt_as_xml_str(
+        vt_id, summary
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         summary data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1265,7 +1336,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_impact_vt_as_xml_str(vt_id, impact):
+    def get_impact_vt_as_xml_str(
+        vt_id, impact
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         impact data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1279,7 +1352,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_affected_vt_as_xml_str(vt_id, affected):
+    def get_affected_vt_as_xml_str(
+        vt_id, affected
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         affected data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1293,7 +1368,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_insight_vt_as_xml_str(vt_id, insight):
+    def get_insight_vt_as_xml_str(
+        vt_id, insight
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         insight data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1307,7 +1384,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
+    def get_solution_vt_as_xml_str(
+        vt_id, solution, solution_type=None
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         solution data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1321,7 +1400,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_detection_vt_as_xml_str(vt_id, detection=None, qod_type=None, qod=None):
+    def get_detection_vt_as_xml_str(
+        vt_id, detection=None, qod_type=None, qod=None
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         detection data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1335,7 +1416,9 @@ class OSPDaemon(object):
         return ''
 
     @staticmethod
-    def get_severities_vt_as_xml_str(vt_id, severities):
+    def get_severities_vt_as_xml_str(
+        vt_id, severities
+    ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         severities data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1368,67 +1451,78 @@ class OSPDaemon(object):
 
         if vt.get('vt_params'):
             params_xml_str = self.get_params_vt_as_xml_str(
-                vt_id, vt.get('vt_params'))
+                vt_id, vt.get('vt_params')
+            )
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
-            refs_xml_str = self.get_refs_vt_as_xml_str(
-                vt_id, vt.get('vt_refs'))
+            refs_xml_str = self.get_refs_vt_as_xml_str(vt_id, vt.get('vt_refs'))
             vt_xml.append(secET.fromstring(refs_xml_str))
 
         if vt.get('vt_dependencies'):
             dependencies = self.get_dependencies_vt_as_xml_str(
-                vt_id, vt.get('vt_dependencies'))
+                vt_id, vt.get('vt_dependencies')
+            )
             vt_xml.append(secET.fromstring(dependencies))
 
         if vt.get('creation_time'):
             vt_ctime = self.get_creation_time_vt_as_xml_str(
-                vt_id, vt.get('creation_time'))
+                vt_id, vt.get('creation_time')
+            )
             vt_xml.append(secET.fromstring(vt_ctime))
 
         if vt.get('modification_time'):
             vt_mtime = self.get_modification_time_vt_as_xml_str(
-                vt_id, vt.get('modification_time'))
+                vt_id, vt.get('modification_time')
+            )
             vt_xml.append(secET.fromstring(vt_mtime))
 
         if vt.get('summary'):
             summary_xml_str = self.get_summary_vt_as_xml_str(
-                vt_id, vt.get('summary'))
+                vt_id, vt.get('summary')
+            )
             vt_xml.append(secET.fromstring(summary_xml_str))
 
         if vt.get('impact'):
             impact_xml_str = self.get_impact_vt_as_xml_str(
-                vt_id, vt.get('impact'))
+                vt_id, vt.get('impact')
+            )
             vt_xml.append(secET.fromstring(impact_xml_str))
 
         if vt.get('affected'):
             affected_xml_str = self.get_affected_vt_as_xml_str(
-                vt_id, vt.get('affected'))
+                vt_id, vt.get('affected')
+            )
             vt_xml.append(secET.fromstring(affected_xml_str))
 
         if vt.get('insight'):
             insight_xml_str = self.get_insight_vt_as_xml_str(
-                vt_id, vt.get('insight'))
+                vt_id, vt.get('insight')
+            )
             vt_xml.append(secET.fromstring(insight_xml_str))
 
         if vt.get('solution'):
             solution_xml_str = self.get_solution_vt_as_xml_str(
-                vt_id, vt.get('solution'), vt.get('solution_type'))
+                vt_id, vt.get('solution'), vt.get('solution_type')
+            )
             vt_xml.append(secET.fromstring(solution_xml_str))
 
         if vt.get('detection') or vt.get('qod_type') or vt.get('qod'):
             detection_xml_str = self.get_detection_vt_as_xml_str(
-                vt_id, vt.get('detection'), vt.get('qod_type'), vt.get('qod'))
+                vt_id, vt.get('detection'), vt.get('qod_type'), vt.get('qod')
+            )
             vt_xml.append(secET.fromstring(detection_xml_str))
 
         if vt.get('severities'):
             severities_xml_str = self.get_severities_vt_as_xml_str(
-                    vt_id, vt.get('severities'))
+                vt_id, vt.get('severities')
+            )
             vt_xml.append(secET.fromstring(severities_xml_str))
 
         if vt.get('custom'):
             custom_xml_str = self.get_custom_vt_as_xml_str(
-                vt_id, vt.get('custom'))
+                vt_id, vt.get('custom')
+            )
             vt_xml.append(secET.fromstring(custom_xml_str))
 
         return vt_xml
@@ -1469,10 +1563,7 @@ class OSPDaemon(object):
         """
         desc_xml = Element('description')
         desc_xml.text = self.get_scanner_description()
-        details = [
-            desc_xml,
-            self.get_scanner_params_xml()
-        ]
+        details = [desc_xml, self.get_scanner_params_xml()]
         return simple_response_str('get_scanner_details', 200, 'OK', details)
 
     def handle_get_version_command(self):
@@ -1481,17 +1572,26 @@ class OSPDaemon(object):
         @return: Response string for <get_version> command.
         """
         protocol = Element('protocol')
-        for name, value in [('name', 'OSP'), ('version', self.get_protocol_version())]:
+        for name, value in [
+            ('name', 'OSP'),
+            ('version', self.get_protocol_version()),
+        ]:
             elem = SubElement(protocol, name)
             elem.text = value
 
         daemon = Element('daemon')
-        for name, value in [('name', self.get_daemon_name()), ('version', self.get_daemon_version())]:
+        for name, value in [
+            ('name', self.get_daemon_name()),
+            ('version', self.get_daemon_version()),
+        ]:
             elem = SubElement(daemon, name)
             elem.text = value
 
         scanner = Element('scanner')
-        for name, value in [('name', self.get_scanner_name()), ('version', self.get_scanner_version())]:
+        for name, value in [
+            ('name', self.get_scanner_name()),
+            ('version', self.get_scanner_version()),
+        ]:
             elem = SubElement(scanner, name)
             elem.text = value
 
@@ -1561,7 +1661,8 @@ class OSPDaemon(object):
         try:
             while True:
                 readable, _, _ = select.select(
-                    inputs, outputs, inputs, SCHEDULER_CHECK_PERIOD)
+                    inputs, outputs, inputs, SCHEDULER_CHECK_PERIOD
+                )
                 for r_socket in readable:
                     if unix_path and r_socket is sock:
                         client_stream, _ = sock.accept()
@@ -1611,8 +1712,9 @@ class OSPDaemon(object):
         progress = self.get_scan_progress(scan_id)
         if progress < 100 and not scan_process.is_alive():
             self.set_scan_status(scan_id, ScanStatus.STOPPED)
-            self.add_scan_error(scan_id, name="", host="",
-                                value="Scan process failure.")
+            self.add_scan_error(
+                scan_id, name="", host="", value="Scan process failure."
+            )
             logger.info("%s: Scan stopped with errors.", scan_id)
         elif progress == 100:
             scan_process.join()
@@ -1663,27 +1765,69 @@ class OSPDaemon(object):
         """ Gives a scan's end time. """
         return self.scan_collection.get_end_time(scan_id)
 
-    def add_scan_log(self, scan_id, host='', hostname='', name='', value='',
-                     port='', test_id='', qod=''):
+    def add_scan_log(
+        self,
+        scan_id,
+        host='',
+        hostname='',
+        name='',
+        value='',
+        port='',
+        test_id='',
+        qod='',
+    ):
         """ Adds a log result to scan_id scan. """
-        self.scan_collection.add_result(scan_id, ResultType.LOG, host, hostname,
-                                        name, value, port, test_id, 0.0, qod)
+        self.scan_collection.add_result(
+            scan_id,
+            ResultType.LOG,
+            host,
+            hostname,
+            name,
+            value,
+            port,
+            test_id,
+            0.0,
+            qod,
+        )
 
-    def add_scan_error(self, scan_id, host='', hostname='', name='', value='',
-                       port=''):
+    def add_scan_error(
+        self, scan_id, host='', hostname='', name='', value='', port=''
+    ):
         """ Adds an error result to scan_id scan. """
-        self.scan_collection.add_result(scan_id, ResultType.ERROR, host,
-                                        hostname, name, value, port)
+        self.scan_collection.add_result(
+            scan_id, ResultType.ERROR, host, hostname, name, value, port
+        )
 
-    def add_scan_host_detail(self, scan_id, host='', hostname='', name='',
-                             value=''):
+    def add_scan_host_detail(
+        self, scan_id, host='', hostname='', name='', value=''
+    ):
         """ Adds a host detail result to scan_id scan. """
-        self.scan_collection.add_result(scan_id, ResultType.HOST_DETAIL, host,
-                                        hostname, name, value)
+        self.scan_collection.add_result(
+            scan_id, ResultType.HOST_DETAIL, host, hostname, name, value
+        )
 
-    def add_scan_alarm(self, scan_id, host='', hostname='', name='', value='',
-                       port='', test_id='', severity='', qod=''):
+    def add_scan_alarm(
+        self,
+        scan_id,
+        host='',
+        hostname='',
+        name='',
+        value='',
+        port='',
+        test_id='',
+        severity='',
+        qod='',
+    ):
         """ Adds an alarm result to scan_id scan. """
-        self.scan_collection.add_result(scan_id, ResultType.ALARM, host,
-                                        hostname, name, value, port, test_id,
-                                        severity, qod)
+        self.scan_collection.add_result(
+            scan_id,
+            ResultType.ALARM,
+            host,
+            hostname,
+            name,
+            value,
+            port,
+            test_id,
+            severity,
+            qod,
+        )

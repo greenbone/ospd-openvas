@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# pylint: disable=too-many-lines
+
 """ Miscellaneous classes and functions related to OSPD.
 """
 
@@ -53,13 +55,14 @@ CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
 PORT = 1234
 ADDRESS = "0.0.0.0"
 
+
 class ScanStatus(Enum):
     """Scan status. """
+
     INIT = 0
     RUNNING = 1
     STOPPED = 2
     FINISHED = 3
-
 
 
 class ScanCollection(object):
@@ -85,8 +88,19 @@ class ScanCollection(object):
         self.data_manager = None
         self.scans_table = dict()
 
-    def add_result(self, scan_id, result_type, host='', hostname='', name='',
-                   value='', port='', test_id='', severity='', qod=''):
+    def add_result(
+        self,
+        scan_id,
+        result_type,
+        host='',
+        hostname='',
+        name='',
+        value='',
+        port='',
+        test_id='',
+        severity='',
+        qod='',
+    ):
         """ Add a result to a scan in the table. """
 
         assert scan_id
@@ -117,7 +131,7 @@ class ScanCollection(object):
     def set_target_progress(self, scan_id, target, host, progress):
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
-            targets =  self.scans_table[scan_id]['target_progress']
+            targets = self.scans_table[scan_id]['target_progress']
             targets[target][host] = progress
             # Set scan_info's target_progress to propagate progresses
             # to parent process.
@@ -136,8 +150,8 @@ class ScanCollection(object):
         for target in self.scans_table[scan_id]['finished_hosts']:
             unfinished_hosts.extend(target_str_to_list(target))
         for target in self.scans_table[scan_id]['finished_hosts']:
-           for host in self.scans_table[scan_id]['finished_hosts'][target]:
-               unfinished_hosts.remove(host)
+            for host in self.scans_table[scan_id]['finished_hosts'][target]:
+                unfinished_hosts.remove(host)
 
         return unfinished_hosts
 
@@ -147,7 +161,8 @@ class ScanCollection(object):
         finished_hosts = list()
         for target in self.scans_table[scan_id]['finished_hosts']:
             finished_hosts.extend(
-                self.scans_table[scan_id]['finished_hosts'].get(target))
+                self.scans_table[scan_id]['finished_hosts'].get(target)
+            )
 
         return finished_hosts
 
@@ -215,8 +230,11 @@ class ScanCollection(object):
 
         # Check if it is possible to resume task. To avoid to resume, the
         # scan must be deleted from the scans_table.
-        if scan_id and self.id_exists(scan_id) and (
-                self.get_status(scan_id) == ScanStatus.STOPPED):
+        if (
+            scan_id
+            and self.id_exists(scan_id)
+            and (self.get_status(scan_id) == ScanStatus.STOPPED)
+        ):
             return self.resume_scan(scan_id, options)
 
         if not options:
@@ -224,10 +242,12 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
-            [[target, []] for target, _, _, _ in targets])
+            [[target, []] for target, _, _, _ in targets]
+        )
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, {}] for target, _, _, _ in targets])
+            [[target, {}] for target, _, _, _ in targets]
+        )
         scan_info['targets'] = targets
         scan_info['vts'] = vts
         scan_info['options'] = options
@@ -270,11 +290,15 @@ class ScanCollection(object):
         in the target."""
 
         total_hosts = len(target_str_to_list(target))
-        host_progresses = self.scans_table[scan_id]['target_progress'].get(target)
+        host_progresses = self.scans_table[scan_id]['target_progress'].get(
+            target
+        )
         try:
             t_prog = sum(host_progresses.values()) / total_hosts
         except ZeroDivisionError:
-            LOGGER.error("Zero division error in ", get_target_progress.__name__)
+            LOGGER.error(
+                "Zero division error in %s", self.get_target_progress.__name__
+            )
             raise
         return t_prog
 
@@ -386,33 +410,35 @@ class ResultType(object):
             assert False, "Erroneous result name {0}.".format(result_name)
 
 
-__inet_pton = None
+__inet_pton = None  # pylint: disable=invalid-name
 
 
 def inet_pton(address_family, ip_string):
     """ A platform independent version of inet_pton """
-    global __inet_pton
+    global __inet_pton  # pylint: disable=global-statement, invalid-name
     if __inet_pton is None:
         if hasattr(socket, 'inet_pton'):
             __inet_pton = socket.inet_pton
         else:
             from ospd import win_socket
+
             __inet_pton = win_socket.inet_pton
 
     return __inet_pton(address_family, ip_string)
 
 
-__inet_ntop = None
+__inet_ntop = None  # pylint: disable=invalid-name
 
 
 def inet_ntop(address_family, packed_ip):
     """ A platform independent version of inet_ntop """
-    global __inet_ntop
+    global __inet_ntop  # pylint: disable=global-statement, invalid-name
     if __inet_ntop is None:
         if hasattr(socket, 'inet_ntop'):
             __inet_ntop = socket.inet_ntop
         else:
             from ospd import win_socket
+
             __inet_ntop = win_socket.inet_ntop
 
     return __inet_ntop(address_family, packed_ip)
@@ -483,7 +509,7 @@ def target_to_ipv4_cidr(target):
         return None
     start_value = int(binascii.hexlify(start_packed), 16) >> (32 - block)
     start_value = (start_value << (32 - block)) + 1
-    end_value = (start_value | (0xffffffff >> block)) - 1
+    end_value = (start_value | (0xFFFFFFFF >> block)) - 1
     start_packed = struct.pack('!I', start_value)
     end_packed = struct.pack('!I', end_value)
     return ipv4_range_to_list(start_packed, end_packed)
@@ -539,8 +565,7 @@ def ipv6_range_to_list(start_packed, end_packed):
     for value in range(start, end + 1):
         high = value >> 64
         low = value & ((1 << 64) - 1)
-        new_ip = inet_ntop(socket.AF_INET6,
-                           struct.pack('!2Q', high, low))
+        new_ip = inet_ntop(socket.AF_INET6, struct.pack('!2Q', high, low))
         new_list.append(new_ip)
     return new_list
 
@@ -557,7 +582,7 @@ def target_to_ipv6_short(target):
     except (socket.error, ValueError):
         return None
     start_value = int(binascii.hexlify(start_packed[14:]), 16)
-    if end_value < 0 or end_value > 0xffff or end_value < start_value:
+    if end_value < 0 or end_value > 0xFFFF or end_value < start_value:
         return None
     end_packed = start_packed[:14] + struct.pack('!H', end_value)
     return ipv6_range_to_list(start_packed, end_packed)
@@ -630,7 +655,7 @@ def target_str_to_list(target_str):
         if target_list:
             new_list.extend(target_list)
         else:
-            LOGGER.info("{0}: Invalid target value".format(target))
+            LOGGER.info("%s: Invalid target value", target)
             return None
     return list(collections.OrderedDict.fromkeys(new_list))
 
@@ -644,12 +669,27 @@ def resolve_hostname(hostname):
     except socket.gaierror:
         return None
 
+def is_valid_address(address):
+    if not address:
+        return False
+
+    try:
+        inet_pton(socket.AF_INET, address)
+    except OSError:
+        # invalid IPv4 address
+        try:
+            inet_pton(socket.AF_INET6, address)
+        except OSError:
+            # invalid IPv6 address
+            return False
+    return True
 
 def get_hostname_by_address(address):
     """ Returns hostname of an address. """
 
-    if not address:
+    if not is_valid_address(address):
         return ''
+
     try:
         hostname = socket.getfqdn(address)
     except (socket.gaierror, socket.herror):
@@ -674,8 +714,10 @@ def port_range_expand(portrange):
         LOGGER.info("Invalid port range format")
         return None
     port_list = list()
-    for single_port in range(int(portrange[:portrange.index('-')]),
-                             int(portrange[portrange.index('-') + 1:]) + 1):
+    for single_port in range(
+        int(portrange[: portrange.index('-')]),
+        int(portrange[portrange.index('-') + 1 :]) + 1,
+    ):
         port_list.append(single_port)
     return port_list
 
@@ -733,23 +775,23 @@ def ports_as_list(port_str):
     b_udp = ports.find("U")
 
     if ports[b_tcp - 1] == ',':
-        ports = ports[:b_tcp - 1] + ports[b_tcp:]
+        ports = ports[: b_tcp - 1] + ports[b_tcp:]
     if ports[b_udp - 1] == ',':
-        ports = ports[:b_udp - 1] + ports[b_udp:]
+        ports = ports[: b_udp - 1] + ports[b_udp:]
     ports = port_str_arrange(ports)
 
     tports = ''
     uports = ''
     # TCP ports listed first, then UDP ports
     if b_udp != -1 and b_tcp != -1:
-        tports = ports[ports.index('T:') + 2:ports.index('U:')]
-        uports = ports[ports.index('U:') + 2:]
+        tports = ports[ports.index('T:') + 2 : ports.index('U:')]
+        uports = ports[ports.index('U:') + 2 :]
     # Only UDP ports
     elif b_tcp == -1 and b_udp != -1:
-        uports = ports[ports.index('U:') + 2:]
+        uports = ports[ports.index('U:') + 2 :]
     # Only TCP ports
     elif b_udp == -1 and b_tcp != -1:
-        tports = ports[ports.index('T:') + 2:]
+        tports = ports[ports.index('T:') + 2 :]
     else:
         tports = ports
 
@@ -790,8 +832,9 @@ def port_list_compress(port_list):
 
     port_list = sorted(set(port_list))
     compressed_list = []
-    for key, group in itertools.groupby(enumerate(port_list),
-                                        lambda t: t[1] - t[0]):
+    for _key, group in itertools.groupby(
+        enumerate(port_list), lambda t: t[1] - t[0]
+    ):
         group = list(group)
         if group[0][1] == group[-1][1]:
             compressed_list.append(str(group[0][1]))
@@ -822,7 +865,8 @@ def create_args_parser(description):
         value = int(string)
         if not 0 < value <= 65535:
             raise argparse.ArgumentTypeError(
-                'port must be in ]0,65535] interval')
+                'port must be in ]0,65535] interval'
+            )
         return value
 
     def cacert_file(cacert):
@@ -853,7 +897,8 @@ def create_args_parser(description):
         value = getattr(logging, string.upper(), None)
         if not isinstance(value, int):
             raise argparse.ArgumentTypeError(
-                'log level must be one of {debug,info,warning,error,critical}')
+                'log level must be one of {debug,info,warning,error,critical}'
+            )
         return value
 
     def filename(string):
@@ -861,32 +906,67 @@ def create_args_parser(description):
 
         if not os.path.isfile(string):
             raise argparse.ArgumentTypeError(
-                '%s is not a valid file path' % string)
+                '%s is not a valid file path' % string
+            )
         return string
 
-    parser.add_argument('-p', '--port', default=PORT, type=network_port,
-                        help='TCP Port to listen on. Default: {0}'.format(PORT))
-    parser.add_argument('-b', '--bind-address', default=ADDRESS,
-                        help='Address to listen on. Default: {0}'
-                        .format(ADDRESS))
-    parser.add_argument('-u', '--unix-socket',
-                        help='Unix file socket to listen on.')
-    parser.add_argument('-k', '--key-file', type=filename,
-                        help='Server key file. Default: {0}'.format(KEY_FILE))
-    parser.add_argument('-c', '--cert-file', type=filename,
-                        help='Server cert file. Default: {0}'.format(CERT_FILE))
-    parser.add_argument('--ca-file', type=cacert_file,
-                        help='CA cert file. Default: {0}'.format(CA_FILE))
-    parser.add_argument('-L', '--log-level', default='warning', type=log_level,
-                        help='Wished level of logging. Default: WARNING')
-    parser.add_argument('--foreground', action='store_true',
-                        help='Run in foreground and logs all messages to console.')
-    parser.add_argument('-l', '--log-file', type=filename,
-                        help='Path to the logging file.')
-    parser.add_argument('--version', action='store_true',
-                        help='Print version then exit.')
-    parser.add_argument('--niceness', default=NICENESS, type=int,
-                        help='Start the scan with the given niceness. Default %(default)s')
+    parser.add_argument(
+        '-p',
+        '--port',
+        default=PORT,
+        type=network_port,
+        help='TCP Port to listen on. Default: {0}'.format(PORT),
+    )
+    parser.add_argument(
+        '-b',
+        '--bind-address',
+        default=ADDRESS,
+        help='Address to listen on. Default: {0}'.format(ADDRESS),
+    )
+    parser.add_argument(
+        '-u', '--unix-socket', help='Unix file socket to listen on.'
+    )
+    parser.add_argument(
+        '-k',
+        '--key-file',
+        type=filename,
+        help='Server key file. Default: {0}'.format(KEY_FILE),
+    )
+    parser.add_argument(
+        '-c',
+        '--cert-file',
+        type=filename,
+        help='Server cert file. Default: {0}'.format(CERT_FILE),
+    )
+    parser.add_argument(
+        '--ca-file',
+        type=cacert_file,
+        help='CA cert file. Default: {0}'.format(CA_FILE),
+    )
+    parser.add_argument(
+        '-L',
+        '--log-level',
+        default='warning',
+        type=log_level,
+        help='Wished level of logging. Default: WARNING',
+    )
+    parser.add_argument(
+        '--foreground',
+        action='store_true',
+        help='Run in foreground and logs all messages to console.',
+    )
+    parser.add_argument(
+        '-l', '--log-file', type=filename, help='Path to the logging file.'
+    )
+    parser.add_argument(
+        '--version', action='store_true', help='Print version then exit.'
+    )
+    parser.add_argument(
+        '--niceness',
+        default=NICENESS,
+        type=int,
+        help='Start the scan with the given niceness. Default %(default)s',
+    )
 
     return parser
 
@@ -897,7 +977,7 @@ def go_to_background():
         if os.fork():
             sys.exit()
     except OSError as errmsg:
-        LOGGER.error('Fork failed: {0}'.format(errmsg))
+        LOGGER.error('Fork failed: %s', errmsg)
         sys.exit('Fork failed')
 
 
@@ -956,11 +1036,13 @@ def print_version(wrapper):
     daemon_name = wrapper.get_daemon_name()
     daemon_version = wrapper.get_daemon_version()
     print("Using: {0} {1}".format(daemon_name, daemon_version))
-    print("Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
-          "License GPLv2+: GNU GPL version 2 or later\n"
-          "This is free software: you are free to change"
-          " and redistribute it.\n"
-          "There is NO WARRANTY, to the extent permitted by law.")
+    print(
+        "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
+        "License GPLv2+: GNU GPL version 2 or later\n"
+        "This is free software: you are free to change"
+        " and redistribute it.\n"
+        "There is NO WARRANTY, to the extent permitted by law."
+    )
 
 
 def main(name, klass):
@@ -972,8 +1054,12 @@ def main(name, klass):
     # Common args
     cargs = get_common_args(parser)
     logging.getLogger().setLevel(cargs['log_level'])
-    wrapper = klass(certfile=cargs['certfile'], keyfile=cargs['keyfile'],
-                    cafile=cargs['cafile'], niceness=cargs['niceness'])
+    wrapper = klass(
+        certfile=cargs['certfile'],
+        keyfile=cargs['keyfile'],
+        cafile=cargs['cafile'],
+        niceness=cargs['niceness'],
+    )
 
     if cargs['version']:
         print_version(wrapper)
@@ -983,19 +1069,24 @@ def main(name, klass):
         console = logging.StreamHandler()
         console.setFormatter(
             logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
+                '%(asctime)s %(name)s: %(levelname)s: %(message)s'
+            )
+        )
         logging.getLogger().addHandler(console)
     elif cargs['log_file']:
         logfile = logging.handlers.WatchedFileHandler(cargs['log_file'])
         logfile.setFormatter(
             logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'))
+                '%(asctime)s %(name)s: %(levelname)s: %(message)s'
+            )
+        )
         logging.getLogger().addHandler(logfile)
         go_to_background()
     else:
         syslog = logging.handlers.SysLogHandler('/dev/log')
         syslog.setFormatter(
-            logging.Formatter('%(name)s: %(levelname)s: %(message)s'))
+            logging.Formatter('%(name)s: %(levelname)s: %(message)s')
+        )
         logging.getLogger().addHandler(syslog)
         # Duplicate syslog's file descriptor to stout/stderr.
         syslog_fd = syslog.socket.fileno()

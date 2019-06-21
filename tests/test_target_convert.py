@@ -21,29 +21,50 @@
 
 import unittest
 
-from ospd.misc import target_str_to_list
-from ospd.misc import get_hostname_by_address
+from ospd.misc import (
+    target_str_to_list,
+    get_hostname_by_address,
+    is_valid_address,
+)
 
-class testTargetLists(unittest.TestCase):
 
-    def test24Net(self):
+class ConvertTargetListsTestCase(unittest.TestCase):
+    def test_24_net(self):
         addresses = target_str_to_list('195.70.81.0/24')
         self.assertFalse(addresses is None)
         self.assertEqual(len(addresses), 254)
         for i in range(1, 255):
             self.assertTrue('195.70.81.%d' % i in addresses)
 
-    def testRange(self):
+    def test_range(self):
         addresses = target_str_to_list('195.70.81.1-10')
         self.assertFalse(addresses is None)
         self.assertEqual(len(addresses), 10)
         for i in range(1, 10):
             self.assertTrue('195.70.81.%d' % i in addresses)
 
-    def testGetHostnameByAddress(self):
+    def test_get_hostname_by_address(self):
         hostname = get_hostname_by_address('127.0.0.1')
         self.assertEqual(hostname, 'localhost')
+
         hostname = get_hostname_by_address('')
-        self.assertTrue(hostname is '')
+        self.assertEqual(hostname, '')
+
         hostname = get_hostname_by_address('127.0.0.1111')
-        self.assertTrue(hostname is '')
+        self.assertEqual(hostname, '')
+
+    def test_is_valid_address(self):
+        self.assertFalse(is_valid_address(None))
+        self.assertFalse(is_valid_address(''))
+        self.assertFalse(is_valid_address('foo'))
+        self.assertFalse(is_valid_address('127.0.0.1111'))
+        self.assertFalse(is_valid_address('127.0.0,1'))
+
+        self.assertTrue(is_valid_address('127.0.0.1'))
+        self.assertTrue(is_valid_address('192.168.0.1'))
+        self.assertTrue(is_valid_address('::1'))
+        self.assertTrue(is_valid_address('fc00::'))
+        self.assertTrue(is_valid_address('fec0::'))
+        self.assertTrue(
+            is_valid_address('2001:0db8:85a3:08d3:1319:8a2e:0370:7344')
+        )

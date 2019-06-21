@@ -19,7 +19,8 @@
 """ OSP class for handling errors.
 """
 
-from ospd.xml import simple_response_str, get_result_xml
+from ospd.xml import simple_response_str
+
 
 class OSPDError(Exception):
 
