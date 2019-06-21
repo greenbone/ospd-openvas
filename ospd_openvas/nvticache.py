@@ -19,9 +19,9 @@
 
 """ Provide functions to handle NVT Info Cache. """
 
-import xml.etree.ElementTree as ET
-from ospd_openvas.db import NVT_META_FIELDS
 from ospd.ospd import logger
+
+from ospd_openvas.db import NVT_META_FIELDS
 
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
@@ -29,7 +29,7 @@ LIST_LAST_POS = -1
 
 class NVTICache(object):
 
-    QoD_TYPES = {
+    QOD_TYPES = {
         'exploit': '100',
         'remote_vul': '99',
         'remote_app': '98',
@@ -118,7 +118,7 @@ class NVTICache(object):
             try:
                 _tag, _value = tag.split('=', 1)
             except ValueError:
-                logger.error('Tag %s in %s has no value.' % (tag, oid))
+                logger.error('Tag %s in %s has no value.', tag, oid)
                 continue
             if _tag not in ['cvss_base']:
                 tags_dict[_tag] = _value

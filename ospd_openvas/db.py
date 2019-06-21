@@ -19,14 +19,15 @@
 
 """ Access management for redis-based OpenVAS Scanner Database."""
 
-import redis
 import subprocess
-import time
 import sys
+import time
 
-from ospd_openvas.errors import OSPDOpenvasError
-from ospd_openvas.errors import RequiredArgument
+import redis
+
 from ospd.ospd import logger
+
+from ospd_openvas.errors import OSPDOpenvasError, RequiredArgument
 
 SOCKET_TIMEOUT = 60  # in seconds
 LIST_FIRST_POS = 0
@@ -150,9 +151,9 @@ class OpenvasDB(object):
         Return True if it is possible to use the kb. False if the given kb
             number is already in use.
         """
-        _IN_USE = 1
+        _in_use = 1
         try:
-            resp = ctx.hsetnx(self.DBINDEX_NAME, kb, _IN_USE)
+            resp = ctx.hsetnx(self.DBINDEX_NAME, kb, _in_use)
         except:
             raise OSPDOpenvasError(
                 'Redis Error: Not possible ' 'to set %s.' % self.DBINDEX_NAME
