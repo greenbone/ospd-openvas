@@ -21,8 +21,11 @@
 
 import unittest
 
-from ospd.misc import target_str_to_list
-from ospd.misc import get_hostname_by_address
+from ospd.misc import (
+    target_str_to_list,
+    get_hostname_by_address,
+    is_valid_address,
+)
 
 
 class ConvertTargetListsTestCase(unittest.TestCase):
@@ -49,3 +52,19 @@ class ConvertTargetListsTestCase(unittest.TestCase):
 
         hostname = get_hostname_by_address('127.0.0.1111')
         self.assertEqual(hostname, '')
+
+    def test_is_valid_address(self):
+        self.assertFalse(is_valid_address(None))
+        self.assertFalse(is_valid_address(''))
+        self.assertFalse(is_valid_address('foo'))
+        self.assertFalse(is_valid_address('127.0.0.1111'))
+        self.assertFalse(is_valid_address('127.0.0,1'))
+
+        self.assertTrue(is_valid_address('127.0.0.1'))
+        self.assertTrue(is_valid_address('192.168.0.1'))
+        self.assertTrue(is_valid_address('::1'))
+        self.assertTrue(is_valid_address('fc00::'))
+        self.assertTrue(is_valid_address('fec0::'))
+        self.assertTrue(
+            is_valid_address('2001:0db8:85a3:08d3:1319:8a2e:0370:7344')
+        )
