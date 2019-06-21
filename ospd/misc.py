@@ -669,12 +669,27 @@ def resolve_hostname(hostname):
     except socket.gaierror:
         return None
 
+def is_valid_address(address):
+    if not address:
+        return False
+
+    try:
+        inet_pton(socket.AF_INET, address)
+    except OSError:
+        # invalid IPv4 address
+        try:
+            inet_pton(socket.AF_INET6, address)
+        except OSError:
+            # invalid IPv6 address
+            return False
+    return True
 
 def get_hostname_by_address(address):
     """ Returns hostname of an address. """
 
-    if not address:
+    if not is_valid_address(address):
         return ''
+
     try:
         hostname = socket.getfqdn(address)
     except (socket.gaierror, socket.herror):

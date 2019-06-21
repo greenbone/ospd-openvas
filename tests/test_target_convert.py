@@ -43,7 +43,9 @@ class ConvertTargetListsTestCase(unittest.TestCase):
     def test_get_hostname_by_address(self):
         hostname = get_hostname_by_address('127.0.0.1')
         self.assertEqual(hostname, 'localhost')
+
         hostname = get_hostname_by_address('')
-        self.assertTrue(hostname is '')
+        self.assertEqual(hostname, '')
+
         hostname = get_hostname_by_address('127.0.0.1111')
-        self.assertTrue(hostname is '')
+        self.assertEqual(hostname, '')
