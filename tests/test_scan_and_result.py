@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# pylint: disable=too-many-lines
+
 """ Test module for scan runs
 """
 
@@ -203,6 +205,7 @@ class ScanTestCase(unittest.TestCase):
         response = secET.fromstring(
             daemon.handle_command('<get_scanner_details />')
         )
+
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
         # The response root element must have the correct name
@@ -213,22 +216,27 @@ class ScanTestCase(unittest.TestCase):
     def test_get_default_help(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<help />'))
+
         self.assertEqual(response.get('status'), '200')
+
         response = secET.fromstring(
             daemon.handle_command('<help format="xml" />')
         )
+
         self.assertEqual(response.get('status'), '200')
         self.assertEqual(response.tag, 'help_response')
 
     def test_get_default_scanner_version(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<get_version />'))
+
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('protocol'))
 
     def test_get_vts_no_vt(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
+
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('vts'))
 
@@ -236,9 +244,12 @@ class ScanTestCase(unittest.TestCase):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
+
         self.assertEqual(response.get('status'), '200')
+
         vts = response.find('vts')
         self.assertIsNotNone(vts.find('vt'))
+
         vt = vts.find('vt')
         self.assertEqual(vt.get('id'), '1.2.3.4')
 
@@ -250,16 +261,20 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_modification_time='19000202',
         )
+
         response = secET.fromstring(
             daemon.handle_command(
                 '<get_vts filter="modification_time&gt;19000201"></get_vts>'
             )
         )
+
         self.assertEqual(response.get('status'), '200')
         vts = response.find('vts')
-        self.assertIsNotNone(vts.find('vt'))
+
         vt = vts.find('vt')
+        self.assertIsNotNone(vt)
         self.assertEqual(vt.get('id'), '1.2.3.4')
+
         modification_time = response.findall('vts/vt/modification_time')
         self.assertEqual(
             '<modification_time>19000202</modification_time>',
@@ -274,16 +289,20 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_modification_time='19000202',
         )
+
         response = secET.fromstring(
             daemon.handle_command(
                 '<get_vts filter="modification_time&lt;19000203"></get_vts>'
             )
         )
         self.assertEqual(response.get('status'), '200')
+
         vts = response.find('vts')
-        self.assertIsNotNone(vts.find('vt'))
+
         vt = vts.find('vt')
+        self.assertIsNotNone(vt)
         self.assertEqual(vt.get('id'), '1.2.3.4')
+
         modification_time = response.findall('vts/vt/modification_time')
         self.assertEqual(
             '<modification_time>19000202</modification_time>',
@@ -295,8 +314,11 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
         daemon.add_vt('some id', 'Another vulnerability test')
         daemon.add_vt('123456789', 'Yet another vulnerability test')
+
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
+
         self.assertEqual(response.get('status'), '200')
+
         vts = response.find('vts')
         self.assertIsNotNone(vts.find('vt'))
 
@@ -307,8 +329,10 @@ class ScanTestCase(unittest.TestCase):
             '4.3.2.1', 'Another vulnerability test with custom info', custom='b'
         )
         daemon.add_vt('123456789', 'Yet another vulnerability test', custom='b')
+
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
         custom = response.findall('vts/vt/custom')
+
         self.assertEqual(3, len(custom))
 
     def test_get_vts_vts_with_params(self):
@@ -316,19 +340,24 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_vt(
             '1.2.3.4', 'A vulnerability test', vt_params="a", custom="b"
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
+
         # The response root element must have the correct name
         self.assertEqual(response.tag, 'get_vts_response')
         # The response must contain a 'scanner_params' element
         self.assertIsNotNone(response.find('vts'))
+
         vt_params = response[0][0].findall('params')
         self.assertEqual(1, len(vt_params))
+
         custom = response[0][0].findall('custom')
         self.assertEqual(1, len(custom))
+
         params = response.findall('vts/vt/params/param')
         self.assertEqual(2, len(params))
 
@@ -341,19 +370,25 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             vt_refs="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
+
         # The response root element must have the correct name
         self.assertEqual(response.tag, 'get_vts_response')
+
         # The response must contain a 'vts' element
         self.assertIsNotNone(response.find('vts'))
+
         vt_params = response[0][0].findall('params')
         self.assertEqual(1, len(vt_params))
+
         custom = response[0][0].findall('custom')
         self.assertEqual(1, len(custom))
+
         refs = response.findall('vts/vt/refs/ref')
         self.assertEqual(2, len(refs))
 
@@ -366,9 +401,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             vt_dependencies="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         deps = response.findall('vts/vt/dependencies/dependency')
         self.assertEqual(2, len(deps))
 
@@ -381,9 +418,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             severities="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         severity = response.findall('vts/vt/severities/severity')
         self.assertEqual(1, len(severity))
 
@@ -397,9 +436,11 @@ class ScanTestCase(unittest.TestCase):
             detection="c",
             qod_t="d",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
 
@@ -413,9 +454,11 @@ class ScanTestCase(unittest.TestCase):
             detection="c",
             qod_v="d",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
 
@@ -428,9 +471,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             summary="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         summary = response.findall('vts/vt/summary')
         self.assertEqual(1, len(summary))
 
@@ -443,9 +488,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             impact="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         impact = response.findall('vts/vt/impact')
         self.assertEqual(1, len(impact))
 
@@ -458,9 +505,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             affected="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         affect = response.findall('vts/vt/affected')
         self.assertEqual(1, len(affect))
 
@@ -473,9 +522,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             insight="c",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         insight = response.findall('vts/vt/insight')
         self.assertEqual(1, len(insight))
 
@@ -489,9 +540,11 @@ class ScanTestCase(unittest.TestCase):
             solution="c",
             solution_t="d",
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
+
         solution = response.findall('vts/vt/solution')
         self.assertEqual(1, len(solution))
 
@@ -503,11 +556,12 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_creation_time='01-01-1900',
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
-        creation_time = response.findall('vts/vt/creation_time')
 
+        creation_time = response.findall('vts/vt/creation_time')
         self.assertEqual(
             '<creation_time>01-01-1900</creation_time>',
             ET.tostring(creation_time[0]).decode('utf-8'),
@@ -521,11 +575,12 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_modification_time='02-01-1900',
         )
+
         response = secET.fromstring(
             daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
         )
-        modification_time = response.findall('vts/vt/modification_time')
 
+        modification_time = response.findall('vts/vt/modification_time')
         self.assertEqual(
             '<modification_time>02-01-1900</modification_time>',
             ET.tostring(modification_time[0]).decode('utf-8'),
@@ -551,18 +606,22 @@ class ScanTestCase(unittest.TestCase):
             )
             scans = response.findall('scan')
             self.assertEqual(1, len(scans))
+
             scan = scans[0]
             status = scan.get('status')
+
             if status == "init" or status == "running":
                 self.assertEqual('0', scan.get('end_time'))
                 time.sleep(0.010)
             else:
                 finished = True
+
         response = secET.fromstring(
             daemon.handle_command(
                 '<get_scans scan_id="%s" details="1"/>' % scan_id
             )
         )
+
         self.assertEqual(
             response.findtext('scan/results/result'), 'something went wrong'
         )
@@ -570,6 +629,7 @@ class ScanTestCase(unittest.TestCase):
         response = secET.fromstring(
             daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id)
         )
+
         self.assertEqual(response.get('status'), '200')
 
     def test_get_scan_pop(self):
@@ -581,6 +641,7 @@ class ScanTestCase(unittest.TestCase):
                 '<scanner_params /></start_scan>'
             )
         )
+
         scan_id = response.findtext('id')
         time.sleep(1)
 
@@ -618,13 +679,16 @@ class ScanTestCase(unittest.TestCase):
                 )
             )
             scans = response.findall('scan')
+
             self.assertEqual(1, len(scans))
+
             scan = scans[0]
             if scan.get('status') == "stopped":
                 break
 
         scans = response.findall('scan')
         scan = scans[0]
+
         self.assertIn(
             response.findtext('scan/results/result'),
             ['Scan process failure.', 'Scan stopped.']
@@ -650,6 +714,7 @@ class ScanTestCase(unittest.TestCase):
         # because the scanner is already stopped when the <stop_scan>
         # command is run.
         time.sleep(3)
+
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
         self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
 
@@ -664,7 +729,9 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /><vt_selection />'
             '</start_scan>'
         )
-        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+
+        with self.assertRaises(OSPDError):
+            daemon.handle_start_scan_command(cmd)
 
         # With one vt, without params
         response = secET.fromstring(
@@ -678,6 +745,7 @@ class ScanTestCase(unittest.TestCase):
         )
         scan_id = response.findtext('id')
         time.sleep(0.01)
+
         self.assertEqual(
             daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vt_groups': []}
         )
@@ -691,6 +759,7 @@ class ScanTestCase(unittest.TestCase):
                 '<scanner_params /></start_scan>'
             )
         )
+
         scan_id = response.findtext('id')
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
@@ -706,7 +775,9 @@ class ScanTestCase(unittest.TestCase):
             'ngle id="1234"><vt_value>200</vt_value>'
             '</vt_single></vt_selection></start_scan>'
         )
-        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+
+        with self.assertRaises(OSPDError):
+            daemon.handle_start_scan_command(cmd)
 
         # No error
         response = secET.fromstring(
@@ -812,6 +883,7 @@ class ScanTestCase(unittest.TestCase):
         )
 
         self.assertEqual(response.get('status'), '200')
+
         cred_dict = {
             'ssh': {
                 'type': 'up',
@@ -904,6 +976,7 @@ class ScanTestCase(unittest.TestCase):
 
     def test_progress(self):
         daemon = DummyWrapper([])
+
         response = secET.fromstring(
             daemon.handle_command(
                 '<start_scan parallel="2">'
@@ -918,14 +991,18 @@ class ScanTestCase(unittest.TestCase):
                 '</start_scan>'
             )
         )
+
         scan_id = response.findtext('id')
+
         daemon.set_scan_target_progress(scan_id, 'localhost1', 'localhost1', 75)
         daemon.set_scan_target_progress(scan_id, 'localhost2', 'localhost2', 25)
+
         self.assertEqual(daemon.calculate_progress(scan_id), 50)
 
     def test_set_get_vts_version(self):
         daemon = DummyWrapper([])
         daemon.set_vts_version('1234')
+
         version = daemon.get_vts_version()
         self.assertEqual('1234', version)
 
@@ -944,6 +1021,7 @@ class ScanTestCase(unittest.TestCase):
                 ),
             ]
         )
+
         response = secET.fromstring(
             daemon.handle_command(
                 '<start_scan parallel="2">'
@@ -959,13 +1037,16 @@ class ScanTestCase(unittest.TestCase):
 
         time.sleep(3)
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
-        self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
+
+        with self.assertRaises(OSPDError):
+            daemon.handle_stop_scan_command(cmd)
 
         response = secET.fromstring(
             daemon.handle_command(
                 '<get_scans scan_id="%s" details="1"/>' % scan_id
             )
         )
+
         result = response.findall('scan/results/result')
         self.assertEqual(len(result), 4)
 
@@ -982,9 +1063,11 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(
             daemon.get_scan_unfinished_hosts(scan_id), ['localhost']
         )
+
         # Finished the host and check unfinished again.
         daemon.set_scan_host_finished(scan_id, "localhost", "localhost")
         self.assertEqual(daemon.get_scan_unfinished_hosts(scan_id), [])
+
         # Check finished hosts
         self.assertEqual(
             daemon.scan_collection.get_hosts_finished(scan_id), ['localhost']

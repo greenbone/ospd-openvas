@@ -31,17 +31,21 @@ from ospd.network import (
 class ConvertTargetListsTestCase(unittest.TestCase):
     def test_24_net(self):
         addresses = target_str_to_list('195.70.81.0/24')
-        self.assertFalse(addresses is None)
+
+        self.assertIsNotNone(addresses)
         self.assertEqual(len(addresses), 254)
+
         for i in range(1, 255):
-            self.assertTrue('195.70.81.%d' % i in addresses)
+            self.assertIn('195.70.81.%d' % i, addresses)
 
     def test_range(self):
         addresses = target_str_to_list('195.70.81.1-10')
-        self.assertFalse(addresses is None)
+
+        self.assertIsNotNone(addresses)
         self.assertEqual(len(addresses), 10)
+
         for i in range(1, 10):
-            self.assertTrue('195.70.81.%d' % i in addresses)
+            self.assertIn('195.70.81.%d' % i, addresses)
 
     def test_get_hostname_by_address(self):
         hostname = get_hostname_by_address('127.0.0.1')

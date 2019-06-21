@@ -31,19 +31,18 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.parser = create_args_parser('Wrapper name')
 
     def test_port_interval(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '--port=65536'.split()
-        )
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '--port=0'.split()
-        )
-        args = get_common_args(self.parser, '--port=3353'.split())
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, ['--port=65536'])
+
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, ['--port=0'])
+
+        args = get_common_args(self.parser, ['--port=3353'])
         self.assertEqual(3353, args['port'])
 
     def test_port_as_string(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '--port=abcd'.split()
-        )
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, ['--port=abcd'])
 
     def test_default_port(self):
         args = get_common_args(self.parser, [])
@@ -70,14 +69,12 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(logging.INFO, args['log_level'])
 
     def test_correct_log_level(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '-L blah'.split()
-        )
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, '-L blah'.split())
 
     def test_non_existing_key(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '-k abcdef.ghijkl'.split()
-        )
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, '-k abcdef.ghijkl'.split())
 
     def test_existing_key(self):
         args = get_common_args(self.parser, '-k /etc/passwd'.split())
