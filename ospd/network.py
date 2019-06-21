@@ -58,9 +58,11 @@ def ipv4_range_to_list(start_packed, end_packed) -> Optional[List]:
     new_list = list()
     start = struct.unpack('!L', start_packed)[0]
     end = struct.unpack('!L', end_packed)[0]
+
     for value in range(start, end + 1):
         new_ip = socket.inet_ntoa(struct.pack('!L', value))
         new_list.append(new_ip)
+
     return new_list
 
 
@@ -70,15 +72,19 @@ def target_to_ipv4_short(target: str) -> Optional[List]:
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
+
     try:
         start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
         end_value = int(splitted[1])
     except (socket.error, ValueError):
         return None
+
     start_value = int(binascii.hexlify(bytes(start_packed[3])), 16)
     if end_value < 0 or end_value > 255 or end_value < start_value:
         return None
+
     end_packed = start_packed[0:3] + struct.pack('B', end_value)
+
     return ipv4_range_to_list(start_packed, end_packed)
 
 
@@ -88,18 +94,24 @@ def target_to_ipv4_cidr(target: str) -> Optional[List]:
     splitted = target.split('/')
     if len(splitted) != 2:
         return None
+
     try:
         start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
         block = int(splitted[1])
     except (socket.error, ValueError):
         return None
+
     if block <= 0 or block > 30:
         return None
+
     start_value = int(binascii.hexlify(start_packed), 16) >> (32 - block)
     start_value = (start_value << (32 - block)) + 1
+
     end_value = (start_value | (0xFFFFFFFF >> block)) - 1
+
     start_packed = struct.pack('!I', start_value)
     end_packed = struct.pack('!I', end_value)
+
     return ipv4_range_to_list(start_packed, end_packed)
 
 
@@ -109,22 +121,31 @@ def target_to_ipv6_cidr(target: str) -> Optional[List]:
     splitted = target.split('/')
     if len(splitted) != 2:
         return None
+
     try:
         start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
         block = int(splitted[1])
     except (socket.error, ValueError):
         return None
+
     if block <= 0 or block > 126:
         return None
+
     start_value = int(binascii.hexlify(start_packed), 16) >> (128 - block)
     start_value = (start_value << (128 - block)) + 1
+
     end_value = (start_value | (int('ff' * 16, 16) >> block)) - 1
+
     high = start_value >> 64
     low = start_value & ((1 << 64) - 1)
+
     start_packed = struct.pack('!QQ', high, low)
+
     high = end_value >> 64
     low = end_value & ((1 << 64) - 1)
+
     end_packed = struct.pack('!QQ', high, low)
+
     return ipv6_range_to_list(start_packed, end_packed)
 
 
@@ -134,13 +155,16 @@ def target_to_ipv4_long(target: str) -> Optional[List]:
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
+
     try:
         start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
         end_packed = socket.inet_pton(socket.AF_INET, splitted[1])
     except socket.error:
         return None
+
     if end_packed < start_packed:
         return None
+
     return ipv4_range_to_list(start_packed, end_packed)
 
 
@@ -148,8 +172,10 @@ def ipv6_range_to_list(start_packed, end_packed) -> List:
     """ Return a list of IPv6 entries from start_packed to end_packed. """
 
     new_list = list()
+
     start = int(binascii.hexlify(start_packed), 16)
     end = int(binascii.hexlify(end_packed), 16)
+
     for value in range(start, end + 1):
         high = value >> 64
         low = value & ((1 << 64) - 1)
@@ -157,6 +183,7 @@ def ipv6_range_to_list(start_packed, end_packed) -> List:
             socket.AF_INET6, struct.pack('!2Q', high, low)
         )
         new_list.append(new_ip)
+
     return new_list
 
 
@@ -166,15 +193,19 @@ def target_to_ipv6_short(target: str) -> Optional[List]:
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
+
     try:
         start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
         end_value = int(splitted[1], 16)
     except (socket.error, ValueError):
         return None
+
     start_value = int(binascii.hexlify(start_packed[14:]), 16)
     if end_value < 0 or end_value > 0xFFFF or end_value < start_value:
         return None
+
     end_packed = start_packed[:14] + struct.pack('!H', end_value)
+
     return ipv6_range_to_list(start_packed, end_packed)
 
 
@@ -184,13 +215,16 @@ def target_to_ipv6_long(target: str) -> Optional[List]:
     splitted = target.split('-')
     if len(splitted) != 2:
         return None
+
     try:
         start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
         end_packed = socket.inet_pton(socket.AF_INET6, splitted[1])
     except socket.error:
         return None
+
     if end_packed < start_packed:
         return None
+
     return ipv6_range_to_list(start_packed, end_packed)
 
 
@@ -199,8 +233,10 @@ def target_to_hostname(target: str) -> Optional[List]:
 
     if len(target) == 0 or len(target) > 255:
         return None
+
     if not re.match(r'^[\w.-]+$', target):
         return None
+
     return [target]
 
 
@@ -233,20 +269,25 @@ def target_to_list(target: str) -> Optional[List]:
     # Is it a hostname ?
     if not new_list:
         new_list = target_to_hostname(target)
+
     return new_list
 
 
 def target_str_to_list(target_str: str) -> Optional[List]:
     """ Parses a targets string into a list of individual targets. """
     new_list = list()
+
     for target in target_str.split(','):
+
         target = target.strip()
         target_list = target_to_list(target)
+
         if target_list:
             new_list.extend(target_list)
         else:
             __LOGGER.info("%s: Invalid target value", target)
             return None
+
     return list(collections.OrderedDict.fromkeys(new_list))
 
 
@@ -273,6 +314,7 @@ def is_valid_address(address: str) -> bool:
         except OSError:
             # invalid IPv6 address
             return False
+
     return True
 
 
@@ -289,6 +331,7 @@ def get_hostname_by_address(address: str) -> str:
 
     if hostname == address:
         return ''
+
     return hostname
 
 
@@ -305,12 +348,15 @@ def port_range_expand(portrange: str) -> Optional[List]:
     if not portrange or '-' not in portrange:
         __LOGGER.info("Invalid port range format")
         return None
+
     port_list = list()
+
     for single_port in range(
         int(portrange[: portrange.index('-')]),
         int(portrange[portrange.index('-') + 1 :]) + 1,
     ):
         port_list.append(single_port)
+
     return port_list
 
 
@@ -320,6 +366,7 @@ def port_str_arrange(ports: str) -> str:
     """
     b_tcp = ports.find("T")
     b_udp = ports.find("U")
+
     if (b_udp != -1 and b_tcp != -1) and b_udp < b_tcp:
         return ports[b_tcp:] + ports[b_udp:b_tcp]
 
@@ -340,6 +387,7 @@ def ports_str_check_failed(port_str: str) -> bool:
         or port_str.count(':') < (port_str.count('T') + port_str.count('U'))
     ):
         return True
+
     return False
 
 
@@ -362,14 +410,18 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
 
     tcp_list = list()
     udp_list = list()
+
     ports = port_str.replace(' ', '')
+
     b_tcp = ports.find("T")
     b_udp = ports.find("U")
 
     if ports[b_tcp - 1] == ',':
         ports = ports[: b_tcp - 1] + ports[b_tcp:]
+
     if ports[b_udp - 1] == ',':
         ports = ports[: b_udp - 1] + ports[b_udp:]
+
     ports = port_str_arrange(ports)
 
     tports = ''
@@ -394,6 +446,7 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
             else:
                 tcp_list.append(int(port))
         tcp_list.sort()
+
     if uports:
         for port in uports.split(','):
             if '-' in port:
@@ -424,10 +477,12 @@ def port_list_compress(port_list: str) -> str:
 
     port_list = sorted(set(port_list))
     compressed_list = []
+
     for _key, group in itertools.groupby(
         enumerate(port_list), lambda t: t[1] - t[0]
     ):
         group = list(group)
+
         if group[0][1] == group[-1][1]:
             compressed_list.append(str(group[0][1]))
         else:
