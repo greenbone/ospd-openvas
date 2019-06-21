@@ -19,9 +19,11 @@
 
 """ Provide functions to handle NVT Info Cache. """
 
-from ospd.ospd import logger
+import logging
 
 from ospd_openvas.db import NVT_META_FIELDS
+
+logger = logging.getLogger(__name__)
 
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1

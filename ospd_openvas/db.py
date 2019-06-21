@@ -18,14 +18,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 """ Access management for redis-based OpenVAS Scanner Database."""
-
+import logging
 import subprocess
 import sys
 import time
 
 import redis
-
-from ospd.ospd import logger
 
 from ospd_openvas.errors import OSPDOpenvasError, RequiredArgument
 
@@ -52,6 +50,8 @@ NVT_META_FIELDS = [
     "NVT_FAMILY_POS",
     "NVT_NAME_POS",
 ]
+
+logger = logging.getLogger(__name__)
 
 
 class OpenvasDB(object):
