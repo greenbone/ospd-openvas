@@ -19,14 +19,14 @@
 """ Test suites for Port manipulation.
 """
 
-from __future__ import print_function
-
 import unittest
 
-from ospd.misc import ports_as_list
-from ospd.misc import get_udp_port_list
-from ospd.misc import get_tcp_port_list
-from ospd.misc import port_list_compress
+from ospd.network import (
+    ports_as_list,
+    get_udp_port_list,
+    get_tcp_port_list,
+    port_list_compress,
+)
 
 
 class ConvertPortTestCase(unittest.TestCase):

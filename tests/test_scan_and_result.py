@@ -625,9 +625,9 @@ class ScanTestCase(unittest.TestCase):
 
         scans = response.findall('scan')
         scan = scans[0]
-        self.assertTrue(
-            response.findtext('scan/results/result')
-            in ['Scan process failure.', 'Scan stopped.']
+        self.assertIn(
+            response.findtext('scan/results/result'),
+            ['Scan process failure.', 'Scan stopped.']
         )
 
         response = secET.fromstring(

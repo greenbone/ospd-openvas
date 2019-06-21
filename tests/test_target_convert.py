@@ -21,7 +21,7 @@
 
 import unittest
 
-from ospd.misc import (
+from ospd.network import (
     target_str_to_list,
     get_hostname_by_address,
     is_valid_address,

@@ -41,12 +41,11 @@ from xml.etree.ElementTree import Element, SubElement
 import defusedxml.ElementTree as secET
 
 from ospd import __version__
-from ospd.vtfilter import VtsFilter
-from ospd.misc import ScanCollection, ResultType, target_str_to_list
-from ospd.misc import resolve_hostname, valid_uuid
-from ospd.misc import ScanStatus
-from ospd.xml import simple_response_str, get_result_xml
 from ospd.error import OSPDError
+from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
+from ospd.network import resolve_hostname, target_str_to_list
+from ospd.vtfilter import VtsFilter
+from ospd.xml import simple_response_str, get_result_xml
 
 logger = logging.getLogger(__name__)
 
