@@ -1339,3 +1339,7 @@ class OSPDopenvas(OSPDaemon):
 def main():
     """ OSP openvas main function. """
     daemon_main('OSPD - openvas', OSPDopenvas)
+
+
+if __name__ == '__main__':
+    main()
