@@ -26,7 +26,7 @@ from ospd import misc
 from ospd.misc import create_args_parser, get_common_args
 
 
-class TestArgumentParser(unittest.TestCase):
+class ArgumentParserTestCase(unittest.TestCase):
     def setUp(self):
         self.parser = create_args_parser('Wrapper name')
 

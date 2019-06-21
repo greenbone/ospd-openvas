@@ -196,7 +196,7 @@ class DummyWrapper(OSPDaemon):
                 raise ValueError(res.result_type)
 
 
-class FullTest(unittest.TestCase):
+class ScanTestCase(unittest.TestCase):
 
     def test_get_default_scanner_params(self):
         daemon = DummyWrapper([])

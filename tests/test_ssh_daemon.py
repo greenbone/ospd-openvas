@@ -71,7 +71,7 @@ class fakeparamiko(object):  # pylint: disable=invalid-name
     ssh_exception = FakeExceptions
 
 
-class TestSSH(unittest.TestCase):
+class SSHDaemonTestCase(unittest.TestCase):
     def test_no_paramiko(self):
         ospd_ssh.paramiko = None
         self.assertRaises(

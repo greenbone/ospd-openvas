@@ -24,7 +24,7 @@ import unittest
 from ospd.ospd import OSPDError
 
 
-class TestOSPDError(unittest.TestCase):
+class OSPDErrorTestCase(unittest.TestCase):
     def test_default_params(self):
         e = OSPDError('message')
         self.assertEqual('message', e.message)

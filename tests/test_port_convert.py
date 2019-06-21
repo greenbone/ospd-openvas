@@ -29,7 +29,7 @@ from ospd.misc import get_tcp_port_list
 from ospd.misc import port_list_compress
 
 
-class FullTest(unittest.TestCase):
+class ConvertPortTestCase(unittest.TestCase):
     def test_tcp_ports(self):
         """ Test only tcp ports."""
         tports, uports = ports_as_list('T:1-10,30,31')
