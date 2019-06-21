@@ -27,11 +27,12 @@ import re
 import socket
 import struct
 
+from typing import List, Optional, Tuple
 
 __LOGGER = logging.getLogger(__name__)
 
 
-def target_to_ipv4(target):
+def target_to_ipv4(target: str) -> Optional[List]:
     """ Attempt to return a single IPv4 host list from a target string. """
 
     try:
@@ -41,7 +42,7 @@ def target_to_ipv4(target):
         return None
 
 
-def target_to_ipv6(target):
+def target_to_ipv6(target: str) -> Optional[List]:
     """ Attempt to return a single IPv6 host list from a target string. """
 
     try:
@@ -51,7 +52,7 @@ def target_to_ipv6(target):
         return None
 
 
-def ipv4_range_to_list(start_packed, end_packed):
+def ipv4_range_to_list(start_packed, end_packed) -> Optional[List]:
     """ Return a list of IPv4 entries from start_packed to end_packed. """
 
     new_list = list()
@@ -63,7 +64,7 @@ def ipv4_range_to_list(start_packed, end_packed):
     return new_list
 
 
-def target_to_ipv4_short(target):
+def target_to_ipv4_short(target: str) -> Optional[List]:
     """ Attempt to return a IPv4 short range list from a target string. """
 
     splitted = target.split('-')
@@ -81,7 +82,7 @@ def target_to_ipv4_short(target):
     return ipv4_range_to_list(start_packed, end_packed)
 
 
-def target_to_ipv4_cidr(target):
+def target_to_ipv4_cidr(target: str) -> Optional[List]:
     """ Attempt to return a IPv4 CIDR list from a target string. """
 
     splitted = target.split('/')
@@ -102,7 +103,7 @@ def target_to_ipv4_cidr(target):
     return ipv4_range_to_list(start_packed, end_packed)
 
 
-def target_to_ipv6_cidr(target):
+def target_to_ipv6_cidr(target: str) -> Optional[List]:
     """ Attempt to return a IPv6 CIDR list from a target string. """
 
     splitted = target.split('/')
@@ -127,7 +128,7 @@ def target_to_ipv6_cidr(target):
     return ipv6_range_to_list(start_packed, end_packed)
 
 
-def target_to_ipv4_long(target):
+def target_to_ipv4_long(target: str) -> Optional[List]:
     """ Attempt to return a IPv4 long-range list from a target string. """
 
     splitted = target.split('-')
@@ -143,7 +144,7 @@ def target_to_ipv4_long(target):
     return ipv4_range_to_list(start_packed, end_packed)
 
 
-def ipv6_range_to_list(start_packed, end_packed):
+def ipv6_range_to_list(start_packed, end_packed) -> List:
     """ Return a list of IPv6 entries from start_packed to end_packed. """
 
     new_list = list()
@@ -159,7 +160,7 @@ def ipv6_range_to_list(start_packed, end_packed):
     return new_list
 
 
-def target_to_ipv6_short(target):
+def target_to_ipv6_short(target: str) -> Optional[List]:
     """ Attempt to return a IPv6 short-range list from a target string. """
 
     splitted = target.split('-')
@@ -177,7 +178,7 @@ def target_to_ipv6_short(target):
     return ipv6_range_to_list(start_packed, end_packed)
 
 
-def target_to_ipv6_long(target):
+def target_to_ipv6_long(target: str) -> Optional[List]:
     """ Attempt to return a IPv6 long-range list from a target string. """
 
     splitted = target.split('-')
@@ -193,7 +194,7 @@ def target_to_ipv6_long(target):
     return ipv6_range_to_list(start_packed, end_packed)
 
 
-def target_to_hostname(target):
+def target_to_hostname(target: str) -> Optional[List]:
     """ Attempt to return a single hostname list from a target string. """
 
     if len(target) == 0 or len(target) > 255:
@@ -203,7 +204,7 @@ def target_to_hostname(target):
     return [target]
 
 
-def target_to_list(target):
+def target_to_list(target: str) -> Optional[List]:
     """ Attempt to return a list of single hosts from a target string. """
 
     # Is it an IPv4 address ?
@@ -235,7 +236,7 @@ def target_to_list(target):
     return new_list
 
 
-def target_str_to_list(target_str):
+def target_str_to_list(target_str: str) -> Optional[List]:
     """ Parses a targets string into a list of individual targets. """
     new_list = list()
     for target in target_str.split(','):
@@ -249,7 +250,7 @@ def target_str_to_list(target_str):
     return list(collections.OrderedDict.fromkeys(new_list))
 
 
-def resolve_hostname(hostname):
+def resolve_hostname(hostname: str) -> Optional[str]:
     """ Returns IP of a hostname. """
 
     assert hostname
@@ -259,7 +260,7 @@ def resolve_hostname(hostname):
         return None
 
 
-def is_valid_address(address):
+def is_valid_address(address: str) -> bool:
     if not address:
         return False
 
@@ -275,7 +276,7 @@ def is_valid_address(address):
     return True
 
 
-def get_hostname_by_address(address):
+def get_hostname_by_address(address: str) -> str:
     """ Returns hostname of an address. """
 
     if not is_valid_address(address):
@@ -291,7 +292,7 @@ def get_hostname_by_address(address):
     return hostname
 
 
-def port_range_expand(portrange):
+def port_range_expand(portrange: str) -> Optional[List]:
     """
     Receive a port range and expands it in individual ports.
 
@@ -313,7 +314,7 @@ def port_range_expand(portrange):
     return port_list
 
 
-def port_str_arrange(ports):
+def port_str_arrange(ports: str) -> str:
     """ Gives a str in the format (always tcp listed first).
     T:<tcp ports/portrange comma separated>U:<udp ports comma separated>
     """
@@ -325,7 +326,7 @@ def port_str_arrange(ports):
     return ports
 
 
-def ports_str_check_failed(port_str):
+def ports_str_check_failed(port_str: str) -> bool:
     """
     Check if the port string is well formed.
     Return True if fail, False other case.
@@ -342,7 +343,7 @@ def ports_str_check_failed(port_str):
     return False
 
 
-def ports_as_list(port_str):
+def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
     """
     Parses a ports string into two list of individual tcp and udp ports.
 
@@ -404,17 +405,17 @@ def ports_as_list(port_str):
     return (tcp_list, udp_list)
 
 
-def get_tcp_port_list(port_str):
+def get_tcp_port_list(port_str: str) -> Optional[List]:
     """ Return a list with tcp ports from a given port list in string format """
     return ports_as_list(port_str)[0]
 
 
-def get_udp_port_list(port_str):
+def get_udp_port_list(port_str: str) -> Optional[List]:
     """ Return a list with udp ports from a given port list in string format """
     return ports_as_list(port_str)[1]
 
 
-def port_list_compress(port_list):
+def port_list_compress(port_list: str) -> str:
     """ Compress a port list and return a string. """
 
     if not port_list or len(port_list) == 0:
