@@ -25,6 +25,7 @@ from ospd.network import (
     target_str_to_list,
     get_hostname_by_address,
     is_valid_address,
+    target_to_ipv4,
 )
 
 
@@ -72,3 +73,13 @@ class ConvertTargetListsTestCase(unittest.TestCase):
         self.assertTrue(
             is_valid_address('2001:0db8:85a3:08d3:1319:8a2e:0370:7344')
         )
+
+    def test_target_to_ipv4(self):
+        self.assertIsNone(target_to_ipv4('foo'))
+        self.assertIsNone(target_to_ipv4(''))
+        self.assertIsNone(target_to_ipv4('127,0,0,1'))
+        self.assertIsNone(target_to_ipv4('127.0.0'))
+        self.assertIsNone(target_to_ipv4('127.0.0.11111'))
+
+        self.assertEqual(target_to_ipv4('127.0.0.1'), ['127.0.0.1'])
+        self.assertEqual(target_to_ipv4('192.168.1.1'), ['192.168.1.1'])
