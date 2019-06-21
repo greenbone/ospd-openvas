@@ -204,7 +204,7 @@ class OSPDaemon(object):
         cafile,
         niceness=None,  # pylint: disable=unused-argument
         customvtfilter=None,
-        wrapper_logger=None,
+        **kwargs # pylint: disable=unused-argument
     ):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
@@ -240,9 +240,6 @@ class OSPDaemon(object):
             self.vts_filter = customvtfilter
         else:
             self.vts_filter = VtsFilter()
-        if wrapper_logger:
-            global logger  # pylint: disable=global-statement
-            logger = wrapper_logger
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
