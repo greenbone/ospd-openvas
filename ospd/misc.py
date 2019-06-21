@@ -21,14 +21,7 @@
 """ Miscellaneous classes and functions related to OSPD.
 """
 
-
-# Needed to say that when we import ospd, we mean the package and not the
-# module in that directory.
-from __future__ import absolute_import
-from __future__ import print_function
-
 import logging
-import logging.handlers
 import os
 import sys
 import time
@@ -38,7 +31,6 @@ import multiprocessing
 from enum import Enum
 
 from ospd.network import target_str_to_list
-from ospd.parser import create_args_parser, get_common_args
 
 LOGGER = logging.getLogger(__name__)
 
@@ -414,78 +406,4 @@ def go_to_background():
             sys.exit()
     except OSError as errmsg:
         LOGGER.error('Fork failed: %s', errmsg)
-        sys.exit('Fork failed')
-
-
-def main(name, klass):
-    """ OSPD Main function. """
-
-    # Common args parser.
-    parser = create_args_parser(name)
-
-    # Common args
-    cargs = get_common_args(parser)
-    logging.getLogger().setLevel(cargs['log_level'])
-    wrapper = klass(
-        certfile=cargs['certfile'],
-        keyfile=cargs['keyfile'],
-        cafile=cargs['cafile'],
-        niceness=cargs['niceness'],
-    )
-
-    if cargs['version']:
-        print_version(wrapper)
-        sys.exit()
-
-    if cargs['foreground']:
-        console = logging.StreamHandler()
-        console.setFormatter(
-            logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'
-            )
-        )
-        logging.getLogger().addHandler(console)
-    elif cargs['log_file']:
-        logfile = logging.handlers.WatchedFileHandler(cargs['log_file'])
-        logfile.setFormatter(
-            logging.Formatter(
-                '%(asctime)s %(name)s: %(levelname)s: %(message)s'
-            )
-        )
-        logging.getLogger().addHandler(logfile)
-        go_to_background()
-    else:
-        syslog = logging.handlers.SysLogHandler('/dev/log')
-        syslog.setFormatter(
-            logging.Formatter('%(name)s: %(levelname)s: %(message)s')
-        )
-        logging.getLogger().addHandler(syslog)
-        # Duplicate syslog's file descriptor to stout/stderr.
-        syslog_fd = syslog.socket.fileno()
-        os.dup2(syslog_fd, 1)
-        os.dup2(syslog_fd, 2)
-        go_to_background()
-
-    if not wrapper.check():
-        return 1
-    return wrapper.run(cargs['address'], cargs['port'], cargs['unix_socket'])
-
-
-def print_version(wrapper):
-    """ Prints the server version and license information."""
-
-    scanner_name = wrapper.get_scanner_name()
-    server_version = wrapper.get_server_version()
-    print("OSP Server for {0} version {1}".format(scanner_name, server_version))
-    protocol_version = wrapper.get_protocol_version()
-    print("OSP Version: {0}".format(protocol_version))
-    daemon_name = wrapper.get_daemon_name()
-    daemon_version = wrapper.get_daemon_version()
-    print("Using: {0} {1}".format(daemon_name, daemon_version))
-    print(
-        "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
-        "License GPLv2+: GNU GPL version 2 or later\n"
-        "This is free software: you are free to change"
-        " and redistribute it.\n"
-        "There is NO WARRANTY, to the extent permitted by law."
-    )
+        sys.exit(1)
