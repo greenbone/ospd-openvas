@@ -41,7 +41,7 @@ from xml.etree.ElementTree import Element, SubElement
 import defusedxml.ElementTree as secET
 
 from ospd import __version__
-from ospd.error import OSPDError
+from ospd.error import OspdCommandError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.vtfilter import VtsFilter
@@ -204,7 +204,7 @@ class OSPDaemon(object):
         cafile,
         niceness=None,  # pylint: disable=unused-argument
         customvtfilter=None,
-        **kwargs # pylint: disable=unused-argument
+        **kwargs  # pylint: disable=unused-argument
     ):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
@@ -345,7 +345,7 @@ class OSPDaemon(object):
             vts_version (str): Identifies a unique vts version.
         """
         if not vts_version:
-            raise OSPDError(
+            raise OspdCommandError(
                 'A vts_version parameter is required', 'set_vts_version'
             )
         self.vts_version = vts_version
@@ -400,16 +400,22 @@ class OSPDaemon(object):
                 try:
                     params[key] = int(params[key])
                 except ValueError:
-                    raise OSPDError('Invalid %s value' % key, 'start_scan')
+                    raise OspdCommandError(
+                        'Invalid %s value' % key, 'start_scan'
+                    )
             if param_type == 'boolean':
                 if params[key] not in [0, 1]:
-                    raise OSPDError('Invalid %s value' % key, 'start_scan')
+                    raise OspdCommandError(
+                        'Invalid %s value' % key, 'start_scan'
+                    )
             elif param_type == 'selection':
                 selection = self.get_scanner_param_default(key).split('|')
                 if params[key] not in selection:
-                    raise OSPDError('Invalid %s value' % key, 'start_scan')
+                    raise OspdCommandError(
+                        'Invalid %s value' % key, 'start_scan'
+                    )
             if self.get_scanner_param_mandatory(key) and params[key] == '':
-                raise OSPDError(
+                raise OspdCommandError(
                     'Mandatory %s value is missing' % key, 'start_scan'
                 )
         return params
@@ -451,7 +457,7 @@ class OSPDaemon(object):
                 vt_selection[vt_id] = {}
                 for vt_value in vt:
                     if not vt_value.attrib.get('id'):
-                        raise OSPDError(
+                        raise OspdCommandError(
                             'Invalid VT preference. No attribute id',
                             'start_scan',
                         )
@@ -461,7 +467,7 @@ class OSPDaemon(object):
             if vt.tag == 'vt_group':
                 vts_filter = vt.attrib.get('filter', None)
                 if vts_filter is None:
-                    raise OSPDError(
+                    raise OspdCommandError(
                         'Invalid VT group. No filter given.', 'start_scan'
                     )
                 filters.append(vts_filter)
@@ -571,7 +577,7 @@ class OSPDaemon(object):
             if hosts:
                 target_list.append([hosts, ports, credentials, exclude_hosts])
             else:
-                raise OSPDError('No target to scan', 'start_scan')
+                raise OspdCommandError('No target to scan', 'start_scan')
 
         return target_list
 
@@ -588,7 +594,7 @@ class OSPDaemon(object):
         if target_str is None or ports_str is None:
             target_list = scan_et.find('targets')
             if target_list is None or len(target_list) == 0:
-                raise OSPDError('No targets or ports', 'start_scan')
+                raise OspdCommandError('No targets or ports', 'start_scan')
             else:
                 scan_targets = self.process_targets_element(target_list)
         else:
@@ -598,21 +604,21 @@ class OSPDaemon(object):
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
-            raise OSPDError('Invalid scan_id UUID', 'start_scan')
+            raise OspdCommandError('Invalid scan_id UUID', 'start_scan')
 
         try:
             parallel = int(scan_et.attrib.get('parallel', '1'))
             if parallel < 1 or parallel > 20:
                 parallel = 1
         except ValueError:
-            raise OSPDError(
+            raise OspdCommandError(
                 'Invalid value for parallel scans. ' 'It must be a number',
                 'start_scan',
             )
 
         scanner_params = scan_et.find('scanner_params')
         if scanner_params is None:
-            raise OSPDError('No scanner_params element', 'start_scan')
+            raise OspdCommandError('No scanner_params element', 'start_scan')
 
         params = self._preprocess_scan_params(scanner_params)
 
@@ -621,7 +627,7 @@ class OSPDaemon(object):
         scanner_vts = scan_et.find('vt_selection')
         if scanner_vts is not None:
             if len(scanner_vts) == 0:
-                raise OSPDError('VTs list is empty', 'start_scan')
+                raise OspdCommandError('VTs list is empty', 'start_scan')
             else:
                 vt_selection = self.process_vts_params(scanner_vts)
 
@@ -653,7 +659,7 @@ class OSPDaemon(object):
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is None or scan_id == '':
-            raise OSPDError('No scan_id attribute', 'stop_scan')
+            raise OspdCommandError('No scan_id attribute', 'stop_scan')
         self.stop_scan(scan_id)
 
         return simple_response_str('stop_scan', 200, 'OK')
@@ -661,9 +667,13 @@ class OSPDaemon(object):
     def stop_scan(self, scan_id):
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
-            raise OSPDError('Scan not found {0}.'.format(scan_id), 'stop_scan')
+            raise OspdCommandError(
+                'Scan not found {0}.'.format(scan_id), 'stop_scan'
+            )
         if not scan_process.is_alive():
-            raise OSPDError('Scan already stopped or finished.', 'stop_scan')
+            raise OspdCommandError(
+                'Scan already stopped or finished.', 'stop_scan'
+            )
 
         self.set_scan_status(scan_id, ScanStatus.STOPPED)
         logger.info('%s: Scan stopping %s.', scan_id, scan_process.ident)
@@ -819,12 +829,12 @@ class OSPDaemon(object):
             return
         try:
             response = self.handle_command(data)
-        except OSPDError as exception:
+        except OspdCommandError as exception:
             response = exception.as_xml()
             logger.debug('Command error: %s', exception.message)
         except Exception:  # pylint: disable=broad-except
             logger.exception('While handling client command:')
-            exception = OSPDError('Fatal error', 'error')
+            exception = OspdCommandError('Fatal error', 'error')
             response = exception.as_xml()
         if is_unix:
             send_method = stream.send
@@ -917,7 +927,7 @@ class OSPDaemon(object):
         logger.info("%s: Scan started.", scan_id)
         target_list = targets
         if target_list is None or not target_list:
-            raise OSPDError('Erroneous targets list', 'start_scan')
+            raise OspdCommandError('Erroneous targets list', 'start_scan')
 
         self.process_exclude_hosts(scan_id, target_list)
 
@@ -1084,7 +1094,7 @@ class OSPDaemon(object):
         elif help_format == "xml":
             text = self.get_xml_str(self.commands)
             return simple_response_str('help', 200, 'OK', text)
-        raise OSPDError('Bogus help format', 'help')
+        raise OspdCommandError('Bogus help format', 'help')
 
     def get_help_text(self):
         """ Returns the help output in plain text format."""
@@ -1143,7 +1153,7 @@ class OSPDaemon(object):
         self.check_scan_process(scan_id)
         if self.delete_scan(scan_id):
             return simple_response_str('delete_scan', 200, 'OK')
-        raise OSPDError('Scan in progress', 'delete_scan')
+        raise OspdCommandError('Scan in progress', 'delete_scan')
 
     def delete_scan(self, scan_id):
         """ Deletes scan_id scan from collection.
@@ -1610,10 +1620,10 @@ class OSPDaemon(object):
             tree = secET.fromstring(command)
         except secET.ParseError:
             logger.debug("Erroneous client input: %s", command)
-            raise OSPDError('Invalid data')
+            raise OspdCommandError('Invalid data')
 
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
-            raise OSPDError('Bogus command name')
+            raise OspdCommandError('Bogus command name')
 
         if tree.tag == "get_version":
             return self.handle_get_version_command()

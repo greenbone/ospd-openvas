@@ -22,7 +22,11 @@
 from ospd.xml import simple_response_str
 
 
-class OSPDError(Exception):
+class OspdError(Exception):
+    """ Base error class for all Ospd related errors """
+
+
+class OspdCommandError(OspdError):
 
     """ This is an exception that will result in an error message to the
     client """

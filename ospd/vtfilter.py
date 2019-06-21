@@ -21,7 +21,7 @@
 import re
 import operator
 
-from ospd.error import OSPDError
+from ospd.error import OspdCommandError
 
 
 class VtsFilter(object):
@@ -57,14 +57,14 @@ class VtsFilter(object):
         for single_filter in filter_list:
             filter_aux = re.split(r'(\W)', single_filter, 1)
             if len(filter_aux) < 3:
-                raise OSPDError(
+                raise OspdCommandError(
                     "Invalid number of argument in the filter", "get_vts"
                 )
             _element, _oper, _val = filter_aux
             if _element not in self.allowed_filter:
-                raise OSPDError("Invalid filter element", "get_vts")
+                raise OspdCommandError("Invalid filter element", "get_vts")
             if _oper not in self.filter_operator:
-                raise OSPDError("Invalid filter operator", "get_vts")
+                raise OspdCommandError("Invalid filter operator", "get_vts")
 
             filters.append(filter_aux)
 
@@ -109,7 +109,7 @@ class VtsFilter(object):
             Dictionary with filtered vulnerability tests.
         """
         if not vt_filter:
-            raise OSPDError('vt_filter: A valid filter is required.')
+            raise OspdCommandError('vt_filter: A valid filter is required.')
 
         filters = self.parse_filters(vt_filter)
         if not filters:
