@@ -39,6 +39,11 @@ class OSPDErrorTestCase(unittest.TestCase):
         self.assertEqual('command', e.command)
         self.assertEqual('304', e.status)
 
+    def test_string_conversion(self):
+        e = OSPDError('message foo bar', 'command', '304')
+
+        self.assertEqual('message foo bar', str(e))
+
     def test_as_xml(self):
         e = OSPDError('message')
 
