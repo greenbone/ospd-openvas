@@ -590,7 +590,7 @@ class OSPDaemon(object):
         # <targets> element is ignored.
         if target_str is None or ports_str is None:
             target_list = scan_et.find('targets')
-            if target_list is None or not target_list:
+            if target_list is None or len(target_list) == 0:
                 raise OSPDError('No targets or ports', 'start_scan')
             else:
                 scan_targets = self.process_targets_element(target_list)
@@ -623,7 +623,7 @@ class OSPDaemon(object):
         vt_selection = {}
         scanner_vts = scan_et.find('vt_selection')
         if scanner_vts is not None:
-            if not scanner_vts:
+            if len(scanner_vts) == 0:
                 raise OSPDError('VTs list is empty', 'start_scan')
             else:
                 vt_selection = self.process_vts_params(scanner_vts)
