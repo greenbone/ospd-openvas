@@ -19,17 +19,16 @@
 """ Test module for scan runs
 """
 
-from __future__ import print_function
-
 import time
 import unittest
+
 import xml.etree.ElementTree as ET
 import defusedxml.lxml as secET
+
 from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon
 from ospd.error import OSPDError
-from ospd.xml import simple_response_str, get_result_xml
 
 
 class Result(object):
@@ -54,7 +53,7 @@ class DummyWrapper(OSPDaemon):
         self.results = results
 
     def check(self):
-        return self.checkresults
+        return self.checkresult
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
@@ -139,13 +138,13 @@ class DummyWrapper(OSPDaemon):
         return response
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(vt_id, creation_time):
+    def get_creation_time_vt_as_xml_str(vt_id, creation_time): # pylint: disable=arguments-differ
         response = '<creation_time>%s</creation_time>' % creation_time
 
         return response
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(vt_id, modification_time):
+    def get_modification_time_vt_as_xml_str(vt_id, modification_time): # pylint: disable=arguments-differ
         response = (
             '<modification_time>%s</modification_time>' % modification_time
         )
@@ -198,9 +197,8 @@ class DummyWrapper(OSPDaemon):
 
 
 class FullTest(unittest.TestCase):
-    # TODO: There should be a lot more assert in there !
 
-    def testGetDefaultScannerParams(self):
+    def test_get_default_scanner_params(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command('<get_scanner_details />')
@@ -212,7 +210,7 @@ class FullTest(unittest.TestCase):
         # The response must contain a 'scanner_params' element
         self.assertIsNotNone(response.find('scanner_params'))
 
-    def testGetDefaultHelp(self):
+    def test_get_default_help(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<help />'))
         self.assertEqual(response.get('status'), '200')
@@ -222,19 +220,19 @@ class FullTest(unittest.TestCase):
         self.assertEqual(response.get('status'), '200')
         self.assertEqual(response.tag, 'help_response')
 
-    def testGetDefaultScannerVersion(self):
+    def test_get_default_scanner_version(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<get_version />'))
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('protocol'))
 
-    def testGetVTs_no_VT(self):
+    def test_get_vts_no_vt(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('vts'))
 
-    def testGetVTs_single_VT(self):
+    def test_get_vts_single_vt(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
@@ -244,7 +242,7 @@ class FullTest(unittest.TestCase):
         vt = vts.find('vt')
         self.assertEqual(vt.get('id'), '1.2.3.4')
 
-    def testGetVTs_filter_positive(self):
+    def test_get_vts_filter_positive(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -268,7 +266,7 @@ class FullTest(unittest.TestCase):
             ET.tostring(modification_time[0]).decode('utf-8'),
         )
 
-    def testGetVTs_filter_negative(self):
+    def test_get_vts_filter_negative(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -292,7 +290,7 @@ class FullTest(unittest.TestCase):
             ET.tostring(modification_time[0]).decode('utf-8'),
         )
 
-    def testGetVTs_multiple_VTs(self):
+    def test_get_vtss_multiple_vts(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
         daemon.add_vt('some id', 'Another vulnerability test')
@@ -302,7 +300,7 @@ class FullTest(unittest.TestCase):
         vts = response.find('vts')
         self.assertIsNotNone(vts.find('vt'))
 
-    def testGetVTs_multiple_VTs_with_custom(self):
+    def test_get_vts_multiple_vts_with_custom(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test', custom='b')
         daemon.add_vt(
@@ -313,7 +311,7 @@ class FullTest(unittest.TestCase):
         custom = response.findall('vts/vt/custom')
         self.assertEqual(3, len(custom))
 
-    def testGetVTs_VTs_with_params(self):
+    def test_get_vts_vts_with_params(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4', 'A vulnerability test', vt_params="a", custom="b"
@@ -334,7 +332,7 @@ class FullTest(unittest.TestCase):
         params = response.findall('vts/vt/params/param')
         self.assertEqual(2, len(params))
 
-    def testGetVTs_VTs_with_refs(self):
+    def test_get_vts_vts_with_refs(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -359,7 +357,7 @@ class FullTest(unittest.TestCase):
         refs = response.findall('vts/vt/refs/ref')
         self.assertEqual(2, len(refs))
 
-    def testGetVTs_VTs_with_dependencies(self):
+    def test_get_vts_vts_with_dependencies(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -374,7 +372,7 @@ class FullTest(unittest.TestCase):
         deps = response.findall('vts/vt/dependencies/dependency')
         self.assertEqual(2, len(deps))
 
-    def testGetVTs_VTs_with_severities(self):
+    def test_get_vts_vts_with_severities(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -389,7 +387,7 @@ class FullTest(unittest.TestCase):
         severity = response.findall('vts/vt/severities/severity')
         self.assertEqual(1, len(severity))
 
-    def testGetVTs_VTs_with_detection_qodt(self):
+    def test_get_vts_vts_with_detection_qodt(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -405,7 +403,7 @@ class FullTest(unittest.TestCase):
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
 
-    def testGetVTs_VTs_with_detection_qodv(self):
+    def test_get_vts_vts_with_detection_qodv(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -421,7 +419,7 @@ class FullTest(unittest.TestCase):
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
 
-    def testGetVTs_VTs_with_summary(self):
+    def test_get_vts_vts_with_summary(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -436,7 +434,7 @@ class FullTest(unittest.TestCase):
         summary = response.findall('vts/vt/summary')
         self.assertEqual(1, len(summary))
 
-    def testGetVTs_VTs_with_impact(self):
+    def test_get_vts_vts_with_impact(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -451,7 +449,7 @@ class FullTest(unittest.TestCase):
         impact = response.findall('vts/vt/impact')
         self.assertEqual(1, len(impact))
 
-    def testGetVTs_VTs_with_affected(self):
+    def test_get_vts_vts_with_affected(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -466,7 +464,7 @@ class FullTest(unittest.TestCase):
         affect = response.findall('vts/vt/affected')
         self.assertEqual(1, len(affect))
 
-    def testGetVTs_VTs_with_insight(self):
+    def test_get_vts_vts_with_insight(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -481,7 +479,7 @@ class FullTest(unittest.TestCase):
         insight = response.findall('vts/vt/insight')
         self.assertEqual(1, len(insight))
 
-    def testGetVTs_VTs_with_solution(self):
+    def test_get_vts_vts_with_solution(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -497,7 +495,7 @@ class FullTest(unittest.TestCase):
         solution = response.findall('vts/vt/solution')
         self.assertEqual(1, len(solution))
 
-    def testGetVTs_VTs_with_ctime(self):
+    def test_get_vts_vts_with_ctime(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -515,7 +513,7 @@ class FullTest(unittest.TestCase):
             ET.tostring(creation_time[0]).decode('utf-8'),
         )
 
-    def testGetVTs_VTs_with_mtime(self):
+    def test_get_vts_vts_with_mtime(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
             '1.2.3.4',
@@ -533,7 +531,7 @@ class FullTest(unittest.TestCase):
             ET.tostring(modification_time[0]).decode('utf-8'),
         )
 
-    def testScanWithError(self):
+    def test_scan_with_error(self):
         daemon = DummyWrapper([Result('error', value='something went wrong')])
 
         response = secET.fromstring(
@@ -574,7 +572,7 @@ class FullTest(unittest.TestCase):
         )
         self.assertEqual(response.get('status'), '200')
 
-    def testGetScanPop(self):
+    def test_get_scan_pop(self):
         daemon = DummyWrapper([Result('host-detail', value='Some Host Detail')])
 
         response = secET.fromstring(
@@ -637,7 +635,7 @@ class FullTest(unittest.TestCase):
         )
         self.assertEqual(response.get('status'), '200')
 
-    def testStopScan(self):
+    def test_stop_scan(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -658,7 +656,7 @@ class FullTest(unittest.TestCase):
         cmd = secET.fromstring('<stop_scan />')
         self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
 
-    def testScanWithVTs(self):
+    def test_scan_with_vts(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring(
             '<start_scan '
@@ -668,7 +666,7 @@ class FullTest(unittest.TestCase):
         )
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
-        # With one VT, without params
+        # With one vt, without params
         response = secET.fromstring(
             daemon.handle_command(
                 '<start_scan '
@@ -685,7 +683,7 @@ class FullTest(unittest.TestCase):
         )
         self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
 
-        # With out VTS
+        # With out vtS
         response = secET.fromstring(
             daemon.handle_command(
                 '<start_scan '
@@ -697,7 +695,7 @@ class FullTest(unittest.TestCase):
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
 
-    def testScanWithVTs_and_param(self):
+    def test_scan_with_vts_and_param(self):
         daemon = DummyWrapper([])
 
         # Raise because no vt_param id attribute
@@ -751,7 +749,8 @@ class FullTest(unittest.TestCase):
         time.sleep(0.01)
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
 
-    def testBillonLaughs(self):
+    def test_billon_laughs(self):
+        # pylint: disable=line-too-long
         daemon = DummyWrapper([])
         lol = (
             '<?xml version="1.0"?>'
@@ -771,7 +770,7 @@ class FullTest(unittest.TestCase):
         )
         self.assertRaises(EntitiesForbidden, daemon.handle_command, lol)
 
-    def testScanMultiTarget(self):
+    def test_scan_multi_target(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -789,7 +788,7 @@ class FullTest(unittest.TestCase):
         )
         self.assertEqual(response.get('status'), '200')
 
-    def testMultiTargetWithCredentials(self):
+    def test_multi_target_with_credentials(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -826,7 +825,7 @@ class FullTest(unittest.TestCase):
         response = daemon.get_scan_credentials(scan_id, "192.168.0.0/24")
         self.assertEqual(response, cred_dict)
 
-    def testScanGetTarget(self):
+    def test_scan_get_target(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -849,7 +848,7 @@ class FullTest(unittest.TestCase):
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
 
-    def testScanGetExcludeHosts(self):
+    def test_scan_get_exclude_hosts(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -873,7 +872,7 @@ class FullTest(unittest.TestCase):
         finished = daemon.get_scan_finished_hosts(scan_id)
         self.assertEqual(finished, ['192.168.10.23', '192.168.10.24'])
 
-    def testScanMultiTargetParallelWithError(self):
+    def test_scan_multi_target_parallel_with_error(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring(
             '<start_scan parallel="100a">'
@@ -887,7 +886,7 @@ class FullTest(unittest.TestCase):
         time.sleep(1)
         self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
 
-    def testScanMultiTargetParallel100(self):
+    def test_scan_multi_target_parallel_100(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -903,7 +902,7 @@ class FullTest(unittest.TestCase):
         time.sleep(1)
         self.assertEqual(response.get('status'), '200')
 
-    def testProgress(self):
+    def test_progress(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -924,17 +923,17 @@ class FullTest(unittest.TestCase):
         daemon.set_scan_target_progress(scan_id, 'localhost2', 'localhost2', 25)
         self.assertEqual(daemon.calculate_progress(scan_id), 50)
 
-    def testSetGetVtsVersion(self):
+    def test_set_get_vts_version(self):
         daemon = DummyWrapper([])
         daemon.set_vts_version('1234')
         version = daemon.get_vts_version()
         self.assertEqual('1234', version)
 
-    def testSetGetVtsVersion_Error(self):
+    def test_set_get_vts_version_error(self):
         daemon = DummyWrapper([])
         self.assertRaises(TypeError, daemon.set_vts_version)
 
-    def testResumeTask(self):
+    def test_resume_task(self):
         daemon = DummyWrapper(
             [
                 Result(
@@ -972,7 +971,8 @@ class FullTest(unittest.TestCase):
 
         # Resume the task
         cmd = (
-            '<start_scan scan_id="%s" target="localhost" ports="80, 443"><scanner_params /></start_scan>'
+            '<start_scan scan_id="%s" target="localhost" ports="80, 443">'
+            '<scanner_params /></start_scan>'
             % scan_id
         )
         response = secET.fromstring(daemon.handle_command(cmd))

@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2018 Greenbone Networks GmbH
+# Copyright (C) 2015-2018 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -16,29 +16,21 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-""" Test module for OSPDError class
+""" Test module for cvss scoring calculation
 """
 
 import unittest
 
-from ospd.ospd import OSPDError
+from ospd.cvss import CVSS
 
 
-class testOSPDError(unittest.TestCase):
-    def testDefaultParams(self):
-        e = OSPDError('message')
-        self.assertEqual('message', e.message)
-        self.assertEqual(400, e.status)
-        self.assertEqual('osp', e.command)
+class FullTest(unittest.TestCase):
+    def test_cvssv2(self):
+        vector = 'AV:A/AC:L/Au:S/C:P/I:P/A:P'
+        cvss_base = CVSS.cvss_base_v2_value(vector)
+        self.assertEqual(cvss_base, 5.2)
 
-    def testConstructor(self):
-        e = OSPDError('message', 'command', '304')
-        self.assertEqual('message', e.message)
-        self.assertEqual('command', e.command)
-        self.assertEqual('304', e.status)
-
-    def testasXML(self):
-        e = OSPDError('message')
-        self.assertEqual(
-            b'<osp_response status="400" status_text="message" />', e.as_xml()
-        )
+    def test_cvssv3(self):
+        vector = 'CVSS:3.0/AV:N/AC:L/PR:H/UI:N/S:U/C:L/I:L/A:N'
+        cvss_base = CVSS.cvss_base_v3_value(vector)
+        self.assertEqual(cvss_base, 3.8)

@@ -33,7 +33,7 @@ class FakeFile(object):
         return self.content.split('\n')
 
 
-commands = None
+commands = None  # pylint: disable=invalid-name
 
 
 class FakeSSHClient(object):
@@ -56,29 +56,29 @@ class FakeSSHClient(object):
 
 
 class FakeExceptions(object):
-    AuthenticationException = None
+    AuthenticationException = None  # pylint: disable=invalid-name
 
 
-class fakeparamiko(object):
+class fakeparamiko(object):  # pylint: disable=invalid-name
     @staticmethod
-    def SSHClient(*args):
+    def SSHClient(*args):  # pylint: disable=invalid-name
         return FakeSSHClient(*args)
 
     @staticmethod
-    def AutoAddPolicy():
+    def AutoAddPolicy():  # pylint: disable=invalid-name
         pass
 
     ssh_exception = FakeExceptions
 
 
 class TestSSH(unittest.TestCase):
-    def testNoParamiko(self):
+    def test_no_paramiko(self):
         ospd_ssh.paramiko = None
         self.assertRaises(
             ImportError, OSPDaemonSimpleSSH, 'cert', 'key', 'ca', '10'
         )
 
-    def testRunCommand(self):
+    def test_run_command(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
         scanid = daemon.create_scan(
@@ -91,7 +91,7 @@ class TestSSH(unittest.TestCase):
         self.assertTrue(isinstance(res, list))
         self.assertEqual(commands, ['nice -n 10 cat /etc/passwd'])
 
-    def testRunCommandLegacyCredential(self):
+    def test_run_command_legacy_credential(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
         scanid = daemon.create_scan(
@@ -104,7 +104,7 @@ class TestSSH(unittest.TestCase):
         self.assertTrue(isinstance(res, list))
         self.assertEqual(commands, ['nice -n 10 cat /etc/passwd'])
 
-    def testRunCommandNewCredential(self):
+    def test_run_command_new_credential(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
 
@@ -128,7 +128,7 @@ class TestSSH(unittest.TestCase):
         self.assertTrue(isinstance(res, list))
         self.assertEqual(commands, ['nice -n 10 cat /etc/passwd'])
 
-    def testRunCommandNoCredential(self):
+    def test_run_command_no_credential(self):
         ospd_ssh.paramiko = fakeparamiko
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
         scanid = daemon.create_scan(
