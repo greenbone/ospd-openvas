@@ -27,48 +27,15 @@ import re
 import socket
 import struct
 
-__inet_pton = None  # pylint: disable=invalid-name
 
 __LOGGER = logging.getLogger(__name__)
-
-
-def inet_pton(address_family, ip_string):
-    """ A platform independent version of inet_pton """
-    global __inet_pton  # pylint: disable=global-statement, invalid-name
-    if __inet_pton is None:
-        if hasattr(socket, 'inet_pton'):
-            __inet_pton = socket.inet_pton
-        else:
-            from ospd import win_socket
-
-            __inet_pton = win_socket.inet_pton
-
-    return __inet_pton(address_family, ip_string)
-
-
-__inet_ntop = None  # pylint: disable=invalid-name
-
-
-def inet_ntop(address_family, packed_ip):
-    """ A platform independent version of inet_ntop
-    """
-    global __inet_ntop  # pylint: disable=global-statement, invalid-name
-    if __inet_ntop is None:
-        if hasattr(socket, 'inet_ntop'):
-            __inet_ntop = socket.inet_ntop
-        else:
-            from ospd import win_socket
-
-            __inet_ntop = win_socket.inet_ntop
-
-    return __inet_ntop(address_family, packed_ip)
 
 
 def target_to_ipv4(target):
     """ Attempt to return a single IPv4 host list from a target string. """
 
     try:
-        inet_pton(socket.AF_INET, target)
+        socket.inet_pton(socket.AF_INET, target)
         return [target]
     except socket.error:
         return None
@@ -78,7 +45,7 @@ def target_to_ipv6(target):
     """ Attempt to return a single IPv6 host list from a target string. """
 
     try:
-        inet_pton(socket.AF_INET6, target)
+        socket.inet_pton(socket.AF_INET6, target)
         return [target]
     except socket.error:
         return None
@@ -103,7 +70,7 @@ def target_to_ipv4_short(target):
     if len(splitted) != 2:
         return None
     try:
-        start_packed = inet_pton(socket.AF_INET, splitted[0])
+        start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
         end_value = int(splitted[1])
     except (socket.error, ValueError):
         return None
@@ -121,7 +88,7 @@ def target_to_ipv4_cidr(target):
     if len(splitted) != 2:
         return None
     try:
-        start_packed = inet_pton(socket.AF_INET, splitted[0])
+        start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
         block = int(splitted[1])
     except (socket.error, ValueError):
         return None
@@ -142,7 +109,7 @@ def target_to_ipv6_cidr(target):
     if len(splitted) != 2:
         return None
     try:
-        start_packed = inet_pton(socket.AF_INET6, splitted[0])
+        start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
         block = int(splitted[1])
     except (socket.error, ValueError):
         return None
@@ -167,8 +134,8 @@ def target_to_ipv4_long(target):
     if len(splitted) != 2:
         return None
     try:
-        start_packed = inet_pton(socket.AF_INET, splitted[0])
-        end_packed = inet_pton(socket.AF_INET, splitted[1])
+        start_packed = socket.inet_pton(socket.AF_INET, splitted[0])
+        end_packed = socket.inet_pton(socket.AF_INET, splitted[1])
     except socket.error:
         return None
     if end_packed < start_packed:
@@ -185,7 +152,9 @@ def ipv6_range_to_list(start_packed, end_packed):
     for value in range(start, end + 1):
         high = value >> 64
         low = value & ((1 << 64) - 1)
-        new_ip = inet_ntop(socket.AF_INET6, struct.pack('!2Q', high, low))
+        new_ip = socket.inet_ntop(
+            socket.AF_INET6, struct.pack('!2Q', high, low)
+        )
         new_list.append(new_ip)
     return new_list
 
@@ -197,7 +166,7 @@ def target_to_ipv6_short(target):
     if len(splitted) != 2:
         return None
     try:
-        start_packed = inet_pton(socket.AF_INET6, splitted[0])
+        start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
         end_value = int(splitted[1], 16)
     except (socket.error, ValueError):
         return None
@@ -215,8 +184,8 @@ def target_to_ipv6_long(target):
     if len(splitted) != 2:
         return None
     try:
-        start_packed = inet_pton(socket.AF_INET6, splitted[0])
-        end_packed = inet_pton(socket.AF_INET6, splitted[1])
+        start_packed = socket.inet_pton(socket.AF_INET6, splitted[0])
+        end_packed = socket.inet_pton(socket.AF_INET6, splitted[1])
     except socket.error:
         return None
     if end_packed < start_packed:
@@ -295,11 +264,11 @@ def is_valid_address(address):
         return False
 
     try:
-        inet_pton(socket.AF_INET, address)
+        socket.inet_pton(socket.AF_INET, address)
     except OSError:
         # invalid IPv4 address
         try:
-            inet_pton(socket.AF_INET6, address)
+            socket.inet_pton(socket.AF_INET6, address)
         except OSError:
             # invalid IPv6 address
             return False
