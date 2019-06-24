@@ -21,10 +21,14 @@
 
 import unittest
 
-from ospd.error import OspdCommandError
+from ospd.error import OspdError, OspdCommandError
 
 
 class OspdCommandErrorTestCase(unittest.TestCase):
+    def test_is_ospd_error(self):
+        e = OspdCommandError('message')
+        self.assertIsInstance(e, OspdError)
+
     def test_default_params(self):
         e = OspdCommandError('message')
 
