@@ -30,7 +30,7 @@ import defusedxml.lxml as secET
 from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon
-from ospd.error import OspdCommandError
+from ospd.errors import OspdCommandError
 
 
 class Result(object):

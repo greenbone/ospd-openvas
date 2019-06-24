@@ -41,7 +41,7 @@ from xml.etree.ElementTree import Element, SubElement
 import defusedxml.ElementTree as secET
 
 from ospd import __version__
-from ospd.error import OspdCommandError
+from ospd.errors import OspdCommandError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.vtfilter import VtsFilter

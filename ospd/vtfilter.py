@@ -21,7 +21,7 @@
 import re
 import operator
 
-from ospd.error import OspdCommandError
+from ospd.errors import OspdCommandError
 
 
 class VtsFilter(object):
