@@ -33,10 +33,11 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
-from ospd.ospd import OSPDaemon, logger
-from ospd.misc import main as daemon_main
+from ospd.ospd import OSPDaemon
+from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
+
 from ospd_openvas import __version__
 from ospd_openvas.errors import OSPDOpenvasError
 
@@ -259,7 +260,6 @@ class OSPDopenvas(OSPDaemon):
             cafile=cafile,
             niceness=niceness,
             customvtfilter=OpenVasVtsFilter(),
-            wrapper_logger=logger,
         )
 
         self.server_version = __version__
@@ -1338,4 +1338,8 @@ class OSPDopenvas(OSPDaemon):
 
 def main():
     """ OSP openvas main function. """
-    daemon_main('OSPD - openvas wrapper', OSPDopenvas)
+    daemon_main('OSPD - openvas', OSPDopenvas)
+
+
+if __name__ == '__main__':
+    main()
