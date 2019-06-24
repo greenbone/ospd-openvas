@@ -177,12 +177,13 @@ def close_client_stream(client_stream, unix_path):
     client_stream.close()
 
 
-class OSPDaemon(object):
+class OSPDaemon:
 
     """ Daemon class for OSP traffic handling.
 
     Every scanner wrapper should subclass it and make necessary additions and
     changes.
+
     * Add any needed parameters in __init__.
     * Implement check() method which verifies scanner availability and other
       environment related conditions.
