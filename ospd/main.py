@@ -17,8 +17,12 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import logging
+
+from logging.handlers import SysLogHandler, WatchedFileHandler
+
 import os
 import sys
+
 
 from ospd.misc import go_to_background
 from ospd.parser import create_args_parser, get_common_args
@@ -80,7 +84,7 @@ def main(name, klass):
         )
         logging.getLogger().addHandler(console)
     elif cargs['log_file']:
-        logfile = logging.handlers.WatchedFileHandler(cargs['log_file'])
+        logfile = WatchedFileHandler(cargs['log_file'])
         logfile.setFormatter(
             logging.Formatter(
                 '%(asctime)s {}: %(levelname)s: (%(name)s) %(message)s'.format(
@@ -91,7 +95,7 @@ def main(name, klass):
         logging.getLogger().addHandler(logfile)
         go_to_background()
     else:
-        syslog = logging.handlers.SysLogHandler('/dev/log')
+        syslog = SysLogHandler('/dev/log')
         syslog.setFormatter(
             logging.Formatter(
                 '{}: %(levelname)s: (%(name)s) %(message)s'.format(name)
