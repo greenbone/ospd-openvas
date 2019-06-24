@@ -41,12 +41,11 @@ from xml.etree.ElementTree import Element, SubElement
 import defusedxml.ElementTree as secET
 
 from ospd import __version__
-from ospd.vtfilter import VtsFilter
-from ospd.misc import ScanCollection, ResultType, target_str_to_list
-from ospd.misc import resolve_hostname, valid_uuid
-from ospd.misc import ScanStatus
-from ospd.xml import simple_response_str, get_result_xml
 from ospd.error import OSPDError
+from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
+from ospd.network import resolve_hostname, target_str_to_list
+from ospd.vtfilter import VtsFilter
+from ospd.xml import simple_response_str, get_result_xml
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +204,7 @@ class OSPDaemon(object):
         cafile,
         niceness=None,  # pylint: disable=unused-argument
         customvtfilter=None,
-        wrapper_logger=None,
+        **kwargs # pylint: disable=unused-argument
     ):
         """ Initializes the daemon's internal data. """
         # @todo: Actually it makes sense to move the certificate params to
@@ -241,9 +240,6 @@ class OSPDaemon(object):
             self.vts_filter = customvtfilter
         else:
             self.vts_filter = VtsFilter()
-        if wrapper_logger:
-            global logger  # pylint: disable=global-statement
-            logger = wrapper_logger
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -591,7 +587,7 @@ class OSPDaemon(object):
         # <targets> element is ignored.
         if target_str is None or ports_str is None:
             target_list = scan_et.find('targets')
-            if target_list is None or not target_list:
+            if target_list is None or len(target_list) == 0:
                 raise OSPDError('No targets or ports', 'start_scan')
             else:
                 scan_targets = self.process_targets_element(target_list)
@@ -624,7 +620,7 @@ class OSPDaemon(object):
         vt_selection = {}
         scanner_vts = scan_et.find('vt_selection')
         if scanner_vts is not None:
-            if not scanner_vts:
+            if len(scanner_vts) == 0:
                 raise OSPDError('VTs list is empty', 'start_scan')
             else:
                 vt_selection = self.process_vts_params(scanner_vts)

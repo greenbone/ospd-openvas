@@ -74,9 +74,9 @@ class fakeparamiko(object):  # pylint: disable=invalid-name
 class SSHDaemonTestCase(unittest.TestCase):
     def test_no_paramiko(self):
         ospd_ssh.paramiko = None
-        self.assertRaises(
-            ImportError, OSPDaemonSimpleSSH, 'cert', 'key', 'ca', '10'
-        )
+
+        with self.assertRaises(ImportError):
+            OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
 
     def test_run_command(self):
         ospd_ssh.paramiko = fakeparamiko
@@ -87,12 +87,15 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15, username_password='dummy:pw'),
             '',
         )
+
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
-        self.assertTrue(isinstance(res, list))
+
+        self.assertIsInstance(res, list)
         self.assertEqual(commands, ['nice -n 10 cat /etc/passwd'])
 
     def test_run_command_legacy_credential(self):
         ospd_ssh.paramiko = fakeparamiko
+
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
         scanid = daemon.create_scan(
             None,
@@ -100,12 +103,15 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15, username='dummy', password='pw'),
             '',
         )
+
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
-        self.assertTrue(isinstance(res, list))
+
+        self.assertIsInstance(res, list)
         self.assertEqual(commands, ['nice -n 10 cat /etc/passwd'])
 
     def test_run_command_new_credential(self):
         ospd_ssh.paramiko = fakeparamiko
+
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
 
         cred_dict = {
@@ -125,11 +131,13 @@ class SSHDaemonTestCase(unittest.TestCase):
             '',
         )
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
-        self.assertTrue(isinstance(res, list))
+
+        self.assertIsInstance(res, list)
         self.assertEqual(commands, ['nice -n 10 cat /etc/passwd'])
 
     def test_run_command_no_credential(self):
         ospd_ssh.paramiko = fakeparamiko
+
         daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
         scanid = daemon.create_scan(
             None,
@@ -137,10 +145,6 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15),
             '',
         )
-        self.assertRaises(
-            ValueError,
-            daemon.run_command,
-            scanid,
-            'host.example.com',
-            'cat /etc/passwd',
-        )
+
+        with self.assertRaises(ValueError):
+            daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')

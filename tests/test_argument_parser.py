@@ -22,8 +22,14 @@
 import logging
 import unittest
 
-from ospd import misc
-from ospd.misc import create_args_parser, get_common_args
+from ospd.parser import (
+    create_args_parser,
+    get_common_args,
+    DEFAULT_ADDRESS,
+    DEFAULT_PORT,
+    DEFAULT_KEY_FILE,
+    DEFAULT_NICENESS,
+)
 
 
 class ArgumentParserTestCase(unittest.TestCase):
@@ -31,35 +37,22 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.parser = create_args_parser('Wrapper name')
 
     def test_port_interval(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '--port=65536'.split()
-        )
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '--port=0'.split()
-        )
-        args = get_common_args(self.parser, '--port=3353'.split())
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, ['--port=65536'])
+
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, ['--port=0'])
+
+        args = get_common_args(self.parser, ['--port=3353'])
         self.assertEqual(3353, args['port'])
 
     def test_port_as_string(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '--port=abcd'.split()
-        )
-
-    def test_default_port(self):
-        args = get_common_args(self.parser, [])
-        self.assertEqual(misc.PORT, args['port'])
-
-    def test_default_address(self):
-        args = get_common_args(self.parser, [])
-        self.assertEqual(misc.ADDRESS, args['address'])
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, ['--port=abcd'])
 
     def test_address_param(self):
         args = get_common_args(self.parser, '-b 1.2.3.4'.split())
         self.assertEqual('1.2.3.4', args['address'])
-
-    def test_default_log_level(self):
-        args = get_common_args(self.parser, [])
-        self.assertEqual(logging.WARNING, args['log_level'])
 
     def test_correct_lower_case_log_level(self):
         args = get_common_args(self.parser, '-L error'.split())
@@ -70,19 +63,22 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(logging.INFO, args['log_level'])
 
     def test_correct_log_level(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '-L blah'.split()
-        )
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, '-L blah'.split())
 
     def test_non_existing_key(self):
-        self.assertRaises(
-            SystemExit, get_common_args, self.parser, '-k abcdef.ghijkl'.split()
-        )
+        with self.assertRaises(SystemExit):
+            get_common_args(self.parser, '-k abcdef.ghijkl'.split())
 
     def test_existing_key(self):
         args = get_common_args(self.parser, '-k /etc/passwd'.split())
         self.assertEqual('/etc/passwd', args['keyfile'])
 
-    def test_default_key(self):
+    def test_defaults(self):
         args = get_common_args(self.parser, [])
-        self.assertEqual(misc.KEY_FILE, args['keyfile'])
+
+        self.assertEqual(DEFAULT_KEY_FILE, args['keyfile'])
+        self.assertEqual(DEFAULT_NICENESS, args['niceness'])
+        self.assertEqual(logging.WARNING, args['log_level'])
+        self.assertEqual(DEFAULT_ADDRESS, args['address'])
+        self.assertEqual(DEFAULT_PORT, args['port'])
