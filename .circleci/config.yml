@@ -42,7 +42,6 @@ commands:
           name: Install dependencies
           command: |
             pipenv install
-            pipenv run pip install -e git+https://github.com/greenbone/ospd.git#egg=ospd
       - run:
           name: Run unit tests
           command: pipenv run python -m unittest
