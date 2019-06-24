@@ -20,11 +20,13 @@
 """ Unit Test for ospd-openvas """
 
 import unittest
+
 from unittest.mock import patch
-from ospd_openvas.wrapper import OSPD_PARAMS
+
 from tests.dummywrapper import DummyWrapper
-from ospd_openvas.wrapper import OpenVasVtsFilter
+
 from ospd_openvas.errors import OSPDOpenvasError
+from ospd_openvas.wrapper import OSPD_PARAMS, OpenVasVtsFilter
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {
