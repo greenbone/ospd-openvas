@@ -21,7 +21,7 @@
 
 import unittest
 
-from ospd.error import OspdError, OspdCommandError
+from ospd.error import OspdError, OspdCommandError, RequiredArgument
 
 
 class OspdCommandErrorTestCase(unittest.TestCase):
@@ -54,3 +54,21 @@ class OspdCommandErrorTestCase(unittest.TestCase):
         self.assertEqual(
             b'<osp_response status="400" status_text="message" />', e.as_xml()
         )
+
+
+class RequiredArgumentTestCase(unittest.TestCase):
+    def test_raise_exception(self):
+        with self.assertRaises(RequiredArgument) as cm:
+            raise RequiredArgument('foo', 'bar')
+
+        ex = cm.exception
+        self.assertEqual(ex.function, 'foo')
+        self.assertEqual(ex.argument, 'bar')
+
+    def test_string_conversion(self):
+        ex = RequiredArgument('foo', 'bar')
+        self.assertEqual(str(ex), 'foo: Argument bar is required')
+
+    def test_is_ospd_error(self):
+        e = RequiredArgument('foo', 'bar')
+        self.assertIsInstance(e, OspdError)

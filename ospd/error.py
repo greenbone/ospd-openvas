@@ -26,6 +26,23 @@ class OspdError(Exception):
     """ Base error class for all Ospd related errors """
 
 
+class RequiredArgument(OspdError):
+    """Raised if a required argument/parameter is missing
+
+    Derives from :py:class:`OspdError`
+    """
+
+    def __init__(self, function, argument):
+        # pylint: disable=super-init-not-called
+        self.function = function
+        self.argument = argument
+
+    def __str__(self):
+        return "{}: Argument {} is required".format(
+            self.function, self.argument
+        )
+
+
 class OspdCommandError(OspdError):
 
     """ This is an exception that will result in an error message to the
