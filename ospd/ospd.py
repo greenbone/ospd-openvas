@@ -41,7 +41,7 @@ from xml.etree.ElementTree import Element, SubElement
 import defusedxml.ElementTree as secET
 
 from ospd import __version__
-from ospd.errors import OspdCommandError
+from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.vtfilter import VtsFilter
@@ -282,60 +282,59 @@ class OSPDaemon(object):
         severities=None,
     ):
         """ Add a vulnerability test information.
-
-        Returns: The new number of stored VTs.
-        -1 in case the VT ID was already present and thus the
-        new VT was not considered.
-        -2 in case the vt_id was invalid.
         """
 
         if not vt_id:
-            return -2  # no valid vt_id
+            raise OspdError('Invalid vt_id {}'.format(vt_id))
 
         if self.vt_id_pattern.fullmatch(vt_id) is None:
-            return -2  # no valid vt_id
+            raise OspdError('Invalid vt_id {}'.format(vt_id))
 
         if vt_id in self.vts:
-            return -1  # The VT was already in the list.
+            raise OspdError('vt_id {} already exists'.format(vt_id))
 
         if name is None:
             name = ''
 
-        self.vts[vt_id] = {'name': name}
+        vt = {'name': name}
         if custom is not None:
-            self.vts[vt_id]["custom"] = custom
+            vt["custom"] = custom
         if vt_params is not None:
-            self.vts[vt_id]["vt_params"] = vt_params
+            vt["vt_params"] = vt_params
         if vt_refs is not None:
-            self.vts[vt_id]["vt_refs"] = vt_refs
+            vt["vt_refs"] = vt_refs
         if vt_dependencies is not None:
-            self.vts[vt_id]["vt_dependencies"] = vt_dependencies
+            vt["vt_dependencies"] = vt_dependencies
         if vt_creation_time is not None:
-            self.vts[vt_id]["creation_time"] = vt_creation_time
+            vt["creation_time"] = vt_creation_time
         if vt_modification_time is not None:
-            self.vts[vt_id]["modification_time"] = vt_modification_time
+            vt["modification_time"] = vt_modification_time
         if summary is not None:
-            self.vts[vt_id]["summary"] = summary
+            vt["summary"] = summary
         if impact is not None:
-            self.vts[vt_id]["impact"] = impact
+            vt["impact"] = impact
         if affected is not None:
-            self.vts[vt_id]["affected"] = affected
+            vt["affected"] = affected
         if insight is not None:
-            self.vts[vt_id]["insight"] = insight
-        if solution is not None:
-            self.vts[vt_id]["solution"] = solution
-            if solution_t is not None:
-                self.vts[vt_id]["solution_type"] = solution_t
-        if detection is not None:
-            self.vts[vt_id]["detection"] = detection
-        if qod_t is not None:
-            self.vts[vt_id]["qod_type"] = qod_t
-        elif qod_v is not None:
-            self.vts[vt_id]["qod"] = qod_v
-        if severities is not None:
-            self.vts[vt_id]["severities"] = severities
+            vt["insight"] = insight
 
-        return len(self.vts)
+        if solution is not None:
+            vt["solution"] = solution
+            if solution_t is not None:
+                vt["solution_type"] = solution_t
+
+        if detection is not None:
+            vt["detection"] = detection
+
+        if qod_t is not None:
+            vt["qod_type"] = qod_t
+        elif qod_v is not None:
+            vt["qod"] = qod_v
+
+        if severities is not None:
+            vt["severities"] = severities
+
+        self.vts[vt_id] = vt
 
     def set_vts_version(self, vts_version):
         """ Add into the vts dictionary an entry to identify the
