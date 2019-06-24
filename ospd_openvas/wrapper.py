@@ -39,7 +39,7 @@ from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
 
 from ospd_openvas import __version__
-from ospd_openvas.errors import OSPDOpenvasError
+from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
@@ -325,7 +325,7 @@ class OSPDopenvas(OSPDaemon):
         """
         plugins_folder = self.scan_only_params.get('plugins_folder')
         if not plugins_folder:
-            raise OSPDOpenvasError("Error: Path to plugins folder not found.")
+            raise OspdOpenvasError("Error: Path to plugins folder not found.")
         feed_info_file = path.join(plugins_folder, 'plugin_feed_info.inc')
         fcontent = open(feed_info_file)
         for line in fcontent:

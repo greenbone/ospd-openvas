@@ -21,9 +21,12 @@
 
 from unittest import TestCase
 from unittest.mock import patch
-from ospd_openvas.db import OpenvasDB
-from ospd_openvas.errors import OSPDOpenvasError, RequiredArgument
+
 from redis.exceptions import ConnectionError as RCE
+
+from ospd.errors import RequiredArgument
+from ospd_openvas.db import OpenvasDB
+from ospd_openvas.errors import OspdOpenvasError
 
 
 @patch('ospd_openvas.db.redis.Redis')
@@ -32,13 +35,13 @@ class TestDB(TestCase):
         self.db = OpenvasDB()
 
     def test_parse_openvas_db_addres(self, mock_redis):
-        with self.assertRaises(OSPDOpenvasError):
+        with self.assertRaises(OspdOpenvasError):
             self.db._parse_openvas_db_address(b'somedata')
 
     def test_max_db_index_fail(self, mock_redis):
         mock_redis.config_get.return_value = {}
         with patch.object(OpenvasDB, 'kb_connect', return_value=mock_redis):
-            with self.assertRaises(OSPDOpenvasError):
+            with self.assertRaises(OspdOpenvasError):
                 self.db.max_db_index()
 
     def test_set_ctx_with_error(self, mock_redis):
@@ -61,13 +64,13 @@ class TestDB(TestCase):
 
     def test_try_db_index_error(self, mock_redis):
         mock_redis.hsetnx.side_effect = Exception
-        with self.assertRaises(OSPDOpenvasError):
+        with self.assertRaises(OspdOpenvasError):
             self.db.try_database_index(mock_redis, 1)
 
     def test_kb_connect(self, mock_redis):
         mock_redis.side_effect = RCE
         with patch.object(OpenvasDB, 'get_db_connection', return_value=None):
-            with self.assertRaises(OSPDOpenvasError):
+            with self.assertRaises(OspdOpenvasError):
                 self.db.kb_connect()
 
     def test_kb_new_fail(self, mock_redis):
@@ -93,7 +96,7 @@ class TestDB(TestCase):
 
     def test_get_kb_context_fail(self, mock_redis):
         with patch.object(OpenvasDB, 'db_find', return_value=None):
-            with self.assertRaises(OSPDOpenvasError):
+            with self.assertRaises(OspdOpenvasError):
                 self.db.get_kb_context()
 
     def test_select_kb_error(self, mock_redis):
