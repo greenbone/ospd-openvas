@@ -21,7 +21,7 @@
 
 import unittest
 
-from ospd.ospd import OspdCommandError
+from ospd.error import OspdCommandError
 
 
 class OspdCommandErrorTestCase(unittest.TestCase):
