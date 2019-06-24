@@ -16,32 +16,59 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-""" Test module for OSPDError class
+""" Test module for OspdCommandError class
 """
 
 import unittest
 
-from ospd.ospd import OSPDError
+from ospd.errors import OspdError, OspdCommandError, RequiredArgument
 
 
-class OSPDErrorTestCase(unittest.TestCase):
+class OspdCommandErrorTestCase(unittest.TestCase):
+    def test_is_ospd_error(self):
+        e = OspdCommandError('message')
+        self.assertIsInstance(e, OspdError)
+
     def test_default_params(self):
-        e = OSPDError('message')
+        e = OspdCommandError('message')
 
         self.assertEqual('message', e.message)
         self.assertEqual(400, e.status)
         self.assertEqual('osp', e.command)
 
     def test_constructor(self):
-        e = OSPDError('message', 'command', '304')
+        e = OspdCommandError('message', 'command', '304')
 
         self.assertEqual('message', e.message)
         self.assertEqual('command', e.command)
         self.assertEqual('304', e.status)
 
+    def test_string_conversion(self):
+        e = OspdCommandError('message foo bar', 'command', '304')
+
+        self.assertEqual('message foo bar', str(e))
+
     def test_as_xml(self):
-        e = OSPDError('message')
+        e = OspdCommandError('message')
 
         self.assertEqual(
             b'<osp_response status="400" status_text="message" />', e.as_xml()
         )
+
+
+class RequiredArgumentTestCase(unittest.TestCase):
+    def test_raise_exception(self):
+        with self.assertRaises(RequiredArgument) as cm:
+            raise RequiredArgument('foo', 'bar')
+
+        ex = cm.exception
+        self.assertEqual(ex.function, 'foo')
+        self.assertEqual(ex.argument, 'bar')
+
+    def test_string_conversion(self):
+        ex = RequiredArgument('foo', 'bar')
+        self.assertEqual(str(ex), 'foo: Argument bar is required')
+
+    def test_is_ospd_error(self):
+        e = RequiredArgument('foo', 'bar')
+        self.assertIsInstance(e, OspdError)

@@ -30,7 +30,7 @@ import defusedxml.lxml as secET
 from defusedxml.common import EntitiesForbidden
 
 from ospd.ospd import OSPDaemon
-from ospd.error import OSPDError
+from ospd.errors import OspdCommandError
 
 
 class Result(object):
@@ -140,13 +140,17 @@ class DummyWrapper(OSPDaemon):
         return response
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(vt_id, creation_time): # pylint: disable=arguments-differ
+    def get_creation_time_vt_as_xml_str(
+        vt_id, creation_time
+    ):  # pylint: disable=arguments-differ
         response = '<creation_time>%s</creation_time>' % creation_time
 
         return response
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(vt_id, modification_time): # pylint: disable=arguments-differ
+    def get_modification_time_vt_as_xml_str(
+        vt_id, modification_time
+    ):  # pylint: disable=arguments-differ
         response = (
             '<modification_time>%s</modification_time>' % modification_time
         )
@@ -199,7 +203,6 @@ class DummyWrapper(OSPDaemon):
 
 
 class ScanTestCase(unittest.TestCase):
-
     def test_get_default_scanner_params(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
@@ -691,7 +694,7 @@ class ScanTestCase(unittest.TestCase):
 
         self.assertIn(
             response.findtext('scan/results/result'),
-            ['Scan process failure.', 'Scan stopped.']
+            ['Scan process failure.', 'Scan stopped.'],
         )
 
         response = secET.fromstring(
@@ -716,10 +719,14 @@ class ScanTestCase(unittest.TestCase):
         time.sleep(3)
 
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
-        self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
+        self.assertRaises(
+            OspdCommandError, daemon.handle_stop_scan_command, cmd
+        )
 
         cmd = secET.fromstring('<stop_scan />')
-        self.assertRaises(OSPDError, daemon.handle_stop_scan_command, cmd)
+        self.assertRaises(
+            OspdCommandError, daemon.handle_stop_scan_command, cmd
+        )
 
     def test_scan_with_vts(self):
         daemon = DummyWrapper([])
@@ -730,7 +737,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>'
         )
 
-        with self.assertRaises(OSPDError):
+        with self.assertRaises(OspdCommandError):
             daemon.handle_start_scan_command(cmd)
 
         # With one vt, without params
@@ -776,7 +783,7 @@ class ScanTestCase(unittest.TestCase):
             '</vt_single></vt_selection></start_scan>'
         )
 
-        with self.assertRaises(OSPDError):
+        with self.assertRaises(OspdCommandError):
             daemon.handle_start_scan_command(cmd)
 
         # No error
@@ -804,7 +811,9 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /><vt_selection><vt_group/>'
             '</vt_selection></start_scan>'
         )
-        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+        self.assertRaises(
+            OspdCommandError, daemon.handle_start_scan_command, cmd
+        )
 
         # No error
         response = secET.fromstring(
@@ -956,7 +965,9 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>'
         )
         time.sleep(1)
-        self.assertRaises(OSPDError, daemon.handle_start_scan_command, cmd)
+        self.assertRaises(
+            OspdCommandError, daemon.handle_start_scan_command, cmd
+        )
 
     def test_scan_multi_target_parallel_100(self):
         daemon = DummyWrapper([])
@@ -1038,7 +1049,7 @@ class ScanTestCase(unittest.TestCase):
         time.sleep(3)
         cmd = secET.fromstring('<stop_scan scan_id="%s" />' % scan_id)
 
-        with self.assertRaises(OSPDError):
+        with self.assertRaises(OspdCommandError):
             daemon.handle_stop_scan_command(cmd)
 
         response = secET.fromstring(
@@ -1053,8 +1064,7 @@ class ScanTestCase(unittest.TestCase):
         # Resume the task
         cmd = (
             '<start_scan scan_id="%s" target="localhost" ports="80, 443">'
-            '<scanner_params /></start_scan>'
-            % scan_id
+            '<scanner_params /></start_scan>' % scan_id
         )
         response = secET.fromstring(daemon.handle_command(cmd))
 
