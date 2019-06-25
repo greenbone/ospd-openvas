@@ -62,16 +62,13 @@ class OpenvasDB(object):
     # Name of the namespace usage bitmap in redis.
     DBINDEX_NAME = "GVM.__GlobalDBIndex"
 
-    def __init__(self, wrapper_logger=None):
+    def __init__(self):
         # Path to the Redis socket.
         self.db_address = None
 
         self.max_dbindex = 0
         self.db_index = 0
         self.rediscontext = None
-        self.logger = (
-            wrapper_logger.getChild('db') if wrapper_logger else logger
-        )
 
     @staticmethod
     def _parse_openvas_db_address(result):
@@ -183,7 +180,7 @@ class OpenvasDB(object):
                 )
                 ctx.keys("test")
             except (redis.exceptions.ConnectionError, FileNotFoundError) as err:
-                self.logger.debug(
+                logger.debug(
                     'Redis connection lost: %s. Trying again in 5 seconds.', err
                 )
                 tries = tries - 1
