@@ -917,10 +917,10 @@ class OSPDopenvas(OSPDaemon):
 
                     try:
                         subprocess.Popen(cmd, shell=False)
-                    except OSError:
+                    except OSError as e:
                         # the command is not available
-                        logger.debug('Not possible to Stopping process: %s',
-                                     parent)
+                        logger.debug('Not possible to Stopping process: %s.'
+                                     'Reason %s', parent, e)
                         return False
 
                     logger.debug('Stopping process: %s', parent)
