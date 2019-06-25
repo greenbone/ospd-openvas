@@ -1275,7 +1275,6 @@ class OSPDopenvas(OSPDaemon):
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
             # the command is not available
-            print("Estoy en el except")
             return False
 
         ovas_pid = result.pid
