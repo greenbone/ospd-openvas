@@ -25,7 +25,8 @@ import time
 
 import redis
 
-from ospd_openvas.errors import OSPDOpenvasError, RequiredArgument
+from ospd.errors import RequiredArgument
+from ospd_openvas.errors import OspdOpenvasError
 
 SOCKET_TIMEOUT = 60  # in seconds
 LIST_FIRST_POS = 0
@@ -61,16 +62,13 @@ class OpenvasDB(object):
     # Name of the namespace usage bitmap in redis.
     DBINDEX_NAME = "GVM.__GlobalDBIndex"
 
-    def __init__(self, wrapper_logger=None):
+    def __init__(self):
         # Path to the Redis socket.
         self.db_address = None
 
         self.max_dbindex = 0
         self.db_index = 0
         self.rediscontext = None
-        self.logger = (
-            wrapper_logger.getChild('db') if wrapper_logger else logger
-        )
 
     @staticmethod
     def _parse_openvas_db_address(result):
@@ -87,7 +85,7 @@ class OpenvasDB(object):
                 break
 
         if not path:
-            raise OSPDOpenvasError(
+            raise OspdOpenvasError(
                 'Redis Error: Not possible to '
                 'find the path to the redis socket.'
             )
@@ -120,7 +118,7 @@ class OpenvasDB(object):
         if len(resp) == 1:
             self.max_dbindex = int(resp.get('databases'))
         else:
-            raise OSPDOpenvasError(
+            raise OspdOpenvasError(
                 'Redis Error: Not possible ' 'to get max_dbindex.'
             )
 
@@ -130,9 +128,7 @@ class OpenvasDB(object):
             ctx (object): Redis context to be set as default.
         """
         if not ctx:
-            raise RequiredArgument(
-                'set_redisctx: A valid Redis context is ' 'required.'
-            )
+            raise RequiredArgument('set_redisctx', 'ctx')
         self.rediscontext = ctx
 
     def db_init(self):
@@ -155,8 +151,8 @@ class OpenvasDB(object):
         try:
             resp = ctx.hsetnx(self.DBINDEX_NAME, kb, _in_use)
         except:
-            raise OSPDOpenvasError(
-                'Redis Error: Not possible ' 'to set %s.' % self.DBINDEX_NAME
+            raise OspdOpenvasError(
+                'Redis Error: Not possible to set %s.' % self.DBINDEX_NAME
             )
 
         if resp == 1:
@@ -184,7 +180,7 @@ class OpenvasDB(object):
                 )
                 ctx.keys("test")
             except (redis.exceptions.ConnectionError, FileNotFoundError) as err:
-                self.logger.debug(
+                logger.debug(
                     'Redis connection lost: %s. Trying again in 5 seconds.', err
                 )
                 tries = tries - 1
@@ -193,8 +189,8 @@ class OpenvasDB(object):
             break
 
         if not tries:
-            raise OSPDOpenvasError(
-                'Redis Error: Not possible ' 'to connect to the kb.'
+            raise OspdOpenvasError(
+                'Redis Error: Not possible to connect to the kb.'
             )
 
         self.db_index = dbnum
@@ -231,8 +227,8 @@ class OpenvasDB(object):
         self.rediscontext = self.db_find(self.DBINDEX_NAME)
 
         if self.rediscontext is None:
-            raise OSPDOpenvasError(
-                'Redis Error: Problem retrieving ' 'Redis Context'
+            raise OspdOpenvasError(
+                'Redis Error: Problem retrieving Redis Context'
             )
 
         return self.rediscontext
@@ -246,13 +242,9 @@ class OpenvasDB(object):
             set_global (bool, optional): If should be the global context.
         """
         if not ctx:
-            raise RequiredArgument(
-                'select_kb(): A valid Redis context is ' 'required.'
-            )
+            raise RequiredArgument('select_kb', 'ctx')
         if not kbindex:
-            raise RequiredArgument(
-                'select_kb(): A valid KB index is ' 'required.'
-            )
+            raise RequiredArgument('select_kb', 'kbindex')
 
         ctx.execute_command('SELECT ' + str(kbindex))
         if set_global:
@@ -274,7 +266,7 @@ class OpenvasDB(object):
         Return List specified elements in the key.
         """
         if not name:
-            raise RequiredArgument('get_list_item requires a name argument.')
+            raise RequiredArgument('get_list_item', 'name')
 
         if not ctx:
             ctx = self.get_kb_context()
@@ -288,11 +280,9 @@ class OpenvasDB(object):
             ctx (redis obj, optional): Redis context to use.
         """
         if not key:
-            raise RequiredArgument('remove_list_item requires a key argument.')
+            raise RequiredArgument('remove_list_item', 'key')
         if not value:
-            raise RequiredArgument(
-                'remove_list_item requires a value ' 'argument.'
-            )
+            raise RequiredArgument('remove_list_item ', 'value')
 
         if not ctx:
             ctx = self.get_kb_context()
@@ -307,7 +297,7 @@ class OpenvasDB(object):
         Return an element.
         """
         if not name:
-            raise RequiredArgument('get_single_item requires a name argument.')
+            raise RequiredArgument('get_single_item', 'name')
 
         if not ctx:
             ctx = self.get_kb_context()
@@ -321,9 +311,9 @@ class OpenvasDB(object):
             ctx (redis obj, optional): Redis context to use.
         """
         if not name:
-            raise RequiredArgument('add_list_item requires a name argument.')
+            raise RequiredArgument('add_list_item', 'name')
         if not values:
-            raise RequiredArgument('add_list_item requires a value argument.')
+            raise RequiredArgument('add_list_item', 'value')
 
         if not ctx:
             ctx = self.get_kb_context()
@@ -337,9 +327,9 @@ class OpenvasDB(object):
             ctx (redis obj, optional): Redis context to use.
         """
         if not name:
-            raise RequiredArgument('set_single_item requires a name argument.')
+            raise RequiredArgument('set_single_item', 'name')
         if not value:
-            raise RequiredArgument('set_single_item requires a value argument.')
+            raise RequiredArgument('set_single_item', 'value')
 
         if not ctx:
             ctx = self.get_kb_context()
@@ -356,7 +346,7 @@ class OpenvasDB(object):
         Return a list with the elements under the matched key.
         """
         if not pattern:
-            raise RequiredArgument('get_pattern requires a pattern argument.')
+            raise RequiredArgument('get_pattern', 'pattern')
 
         if not ctx:
             ctx = self.get_kb_context()
@@ -382,9 +372,7 @@ class OpenvasDB(object):
         Return a list with the elements under the matched key and given index.
         """
         if not pattern:
-            raise RequiredArgument(
-                'get_elem_pattern_by_index ' 'requires a pattern argument.'
-            )
+            raise RequiredArgument('get_elem_pattern_by_index', 'pattern')
 
         if not ctx:
             ctx = self.get_kb_context()

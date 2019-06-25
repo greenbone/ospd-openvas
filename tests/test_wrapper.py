@@ -25,7 +25,7 @@ from unittest.mock import patch
 
 from tests.dummywrapper import DummyWrapper
 
-from ospd_openvas.errors import OSPDOpenvasError
+from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.wrapper import OSPD_PARAMS, OpenVasVtsFilter
 
 OSPD_PARAMS_OUT = {
@@ -497,7 +497,7 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_feed_is_outdated(self, mock_open, mock_nvti, mock_db):
         mock_open.return_value = ['PLUGIN_SET = "1234";']
         w = DummyWrapper(mock_nvti, mock_db)
-        self.assertRaises(OSPDOpenvasError, w.feed_is_outdated, '1234')
+        self.assertRaises(OspdOpenvasError, w.feed_is_outdated, '1234')
         # Return False
         w.scan_only_params['plugins_folder'] = '/foo/bar'
         ret = w.feed_is_outdated('1234')
