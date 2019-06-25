@@ -255,7 +255,7 @@ class TestNVTICache(TestCase):
         )
 
         out_dict = {
-            'last_modification': '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $',
+            'last_modification': '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $',  # pylint: disable=line-too-long
             'creation_date': '2018-04-02 00:00:00 +0200 (Mon, 02 Apr 2018)',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:P/I:P/A:P',
             'solution_type': 'VendorFix',
