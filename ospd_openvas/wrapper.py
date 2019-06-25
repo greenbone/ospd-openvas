@@ -24,7 +24,6 @@
 import logging
 import subprocess
 import time
-import signal
 import uuid
 
 from os import path
@@ -913,10 +912,19 @@ class OSPDopenvas(OSPDaemon):
                     logger.debug(
                         'Process with pid %s already stopped', ovas_pid
                     )
-                self.openvas_db.release_db(current_kbi)
                 if parent:
-                    parent.send_signal(signal.SIGUSR2)
+                    cmd = ['sudo', 'openvas', '--scan-stop', scan_id]
+
+                    try:
+                        subprocess.Popen(cmd, shell=False)
+                    except OSError as e:
+                        # the command is not available
+                        logger.debug('Not possible to Stopping process: %s.'
+                                     'Reason %s', parent, e)
+                        return False
+
                     logger.debug('Stopping process: %s', parent)
+                self.openvas_db.release_db(current_kbi)
 
     def get_vts_in_groups(self, filters):
         """ Return a list of vts which match with the given filter.
@@ -1266,7 +1274,6 @@ class OSPDopenvas(OSPDaemon):
             result = subprocess.Popen(cmd, shell=False)
         except OSError:
             # the command is not available
-            print("Estoy en el except")
             return False
 
         ovas_pid = result.pid
