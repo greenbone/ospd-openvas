@@ -33,6 +33,7 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
+from ospd.errors import OspdError
 from ospd.ospd import OSPDaemon
 from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
@@ -443,30 +444,29 @@ class OSPDopenvas(OSPDaemon):
                 for dep in _deps_list:
                     _vt_dependencies.append(oids.get('filename:' + dep))
 
-            ret = self.add_vt(
-                vt_id,
-                name=_name,
-                vt_params=_vt_params,
-                vt_refs=_vt_refs,
-                custom=_custom,
-                vt_creation_time=_vt_creation_time,
-                vt_modification_time=_vt_modification_time,
-                vt_dependencies=_vt_dependencies,
-                summary=_summary,
-                impact=_impact,
-                affected=_affected,
-                insight=_insight,
-                solution=_solution,
-                solution_t=_solution_t,
-                detection=_vuldetect,
-                qod_t=_qod_t,
-                qod_v=_qod_v,
-                severities=_severity,
-            )
-            if ret == -1:
-                logger.info("Duplicated VT with OID: %s", vt_id)
-            if ret == -2:
-                logger.info("%s: Invalid OID.", vt_id)
+            try:
+                self.add_vt(
+                    vt_id,
+                    name=_name,
+                    vt_params=_vt_params,
+                    vt_refs=_vt_refs,
+                    custom=_custom,
+                    vt_creation_time=_vt_creation_time,
+                    vt_modification_time=_vt_modification_time,
+                    vt_dependencies=_vt_dependencies,
+                    summary=_summary,
+                    impact=_impact,
+                    affected=_affected,
+                    insight=_insight,
+                    solution=_solution,
+                    solution_t=_solution_t,
+                    detection=_vuldetect,
+                    qod_t=_qod_t,
+                    qod_v=_qod_v,
+                    severities=_severity,
+                )
+            except OspdError as e:
+                logger.info("Error while adding vt. %s", e)
 
         _feed_version = self.nvti.get_feed_version()
         self.set_vts_version(vts_version=_feed_version)
