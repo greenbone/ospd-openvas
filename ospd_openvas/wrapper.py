@@ -913,10 +913,19 @@ class OSPDopenvas(OSPDaemon):
                     logger.debug(
                         'Process with pid %s already stopped', ovas_pid
                     )
-                self.openvas_db.release_db(current_kbi)
                 if parent:
-                    parent.send_signal(signal.SIGUSR2)
+                    cmd = ['sudo', 'openvas', '--scan-stop', scan_id]
+
+                    try:
+                        result = subprocess.Popen(cmd, shell=False)
+                    except OSError:
+                        # the command is not available
+                        logger.debug('Not possible to Stopping process: %s',
+                                     parent)
+                        return False
+
                     logger.debug('Stopping process: %s', parent)
+                self.openvas_db.release_db(current_kbi)
 
     def get_vts_in_groups(self, filters):
         """ Return a list of vts which match with the given filter.
