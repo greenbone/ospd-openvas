@@ -269,6 +269,7 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['description'] = OSPD_DESC
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
+        self.sudo_available = self.sudo_check()
 
         self.scan_only_params = dict()
         self.main_kbindex = None
@@ -715,6 +716,23 @@ class OSPDopenvas(OSPDaemon):
 
         return tostring(_detection).decode('utf-8')
 
+    def sudo_check(self):
+        """ Checks that sudo is available and set the global var. """
+        _sudo_available = False
+        try:
+            result = subprocess.check_call(
+                ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
+            )
+        except subprocess.CalledProcessError as e:
+            logger.debug('It was not possible to call openvas with sudo. '
+                         'The scanner will run as non-root user. Reason %s', e)
+            return _sudo_available
+
+        if result == 0:
+            _sudo_available = True
+
+        return _sudo_available
+
     def check(self):
         """ Checks that openvas command line tool is found and
         is executable. """
@@ -913,7 +931,10 @@ class OSPDopenvas(OSPDaemon):
                         'Process with pid %s already stopped', ovas_pid
                     )
                 if parent:
-                    cmd = ['sudo', 'openvas', '--scan-stop', scan_id]
+                    if self.sudo_available:
+                        cmd = ['sudo', 'openvas', '--scan-stop', scan_id]
+                    else:
+                        cmd = ['openvas', '--scan-stop', scan_id]
 
                     try:
                         subprocess.Popen(cmd, shell=False)
@@ -1264,7 +1285,11 @@ class OSPDopenvas(OSPDaemon):
             value='An OpenVAS Scanner was started for %s.' % target,
         )
 
-        cmd = ['sudo', 'openvas', '--scan-start', openvas_scan_id]
+        if self.sudo_available:
+            cmd = ['sudo', 'openvas', '--scan-start', openvas_scan_id]
+        else:
+            cmd = ['openvas', '--scan-start', openvas_scan_id]
+
         if self._niceness is not None:
             cmd_nice = ['nice', '-n', self._niceness]
             cmd_nice.extend(cmd)
