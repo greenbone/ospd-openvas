@@ -916,7 +916,7 @@ class OSPDopenvas(OSPDaemon):
                     cmd = ['sudo', 'openvas', '--scan-stop', scan_id]
 
                     try:
-                        result = subprocess.Popen(cmd, shell=False)
+                        subprocess.Popen(cmd, shell=False)
                     except OSError:
                         # the command is not available
                         logger.debug('Not possible to Stopping process: %s',
