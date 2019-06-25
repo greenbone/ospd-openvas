@@ -24,7 +24,6 @@
 import logging
 import subprocess
 import time
-import signal
 import uuid
 
 from os import path
