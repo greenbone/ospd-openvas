@@ -50,7 +50,7 @@ class Result(object):
 
 class DummyWrapper(OSPDaemon):
     def __init__(self, results, checkresult=True):
-        OSPDaemon.__init__(self, 'cert', 'key', 'ca', '10')
+        super().__init__('cert', 'key', 'ca')
         self.checkresult = checkresult
         self.results = results
 
