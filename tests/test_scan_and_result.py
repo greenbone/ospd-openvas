@@ -687,10 +687,14 @@ class ScanTestCase(unittest.TestCase):
 
             scan = scans[0]
             if scan.get('status') == "stopped":
+                time.sleep(1)  # avoid race condition by waiting
                 break
 
-        scans = response.findall('scan')
-        scan = scans[0]
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" details="1"/>' % scan_id
+            )
+        )
 
         self.assertIn(
             response.findtext('scan/results/result'),
