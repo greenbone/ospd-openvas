@@ -694,33 +694,6 @@ class OSPDaemon:
                 elem.text = str(value)
         return scanner_params
 
-    def new_client_stream(self, sock):
-        """ Returns a new ssl client stream from bind_socket. """
-
-        assert sock
-        newsocket, fromaddr = sock.accept()
-        logger.debug("New connection from" " %s:%s", fromaddr[0], fromaddr[1])
-        # NB: Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
-        # protocol version that both the client and server support. In modern
-        # Python versions (>= 3.4) it supports TLS >= 1.0 with SSLv2 and SSLv3
-        # being disabled. For Python >=3.5, PROTOCOL_SSLv23 is an alias for
-        # PROTOCOL_TLS which should be used once compatibility with Python 3.4
-        # is no longer desired.
-        try:
-            ssl_socket = ssl.wrap_socket(
-                newsocket,
-                cert_reqs=ssl.CERT_REQUIRED,
-                server_side=True,
-                certfile=self.certs['cert_file'],
-                keyfile=self.certs['key_file'],
-                ca_certs=self.certs['ca_file'],
-                ssl_version=ssl.PROTOCOL_SSLv23,
-            )
-        except (ssl.SSLError, socket.error) as message:
-            logger.error(message)
-            return None
-        return ssl_socket
-
     def handle_client_stream(self, stream):
         """ Handles stream of data received from client. """
 
