@@ -50,7 +50,7 @@ class Result(object):
 
 class DummyWrapper(OSPDaemon):
     def __init__(self, results, checkresult=True):
-        OSPDaemon.__init__(self, 'cert', 'key', 'ca', '10')
+        super().__init__('cert', 'key', 'ca')
         self.checkresult = checkresult
         self.results = results
 
@@ -315,7 +315,7 @@ class ScanTestCase(unittest.TestCase):
     def test_get_vtss_multiple_vts(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
-        daemon.add_vt('some id', 'Another vulnerability test')
+        daemon.add_vt('1.2.3.5', 'Another vulnerability test')
         daemon.add_vt('123456789', 'Yet another vulnerability test')
 
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
@@ -687,10 +687,14 @@ class ScanTestCase(unittest.TestCase):
 
             scan = scans[0]
             if scan.get('status') == "stopped":
+                time.sleep(1)  # avoid race condition by waiting
                 break
 
-        scans = response.findall('scan')
-        scan = scans[0]
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" details="1"/>' % scan_id
+            )
+        )
 
         self.assertIn(
             response.findtext('scan/results/result'),
