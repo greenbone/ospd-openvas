@@ -101,6 +101,7 @@ def create_args_parser(description: str) -> ParserType:
         '-b',
         '--bind-address',
         default=DEFAULT_ADDRESS,
+        dest='address',
         help='Address to listen on. Default: %(default)s',
     )
     parser.add_argument(
