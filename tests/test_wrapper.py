@@ -180,6 +180,7 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = True
         w = DummyWrapper(mock_nvti, mock_db)
+        mock_subproc.reset_mock()
         w.redis_nvticache_init()
         self.assertEqual(mock_subproc.check_call.call_count, 1)
 
@@ -194,6 +195,14 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(mock_subproc.check_output.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
         self.assertEqual(w.scan_only_params.get('plugins_folder'), '/foo/bar')
+
+    @patch('ospd_openvas.wrapper.subprocess')
+    def test_sudo_available(self, mock_subproc, mock_nvti, mock_db):
+        mock_subproc.check_call.return_value = 0
+        w = DummyWrapper(mock_nvti, mock_db)
+        w._sudo_available = None
+        w.sudo_available
+        self.assertTrue(w.sudo_available)
 
     def test_load_vts(self, mock_nvti, mock_db):
         w = DummyWrapper(mock_nvti, mock_db)
