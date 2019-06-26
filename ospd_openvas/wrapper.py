@@ -269,7 +269,7 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['description'] = OSPD_DESC
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
-        self.sudo_available = False
+        self._sudo_available = None
 
         self.scan_only_params = dict()
         self.main_kbindex = None
@@ -716,19 +716,23 @@ class OSPDopenvas(OSPDaemon):
 
         return tostring(_detection).decode('utf-8')
 
-    def sudo_check(self):
-        """ Checks that sudo is available and set the global var. """
+    @property
+    def sudo_available(self):
+        """ Checks that sudo is available """
+        if self._sudo_available is not None:
+            return self._sudo_available
         try:
-            result = subprocess.check_call(
+            subprocess.check_call(
                 ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
             )
+            self._sudo_available = True
         except subprocess.CalledProcessError as e:
             logger.debug('It was not possible to call openvas with sudo. '
                          'The scanner will run as non-root user. Reason %s', e)
-            self.sudo_available = False
+            self._sudo_available = False
 
-        if result == 0:
-            self.sudo_available = True
+        return self._sudo_available
+
 
     def check(self):
         """ Checks that openvas command line tool is found and
@@ -930,7 +934,7 @@ class OSPDopenvas(OSPDaemon):
                 if parent:
                     cmd = ['openvas', '--scan-stop', scan_id]
                     if self.sudo_available:
-                        cmd = ['sudo'] + cmd
+                        cmd = ['sudo', '-n'] + cmd
 
                     try:
                         subprocess.Popen(cmd, shell=False)
@@ -1282,11 +1286,11 @@ class OSPDopenvas(OSPDaemon):
         )
 
         cmd = ['openvas', '--scan-start', openvas_scan_id]
+        if self.sudo_available:
+            cmd = ['sudo', '-n'] + cmd
+
         if self._niceness is not None:
             cmd = ['nice', '-n', self._niceness] + cmd
-
-        if self.sudo_available:
-            cmd = ['sudo'] + cmd
 
         logger.debug("Running scan with niceness %s", self._niceness)
         try:
