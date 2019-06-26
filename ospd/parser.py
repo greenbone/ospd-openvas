@@ -31,8 +31,10 @@ DEFAULT_PORT = 1234
 DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 
+ParserType = argparse.ArgumentParser
 
-def create_args_parser(description):
+
+def create_args_parser(description: str) -> ParserType:
     """ Create a command-line arguments parser for OSPD. """
 
     parser = argparse.ArgumentParser(description=description)
