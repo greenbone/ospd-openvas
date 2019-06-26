@@ -207,24 +207,30 @@ class TlsServer(BaseServer):
         if not Path(ca_file).exists():
             raise OspdError('CA file {} not found'.format(ca_file))
 
-        self.cert_file = cert_file
-        self.key_file = key_file
-        self.ca_file = ca_file
+        # Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
+        # protocol version that both the client and server support. In modern
+        # Python versions (>= 3.4) it supports TLS >= 1.0 with SSLv2 and SSLv3
+        # being disabled. For Python > 3.5, PROTOCOL_SSLv23 is an alias for
+        # PROTOCOL_TLS which should be used once compatibility with Python 3.5
+        # is no longer desired.
+
+        if hasattr(ssl, 'PROTOCOL_TLS'):
+            protocol = ssl.PROTOCOL_TLS
+        else:
+            protocol = ssl.PROTOCOL_SSLv23
+
+        self.tls_context = ssl.SSLContext(protocol)
+        self.tls_context.verify_mode = ssl.CERT_REQUIRED
+
+        self.tls_context.load_cert_chain(cert_file, keyfile=key_file)
+        self.tls_context.load_verify_locations(ca_file)
 
     def _accept(self) -> Stream:
         new_socket, addr = self.socket.accept()
 
         logger.debug("New connection from" " %s:%s", addr[0], addr[1])
 
-        ssl_socket = ssl.wrap_socket(
-            new_socket,
-            cert_reqs=ssl.CERT_REQUIRED,
-            server_side=True,
-            certfile=self.cert_file,
-            keyfile=self.key_file,
-            ca_certs=self.ca_file,
-            ssl_version=ssl.PROTOCOL_SSLv23,
-        )
+        ssl_socket = self.tls_context.wrap_socket(new_socket, server_side=True)
 
         return Stream(ssl_socket)
 
