@@ -315,7 +315,7 @@ class ScanTestCase(unittest.TestCase):
     def test_get_vtss_multiple_vts(self):
         daemon = DummyWrapper([])
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
-        daemon.add_vt('some id', 'Another vulnerability test')
+        daemon.add_vt('1.2.3.5', 'Another vulnerability test')
         daemon.add_vt('123456789', 'Yet another vulnerability test')
 
         response = secET.fromstring(daemon.handle_command('<get_vts />'))
