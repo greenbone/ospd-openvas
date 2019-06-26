@@ -132,6 +132,7 @@ def create_args_parser(description: str) -> ParserType:
         help='Wished level of logging. Default: %(default)s',
     )
     parser.add_argument(
+        '-f',
         '--foreground',
         action='store_true',
         help='Run in foreground and logs all messages to console.',
