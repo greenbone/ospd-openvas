@@ -928,10 +928,9 @@ class OSPDopenvas(OSPDaemon):
                         'Process with pid %s already stopped', ovas_pid
                     )
                 if parent:
+                    cmd = ['openvas', '--scan-stop', scan_id]
                     if self.sudo_available:
-                        cmd = ['sudo', 'openvas', '--scan-stop', scan_id]
-                    else:
-                        cmd = ['openvas', '--scan-stop', scan_id]
+                        cmd = ['sudo'] + cmd
 
                     try:
                         subprocess.Popen(cmd, shell=False)
@@ -1282,15 +1281,13 @@ class OSPDopenvas(OSPDaemon):
             value='An OpenVAS Scanner was started for %s.' % target,
         )
 
-        if self.sudo_available:
-            cmd = ['sudo', 'openvas', '--scan-start', openvas_scan_id]
-        else:
-            cmd = ['openvas', '--scan-start', openvas_scan_id]
-
+        cmd = ['openvas', '--scan-start', openvas_scan_id]
         if self._niceness is not None:
-            cmd_nice = ['nice', '-n', self._niceness]
-            cmd_nice.extend(cmd)
-            cmd = cmd_nice
+            cmd = ['nice', '-n', self._niceness] + cmd
+
+        if self.sudo_available:
+            cmd = ['sudo'] + cmd
+
         logger.debug("Running scan with niceness %s", self._niceness)
         try:
             result = subprocess.Popen(cmd, shell=False)
