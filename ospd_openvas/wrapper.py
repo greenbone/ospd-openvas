@@ -269,7 +269,7 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['description'] = OSPD_DESC
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
-        self.sudo_available = self.sudo_check()
+        self.sudo_available = False
 
         self.scan_only_params = dict()
         self.main_kbindex = None
@@ -718,7 +718,6 @@ class OSPDopenvas(OSPDaemon):
 
     def sudo_check(self):
         """ Checks that sudo is available and set the global var. """
-        _sudo_available = False
         try:
             result = subprocess.check_call(
                 ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
@@ -726,12 +725,10 @@ class OSPDopenvas(OSPDaemon):
         except subprocess.CalledProcessError as e:
             logger.debug('It was not possible to call openvas with sudo. '
                          'The scanner will run as non-root user. Reason %s', e)
-            return _sudo_available
+            self.sudo_available = False
 
         if result == 0:
-            _sudo_available = True
-
-        return _sudo_available
+            self.sudo_available = True
 
     def check(self):
         """ Checks that openvas command line tool is found and
