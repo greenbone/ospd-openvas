@@ -100,7 +100,9 @@ def init_logging(
 
 
 def main(
-    name: str, klass: Type[OSPDaemon], parser: Optional[ParserType] = None
+    name: str,
+    daemon_class: Type[OSPDaemon],
+    parser: Optional[ParserType] = None,
 ):
     """ OSPD Main function. """
 
@@ -120,18 +122,18 @@ def main(
             args.address, args.port, args.cert_file, args.key_file, args.ca_file
         )
 
-    wrapper = klass(**vars(args))
+    daemon = daemon_class(**vars(args))
 
     if args.version:
-        print_version(wrapper)
+        print_version(daemon)
         sys.exit()
 
     if not args.foreground:
         go_to_background()
 
-    if not wrapper.check():
+    if not daemon.check():
         return 1
 
-    wrapper.run(server)
+    daemon.run(server)
 
     return 0
