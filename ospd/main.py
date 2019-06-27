@@ -128,6 +128,8 @@ def main(
         print_version(daemon)
         sys.exit()
 
+    daemon.init()
+
     if not args.foreground:
         go_to_background()
 
