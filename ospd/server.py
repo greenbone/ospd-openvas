@@ -23,6 +23,7 @@ import logging
 import select
 import socket
 import ssl
+import time
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -182,6 +183,32 @@ class UnixSocketServer(BaseServer):
         self._cleanup_socket()
 
 
+def validate_cacert_file(cacert: str):
+    """ Check if provided file is a valid CA Certificate """
+    try:
+        context = ssl.create_default_context(cafile=cacert)
+    except AttributeError:
+        # Python version < 2.7.9
+        return
+    except IOError:
+        raise OspdError('CA Certificate not found')
+
+    try:
+        not_after = context.get_ca_certs()[0]['notAfter']
+        not_after = ssl.cert_time_to_seconds(not_after)
+        not_before = context.get_ca_certs()[0]['notBefore']
+        not_before = ssl.cert_time_to_seconds(not_before)
+    except (KeyError, IndexError):
+        raise OspdError('CA Certificate is erroneous')
+
+    now = int(time.time())
+    if not_after < now:
+        raise OspdError('CA Certificate expired')
+
+    if not_before > now:
+        raise OspdError('CA Certificate not active yet')
+
+
 class TlsServer(BaseServer):
     """ Server for accepting TLS encrypted connections via a TCP socket
     """
@@ -206,6 +233,8 @@ class TlsServer(BaseServer):
 
         if not Path(ca_file).exists():
             raise OspdError('CA file {} not found'.format(ca_file))
+
+        validate_cacert_file(ca_file)
 
         # Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
         # protocol version that both the client and server support. In modern
