@@ -91,6 +91,10 @@ def create_args_parser(description: str) -> ParserType:
         return string
 
     parser.add_argument(
+        '--version', action='store_true', help='Print version then exit.'
+    )
+
+    parser.add_argument(
         '-p',
         '--port',
         default=DEFAULT_PORT,
@@ -139,9 +143,6 @@ def create_args_parser(description: str) -> ParserType:
     )
     parser.add_argument(
         '-l', '--log-file', type=filename, help='Path to the logging file.'
-    )
-    parser.add_argument(
-        '--version', action='store_true', help='Print version then exit.'
     )
     parser.add_argument(
         '--niceness',
