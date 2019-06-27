@@ -18,9 +18,6 @@
 
 import argparse
 import logging
-import os
-import ssl
-import time
 
 # Default file locations as used by a OpenVAS default installation
 DEFAULT_KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
@@ -49,28 +46,6 @@ def create_args_parser(description: str) -> ParserType:
             )
         return value
 
-    def cacert_file(cacert):
-        """ Check if provided file is a valid CA Certificate """
-        try:
-            context = ssl.create_default_context(cafile=cacert)
-        except AttributeError:
-            # Python version < 2.7.9
-            return cacert
-        except IOError:
-            raise argparse.ArgumentTypeError('CA Certificate not found')
-        try:
-            not_after = context.get_ca_certs()[0]['notAfter']
-            not_after = ssl.cert_time_to_seconds(not_after)
-            not_before = context.get_ca_certs()[0]['notBefore']
-            not_before = ssl.cert_time_to_seconds(not_before)
-        except (KeyError, IndexError):
-            raise argparse.ArgumentTypeError('CA Certificate is erroneous')
-        if not_after < int(time.time()):
-            raise argparse.ArgumentTypeError('CA Certificate expired')
-        if not_before > int(time.time()):
-            raise argparse.ArgumentTypeError('CA Certificate not active yet')
-        return cacert
-
     def log_level(string):
         """ Check if provided string is a valid log level. """
 
@@ -80,15 +55,6 @@ def create_args_parser(description: str) -> ParserType:
                 'log level must be one of {debug,info,warning,error,critical}'
             )
         return value
-
-    def filename(string):
-        """ Check if provided string is a valid file path. """
-
-        if not os.path.isfile(string):
-            raise argparse.ArgumentTypeError(
-                '%s is not a valid file path' % string
-            )
-        return string
 
     parser.add_argument(
         '--version', action='store_true', help='Print version then exit.'
@@ -114,19 +80,19 @@ def create_args_parser(description: str) -> ParserType:
     parser.add_argument(
         '-k',
         '--key-file',
-        type=filename,
+        default=DEFAULT_KEY_FILE,
         help='Server key file. Default: {0}'.format(DEFAULT_KEY_FILE),
     )
     parser.add_argument(
         '-c',
         '--cert-file',
-        type=filename,
-        help='Server cert file. Default: {0}'.format(DEFAULT_CERT_FILE),
+        default=DEFAULT_CERT_FILE,
+        help='Server cert file. Default: %(default)s',
     )
     parser.add_argument(
         '--ca-file',
-        type=cacert_file,
-        help='CA cert file. Default: {0}'.format(DEFAULT_CA_FILE),
+        help='CA cert file. Default: %(default)s',
+        default=DEFAULT_CA_FILE,
     )
     parser.add_argument(
         '-L',
@@ -141,9 +107,7 @@ def create_args_parser(description: str) -> ParserType:
         action='store_true',
         help='Run in foreground and logs all messages to console.',
     )
-    parser.add_argument(
-        '-l', '--log-file', type=filename, help='Path to the logging file.'
-    )
+    parser.add_argument('-l', '--log-file', help='Path to the logging file.')
     parser.add_argument(
         '--niceness',
         default=DEFAULT_NICENESS,
