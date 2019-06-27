@@ -183,6 +183,12 @@ class OSPDaemon:
         else:
             self.vts_filter = VtsFilter()
 
+    def init(self):
+        """ Should be overriden by a subclass if the initalization is costly.
+
+            Will be called before check.
+        """
+
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
         if self.command_exists(name):
