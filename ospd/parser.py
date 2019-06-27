@@ -29,6 +29,7 @@ DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 
 ParserType = argparse.ArgumentParser
+Arguments = argparse.Namespace
 
 
 def create_args_parser(description: str) -> ParserType:
