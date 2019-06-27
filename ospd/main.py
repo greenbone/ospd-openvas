@@ -30,28 +30,29 @@ from ospd.ospd import OSPDaemon
 from ospd.parser import create_args_parser, ParserType
 from ospd.server import TlsServer, UnixSocketServer
 
+COPYRIGHT = """Copyright (C) 2014, 2015, 2018, 2019 Greenbone Networks GmbH
+License GPLv2+: GNU GPL version 2 or later
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law."""
 
-def print_version(wrapper, file=sys.stdout):
+
+def print_version(daemon: OSPDaemon, file=sys.stdout):
     """ Prints the server version and license information."""
 
-    scanner_name = wrapper.get_scanner_name()
-    server_version = wrapper.get_server_version()
-    protocol_version = wrapper.get_protocol_version()
-    daemon_name = wrapper.get_daemon_name()
-    daemon_version = wrapper.get_daemon_version()
+    scanner_name = daemon.get_scanner_name()
+    server_version = daemon.get_server_version()
+    protocol_version = daemon.get_protocol_version()
+    daemon_name = daemon.get_daemon_name()
+    daemon_version = daemon.get_daemon_version()
 
-    file.write(
-        "OSP Server for {0} version {1}".format(scanner_name, server_version)
+    print(
+        "OSP Server for {0}: {1}".format(scanner_name, server_version),
+        file=file,
     )
-    file.write("OSP Version: {0}".format(protocol_version))
-    file.write("Using: {0} {1}".format(daemon_name, daemon_version))
-    file.write(
-        "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
-        "License GPLv2+: GNU GPL version 2 or later\n"
-        "This is free software: you are free to change"
-        " and redistribute it.\n"
-        "There is NO WARRANTY, to the extent permitted by law."
-    )
+    print("OSP: {0}".format(protocol_version), file=file)
+    print("{0}: {1}".format(daemon_name, daemon_version), file=file)
+    print(file=file)
+    print(COPYRIGHT, file=file)
 
 
 def init_logging(
