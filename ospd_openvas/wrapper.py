@@ -1024,7 +1024,7 @@ class OSPDopenvas(OSPDaemon):
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
-                param_name= self.get_vt_param_name(vtid, vt_param_id)
+                param_name = self.get_vt_param_name(vtid, vt_param_id)
                 if not param_type or not param_name:
                     logger.debug(
                         'The vt parameter %s for %s could not be loaded.',
