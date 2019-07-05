@@ -33,14 +33,14 @@ class DummyWrapper(OSPDopenvas):
                 'affected': 'some affection',
                 'vt_dependencies': [],
                 'vt_params': {
-                    'Data length :': {
+                    '1': {
                         'id': '1',
                         'default': '',
                         'description': 'Description',
                         'name': 'Data length :',
                         'type': 'entry',
                     },
-                    'Do not randomize the  order  in  which ports are scanned': {
+                    '2': {
                         'id': '2',
                         'default': 'no',
                         'description': 'Description',
@@ -59,14 +59,14 @@ class DummyWrapper(OSPDopenvas):
         oids = [['mantis_detect.nasl', '1.3.6.1.4.1.25623.1.0.100061']]
         nvti.get_oids.return_value = oids
         nvti.get_nvt_params.return_value = {
-            'Data length :': {
+            '1': {
                 'id': '1',
                 'default': '',
                 'description': 'Description',
                 'name': 'Data length :',
                 'type': 'entry',
             },
-            'Do not randomize the  order  in  which ports are scanned': {
+            '2': {
                 'id': '2',
                 'default': 'no',
                 'description': 'Description',

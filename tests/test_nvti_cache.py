@@ -57,7 +57,7 @@ class TestNVTICache(TestCase):
 
         timeout = '300'
         out_dict = {
-            'dns-fuzz.timelimit': {
+            '1': {
                 'id': '1',
                 'type': 'entry',
                 'default': 'default',
@@ -74,7 +74,7 @@ class TestNVTICache(TestCase):
         }
 
         out_dict1 = {
-            'dns-fuzz.timelimit': {
+            '1': {
                 'id': '1',
                 'type': 'entry',
                 'default': '',
