@@ -1043,7 +1043,12 @@ class OSPDopenvas(OSPDaemon):
                         str(vt_param_value),
                     )
                 param = [
-                    "{0}:{1}:{2}".format(vtid, param_type, param_name),
+                    "{0}:{1}:{2}:{3}".format(
+                        vtid,
+                        vt_param_id,
+                        param_type,
+                        param_name
+                    ),
                     str(vt_param_value),
                 ]
                 vts_params.append(param)

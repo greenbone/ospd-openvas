@@ -454,7 +454,10 @@ class TestOspdOpenvas(unittest.TestCase):
         vt_out = (
             ['1.3.6.1.4.1.25623.1.0.100061'],
             [
-                ['1.3.6.1.4.1.25623.1.0.100061:entry:Data length :', 'new value'],
+                [
+                    '1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :',
+                    'new value'
+                ],
             ],
         )
         w = DummyWrapper(mock_nvti, mock_db)
