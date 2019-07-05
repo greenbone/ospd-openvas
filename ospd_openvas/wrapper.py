@@ -975,7 +975,7 @@ class OSPDopenvas(OSPDaemon):
         vt_params_list = self.vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
-        return False
+        return None
 
     def get_vt_param_name(self, vtid, vt_param_id):
         """ Return the type of the vt parameter from the vts dictionary. """
@@ -983,7 +983,7 @@ class OSPDopenvas(OSPDaemon):
         vt_params_list = self.vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
-        return False
+        return None
 
     @staticmethod
     def check_param_type(vt_param_value, param_type):
@@ -1025,7 +1025,7 @@ class OSPDopenvas(OSPDaemon):
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 param_name= self.get_vt_param_name(vtid, vt_param_id)
-                if not param_type:
+                if not param_type or not param_name:
                     logger.debug(
                         'The vt parameter %s for %s could not be loaded.',
                         vt_param_id,
