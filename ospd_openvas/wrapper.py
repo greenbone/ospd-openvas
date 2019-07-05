@@ -520,10 +520,10 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         vt_params_xml = Element('params')
-        for _pref_name, prefs in vt_params.items():
+        for _pref_id, prefs in vt_params.items():
             vt_param = Element('param')
             vt_param.set('type', prefs['type'])
-            vt_param.set('id', prefs['id'])
+            vt_param.set('id', _pref_id)
             xml_name = SubElement(vt_param, 'name')
             xml_name.text = prefs['name']
             if prefs['default']:
@@ -971,10 +971,19 @@ class OSPDopenvas(OSPDaemon):
 
     def get_vt_param_type(self, vtid, vt_param_id):
         """ Return the type of the vt parameter from the vts dictionary. """
+
         vt_params_list = self.vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
-        return False
+        return None
+
+    def get_vt_param_name(self, vtid, vt_param_id):
+        """ Return the type of the vt parameter from the vts dictionary. """
+
+        vt_params_list = self.vts[vtid].get("vt_params")
+        if vt_params_list.get(vt_param_id):
+            return vt_params_list[vt_param_id]["name"]
+        return None
 
     @staticmethod
     def check_param_type(vt_param_value, param_type):
@@ -990,7 +999,7 @@ class OSPDopenvas(OSPDaemon):
         ] and isinstance(vt_param_value, str):
             return None
         elif param_type == 'checkbox' and (
-            vt_param_value == 'yes' or vt_param_value == 'no'
+            vt_param_value == '0' or vt_param_value == '1'
         ):
             return None
         elif param_type == 'integer':
@@ -1015,7 +1024,8 @@ class OSPDopenvas(OSPDaemon):
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
-                if not param_type:
+                param_name = self.get_vt_param_name(vtid, vt_param_id)
+                if not param_type or not param_name:
                     logger.debug(
                         'The vt parameter %s for %s could not be loaded.',
                         vt_param_id,
@@ -1033,7 +1043,7 @@ class OSPDopenvas(OSPDaemon):
                         str(vt_param_value),
                     )
                 param = [
-                    "{0}:{1}:{2}".format(vtid, param_type, vt_param_id),
+                    "{0}:{1}:{2}".format(vtid, param_type, param_name),
                     str(vt_param_value),
                 ]
                 vts_params.append(param)

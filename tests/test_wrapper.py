@@ -447,27 +447,32 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_process_vts(self, mock_nvti, mock_db):
         vts = {
             '1.3.6.1.4.1.25623.1.0.100061': {
-                'Data length :': 'new value',
-                'Do not randomize the  order  in  which ports are '
-                'scanned': 'new value',
+                '1': 'new value',
             },
             'vt_groups': ['family=debian', 'family=general'],
         }
         vt_out = (
             ['1.3.6.1.4.1.25623.1.0.100061'],
             [
-                [
-                    'Mantis Detection[checkbox]:Do not randomize the  order  i'
-                    'n  which ports are scanned',
-                    'new value',
-                ],
-                ['Mantis Detection[entry]:Data length : ', 'new value'],
+                ['1.3.6.1.4.1.25623.1.0.100061:entry:Data length :', 'new value'],
             ],
         )
         w = DummyWrapper(mock_nvti, mock_db)
         w.load_vts()
         ret = w.process_vts(vts)
-        self.assertEqual(len(ret), len(vt_out))
+        self.assertEqual(ret, vt_out)
+
+    def test_process_vts_bad_param_id(self, mock_nvti, mock_db):
+        vts = {
+            '1.3.6.1.4.1.25623.1.0.100061': {
+                '3': 'new value',
+            },
+            'vt_groups': ['family=debian', 'family=general'],
+        }
+        w = DummyWrapper(mock_nvti, mock_db)
+        w.load_vts()
+        ret = w.process_vts(vts)
+        self.assertFalse(ret[1])
 
     def test_get_openvas_timestamp_scan_host_end(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = '12345'
