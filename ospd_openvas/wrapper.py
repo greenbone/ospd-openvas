@@ -1109,7 +1109,7 @@ class OSPDopenvas(OSPDaemon):
                 cred_prefs_list.append(
                     OID_SMB_AUTH
                     + ':2:'
-                    + 'password]:SMB password :|||'
+                    + 'password:SMB password:|||'
                     + '{0}'.format(password)
                 )
             if service == 'esxi':
