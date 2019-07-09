@@ -45,6 +45,7 @@ setup(
                  'same communication protocol: OSP (Open Scanner '
                  'Protocol)'),
     long_description=long_description,
+    long_description_content_type='text/markdown',
 
     # The project's main homepage.
     url='http://www.openvas.org',
