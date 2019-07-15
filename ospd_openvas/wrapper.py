@@ -1032,7 +1032,7 @@ class OSPDopenvas(OSPDaemon):
                         vtid,
                     )
                     continue
-                if vt_param_id == 'timeout':
+                if vt_param_id == '0':
                     type_aux = 'integer'
                 else:
                     type_aux = param_type
