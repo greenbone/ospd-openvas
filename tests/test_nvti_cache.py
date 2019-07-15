@@ -64,9 +64,9 @@ class TestNVTICache(TestCase):
                 'name': 'dns-fuzz.timelimit',
                 'description': 'Description',
             },
-            'timeout': {
+            '0': {
                 'type': 'entry',
-                'id': 'timeout',
+                'id': '0',
                 'default': '300',
                 'name': 'timeout',
                 'description': 'Script Timeout',
@@ -81,9 +81,9 @@ class TestNVTICache(TestCase):
                 'name': 'dns-fuzz.timelimit',
                 'description': 'Description',
             },
-            'timeout': {
+            '0': {
                 'type': 'entry',
-                'id': 'timeout',
+                'id': '0',
                 'default': '300',
                 'name': 'timeout',
                 'description': 'Script Timeout',

@@ -80,12 +80,13 @@ class NVTICache(object):
 
         vt_params = {}
         if int(timeout) > 0:
-            vt_params['timeout'] = dict()
-            vt_params['timeout']['id'] = 'timeout'
-            vt_params['timeout']['type'] = 'entry'
-            vt_params['timeout']['name'] = 'timeout'
-            vt_params['timeout']['description'] = 'Script Timeout'
-            vt_params['timeout']['default'] = timeout
+            _param_id = '0'
+            vt_params[_param_id] = dict()
+            vt_params[_param_id]['id'] = _param_id
+            vt_params[_param_id]['type'] = 'entry'
+            vt_params[_param_id]['name'] = 'timeout'
+            vt_params[_param_id]['description'] = 'Script Timeout'
+            vt_params[_param_id]['default'] = timeout
 
         if prefs:
             for nvt_pref in prefs:
