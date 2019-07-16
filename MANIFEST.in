@@ -1,0 +1,2 @@
+include CHANGES  COPYING  INSTALL Pipfile  Pipfile.lock  README.md  setup.py
+recursive-include tests *.py
