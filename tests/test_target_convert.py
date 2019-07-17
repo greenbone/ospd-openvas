@@ -20,12 +20,14 @@
 """
 
 import unittest
+from unittest.mock import patch
 
 from ospd.network import (
     target_str_to_list,
     get_hostname_by_address,
     is_valid_address,
     target_to_ipv4,
+    socket,
 )
 
 
@@ -49,8 +51,9 @@ class ConvertTargetListsTestCase(unittest.TestCase):
             self.assertIn('195.70.81.%d' % i, addresses)
 
     def test_get_hostname_by_address(self):
-        hostname = get_hostname_by_address('127.0.0.1')
-        self.assertEqual(hostname, 'localhost')
+        with patch.object(socket, "getfqdn", return_value="localhost"):
+            hostname = get_hostname_by_address('127.0.0.1')
+            self.assertEqual(hostname, 'localhost')
 
         hostname = get_hostname_by_address('')
         self.assertEqual(hostname, '')
