@@ -25,7 +25,7 @@ from unittest.mock import patch
 from redis.exceptions import ConnectionError as RCE
 
 from ospd.errors import RequiredArgument
-from ospd_openvas.db import OpenvasDB
+from ospd_openvas.db import OpenvasDB, time
 from ospd_openvas.errors import OspdOpenvasError
 
 
@@ -70,8 +70,9 @@ class TestDB(TestCase):
     def test_kb_connect(self, mock_redis):
         mock_redis.side_effect = RCE
         with patch.object(OpenvasDB, 'get_db_connection', return_value=None):
-            with self.assertRaises(OspdOpenvasError):
-                self.db.kb_connect()
+            with patch.object(time, 'sleep', return_value=None):
+                with self.assertRaises(OspdOpenvasError):
+                    self.db.kb_connect()
 
     def test_kb_new_fail(self, mock_redis):
         ret = self.db.kb_new()
