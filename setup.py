@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Greenbone Networks GmbH
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -27,13 +27,13 @@ setup(
 
     packages=['ospd_openvas'],
 
-    url='http://www.openvas.org',
+    url='https://github.com/greenbone/ospd-openvas',
     author='Greenbone Networks GmbH',
     author_email='info@greenbone.net',
 
     license='GPLV2+',
     python_requires='>=3.5',
-    install_requires=['ospd>=1.4b1', 'redis', 'psutil'],
+    install_requires=['ospd>=1.4b1', 'redis>=3.0.1', 'psutil'],
 
     entry_points={
         'console_scripts': ['ospd-openvas=ospd_openvas.wrapper:main'],
