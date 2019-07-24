@@ -29,6 +29,7 @@ import uuid
 import multiprocessing
 
 from enum import Enum
+from collections import OrderedDict
 
 from ospd.network import target_str_to_list
 
@@ -84,7 +85,7 @@ class ScanCollection(object):
 
         assert scan_id
         assert len(name) or len(value)
-        result = dict()
+        result = OrderedDict()
         result['type'] = result_type
         result['name'] = name
         result['severity'] = severity
