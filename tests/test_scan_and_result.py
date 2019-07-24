@@ -1095,3 +1095,33 @@ class ScanTestCase(unittest.TestCase):
         )
         result = response.findall('scan/results/result')
         self.assertEqual(len(result), 2)
+
+    def test_result_order (self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<start_scan parallel="1">'
+                '<scanner_params />'
+                '<targets><target>'
+                '<hosts>a</hosts>'
+                '<ports>22</ports>'
+                '</target></targets>'
+                '</start_scan>'
+            )
+        )
+
+        scan_id = response.findtext('id')
+
+        daemon.add_scan_log(scan_id, host='a', name='a')
+        daemon.add_scan_log(scan_id, host='c', name='c')
+        daemon.add_scan_log(scan_id, host='b', name='b')
+        hosts = ['a','c','b']
+        response = secET.fromstring(
+            daemon.handle_command('<get_scans details="1"/>'
+            )
+        )
+        results = response.findall("scan/results/")
+
+        for idx, res in enumerate(results):
+            att_dict = res.attrib
+            self.assertEqual(hosts[idx], att_dict['name'])
