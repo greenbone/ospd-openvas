@@ -1292,16 +1292,6 @@ class OSPDopenvas(OSPDaemon):
             )
             return 2
 
-        # Create a general log entry about executing OpenVAS
-        # It is important to send at least one result, otherwise
-        # the host details won't be stored.
-        self.add_scan_log(
-            scan_id,
-            host=target,
-            name='OpenVAS summary',
-            value='An OpenVAS Scanner was started for %s.' % target,
-        )
-
         cmd = ['openvas', '--scan-start', openvas_scan_id]
         if self.sudo_available:
             cmd = ['sudo', '-n'] + cmd
