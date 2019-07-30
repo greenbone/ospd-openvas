@@ -23,10 +23,10 @@ import unittest
 
 from unittest.mock import patch
 
-from tests.dummywrapper import DummyWrapper
+from tests.dummydaemon import DummyDaemon
 
+from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter
 from ospd_openvas.errors import OspdOpenvasError
-from ospd_openvas.wrapper import OSPD_PARAMS, OpenVasVtsFilter
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {
@@ -176,36 +176,36 @@ OSPD_PARAMS_OUT = {
 @patch('ospd_openvas.db.OpenvasDB')
 @patch('ospd_openvas.nvticache.NVTICache')
 class TestOspdOpenvas(unittest.TestCase):
-    @patch('ospd_openvas.wrapper.subprocess')
+    @patch('ospd_openvas.daemon.subprocess')
     def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = True
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         mock_subproc.reset_mock()
         w.redis_nvticache_init()
         self.assertEqual(mock_subproc.check_call.call_count, 1)
 
-    @patch('ospd_openvas.wrapper.subprocess')
+    @patch('ospd_openvas.daemon.subprocess')
     def test_parse_param(self, mock_subproc, mock_nvti, mock_db):
 
         mock_subproc.check_output.return_value = (
             'non_simult_ports = 22\nplugins_folder = /foo/bar'.encode()
         )
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w.parse_param()
         self.assertEqual(mock_subproc.check_output.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
         self.assertEqual(w.scan_only_params.get('plugins_folder'), '/foo/bar')
 
-    @patch('ospd_openvas.wrapper.subprocess')
+    @patch('ospd_openvas.daemon.subprocess')
     def test_sudo_available(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = 0
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w._sudo_available = None
         w.sudo_available
         self.assertTrue(w.sudo_available)
 
     def test_load_vts(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
         self.maxDiff = None
         self.assertEqual(w.vts, w.VT)
@@ -220,7 +220,7 @@ class TestOspdOpenvas(unittest.TestCase):
             's_detect.nasl</filename><timeout>0</'
             'timeout></custom>'
         )
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         res = w.get_custom_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', vt.get('custom')
@@ -228,7 +228,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(len(res), len(out))
 
     def test_get_severities_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = (
             '<severities><severity type="cvss_base_v2">'
             'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity></severities>'
@@ -242,7 +242,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_params_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = (
             '<params><param type="checkbox" id="2"><name>Do '
             'not randomize the  order  in  which ports are scanned</name'
@@ -257,7 +257,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(len(res), len(out))
 
     def test_get_refs_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<refs><ref type="url" id="http://www.mantisbt.org/"/>' '</refs>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         refs = vt.get('vt_refs')
@@ -266,7 +266,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_dependencies_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = (
             '<dependencies><dependency vt_id="1.2.3.4"/><dependency vt'
             '_id="4.3.2.1"/></dependencies>'
@@ -279,7 +279,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_ctime_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = (
             '<creation_time>2009-03-19 11:22:36 +0100 '
             '(Thu, 19 Mar 2009)</creation_time>'
@@ -293,7 +293,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_mtime_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = (
             '<modification_time>$Date: 2018-08-10 15:09:25 +0200 '
             '(Fri, 10 Aug 2018) $</modification_time>'
@@ -307,7 +307,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_summary_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<summary>some summary</summary>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         summary = vt.get('summary')
@@ -318,7 +318,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_impact_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<impact>some impact</impact>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         impact = vt.get('impact')
@@ -327,7 +327,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_insight_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<insight>some insight</insight>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         insight = vt.get('insight')
@@ -338,7 +338,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_solution_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<solution type="WillNotFix">some solution</solution>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         solution = vt.get('solution')
@@ -351,7 +351,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_detection_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<detection qod_type="remote_banner"/>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         detection_type = vt.get('qod_type')
@@ -363,7 +363,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_get_affected_xml(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         out = '<affected>some affection</affected>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         affected = vt.get('affected')
@@ -375,7 +375,7 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(res, out)
 
     def test_build_credentials(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
 
         cred_out = [
             '1.3.6.1.4.1.25623.1.0.105058:1:entry:ESXi login name:|||username',
@@ -426,7 +426,7 @@ class TestOspdOpenvas(unittest.TestCase):
         )
 
     def test_build_credentials_ssh_up(self, mock_nvti, mock_db):
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         cred_out = [
             'auth_port_ssh|||22',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
@@ -446,9 +446,7 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_process_vts(self, mock_nvti, mock_db):
         vts = {
-            '1.3.6.1.4.1.25623.1.0.100061': {
-                '1': 'new value',
-            },
+            '1.3.6.1.4.1.25623.1.0.100061': {'1': 'new value'},
             'vt_groups': ['family=debian', 'family=general'],
         }
         vt_out = (
@@ -456,30 +454,28 @@ class TestOspdOpenvas(unittest.TestCase):
             [
                 [
                     '1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :',
-                    'new value'
-                ],
+                    'new value',
+                ]
             ],
         )
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
         ret = w.process_vts(vts)
         self.assertEqual(ret, vt_out)
 
     def test_process_vts_bad_param_id(self, mock_nvti, mock_db):
         vts = {
-            '1.3.6.1.4.1.25623.1.0.100061': {
-                '3': 'new value',
-            },
+            '1.3.6.1.4.1.25623.1.0.100061': {'3': 'new value'},
             'vt_groups': ['family=debian', 'family=general'],
         }
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
         ret = w.process_vts(vts)
         self.assertFalse(ret[1])
 
     def test_get_openvas_timestamp_scan_host_end(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = '12345'
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         targets = [['192.168.0.1', 'port', 'cred', 'exclude_host']]
         w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
@@ -489,7 +485,7 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_get_openvas_timestamp_scan_host_start(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = None
         mock_db.get_host_scan_scan_end_time.return_value = '54321'
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         targets = [['192.168.0.1', 'port', 'cred', 'exclude_host']]
         w.create_scan('123-456', targets, None, [])
         w.get_openvas_timestamp_scan_host('123-456', '192.168.0.1')
@@ -498,7 +494,7 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_scan_is_finished(self, mock_nvti, mock_db):
         mock_db.get_single_item.return_value = 'finished'
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         ret = w.scan_is_finished('123-456')
         self.assertEqual(ret, True)
 
@@ -506,14 +502,14 @@ class TestOspdOpenvas(unittest.TestCase):
         mock_db.get_single_item.return_value = 'stop_all'
         mock_db.kb_connect_item.return_value = mock_db
         mock_db.set_redisctx.return_value = None
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         ret = w.scan_is_stopped('123-456')
         self.assertEqual(ret, True)
 
-    @patch('ospd_openvas.wrapper.open')
+    @patch('ospd_openvas.daemon.open')
     def test_feed_is_outdated(self, mock_open, mock_nvti, mock_db):
         mock_open.return_value = ['PLUGIN_SET = "1234";']
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         self.assertRaises(OspdOpenvasError, w.feed_is_outdated, '1234')
         # Return False
         w.scan_only_params['plugins_folder'] = '/foo/bar'
@@ -525,11 +521,11 @@ class TestOspdOpenvas(unittest.TestCase):
         ret = w.feed_is_outdated('1234')
         self.assertTrue(ret)
 
-    @patch('ospd_openvas.wrapper.OSPDaemon.add_scan_log')
+    @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
     def test_get_openvas_result(self, mock_ospd, mock_nvti, mock_db):
         results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
         mock_db.get_result.side_effect = results
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
         mock_ospd.return_value = None
         w.get_openvas_result('123-456', 'localhost')
@@ -544,11 +540,11 @@ class TestOspdOpenvas(unittest.TestCase):
             value='Host dead',
         )
 
-    @patch('ospd_openvas.wrapper.OSPDaemon.set_scan_target_progress')
+    @patch('ospd_openvas.daemon.OSPDaemon.set_scan_target_progress')
     def test_update_progress(self, mock_ospd, mock_nvti, mock_db):
         msg = '0/-1'
         targets = [['localhost', 'port', 'cred', 'exclude_host']]
-        w = DummyWrapper(mock_nvti, mock_db)
+        w = DummyDaemon(mock_nvti, mock_db)
         w.create_scan('123-456', targets, None, [])
 
         mock_ospd.return_value = None
