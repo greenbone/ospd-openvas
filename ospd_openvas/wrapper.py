@@ -251,39 +251,45 @@ class OSPDopenvas(OSPDaemon):
 
     """ Class for ospd-openvas daemon. """
 
-    def __init__(self, certfile, keyfile, cafile, niceness=None):
+    def __init__(self, *, niceness=None, **kwargs):
         """ Initializes the ospd-openvas daemon's internal data. """
 
-        super().__init__(
-            certfile=certfile,
-            keyfile=keyfile,
-            cafile=cafile,
-            niceness=niceness,
-            customvtfilter=OpenVasVtsFilter(),
-        )
+        super().__init__(customvtfilter=OpenVasVtsFilter())
 
         self.server_version = __version__
+
         self._niceness = str(niceness)
+
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.check()
         self.scanner_info['description'] = OSPD_DESC
+
         for name, param in OSPD_PARAMS.items():
             self.add_scanner_param(name, param)
+
         self._sudo_available = None
 
         self.scan_only_params = dict()
+
         self.main_kbindex = None
+
         self.openvas_db = OpenvasDB()
+
         self.nvti = NVTICache(self.openvas_db)
 
+        self.pending_feed = None
+
+    def init(self):
         self.openvas_db.db_init()
 
-        self.pending_feed = None
         ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
+
         if not ctx:
             self.redis_nvticache_init()
             ctx = self.openvas_db.db_find(self.nvti.NVTICACHE_STR)
+
         self.openvas_db.set_redisctx(ctx)
+
         self.load_vts()
 
     def parse_param(self):
@@ -727,12 +733,14 @@ class OSPDopenvas(OSPDaemon):
             )
             self._sudo_available = True
         except subprocess.CalledProcessError as e:
-            logger.debug('It was not possible to call openvas with sudo. '
-                         'The scanner will run as non-root user. Reason %s', e)
+            logger.debug(
+                'It was not possible to call openvas with sudo. '
+                'The scanner will run as non-root user. Reason %s',
+                e,
+            )
             self._sudo_available = False
 
         return self._sudo_available
-
 
     def check(self):
         """ Checks that openvas command line tool is found and
@@ -940,8 +948,11 @@ class OSPDopenvas(OSPDaemon):
                         subprocess.Popen(cmd, shell=False)
                     except OSError as e:
                         # the command is not available
-                        logger.debug('Not possible to Stopping process: %s.'
-                                     'Reason %s', parent, e)
+                        logger.debug(
+                            'Not possible to Stopping process: %s.' 'Reason %s',
+                            parent,
+                            e,
+                        )
                         return False
 
                     logger.debug('Stopping process: %s', parent)
@@ -1046,10 +1057,7 @@ class OSPDopenvas(OSPDaemon):
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
                 param = [
                     "{0}:{1}:{2}:{3}".format(
-                        vtid,
-                        vt_param_id,
-                        param_type,
-                        param_name
+                        vtid, vt_param_id, param_type, param_name
                     ),
                     str(vt_param_value),
                 ]
