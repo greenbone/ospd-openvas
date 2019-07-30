@@ -60,7 +60,7 @@ def init_logging(
     log_level: int,
     *,
     log_file: Optional[str] = None,
-    foreground: Optional[bool] = False,
+    foreground: Optional[bool] = False
 ):
     rootlogger = logging.getLogger()
     rootlogger.setLevel(log_level)
