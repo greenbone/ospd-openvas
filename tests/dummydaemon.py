@@ -1,8 +1,28 @@
-from ospd_openvas.wrapper import OSPDopenvas
+# -*- coding: utf-8 -*-
+# Copyright (C) 2018 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+
 from unittest.mock import patch
 
+from ospd_openvas.daemon import OSPDopenvas
 
-class DummyWrapper(OSPDopenvas):
+
+class DummyDaemon(OSPDopenvas):
     def __init__(self, nvti, redis):
 
         self.VT = {
@@ -103,7 +123,7 @@ class DummyWrapper(OSPDopenvas):
 
         self.openvas_db = redis
         self.nvti = nvti
-        with patch('ospd_openvas.wrapper.OpenvasDB', return_value=redis):
-            with patch('ospd_openvas.wrapper.NVTICache', return_value=nvti):
+        with patch('ospd_openvas.daemon.OpenvasDB', return_value=redis):
+            with patch('ospd_openvas.daemon.NVTICache', return_value=nvti):
                 with patch.object(OSPDopenvas, 'load_vts', return_value=None):
-                    super().__init__('cert', 'key', 'ca', '10')
+                    super().__init__(niceness=10)
