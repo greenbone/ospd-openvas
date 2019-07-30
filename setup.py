@@ -31,8 +31,6 @@ setup(
     license='GPLV2+',
     python_requires='>=3.5',
     install_requires=['ospd>=2.0a3', 'redis>=3.0.1', 'psutil'],
-    entry_points={
-        'console_scripts': ['ospd-openvas=ospd_openvas.wrapper:main']
-    },
+    entry_points={'console_scripts': ['ospd-openvas=ospd_openvas.daemon:main']},
     test_suite="tests",
 )
