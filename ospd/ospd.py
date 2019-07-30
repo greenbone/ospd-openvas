@@ -43,7 +43,7 @@ from ospd import __version__
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
 from ospd.network import resolve_hostname, target_str_to_list
-from ospd.server import Server, UnixSocketServer, TlsServer
+from ospd.server import Server
 from ospd.vtfilter import VtsFilter
 from ospd.xml import simple_response_str, get_result_xml
 
@@ -147,48 +147,47 @@ class OSPDaemon:
     """
 
     def __init__(
-        self,
-        certfile,
-        keyfile,
-        cafile,
-        niceness=None,  # pylint: disable=unused-argument
-        customvtfilter=None,
-        **kwargs  # pylint: disable=unused-argument
-    ):
+        self, *, customvtfilter=None, **kwargs
+    ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
-        # @todo: Actually it makes sense to move the certificate params to
-        #        a separate function because it is not mandatory anymore to
-        #        use a TLS setup (unix file socket is an alternative).
-        #        However, changing this makes it mandatory for any ospd scanner
-        #        to change the function calls as well. So this breaks the API
-        #        and should only be done with a major release.
-        self.certs = dict()
-        self.certs['cert_file'] = certfile
-        self.certs['key_file'] = keyfile
-        self.certs['ca_file'] = cafile
         self.scan_collection = ScanCollection()
         self.scan_processes = dict()
+
         self.daemon_info = dict()
         self.daemon_info['name'] = "OSPd"
         self.daemon_info['version'] = __version__
         self.daemon_info['description'] = "No description"
+
         self.scanner_info = dict()
         self.scanner_info['name'] = 'No name'
         self.scanner_info['version'] = 'No version'
         self.scanner_info['description'] = 'No description'
+
         self.server_version = None  # Set by the subclass.
+
         self.protocol_version = PROTOCOL_VERSION
+
         self.commands = COMMANDS_TABLE
+
         self.scanner_params = dict()
+
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
+
         self.vts = dict()
         self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
         self.vts_version = None
+
         if customvtfilter:
             self.vts_filter = customvtfilter
         else:
             self.vts_filter = VtsFilter()
+
+    def init(self):
+        """ Should be overriden by a subclass if the initalization is costly.
+
+            Will be called before check.
+        """
 
     def set_command_attributes(self, name, attributes):
         """ Sets the xml attributes of a specified command. """
@@ -700,33 +699,6 @@ class OSPDaemon:
                 elem = SubElement(param_xml, name)
                 elem.text = str(value)
         return scanner_params
-
-    def new_client_stream(self, sock):
-        """ Returns a new ssl client stream from bind_socket. """
-
-        assert sock
-        newsocket, fromaddr = sock.accept()
-        logger.debug("New connection from" " %s:%s", fromaddr[0], fromaddr[1])
-        # NB: Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
-        # protocol version that both the client and server support. In modern
-        # Python versions (>= 3.4) it supports TLS >= 1.0 with SSLv2 and SSLv3
-        # being disabled. For Python >=3.5, PROTOCOL_SSLv23 is an alias for
-        # PROTOCOL_TLS which should be used once compatibility with Python 3.4
-        # is no longer desired.
-        try:
-            ssl_socket = ssl.wrap_socket(
-                newsocket,
-                cert_reqs=ssl.CERT_REQUIRED,
-                server_side=True,
-                certfile=self.certs['cert_file'],
-                keyfile=self.certs['key_file'],
-                ca_certs=self.certs['ca_file'],
-                ssl_version=ssl.PROTOCOL_SSLv23,
-            )
-        except (ssl.SSLError, socket.error) as message:
-            logger.error(message)
-            return None
-        return ssl_socket
 
     def handle_client_stream(self, stream):
         """ Handles stream of data received from client. """
@@ -1546,6 +1518,8 @@ class OSPDaemon:
             logger.debug("Erroneous client input: %s", command)
             raise OspdCommandError('Invalid data')
 
+        logger.debug('Handling command %s', command)
+
         if not self.command_exists(tree.tag) and tree.tag != "authenticate":
             raise OspdCommandError('Bogus command name')
 
@@ -1572,7 +1546,7 @@ class OSPDaemon:
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
-    def run_server(self, server: Server):
+    def run(self, server: Server):
         """ Starts the Daemon, handling commands until interrupted.
         """
 
@@ -1588,20 +1562,6 @@ class OSPDaemon:
             logger.info("Received Ctrl-C shutting-down ...")
         finally:
             server.close()
-
-    def run(self, address, port, unix_path):
-        if unix_path:
-            server = UnixSocketServer(unix_path)
-        else:
-            server = TlsServer(
-                address,
-                port,
-                self.certs['cert_file'],
-                self.certs['key_file'],
-                self.certs['ca_file'],
-            )
-
-        self.run_server(server)
 
     def scheduler(self):
         """ Should be implemented by subclass in case of need

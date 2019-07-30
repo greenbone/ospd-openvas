@@ -23,57 +23,49 @@ from logging.handlers import SysLogHandler, WatchedFileHandler
 import os
 import sys
 
+from typing import Type, Optional
 
 from ospd.misc import go_to_background
-from ospd.parser import create_args_parser, get_common_args
+from ospd.ospd import OSPDaemon
+from ospd.parser import create_args_parser, ParserType
+from ospd.server import TlsServer, UnixSocketServer
+
+COPYRIGHT = """Copyright (C) 2014, 2015, 2018, 2019 Greenbone Networks GmbH
+License GPLv2+: GNU GPL version 2 or later
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law."""
 
 
-def print_version(wrapper, file=sys.stdout):
+def print_version(daemon: OSPDaemon, file=sys.stdout):
     """ Prints the server version and license information."""
 
-    scanner_name = wrapper.get_scanner_name()
-    server_version = wrapper.get_server_version()
-    protocol_version = wrapper.get_protocol_version()
-    daemon_name = wrapper.get_daemon_name()
-    daemon_version = wrapper.get_daemon_version()
+    scanner_name = daemon.get_scanner_name()
+    server_version = daemon.get_server_version()
+    protocol_version = daemon.get_protocol_version()
+    daemon_name = daemon.get_daemon_name()
+    daemon_version = daemon.get_daemon_version()
 
-    file.write(
-        "OSP Server for {0} version {1}".format(scanner_name, server_version)
+    print(
+        "OSP Server for {0}: {1}".format(scanner_name, server_version),
+        file=file,
     )
-    file.write("OSP Version: {0}".format(protocol_version))
-    file.write("Using: {0} {1}".format(daemon_name, daemon_version))
-    file.write(
-        "Copyright (C) 2014, 2015 Greenbone Networks GmbH\n"
-        "License GPLv2+: GNU GPL version 2 or later\n"
-        "This is free software: you are free to change"
-        " and redistribute it.\n"
-        "There is NO WARRANTY, to the extent permitted by law."
-    )
+    print("OSP: {0}".format(protocol_version), file=file)
+    print("{0}: {1}".format(daemon_name, daemon_version), file=file)
+    print(file=file)
+    print(COPYRIGHT, file=file)
 
 
-def main(name, klass):
-    """ OSPD Main function. """
+def init_logging(
+    name: str,
+    log_level: int,
+    *,
+    log_file: Optional[str] = None,
+    foreground: Optional[bool] = False,
+):
+    rootlogger = logging.getLogger()
+    rootlogger.setLevel(log_level)
 
-    # Common args parser.
-    parser = create_args_parser(name)
-
-    # Common args
-    cargs = get_common_args(parser)
-
-    logging.getLogger().setLevel(cargs['log_level'])
-
-    wrapper = klass(
-        certfile=cargs['certfile'],
-        keyfile=cargs['keyfile'],
-        cafile=cargs['cafile'],
-        niceness=cargs['niceness'],
-    )
-
-    if cargs['version']:
-        print_version(wrapper)
-        sys.exit()
-
-    if cargs['foreground']:
+    if foreground:
         console = logging.StreamHandler()
         console.setFormatter(
             logging.Formatter(
@@ -82,9 +74,9 @@ def main(name, klass):
                 )
             )
         )
-        logging.getLogger().addHandler(console)
-    elif cargs['log_file']:
-        logfile = WatchedFileHandler(cargs['log_file'])
+        rootlogger.addHandler(console)
+    elif log_file:
+        logfile = WatchedFileHandler(log_file)
         logfile.setFormatter(
             logging.Formatter(
                 '%(asctime)s {}: %(levelname)s: (%(name)s) %(message)s'.format(
@@ -92,8 +84,7 @@ def main(name, klass):
                 )
             )
         )
-        logging.getLogger().addHandler(logfile)
-        go_to_background()
+        rootlogger.addHandler(logfile)
     else:
         syslog = SysLogHandler('/dev/log')
         syslog.setFormatter(
@@ -101,14 +92,50 @@ def main(name, klass):
                 '{}: %(levelname)s: (%(name)s) %(message)s'.format(name)
             )
         )
-        logging.getLogger().addHandler(syslog)
+        rootlogger.addHandler(syslog)
         # Duplicate syslog's file descriptor to stout/stderr.
         syslog_fd = syslog.socket.fileno()
         os.dup2(syslog_fd, 1)
         os.dup2(syslog_fd, 2)
+
+
+def main(
+    name: str,
+    daemon_class: Type[OSPDaemon],
+    parser: Optional[ParserType] = None,
+):
+    """ OSPD Main function. """
+
+    if not parser:
+        parser = create_args_parser(name)
+
+    args = parser.parse_args()
+
+    init_logging(
+        name, args.log_level, log_file=args.log_file, foreground=args.foreground
+    )
+
+    if args.unix_socket:
+        server = UnixSocketServer(args.unix_socket)
+    else:
+        server = TlsServer(
+            args.address, args.port, args.cert_file, args.key_file, args.ca_file
+        )
+
+    daemon = daemon_class(**vars(args))
+
+    if args.version:
+        print_version(daemon)
+        sys.exit()
+
+    daemon.init()
+
+    if not args.foreground:
         go_to_background()
 
-    if not wrapper.check():
+    if not daemon.check():
         return 1
 
-    return wrapper.run(cargs['address'], cargs['port'], cargs['unix_socket'])
+    daemon.run(server)
+
+    return 0

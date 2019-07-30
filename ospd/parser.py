@@ -18,9 +18,6 @@
 
 import argparse
 import logging
-import os
-import ssl
-import time
 
 # Default file locations as used by a OpenVAS default installation
 DEFAULT_KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
@@ -31,8 +28,11 @@ DEFAULT_PORT = 1234
 DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 
+ParserType = argparse.ArgumentParser
+Arguments = argparse.Namespace
 
-def create_args_parser(description):
+
+def create_args_parser(description: str) -> ParserType:
     """ Create a command-line arguments parser for OSPD. """
 
     parser = argparse.ArgumentParser(description=description)
@@ -47,28 +47,6 @@ def create_args_parser(description):
             )
         return value
 
-    def cacert_file(cacert):
-        """ Check if provided file is a valid CA Certificate """
-        try:
-            context = ssl.create_default_context(cafile=cacert)
-        except AttributeError:
-            # Python version < 2.7.9
-            return cacert
-        except IOError:
-            raise argparse.ArgumentTypeError('CA Certificate not found')
-        try:
-            not_after = context.get_ca_certs()[0]['notAfter']
-            not_after = ssl.cert_time_to_seconds(not_after)
-            not_before = context.get_ca_certs()[0]['notBefore']
-            not_before = ssl.cert_time_to_seconds(not_before)
-        except (KeyError, IndexError):
-            raise argparse.ArgumentTypeError('CA Certificate is erroneous')
-        if not_after < int(time.time()):
-            raise argparse.ArgumentTypeError('CA Certificate expired')
-        if not_before > int(time.time()):
-            raise argparse.ArgumentTypeError('CA Certificate not active yet')
-        return cacert
-
     def log_level(string):
         """ Check if provided string is a valid log level. """
 
@@ -79,14 +57,9 @@ def create_args_parser(description):
             )
         return value
 
-    def filename(string):
-        """ Check if provided string is a valid file path. """
-
-        if not os.path.isfile(string):
-            raise argparse.ArgumentTypeError(
-                '%s is not a valid file path' % string
-            )
-        return string
+    parser.add_argument(
+        '--version', action='store_true', help='Print version then exit.'
+    )
 
     parser.add_argument(
         '-p',
@@ -99,6 +72,7 @@ def create_args_parser(description):
         '-b',
         '--bind-address',
         default=DEFAULT_ADDRESS,
+        dest='address',
         help='Address to listen on. Default: %(default)s',
     )
     parser.add_argument(
@@ -107,19 +81,19 @@ def create_args_parser(description):
     parser.add_argument(
         '-k',
         '--key-file',
-        type=filename,
+        default=DEFAULT_KEY_FILE,
         help='Server key file. Default: {0}'.format(DEFAULT_KEY_FILE),
     )
     parser.add_argument(
         '-c',
         '--cert-file',
-        type=filename,
-        help='Server cert file. Default: {0}'.format(DEFAULT_CERT_FILE),
+        default=DEFAULT_CERT_FILE,
+        help='Server cert file. Default: %(default)s',
     )
     parser.add_argument(
         '--ca-file',
-        type=cacert_file,
-        help='CA cert file. Default: {0}'.format(DEFAULT_CA_FILE),
+        help='CA cert file. Default: %(default)s',
+        default=DEFAULT_CA_FILE,
     )
     parser.add_argument(
         '-L',
@@ -129,16 +103,12 @@ def create_args_parser(description):
         help='Wished level of logging. Default: %(default)s',
     )
     parser.add_argument(
+        '-f',
         '--foreground',
         action='store_true',
         help='Run in foreground and logs all messages to console.',
     )
-    parser.add_argument(
-        '-l', '--log-file', type=filename, help='Path to the logging file.'
-    )
-    parser.add_argument(
-        '--version', action='store_true', help='Print version then exit.'
-    )
+    parser.add_argument('-l', '--log-file', help='Path to the logging file.')
     parser.add_argument(
         '--niceness',
         default=DEFAULT_NICENESS,
@@ -147,47 +117,3 @@ def create_args_parser(description):
     )
 
     return parser
-
-
-def get_common_args(parser, args=None):
-    """ Return list of OSPD common command-line arguments from parser, after
-    validating provided values or setting default ones.
-
-    """
-
-    options = parser.parse_args(args)
-    # TCP Port to listen on.
-    port = options.port
-
-    # Network address to bind listener to
-    address = options.bind_address
-
-    # Unix file socket to listen on
-    unix_socket = options.unix_socket
-
-    # Debug level.
-    log_level = options.log_level
-
-    # Server key path.
-    keyfile = options.key_file or DEFAULT_KEY_FILE
-
-    # Server cert path.
-    certfile = options.cert_file or DEFAULT_CERT_FILE
-
-    # CA cert path.
-    cafile = options.ca_file or DEFAULT_CA_FILE
-
-    common_args = dict()
-    common_args['port'] = port
-    common_args['address'] = address
-    common_args['unix_socket'] = unix_socket
-    common_args['keyfile'] = keyfile
-    common_args['certfile'] = certfile
-    common_args['cafile'] = cafile
-    common_args['log_level'] = log_level
-    common_args['foreground'] = options.foreground
-    common_args['log_file'] = options.log_file
-    common_args['version'] = options.version
-    common_args['niceness'] = options.niceness
-
-    return common_args

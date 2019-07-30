@@ -22,9 +22,14 @@
 import logging
 import unittest
 
+from unittest.mock import patch
+
+from io import StringIO
+from typing import List
+
 from ospd.parser import (
     create_args_parser,
-    get_common_args,
+    Arguments,
     DEFAULT_ADDRESS,
     DEFAULT_PORT,
     DEFAULT_KEY_FILE,
@@ -36,49 +41,55 @@ class ArgumentParserTestCase(unittest.TestCase):
     def setUp(self):
         self.parser = create_args_parser('Wrapper name')
 
-    def test_port_interval(self):
+    def parse_args(self, args: List[str]) -> Arguments:
+        return self.parser.parse_args(args)
+
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_port_interval(self, _mock_stderr):
         with self.assertRaises(SystemExit):
-            get_common_args(self.parser, ['--port=65536'])
+            self.parse_args(['--port=65536'])
 
         with self.assertRaises(SystemExit):
-            get_common_args(self.parser, ['--port=0'])
+            self.parse_args(['--port=0'])
 
-        args = get_common_args(self.parser, ['--port=3353'])
-        self.assertEqual(3353, args['port'])
+        args = self.parse_args(['--port=3353'])
+        self.assertEqual(3353, args.port)
 
-    def test_port_as_string(self):
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_port_as_string(self, _mock_stderr):
         with self.assertRaises(SystemExit):
-            get_common_args(self.parser, ['--port=abcd'])
+            self.parse_args(['--port=abcd'])
 
     def test_address_param(self):
-        args = get_common_args(self.parser, '-b 1.2.3.4'.split())
-        self.assertEqual('1.2.3.4', args['address'])
+        args = self.parse_args('-b 1.2.3.4'.split())
+        self.assertEqual('1.2.3.4', args.address)
 
     def test_correct_lower_case_log_level(self):
-        args = get_common_args(self.parser, '-L error'.split())
-        self.assertEqual(logging.ERROR, args['log_level'])
+        args = self.parse_args('-L error'.split())
+        self.assertEqual(logging.ERROR, args.log_level)
 
     def test_correct_upper_case_log_level(self):
-        args = get_common_args(self.parser, '-L INFO'.split())
-        self.assertEqual(logging.INFO, args['log_level'])
+        args = self.parse_args('-L INFO'.split())
+        self.assertEqual(logging.INFO, args.log_level)
 
-    def test_correct_log_level(self):
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_correct_log_level(self, _mock_stderr):
         with self.assertRaises(SystemExit):
-            get_common_args(self.parser, '-L blah'.split())
+            self.parse_args('-L blah'.split())
 
     def test_non_existing_key(self):
-        with self.assertRaises(SystemExit):
-            get_common_args(self.parser, '-k abcdef.ghijkl'.split())
+        args = self.parse_args('-k foo'.split())
+        self.assertEqual('foo', args.key_file)
 
     def test_existing_key(self):
-        args = get_common_args(self.parser, '-k /etc/passwd'.split())
-        self.assertEqual('/etc/passwd', args['keyfile'])
+        args = self.parse_args('-k /etc/passwd'.split())
+        self.assertEqual('/etc/passwd', args.key_file)
 
     def test_defaults(self):
-        args = get_common_args(self.parser, [])
+        args = self.parse_args([])
 
-        self.assertEqual(DEFAULT_KEY_FILE, args['keyfile'])
-        self.assertEqual(DEFAULT_NICENESS, args['niceness'])
-        self.assertEqual(logging.WARNING, args['log_level'])
-        self.assertEqual(DEFAULT_ADDRESS, args['address'])
-        self.assertEqual(DEFAULT_PORT, args['port'])
+        self.assertEqual(args.key_file, DEFAULT_KEY_FILE)
+        self.assertEqual(args.niceness, DEFAULT_NICENESS)
+        self.assertEqual(args.log_level, logging.WARNING)
+        self.assertEqual(args.address, DEFAULT_ADDRESS)
+        self.assertEqual(args.port, DEFAULT_PORT)
