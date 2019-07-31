@@ -19,6 +19,7 @@
 import argparse
 import logging
 from pathlib import Path
+
 from ospd.config import Config
 
 # Default file locations as used by a OpenVAS default installation
