@@ -18,7 +18,6 @@
 
 import argparse
 import logging
-
 from pathlib import Path
 from ospd.config import Config
 
