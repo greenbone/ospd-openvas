@@ -116,7 +116,7 @@ def main(
     )
 
     if args.unix_socket:
-        server = UnixSocketServer(args.unix_socket)
+        server = UnixSocketServer(args.unix_socket, args.socket_mode)
     else:
         server = TlsServer(
             args.address, args.port, args.cert_file, args.key_file, args.ca_file

@@ -30,9 +30,9 @@ DEFAULT_CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
 DEFAULT_PORT = 1234
 DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
-
-DEFAULT_CONFIG_PATH = '~/.config/ospd.conf'
-DEFAULT_UNIX_SOCKET_PATH = "/tmp/ospd-openvas.sock"
+DEFAULT_UNIX_SOCKET_MODE = "0o700"
+DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
+DEFAULT_UNIX_SOCKET_PATH = "/tmp/ospd.sock"
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -78,6 +78,14 @@ class CliParser:
             default=DEFAULT_UNIX_SOCKET_PATH,
             help='Unix file socket to listen on.'
         )
+
+        parser.add_argument(
+            '-m',
+            '--socket-mode',
+            default=DEFAULT_UNIX_SOCKET_MODE,
+            help='Unix file socket mode. Default: %(defaults)s'
+        )
+
         parser.add_argument(
             '-k',
             '--key-file',

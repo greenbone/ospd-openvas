@@ -24,6 +24,7 @@ import select
 import socket
 import ssl
 import time
+import os
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -36,7 +37,6 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_STREAM_TIMEOUT = 2  # two seconds
 DEFAULT_BUFSIZE = 1024
-
 
 class Stream:
     def __init__(self, sock: socket.socket):
@@ -135,9 +135,10 @@ class UnixSocketServer(BaseServer):
     """ Server for accepting connections via a Unix domain socket
     """
 
-    def __init__(self, socket_path: str):
+    def __init__(self, socket_path: str, socket_mode: str):
         super().__init__()
         self.socket_path = Path(socket_path)
+        self.socket_mode = int(socket_mode, 8)
 
     def _cleanup_socket(self):
         if self.socket_path.exists():
@@ -160,6 +161,8 @@ class UnixSocketServer(BaseServer):
             raise OspdError(
                 "Couldn't bind socket on {}".format(self.socket_path)
             )
+
+        os.chmod(str(self.socket_path), self.socket_mode)
 
         logger.info(
             'Unix domain socket server listening on %s', self.socket_path
