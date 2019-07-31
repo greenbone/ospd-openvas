@@ -28,7 +28,7 @@ from io import StringIO
 from typing import List
 
 from ospd.parser import (
-    create_args_parser,
+    create_parser,
     Arguments,
     DEFAULT_ADDRESS,
     DEFAULT_PORT,
@@ -39,10 +39,10 @@ from ospd.parser import (
 
 class ArgumentParserTestCase(unittest.TestCase):
     def setUp(self):
-        self.parser = create_args_parser('Wrapper name')
+        self.parser = create_parser('Wrapper name')
 
     def parse_args(self, args: List[str]) -> Arguments:
-        return self.parser.parse_args(args)
+        return self.parser.parse_arguments(args)
 
     @patch('sys.stderr', new_callable=StringIO)
     def test_port_interval(self, _mock_stderr):
@@ -93,3 +93,5 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.log_level, logging.WARNING)
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
+
+    
