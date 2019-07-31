@@ -27,7 +27,7 @@ from typing import Type, Optional
 
 from ospd.misc import go_to_background
 from ospd.ospd import OSPDaemon
-from ospd.parser import create_args_parser, ParserType
+from ospd.parser import create_parser, ParserType
 from ospd.server import TlsServer, UnixSocketServer
 
 COPYRIGHT = """Copyright (C) 2014, 2015, 2018, 2019 Greenbone Networks GmbH
@@ -62,6 +62,7 @@ def init_logging(
     log_file: Optional[str] = None,
     foreground: Optional[bool] = False
 ):
+
     rootlogger = logging.getLogger()
     rootlogger.setLevel(log_level)
 
@@ -107,9 +108,8 @@ def main(
     """ OSPD Main function. """
 
     if not parser:
-        parser = create_args_parser(name)
-
-    args = parser.parse_args()
+        parser = create_parser(name)
+    args = parser.parse_arguments()
 
     init_logging(
         name, args.log_level, log_file=args.log_file, foreground=args.foreground
