@@ -211,13 +211,13 @@ class TestDB(TestCase):
         mock_redis.hdel.assert_called_once_with('GVM.__GlobalDBIndex', 3)
 
     def test_get_result(self, mock_redis):
-        mock_redis.lpop.return_value = 'some result'
+        mock_redis.rpop.return_value = 'some result'
         with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
             ret = self.db.get_result()
         self.assertEqual(ret, 'some result')
 
     def test_get_status(self, mock_redis):
-        mock_redis.lpop.return_value = 'some status'
+        mock_redis.rpop.return_value = 'some status'
         with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
             ret = self.db.get_status()
         self.assertEqual(ret, 'some status')

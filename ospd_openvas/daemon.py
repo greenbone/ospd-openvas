@@ -939,6 +939,12 @@ class OSPDopenvas(OSPDaemon):
                     logger.debug(
                         'Process with pid %s already stopped', ovas_pid
                     )
+                except TypeError:
+                    logger.debug(
+                        'Scan with ID %s never started and stopped '
+                        'unexpectedly', scan_id
+                    )
+
                 if parent:
                     cmd = ['openvas', '--scan-stop', scan_id]
                     if self.sudo_available:
@@ -1053,6 +1059,7 @@ class OSPDopenvas(OSPDaemon):
                         type_aux,
                         str(vt_param_value),
                     )
+                    continue
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
                 param = [

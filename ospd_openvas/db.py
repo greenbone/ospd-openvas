@@ -402,7 +402,7 @@ class OpenvasDB(object):
         """
         if not ctx:
             ctx = self.get_kb_context()
-        return ctx.lpop("internal/results")
+        return ctx.rpop("internal/results")
 
     def get_status(self, ctx=None):
         """ Get and remove the oldest host scan status from the list.
@@ -412,7 +412,7 @@ class OpenvasDB(object):
         """
         if not ctx:
             ctx = self.get_kb_context()
-        return ctx.lpop("internal/status")
+        return ctx.rpop("internal/status")
 
     def get_host_scan_scan_start_time(self, ctx=None):
         """ Get the timestamp of the scan start from redis.
