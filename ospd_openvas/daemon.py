@@ -1059,6 +1059,7 @@ class OSPDopenvas(OSPDaemon):
                         type_aux,
                         str(vt_param_value),
                     )
+                    continue
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
                 param = [
