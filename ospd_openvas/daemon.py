@@ -939,6 +939,12 @@ class OSPDopenvas(OSPDaemon):
                     logger.debug(
                         'Process with pid %s already stopped', ovas_pid
                     )
+                except TypeError:
+                    logger.debug(
+                        'Scan with ID %s never started and stopped '
+                        'unexpectedly', scan_id
+                    )
+
                 if parent:
                     cmd = ['openvas', '--scan-stop', scan_id]
                     if self.sudo_available:
