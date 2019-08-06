@@ -184,7 +184,7 @@ class OSPDaemon:
             self.vts_filter = VtsFilter()
 
     def init(self):
-        """ Should be overriden by a subclass if the initalization is costly.
+        """ Should be overridden by a subclass if the initialization is costly.
 
             Will be called before check.
         """
