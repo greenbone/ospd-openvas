@@ -41,7 +41,7 @@ ospd 1.2b1 (2015-10-16)
 This is the first beta release of the 1.2 version of the ospd module
 for the Open Vulnerability Assessment System (OpenVAS).
 
-This realease features the first new elements of the upcoming
+This release features the first new elements of the upcoming
 protocol version 1.1 of OSP: Stopping of Scans, Ports and
 mandatory flag for scan parameters.
 

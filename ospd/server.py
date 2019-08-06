@@ -82,7 +82,7 @@ StreamCallbackType = Callable[[Stream], None]
 class Server(ABC):
     @abstractmethod
     def bind(self):
-        """ Start listening for incomming connections
+        """ Start listening for incoming connections
         """
 
     @abstractmethod
@@ -91,7 +91,7 @@ class Server(ABC):
         stream_callback: StreamCallbackType,
         timeout: Optional[float] = None,
     ):
-        """ Wait for incomming connections or until timeout is reached
+        """ Wait for incoming connections or until timeout is reached
 
         If a new client connects the stream_callback is called with a Stream
 
