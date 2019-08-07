@@ -39,8 +39,8 @@ Arguments = argparse.Namespace
 
 logger = logging.getLogger(__name__)
 
-class CliParser:
 
+class CliParser:
     def __init__(self, description):
         """ Create a command-line arguments parser for OSPD. """
         self._name = description
@@ -117,9 +117,7 @@ class CliParser:
             help='Run in foreground and logs all messages to console.',
         )
         parser.add_argument(
-            '-l',
-            '--log-file',
-            help='Path to the logging file.',
+            '-l', '--log-file', help='Path to the logging file.'
         )
         parser.add_argument(
             '--niceness',
@@ -192,6 +190,7 @@ class CliParser:
         args, _ = self.parser.parse_known_args(args)
 
         return args
+
 
 def create_parser(description):
     return CliParser(description)
