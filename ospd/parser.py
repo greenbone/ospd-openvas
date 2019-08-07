@@ -83,7 +83,7 @@ class CliParser:
             '-m',
             '--socket-mode',
             default=DEFAULT_UNIX_SOCKET_MODE,
-            help='Unix file socket mode. Default: %(defaults)s'
+            help='Unix file socket mode. Default: %(default)s',
         )
 
         parser.add_argument(
