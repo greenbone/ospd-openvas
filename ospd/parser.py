@@ -76,7 +76,7 @@ class CliParser:
             '-u',
             '--unix-socket',
             default=DEFAULT_UNIX_SOCKET_PATH,
-            help='Unix file socket to listen on.'
+            help='Unix file socket to listen on. Default: %(default)s',
         )
 
         parser.add_argument(
@@ -90,7 +90,7 @@ class CliParser:
             '-k',
             '--key-file',
             default=DEFAULT_KEY_FILE,
-            help='Server key file. Default: {0}'.format(DEFAULT_KEY_FILE),
+            help='Server key file. Default: %(default)s',
         )
         parser.add_argument(
             '-c',
@@ -100,8 +100,8 @@ class CliParser:
         )
         parser.add_argument(
             '--ca-file',
-            help='CA cert file. Default: %(default)s',
             default=DEFAULT_CA_FILE,
+            help='CA cert file. Default: %(default)s',
         )
         parser.add_argument(
             '-L',
