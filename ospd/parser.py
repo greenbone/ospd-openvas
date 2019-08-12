@@ -39,8 +39,8 @@ Arguments = argparse.Namespace
 
 logger = logging.getLogger(__name__)
 
-class CliParser:
 
+class CliParser:
     def __init__(self, description):
         """ Create a command-line arguments parser for OSPD. """
         self._name = description
@@ -76,21 +76,21 @@ class CliParser:
             '-u',
             '--unix-socket',
             default=DEFAULT_UNIX_SOCKET_PATH,
-            help='Unix file socket to listen on.'
+            help='Unix file socket to listen on. Default: %(default)s',
         )
 
         parser.add_argument(
             '-m',
             '--socket-mode',
             default=DEFAULT_UNIX_SOCKET_MODE,
-            help='Unix file socket mode. Default: %(defaults)s'
+            help='Unix file socket mode. Default: %(default)s',
         )
 
         parser.add_argument(
             '-k',
             '--key-file',
             default=DEFAULT_KEY_FILE,
-            help='Server key file. Default: {0}'.format(DEFAULT_KEY_FILE),
+            help='Server key file. Default: %(default)s',
         )
         parser.add_argument(
             '-c',
@@ -100,8 +100,8 @@ class CliParser:
         )
         parser.add_argument(
             '--ca-file',
-            help='CA cert file. Default: %(default)s',
             default=DEFAULT_CA_FILE,
+            help='CA cert file. Default: %(default)s',
         )
         parser.add_argument(
             '-L',
@@ -117,9 +117,7 @@ class CliParser:
             help='Run in foreground and logs all messages to console.',
         )
         parser.add_argument(
-            '-l',
-            '--log-file',
-            help='Path to the logging file.',
+            '-l', '--log-file', help='Path to the logging file.'
         )
         parser.add_argument(
             '--niceness',
@@ -192,6 +190,7 @@ class CliParser:
         args, _ = self.parser.parse_known_args(args)
 
         return args
+
 
 def create_parser(description):
     return CliParser(description)
