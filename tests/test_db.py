@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
+# pylint: disable=unused-argument
+
 """ Unit Test for ospd-openvas """
 
 from unittest import TestCase
@@ -36,7 +38,9 @@ class TestDB(TestCase):
 
     def test_parse_openvas_db_addres(self, mock_redis):
         with self.assertRaises(OspdOpenvasError):
-            self.db._parse_openvas_db_address(b'somedata')
+            self.db._parse_openvas_db_address(  # pylint: disable=protected-access
+                b'somedata'
+            )
 
     def test_max_db_index_fail(self, mock_redis):
         mock_redis.config_get.return_value = {}

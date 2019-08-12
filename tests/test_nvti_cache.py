@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
+# pylint: disable=unused-argument
+
 """ Unit Test for ospd-openvas """
 
 from unittest import TestCase
@@ -48,7 +50,9 @@ class TestNVTICache(TestCase):
 
     def test_parse_metadata_tags(self, mock_redis):
         tags = 'tag1'
-        ret = self.nvti._parse_metadata_tags(tags, '1.2.3')
+        ret = self.nvti._parse_metadata_tags(  # pylint: disable=protected-access
+            tags, '1.2.3'
+        )
         self.assertEqual(ret, {})
 
     def test_get_nvt_params(self, mock_redis):

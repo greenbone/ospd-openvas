@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
+# pylint: disable=invalid-name,line-too-long
+
 """ Unit Test for ospd-openvas """
 
 import unittest
@@ -200,8 +202,8 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_sudo_available(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = 0
         w = DummyDaemon(mock_nvti, mock_db)
-        w._sudo_available = None
-        w.sudo_available
+        w._sudo_available = None  # pylint: disable=protected-access
+        w.sudo_available  # pylint: disable=pointless-statement
         self.assertTrue(w.sudo_available)
 
     def test_load_vts(self, mock_nvti, mock_db):
