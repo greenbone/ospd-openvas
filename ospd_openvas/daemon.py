@@ -49,17 +49,17 @@ logger = logging.getLogger(__name__)
 OSPD_DESC = """
 This scanner runs 'OpenVAS Scanner' to scan the target hosts.
 
-OpenVAS (Open Vulnerability Assessment System) is a powerful scanner
+OpenVAS (Open Vulnerability Assessment Scanner) is a powerful scanner
 for vulnerabilities in IT infrastrucutres. The capabilities include
-unauthzenticated scanning as well as authneticated scanning for
+unauthenticated scanning as well as authenticated scanning for
 various types of systems and services.
 
 For more details about OpenVAS see the OpenVAS homepage:
 http://www.openvas.org/
 
 The current version of ospd-openvas is a simple frame, which sends
-the server parameters to the Greenbone Vulnerability Manager (GVM) and checks
-the existence of OpenVAS Scanner binary. But it can not run scans yet.
+the server parameters to the Greenbone Vulnerability Manager daemon (GVMd) and
+checks the existence of OpenVAS scanner binary. But it can not run scans yet.
 """
 
 OSPD_PARAMS = {
@@ -942,7 +942,8 @@ class OSPDopenvas(OSPDaemon):
                 except TypeError:
                     logger.debug(
                         'Scan with ID %s never started and stopped '
-                        'unexpectedly', scan_id
+                        'unexpectedly',
+                        scan_id,
                     )
 
                 if parent:
