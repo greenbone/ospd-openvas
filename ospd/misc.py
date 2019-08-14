@@ -408,3 +408,31 @@ def go_to_background():
     except OSError as errmsg:
         LOGGER.error('Fork failed: %s', errmsg)
         sys.exit(1)
+
+def create_pid(pidfile):
+    """ Check if there is an already running daemon and creates the pid file.
+    Otherwise gives an error. """
+
+    pid = str(os.getpid())
+
+    if os.path.isfile(pidfile):
+        LOGGER.error("There is an already running process.")
+        return False
+
+    try:
+        f = open(pidfile, 'w')
+        f.write(pid)
+        f.close()
+    except (FileNotFoundError, PermissionError) as e:
+        msg = "Failed to create pid file %s. %s" % (os.path.dirname(pidfile), e)
+        LOGGER.error(msg)
+        return False
+
+    return True
+
+def remove_pidfile(pidfile, signum=None, frame=None):
+    """ Removes the pidfile before ending the daemon. """
+    if os.path.isfile(pidfile):
+        LOGGER.debug("Finishing daemon process")
+        os.remove(pidfile)
+        sys.exit()

@@ -33,6 +33,7 @@ DEFAULT_NICENESS = 10
 DEFAULT_UNIX_SOCKET_MODE = "0o700"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
 DEFAULT_UNIX_SOCKET_PATH = "/tmp/ospd.sock"
+DEFAULT_PID_PATH = "/run/ospd/ospd.pid"
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -77,6 +78,11 @@ class CliParser:
             '--unix-socket',
             default=DEFAULT_UNIX_SOCKET_PATH,
             help='Unix file socket to listen on. Default: %(default)s',
+        )
+        parser.add_argument(
+            '--pid-file',
+            default=DEFAULT_PID_PATH,
+            help='Unix file socket to listen on.'
         )
 
         parser.add_argument(
