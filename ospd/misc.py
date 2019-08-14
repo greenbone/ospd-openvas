@@ -30,6 +30,7 @@ import multiprocessing
 
 from enum import Enum
 from collections import OrderedDict
+from pathlib import Path
 
 from ospd.network import target_str_to_list
 
@@ -408,3 +409,31 @@ def go_to_background():
     except OSError as errmsg:
         LOGGER.error('Fork failed: %s', errmsg)
         sys.exit(1)
+
+def create_pid(pidfile):
+    """ Check if there is an already running daemon and creates the pid file.
+    Otherwise gives an error. """
+
+    pid = str(os.getpid())
+
+    if Path(pidfile).is_file():
+        LOGGER.error("There is an already running process.")
+        return False
+
+    try:
+        with open(pidfile, 'w') as f:
+            f.write(pid)
+    except (FileNotFoundError, PermissionError) as e:
+        msg = "Failed to create pid file %s. %s" % (os.path.dirname(pidfile), e)
+        LOGGER.error(msg)
+        return False
+
+    return True
+
+def remove_pidfile(pidfile, signum=None, frame=None):
+    """ Removes the pidfile before ending the daemon. """
+    pidpath = Path(pidfile)
+    if pidpath.is_file():
+        LOGGER.debug("Finishing daemon process")
+        pidpath.unlink()
+        sys.exit()
