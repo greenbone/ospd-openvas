@@ -24,6 +24,7 @@ import os
 import sys
 import atexit
 import signal
+
 from functools import partial
 
 from typing import Type, Optional
@@ -131,19 +132,19 @@ def main(
         print_version(daemon)
         sys.exit()
 
-    if not create_pid(args.pid_file):
-        sys.exit()
-
-    daemon.init()
-
     if not args.foreground:
         go_to_background()
+
+    if not create_pid(args.pid_file):
+        sys.exit()
 
     # Set signal handler and cleanup
     atexit.register(remove_pidfile, pidfile=args.pid_file)
     signal.signal(
         signal.SIGTERM, partial(remove_pidfile, args.pid_file)
     )
+
+    daemon.init()
 
     if not daemon.check():
         return 1
