@@ -30,6 +30,7 @@ import multiprocessing
 
 from enum import Enum
 from collections import OrderedDict
+from pathlib import Path
 
 from ospd.network import target_str_to_list
 
@@ -415,14 +416,13 @@ def create_pid(pidfile):
 
     pid = str(os.getpid())
 
-    if os.path.isfile(pidfile):
+    if Path(pidfile).is_file():
         LOGGER.error("There is an already running process.")
         return False
 
     try:
-        f = open(pidfile, 'w')
-        f.write(pid)
-        f.close()
+        with open(pidfile, 'w') as f:
+            f.write(pid)
     except (FileNotFoundError, PermissionError) as e:
         msg = "Failed to create pid file %s. %s" % (os.path.dirname(pidfile), e)
         LOGGER.error(msg)
@@ -432,7 +432,8 @@ def create_pid(pidfile):
 
 def remove_pidfile(pidfile, signum=None, frame=None):
     """ Removes the pidfile before ending the daemon. """
-    if os.path.isfile(pidfile):
+    pidpath = Path(pidfile)
+    if pidpath.is_file():
         LOGGER.debug("Finishing daemon process")
-        os.remove(pidfile)
+        pidpath.unlink()
         sys.exit()
