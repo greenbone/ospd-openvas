@@ -26,8 +26,7 @@ import subprocess
 import time
 import uuid
 
-from os import path
-
+from pathlib import Path
 from lxml.etree import tostring, SubElement, Element
 
 import psutil
@@ -327,20 +326,31 @@ class OSPDopenvas(OSPDaemon):
         """ Compare the current feed with the one in the disk.
 
         Return:
-            False if there is no new feed. True if the feed version in disk
-            is newer than the feed in redis cache.
+            False if there is no new feed.
+            True if the feed version in disk is newer than the feed in
+            redis cache.
+            None if there is no feed
+            the disk.
         """
         plugins_folder = self.scan_only_params.get('plugins_folder')
         if not plugins_folder:
             raise OspdOpenvasError("Error: Path to plugins folder not found.")
-        feed_info_file = path.join(plugins_folder, 'plugin_feed_info.inc')
-        fcontent = open(feed_info_file)
-        for line in fcontent:
-            if "PLUGIN_SET" in line:
-                date = line.split(' = ')[1]
-                date = date.replace(';', '')
-                date = date.replace('"', '')
-        if int(current_feed) < int(date):
+
+        feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
+        if not feed_info_file.exists():
+            self.parse_param()
+            msg = 'Plugins feed file %s not found.' % feed_info_file
+            logger.debug(msg)
+            return None
+
+        date = 0
+        with open(str(feed_info_file)) as fcontent:
+            for line in fcontent:
+                if "PLUGIN_SET" in line:
+                    date = line.split(' = ')[1]
+                    date = date.replace(';', '')
+                    date = date.replace('"', '')
+        if int(current_feed) < int(date) or int(date) == 0:
             return True
         return False
 
