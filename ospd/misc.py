@@ -434,7 +434,7 @@ def remove_pidfile(pidfile, signum=None, frame=None):
     """ Removes the pidfile before ending the daemon. """
     pidpath = Path(pidfile)
     if pidpath.is_file():
-        with open(str(pidpath)) as f:
+        with pidpath.open() as f:
             if int(f.read()) == os.getpid():
                 LOGGER.debug("Finishing daemon process")
                 pidpath.unlink()
