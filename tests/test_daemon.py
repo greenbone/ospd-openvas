@@ -22,12 +22,13 @@
 """ Unit Test for ospd-openvas """
 
 import unittest
+import io
 
-from unittest.mock import patch
+from unittest.mock import patch, mock_open
 
 from tests.dummydaemon import DummyDaemon
 
-from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter
+from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter, Path
 from ospd_openvas.errors import OspdOpenvasError
 
 OSPD_PARAMS_OUT = {
@@ -509,19 +510,41 @@ class TestOspdOpenvas(unittest.TestCase):
         self.assertEqual(ret, True)
 
     @patch('ospd_openvas.daemon.open')
-    def test_feed_is_outdated(self, mock_open, mock_nvti, mock_db):
-        mock_open.return_value = ['PLUGIN_SET = "1234";']
+    def test_feed_is_outdated_none(self, mock_open, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        self.assertRaises(OspdOpenvasError, w.feed_is_outdated, '1234')
-        # Return False
-        w.scan_only_params['plugins_folder'] = '/foo/bar'
-        ret = w.feed_is_outdated('1234')
-        self.assertFalse(ret)
+        # Mock parse_param, because feed_is_oudated() will call it.
+        with patch.object(w, 'parse_param', return_value=None):
+            # Return None
+            w.scan_only_params['plugins_folder'] = '/foo/bar'
+            ret = w.feed_is_outdated('1234')
+            self.assertIsNone(ret)
 
-        # Return true
-        mock_open.return_value = ['PLUGIN_SET = "1235";']
-        ret = w.feed_is_outdated('1234')
-        self.assertTrue(ret)
+    def test_feed_is_outdated_true(self, mock_nvti, mock_db):
+        w = DummyDaemon(mock_nvti, mock_db)
+        # Mock parse_param, because feed_is_oudated() will call it.
+        with patch.object(w, 'parse_param', return_value=None):
+            with patch.object(Path, 'exists', return_value=True):
+                read_data = 'PLUGIN_SET = "1235";'
+                with patch("builtins.open",
+                    return_value=io.StringIO(read_data)):
+                    # Return True
+                    w.scan_only_params['plugins_folder'] = '/foo/bar'
+                    ret = w.feed_is_outdated('1234')
+                    self.assertTrue(ret)
+
+    def test_feed_is_outdated_false(self, mock_nvti, mock_db):
+        w = DummyDaemon(mock_nvti, mock_db)
+        # Mock parse_param, because feed_is_oudated() will call it.
+        with patch.object(w, 'parse_param', return_value=None):
+            read_data = 'PLUGIN_SET = "1234";'
+            with patch.object(Path, 'exists', return_value=True):
+                read_data = 'PLUGIN_SET = "1234"';
+                with patch("builtins.open",
+                    return_value=io.StringIO(read_data)):
+                    # Return True
+                    w.scan_only_params['plugins_folder'] = '/foo/bar'
+                    ret = w.feed_is_outdated('1234')
+                    self.assertFalse(ret)
 
     @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
     def test_get_openvas_result(self, mock_ospd, mock_nvti, mock_db):
