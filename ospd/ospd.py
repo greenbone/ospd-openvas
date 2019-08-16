@@ -632,7 +632,8 @@ class OSPDaemon:
             self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
 
         os.killpg(os.getpgid(scan_process.ident), 15)
-        scan_process.join()
+        if scan_process.ident != os.getpid():
+            scan_process.join()
         self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
         logger.info('%s: Scan stopped.', scan_id)
 
