@@ -1053,6 +1053,12 @@ class OSPDopenvas(OSPDaemon):
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
+            if vtid not in self.vts.keys():
+                logger.debug(
+                    'The vt %s was not found and it will not be loaded.',
+                    vtid,
+                )
+                continue
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
