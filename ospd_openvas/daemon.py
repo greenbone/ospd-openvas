@@ -1054,7 +1054,7 @@ class OSPDopenvas(OSPDaemon):
 
         for vtid, vt_params in vts.items():
             if vtid not in self.vts.keys():
-                logger.debug(
+                logger.warning(
                     'The vt %s was not found and it will not be loaded.',
                     vtid,
                 )
