@@ -476,6 +476,17 @@ class TestOspdOpenvas(unittest.TestCase):
         ret = w.process_vts(vts)
         self.assertFalse(ret[1])
 
+    @patch('logging.Logger.warning')
+    def test_process_vts_not_found(self, mock_logger, mock_nvti, mock_db):
+        vts = {
+            '1.3.6.1.4.1.25623.1.0.100065': {'3': 'new value'},
+            'vt_groups': ['family=debian', 'family=general'],
+        }
+        w = DummyDaemon(mock_nvti, mock_db)
+        w.load_vts()
+        ret = w.process_vts(vts)
+        self.assertTrue(mock_logger.called)
+
     def test_get_openvas_timestamp_scan_host_end(self, mock_nvti, mock_db):
         mock_db.get_host_scan_scan_end_time.return_value = '12345'
         w = DummyDaemon(mock_nvti, mock_db)
