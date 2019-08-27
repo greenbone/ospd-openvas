@@ -115,6 +115,9 @@ def main(
         parser = create_parser(name)
     args = parser.parse_arguments()
 
+    if args.version:
+        args.foreground = True
+
     init_logging(
         name, args.log_level, log_file=args.log_file, foreground=args.foreground
     )
