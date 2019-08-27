@@ -629,12 +629,10 @@ class OSPDaemon:
             scan_process.terminate()
         except AttributeError:
             logger.debug('%s: The scanner task stopped unexpectedly.', scan_id)
-            self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
 
         os.killpg(os.getpgid(scan_process.ident), 15)
         if scan_process.ident != os.getpid():
             scan_process.join()
-        self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
         logger.info('%s: Scan stopped.', scan_id)
 
     @staticmethod
@@ -787,7 +785,8 @@ class OSPDaemon:
                 target_prog = self.get_scan_target_progress(
                     scan_id, running_target_id
                 )
-                if target_prog < 100:
+                if target_prog < 100 and (
+                        self.get_scan_status(scan_id) != ScanStatus.STOPPED):
                     self.stop_scan(scan_id)
                 running_target = (running_target_proc, running_target_id)
                 multiscan_proc.remove(running_target)
@@ -1594,11 +1593,12 @@ class OSPDaemon:
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
         if progress < 100 and not scan_process.is_alive():
-            self.set_scan_status(scan_id, ScanStatus.STOPPED)
-            self.add_scan_error(
-                scan_id, name="", host="", value="Scan process failure."
-            )
-            logger.info("%s: Scan stopped with errors.", scan_id)
+            if not (self.get_scan_status(scan_id) == ScanStatus.STOPPED):
+                self.set_scan_status(scan_id, ScanStatus.STOPPED)
+                self.add_scan_error(
+                    scan_id, name="", host="", value="Scan process failure."
+                )
+                logger.info("%s: Scan stopped with errors.", scan_id)
         elif progress == 100:
             scan_process.join()
 
