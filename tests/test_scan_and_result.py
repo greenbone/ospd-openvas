@@ -23,6 +23,7 @@
 
 import time
 import unittest
+from unittest.mock import patch
 
 import xml.etree.ElementTree as ET
 import defusedxml.lxml as secET
@@ -669,43 +670,6 @@ class ScanTestCase(unittest.TestCase):
         )
         self.assertEqual(response.findtext('scan/results/result'), None)
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" pop_results="1"/>' % scan_id
-            )
-        )
-
-        while True:
-            response = secET.fromstring(
-                daemon.handle_command(
-                    '<get_scans scan_id="%s" details="1"/>' % scan_id
-                )
-            )
-            scans = response.findall('scan')
-
-            self.assertEqual(1, len(scans))
-
-            scan = scans[0]
-            if scan.get('status') == "stopped":
-                time.sleep(1)  # avoid race condition by waiting
-                break
-
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id
-            )
-        )
-
-        self.assertIn(
-            response.findtext('scan/results/result'),
-            ['Scan process failure.', 'Scan stopped.'],
-        )
-
-        response = secET.fromstring(
-            daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id)
-        )
-        self.assertEqual(response.get('status'), '200')
-
     def test_stop_scan(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
@@ -1063,7 +1027,7 @@ class ScanTestCase(unittest.TestCase):
         )
 
         result = response.findall('scan/results/result')
-        self.assertEqual(len(result), 4)
+        self.assertEqual(len(result), 2)
 
         # Resume the task
         cmd = (
@@ -1094,7 +1058,7 @@ class ScanTestCase(unittest.TestCase):
             )
         )
         result = response.findall('scan/results/result')
-        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result), 0)
 
     def test_result_order (self):
         daemon = DummyWrapper([])
