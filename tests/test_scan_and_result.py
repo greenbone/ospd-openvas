@@ -23,7 +23,6 @@
 
 import time
 import unittest
-from unittest.mock import patch
 
 import xml.etree.ElementTree as ET
 import defusedxml.lxml as secET
