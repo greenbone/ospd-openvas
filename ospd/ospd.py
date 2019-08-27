@@ -629,12 +629,10 @@ class OSPDaemon:
             scan_process.terminate()
         except AttributeError:
             logger.debug('%s: The scanner task stopped unexpectedly.', scan_id)
-            self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
 
         os.killpg(os.getpgid(scan_process.ident), 15)
         if scan_process.ident != os.getpid():
             scan_process.join()
-        self.add_scan_log(scan_id, name='', host='', value='Scan stopped.')
         logger.info('%s: Scan stopped.', scan_id)
 
     @staticmethod
