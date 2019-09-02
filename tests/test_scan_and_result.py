@@ -24,6 +24,8 @@
 import time
 import unittest
 
+from unittest.mock import patch
+
 import xml.etree.ElementTree as ET
 import defusedxml.lxml as secET
 
@@ -228,6 +230,45 @@ class ScanTestCase(unittest.TestCase):
 
         self.assertEqual(response.get('status'), '200')
         self.assertEqual(response.tag, 'help_response')
+
+    @patch('ospd.ospd.subprocess')
+    def test_get_performance(self, mock_subproc):
+        daemon = DummyWrapper([])
+        mock_subproc.check_output.return_value("foo")
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_performance start="0" end="0" titles="mem"/>')
+        )
+
+        self.assertEqual(response.get('status'), '200')
+        self.assertEqual(response.tag, 'get_performance_response')
+
+    def test_get_performance_fail_int(self):
+        daemon = DummyWrapper([])
+        cmd = secET.fromstring(
+            '<get_performance start="a" end="0" titles="mem"/>')
+
+        self.assertRaises(
+            OspdCommandError, daemon.handle_get_performance, cmd
+        )
+
+    def test_get_performance_fail_regex(self):
+        daemon = DummyWrapper([])
+        cmd = secET.fromstring(
+            '<get_performance start="0" end="0" titles="mem|bar"/>')
+
+        self.assertRaises(
+            OspdCommandError, daemon.handle_get_performance, cmd
+        )
+
+    def test_get_performance_fail_cmd(self):
+        daemon = DummyWrapper([])
+        cmd = secET.fromstring(
+            '<get_performance start="0" end="0" titles="mem1"/>'
+        )
+        self.assertRaises(
+            OspdCommandError, daemon.handle_get_performance, cmd
+        )
 
     def test_get_default_scanner_version(self):
         daemon = DummyWrapper([])
