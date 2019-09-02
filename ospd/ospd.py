@@ -1051,7 +1051,11 @@ class OSPDaemon:
 
         try:
             output = subprocess.check_output(cmd)
-        except subprocess.CalledProcessError as e:
+        except (
+                subprocess.CalledProcessError,
+                PermissionError,
+                FileNotFoundError,
+        ) as e:
             raise OspdCommandError(
                 'Bogus get_performance format. %s' % e,
                 'get_performance'
