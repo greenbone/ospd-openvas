@@ -416,9 +416,66 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <elements></elements>
             <description>List the scans in buffer</description>
           </get_scans>
+          <get_performance>
+            <description>Return system report</description>
+            <elements/>
+            <attributes>
+              <title>Name of report.</title>
+              <start>Time of first data point in report.</start>
+              <end>Time of last data point in report.</end>
+            </attributes>
+          </get_performance>
         </help_response>
       </response>
     </example>
+  </command>
+
+  <command>
+    <name>get_performance</name>
+    <summary>Return performan information from an external program</summary>
+    <pattern>
+      <attrib>
+        <name>start</name>
+        <summary>Interval start</summary>
+        <type>int</type>
+      </attrib>
+      <attrib>
+        <name>end</name>
+        <summary>Interval end</summary>
+        <type>int</type>
+      </attrib>
+      <attrib>
+        <name>titles</name>
+        <summary>Interval title to get</summary>
+        <type>text</type>
+      </attrib>
+    </pattern>
+     <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        text
+      </pattern>
+     </response>
+     <example>
+       <request>
+         <get_performance start='0' titles='mem'/>
+       </request>
+       <response>
+         <help_response status="200" status_text="OK">
+           Some output.
+         </help_response>
+       </response>
+     </example>
+
   </command>
   <command>
     <name>get_scans</name>
@@ -1271,4 +1328,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </description>
     <version>1.1</version>
   </change>
+  <change>
+    <command>GET_PERFORMANCE</command>
+    <summary>Command added</summary>
+    <description>
+      Added new command to get performance from an external program.
+    </description>
+    <version>1.2</version>
+  </change>
+
 </protocol>
