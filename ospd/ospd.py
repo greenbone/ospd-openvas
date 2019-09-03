@@ -34,6 +34,7 @@ import multiprocessing
 import re
 import time
 import os
+import subprocess
 
 from xml.etree.ElementTree import Element, SubElement
 
@@ -52,6 +53,25 @@ logger = logging.getLogger(__name__)
 PROTOCOL_VERSION = "1.2"
 
 SCHEDULER_CHECK_PERIOD = 5  # in seconds
+
+GVMCG_TITLES = [
+    'cpu-*',
+    'proc',
+    'mem',
+    'swap',
+    'load',
+    'df-*',
+    'disk-sd[a-z][0-9]-rw',
+    'disk-sd[a-z][0-9]-load',
+    'disk-sd[a-z][0-9]-io-load',
+    'interface-eth*-traffic',
+    'interface-eth*-err-rate',
+    'interface-eth*-err',
+    'sensors-*_temperature-*',
+    'sensors-*_fanspeed-*',
+    'sensors-*_voltage-*',
+    'titles',
+]
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -120,6 +140,15 @@ COMMANDS_TABLE = {
     'get_scanner_details': {
         'description': 'Return scanner description and parameters',
         'attributes': None,
+        'elements': None,
+    },
+    'get_performance': {
+        'description': 'Return system report',
+        'attributes': {
+            'start': 'Time of first data point in report.',
+            'end': 'Time of last data point in report.',
+            'title': 'Name of report.',
+        },
         'elements': None,
     },
 }
@@ -978,6 +1007,61 @@ class OSPDaemon:
 
         return simple_response_str('get_vts', 200, 'OK', responses)
 
+    def handle_get_performance(self, scan_et):
+        """ Handles <get_performance> command.
+
+        @return: Response string for <get_performance> command.
+        """
+        start = scan_et.attrib.get('start')
+        end = scan_et.attrib.get('end')
+        titles = scan_et.attrib.get('titles')
+
+        cmd = ['gvmcg']
+        if start:
+            try:
+                int(start)
+            except ValueError:
+                raise OspdCommandError(
+                    'Start argument must be integer.',
+                    'get_performance'
+            )
+            cmd.append(start)
+
+        if end:
+            try:
+                int(end)
+            except ValueError:
+                raise OspdCommandError(
+                    'End argument must be integer.',
+                    'get_performance'
+                )
+            cmd.append(end)
+
+        if titles:
+            combined = "(" + ")|(".join(GVMCG_TITLES) + ")"
+            forbidden = "^[^|&;]+$"
+            if re.match(combined, titles) and re.match(forbidden, titles):
+                cmd.append(titles)
+            else:
+                raise OspdCommandError(
+                    'Arguments not allowed',
+                    'get_performance'
+                )
+
+        try:
+            output = subprocess.check_output(cmd)
+        except (
+                subprocess.CalledProcessError,
+                PermissionError,
+                FileNotFoundError,
+        ) as e:
+            raise OspdCommandError(
+                'Bogus get_performance format. %s' % e,
+                'get_performance'
+            )
+
+        return simple_response_str('get_performance', 200, 'OK', str(output))
+
     def handle_help_command(self, scan_et):
         """ Handles <help> command.
 
@@ -1539,6 +1623,8 @@ class OSPDaemon:
             return self.handle_help_command(tree)
         elif tree.tag == "get_scanner_details":
             return self.handle_get_scanner_details()
+        elif tree.tag == "get_performance":
+            return self.handle_get_performance(tree)
         else:
             assert False, "Unhandled command: {0}".format(tree.tag)
 
