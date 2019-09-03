@@ -1016,8 +1016,7 @@ class OSPDaemon:
         end = scan_et.attrib.get('end')
         titles = scan_et.attrib.get('titles')
 
-        cmd = list()
-        cmd.append('gvmcg')
+        cmd = ['gvmcg']
         if start:
             try:
                 int(start)
