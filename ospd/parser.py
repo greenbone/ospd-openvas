@@ -27,7 +27,7 @@ DEFAULT_KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
 DEFAULT_CERT_FILE = "/usr/var/lib/gvm/CA/servercert.pem"
 DEFAULT_CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
 
-DEFAULT_PORT = 1234
+DEFAULT_PORT = 0
 DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 DEFAULT_UNIX_SOCKET_MODE = "0o700"

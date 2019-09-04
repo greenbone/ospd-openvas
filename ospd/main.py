@@ -122,7 +122,7 @@ def main(
         name, args.log_level, log_file=args.log_file, foreground=args.foreground
     )
 
-    if args.unix_socket:
+    if args.port == 0:
         server = UnixSocketServer(args.unix_socket, args.socket_mode)
     else:
         server = TlsServer(
