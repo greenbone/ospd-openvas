@@ -42,6 +42,19 @@ class TestDB(TestCase):
                 b'somedata'
             )
 
+    @patch('ospd_openvas.db.subprocess')
+    def test_get_db_connection(self, mock_subproc, mock_redis):
+        # it is none
+        self.assertIsNone(self.db.db_address)
+        # set the first time
+        mock_subproc.check_output.return_value = 'db_address = /foo/bar'.encode()
+        self.db.get_db_connection()
+        self.assertEqual(self.db.db_address, "/foo/bar")
+
+        # return immediately because already set
+        self.db.get_db_connection()
+        self.assertEqual(self.db.db_address, "/foo/bar")
+
     def test_max_db_index_fail(self, mock_redis):
         mock_redis.config_get.return_value = {}
         with patch.object(OpenvasDB, 'kb_connect', return_value=mock_redis):
