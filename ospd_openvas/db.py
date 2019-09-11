@@ -94,6 +94,8 @@ class OpenvasDB(object):
     def get_db_connection(self):
         """ Retrieve the db address from openvas config.
         """
+        if self.db_address:
+            return
         try:
             result = subprocess.check_output(
                 ['openvas', '-s'], stderr=subprocess.STDOUT
