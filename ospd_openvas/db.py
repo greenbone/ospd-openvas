@@ -94,16 +94,18 @@ class OpenvasDB(object):
     def get_db_connection(self):
         """ Retrieve the db address from openvas config.
         """
+        if self.db_address:
+            return
         try:
             result = subprocess.check_output(
                 ['openvas', '-s'], stderr=subprocess.STDOUT
             )
-        except PermissionError:
+        except (PermissionError, OSError) as e:
             sys.exit(
-                "ERROR: %s: Not possible to run openvas. "
-                "Check permissions and/or path to the binary."
-                % self.get_db_connection.__name__
+                "ERROR: %s: Not possible to run openvas. %s"
+                % (self.get_db_connection.__name__, e)
             )
+
         if result:
             path = self._parse_openvas_db_address(result)
 
