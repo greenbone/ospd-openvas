@@ -912,8 +912,8 @@ class OSPDopenvas(OSPDaemon):
             )
             return
 
-    def scan_is_finished(self, scan_id):
-        """ Check if the scan has finished. """
+    def host_is_finished(self, scan_id):
+        """ Check if the host has finished. """
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'finished'
 
@@ -1385,7 +1385,7 @@ class OSPDopenvas(OSPDaemon):
                     self.get_openvas_result(scan_id, current_host)
                     self.get_openvas_status(scan_id, target, current_host)
                     self.get_openvas_timestamp_scan_host(scan_id, current_host)
-                    if self.scan_is_finished(openvas_scan_id):
+                    if self.host_is_finished(openvas_scan_id):
                         self.set_scan_host_finished(
                             scan_id, target, current_host
                         )
