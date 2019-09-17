@@ -989,6 +989,12 @@ class OSPDopenvas(OSPDaemon):
                         return False
 
                     logger.debug('Stopping process: %s', parent)
+                    while parent:
+                        try:
+                            parent = psutil.Process(int(ovas_pid))
+                        except psutil.NoSuchProcess:
+                            parent = None
+
                 self.openvas_db.release_db(current_kbi)
 
     def get_vts_in_groups(self, filters):
