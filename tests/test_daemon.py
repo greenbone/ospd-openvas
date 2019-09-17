@@ -506,10 +506,10 @@ class TestOspdOpenvas(unittest.TestCase):
         for result in w.scan_collection.results_iterator('123-456', False):
             self.assertEqual(result.get('value'), '54321')
 
-    def test_scan_is_finished(self, mock_nvti, mock_db):
+    def test_host_is_finished(self, mock_nvti, mock_db):
         mock_db.get_single_item.return_value = 'finished'
         w = DummyDaemon(mock_nvti, mock_db)
-        ret = w.scan_is_finished('123-456')
+        ret = w.host_is_finished('123-456')
         self.assertEqual(ret, True)
 
     def test_scan_is_stopped(self, mock_nvti, mock_db):
