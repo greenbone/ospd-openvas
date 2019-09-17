@@ -917,6 +917,18 @@ class OSPDopenvas(OSPDaemon):
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'finished'
 
+    def target_is_finished(self, target_scan_id):
+        """ Check if a target has finished. """
+        ctx = self.openvas_db.kb_connect(dbnum=self.main_kbindex)
+        scan_id = self.openvas_db.get_single_item(
+            'internal/%s/globalscanid' % target_scan_id, ctx=ctx
+        )
+        status = self.openvas_db.get_single_item(
+            'internal/%s' % scan_id, ctx=ctx
+        )
+
+        return status == 'finished' or status is None
+
     def scan_is_stopped(self, scan_id):
         """ Check if the parent process has received the stop_scan order.
         @in scan_id: ID to identify the scan to be stopped.
@@ -1248,6 +1260,9 @@ class OSPDopenvas(OSPDaemon):
         )
         self.openvas_db.add_single_item(
             'internal/%s/globalscanid' % scan_id, [openvas_scan_id]
+        )
+        self.openvas_db.add_single_item(
+            'internal/scanid', [openvas_scan_id]
         )
 
         exclude_hosts = self.get_scan_exclude_hosts(scan_id, target)
