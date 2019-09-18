@@ -669,6 +669,11 @@ class OSPDaemon:
         """ Should be implemented by subclass in case of a clean up before
         terminating is needed. """
 
+    @staticmethod
+    def target_is_finished(scan_id):
+        """ Should be implemented by subclass in case of a check before
+        stopping is needed. """
+
     def exec_scan(self, scan_id, target):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
@@ -814,11 +819,21 @@ class OSPDaemon:
                 target_prog = self.get_scan_target_progress(
                     scan_id, running_target_id
                 )
-                if target_prog < 100 and (
-                        self.get_scan_status(scan_id) != ScanStatus.STOPPED):
-                    self.stop_scan(scan_id)
+
+                _not_finished_clean = target_prog < 100
+                _not_stopped = (
+                    self.get_scan_status(scan_id) != ScanStatus.STOPPED
+                )
+
+                if _not_finished_clean and _not_stopped:
+                    if not self.target_is_finished(scan_id):
+                        self.stop_scan(scan_id)
+                    else:
+                        self.set_scan_status(scan_id, ScanStatus.FINISHED)
+
                 running_target = (running_target_proc, running_target_id)
                 multiscan_proc.remove(running_target)
+
         return multiscan_proc
 
     def calculate_progress(self, scan_id):
