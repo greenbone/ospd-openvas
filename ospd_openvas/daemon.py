@@ -235,15 +235,12 @@ class OpenVasVtsFilter(VtsFilter):
     """
 
     def format_vt_modification_time(self, value):
-        """ Convert the datetime value in an 19 character string
-        representing YearMonthDateHourMinuteSecond.
+        """ Convert the string seconds since epoch into a 19 character
+        string representing YearMonthDayHourMinuteSecond.
         e.g. 20190319122532
         """
 
-        date = value[7:26].replace(" ", "")
-        date = date.replace("-", "")
-        date = date.replace(":", "")
-        return date
+        return time.strftime("%Y%m%d%H%M%S", time.gmtime(int(value)));
 
 
 class OSPDopenvas(OSPDaemon):
