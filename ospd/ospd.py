@@ -857,7 +857,7 @@ class OSPDaemon:
             exc_hosts_list = target_str_to_list(exclude_hosts)
             for host in exc_hosts_list:
                 self.set_scan_host_finished(scan_id, target, host)
-                self.set_scan_target_progress(scan_id, target, host, 100)
+                self.set_scan_host_progress(scan_id, target, host, 100)
 
     def start_scan(self, scan_id, targets, parallel=1):
         """ Handle N parallel scans if 'parallel' is greater than 1. """
@@ -941,9 +941,9 @@ class OSPDaemon:
         between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
-    def set_scan_target_progress(self, scan_id, target, host, progress):
+    def set_scan_host_progress(self, scan_id, target, host, progress):
         """ Sets host's progress which is part of target. """
-        self.scan_collection.set_target_progress(
+        self.scan_collection.set_host_progress(
             scan_id, target, host, progress
         )
 
