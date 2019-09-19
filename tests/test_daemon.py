@@ -576,7 +576,7 @@ class TestOspdOpenvas(unittest.TestCase):
             value='Host dead',
         )
 
-    @patch('ospd_openvas.daemon.OSPDaemon.set_scan_target_progress')
+    @patch('ospd_openvas.daemon.OSPDaemon.set_scan_host_progress')
     def test_update_progress(self, mock_ospd, mock_nvti, mock_db):
         msg = '0/-1'
         targets = [['localhost', 'port', 'cred', 'exclude_host']]
