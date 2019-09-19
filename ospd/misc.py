@@ -109,7 +109,7 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_target_progress(self, scan_id, target, host, progress):
+    def set_host_progress(self, scan_id, target, host, progress):
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
             targets = self.scans_table[scan_id]['target_progress']
