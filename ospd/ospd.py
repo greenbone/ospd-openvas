@@ -828,8 +828,6 @@ class OSPDaemon:
                 if _not_finished_clean and _not_stopped:
                     if not self.target_is_finished(scan_id):
                         self.stop_scan(scan_id)
-                    else:
-                        self.set_scan_status(scan_id, ScanStatus.FINISHED)
 
                 running_target = (running_target_proc, running_target_id)
                 multiscan_proc.remove(running_target)
