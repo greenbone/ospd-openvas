@@ -70,8 +70,13 @@ class Stream:
                 self.socket.send(data[b_start:])
                 break
 
-            b_sent = self.socket.send(data[b_start:b_end])
-
+            try:
+                b_sent = self.socket.send(data[b_start:b_end])
+            except socket.error as e:
+                logger.error(
+                    "Error sending data to the client. %s", e
+                )
+                return
             b_start = b_end
             b_end += b_sent
 
