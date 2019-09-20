@@ -133,7 +133,7 @@
         "ospd": {
             "editable": true,
             "git": "https://github.com/greenbone/ospd.git",
-            "ref": "65f064b13fb9adb37b4a56fa0961560c78ea85e1"
+            "ref": "1ccc91793318962c9f63182bf692e482cd8e4b66"
         },
         "paramiko": {
             "hashes": [
