@@ -284,8 +284,7 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_get_ctime_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = (
-            '<creation_time>2009-03-19 11:22:36 +0100 '
-            '(Thu, 19 Mar 2009)</creation_time>'
+            '<creation_time>1237458156</creation_time>'
         )
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         ctime = vt.get('creation_time')
@@ -298,8 +297,7 @@ class TestOspdOpenvas(unittest.TestCase):
     def test_get_mtime_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = (
-            '<modification_time>$Date: 2018-08-10 15:09:25 +0200 '
-            '(Fri, 10 Aug 2018) $</modification_time>'
+            '<modification_time>1533906565</modification_time>'
         )
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         mtime = vt.get('modification_time')
@@ -591,6 +589,6 @@ class TestOspdOpenvas(unittest.TestCase):
 class TestFilters(unittest.TestCase):
     def test_format_vt_modification_time(self):
         ovformat = OpenVasVtsFilter()
-        td = '$Date: 2018-02-01 02:09:01 +0200 (Thu, 18 Oct 2018) $'
+        td = '1517443741'
         formatted = ovformat.format_vt_modification_time(td)
-        self.assertEqual(formatted, "20180201020901")
+        self.assertEqual(formatted, "20180201000901")
