@@ -240,7 +240,7 @@ class OpenVasVtsFilter(VtsFilter):
         e.g. 20190319122532
         """
 
-        return time.strftime("%Y%m%d%H%M%S", time.gmtime(int(value)));
+        return time.strftime("%Y%m%d%H%M%S", time.gmtime(int(value)))
 
 
 class OSPDopenvas(OSPDaemon):
