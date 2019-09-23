@@ -799,7 +799,7 @@ class OSPDopenvas(OSPDaemon):
             host_prog = 100
         else:
             host_prog = (float(launched) / float(total)) * 100
-        self.set_scan_target_progress(scan_id, target, current_host, host_prog)
+        self.set_scan_host_progress(scan_id, target, current_host, host_prog)
 
     def get_openvas_status(self, scan_id, target, current_host):
         """ Get all status entries from redis kb.
@@ -917,11 +917,12 @@ class OSPDopenvas(OSPDaemon):
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'finished'
 
-    def target_is_finished(self, target_scan_id):
-        """ Check if a target has finished. """
+    def target_is_finished(self, scan_id):
+        """ Check if a target has finished. The scan id to be used is
+        the scan id passed to the openvas, is not the global scan id."""
         ctx = self.openvas_db.kb_connect(dbnum=self.main_kbindex)
         scan_id = self.openvas_db.get_single_item(
-            'internal/%s/globalscanid' % target_scan_id, ctx=ctx
+            'internal/%s/globalscanid' % scan_id, ctx=ctx
         )
         status = self.openvas_db.get_single_item(
             'internal/%s' % scan_id, ctx=ctx
