@@ -44,7 +44,7 @@ from ospd import __version__
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
 from ospd.network import resolve_hostname, target_str_to_list
-from ospd.server import Server
+from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
 from ospd.xml import simple_response_str, get_result_xml
 
@@ -1645,21 +1645,20 @@ class OSPDaemon:
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
-    def run(self, server: Server):
+    def run(self, server: BaseServer):
         """ Starts the Daemon, handling commands until interrupted.
         """
 
-        server.bind()
+        server.start(self.handle_client_stream)
 
         try:
             while True:
-                server.select(
-                    self.handle_client_stream, timeout=SCHEDULER_CHECK_PERIOD
-                )
+                time.sleep(10)
                 self.scheduler()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
         finally:
+            logger.info("Shutting-down server ...")
             server.close()
 
     def scheduler(self):
