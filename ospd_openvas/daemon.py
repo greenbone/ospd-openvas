@@ -26,12 +26,12 @@ import subprocess
 import time
 import uuid
 
+from datetime import datetime
+
 from pathlib import Path
 from lxml.etree import tostring, SubElement, Element
 
 import psutil
-
-from datetime import datetime
 
 from ospd.errors import OspdError
 from ospd.ospd import OSPDaemon
