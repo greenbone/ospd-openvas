@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Greenbone Networks GmbH
+# Copyright (C) 2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -31,6 +31,8 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
+from datetime import datetime
+
 from ospd.errors import OspdError
 from ospd.ospd import OSPDaemon
 from ospd.main import main as daemon_main
@@ -46,19 +48,19 @@ from ospd_openvas.db import OpenvasDB
 logger = logging.getLogger(__name__)
 
 OSPD_DESC = """
-This scanner runs 'OpenVAS Scanner' to scan the target hosts.
+This scanner runs OpenVAS to scan the target hosts.
 
 OpenVAS (Open Vulnerability Assessment Scanner) is a powerful scanner
 for vulnerabilities in IT infrastrucutres. The capabilities include
 unauthenticated scanning as well as authenticated scanning for
 various types of systems and services.
 
-For more details about OpenVAS see the OpenVAS homepage:
+For more details about OpenVAS see:
 http://www.openvas.org/
 
 The current version of ospd-openvas is a simple frame, which sends
 the server parameters to the Greenbone Vulnerability Manager daemon (GVMd) and
-checks the existence of OpenVAS scanner binary. But it can not run scans yet.
+checks the existence of OpenVAS binary. But it can not run scans yet.
 """
 
 OSPD_PARAMS = {
@@ -236,11 +238,11 @@ class OpenVasVtsFilter(VtsFilter):
 
     def format_vt_modification_time(self, value):
         """ Convert the string seconds since epoch into a 19 character
-        string representing YearMonthDayHourMinuteSecond.
-        e.g. 20190319122532
+        string representing YearMonthDayHourMinuteSecond,
+        e.g. 20190319122532. This always refers to UTC.
         """
 
-        return time.strftime("%Y%m%d%H%M%S", time.gmtime(int(value)))
+        return datetime.utcfromtimestamp(int(value)).strftime("%Y%m%d%H%M%S")
 
 
 class OSPDopenvas(OSPDaemon):
