@@ -27,7 +27,7 @@ class DummyDaemon(OSPDopenvas):
 
         self.VT = {
             '1.3.6.1.4.1.25623.1.0.100061': {
-                'creation_time': '2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)',
+                'creation_time': '1237458156',
                 'custom': {
                     'category': '3',
                     'excluded_keys': 'Settings/disable_cgi_scanning',
@@ -37,7 +37,7 @@ class DummyDaemon(OSPDopenvas):
                     'timeout': '0',
                 },
                 'modification_time': (
-                    '$Date: 2018-08-10 15:09:25 +0200 (Fri, ' '10 Aug 2018) $'
+                    '1533906565'
                 ),
                 'name': 'Mantis Detection',
                 'qod_type': 'remote_banner',
@@ -101,13 +101,13 @@ class DummyDaemon(OSPDopenvas):
         }
         nvti.get_nvt_metadata.return_value = {
             'category': '3',
-            'creation_date': '2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)',
+            'creation_date': '1237458156',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
             'last_modification': (
-                '$Date: 2018-08-10 15:09:25 +0200 (Fri, 10 Aug 2018) $'
+                '1533906565'
             ),
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
