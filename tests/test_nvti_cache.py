@@ -122,9 +122,9 @@ class TestNVTICache(TestCase):
             'Services/www, 80',
             'find_service.nasl, http_version.nasl',
             'cvss_base_vector=AV:N/AC:L/Au:N/C:N/I:N'
-            '/A:N|last_modification=$Date: 2018-08-10 15:09:25 +02'
-            '00 (Fri, 10 Aug 2018) $|creation_date=2009-03-19 11:2'
-            '2:36 +0100 (Thu, 19 Mar 2009)|summary=Detects the ins'
+            '/A:N|last_modification=1533906565'
+            '|creation_date=1237458156'
+            '|summary=Detects the ins'
             'talled version of\n  Mantis a free popular web-based '
             'bugtracking system.\n\n  This script sends HTTP GET r'
             'equest and try to get the version from the\n  respons'
@@ -140,14 +140,14 @@ class TestNVTICache(TestCase):
 
         custom = {
             'category': '3',
-            'creation_date': '2009-03-19 11:22:36 +0100 (Thu, 19 Mar 2009)',
+            'creation_date': '1237458156',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
             'dependencies': 'find_service.nasl, http_version.nasl',
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
             'last_modification': (
-                '$Date: 2018-08-10 15:09:25 +0200 ' '(Fri, 10 Aug 2018) $'
+                '1533906565'
             ),
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
@@ -250,17 +250,16 @@ class TestNVTICache(TestCase):
 
     def test_get_nvt_tag(self, mock_redis):
         tag = (
-            'last_modification=$Date: 2018-07-10 10:12:26 +0200 '
-            '(Tue, 10 Jul 2018) $|creation_date=2018-04-02 00:00'
-            ':00 +0200 (Mon, 02 Apr 2018)|cvss_bas'
+            'last_modification=1533906565'
+            '|creation_date=1517443741|cvss_bas'
             'e_vector=AV:N/AC:L/Au:N/C:P/I:P/A:P|solution_type=V'
             'endorFix|qod_type=package|affected=rubygems on Debi'
             'an Linux'
         )
 
         out_dict = {
-            'last_modification': '$Date: 2018-07-10 10:12:26 +0200 (Tue, 10 Jul 2018) $',  # pylint: disable=line-too-long
-            'creation_date': '2018-04-02 00:00:00 +0200 (Mon, 02 Apr 2018)',
+            'last_modification': '1533906565',
+            'creation_date': '1517443741',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:P/I:P/A:P',
             'solution_type': 'VendorFix',
             'qod_type': 'package',
