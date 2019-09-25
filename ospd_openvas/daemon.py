@@ -1422,7 +1422,7 @@ class OSPDopenvas(OSPDaemon):
                         self.openvas_db.release_db(i)
 
             # Scan end. No kb in use for this scan id
-            if no_id_found:
+            if no_id_found and self.target_is_finished(scan_id):
                 break
             no_id_found = True
 
