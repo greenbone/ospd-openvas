@@ -35,14 +35,12 @@ from ospd.errors import OspdError
 
 logger = logging.getLogger(__name__)
 
-
-DEFAULT_STREAM_TIMEOUT = 2  # two seconds
 DEFAULT_BUFSIZE = 1024
 
 class Stream:
-    def __init__(self, sock: socket.socket):
+    def __init__(self, sock: socket.socket, stream_timeout: int):
         self.socket = sock
-        self.socket.settimeout(DEFAULT_STREAM_TIMEOUT)
+        self.socket.settimeout(stream_timeout)
 
     def close(self):
         """ Close the stream
@@ -110,7 +108,7 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
-def start_server(stream_callback, newsocket, tls_ctx=None):
+def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
     """ Starts listening and creates a new thread for each new client
     connection.
     Arguments:
@@ -134,7 +132,7 @@ def start_server(stream_callback, newsocket, tls_ctx=None):
                 req_socket = self.request
                 logger.debug("New connection from %s", newsocket)
 
-            stream = Stream(req_socket)
+            stream = Stream(req_socket, stream_timeout)
             stream_callback(stream)
 
     class ThreadedUnixSockServer(
@@ -180,8 +178,9 @@ def start_server(stream_callback, newsocket, tls_ctx=None):
 
 
 class BaseServer(ABC):
-    def __init__(self):
+    def __init__(self, stream_timeout):
         self.server = None
+        self.stream_timeout = stream_timeout
 
     @abstractmethod
     def start(
@@ -206,8 +205,8 @@ class UnixSocketServer(BaseServer):
     """ Server for accepting connections via a Unix domain socket
     """
 
-    def __init__(self, socket_path, socket_mode):
-        super().__init__()
+    def __init__(self, socket_path, socket_mode, stream_timeout: int):
+        super().__init__(stream_timeout)
         self.socket_path = Path(socket_path)
         self.socket_mode = int(socket_mode, 8)
 
@@ -227,7 +226,12 @@ class UnixSocketServer(BaseServer):
         self._cleanup_socket()
         self._create_parent_dirs()
 
-        self.server = start_server(stream_callback, self.socket_path)
+        self.server = start_server(
+            stream_callback,
+            self.stream_timeout,
+            self.socket_path
+        )
+
         if self.socket_path.exists():
             os.chmod(str(self.socket_path), self.socket_mode)
 
@@ -246,9 +250,11 @@ class TlsServer(BaseServer):
         cert_file: str,
         key_file: str,
         ca_file: str,
+        stream_timeout: int,
     ):
-        super().__init__()
+        super().__init__(stream_timeout)
         self.socket = (address, port)
+
 
         if not Path(cert_file).exists():
             raise OspdError('cert file {} not found'.format(cert_file))
@@ -279,9 +285,13 @@ class TlsServer(BaseServer):
         self.tls_context.load_cert_chain(cert_file, keyfile=key_file)
         self.tls_context.load_verify_locations(ca_file)
 
-    def start(self, stream_callback):
+    def start(
+        self,
+        stream_callback: StreamCallbackType,
+    ):
         self.server = start_server(
             stream_callback,
+            self.stream_timeout,
             self.socket,
             tls_ctx=self.tls_context
         )

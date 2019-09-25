@@ -123,10 +123,19 @@ def main(
     )
 
     if args.port == 0:
-        server = UnixSocketServer(args.unix_socket, args.socket_mode)
+        server = UnixSocketServer(
+            args.unix_socket,
+            args.socket_mode,
+            args.stream_timeout,
+        )
     else:
         server = TlsServer(
-            args.address, args.port, args.cert_file, args.key_file, args.ca_file
+            args.address,
+            args.port,
+            args.cert_file,
+            args.key_file,
+            args.ca_file,
+            args.stream_timeout,
         )
 
     daemon = daemon_class(**vars(args))

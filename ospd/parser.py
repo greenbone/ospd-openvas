@@ -34,6 +34,7 @@ DEFAULT_UNIX_SOCKET_MODE = "0o700"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
 DEFAULT_UNIX_SOCKET_PATH = "/tmp/ospd.sock"
 DEFAULT_PID_PATH = "/run/ospd/ospd.pid"
+DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -121,6 +122,13 @@ class CliParser:
             '--foreground',
             action='store_true',
             help='Run in foreground and logs all messages to console.',
+        )
+        parser.add_argument(
+            '-t',
+            '--stream-timeout',
+            default=DEFAULT_STREAM_TIMEOUT,
+            type=int,
+            help='Stream timeout. Default: %(default)s',
         )
         parser.add_argument(
             '-l', '--log-file', help='Path to the logging file.'
