@@ -745,7 +745,7 @@ class OSPDopenvas(OSPDaemon):
                 ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
             )
             self._sudo_available = True
-        except subprocess.CalledProcessError as e:
+        except (subprocess.SubprocessError, OSError) as e:
             logger.debug(
                 'It was not possible to call openvas with sudo. '
                 'The scanner will run as non-root user. Reason %s',
