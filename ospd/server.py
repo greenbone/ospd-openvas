@@ -20,7 +20,6 @@ Module for serving and streaming data
 """
 
 import logging
-import select
 import socket
 import ssl
 import time
@@ -111,7 +110,7 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
-def start_server (stream_callback, newsocket, tls_ctx=None):
+def start_server(stream_callback, newsocket, tls_ctx=None):
     """ Starts listening and creates a new thread for each new client
     connection.
     Arguments:
@@ -124,18 +123,18 @@ def start_server (stream_callback, newsocket, tls_ctx=None):
     """
     class ThreadedRequestHandler(socketserver.BaseRequestHandler):
         """ Class to handle the request."""
+
         def handle(self):
-            cur_thread = threading.current_thread()
             if tls_ctx:
                 logger.debug(
                     "New connection from" " %s:%s", newsocket[0], newsocket[1]
                 )
-                socket = tls_ctx.wrap_socket(self.request, server_side=True)
+                req_socket = tls_ctx.wrap_socket(self.request, server_side=True)
             else:
-                socket = self.request
+                req_socket = self.request
                 logger.debug("New connection from %s", newsocket)
 
-            stream = Stream(socket)
+            stream = Stream(req_socket)
             stream_callback(stream)
 
     class ThreadedUnixSockServer(
@@ -286,6 +285,3 @@ class TlsServer(BaseServer):
             self.socket,
             tls_ctx=self.tls_context
         )
-
-    def close(self):
-        super().close()
