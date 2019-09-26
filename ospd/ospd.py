@@ -1073,7 +1073,7 @@ class OSPDaemon:
                 'get_performance'
             )
 
-        return simple_response_str('get_performance', 200, 'OK', str(output))
+        return simple_response_str('get_performance', 200, 'OK', output.decode())
 
     def handle_help_command(self, scan_et):
         """ Handles <help> command.
