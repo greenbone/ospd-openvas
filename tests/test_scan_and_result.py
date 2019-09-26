@@ -234,7 +234,7 @@ class ScanTestCase(unittest.TestCase):
     @patch('ospd.ospd.subprocess')
     def test_get_performance(self, mock_subproc):
         daemon = DummyWrapper([])
-        mock_subproc.check_output.return_value("foo")
+        mock_subproc.check_output.return_value = b'foo'
         response = secET.fromstring(
             daemon.handle_command(
                 '<get_performance start="0" end="0" titles="mem"/>')
