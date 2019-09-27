@@ -123,8 +123,7 @@ class NVTICache(object):
             except ValueError:
                 logger.error('Tag %s in %s has no value.', tag, oid)
                 continue
-            if _tag not in ['cvss_base']:
-                tags_dict[_tag] = _value
+            tags_dict[_tag] = _value
 
         return tags_dict
 
