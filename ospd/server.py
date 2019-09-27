@@ -37,6 +37,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_BUFSIZE = 1024
 
+
 class Stream:
     def __init__(self, sock: socket.socket, stream_timeout: int):
         self.socket = sock
@@ -72,15 +73,14 @@ class Stream:
             try:
                 b_sent = self.socket.send(data[b_start:b_end])
             except socket.error as e:
-                logger.error(
-                    "Error sending data to the client. %s", e
-                )
+                logger.error("Error sending data to the client. %s", e)
                 return
             b_start = b_end
             b_end += b_sent
 
 
 StreamCallbackType = Callable[[Stream], None]
+
 
 def validate_cacert_file(cacert: str):
     """ Check if provided file is a valid CA Certificate """
@@ -119,6 +119,7 @@ def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
                 sockets.
     Returns the created server object.
     """
+
     class ThreadedRequestHandler(socketserver.BaseRequestHandler):
         """ Class to handle the request."""
 
@@ -136,14 +137,12 @@ def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
             stream_callback(stream)
 
     class ThreadedUnixSockServer(
-            socketserver.ThreadingMixIn,
-            socketserver.UnixStreamServer,
+        socketserver.ThreadingMixIn, socketserver.UnixStreamServer
     ):
         pass
 
     class ThreadedTlsSockServer(
-            socketserver.ThreadingMixIn,
-            socketserver.TCPServer,
+        socketserver.ThreadingMixIn, socketserver.TCPServer
     ):
         pass
 
@@ -156,8 +155,9 @@ def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
             )
             raise OspdError(
                 "Couldn't bind socket on {}:{}. {}".format(
-                    newsocket[0], str(newsocket[1]), e,
-            ))
+                    newsocket[0], str(newsocket[1]), e
+                )
+            )
     else:
         try:
             server = ThreadedUnixSockServer(
@@ -168,7 +168,6 @@ def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
             raise OspdError(
                 "Couldn't bind socket on {}. {}".format(str(newsocket), e)
             )
-
 
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.daemon = True
@@ -183,10 +182,7 @@ class BaseServer(ABC):
         self.stream_timeout = stream_timeout
 
     @abstractmethod
-    def start(
-        self,
-        stream_callback: StreamCallbackType,
-    ):
+    def start(self, stream_callback: StreamCallbackType):
         """ Starts a server with capabilities to handle multiple client
         connections simultaneously.
         If a new client connects the stream_callback is called with a Stream
@@ -219,17 +215,12 @@ class UnixSocketServer(BaseServer):
         parent = self.socket_path.parent
         parent.mkdir(parents=True, exist_ok=True)
 
-    def start(
-            self,
-            stream_callback: StreamCallbackType,
-    ):
+    def start(self, stream_callback: StreamCallbackType):
         self._cleanup_socket()
         self._create_parent_dirs()
 
         self.server = start_server(
-            stream_callback,
-            self.stream_timeout,
-            self.socket_path
+            stream_callback, self.stream_timeout, self.socket_path
         )
 
         if self.socket_path.exists():
@@ -238,6 +229,7 @@ class UnixSocketServer(BaseServer):
     def close(self):
         super().close()
         self._cleanup_socket()
+
 
 class TlsServer(BaseServer):
     """ Server for accepting TLS encrypted connections via a TCP socket
@@ -254,7 +246,6 @@ class TlsServer(BaseServer):
     ):
         super().__init__(stream_timeout)
         self.socket = (address, port)
-
 
         if not Path(cert_file).exists():
             raise OspdError('cert file {} not found'.format(cert_file))
@@ -285,13 +276,10 @@ class TlsServer(BaseServer):
         self.tls_context.load_cert_chain(cert_file, keyfile=key_file)
         self.tls_context.load_verify_locations(ca_file)
 
-    def start(
-        self,
-        stream_callback: StreamCallbackType,
-    ):
+    def start(self, stream_callback: StreamCallbackType):
         self.server = start_server(
             stream_callback,
             self.stream_timeout,
             self.socket,
-            tls_ctx=self.tls_context
+            tls_ctx=self.tls_context,
         )
