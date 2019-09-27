@@ -108,6 +108,18 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
+class ThreadedUnixSockServer(
+    socketserver.ThreadingMixIn, socketserver.UnixStreamServer
+):
+    pass
+
+
+class ThreadedTlsSockServer(
+    socketserver.ThreadingMixIn, socketserver.TCPServer
+):
+    pass
+
+
 def start_server(stream_callback, stream_timeout, listen_socket, tls_ctx=None):
     """ Starts listening and creates a new thread for each new client
     connection.
@@ -139,16 +151,6 @@ def start_server(stream_callback, stream_timeout, listen_socket, tls_ctx=None):
 
             stream = Stream(req_socket, stream_timeout)
             stream_callback(stream)
-
-    class ThreadedUnixSockServer(
-        socketserver.ThreadingMixIn, socketserver.UnixStreamServer
-    ):
-        pass
-
-    class ThreadedTlsSockServer(
-        socketserver.ThreadingMixIn, socketserver.TCPServer
-    ):
-        pass
 
     if tls_ctx:
         try:
