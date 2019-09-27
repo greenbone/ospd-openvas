@@ -108,86 +108,67 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
+class TlsRequestHandler(socketserver.BaseRequestHandler):
+    """ Class to handle the request."""
+
+    def handle(self):
+        logger.debug("New connection from %s", self.client_address)
+
+        req_socket = self.server.tls_context.wrap_socket(
+            self.request, server_side=True
+        )
+
+        stream = Stream(req_socket, self.server.stream_timeout)
+        self.server.stream_callback(stream)
+
+
+class UnixSocketRequestHandler(socketserver.BaseRequestHandler):
+    """ Class to handle the request."""
+
+    def handle(self):
+        logger.debug("New connection from %s", self.client_address)
+
+        stream = Stream(self.request, self.server.stream_timeout)
+        self.server.stream_callback(stream)
+
+
 class ThreadedUnixSockServer(
     socketserver.ThreadingMixIn, socketserver.UnixStreamServer
 ):
-    pass
+    def __init__(
+        self,
+        socket_path: str,
+        stream_callback: StreamCallbackType,
+        stream_timeout: int,
+    ):
+        self.stream_callback = stream_callback
+        self.stream_timeout = stream_timeout
+        super().__init__(
+            socket_path, UnixSocketRequestHandler, bind_and_activate=True
+        )
 
 
 class ThreadedTlsSockServer(
     socketserver.ThreadingMixIn, socketserver.TCPServer
 ):
-    pass
+    def __init__(
+        self,
+        server_address: str,
+        tls_context,
+        stream_callback: StreamCallbackType,
+        stream_timeout: int,
+    ):
+        self.stream_callback = stream_callback
+        self.stream_timeout = stream_timeout
+        self.tls_context = tls_context
 
-
-def start_server(stream_callback, stream_timeout, listen_socket, tls_ctx=None):
-    """ Starts listening and creates a new thread for each new client
-    connection.
-
-    Arguments:
-        stream_callback (function): Callback function to be called when
-            a stream is ready
-        listen_socket (path to socket or socket tuple): The tuple with
-            address and port or the path to the socket for unix domain
-            sockets.
-
-    Returns the created server object.
-    """
-
-    class ThreadedRequestHandler(socketserver.BaseRequestHandler):
-        """ Class to handle the request."""
-
-        def handle(self):
-            if tls_ctx:
-                logger.debug(
-                    "New connection from" " %s:%s",
-                    listen_socket[0],
-                    listen_socket[1],
-                )
-                req_socket = tls_ctx.wrap_socket(self.request, server_side=True)
-            else:
-                req_socket = self.request
-                logger.debug("New connection from %s", listen_socket)
-
-            stream = Stream(req_socket, stream_timeout)
-            stream_callback(stream)
-
-    if tls_ctx:
-        try:
-            server = ThreadedTlsSockServer(
-                listen_socket, ThreadedRequestHandler
-            )
-        except OSError as e:
-            logger.error(
-                "Couldn't bind socket on %s:%s",
-                listen_socket[0],
-                listen_socket[1],
-            )
-            raise OspdError(
-                "Couldn't bind socket on {}:{}. {}".format(
-                    listen_socket[0], str(listen_socket[1]), e
-                )
-            )
-    else:
-        try:
-            server = ThreadedUnixSockServer(
-                str(listen_socket), ThreadedRequestHandler
-            )
-        except OSError as e:
-            logger.error("Couldn't bind socket on %s", str(listen_socket))
-            raise OspdError(
-                "Couldn't bind socket on {}. {}".format(str(listen_socket), e)
-            )
-
-    server_thread = threading.Thread(target=server.serve_forever)
-    server_thread.daemon = True
-    server_thread.start()
-
-    return server
+        super().__init__(
+            server_address, TlsRequestHandler, bind_and_activate=True
+        )
 
 
 class BaseServer(ABC):
-    def __init__(self, stream_timeout):
+    def __init__(self, stream_timeout: int):
         self.server = None
         self.stream_timeout = stream_timeout
 
@@ -196,6 +177,7 @@ class BaseServer(ABC):
         """ Starts a server with capabilities to handle multiple client
         connections simultaneously.
         If a new client connects the stream_callback is called with a Stream
+
         Arguments:
             stream_callback (function): Callback function to be called when
                 a stream is ready
@@ -206,12 +188,17 @@ class BaseServer(ABC):
         self.server.shutdown()
         self.server.server_close()
 
+    def _start_threading_server(self):
+        server_thread = threading.Thread(target=self.server.serve_forever)
+        server_thread.daemon = True
+        server_thread.start()
+
 
 class UnixSocketServer(BaseServer):
     """ Server for accepting connections via a Unix domain socket
     """
 
-    def __init__(self, socket_path, socket_mode, stream_timeout: int):
+    def __init__(self, socket_path: str, socket_mode: str, stream_timeout: int):
         super().__init__(stream_timeout)
         self.socket_path = Path(socket_path)
         self.socket_mode = int(socket_mode, 8)
@@ -229,12 +216,21 @@ class UnixSocketServer(BaseServer):
         self._cleanup_socket()
         self._create_parent_dirs()
 
-        self.server = start_server(
-            stream_callback, self.stream_timeout, self.socket_path
-        )
-
         if self.socket_path.exists():
             os.chmod(str(self.socket_path), self.socket_mode)
+
+        try:
+            self.server = ThreadedUnixSockServer(
+                str(self.socket_path), stream_callback, self.stream_timeout
+            )
+            self._start_threading_server()
+        except OSError as e:
+            logger.error("Couldn't bind socket on %s", str(self.socket_path))
+            raise OspdError(
+                "Couldn't bind socket on {}. {}".format(
+                    str(self.socket_path), e
+                )
+            )
 
     def close(self):
         super().close()
@@ -287,9 +283,20 @@ class TlsServer(BaseServer):
         self.tls_context.load_verify_locations(ca_file)
 
     def start(self, stream_callback: StreamCallbackType):
-        self.server = start_server(
-            stream_callback,
-            self.stream_timeout,
-            self.socket,
-            tls_ctx=self.tls_context,
-        )
+        try:
+            self.server = ThreadedTlsSockServer(
+                self.socket,
+                self.tls_context,
+                stream_callback,
+                self.stream_timeout,
+            )
+            self._start_threading_server()
+        except OSError as e:
+            logger.error(
+                "Couldn't bind socket on %s:%s", self.socket[0], self.socket[1]
+            )
+            raise OspdError(
+                "Couldn't bind socket on {}:{}. {}".format(
+                    self.socket[0], str(self.socket[1]), e
+                )
+            )
