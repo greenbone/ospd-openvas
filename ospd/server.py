@@ -108,15 +108,17 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
-def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
+def start_server(stream_callback, stream_timeout, listen_socket, tls_ctx=None):
     """ Starts listening and creates a new thread for each new client
     connection.
+
     Arguments:
-            stream_callback (function): Callback function to be called when
-                a stream is ready
-            newsocket (path to socket or socket tuple): The tuple with
-                address and port or the path to the socket for unix domain
-                sockets.
+        stream_callback (function): Callback function to be called when
+            a stream is ready
+        listen_socket (path to socket or socket tuple): The tuple with
+            address and port or the path to the socket for unix domain
+            sockets.
+
     Returns the created server object.
     """
 
@@ -126,12 +128,14 @@ def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
         def handle(self):
             if tls_ctx:
                 logger.debug(
-                    "New connection from" " %s:%s", newsocket[0], newsocket[1]
+                    "New connection from" " %s:%s",
+                    listen_socket[0],
+                    listen_socket[1],
                 )
                 req_socket = tls_ctx.wrap_socket(self.request, server_side=True)
             else:
                 req_socket = self.request
-                logger.debug("New connection from %s", newsocket)
+                logger.debug("New connection from %s", listen_socket)
 
             stream = Stream(req_socket, stream_timeout)
             stream_callback(stream)
@@ -148,25 +152,29 @@ def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
 
     if tls_ctx:
         try:
-            server = ThreadedTlsSockServer(newsocket, ThreadedRequestHandler)
+            server = ThreadedTlsSockServer(
+                listen_socket, ThreadedRequestHandler
+            )
         except OSError as e:
             logger.error(
-                "Couldn't bind socket on %s:%s", newsocket[0], newsocket[1]
+                "Couldn't bind socket on %s:%s",
+                listen_socket[0],
+                listen_socket[1],
             )
             raise OspdError(
                 "Couldn't bind socket on {}:{}. {}".format(
-                    newsocket[0], str(newsocket[1]), e
+                    listen_socket[0], str(listen_socket[1]), e
                 )
             )
     else:
         try:
             server = ThreadedUnixSockServer(
-                str(newsocket), ThreadedRequestHandler
+                str(listen_socket), ThreadedRequestHandler
             )
         except OSError as e:
-            logger.error("Couldn't bind socket on %s", str(newsocket))
+            logger.error("Couldn't bind socket on %s", str(listen_socket))
             raise OspdError(
-                "Couldn't bind socket on {}. {}".format(str(newsocket), e)
+                "Couldn't bind socket on {}. {}".format(str(listen_socket), e)
             )
 
     server_thread = threading.Thread(target=server.serve_forever)
