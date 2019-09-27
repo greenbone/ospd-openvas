@@ -29,7 +29,7 @@ import socketserver
 
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple, Union
 
 from ospd.errors import OspdError
 
@@ -81,6 +81,8 @@ class Stream:
 
 StreamCallbackType = Callable[[Stream], None]
 
+InetAddress = Tuple[str, int]
+
 
 def validate_cacert_file(cacert: str):
     """ Check if provided file is a valid CA Certificate """
@@ -108,63 +110,11 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
-class TlsRequestHandler(socketserver.BaseRequestHandler):
+class RequestHandler(socketserver.BaseRequestHandler):
     """ Class to handle the request."""
 
     def handle(self):
-        logger.debug("New connection from %s", self.client_address)
-
-        req_socket = self.server.tls_context.wrap_socket(
-            self.request, server_side=True
-        )
-
-        stream = Stream(req_socket, self.server.stream_timeout)
-        self.server.stream_callback(stream)
-
-
-class UnixSocketRequestHandler(socketserver.BaseRequestHandler):
-    """ Class to handle the request."""
-
-    def handle(self):
-        logger.debug("New connection from %s", self.client_address)
-
-        stream = Stream(self.request, self.server.stream_timeout)
-        self.server.stream_callback(stream)
-
-
-class ThreadedUnixSockServer(
-    socketserver.ThreadingMixIn, socketserver.UnixStreamServer
-):
-    def __init__(
-        self,
-        socket_path: str,
-        stream_callback: StreamCallbackType,
-        stream_timeout: int,
-    ):
-        self.stream_callback = stream_callback
-        self.stream_timeout = stream_timeout
-        super().__init__(
-            socket_path, UnixSocketRequestHandler, bind_and_activate=True
-        )
-
-
-class ThreadedTlsSockServer(
-    socketserver.ThreadingMixIn, socketserver.TCPServer
-):
-    def __init__(
-        self,
-        server_address: str,
-        tls_context,
-        stream_callback: StreamCallbackType,
-        stream_timeout: int,
-    ):
-        self.stream_callback = stream_callback
-        self.stream_timeout = stream_timeout
-        self.tls_context = tls_context
-
-        super().__init__(
-            server_address, TlsRequestHandler, bind_and_activate=True
-        )
+        self.server.handle_request(self.request, self.client_address)
 
 
 class BaseServer(ABC):
@@ -188,10 +138,37 @@ class BaseServer(ABC):
         self.server.shutdown()
         self.server.server_close()
 
+    @abstractmethod
+    def handle_request(self, request, client_address):
+        """ Handle an incomming client request"""
+
     def _start_threading_server(self):
         server_thread = threading.Thread(target=self.server.serve_forever)
         server_thread.daemon = True
         server_thread.start()
+
+
+class SocketServerMixin:
+    def __init__(self, server: BaseServer, address: Union[str, InetAddress]):
+        self.server = server
+        super().__init__(address, RequestHandler, bind_and_activate=True)
+
+    def handle_request(self, request, client_address):
+        self.server.handle_request(request, client_address)
+
+
+class ThreadedUnixSocketServer(
+    SocketServerMixin,
+    socketserver.ThreadingMixIn,
+    socketserver.UnixStreamServer,
+):
+    pass
+
+
+class ThreadedTlsSocketServer(
+    SocketServerMixin, socketserver.ThreadingMixIn, socketserver.TCPServer
+):
+    pass
 
 
 class UnixSocketServer(BaseServer):
@@ -220,9 +197,8 @@ class UnixSocketServer(BaseServer):
             os.chmod(str(self.socket_path), self.socket_mode)
 
         try:
-            self.server = ThreadedUnixSockServer(
-                str(self.socket_path), stream_callback, self.stream_timeout
-            )
+            self.stream_callback = stream_callback
+            self.server = ThreadedUnixSocketServer(self, str(self.socket_path))
             self._start_threading_server()
         except OSError as e:
             logger.error("Couldn't bind socket on %s", str(self.socket_path))
@@ -235,6 +211,12 @@ class UnixSocketServer(BaseServer):
     def close(self):
         super().close()
         self._cleanup_socket()
+
+    def handle_request(self, request, client_address):
+        logger.debug("New connection from %s", str(self.socket_path))
+
+        stream = Stream(request, self.stream_timeout)
+        self.stream_callback(stream)
 
 
 class TlsServer(BaseServer):
@@ -284,12 +266,8 @@ class TlsServer(BaseServer):
 
     def start(self, stream_callback: StreamCallbackType):
         try:
-            self.server = ThreadedTlsSockServer(
-                self.socket,
-                self.tls_context,
-                stream_callback,
-                self.stream_timeout,
-            )
+            self.stream_callback = stream_callback
+            self.server = ThreadedTlsSocketServer(self, self.socket)
             self._start_threading_server()
         except OSError as e:
             logger.error(
@@ -300,3 +278,11 @@ class TlsServer(BaseServer):
                     self.socket[0], str(self.socket[1]), e
                 )
             )
+
+    def handle_request(self, request, client_address):
+        logger.debug("New connection from %s", client_address)
+
+        req_socket = self.tls_context.wrap_socket(request, server_side=True)
+
+        stream = Stream(req_socket, self.stream_timeout)
+        self.stream_callback(stream)
