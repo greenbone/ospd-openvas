@@ -20,11 +20,12 @@ Module for serving and streaming data
 """
 
 import logging
-import select
 import socket
 import ssl
 import time
 import os
+import threading
+import socketserver
 
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -34,14 +35,12 @@ from ospd.errors import OspdError
 
 logger = logging.getLogger(__name__)
 
-
-DEFAULT_STREAM_TIMEOUT = 2  # two seconds
 DEFAULT_BUFSIZE = 1024
 
 class Stream:
-    def __init__(self, sock: socket.socket):
+    def __init__(self, sock: socket.socket, stream_timeout: int):
         self.socket = sock
-        self.socket.settimeout(DEFAULT_STREAM_TIMEOUT)
+        self.socket.settimeout(stream_timeout)
 
     def close(self):
         """ Close the stream
@@ -83,114 +82,6 @@ class Stream:
 
 StreamCallbackType = Callable[[Stream], None]
 
-
-class Server(ABC):
-    @abstractmethod
-    def bind(self):
-        """ Start listening for incoming connections
-        """
-
-    @abstractmethod
-    def select(
-        self,
-        stream_callback: StreamCallbackType,
-        timeout: Optional[float] = None,
-    ):
-        """ Wait for incoming connections or until timeout is reached
-
-        If a new client connects the stream_callback is called with a Stream
-
-        Arguments:
-            stream_callback (function): Callback function to be called when
-                a stream is ready
-            timeout (float): Timeout in seconds to wait for new streams
-        """
-
-
-class BaseServer(Server):
-    def __init__(self):
-        self.socket = None
-
-    @abstractmethod
-    def _accept(self) -> Stream:
-        pass
-
-    def select(
-        self,
-        stream_callback: StreamCallbackType,
-        timeout: Optional[float] = None,
-    ):
-        inputs = [self.socket]
-
-        readable, _, _ = select.select(inputs, [], inputs, timeout)
-
-        # timeout has fired if readable is empty otherwise a new connection is
-        # available
-        if readable:
-            stream = self._accept()
-            stream_callback(stream)
-
-    def close(self):
-        if self.socket:
-            self.socket.shutdown(socket.SHUT_RDWR)
-            self.socket.close()
-
-
-class UnixSocketServer(BaseServer):
-    """ Server for accepting connections via a Unix domain socket
-    """
-
-    def __init__(self, socket_path: str, socket_mode: str):
-        super().__init__()
-        self.socket_path = Path(socket_path)
-        self.socket_mode = int(socket_mode, 8)
-
-    def _cleanup_socket(self):
-        if self.socket_path.exists():
-            self.socket_path.unlink()
-
-    def _create_parent_dirs(self):
-        # create all parent directories for the socket path
-        parent = self.socket_path.parent
-        parent.mkdir(parents=True, exist_ok=True)
-
-    def bind(self):
-        self._cleanup_socket()
-        self._create_parent_dirs()
-
-        bindsocket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-
-        try:
-            bindsocket.bind(str(self.socket_path))
-        except socket.error:
-            raise OspdError(
-                "Couldn't bind socket on {}".format(self.socket_path)
-            )
-
-        os.chmod(str(self.socket_path), self.socket_mode)
-
-        logger.info(
-            'Unix domain socket server listening on %s', self.socket_path
-        )
-
-        bindsocket.listen(0)
-        bindsocket.setblocking(False)
-
-        self.socket = bindsocket
-
-    def _accept(self) -> Stream:
-        new_socket, _addr = self.socket.accept()
-
-        logger.debug("New connection from %s", self.socket_path)
-
-        return Stream(new_socket)
-
-    def close(self):
-        super().close()
-
-        self._cleanup_socket()
-
-
 def validate_cacert_file(cacert: str):
     """ Check if provided file is a valid CA Certificate """
     try:
@@ -217,6 +108,137 @@ def validate_cacert_file(cacert: str):
         raise OspdError('CA Certificate not active yet')
 
 
+def start_server(stream_callback, stream_timeout, newsocket, tls_ctx=None):
+    """ Starts listening and creates a new thread for each new client
+    connection.
+    Arguments:
+            stream_callback (function): Callback function to be called when
+                a stream is ready
+            newsocket (path to socket or socket tuple): The tuple with
+                address and port or the path to the socket for unix domain
+                sockets.
+    Returns the created server object.
+    """
+    class ThreadedRequestHandler(socketserver.BaseRequestHandler):
+        """ Class to handle the request."""
+
+        def handle(self):
+            if tls_ctx:
+                logger.debug(
+                    "New connection from" " %s:%s", newsocket[0], newsocket[1]
+                )
+                req_socket = tls_ctx.wrap_socket(self.request, server_side=True)
+            else:
+                req_socket = self.request
+                logger.debug("New connection from %s", newsocket)
+
+            stream = Stream(req_socket, stream_timeout)
+            stream_callback(stream)
+
+    class ThreadedUnixSockServer(
+            socketserver.ThreadingMixIn,
+            socketserver.UnixStreamServer,
+    ):
+        pass
+
+    class ThreadedTlsSockServer(
+            socketserver.ThreadingMixIn,
+            socketserver.TCPServer,
+    ):
+        pass
+
+    if tls_ctx:
+        try:
+            server = ThreadedTlsSockServer(newsocket, ThreadedRequestHandler)
+        except OSError as e:
+            logger.error(
+                "Couldn't bind socket on %s:%s", newsocket[0], newsocket[1]
+            )
+            raise OspdError(
+                "Couldn't bind socket on {}:{}. {}".format(
+                    newsocket[0], str(newsocket[1]), e,
+            ))
+    else:
+        try:
+            server = ThreadedUnixSockServer(
+                str(newsocket), ThreadedRequestHandler
+            )
+        except OSError as e:
+            logger.error("Couldn't bind socket on %s", str(newsocket))
+            raise OspdError(
+                "Couldn't bind socket on {}. {}".format(str(newsocket), e)
+            )
+
+
+    server_thread = threading.Thread(target=server.serve_forever)
+    server_thread.daemon = True
+    server_thread.start()
+
+    return server
+
+
+class BaseServer(ABC):
+    def __init__(self, stream_timeout):
+        self.server = None
+        self.stream_timeout = stream_timeout
+
+    @abstractmethod
+    def start(
+        self,
+        stream_callback: StreamCallbackType,
+    ):
+        """ Starts a server with capabilities to handle multiple client
+        connections simultaneously.
+        If a new client connects the stream_callback is called with a Stream
+        Arguments:
+            stream_callback (function): Callback function to be called when
+                a stream is ready
+        """
+
+    def close(self):
+        """ Shutdown the server"""
+        self.server.shutdown()
+        self.server.server_close()
+
+
+class UnixSocketServer(BaseServer):
+    """ Server for accepting connections via a Unix domain socket
+    """
+
+    def __init__(self, socket_path, socket_mode, stream_timeout: int):
+        super().__init__(stream_timeout)
+        self.socket_path = Path(socket_path)
+        self.socket_mode = int(socket_mode, 8)
+
+    def _cleanup_socket(self):
+        if self.socket_path.exists():
+            self.socket_path.unlink()
+
+    def _create_parent_dirs(self):
+        # create all parent directories for the socket path
+        parent = self.socket_path.parent
+        parent.mkdir(parents=True, exist_ok=True)
+
+    def start(
+            self,
+            stream_callback: StreamCallbackType,
+    ):
+        self._cleanup_socket()
+        self._create_parent_dirs()
+
+        self.server = start_server(
+            stream_callback,
+            self.stream_timeout,
+            self.socket_path
+        )
+
+        if self.socket_path.exists():
+            os.chmod(str(self.socket_path), self.socket_mode)
+
+    def close(self):
+        super().close()
+        self._cleanup_socket()
+
 class TlsServer(BaseServer):
     """ Server for accepting TLS encrypted connections via a TCP socket
     """
@@ -228,10 +250,11 @@ class TlsServer(BaseServer):
         cert_file: str,
         key_file: str,
         ca_file: str,
+        stream_timeout: int,
     ):
-        super().__init__()
-        self.address = address
-        self.port = port
+        super().__init__(stream_timeout)
+        self.socket = (address, port)
+
 
         if not Path(cert_file).exists():
             raise OspdError('cert file {} not found'.format(cert_file))
@@ -262,28 +285,13 @@ class TlsServer(BaseServer):
         self.tls_context.load_cert_chain(cert_file, keyfile=key_file)
         self.tls_context.load_verify_locations(ca_file)
 
-    def _accept(self) -> Stream:
-        new_socket, addr = self.socket.accept()
-
-        logger.debug("New connection from" " %s:%s", addr[0], addr[1])
-
-        ssl_socket = self.tls_context.wrap_socket(new_socket, server_side=True)
-
-        return Stream(ssl_socket)
-
-    def bind(self):
-        bindsocket = socket.socket()
-        try:
-            bindsocket.bind((self.address, self.port))
-        except socket.error:
-            logger.error(
-                "Couldn't bind socket on %s:%s", self.address, self.port
-            )
-            return None
-
-        logger.info('TLS server listening on %s:%s', self.address, self.port)
-
-        bindsocket.listen(0)
-        bindsocket.setblocking(False)
-
-        self.socket = bindsocket
+    def start(
+        self,
+        stream_callback: StreamCallbackType,
+    ):
+        self.server = start_server(
+            stream_callback,
+            self.stream_timeout,
+            self.socket,
+            tls_ctx=self.tls_context
+        )
