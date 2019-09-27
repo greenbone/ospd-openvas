@@ -82,6 +82,10 @@ Run in foreground and logs all messages to console.
 Path to the logging file.
 
 .TP
+.BI "--stream-timeout "TIMEOUT
+Set a timeout on socket operations. Default 10 seconds
+
+.TP
 .BI "--niceness "NICENESS
 Start the scan with the given niceness. Default 10
 
@@ -113,6 +117,9 @@ to a file or syslog.
 
 .IP niceness
 Start the scan with the given niceness. Default 10
+
+.IP stream_timeout
+Set a timeout on socket operations. Default 10 seconds
 
 .SH MORE INFORMATION ABOUT Greenbone Vulnerability Management
 
