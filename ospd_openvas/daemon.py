@@ -29,6 +29,7 @@ import uuid
 from datetime import datetime
 
 from pathlib import Path
+from os import geteuid
 from lxml.etree import tostring, SubElement, Element
 
 import psutil
@@ -266,6 +267,7 @@ class OSPDopenvas(OSPDaemon):
             self.add_scanner_param(name, param)
 
         self._sudo_available = None
+        self._is_running_as_root = None
 
         self.scan_only_params = dict()
 
@@ -736,10 +738,27 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_detection).decode('utf-8')
 
     @property
+    def is_running_as_root(self):
+        """ Check if it is running as root user."""
+        if self._is_running_as_root is not None:
+            return self._is_running_as_root
+
+        self._is_running_as_root = False
+        if geteuid() == 0:
+            self._is_running_as_root = True
+
+        return self._is_running_as_root
+
+    @property
     def sudo_available(self):
         """ Checks that sudo is available """
         if self._sudo_available is not None:
             return self._sudo_available
+
+        if self.is_running_as_root:
+            self._sudo_available = False
+            return self._sudo_available
+
         try:
             subprocess.check_call(
                 ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
@@ -974,7 +993,7 @@ class OSPDopenvas(OSPDaemon):
 
                 if parent:
                     cmd = ['openvas', '--scan-stop', scan_id]
-                    if self.sudo_available:
+                    if not self.is_running_as_root and self.sudo_available:
                         cmd = ['sudo', '-n'] + cmd
 
                     try:
@@ -1350,7 +1369,7 @@ class OSPDopenvas(OSPDaemon):
             return 2
 
         cmd = ['openvas', '--scan-start', openvas_scan_id]
-        if self.sudo_available:
+        if not self.is_running_as_root and self.sudo_available:
             cmd = ['sudo', '-n'] + cmd
 
         if self._niceness is not None:
