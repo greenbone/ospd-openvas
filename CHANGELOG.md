@@ -35,7 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add OSP <get_performance> command. [#131](https://github.com/greenbone/ospd/pull/131) [#137](https://github.com/greenbone/ospd/pull/137)
 - Add method to check if a target finished cleanly or crashed. [#133](https://github.com/greenbone/ospd/pull/133)
 - Add the --stream-timeout option to configure the socket timeout. [#136](https://github.com/greenbone/ospd/pull/136)
-- Add support to handle multiple requests simultaneously. [#136](https://github.com/greenbone/ospd/pull/136)
+- Add support to handle multiple requests simultaneously.
+  [#136](https://github.com/greenbone/ospd/pull/136), [#139](https://github.com/greenbone/ospd/pull/139)
 
 ### Changed
 - Improve documentation.
