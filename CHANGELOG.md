@@ -41,14 +41,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Improve documentation.
 - Improve Unittest.
-- Send the response data in block of given lenght instead of sending all at once. [#35](https://github.com/greenbone/ospd/pull/35)
+- Send the response data in block of given length instead of sending all at once. [#35](https://github.com/greenbone/ospd/pull/35)
 - Makes the socket a non-blocking socket. [#78](https://github.com/greenbone/ospd/pull/78)
 - Refactor misc. [#111](https://github.com/greenbone/ospd/pull/111)
 - Refactor error module. [#95](https://github.com/greenbone/ospd/pull/95) [#112](https://github.com/greenbone/ospd/pull/112)
 - Refactor ospd connection handling. [#114](https://github.com/greenbone/ospd/pull/114)
 - Use ordered dictionary to maintain the results order. [#119](https://github.com/greenbone/ospd/pull/119)
 - Refactor ospd. [#120](https://github.com/greenbone/ospd/pull/120)
-- Set defualt unix socket path to /var/run/ospd/ospd.sock and default pid file path to /var/run/ospd.pid. [#140](https://github.com/greenbone/ospd/pull/140)
+- Set default unix socket path to /var/run/ospd/ospd.sock and default pid file path to /var/run/ospd.pid. [#140](https://github.com/greenbone/ospd/pull/140)
 
 ### Fixed
 - Fix scan progress. [#47](https://github.com/greenbone/ospd/pull/47)
