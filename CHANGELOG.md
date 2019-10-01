@@ -48,6 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Refactor ospd connection handling. [#114](https://github.com/greenbone/ospd/pull/114)
 - Use ordered dictionary to maintain the results order. [#119](https://github.com/greenbone/ospd/pull/119)
 - Refactor ospd. [#120](https://github.com/greenbone/ospd/pull/120)
+- Set defualt unix socket path to /var/run/ospd/ospd.sock and default pid file path to /var/run/ospd.pid. [#140](https://github.com/greenbone/ospd/pull/140)
 
 ### Fixed
 - Fix scan progress. [#47](https://github.com/greenbone/ospd/pull/47)

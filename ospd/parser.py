@@ -32,8 +32,8 @@ DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 DEFAULT_UNIX_SOCKET_MODE = "0o700"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
-DEFAULT_UNIX_SOCKET_PATH = "/tmp/ospd.sock"
-DEFAULT_PID_PATH = "/run/ospd/ospd.pid"
+DEFAULT_UNIX_SOCKET_PATH = "/var/run/ospd/ospd.sock"
+DEFAULT_PID_PATH = "/var/run/ospd.pid"
 DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 
 ParserType = argparse.ArgumentParser
