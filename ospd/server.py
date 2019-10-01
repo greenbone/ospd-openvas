@@ -140,7 +140,7 @@ class BaseServer(ABC):
 
     @abstractmethod
     def handle_request(self, request, client_address):
-        """ Handle an incomming client request"""
+        """ Handle an incoming client request"""
 
     def _start_threading_server(self):
         server_thread = threading.Thread(target=self.server.serve_forever)
