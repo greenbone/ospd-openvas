@@ -905,7 +905,7 @@ class OSPDaemon:
         if self.get_scan_status(scan_id) != ScanStatus.STOPPED:
             self.finish_scan(scan_id)
 
-    def dry_run_scan(self, scan_id, targets):
+    def dry_run_scan(self, scan_id, targets, parallel):
         """ Dry runs a scan. """
 
         os.setsid()

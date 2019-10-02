@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Extend OSP command get_vts with vt_params. [#28](https://github.com/greenbone/ospd/pull/28)
 - Add vt_selection to start_scan command. [#31](https://github.com/greenbone/ospd/pull/31) [#58](https://github.com/greenbone/ospd/pull/58) [#105](https://github.com/greenbone/ospd/pull/105)
 - Add support for multi-target task adding targets with their own port list, credentials and host list to start_scan command. [#34](https://github.com/greenbone/ospd/pull/34) [#38](https://github.com/greenbone/ospd/pull/38) [#39](https://github.com/greenbone/ospd/pull/39) [#41](https://github.com/greenbone/ospd/pull/41)) [#127](https://github.com/greenbone/ospd/pull/127) [#134](https://github.com/greenbone/ospd/pull/134)
-- Add support for parallel scans. [#42](https://github.com/greenbone/ospd/pull/42)
+- Add support for parallel scans. [#42](https://github.com/greenbone/ospd/pull/42) [#142](https://github.com/greenbone/ospd/pull/142)
 - Add functions for port manipulation. [#44](https://github.com/greenbone/ospd/pull/44)
 - Add <vtgroup> as subelement of <vts> in <start_scan>. [#45](https://github.com/greenbone/ospd/pull/45)
 - Add pop_results attribute to <get_scans>. [#46](https://github.com/greenbone/ospd/pull/46)
