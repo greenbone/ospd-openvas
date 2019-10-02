@@ -362,7 +362,7 @@ class OSPDopenvas(OSPDaemon):
         """
         current_feed = self.nvti.get_feed_version()
         # Check if the feed is already accessible in the disk.
-        if self.feed_is_outdated(current_feed) is None:
+        if current_feed and self.feed_is_outdated(current_feed) is None:
             self.pending_feed = True
             return
 
