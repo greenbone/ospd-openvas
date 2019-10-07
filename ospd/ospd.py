@@ -776,17 +776,11 @@ class OSPDaemon:
         try:
             ret = self.exec_scan(scan_id, target)
             if ret == 0:
-                self.add_scan_host_detail(
-                    scan_id, name='host_status', host=target, value='0'
-                )
+                logger.info("%s: Host scan dead.", target)
             elif ret == 1:
-                self.add_scan_host_detail(
-                    scan_id, name='host_status', host=target, value='1'
-                )
+                logger.info("%s: Host scan alived.", target)
             elif ret == 2:
-                self.add_scan_host_detail(
-                    scan_id, name='host_status', host=target, value='2'
-                )
+                logger.info("%s: Scan error or status unknown.", target)
             else:
                 logger.debug('%s: No host status returned', target)
         except Exception as e:  # pylint: disable=broad-except
