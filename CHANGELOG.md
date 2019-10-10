@@ -59,6 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Improve connection handling. [#80](https://github.com/greenbone/ospd/pull/80)
 - Fix target_to_ipv4_short(). [#99](https://github.com/greenbone/ospd/pull/99)
 - Handle write error if the client disconnects abruptly. [#135](https://github.com/greenbone/ospd/pull/135)
+- Improve error handling when sending data. [#147](https://github.com/greenbone/ospd/pull/147)
 
 [2.0]: https://github.com/greenbone/ospd/compare/ospd-1.3...master
 
