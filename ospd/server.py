@@ -46,7 +46,11 @@ class Stream:
     def close(self):
         """ Close the stream
         """
-        self.socket.shutdown(socket.SHUT_RDWR)
+        try:
+            self.socket.shutdown(socket.SHUT_RDWR)
+        except OSError as e:
+            logger.debug("Error: Connection closed. %s", e)
+
         self.socket.close()
 
     def read(self, bufsize: Optional[int] = DEFAULT_BUFSIZE) -> bytes:
@@ -67,12 +71,16 @@ class Stream:
 
         while True:
             if b_end > len(data):
-                self.socket.send(data[b_start:])
+                try:
+                    self.socket.send(data[b_start:])
+                except (socket.error, BrokenPipeError) as e:
+                    logger.error("Error sending data to the client. %s", e)
+                    return
                 break
 
             try:
                 b_sent = self.socket.send(data[b_start:b_end])
-            except socket.error as e:
+            except (socket.error, BrokenPipeError) as e:
                 logger.error("Error sending data to the client. %s", e)
                 return
             b_start = b_end
