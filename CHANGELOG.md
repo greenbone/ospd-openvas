@@ -52,6 +52,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Refactor ospd. [#120](https://github.com/greenbone/ospd/pull/120)
 - Set default unix socket path to /var/run/ospd/ospd.sock and default pid file path to /var/run/ospd.pid. [#140](https://github.com/greenbone/ospd/pull/140)
 - Do not add a host detail result with the host status. [#145](https://github.com/greenbone/ospd/pull/145)
+- Do not log the received command. [#151](https://github.com/greenbone/ospd/pull/151)
 
 ### Fixed
 - Fix scan progress. [#47](https://github.com/greenbone/ospd/pull/47)
