@@ -2,14 +2,21 @@
 
 # ospd-openvas
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/?branch=master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/badges/quality-score.png?b=ospd-openvas-1.0)](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/?branch=ospd-openvas-1.0)
 
 This is an OSP server implementation to allow GVM to remotely control
-an OpenVAS Scanner, see <https://github.com/greenbone/openvas-scanner>.
+OpenVAS, see <https://github.com/greenbone/openvas>.
 
 Once running, you need to configure the Scanner for the Greenbone Vulnerability
 Manager, for example via the web interface Greenbone Security Assistant. Then
 you can create scan tasks to use this scanner.
+
+## Releases
+￼
+All [release files](https://github.com/greenbone/ospd-openvas/releases) are signed with
+the [Greenbone Community Feed integrity key](https://community.greenbone.net/t/gcf-managing-the-digital-signatures/101).
+This gpg key can be downloaded at https://www.greenbone.net/GBCommunitySigningKey.asc
+and the fingerprint is `8AE4 BE42 9B60 A59B 311C  2E73 9823 FAA6 0ED1 E580`.
 
 ## Installation
 
@@ -76,6 +83,6 @@ development.
 
 ## License
 
-Copyright (C) 2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2019 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).
