@@ -53,7 +53,7 @@ setup(
     ],
 
     python_requires='>=3.5',
-    install_requires=['ospd>=2.0a3', 'redis>=3.0.1', 'psutil'],
+    install_requires=['ospd>=2.0.0', 'redis>=3.0.1', 'psutil'],
     entry_points={'console_scripts': ['ospd-openvas=ospd_openvas.daemon:main']},
     test_suite="tests",
 )
