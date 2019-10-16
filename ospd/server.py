@@ -202,9 +202,6 @@ class UnixSocketServer(BaseServer):
         self._cleanup_socket()
         self._create_parent_dirs()
 
-        if self.socket_path.exists():
-            os.chmod(str(self.socket_path), self.socket_mode)
-
         try:
             self.stream_callback = stream_callback
             self.server = ThreadedUnixSocketServer(self, str(self.socket_path))
@@ -216,6 +213,9 @@ class UnixSocketServer(BaseServer):
                     str(self.socket_path), e
                 )
             )
+
+        if self.socket_path.exists():
+            self.socket_path.chmod(self.socket_mode)
 
     def close(self):
         super().close()
