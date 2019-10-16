@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.4] (unreleased)
 
-## [2.0.0] (unreleased)
+## [2.0.1] (unreleased)
+
+### Fixed
+- Fix set permission in unix socket. [#157](https://github.com/greenbone/ospd/pull/157)
+
+[2.0.1]: https://github.com/greenbone/ospd/compare/v2.0.0...ospd-2.0
+
+## [2.0.0] (2019-10-11)
 
 ### Added
 - Add OSP command get_vts and the vts dictionary. [#12](https://github.com/greenbone/ospd/pull/12) [#60](https://github.com/greenbone/ospd/pull/60) [#72](https://github.com/greenbone/ospd/pull/72) [#73](https://github.com/greenbone/ospd/pull/73) [#93](https://github.com/greenbone/ospd/pull/93)
