@@ -877,7 +877,7 @@ class OSPDaemon:
             if self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 return
 
-            logger.info(
+            logger.debug(
                 "%s: Host scan started on ports %s.", target[0], target[1]
             )
             scan_process = multiprocessing.Process(
@@ -1165,7 +1165,7 @@ class OSPDaemon:
         for result in self.scan_collection.results_iterator(scan_id, pop_res):
             results.append(get_result_xml(result))
 
-        logger.info('Returning %d results', len(results))
+        logger.debug('Returning %d results', len(results))
         return results
 
     def get_xml_str(self, data):
