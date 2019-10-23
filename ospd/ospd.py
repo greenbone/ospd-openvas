@@ -659,7 +659,12 @@ class OSPDaemon:
         except AttributeError:
             logger.debug('%s: The scanner task stopped unexpectedly.', scan_id)
 
-        os.killpg(os.getpgid(scan_process.ident), 15)
+        try:
+            os.killpg(os.getpgid(scan_process.ident), 15)
+        except ProcessLookupError as e:
+            logger.info('%s: Scan already stopped %s.',
+                        scan_id, scan_process.ident)
+
         if scan_process.ident != os.getpid():
             scan_process.join()
         logger.info('%s: Scan stopped.', scan_id)
