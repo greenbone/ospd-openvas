@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Set loglevel to debug for some message. [#159](https://github.com/greenbone/ospd/pull/159)
+- Improve error handling when stop a scan. [#163](https://github.com/greenbone/ospd/pull/163)
 
 ### Fixed
 - Fix set permission in unix socket. [#157](https://github.com/greenbone/ospd/pull/157)
