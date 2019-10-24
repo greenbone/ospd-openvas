@@ -6,10 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.4] (unreleased)
 
-## [1.0.0] (unreleased)
+## [1.0.1] (unreleased)
+
+### Fixed
+- Improve redis clean out when stopping a scan. [#128](https://github.com/greenbone/ospd-openvas/pull/128)
+
+[1.0.1]: https://github.com/greenbone/ospd-openvas/compare/v1.0.0...ospd-openvas-1.0
+
+## [1.0.0] (2019-10-11)
 
 This is the first release of the ospd-openvas module for the Greenbone
 Vulnerability Management (GVM) framework.
 
-[1.0.0]: https://github.com/greenbone/ospd/compare/ospd-openvas-1.0...master
+[1.0.0]: https://github.com/greenbone/ospd-openvas/compare/v1.0.0
 
