@@ -1015,6 +1015,14 @@ class OSPDopenvas(OSPDaemon):
                             parent = None
 
                 self.openvas_db.release_db(current_kbi)
+                for host_kb in range(0, self.openvas_db.max_dbindex):
+                    self.openvas_db.select_kb(
+                        ctx,
+                        str(host_kb),
+                        set_global=True)
+                    if self.openvas_db.get_single_item(
+                            'internal/%s' % scan_id):
+                        self.openvas_db.release_db(host_kb)
 
     def get_vts_in_groups(self, filters):
         """ Return a list of vts which match with the given filter.
