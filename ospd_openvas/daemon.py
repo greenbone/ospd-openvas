@@ -25,8 +25,10 @@ import logging
 import subprocess
 import time
 import uuid
+import binascii
 
 from datetime import datetime
+from base64 import b64decode
 
 from pathlib import Path
 from os import geteuid
@@ -1069,7 +1071,6 @@ class OSPDopenvas(OSPDaemon):
         """
         if param_type in [
             'entry',
-            'file',
             'password',
             'radio',
             'sshlogin',
@@ -1078,6 +1079,12 @@ class OSPDopenvas(OSPDaemon):
         elif param_type == 'checkbox' and (
             vt_param_value == '0' or vt_param_value == '1'
         ):
+            return None
+        elif param_type == 'file':
+            try:
+                b64decode(vt_param_value.encode())
+            except (binascii.Error, AttributeError, TypeError):
+                return 1
             return None
         elif param_type == 'integer':
             try:
@@ -1110,7 +1117,8 @@ class OSPDopenvas(OSPDaemon):
                 param_name = self.get_vt_param_name(vtid, vt_param_id)
                 if not param_type or not param_name:
                     logger.debug(
-                        'The vt parameter %s for %s could not be loaded.',
+                        'Missing type or name for vt parameter %s of %s. '
+                        'It could not be loaded.',
                         vt_param_id,
                         vtid,
                     )
@@ -1121,7 +1129,10 @@ class OSPDopenvas(OSPDaemon):
                     type_aux = param_type
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
+                        'The vt parameter %s for %s could not be loaded. '
                         'Expected %s type for parameter value %s',
+                        vt_param_id,
+                        vtid,
                         type_aux,
                         str(vt_param_value),
                     )
