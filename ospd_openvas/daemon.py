@@ -25,8 +25,10 @@ import logging
 import subprocess
 import time
 import uuid
+import binascii
 
 from datetime import datetime
+from base64 import b64decode
 
 from pathlib import Path
 from os import geteuid
@@ -1017,11 +1019,9 @@ class OSPDopenvas(OSPDaemon):
                 self.openvas_db.release_db(current_kbi)
                 for host_kb in range(0, self.openvas_db.max_dbindex):
                     self.openvas_db.select_kb(
-                        ctx,
-                        str(host_kb),
-                        set_global=True)
-                    if self.openvas_db.get_single_item(
-                            'internal/%s' % scan_id):
+                        ctx, str(host_kb), set_global=True
+                    )
+                    if self.openvas_db.get_single_item('internal/%s' % scan_id):
                         self.openvas_db.release_db(host_kb)
 
     def get_vts_in_groups(self, filters):
@@ -1069,7 +1069,6 @@ class OSPDopenvas(OSPDaemon):
         """
         if param_type in [
             'entry',
-            'file',
             'password',
             'radio',
             'sshlogin',
@@ -1078,6 +1077,12 @@ class OSPDopenvas(OSPDaemon):
         elif param_type == 'checkbox' and (
             vt_param_value == '0' or vt_param_value == '1'
         ):
+            return None
+        elif param_type == 'file':
+            try:
+                b64decode(vt_param_value.encode())
+            except (binascii.Error, AttributeError, TypeError):
+                return 1
             return None
         elif param_type == 'integer':
             try:
@@ -1100,8 +1105,7 @@ class OSPDopenvas(OSPDaemon):
         for vtid, vt_params in vts.items():
             if vtid not in self.vts.keys():
                 logger.warning(
-                    'The vt %s was not found and it will not be loaded.',
-                    vtid,
+                    'The vt %s was not found and it will not be loaded.', vtid
                 )
                 continue
             vts_list.append(vtid)
@@ -1110,7 +1114,8 @@ class OSPDopenvas(OSPDaemon):
                 param_name = self.get_vt_param_name(vtid, vt_param_id)
                 if not param_type or not param_name:
                     logger.debug(
-                        'The vt parameter %s for %s could not be loaded.',
+                        'Missing type or name for vt parameter %s of %s. '
+                        'It could not be loaded.',
                         vt_param_id,
                         vtid,
                     )
@@ -1121,7 +1126,10 @@ class OSPDopenvas(OSPDaemon):
                     type_aux = param_type
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
+                        'The vt parameter %s for %s could not be loaded. '
                         'Expected %s type for parameter value %s',
+                        vt_param_id,
+                        vtid,
                         type_aux,
                         str(vt_param_value),
                     )
@@ -1294,9 +1302,7 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db.add_single_item(
             'internal/%s/globalscanid' % scan_id, [openvas_scan_id]
         )
-        self.openvas_db.add_single_item(
-            'internal/scanid', [openvas_scan_id]
-        )
+        self.openvas_db.add_single_item('internal/scanid', [openvas_scan_id])
 
         exclude_hosts = self.get_scan_exclude_hosts(scan_id, target)
         if exclude_hosts:
