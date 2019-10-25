@@ -994,6 +994,11 @@ class OSPDaemon:
 
     def handle_get_vts_command(self, vt_et):
         """ Handles <get_vts> command.
+        The <get_vts> element accept two optional arguments.
+        vt_id argument receives a single vt id.
+        filter argument receives a filter selecting a sub set of vts.
+        If both arguments are given, the vts which match with the filter
+        are return.
 
         @return: Response string for <get_vts> command.
         """
@@ -1529,8 +1534,10 @@ class OSPDaemon:
         """ Gets collection of vulnerability test information in XML format.
         If vt_id is specified, the collection will contain only this vt, if
         found.
-        If no vt_id is specified, the collection will contain all vts or those
-        passed in filtered_vts.
+        If no vt_id is specified or filtered_vts is None (default), the
+        collection will contain all vts. Otherwise those vts passed
+        in filtered_vts or vt_id are returned. In case of both vt_id and
+        filtered_vts are given, filtered_vts has priority.
 
         Arguments:
             vt_id (vt_id, optional): ID of the vt to get.
@@ -1543,11 +1550,14 @@ class OSPDaemon:
 
         vts_xml = Element('vts')
 
-        if vt_id:
-            vts_xml.append(self.get_vt_xml(vt_id))
-        elif filtered_vts:
+        if filtered_vts is not None and len(filtered_vts) == 0:
+            return vts_xml
+
+        if filtered_vts:
             for vt_id in filtered_vts:
                 vts_xml.append(self.get_vt_xml(vt_id))
+        elif vt_id:
+            vts_xml.append(self.get_vt_xml(vt_id))
         else:
             for vt_id in self.vts:
                 vts_xml.append(self.get_vt_xml(vt_id))
