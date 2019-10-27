@@ -252,7 +252,7 @@ class TestNVTICache(TestCase):
             '|creation_date=1517443741|cvss_bas'
             'e_vector=AV:N/AC:L/Au:N/C:P/I:P/A:P|solution_type=V'
             'endorFix|qod_type=package|affected=rubygems on Debi'
-            'an Linux'
+            'an Linux|solution_method=DebianAPTUpgrade'
         )
 
         out_dict = {
@@ -262,6 +262,7 @@ class TestNVTICache(TestCase):
             'solution_type': 'VendorFix',
             'qod_type': 'package',
             'affected': 'rubygems on Debian Linux',
+            'solution_method': 'DebianAPTUpgrade',
         }
 
         mock_redis.lindex.return_value = tag
