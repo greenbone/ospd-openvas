@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2018 Greenbone Networks GmbH
+# Copyright (C) 2014-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -253,6 +253,7 @@ class OSPDaemon:
         insight=None,
         solution=None,
         solution_t=None,
+        solution_m=None,
         detection=None,
         qod_t=None,
         qod_v=None,
@@ -299,6 +300,8 @@ class OSPDaemon:
             vt["solution"] = solution
             if solution_t is not None:
                 vt["solution_type"] = solution_t
+            if solution_m is not None:
+                vt["solution_method"] = solution_m
 
         if detection is not None:
             vt["detection"] = detection
@@ -1385,7 +1388,7 @@ class OSPDaemon:
 
     @staticmethod
     def get_solution_vt_as_xml_str(
-        vt_id, solution, solution_type=None
+        vt_id, solution, solution_type=None, solution_method=None
     ):  # pylint: disable=unused-argument
         """ Create a string representation of the XML object from the
         solution data object.
@@ -1503,7 +1506,8 @@ class OSPDaemon:
 
         if vt.get('solution'):
             solution_xml_str = self.get_solution_vt_as_xml_str(
-                vt_id, vt.get('solution'), vt.get('solution_type')
+                vt_id, vt.get('solution'), vt.get('solution_type'),
+                vt.get('solution_method')
             )
             vt_xml.append(secET.fromstring(solution_xml_str))
 
