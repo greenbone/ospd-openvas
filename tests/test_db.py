@@ -88,7 +88,7 @@ class TestDB(TestCase):
         mock_redis.side_effect = RCE
         with patch.object(OpenvasDB, 'get_db_connection', return_value=None):
             with patch.object(time, 'sleep', return_value=None):
-                with self.assertRaises(OspdOpenvasError):
+                with self.assertRaises(SystemExit):
                     self.db.kb_connect()
 
     def test_kb_new_fail(self, mock_redis):
