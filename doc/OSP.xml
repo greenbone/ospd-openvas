@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-Copyright (C) 2014-2018 Greenbone Networks GmbH
+Copyright (C) 2014-2019 Greenbone Networks GmbH
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -918,10 +918,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <ele>
             <name>severities</name>
             <pattern>
-              <e>seveirty</e>
+              <e>severity</e>
             </pattern>
             <ele>
-              <name>seveirty</name>
+              <name>severity</name>
               <pattern>
                 <attrib>
                   <name>type</name>
