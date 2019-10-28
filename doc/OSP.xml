@@ -874,6 +874,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>params</name>
+            <pattern>
+              <e>param</e>
+            </pattern>
+            <ele>
+              <name>param</name>
+              <pattern>
+                <attrib>
+                    <name>type</name>
+                    <type>string</type>
+                </attrib>
+                <attrib>
+                  <name>id</name>
+                  <type>string</type>
+                </attrib>
+              </pattern>
+            </ele>
           </ele>
           <ele>
             <name>refs</name>
