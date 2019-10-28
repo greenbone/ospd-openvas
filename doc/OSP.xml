@@ -911,6 +911,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>solution</name>
+            <pattern>
+              <attrib>
+                <name>type</name>
+                  <summary>Solution type, for example "VendorFix"</summary>
+                <type>string</type>
+              </attrib>
+            </pattern>
           </ele>
           <ele>
             <name>detection</name>
