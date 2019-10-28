@@ -1454,7 +1454,6 @@ class OSPDopenvas(OSPDaemon):
 
         # Delete keys from KB related to this scan task.
         self.openvas_db.release_db(self.main_kbindex)
-        return 1
 
 
 def main():
