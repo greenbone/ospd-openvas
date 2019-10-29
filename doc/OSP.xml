@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 
 <!--
-Copyright (C) 2014-2018 Greenbone Networks GmbH
+Copyright (C) 2014-2019 Greenbone Networks GmbH
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -874,6 +874,22 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>params</name>
+            <pattern>
+              <e>param</e>
+            </pattern>
+            <ele>
+              <name>param</name>
+              <pattern>
+                <attrib>
+                    <name>type</name>
+                    <type>string</type>
+                </attrib>
+                <attrib>
+                  <name>id</name>
+                  <type>string</type>
+                </attrib>
+              </pattern>
+            </ele>
           </ele>
           <ele>
             <name>refs</name>
@@ -896,6 +912,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>dependencies</name>
+            <pattern>
+              <e>dependency</e>
+            </pattern>
+            <ele>
+              <name>dependency</name>
+              <pattern>
+                <attrib>
+                  <name>vt_id</name>
+                  <type>vt_id</type>
+                </attrib>
+              </pattern>
+            </ele>
           </ele>
           <ele>
             <name>summary</name>
@@ -911,6 +939,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </ele>
           <ele>
             <name>solution</name>
+            <pattern>
+              <attrib>
+                <name>type</name>
+                  <summary>Solution type, for example "VendorFix"</summary>
+                <type>string</type>
+              </attrib>
+            </pattern>
           </ele>
           <ele>
             <name>detection</name>
@@ -918,10 +953,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <ele>
             <name>severities</name>
             <pattern>
-              <e>seveirty</e>
+              <e>severity</e>
             </pattern>
             <ele>
-              <name>seveirty</name>
+              <name>severity</name>
               <pattern>
                 <attrib>
                   <name>type</name>
@@ -977,8 +1012,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <dependencies>
                 <dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />
               </dependencies>
-              <creation_time>2015-02-15 05:47:27 +0100 (Sun, 15 Feb 2015)</creation_time>
-              <modification_time>$Date: 2017-07-10 08:34:32 +0200 (Mon, 10 Jul 2017) $</modification_time>
+              <creation_time>1200603949</creation_time>
+              <modification_time>1567429142</modification_time>
               <summary>Check the version of App</summary>
               <affected>App in OS v2</affected>
               <insight>App is a small but very powerful app.</insight>
@@ -1011,8 +1046,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <dependencies>
                 <dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />
               </dependencies>
-              <creation_time>2015-02-15 05:47:27 +0100 (Sun, 15 Feb 2015)</creation_time>
-              <modification_time>$Date: 2019-03-15 08:34:32 +0200 (Mon, 10 Jul 2017) $</modification_time>
+              <creation_time>1200603949</creation_time>
+              <modification_time>1567429142</modification_time>
               <summary>Check the version of App</summary>
               <affected>App in OS v2</affected>
               <insight>App is a small but very powerful app.</insight>
