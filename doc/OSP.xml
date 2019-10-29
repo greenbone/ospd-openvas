@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <name>Open Scanner Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
-  <version>1.2</version>
+  <version>20.04</version>
 
   <!-- Types. -->
 
@@ -945,6 +945,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   <summary>Solution type, for example "VendorFix"</summary>
                 <type>string</type>
               </attrib>
+              <attrib>
+                <name>method</name>
+                  <summary>Solution method, for example "DebianAPTUpgrade"</summary>
+                <type>string</type>
+              </attrib>
             </pattern>
           </ele>
           <ele>
@@ -1292,6 +1297,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Returned object extended with solution method</summary>
+    <description>
+      The element SOLUTION of the returned VT object has a new optional attribute METHOD
+      that describes the solution method in case the VT offers such a detail.
+    </description>
+    <version>20.04</version>
+  </change>
 
   <change>
     <command>GET_VTS</command>
