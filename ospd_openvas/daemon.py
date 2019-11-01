@@ -626,7 +626,7 @@ class OSPDopenvas(OSPDaemon):
             _vt_dep = Element('dependency')
             try:
                 _vt_dep.set('vt_id', dep)
-            except TypeError:
+            except (ValueError, TypeError):
                 logger.error(
                     'Not possible to add dependency %s for vt %s', dep, vt_id
                 )
