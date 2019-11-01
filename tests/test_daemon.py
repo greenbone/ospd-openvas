@@ -21,11 +21,12 @@
 
 """ Unit Test for ospd-openvas """
 
-import unittest
+from unittest import TestCase
+from unittest.mock import patch
+from unittest.mock import Mock
+
 import io
 import logging
-
-from unittest.mock import patch, mock_open, Mock
 
 from tests.dummydaemon import DummyDaemon
 
@@ -179,7 +180,7 @@ OSPD_PARAMS_OUT = {
 
 @patch('ospd_openvas.db.OpenvasDB')
 @patch('ospd_openvas.nvticache.NVTICache')
-class TestOspdOpenvas(unittest.TestCase):
+class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.subprocess')
     def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
         mock_subproc.check_call.return_value = True
@@ -233,10 +234,9 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_custom_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         custom = {'a': u"\u0006"}
         logging.Logger.warning = Mock()
-        res = w.get_custom_vt_as_xml_str(
+        w.get_custom_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', custom=custom
         )
         if hasattr(Mock, 'assert_called_once'):
@@ -261,7 +261,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         sever = {'severity_base_vector': u"\u0006"}
         logging.Logger.warning = Mock()
-        res = w.get_severities_vt_as_xml_str(
+        w.get_severities_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', severities=sever
         )
         if hasattr(Mock, 'assert_called_once'):
@@ -295,7 +295,7 @@ class TestOspdOpenvas(unittest.TestCase):
             }
         }
         logging.Logger.warning = Mock()
-        res = w.get_params_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', params)
+        w.get_params_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', params)
         if hasattr(Mock, 'assert_called_once'):
             logging.Logger.warning.assert_called_once()
 
@@ -326,7 +326,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         dep = [u"\u0006"]
         logging.Logger.error = Mock()
-        res = w.get_dependencies_vt_as_xml_str(
+        w.get_dependencies_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', dep_list=dep
         )
         if hasattr(Mock, 'assert_called_once'):
@@ -348,7 +348,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         ctime = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_creation_time_vt_as_xml_str(
+        w.get_creation_time_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', creation_time=ctime
         )
         if hasattr(Mock, 'assert_called_onc'):
@@ -370,7 +370,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         mtime = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_modification_time_vt_as_xml_str(
+        w.get_modification_time_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', mtime
         )
         if hasattr(Mock, 'assert_called_once'):
@@ -392,9 +392,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         summary = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_summary_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', summary
-        )
+        w.get_summary_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', summary)
         if hasattr(Mock, 'assert_calledonce'):
             logging.Logger.warning.assert_called_once()
 
@@ -412,7 +410,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         impact = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_impact_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', impact)
+        w.get_impact_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', impact)
         if hasattr(Mock, 'assert_called_once'):
             logging.Logger.warning.assert_called_once()
 
@@ -432,9 +430,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         insight = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_insight_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', insight
-        )
+        w.get_insight_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', insight)
         if hasattr(Mock, 'assert_called_once'):
             logging.Logger.warning.assert_called_once()
 
@@ -456,9 +452,7 @@ class TestOspdOpenvas(unittest.TestCase):
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         solution = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_solution_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', solution
-        )
+        w.get_solution_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', solution)
         if hasattr(Mock, 'assert_called_once'):
             logging.Logger.warning.assert_called_once()
 
@@ -476,12 +470,9 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_detection_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         detection = u'\u0006'
         logging.Logger.warning = Mock()
-        res = w.get_detection_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', detection
-        )
+        w.get_detection_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', detection)
         if hasattr(Mock, 'assert_called_once'):
             logging.Logger.warning.assert_called_once()
 
@@ -499,11 +490,9 @@ class TestOspdOpenvas(unittest.TestCase):
 
     def test_get_affected_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        out = '<affected>some affection</affected>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         affected = u"\u0006" + "affected"
         logging.Logger.warning = Mock()
-        res = w.get_affected_vt_as_xml_str(
+        w.get_affected_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', affected=affected
         )
         if hasattr(Mock, 'assert_called_once'):
@@ -723,7 +712,7 @@ class TestOspdOpenvas(unittest.TestCase):
         mock_ospd.assert_called_with('123-456', 'localhost', 'localhost', 100)
 
 
-class TestFilters(unittest.TestCase):
+class TestFilters(TestCase):
     def test_format_vt_modification_time(self):
         ovformat = OpenVasVtsFilter()
         td = '1517443741'
