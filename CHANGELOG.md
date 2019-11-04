@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Exit with exit code 1 if it was not possible to connect to redis. [#133](https://github.com/greenbone/ospd-openvas/pull/133)
+- Return None if the scan finished successfully. [#137](https://github.com/greenbone/ospd-openvas/pull/137)
 
 ### Fixed
 - Improve redis clean out when stopping a scan. [#128](https://github.com/greenbone/ospd-openvas/pull/128)
@@ -20,4 +21,3 @@ This is the first release of the ospd-openvas module for the Greenbone
 Vulnerability Management (GVM) framework.
 
 [1.0.0]: https://github.com/greenbone/ospd-openvas/commits/v1.0.0
-
