@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Improve redis clean out when stopping a scan. [#128](https://github.com/greenbone/ospd-openvas/pull/128)
+- Improve error handling when creating vts xml elements. [#139](https://github.com/greenbone/ospd-openvas/pull/139)
 
 [1.0.1]: https://github.com/greenbone/ospd-openvas/commits/v1.0.0...ospd-openvas-1.0
 

@@ -509,8 +509,12 @@ class OSPDopenvas(OSPDaemon):
         _custom = Element('custom')
         for key, val in custom.items():
             xml_key = SubElement(_custom, key)
-            xml_key.text = val
-
+            try:
+                xml_key.text = val
+            except ValueError as e:
+                logger.warning(
+                    "Not possible to parse custom tag for vt %s: %s", vt_id, e
+                )
         return tostring(_custom).decode('utf-8')
 
     @staticmethod
@@ -525,7 +529,12 @@ class OSPDopenvas(OSPDaemon):
         _severities = Element('severities')
         _severity = SubElement(_severities, 'severity')
         if 'severity_base_vector' in severities:
-            _severity.text = severities.get('severity_base_vector')
+            try:
+                _severity.text = severities.get('severity_base_vector')
+            except ValueError as e:
+                logger.warning(
+                    "Not possible to parse severity tag for vt %s: %s", vt_id, e
+                )
         if 'severity_origin' in severities:
             _severity.set('origin', severities.get('severity_origin'))
         if 'severity_type' in severities:
@@ -548,10 +557,22 @@ class OSPDopenvas(OSPDaemon):
             vt_param.set('type', prefs['type'])
             vt_param.set('id', _pref_id)
             xml_name = SubElement(vt_param, 'name')
-            xml_name.text = prefs['name']
+            try:
+                xml_name.text = prefs['name']
+            except ValueError as e:
+                logger.warning(
+                    "Not possible to parse parameter for vt %s: %s", vt_id, e
+                )
             if prefs['default']:
                 xml_def = SubElement(vt_param, 'default')
-                xml_def.text = prefs['default']
+                try:
+                    xml_def.text = prefs['default']
+                except ValueError as e:
+                    logger.warning(
+                        "Not possible to parse default parameter for vt %s: %s",
+                        vt_id,
+                        e,
+                    )
             vt_params_xml.append(vt_param)
 
         return tostring(vt_params_xml).decode('utf-8')
@@ -607,7 +628,7 @@ class OSPDopenvas(OSPDaemon):
             _vt_dep = Element('dependency')
             try:
                 _vt_dep.set('vt_id', dep)
-            except TypeError:
+            except (ValueError, TypeError):
                 logger.error(
                     'Not possible to add dependency %s for vt %s', dep, vt_id
                 )
@@ -628,7 +649,12 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _time = Element('creation_time')
-        _time.text = creation_time
+        try:
+            _time.text = creation_time
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse creation time for vt %s: %s", vt_id, e
+            )
         return tostring(_time).decode('utf-8')
 
     @staticmethod
@@ -643,7 +669,14 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _time = Element('modification_time')
-        _time.text = modification_time
+        try:
+            _time.text = modification_time
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse modification time for vt %s: %s",
+                vt_id,
+                e,
+            )
         return tostring(_time).decode('utf-8')
 
     @staticmethod
@@ -656,7 +689,12 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _summary = Element('summary')
-        _summary.text = summary
+        try:
+            _summary.text = summary
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse summary tag for vt %s: %s", vt_id, e
+            )
         return tostring(_summary).decode('utf-8')
 
     @staticmethod
@@ -670,7 +708,12 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _impact = Element('impact')
-        _impact.text = impact
+        try:
+            _impact.text = impact
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse impact tag for vt %s: %s", vt_id, e
+            )
         return tostring(_impact).decode('utf-8')
 
     @staticmethod
@@ -683,7 +726,12 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _affected = Element('affected')
-        _affected.text = affected
+        try:
+            _affected.text = affected
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse affected tag for vt %s: %s", vt_id, e
+            )
         return tostring(_affected).decode('utf-8')
 
     @staticmethod
@@ -696,7 +744,12 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _insight = Element('insight')
-        _insight.text = insight
+        try:
+            _insight.text = insight
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse insight tag for vt %s: %s", vt_id, e
+            )
         return tostring(_insight).decode('utf-8')
 
     @staticmethod
@@ -710,7 +763,12 @@ class OSPDopenvas(OSPDaemon):
             string: xml element as string.
         """
         _solution = Element('solution')
-        _solution.text = solution
+        try:
+            _solution.text = solution
+        except ValueError as e:
+            logger.warning(
+                "Not possible to parse solution tag for vt %s: %s", vt_id, e
+            )
         if solution_type:
             _solution.set('type', solution_type)
         return tostring(_solution).decode('utf-8')
@@ -731,7 +789,14 @@ class OSPDopenvas(OSPDaemon):
         """
         _detection = Element('detection')
         if vuldetect:
-            _detection.text = vuldetect
+            try:
+                _detection.text = vuldetect
+            except ValueError as e:
+                logger.warning(
+                    "Not possible to parse detection tag for vt %s: %s",
+                    vt_id,
+                    e,
+                )
         if qod_type:
             _detection.set('qod_type', qod_type)
         elif qod:
