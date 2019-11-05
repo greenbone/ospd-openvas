@@ -216,6 +216,8 @@ class ScanCollection(object):
             and self.id_exists(scan_id)
             and (self.get_status(scan_id) == ScanStatus.STOPPED)
         ):
+            self.scans_table[scan_id]['end_time'] = 0
+
             return self.resume_scan(scan_id, options)
 
         if not options:
@@ -233,7 +235,7 @@ class ScanCollection(object):
         scan_info['vts'] = vts
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
-        scan_info['end_time'] = "0"
+        scan_info['end_time'] = 0
         scan_info['status'] = ScanStatus.INIT
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
@@ -244,6 +246,8 @@ class ScanCollection(object):
     def set_status(self, scan_id, status):
         """ Sets scan_id scan's status. """
         self.scans_table[scan_id]['status'] = status
+        if status == ScanStatus.STOPPED:
+            self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def get_status(self, scan_id):
         """ Get scan_id scans's status."""
