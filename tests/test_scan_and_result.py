@@ -627,6 +627,56 @@ class ScanTestCase(unittest.TestCase):
             ET.tostring(modification_time[0]).decode('utf-8'),
         )
 
+    def test_clean_forgotten_scans(self):
+        daemon = DummyWrapper([])
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<start_scan target="localhost" ports="80, '
+                '443"><scanner_params /></start_scan>'
+            )
+        )
+        scan_id = response.findtext('id')
+
+        finished = False
+        while not finished:
+            response = secET.fromstring(
+                daemon.handle_command(
+                    '<get_scans scan_id="%s" details="1"/>' % scan_id
+                )
+            )
+            scans = response.findall('scan')
+            self.assertEqual(1, len(scans))
+
+            scan = scans[0]
+            status = scan.get('status')
+
+            if status == "init" or status == "running":
+                self.assertEqual('0', scan.get('end_time'))
+                time.sleep(0.010)
+            else:
+                finished = True
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" details="1"/>' % scan_id
+            )
+        )
+        self.assertEqual(len(list(daemon.scan_collection.ids_iterator())), 1)
+
+        # Set an old end_time
+        daemon.scan_collection.scans_table[scan_id]['end_time'] = 123456
+        # Run the check
+        daemon.clean_forgotten_scans()
+        #Not removed
+        self.assertEqual(len(list(daemon.scan_collection.ids_iterator())), 1)
+
+        # Set the max time and run again
+        daemon.scaninfo_store_time = 1
+        daemon.clean_forgotten_scans()
+        # Now is removed
+        self.assertEqual(len(list(daemon.scan_collection.ids_iterator())), 0)
+
     def test_scan_with_error(self):
         daemon = DummyWrapper([Result('error', value='something went wrong')])
 
