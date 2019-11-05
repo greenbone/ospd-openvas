@@ -255,7 +255,7 @@ class OSPDopenvas(OSPDaemon):
     def __init__(self, *, niceness=None, **kwargs):
         """ Initializes the ospd-openvas daemon's internal data. """
 
-        super().__init__(customvtfilter=OpenVasVtsFilter())
+        super().__init__(customvtfilter=OpenVasVtsFilter(), **kwargs)
 
         self.server_version = __version__
 

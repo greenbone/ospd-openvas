@@ -89,6 +89,11 @@ Set a timeout on socket operations. Default 10 seconds
 .BI "--niceness "NICENESS
 Start the scan with the given niceness. Default 10
 
+.TP
+.BI "--scaninfo-store-time "TIME
+Time in hours a scan is stored before being considered forgotten and being delete from
+the scan table. Default 0, disabled.
+
 .SH THE CONFIGURATION FILE
 
 The default
@@ -120,6 +125,10 @@ Start the scan with the given niceness. Default 10
 
 .IP stream_timeout
 Set a timeout on socket operations. Default 10 seconds
+
+.IP scaninfo_store_time
+Time in hours a scan is stored before being considered forgotten and being delete from
+the scan table. Default 0, disabled.
 
 .SH MORE INFORMATION ABOUT Greenbone Vulnerability Management
 
