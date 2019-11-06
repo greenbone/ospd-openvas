@@ -191,9 +191,7 @@ class OpenvasDB(object):
             break
 
         if not tries:
-            logger.error(
-                'Redis Error: Not possible to connect to the kb.'
-            )
+            logger.error('Redis Error: Not possible to connect to the kb.')
             sys.exit(1)
 
         self.db_index = dbnum
