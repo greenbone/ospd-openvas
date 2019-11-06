@@ -11,5 +11,5 @@ defusedxml = "*"
 [dev-packages]
 coverage = "*"
 pylint = "*"
-black = "==18.9b0"
+black = "==19.10b0"
 autohooks-plugin-black = "*"
