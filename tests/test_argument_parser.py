@@ -93,4 +93,3 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.log_level, logging.WARNING)
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
-

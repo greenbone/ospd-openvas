@@ -662,8 +662,9 @@ class OSPDaemon:
         try:
             os.killpg(os.getpgid(scan_process.ident), 15)
         except ProcessLookupError as e:
-            logger.info('%s: Scan already stopped %s.',
-                        scan_id, scan_process.ident)
+            logger.info(
+                '%s: Scan already stopped %s.', scan_id, scan_process.ident
+            )
 
         if scan_process.ident != os.getpid():
             scan_process.join()
@@ -940,9 +941,7 @@ class OSPDaemon:
 
     def set_scan_host_progress(self, scan_id, target, host, progress):
         """ Sets host's progress which is part of target. """
-        self.scan_collection.set_host_progress(
-            scan_id, target, host, progress
-        )
+        self.scan_collection.set_host_progress(scan_id, target, host, progress)
 
     def set_scan_status(self, scan_id, status):
         """ Set the scan's status."""
@@ -1039,9 +1038,8 @@ class OSPDaemon:
                 int(start)
             except ValueError:
                 raise OspdCommandError(
-                    'Start argument must be integer.',
-                    'get_performance'
-            )
+                    'Start argument must be integer.', 'get_performance'
+                )
             cmd.append(start)
 
         if end:
@@ -1049,8 +1047,7 @@ class OSPDaemon:
                 int(end)
             except ValueError:
                 raise OspdCommandError(
-                    'End argument must be integer.',
-                    'get_performance'
+                    'End argument must be integer.', 'get_performance'
                 )
             cmd.append(end)
 
@@ -1061,23 +1058,23 @@ class OSPDaemon:
                 cmd.append(titles)
             else:
                 raise OspdCommandError(
-                    'Arguments not allowed',
-                    'get_performance'
+                    'Arguments not allowed', 'get_performance'
                 )
 
         try:
             output = subprocess.check_output(cmd)
         except (
-                subprocess.CalledProcessError,
-                PermissionError,
-                FileNotFoundError,
+            subprocess.CalledProcessError,
+            PermissionError,
+            FileNotFoundError,
         ) as e:
             raise OspdCommandError(
-                'Bogus get_performance format. %s' % e,
-                'get_performance'
+                'Bogus get_performance format. %s' % e, 'get_performance'
             )
 
-        return simple_response_str('get_performance', 200, 'OK', output.decode())
+        return simple_response_str(
+            'get_performance', 200, 'OK', output.decode()
+        )
 
     def handle_help_command(self, scan_et):
         """ Handles <help> command.

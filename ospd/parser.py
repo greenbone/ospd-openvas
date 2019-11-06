@@ -83,7 +83,7 @@ class CliParser:
         parser.add_argument(
             '--pid-file',
             default=DEFAULT_PID_PATH,
-            help='Unix file socket to listen on.'
+            help='Unix file socket to listen on.',
         )
 
         parser.add_argument(

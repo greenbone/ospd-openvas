@@ -49,7 +49,9 @@ class Stream:
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
         except OSError as e:
-            logger.debug("Ignoring error while shutting down the connection. %s", e)
+            logger.debug(
+                "Ignoring error while shutting down the connection. %s", e
+            )
 
         self.socket.close()
 
@@ -77,7 +79,6 @@ class Stream:
                     logger.error("Error sending data to the client. %s", e)
                 finally:
                     return
-
 
             try:
                 b_sent = self.socket.send(data[b_start:b_end])
