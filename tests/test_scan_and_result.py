@@ -237,7 +237,8 @@ class ScanTestCase(unittest.TestCase):
         mock_subproc.check_output.return_value = b'foo'
         response = secET.fromstring(
             daemon.handle_command(
-                '<get_performance start="0" end="0" titles="mem"/>')
+                '<get_performance start="0" end="0" titles="mem"/>'
+            )
         )
 
         self.assertEqual(response.get('status'), '200')
@@ -246,29 +247,25 @@ class ScanTestCase(unittest.TestCase):
     def test_get_performance_fail_int(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring(
-            '<get_performance start="a" end="0" titles="mem"/>')
-
-        self.assertRaises(
-            OspdCommandError, daemon.handle_get_performance, cmd
+            '<get_performance start="a" end="0" titles="mem"/>'
         )
+
+        self.assertRaises(OspdCommandError, daemon.handle_get_performance, cmd)
 
     def test_get_performance_fail_regex(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring(
-            '<get_performance start="0" end="0" titles="mem|bar"/>')
-
-        self.assertRaises(
-            OspdCommandError, daemon.handle_get_performance, cmd
+            '<get_performance start="0" end="0" titles="mem|bar"/>'
         )
+
+        self.assertRaises(OspdCommandError, daemon.handle_get_performance, cmd)
 
     def test_get_performance_fail_cmd(self):
         daemon = DummyWrapper([])
         cmd = secET.fromstring(
             '<get_performance start="0" end="0" titles="mem1"/>'
         )
-        self.assertRaises(
-            OspdCommandError, daemon.handle_get_performance, cmd
-        )
+        self.assertRaises(OspdCommandError, daemon.handle_get_performance, cmd)
 
     def test_get_default_scanner_version(self):
         daemon = DummyWrapper([])
@@ -1100,7 +1097,7 @@ class ScanTestCase(unittest.TestCase):
         result = response.findall('scan/results/result')
         self.assertEqual(len(result), 0)
 
-    def test_result_order (self):
+    def test_result_order(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -1119,10 +1116,9 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_scan_log(scan_id, host='a', name='a')
         daemon.add_scan_log(scan_id, host='c', name='c')
         daemon.add_scan_log(scan_id, host='b', name='b')
-        hosts = ['a','c','b']
+        hosts = ['a', 'c', 'b']
         response = secET.fromstring(
-            daemon.handle_command('<get_scans details="1"/>'
-            )
+            daemon.handle_command('<get_scans details="1"/>')
         )
         results = response.findall("scan/results/")
 
