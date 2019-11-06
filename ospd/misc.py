@@ -225,11 +225,11 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
-            [[target, []] for target, _, _, _ in targets]
+            [[target, []] for target, _, _, _, _ in targets]
         )
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, {}] for target, _, _, _ in targets]
+            [[target, {}] for target, _, _, _, _ in targets]
         )
         scan_info['targets'] = targets
         scan_info['vts'] = vts
@@ -275,11 +275,14 @@ class ScanCollection(object):
         in the target."""
 
         total_hosts = len(target_str_to_list(target))
+        exc_hosts_list = target_str_to_list(
+            self.get_exclude_hosts(scan_id, target))
+        exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
         host_progresses = self.scans_table[scan_id]['target_progress'].get(
             target
         )
         try:
-            t_prog = sum(host_progresses.values()) / total_hosts
+            t_prog = sum(host_progresses.values()) / (total_hosts - exc_hosts)
         except ZeroDivisionError:
             LOGGER.error(
                 "Zero division error in %s", self.get_target_progress.__name__
@@ -301,7 +304,7 @@ class ScanCollection(object):
         """ Get a scan's target list. """
 
         target_list = []
-        for target, _, _, _ in self.scans_table[scan_id]['targets']:
+        for target, _, _, _, _ in self.scans_table[scan_id]['targets']:
             target_list.append(target)
         return target_list
 

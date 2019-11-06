@@ -541,6 +541,7 @@ class OSPDaemon:
         target_list = []
         for target in scanner_target:
             exclude_hosts = ''
+            finished_hosts = ''
             ports = ''
             credentials = {}
             for child in target:
@@ -548,12 +549,20 @@ class OSPDaemon:
                     hosts = child.text
                 if child.tag == 'exclude_hosts':
                     exclude_hosts = child.text
+                if child.tag == 'finished_hosts':
+                    finished_hosts = child.text
                 if child.tag == 'ports':
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([hosts, ports, credentials, exclude_hosts])
+                target_list.append([
+                    hosts,
+                    ports,
+                    credentials,
+                    exclude_hosts,
+                    finished_hosts,
+                ])
             else:
                 raise OspdCommandError('No target to scan', 'start_scan')
 
@@ -578,7 +587,7 @@ class OSPDaemon:
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, '', ''])
+                scan_targets.append([single_target, ports_str, '', '', ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -870,6 +879,7 @@ class OSPDaemon:
             raise OspdCommandError('Erroneous targets list', 'start_scan')
 
         self.process_exclude_hosts(scan_id, target_list)
+        self.process_finished_hosts(scan_id, target_list)
 
         for _index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
