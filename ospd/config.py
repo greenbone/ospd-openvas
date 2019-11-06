@@ -24,6 +24,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class Config:
     def __init__(self, section='main'):
         self._config = configparser.ConfigParser(default_section=section)
@@ -41,7 +42,7 @@ class Config:
         self._defaults.update(config.defaults())
 
         for key, value in config.items(def_section):
-                self._config.setdefault(def_section, dict())[key] = value
+            self._config.setdefault(def_section, dict())[key] = value
 
     def defaults(self):
         return self._defaults

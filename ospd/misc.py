@@ -410,6 +410,7 @@ def go_to_background():
         LOGGER.error('Fork failed: %s', errmsg)
         sys.exit(1)
 
+
 def create_pid(pidfile):
     """ Check if there is an already running daemon and creates the pid file.
     Otherwise gives an error. """
@@ -429,6 +430,7 @@ def create_pid(pidfile):
         return False
 
     return True
+
 
 def remove_pidfile(pidfile, signum=None, frame=None):
     """ Removes the pidfile before ending the daemon. """

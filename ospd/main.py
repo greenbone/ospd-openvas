@@ -124,9 +124,7 @@ def main(
 
     if args.port == 0:
         server = UnixSocketServer(
-            args.unix_socket,
-            args.socket_mode,
-            args.stream_timeout,
+            args.unix_socket, args.socket_mode, args.stream_timeout,
         )
     else:
         server = TlsServer(
@@ -152,9 +150,7 @@ def main(
 
     # Set signal handler and cleanup
     atexit.register(remove_pidfile, pidfile=args.pid_file)
-    signal.signal(
-        signal.SIGTERM, partial(remove_pidfile, args.pid_file)
-    )
+    signal.signal(signal.SIGTERM, partial(remove_pidfile, args.pid_file))
 
     daemon.init()
 
