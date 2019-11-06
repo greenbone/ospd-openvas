@@ -101,6 +101,20 @@ class ScanCollection(object):
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
+    def rm_hosts_target_progress(self, scan_id, target, hosts):
+        """Remove a excluded hosts from the main scan progress table to avoid
+        the hosts to be included in the calculation of the scan progress"""
+        if not hosts:
+            return
+        targets = self.scans_table[scan_id]['target_progress']
+        for host in hosts:
+            if host in targets[target]:
+                del targets[target][host]
+
+        # Set scan_info's target_progress to propagate progresses
+        # to parent process.
+        self.scans_table[scan_id]['target_progress'] = targets
+
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
 
@@ -276,7 +290,8 @@ class ScanCollection(object):
 
         total_hosts = len(target_str_to_list(target))
         exc_hosts_list = target_str_to_list(
-            self.get_exclude_hosts(scan_id, target))
+            self.get_exclude_hosts(scan_id, target)
+        )
         exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
         host_progresses = self.scans_table[scan_id]['target_progress'].get(
             target

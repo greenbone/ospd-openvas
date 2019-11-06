@@ -556,13 +556,9 @@ class OSPDaemon:
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([
-                    hosts,
-                    ports,
-                    credentials,
-                    exclude_hosts,
-                    finished_hosts,
-                ])
+                target_list.append(
+                    [hosts, ports, credentials, exclude_hosts, finished_hosts]
+                )
             else:
                 raise OspdCommandError('No target to scan', 'start_scan')
 
@@ -855,15 +851,25 @@ class OSPDaemon:
         return sum(t_prog.values()) / len(t_prog)
 
     def process_exclude_hosts(self, scan_id, target_list):
-        """ Process the exclude hosts before launching the scans.
-        Set exclude hosts as finished with 100% to calculate
-        the scan progress."""
+        """ Process the exclude hosts before launching the scans."""
 
-        for target, _, _, exclude_hosts in target_list:
+        for target, _, _, exclude_hosts, _ in target_list:
             exc_hosts_list = ''
             if not exclude_hosts:
                 continue
             exc_hosts_list = target_str_to_list(exclude_hosts)
+            self.rm_scan_hosts_target_progress(scan_id, target, exc_hosts_list)
+
+    def process_finished_hosts(self, scan_id, target_list):
+        """ Process the finished hosts before launching the scans.
+        Set finished hosts as finished with 100% to calculate
+        the scan progress."""
+
+        for target, _, _, _, finished_hosts in target_list:
+            exc_hosts_list = ''
+            if not finished_hosts:
+                continue
+            exc_hosts_list = target_str_to_list(finished_hosts)
             for host in exc_hosts_list:
                 self.set_scan_host_finished(scan_id, target, host)
                 self.set_scan_host_progress(scan_id, target, host, 100)
@@ -940,6 +946,12 @@ class OSPDaemon:
             host=host,
             name="Timeout",
             value="{0} exec timeout.".format(self.get_scanner_name()),
+        )
+
+    def rm_scan_hosts_target_progress(self, scan_id, target, exc_hosts_list):
+        """ Add the host in a list of finished hosts """
+        self.scan_collection.rm_hosts_target_progress(
+            scan_id, target, exc_hosts_list
         )
 
     def set_scan_host_finished(self, scan_id, target, host):
