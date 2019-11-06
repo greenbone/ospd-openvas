@@ -47,7 +47,9 @@ class TestDB(TestCase):
         # it is none
         self.assertIsNone(self.db.db_address)
         # set the first time
-        mock_subproc.check_output.return_value = 'db_address = /foo/bar'.encode()
+        mock_subproc.check_output.return_value = (
+            'db_address = /foo/bar'.encode()
+        )
         self.db.get_db_connection()
         self.assertEqual(self.db.db_address, "/foo/bar")
 

@@ -146,9 +146,7 @@ class TestNVTICache(TestCase):
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
-            'last_modification': (
-                '1533906565'
-            ),
+            'last_modification': ('1533906565'),
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
