@@ -35,6 +35,7 @@ DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
 DEFAULT_UNIX_SOCKET_PATH = "/var/run/ospd/ospd.sock"
 DEFAULT_PID_PATH = "/var/run/ospd.pid"
 DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
+DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -138,6 +139,14 @@ class CliParser:
             default=DEFAULT_NICENESS,
             type=int,
             help='Start the scan with the given niceness. Default %(default)s',
+        )
+        parser.add_argument(
+            '--scaninfo-store-time',
+            default=DEFAULT_SCANINFO_STORE_TIME,
+            type=int,
+            help='Time in hours a scan is stored before being considered '
+            'forgotten and being delete from the scan table. '
+            'Default %(default)s, disabled.',
         )
 
         self.parser = parser

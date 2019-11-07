@@ -34,6 +34,7 @@ from ospd.parser import (
     DEFAULT_PORT,
     DEFAULT_KEY_FILE,
     DEFAULT_NICENESS,
+    DEFAULT_SCANINFO_STORE_TIME,
 )
 
 
@@ -93,3 +94,4 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.log_level, logging.WARNING)
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
+        self.assertEqual(args.port, DEFAULT_SCANINFO_STORE_TIME)

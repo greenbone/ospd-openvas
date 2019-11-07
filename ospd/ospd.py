@@ -194,6 +194,8 @@ class OSPDaemon:
 
         self.server_version = None  # Set by the subclass.
 
+        self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
+
         self.protocol_version = PROTOCOL_VERSION
 
         self.commands = COMMANDS_TABLE
@@ -1659,6 +1661,7 @@ class OSPDaemon:
             while True:
                 time.sleep(10)
                 self.scheduler()
+                self.clean_forgotten_scans()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
         finally:
@@ -1689,6 +1692,33 @@ class OSPDaemon:
     def set_scan_option(self, scan_id, name, value):
         """ Sets a scan's option to a provided value. """
         return self.scan_collection.set_option(scan_id, name, value)
+
+    def clean_forgotten_scans(self):
+        """ Check for old stopped or finished scans which have not been
+        deleted and delete them if the are older than the set value."""
+
+        if not self.scaninfo_store_time:
+            return
+
+        for scan_id in list(self.scan_collection.ids_iterator()):
+            end_time = int(self.get_scan_end_time(scan_id))
+            scan_status = self.get_scan_status(scan_id)
+
+            if ((scan_status == ScanStatus.STOPPED or
+                scan_status == ScanStatus.FINISHED) and
+                end_time
+            ):
+                stored_time = int(time.time()) - end_time
+                if stored_time > self.scaninfo_store_time * 3600:
+                    logger.debug(
+                        'Scan %s is older than %d hours and seems have been '
+                        'forgotten. Scan info will be deleted from the '
+                        'scan table',
+                        scan_id,
+                        self.scaninfo_store_time,
+                    )
+                    self.delete_scan(scan_id)
+
 
     def check_scan_process(self, scan_id):
         """ Check the scan's process, and terminate the scan if not alive. """
