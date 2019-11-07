@@ -36,9 +36,7 @@ class DummyDaemon(OSPDopenvas):
                     'required_ports': 'Services/www, 80',
                     'timeout': '0',
                 },
-                'modification_time': (
-                    '1533906565'
-                ),
+                'modification_time': ('1533906565'),
                 'name': 'Mantis Detection',
                 'qod_type': 'remote_banner',
                 'insight': 'some insight',
@@ -106,9 +104,7 @@ class DummyDaemon(OSPDopenvas):
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
-            'last_modification': (
-                '1533906565'
-            ),
+            'last_modification': ('1533906565'),
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
