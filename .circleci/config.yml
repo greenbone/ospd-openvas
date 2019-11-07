@@ -69,11 +69,10 @@ commands:
       - checkout
       - run:
           name: Install dependencies
-          command: pipenv install
+          command: pipenv install --dev
       - run:
-          name: Install pylint
-          command: |
-            pipenv run pip install pylint
+          name: Check formatting with black
+          command: pipenv run black --check ospd_openvas
       - run:
           name: Run pylint
           command: |
