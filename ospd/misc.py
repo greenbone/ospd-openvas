@@ -101,11 +101,12 @@ class ScanCollection(object):
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
-    def rm_hosts_target_progress(self, scan_id, target, hosts):
-        """Remove a excluded hosts from the main scan progress table to avoid
+    def remove_hosts_from_target_progress(self, scan_id, target, hosts):
+        """Remove a list of hosts from the main scan progress table to avoid
         the hosts to be included in the calculation of the scan progress"""
         if not hosts:
             return
+
         targets = self.scans_table[scan_id]['target_progress']
         for host in hosts:
             if host in targets[target]:
