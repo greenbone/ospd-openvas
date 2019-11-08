@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add clean_forgotten_scans(). [#171](https://github.com/greenbone/ospd/pull/171)
+- Extend OSP with finished_hosts to improve resume task.  [#177](https://github.com/greenbone/ospd/pull/177)
 
 ### Changed
 - Set loglevel to debug for some message. [#159](https://github.com/greenbone/ospd/pull/159)

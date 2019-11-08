@@ -984,7 +984,7 @@ class ScanTestCase(unittest.TestCase):
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
 
-    def test_scan_get_exclude_hosts(self):
+    def test_scan_get_finished_hosts(self):
         daemon = DummyWrapper([])
         response = secET.fromstring(
             daemon.handle_command(
@@ -994,8 +994,8 @@ class ScanTestCase(unittest.TestCase):
                 '<targets><target>'
                 '<hosts>192.168.10.20-25</hosts>'
                 '<ports>80,443</ports>'
-                '<exclude_hosts>192.168.10.23-24'
-                '</exclude_hosts>'
+                '<finished_hosts>192.168.10.23-24'
+                '</finished_hosts>'
                 '</target>'
                 '<target><hosts>192.168.0.0/24</hosts>'
                 '<ports>22</ports></target>'

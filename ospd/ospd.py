@@ -541,6 +541,7 @@ class OSPDaemon:
         target_list = []
         for target in scanner_target:
             exclude_hosts = ''
+            finished_hosts = ''
             ports = ''
             credentials = {}
             for child in target:
@@ -548,12 +549,16 @@ class OSPDaemon:
                     hosts = child.text
                 if child.tag == 'exclude_hosts':
                     exclude_hosts = child.text
+                if child.tag == 'finished_hosts':
+                    finished_hosts = child.text
                 if child.tag == 'ports':
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([hosts, ports, credentials, exclude_hosts])
+                target_list.append(
+                    [hosts, ports, credentials, exclude_hosts, finished_hosts]
+                )
             else:
                 raise OspdCommandError('No target to scan', 'start_scan')
 
@@ -578,7 +583,7 @@ class OSPDaemon:
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, '', ''])
+                scan_targets.append([single_target, ports_str, '', '', ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -846,15 +851,28 @@ class OSPDaemon:
         return sum(t_prog.values()) / len(t_prog)
 
     def process_exclude_hosts(self, scan_id, target_list):
-        """ Process the exclude hosts before launching the scans.
-        Set exclude hosts as finished with 100% to calculate
-        the scan progress."""
+        """ Process the exclude hosts before launching the scans."""
 
-        for target, _, _, exclude_hosts in target_list:
+        for target, _, _, exclude_hosts, _ in target_list:
             exc_hosts_list = ''
             if not exclude_hosts:
                 continue
             exc_hosts_list = target_str_to_list(exclude_hosts)
+            self.remove_scan_hosts_from_target_progress(
+                scan_id, target, exc_hosts_list
+            )
+
+    def process_finished_hosts(self, scan_id, target_list):
+        """ Process the finished hosts before launching the scans.
+        Set finished hosts as finished with 100% to calculate
+        the scan progress."""
+
+        for target, _, _, _, finished_hosts in target_list:
+            exc_hosts_list = ''
+            if not finished_hosts:
+                continue
+            exc_hosts_list = target_str_to_list(finished_hosts)
+
             for host in exc_hosts_list:
                 self.set_scan_host_finished(scan_id, target, host)
                 self.set_scan_host_progress(scan_id, target, host, 100)
@@ -870,6 +888,7 @@ class OSPDaemon:
             raise OspdCommandError('Erroneous targets list', 'start_scan')
 
         self.process_exclude_hosts(scan_id, target_list)
+        self.process_finished_hosts(scan_id, target_list)
 
         for _index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
@@ -930,6 +949,14 @@ class OSPDaemon:
             host=host,
             name="Timeout",
             value="{0} exec timeout.".format(self.get_scanner_name()),
+        )
+
+    def remove_scan_hosts_from_target_progress(
+        self, scan_id, target, exc_hosts_list
+    ):
+        """ Remove a list of hosts from the main scan progress table."""
+        self.scan_collection.remove_hosts_from_target_progress(
+            scan_id, target, exc_hosts_list
         )
 
     def set_scan_host_finished(self, scan_id, target, host):
@@ -1704,10 +1731,10 @@ class OSPDaemon:
             end_time = int(self.get_scan_end_time(scan_id))
             scan_status = self.get_scan_status(scan_id)
 
-            if ((scan_status == ScanStatus.STOPPED or
-                scan_status == ScanStatus.FINISHED) and
-                end_time
-            ):
+            if (
+                scan_status == ScanStatus.STOPPED
+                or scan_status == ScanStatus.FINISHED
+            ) and end_time:
                 stored_time = int(time.time()) - end_time
                 if stored_time > self.scaninfo_store_time * 3600:
                     logger.debug(
@@ -1718,7 +1745,6 @@ class OSPDaemon:
                         self.scaninfo_store_time,
                     )
                     self.delete_scan(scan_id)
-
 
     def check_scan_process(self, scan_id):
         """ Check the scan's process, and terminate the scan if not alive. """
