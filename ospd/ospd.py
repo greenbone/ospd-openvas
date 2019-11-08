@@ -622,9 +622,15 @@ class OSPDaemon:
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
+        scan_id_aux = scan_id
         scan_id = self.create_scan(
             scan_id, scan_targets, scan_params, vt_selection
         )
+        if not scan_id:
+            id_ = Element('id')
+            id_.text = scan_id_aux
+            return simple_response_str('start_scan', 100, 'Continue', id_)
+
         scan_process = multiprocessing.Process(
             target=scan_func, args=(scan_id, scan_targets, parallel)
         )
@@ -1705,11 +1711,23 @@ class OSPDaemon:
         @target: Target to scan.
         @options: Miscellaneous scan options.
 
-        @return: New scan's ID.
+        @return: New scan's ID. None if the scan_id already exists and the
+                 scan status is RUNNING or FINISHED.
         """
-        if self.scan_exists(scan_id):
-            logger.info("Scan %s exists. Resuming scan.", scan_id)
+        status = None
+        scan_exists = self.scan_exists(scan_id)
+        if scan_id and scan_exists:
+            status = self.get_scan_status(scan_id)
 
+        if scan_exists and status == ScanStatus.STOPPED:
+            logger.info("Scan %s exists. Resuming scan.", scan_id)
+        elif scan_exists and (
+            status == ScanStatus.RUNNING or status == ScanStatus.FINISHED
+        ):
+            logger.info(
+                "Scan %s exists with status %s.", scan_id, status.name.lower()
+            )
+            return
         return self.scan_collection.create_scan(scan_id, targets, options, vts)
 
     def get_scan_options(self, scan_id):
