@@ -78,6 +78,9 @@ class NVTICache(object):
         prefs = self.get_nvt_prefs(ctx, oid)
         timeout = self.get_nvt_timeout(ctx, oid)
 
+        if timeout is None:
+            return None
+
         vt_params = {}
         if int(timeout) > 0:
             _param_id = '0'
