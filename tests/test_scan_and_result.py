@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2018 Greenbone Networks GmbH
+# Copyright (C) 2015-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -136,7 +136,8 @@ class DummyWrapper(OSPDaemon):
         return response
 
     @staticmethod
-    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None):
+    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None,
+        solution_method=None):
         response = '<solution>Some solution</solution>'
 
         return response
@@ -580,6 +581,7 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             solution="c",
             solution_t="d",
+            solution_m="e",
         )
 
         response = secET.fromstring(
