@@ -194,6 +194,8 @@ class OSPDaemon:
 
         self.server_version = None  # Set by the subclass.
 
+        self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
+
         self.protocol_version = PROTOCOL_VERSION
 
         self.commands = COMMANDS_TABLE
@@ -542,6 +544,7 @@ class OSPDaemon:
         target_list = []
         for target in scanner_target:
             exclude_hosts = ''
+            finished_hosts = ''
             ports = ''
             credentials = {}
             for child in target:
@@ -549,12 +552,16 @@ class OSPDaemon:
                     hosts = child.text
                 if child.tag == 'exclude_hosts':
                     exclude_hosts = child.text
+                if child.tag == 'finished_hosts':
+                    finished_hosts = child.text
                 if child.tag == 'ports':
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
             if hosts:
-                target_list.append([hosts, ports, credentials, exclude_hosts])
+                target_list.append(
+                    [hosts, ports, credentials, exclude_hosts, finished_hosts]
+                )
             else:
                 raise OspdCommandError('No target to scan', 'start_scan')
 
@@ -579,7 +586,7 @@ class OSPDaemon:
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, '', ''])
+                scan_targets.append([single_target, ports_str, '', '', ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -618,9 +625,15 @@ class OSPDaemon:
             scan_func = self.start_scan
             scan_params = self.process_scan_params(params)
 
+        scan_id_aux = scan_id
         scan_id = self.create_scan(
             scan_id, scan_targets, scan_params, vt_selection
         )
+        if not scan_id:
+            id_ = Element('id')
+            id_.text = scan_id_aux
+            return simple_response_str('start_scan', 100, 'Continue', id_)
+
         scan_process = multiprocessing.Process(
             target=scan_func, args=(scan_id, scan_targets, parallel)
         )
@@ -847,15 +860,28 @@ class OSPDaemon:
         return sum(t_prog.values()) / len(t_prog)
 
     def process_exclude_hosts(self, scan_id, target_list):
-        """ Process the exclude hosts before launching the scans.
-        Set exclude hosts as finished with 100% to calculate
-        the scan progress."""
+        """ Process the exclude hosts before launching the scans."""
 
-        for target, _, _, exclude_hosts in target_list:
+        for target, _, _, exclude_hosts, _ in target_list:
             exc_hosts_list = ''
             if not exclude_hosts:
                 continue
             exc_hosts_list = target_str_to_list(exclude_hosts)
+            self.remove_scan_hosts_from_target_progress(
+                scan_id, target, exc_hosts_list
+            )
+
+    def process_finished_hosts(self, scan_id, target_list):
+        """ Process the finished hosts before launching the scans.
+        Set finished hosts as finished with 100% to calculate
+        the scan progress."""
+
+        for target, _, _, _, finished_hosts in target_list:
+            exc_hosts_list = ''
+            if not finished_hosts:
+                continue
+            exc_hosts_list = target_str_to_list(finished_hosts)
+
             for host in exc_hosts_list:
                 self.set_scan_host_finished(scan_id, target, host)
                 self.set_scan_host_progress(scan_id, target, host, 100)
@@ -871,6 +897,7 @@ class OSPDaemon:
             raise OspdCommandError('Erroneous targets list', 'start_scan')
 
         self.process_exclude_hosts(scan_id, target_list)
+        self.process_finished_hosts(scan_id, target_list)
 
         for _index, target in enumerate(target_list):
             while len(multiscan_proc) >= parallel:
@@ -931,6 +958,14 @@ class OSPDaemon:
             host=host,
             name="Timeout",
             value="{0} exec timeout.".format(self.get_scanner_name()),
+        )
+
+    def remove_scan_hosts_from_target_progress(
+        self, scan_id, target, exc_hosts_list
+    ):
+        """ Remove a list of hosts from the main scan progress table."""
+        self.scan_collection.remove_hosts_from_target_progress(
+            scan_id, target, exc_hosts_list
         )
 
     def set_scan_host_finished(self, scan_id, target, host):
@@ -1663,6 +1698,7 @@ class OSPDaemon:
             while True:
                 time.sleep(10)
                 self.scheduler()
+                self.clean_forgotten_scans()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
         finally:
@@ -1679,11 +1715,23 @@ class OSPDaemon:
         @target: Target to scan.
         @options: Miscellaneous scan options.
 
-        @return: New scan's ID.
+        @return: New scan's ID. None if the scan_id already exists and the
+                 scan status is RUNNING or FINISHED.
         """
-        if self.scan_exists(scan_id):
-            logger.info("Scan %s exists. Resuming scan.", scan_id)
+        status = None
+        scan_exists = self.scan_exists(scan_id)
+        if scan_id and scan_exists:
+            status = self.get_scan_status(scan_id)
 
+        if scan_exists and status == ScanStatus.STOPPED:
+            logger.info("Scan %s exists. Resuming scan.", scan_id)
+        elif scan_exists and (
+            status == ScanStatus.RUNNING or status == ScanStatus.FINISHED
+        ):
+            logger.info(
+                "Scan %s exists with status %s.", scan_id, status.name.lower()
+            )
+            return
         return self.scan_collection.create_scan(scan_id, targets, options, vts)
 
     def get_scan_options(self, scan_id):
@@ -1693,6 +1741,32 @@ class OSPDaemon:
     def set_scan_option(self, scan_id, name, value):
         """ Sets a scan's option to a provided value. """
         return self.scan_collection.set_option(scan_id, name, value)
+
+    def clean_forgotten_scans(self):
+        """ Check for old stopped or finished scans which have not been
+        deleted and delete them if the are older than the set value."""
+
+        if not self.scaninfo_store_time:
+            return
+
+        for scan_id in list(self.scan_collection.ids_iterator()):
+            end_time = int(self.get_scan_end_time(scan_id))
+            scan_status = self.get_scan_status(scan_id)
+
+            if (
+                scan_status == ScanStatus.STOPPED
+                or scan_status == ScanStatus.FINISHED
+            ) and end_time:
+                stored_time = int(time.time()) - end_time
+                if stored_time > self.scaninfo_store_time * 3600:
+                    logger.debug(
+                        'Scan %s is older than %d hours and seems have been '
+                        'forgotten. Scan info will be deleted from the '
+                        'scan table',
+                        scan_id,
+                        self.scaninfo_store_time,
+                    )
+                    self.delete_scan(scan_id)
 
     def check_scan_process(self, scan_id):
         """ Check the scan's process, and terminate the scan if not alive. """

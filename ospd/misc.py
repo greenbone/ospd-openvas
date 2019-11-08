@@ -101,6 +101,21 @@ class ScanCollection(object):
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
+    def remove_hosts_from_target_progress(self, scan_id, target, hosts):
+        """Remove a list of hosts from the main scan progress table to avoid
+        the hosts to be included in the calculation of the scan progress"""
+        if not hosts:
+            return
+
+        targets = self.scans_table[scan_id]['target_progress']
+        for host in hosts:
+            if host in targets[target]:
+                del targets[target][host]
+
+        # Set scan_info's target_progress to propagate progresses
+        # to parent process.
+        self.scans_table[scan_id]['target_progress'] = targets
+
     def set_progress(self, scan_id, progress):
         """ Sets scan_id scan's progress. """
 
@@ -216,6 +231,8 @@ class ScanCollection(object):
             and self.id_exists(scan_id)
             and (self.get_status(scan_id) == ScanStatus.STOPPED)
         ):
+            self.scans_table[scan_id]['end_time'] = 0
+
             return self.resume_scan(scan_id, options)
 
         if not options:
@@ -223,17 +240,17 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
-            [[target, []] for target, _, _, _ in targets]
+            [[target, []] for target, _, _, _, _ in targets]
         )
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, {}] for target, _, _, _ in targets]
+            [[target, {}] for target, _, _, _, _ in targets]
         )
         scan_info['targets'] = targets
         scan_info['vts'] = vts
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
-        scan_info['end_time'] = "0"
+        scan_info['end_time'] = 0
         scan_info['status'] = ScanStatus.INIT
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
@@ -244,6 +261,8 @@ class ScanCollection(object):
     def set_status(self, scan_id, status):
         """ Sets scan_id scan's status. """
         self.scans_table[scan_id]['status'] = status
+        if status == ScanStatus.STOPPED:
+            self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def get_status(self, scan_id):
         """ Get scan_id scans's status."""
@@ -271,11 +290,15 @@ class ScanCollection(object):
         in the target."""
 
         total_hosts = len(target_str_to_list(target))
+        exc_hosts_list = target_str_to_list(
+            self.get_exclude_hosts(scan_id, target)
+        )
+        exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
         host_progresses = self.scans_table[scan_id]['target_progress'].get(
             target
         )
         try:
-            t_prog = sum(host_progresses.values()) / total_hosts
+            t_prog = sum(host_progresses.values()) / (total_hosts - exc_hosts)
         except ZeroDivisionError:
             LOGGER.error(
                 "Zero division error in %s", self.get_target_progress.__name__
@@ -297,7 +320,7 @@ class ScanCollection(object):
         """ Get a scan's target list. """
 
         target_list = []
-        for target, _, _, _ in self.scans_table[scan_id]['targets']:
+        for target, _, _, _, _ in self.scans_table[scan_id]['targets']:
             target_list.append(target)
         return target_list
 
