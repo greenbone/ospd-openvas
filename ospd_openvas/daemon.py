@@ -412,6 +412,11 @@ class OSPDopenvas(OSPDaemon):
             _vt_params = self.nvti.get_nvt_params(vt_id)
             _vt_refs = self.nvti.get_nvt_refs(vt_id)
             _custom = self.nvti.get_nvt_metadata(vt_id)
+
+            if _vt_params is None or _custom is None:
+                logger.warning('Error loading VTs in memory. Trying again...')
+                return
+
             _name = _custom.pop('name')
             _vt_creation_time = _custom.pop('creation_date')
             _vt_modification_time = _custom.pop('last_modification')
