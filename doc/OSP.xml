@@ -37,7 +37,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </type>
   <type>
     <name>epoch_time</name>
-    <summary>A date, in unix format</summary>
+    <summary>A date, in Unix format</summary>
     <pattern>
       <e>integer</e>
     </pattern>
@@ -440,7 +440,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   <command>
     <name>get_performance</name>
-    <summary>Return performan information from an external program</summary>
+    <summary>Return performance information from an external program</summary>
     <pattern>
       <attrib>
         <name>start</name>
