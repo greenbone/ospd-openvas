@@ -20,6 +20,7 @@
 from unittest.mock import patch
 
 from ospd_openvas.daemon import OSPDopenvas
+from defusedxml import ElementTree as secET
 
 
 class DummyDaemon(OSPDopenvas):
@@ -123,3 +124,14 @@ class DummyDaemon(OSPDopenvas):
             with patch('ospd_openvas.daemon.NVTICache', return_value=nvti):
                 with patch.object(OSPDopenvas, 'load_vts', return_value=None):
                     super().__init__(niceness=10)
+
+    def create_xml_target(self):
+        target = secET.fromstring(
+            "<targets>"
+            "<target>"
+            "<hosts>192.168.0.1</hosts>"
+            "<ports>80,443</ports>"
+            "</target>"
+            "</targets>"
+        )
+        return target
