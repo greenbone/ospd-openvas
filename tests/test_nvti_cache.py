@@ -23,6 +23,7 @@
 
 from unittest import TestCase
 from unittest.mock import patch
+
 from ospd_openvas.db import OpenvasDB
 from ospd_openvas.nvticache import NVTICache
 
@@ -270,3 +271,15 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_tag(mock_redis(), '1.2.3.4')
 
         self.assertEqual(out_dict, resp)
+
+    @patch('ospd_openvas.nvticache.subprocess')
+    def test_set_nvticache_str(self, mock_subps, mock_redis):
+        self.assertIsNone(self.nvti.NVTICACHE_STR)
+
+        mock_subps.check_output.return_value = '11.0.1\n'.encode()
+        self.nvti.set_nvticache_str()
+        self.assertEqual(self.nvti.NVTICACHE_STR, 'nvticache11.0.1')
+
+        mock_subps.check_output.return_value = '20.04\n'.encode()
+        with self.assertRaises(SystemExit):
+            self.nvti.set_nvticache_str()
