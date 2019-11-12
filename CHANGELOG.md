@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Check the vt's preference value for type 'file'. [#130](https://github.com/greenbone/ospd-openvas/pull/130).
+- Add set_nvticache_str(). [#151](https://github.com/greenbone/ospd-openvas/pull/151)
 
 ### Fixed
 - Improve redis clean out when stopping a scan. [#128](https://github.com/greenbone/ospd-openvas/pull/128)
