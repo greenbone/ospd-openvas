@@ -278,6 +278,7 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db = OpenvasDB()
 
         self.nvti = NVTICache(self.openvas_db)
+        self.nvti.set_nvticache_str()
 
         self.pending_feed = None
 

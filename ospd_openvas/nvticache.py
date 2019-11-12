@@ -20,13 +20,21 @@
 """ Provide functions to handle NVT Info Cache. """
 
 import logging
+import subprocess
+import sys
+
+from distutils.version import StrictVersion
 
 from ospd_openvas.db import NVT_META_FIELDS
+from ospd_openvas.errors import OspdOpenvasError
+
 
 logger = logging.getLogger(__name__)
 
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
+
+SUPPORTED_NVTICACHE_VERSION = ['11.0']
 
 
 class NVTICache(object):
@@ -48,10 +56,42 @@ class NVTICache(object):
         'default': '70',
     }
 
-    NVTICACHE_STR = 'nvticache11.0.0'
+    NVTICACHE_STR = None
 
     def __init__(self, openvas_db):
         self._openvas_db = openvas_db
+
+    def set_nvticache_str(self):
+        """Set nvticache name"""
+        try:
+            result = subprocess.check_output(
+                ['pkg-config', '--modversion', 'libgvm_util'],
+                stderr=subprocess.STDOUT,
+            )
+        except (subprocess.CalledProcessError, PermissionError) as e:
+            raise OspdOpenvasError(
+                "Error setting nvticache. "
+                "Not possible to get the installed "
+                "gvm-libs version. %s" % e
+            )
+
+        installed_lib = StrictVersion(str(result.decode('utf-8'))).version
+
+        for supported_item in SUPPORTED_NVTICACHE_VERSION:
+            supported_lib = StrictVersion(supported_item).version
+            if (
+                installed_lib >= supported_lib
+                and installed_lib[0] == supported_lib[0]
+            ):
+                NVTICache.NVTICACHE_STR = (
+                    "nvticache" + result.decode('utf-8').rstrip()
+                )
+                return
+
+        logger.error(
+            "Error setting nvticache. " "Incompatible nvticache version."
+        )
+        sys.exit(1)
 
     def get_feed_version(self):
         """ Get feed version.
