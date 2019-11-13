@@ -287,7 +287,7 @@ class OpenvasDB(object):
 
         if not ctx:
             ctx = self.get_kb_context()
-        ctx.lrem(key, count=LIST_ALL, value=value)
+        ctx.lrem(key, LIST_ALL, value)
 
     def get_single_item(self, name, ctx=None, index=LIST_FIRST_POS):
         """ Get a single KB element.
