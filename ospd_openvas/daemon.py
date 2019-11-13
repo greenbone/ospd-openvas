@@ -762,8 +762,8 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_insight).decode('utf-8')
 
     @staticmethod
-    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None,
-                                   solution_method=None
+    def get_solution_vt_as_xml_str(
+        vt_id, solution, solution_type=None, solution_method=None
     ):  # pylint: disable=arguments-differ
         """ Return solution as string.
         Arguments:
