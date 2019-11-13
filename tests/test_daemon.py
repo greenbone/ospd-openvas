@@ -436,13 +436,15 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_solution_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        out = '<solution type="WillNotFix">some solution</solution>'
+        out = '<solution type="WillNotFix" method="DebianAPTUpgrade">some solution</solution>'
         vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         solution = vt.get('solution')
         solution_type = vt.get('solution_type')
+        solution_method = vt.get('solution_method')
 
         res = w.get_solution_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type
+            '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type,
+            solution_method
         )
 
         self.assertEqual(res, out)

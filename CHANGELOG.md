@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.4] (unreleased)
 
+### Added
+- Add solution method to solution of vt object. [#131](https://github.com/greenbone/ospd-openvas/pull/131)
+
 ## [1.0.1] (unreleased)
 
 ### Changed

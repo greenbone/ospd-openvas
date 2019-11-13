@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2018 Greenbone Networks GmbH
+# Copyright (C) 2018-2019 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -47,6 +47,7 @@ class DummyDaemon(OSPDopenvas):
                 },
                 'solution': 'some solution',
                 'solution_type': 'WillNotFix',
+                'solution_method': 'DebianAPTUpgrade',
                 'impact': 'some impact',
                 'summary': 'some summary',
                 'affected': 'some affection',
@@ -111,6 +112,7 @@ class DummyDaemon(OSPDopenvas):
             'required_ports': 'Services/www, 80',
             'solution': 'some solution',
             'solution_type': 'WillNotFix',
+            'solution_method': 'DebianAPTUpgrade',
             'impact': 'some impact',
             'insight': 'some insight',
             'summary': ('some summary'),

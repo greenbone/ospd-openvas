@@ -427,6 +427,7 @@ class OSPDopenvas(OSPDaemon):
             _insight = None
             _solution = None
             _solution_t = None
+            _solution_m = None
             _vuldetect = None
             _qod_t = None
             _qod_v = None
@@ -443,6 +444,8 @@ class OSPDopenvas(OSPDaemon):
                 _solution = _custom.pop('solution')
                 if 'solution_type' in _custom:
                     _solution_t = _custom.pop('solution_type')
+                if 'solution_method' in _custom:
+                    _solution_m = _custom.pop('solution_method')
 
             if 'vuldetect' in _custom:
                 _vuldetect = _custom.pop('vuldetect')
@@ -488,6 +491,7 @@ class OSPDopenvas(OSPDaemon):
                     insight=_insight,
                     solution=_solution,
                     solution_t=_solution_t,
+                    solution_m=_solution_m,
                     detection=_vuldetect,
                     qod_t=_qod_t,
                     qod_v=_qod_v,
@@ -759,13 +763,14 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_solution_vt_as_xml_str(
-        vt_id, solution, solution_type=None
+        vt_id, solution, solution_type=None, solution_method=None
     ):  # pylint: disable=arguments-differ
         """ Return solution as string.
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
             solution (str): String giving a possible solution.
             solution_type (str): A solution type
+            solution_method (str): A solution method
         Return:
             string: xml element as string.
         """
@@ -778,6 +783,8 @@ class OSPDopenvas(OSPDaemon):
             )
         if solution_type:
             _solution.set('type', solution_type)
+        if solution_method:
+            _solution.set('method', solution_method)
         return tostring(_solution).decode('utf-8')
 
     @staticmethod
