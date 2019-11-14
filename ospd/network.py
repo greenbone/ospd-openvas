@@ -277,6 +277,9 @@ def target_str_to_list(target_str: str) -> Optional[List]:
     """ Parses a targets string into a list of individual targets. """
     new_list = list()
 
+    if not target_str:
+        return None
+
     for target in target_str.split(','):
 
         target = target.strip()
