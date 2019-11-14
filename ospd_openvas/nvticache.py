@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
 
-SUPPORTED_NVTICACHE_VERSION = ['11.0']
+SUPPORTED_NVTICACHE_VERSIONS = ('11.0',)
 
 
 class NVTICache(object):
@@ -77,7 +77,7 @@ class NVTICache(object):
 
         installed_lib = StrictVersion(str(result.decode('utf-8'))).version
 
-        for supported_item in SUPPORTED_NVTICACHE_VERSION:
+        for supported_item in SUPPORTED_NVTICACHE_VERSIONS:
             supported_lib = StrictVersion(supported_item).version
             if (
                 installed_lib >= supported_lib
