@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix set permission in unix socket. [#157](https://github.com/greenbone/ospd/pull/157)
 - Fix VT filter.  [#165](https://github.com/greenbone/ospd/pull/165)
+- Remove from exclude_host list the hosts passed as finished too. [#183](https://github.com/greenbone/ospd/pull/183)
 
 [2.0.1]: https://github.com/greenbone/ospd/compare/v2.0.0...ospd-2.0
 
