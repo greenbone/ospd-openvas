@@ -136,7 +136,10 @@ class ScanCollection(object):
     def set_host_finished(self, scan_id, target, host):
         """ Add the host in a list of finished hosts """
         finished_hosts = self.scans_table[scan_id]['finished_hosts']
-        finished_hosts[target].append(host)
+
+        if host not in finished_hosts[target]:
+            finished_hosts[target].append(host)
+
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
     def get_hosts_unfinished(self, scan_id):
@@ -284,15 +287,34 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['progress']
 
+    def simplify_exclude_host_list(self, scan_id, target):
+        """ Remove from exclude_hosts the received hosts in the finished_hosts
+        list sent by the client.
+        The finished hosts are sent also as exclude hosts for backward
+        compatibility purposses.
+        """
+
+        exc_hosts_list = target_str_to_list(
+            self.get_exclude_hosts(scan_id, target)
+        )
+
+        finished_hosts_list = target_str_to_list(
+            self.get_finished_hosts(scan_id, target)
+        )
+        if finished_hosts_list and exc_hosts_list:
+            for finished in finished_hosts_list:
+                if finished in exc_hosts_list:
+                    exc_hosts_list.remove(finished)
+
+        return exc_hosts_list
+
     def get_target_progress(self, scan_id, target):
         """ Get a target's current progress value.
         The value is calculated with the progress of each single host
         in the target."""
 
         total_hosts = len(target_str_to_list(target))
-        exc_hosts_list = target_str_to_list(
-            self.get_exclude_hosts(scan_id, target)
-        )
+        exc_hosts_list = self.simplify_exclude_host_list(scan_id, target)
         exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
         host_progresses = self.scans_table[scan_id]['target_progress'].get(
             target
@@ -344,6 +366,14 @@ class ScanCollection(object):
             for item in self.scans_table[scan_id]['targets']:
                 if target == item[0]:
                     return item[3]
+
+    def get_finished_hosts(self, scan_id, target):
+        """ Get the finished host list sent by the client for a given target.
+        """
+        if target:
+            for item in self.scans_table[scan_id]['targets']:
+                if target == item[0]:
+                    return item[4]
 
     def get_credentials(self, scan_id, target):
         """ Get a scan's credential list. It return dictionary with
