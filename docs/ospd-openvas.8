@@ -56,6 +56,10 @@ Unix file socket to listen on. Default: /var/run/ospd/ospd.sock
 Unix file socket mode. Default: 0o700
 
 .TP
+.BI "--pid-file "PID_FILE
+Location of the file for the process ID. Default: /var/run/ospd.pid
+
+.TP
 .BI "-k " KEY_FILE ", --key-file "KEY_FILE
 Server key file. Default:
 /usr/var/lib/gvm/private/CA/serverkey.pem
@@ -111,6 +115,9 @@ It must be set in octal format. E.g. socket_mode = 0o770
 
 .IP unix_socket
 This option specifies the socket path.
+
+.IP pid_file
+Location of the file for the process ID.
 
 .IP log_file
 Path to the log file. If no log file is given, the system log
