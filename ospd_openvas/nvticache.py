@@ -23,7 +23,7 @@ import logging
 import subprocess
 import sys
 
-from distutils.version import StrictVersion
+from pkg_resources import parse_version
 
 from ospd_openvas.db import NVT_META_FIELDS
 from ospd_openvas.errors import OspdOpenvasError
@@ -75,13 +75,14 @@ class NVTICache(object):
                 "gvm-libs version. %s" % e
             )
 
-        installed_lib = StrictVersion(str(result.decode('utf-8'))).version
+        installed_lib = parse_version(str(result.decode('utf-8')))
 
         for supported_item in SUPPORTED_NVTICACHE_VERSIONS:
-            supported_lib = StrictVersion(supported_item).version
+            supported_lib = parse_version(supported_item)
             if (
                 installed_lib >= supported_lib
-                and installed_lib[0] == supported_lib[0]
+                and installed_lib.base_version.split('.')[0]
+                == supported_lib.base_version.split('.')[0]
             ):
                 NVTICache.NVTICACHE_STR = (
                     "nvticache" + result.decode('utf-8').rstrip()
