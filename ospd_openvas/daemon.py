@@ -1422,13 +1422,22 @@ class OSPDopenvas(OSPDaemon):
             'internal/%s/scanprefs' % openvas_scan_id, [port_range]
         )
 
+        # If credentials or vts fail, set this variable.
+        do_not_launch = False
+
         # Set credentials
         credentials = self.get_scan_credentials(scan_id, target)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
-            self.openvas_db.add_single_item(
-                'internal/%s/scanprefs' % openvas_scan_id, cred_prefs
-            )
+            if cred_prefs:
+                self.openvas_db.add_single_item(
+                    'internal/%s/scanprefs' % openvas_scan_id, cred_prefs
+                )
+            else:
+                self.add_scan_error(
+                    scan_id, name='', host=target, value='Malformed credential.'
+                )
+                do_not_launch = True
 
         # Set plugins to run
         nvts = self.get_scan_vts(scan_id)
@@ -1447,10 +1456,13 @@ class OSPDopenvas(OSPDaemon):
                     'internal/%s/scanprefs' % openvas_scan_id, [item]
                 )
         else:
-            self.openvas_db.release_db(self.main_kbindex)
             self.add_scan_error(
                 scan_id, name='', host=target, value='No VTS to run.'
             )
+            do_not_launch = True
+
+        if do_not_launch:
+            self.openvas_db.release_db(self.main_kbindex)
             return 2
 
         cmd = ['openvas', '--scan-start', openvas_scan_id]
