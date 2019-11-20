@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add solution method to solution of vt object. [#131](https://github.com/greenbone/ospd-openvas/pull/131)
 - Add set_nvticache_str(). [#150](https://github.com/greenbone/ospd-openvas/pull/150)
+- Add typing to nvticache.py. [#161](https://github.com/greenbone/ospd-openvas/pull/161)
 
 ## [1.0.1] (unreleased)
 
