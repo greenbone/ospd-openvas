@@ -27,6 +27,7 @@ import time
 import uuid
 import binascii
 
+from typing import Optional, Dict, List, Tuple
 from datetime import datetime
 from base64 import b64decode
 
@@ -49,6 +50,17 @@ from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
 
 logger = logging.getLogger(__name__)
+
+# Types
+VtParamValueType: List[str] = [
+    "entry",
+    "password",
+    "radio",
+    "sshlogin",
+    "checkbox",
+    "file",
+    "integer",
+]
 
 OSPD_DESC = """
 This scanner runs OpenVAS to scan the target hosts.
@@ -228,7 +240,7 @@ OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
 OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 
 
-def _from_bool_to_str(value):
+def _from_bool_to_str(value: int) -> str:
     """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
     uses 1 and 0."""
     return 'yes' if value == 1 else 'no'
@@ -239,7 +251,7 @@ class OpenVasVtsFilter(VtsFilter):
     Each method formats the value to be compatible with the filter
     """
 
-    def format_vt_modification_time(self, value):
+    def format_vt_modification_time(self, value: str) -> str:
         """ Convert the string seconds since epoch into a 19 character
         string representing YearMonthDayHourMinuteSecond,
         e.g. 20190319122532. This always refers to UTC.
@@ -326,7 +338,7 @@ class OSPDopenvas(OSPDaemon):
         except subprocess.CalledProcessError as err:
             logger.error('OpenVAS Scanner failed to load NVTs. %s', err)
 
-    def feed_is_outdated(self, current_feed):
+    def feed_is_outdated(self, current_feed: str) -> Optional[bool]:
         """ Compare the current feed with the one in the disk.
 
         Return:
@@ -507,13 +519,13 @@ class OSPDopenvas(OSPDaemon):
         logger.debug('Finish loading up vts.')
 
     @staticmethod
-    def get_custom_vt_as_xml_str(vt_id, custom):
+    def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
         """ Return an xml element with custom metadata formatted as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            custom (dict): Dictionary with the custom metadata.
+            vt_id: VT OID. Only used for logging in error case.
+            custom: Dictionary with the custom metadata.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
 
         _custom = Element('custom')
@@ -528,13 +540,13 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_custom).decode('utf-8')
 
     @staticmethod
-    def get_severities_vt_as_xml_str(vt_id, severities):
+    def get_severities_vt_as_xml_str(vt_id: str, severities: Dict) -> str:
         """ Return an xml element with severities as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            severities (dict): Dictionary with the severities.
+            vt_id: VT OID. Only used for logging in error case.
+            severities: Dictionary with the severities.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _severities = Element('severities')
         _severity = SubElement(_severities, 'severity')
@@ -553,13 +565,13 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_severities).decode('utf-8')
 
     @staticmethod
-    def get_params_vt_as_xml_str(vt_id, vt_params):
+    def get_params_vt_as_xml_str(vt_id: str, vt_params: Dict) -> str:
         """ Return an xml element with params formatted as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            vt_params (dict): Dictionary with the VT parameters.
+            vt_id: VT OID. Only used for logging in error case.
+            vt_params: Dictionary with the VT parameters.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         vt_params_xml = Element('params')
         for _pref_id, prefs in vt_params.items():
@@ -588,13 +600,13 @@ class OSPDopenvas(OSPDaemon):
         return tostring(vt_params_xml).decode('utf-8')
 
     @staticmethod
-    def get_refs_vt_as_xml_str(vt_id, vt_refs):
+    def get_refs_vt_as_xml_str(vt_id: str, vt_refs: Dict) -> str:
         """ Return an xml element with references formatted as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            vt_refs (dict): Dictionary with the VT references.
+            vt_id: VT OID. Only used for logging in error case.
+            vt_refs: Dictionary with the VT references.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         vt_refs_xml = Element('refs')
         for ref_type, ref_values in vt_refs.items():
@@ -624,14 +636,14 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(
-        vt_id, dep_list
-    ):  # pylint: disable=arguments-differ
+        vt_id: str, dep_list: List
+    ) -> str:  # pylint: disable=arguments-differ
         """ Return  an xml element with dependencies as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            dep_list (List): List with the VT dependencies.
+            vt_id: VT OID. Only used for logging in error case.
+            dep_list: List with the VT dependencies.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         vt_deps_xml = Element('dependencies')
         for dep in dep_list:
@@ -649,14 +661,14 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(
-        vt_id, creation_time
-    ):  # pylint: disable=arguments-differ
+        vt_id: str, creation_time: str
+    ) -> str:  # pylint: disable=arguments-differ
         """ Return creation time as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            creation_time (str): String with the VT creation time.
+            vt_id: VT OID. Only used for logging in error case.
+            creation_time: String with the VT creation time.
         Return:
-            string: xml element as string.
+           Xml element as string.
         """
         _time = Element('creation_time')
         try:
@@ -669,14 +681,14 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_modification_time_vt_as_xml_str(
-        vt_id, modification_time
-    ):  # pylint: disable=arguments-differ
+        vt_id: str, modification_time: str
+    ) -> str:  # pylint: disable=arguments-differ
         """ Return modification time as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            modification_time (str): String with the VT modification time.
+            vt_id: VT OID. Only used for logging in error case.
+            modification_time: String with the VT modification time.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _time = Element('modification_time')
         try:
@@ -690,13 +702,13 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_time).decode('utf-8')
 
     @staticmethod
-    def get_summary_vt_as_xml_str(vt_id, summary):
+    def get_summary_vt_as_xml_str(vt_id: str, summary: str) -> str:
         """ Return summary as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            summary (str): String with a VT summary.
+            vt_id: VT OID. Only used for logging in error case.
+            summary: String with a VT summary.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _summary = Element('summary')
         try:
@@ -708,7 +720,7 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_summary).decode('utf-8')
 
     @staticmethod
-    def get_impact_vt_as_xml_str(vt_id, impact):
+    def get_impact_vt_as_xml_str(vt_id: str, impact) -> str:
         """ Return impact as string.
 
         Arguments:
@@ -727,13 +739,13 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_impact).decode('utf-8')
 
     @staticmethod
-    def get_affected_vt_as_xml_str(vt_id, affected):
+    def get_affected_vt_as_xml_str(vt_id: str, affected: str) -> str:
         """ Return affected as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            affected (str): String which explain what is affected.
+            vt_id: VT OID. Only used for logging in error case.
+            affected: String which explain what is affected.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _affected = Element('affected')
         try:
@@ -745,13 +757,13 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_affected).decode('utf-8')
 
     @staticmethod
-    def get_insight_vt_as_xml_str(vt_id, insight):
+    def get_insight_vt_as_xml_str(vt_id: str, insight: str) -> str:
         """ Return insight as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            insight (str): String giving an insight of the vulnerability.
+            vt_id: VT OID. Only used for logging in error case.
+            insight: String giving an insight of the vulnerability.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _insight = Element('insight')
         try:
@@ -764,16 +776,19 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_solution_vt_as_xml_str(
-        vt_id, solution, solution_type=None, solution_method=None
-    ):  # pylint: disable=arguments-differ
+        vt_id: str,
+        solution: str,
+        solution_type: Optional[str] = None,
+        solution_method: Optional[str] = None,
+    ) -> str:  # pylint: disable=arguments-differ
         """ Return solution as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            solution (str): String giving a possible solution.
-            solution_type (str): A solution type
-            solution_method (str): A solution method
+            vt_id: VT OID. Only used for logging in error case.
+            solution: String giving a possible solution.
+            solution_type: A solution type
+            solution_method: A solution method
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _solution = Element('solution')
         try:
@@ -790,17 +805,20 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_detection_vt_as_xml_str(
-        vt_id, vuldetect=None, qod_type=None, qod=None
-    ):  # pylint: disable=arguments-differ
+        vt_id: str,
+        vuldetect: Optional[str] = None,
+        qod_type: Optional[str] = None,
+        qod: Optional[str] = None,
+    ) -> str:  # pylint: disable=arguments-differ
         """ Return detection as string.
         Arguments:
-            vt_id (str): VT OID. Only used for logging in error case.
-            vuldetect (str, opt): String which explain how the vulnerability
+            vt_id: VT OID. Only used for logging in error case.
+            vuldetect: String which explain how the vulnerability
                 was detected.
-            qod_type (str, opt): qod type.
-            qod (str, opt): qod value.
+            qod_type: qod type.
+            qod: qod value.
         Return:
-            string: xml element as string.
+            Xml element as string.
         """
         _detection = Element('detection')
         if vuldetect:
@@ -820,7 +838,7 @@ class OSPDopenvas(OSPDaemon):
         return tostring(_detection).decode('utf-8')
 
     @property
-    def is_running_as_root(self):
+    def is_running_as_root(self) -> bool:
         """ Check if it is running as root user."""
         if self._is_running_as_root is not None:
             return self._is_running_as_root
@@ -832,7 +850,7 @@ class OSPDopenvas(OSPDaemon):
         return self._is_running_as_root
 
     @property
-    def sudo_available(self):
+    def sudo_available(self) -> bool:
         """ Checks that sudo is available """
         if self._sudo_available is not None:
             return self._sudo_available
@@ -856,7 +874,7 @@ class OSPDopenvas(OSPDaemon):
 
         return self._sudo_available
 
-    def check(self):
+    def check(self) -> bool:
         """ Checks that openvas command line tool is found and
         is executable. """
         try:
@@ -880,14 +898,17 @@ class OSPDopenvas(OSPDaemon):
 
         return True
 
-    def update_progress(self, scan_id, target, current_host, msg):
+    def update_progress(
+        self, scan_id: str, target: str, current_host: str, msg: str
+    ):
         """ Calculate percentage and update the scan status of a host
         for the progress bar.
         Arguments:
-            scan_id (uuid): Scan ID to identify the current scan process.
-            target (str): Target to be updated with the calculated
+            scan_id: Scan ID to identify the current scan process.
+            target: Target to be updated with the calculated
                           scan progress.
-            msg (str): String with launched and total plugins.
+            current_host: Host in the target to be updated.
+            msg: String with launched and total plugins.
         """
         try:
             launched, total = msg.split('/')
@@ -901,21 +922,22 @@ class OSPDopenvas(OSPDaemon):
             host_prog = (float(launched) / float(total)) * 100
         self.set_scan_host_progress(scan_id, target, current_host, host_prog)
 
-    def get_openvas_status(self, scan_id, target, current_host):
+    def get_openvas_status(self, scan_id: str, target: str, current_host: str):
         """ Get all status entries from redis kb.
         Arguments:
-            scan_id (uuid): Scan ID to identify the current scan.
-            target (str): Target progress to be updated.
+            scan_id: Scan ID to identify the current scan.
+            target: Target progress to be updated.
+            current_host: Host to be updated.
         """
         res = self.openvas_db.get_status()
         while res:
             self.update_progress(scan_id, target, current_host, res)
             res = self.openvas_db.get_status()
 
-    def get_severity_score(self, oid):
+    def get_severity_score(self, oid: str) -> Optional[float]:
         """ Return the severity score for the given oid.
         Arguments:
-            oid (str): VT OID from which to get the severity vector
+            oid: VT OID from which to get the severity vector
         Returns:
             The calculated cvss base value. None if there is no severity
             vector or severity type is not cvss base version 2.
@@ -930,7 +952,7 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def get_openvas_result(self, scan_id, current_host):
+    def get_openvas_result(self, scan_id: str, current_host: str):
         """ Get all result entries from redis kb. """
         res = self.openvas_db.get_result()
         while res:
@@ -997,7 +1019,7 @@ class OSPDopenvas(OSPDaemon):
 
             res = self.openvas_db.get_result()
 
-    def get_openvas_timestamp_scan_host(self, scan_id, target):
+    def get_openvas_timestamp_scan_host(self, scan_id: str, target: str):
         """ Get start and end timestamp of a host scan from redis kb. """
         timestamp = self.openvas_db.get_host_scan_scan_end_time()
         if timestamp:
@@ -1012,12 +1034,12 @@ class OSPDopenvas(OSPDaemon):
             )
             return
 
-    def host_is_finished(self, scan_id):
+    def host_is_finished(self, scan_id: str) -> bool:
         """ Check if the host has finished. """
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'finished'
 
-    def target_is_finished(self, scan_id):
+    def target_is_finished(self, scan_id: str) -> bool:
         """ Check if a target has finished. The scan id to be used is
         the scan id passed to the openvas, is not the global scan id."""
         ctx = self.openvas_db.kb_connect(dbnum=self.main_kbindex)
@@ -1030,7 +1052,7 @@ class OSPDopenvas(OSPDaemon):
 
         return status == 'finished' or status is None
 
-    def scan_is_stopped(self, scan_id):
+    def scan_is_stopped(self, scan_id: str) -> bool:
         """ Check if the parent process has received the stop_scan order.
         @in scan_id: ID to identify the scan to be stopped.
         @return 1 if yes, None in other case.
@@ -1041,7 +1063,7 @@ class OSPDopenvas(OSPDaemon):
         return status == 'stop_all'
 
     def stop_scan_cleanup(
-        self, global_scan_id
+        self, global_scan_id: str
     ):  # pylint: disable=arguments-differ
         """ Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
@@ -1104,7 +1126,7 @@ class OSPDopenvas(OSPDaemon):
                     if self.openvas_db.get_single_item('internal/%s' % scan_id):
                         self.openvas_db.release_db(host_kb)
 
-    def get_vts_in_groups(self, filters):
+    def get_vts_in_groups(self, filters: List) -> List:
         """ Return a list of vts which match with the given filter.
 
         @input filters A list of filters. Each filter has key, operator and
@@ -1126,7 +1148,7 @@ class OSPDopenvas(OSPDaemon):
                 vts_list.extend(families[value])
         return vts_list
 
-    def get_vt_param_type(self, vtid, vt_param_id):
+    def get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
         vt_params_list = self.vts[vtid].get("vt_params")
@@ -1134,7 +1156,7 @@ class OSPDopenvas(OSPDaemon):
             return vt_params_list[vt_param_id]["type"]
         return None
 
-    def get_vt_param_name(self, vtid, vt_param_id):
+    def get_vt_param_name(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
         vt_params_list = self.vts[vtid].get("vt_params")
@@ -1143,7 +1165,9 @@ class OSPDopenvas(OSPDaemon):
         return None
 
     @staticmethod
-    def check_param_type(vt_param_value, param_type):
+    def check_param_type(
+        vt_param_value: str, param_type: VtParamValueType
+    ) -> Optional[int]:
         """ Check if the value of a vt parameter matches with
         the type founded.
         """
@@ -1173,7 +1197,7 @@ class OSPDopenvas(OSPDaemon):
 
         return 1
 
-    def process_vts(self, vts):
+    def process_vts(self, vts: List) -> Tuple[list, list]:
         """ Add single VTs and their parameters. """
         vts_list = []
         vts_params = []
@@ -1226,7 +1250,7 @@ class OSPDopenvas(OSPDaemon):
         return vts_list, vts_params
 
     @staticmethod
-    def build_credentials_as_prefs(credentials):
+    def build_credentials_as_prefs(credentials: Dict) -> List[str]:
         """ Parse the credential dictionary.
         @param credentials: Dictionary with the credentials.
 
@@ -1340,7 +1364,7 @@ class OSPDopenvas(OSPDaemon):
 
         return cred_prefs_list
 
-    def exec_scan(self, scan_id, target):
+    def exec_scan(self, scan_id: str, target: str):
         """ Starts the OpenVAS scanner for scan_id scan. """
         if self.pending_feed:
             logger.info(
