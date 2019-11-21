@@ -636,17 +636,17 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_dependencies_vt_as_xml_str(
-        vt_id: str, dep_list: List
-    ) -> str:  # pylint: disable=arguments-differ
+        vt_id: str, vt_dependencies: List
+    ) -> str:
         """ Return  an xml element with dependencies as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
-            dep_list: List with the VT dependencies.
+            vt_dependencies: List with the VT dependencies.
         Return:
             Xml element as string.
         """
         vt_deps_xml = Element('dependencies')
-        for dep in dep_list:
+        for dep in vt_dependencies:
             _vt_dep = Element('dependency')
             try:
                 _vt_dep.set('vt_id', dep)
@@ -661,18 +661,18 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(
-        vt_id: str, creation_time: str
-    ) -> str:  # pylint: disable=arguments-differ
+        vt_id: str, vt_creation_time: str
+    ) -> str:
         """ Return creation time as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
-            creation_time: String with the VT creation time.
+            vt_creation_time: String with the VT creation time.
         Return:
            Xml element as string.
         """
         _time = Element('creation_time')
         try:
-            _time.text = creation_time
+            _time.text = vt_creation_time
         except ValueError as e:
             logger.warning(
                 "Not possible to parse creation time for vt %s: %s", vt_id, e
@@ -681,18 +681,18 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_modification_time_vt_as_xml_str(
-        vt_id: str, modification_time: str
-    ) -> str:  # pylint: disable=arguments-differ
+        vt_id: str, vt_modification_time: str
+    ) -> str:
         """ Return modification time as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
-            modification_time: String with the VT modification time.
+            vt_modification_time: String with the VT modification time.
         Return:
             Xml element as string.
         """
         _time = Element('modification_time')
         try:
-            _time.text = modification_time
+            _time.text = vt_modification_time
         except ValueError as e:
             logger.warning(
                 "Not possible to parse modification time for vt %s: %s",
@@ -780,7 +780,7 @@ class OSPDopenvas(OSPDaemon):
         solution: str,
         solution_type: Optional[str] = None,
         solution_method: Optional[str] = None,
-    ) -> str:  # pylint: disable=arguments-differ
+    ) -> str:
         """ Return solution as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
@@ -806,24 +806,24 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def get_detection_vt_as_xml_str(
         vt_id: str,
-        vuldetect: Optional[str] = None,
+        detection: Optional[str] = None,
         qod_type: Optional[str] = None,
         qod: Optional[str] = None,
-    ) -> str:  # pylint: disable=arguments-differ
+    ) -> str:
         """ Return detection as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
-            vuldetect: String which explain how the vulnerability
-                was detected.
+            detection: String which explain how the vulnerability
+              was detected.
             qod_type: qod type.
             qod: qod value.
         Return:
             Xml element as string.
         """
         _detection = Element('detection')
-        if vuldetect:
+        if detection:
             try:
-                _detection.text = vuldetect
+                _detection.text = detection
             except ValueError as e:
                 logger.warning(
                     "Not possible to parse detection tag for vt %s: %s",
