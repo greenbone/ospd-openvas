@@ -12,3 +12,4 @@ ospd = {git = "https://github.com/greenbone/ospd.git",ref = "master",editable = 
 pylint = "*"
 black = "==19.10b0"
 autohooks-plugin-black = "*"
+autohooks = "*"
