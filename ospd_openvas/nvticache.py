@@ -23,12 +23,11 @@ import logging
 import subprocess
 import sys
 
-from typing import List, Dict, NewType
-from redis import Redis
+from typing import List, Dict, NewType, Optional
 
 from pkg_resources import parse_version
 
-from ospd_openvas.db import NVT_META_FIELDS
+from ospd_openvas.db import NVT_META_FIELDS, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
 
 
@@ -38,8 +37,6 @@ LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
 
 SUPPORTED_NVTICACHE_VERSIONS = ('20.4',)
-
-RedisCtx = NewType('RedisCtx', Redis)
 
 
 class NVTICache(object):
@@ -176,7 +173,7 @@ class NVTICache(object):
 
         return tags_dict
 
-    def get_nvt_metadata(self, oid: str) -> Dict:
+    def get_nvt_metadata(self, oid: str) -> Optional[Dict]:
         """ Get a full NVT. Returns an XML tree with the NVT metadata.
         Arguments:
             oid: OID of VT from which to get the metadata.
@@ -221,7 +218,7 @@ class NVTICache(object):
 
         return custom
 
-    def get_nvt_refs(self, oid: str) -> Dict:
+    def get_nvt_refs(self, oid: str) -> Optional[Dict]:
         """ Get a full NVT.
         Arguments:
             oid: OID of VT from which to get the VT references.
@@ -247,7 +244,7 @@ class NVTICache(object):
 
         return refs
 
-    def get_nvt_prefs(self, ctx: RedisCtx, oid: str) -> List:
+    def get_nvt_prefs(self, ctx: RedisCtx, oid: str) -> Optional[List]:
         """ Get NVT preferences.
         Arguments:
             ctx: Redis context to be used.
