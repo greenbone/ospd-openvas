@@ -9,7 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add solution method to solution of vt object. [#131](https://github.com/greenbone/ospd-openvas/pull/131)
 - Add set_nvticache_str(). [#150](https://github.com/greenbone/ospd-openvas/pull/150)
-- Add typing to nvticache.py and db.py. [#161](https://github.com/greenbone/ospd-openvas/pull/161)[#162](https://github.com/greenbone/ospd-openvas/pull/162)
+- Add typing to daemon.py, nvticache.py and db.py. [#161](https://github.com/greenbone/ospd-openvas/pull/161)[#162](https://github.com/greenbone/ospd-openvas/pull/162)[#163](https://github.com/greenbone/ospd-openvas/pull/163)
 
 ## [1.0.1] (unreleased)
 
