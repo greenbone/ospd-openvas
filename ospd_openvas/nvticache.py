@@ -23,7 +23,7 @@ import logging
 import subprocess
 import sys
 
-from typing import List, Dict, NewType, Optional
+from typing import List, Dict, Optional
 
 from pkg_resources import parse_version
 

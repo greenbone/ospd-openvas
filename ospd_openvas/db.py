@@ -23,9 +23,9 @@ import subprocess
 import sys
 import time
 
-import redis
+from typing import List, NewType, Optional
 
-from typing import List, Dict, NewType, Optional
+import redis
 
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
