@@ -27,7 +27,7 @@ import time
 import uuid
 import binascii
 
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple, Union
 from datetime import datetime
 from base64 import b64decode
 
@@ -52,14 +52,8 @@ from ospd_openvas.db import OpenvasDB
 logger = logging.getLogger(__name__)
 
 # Types
-VtParamValueType: List[str] = [
-    "entry",
-    "password",
-    "radio",
-    "sshlogin",
-    "checkbox",
-    "file",
-    "integer",
+VtParamValueType: str = Union[
+    "entry", "password", "radio", "sshlogin", "checkbox", "file", "integer",
 ]
 
 OSPD_DESC = """
