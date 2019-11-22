@@ -27,7 +27,7 @@ import time
 import uuid
 import binascii
 
-from typing import Optional, Dict, List, Tuple, Union
+from typing import Optional, Dict, List, Tuple
 from datetime import datetime
 from base64 import b64decode
 
@@ -51,10 +51,6 @@ from ospd_openvas.db import OpenvasDB
 
 logger = logging.getLogger(__name__)
 
-# Types
-VtParamValueType: str = Union[
-    "entry", "password", "radio", "sshlogin", "checkbox", "file", "integer",
-]
 
 OSPD_DESC = """
 This scanner runs OpenVAS to scan the target hosts.
@@ -1159,9 +1155,7 @@ class OSPDopenvas(OSPDaemon):
         return None
 
     @staticmethod
-    def check_param_type(
-        vt_param_value: str, param_type: VtParamValueType
-    ) -> Optional[int]:
+    def check_param_type(vt_param_value: str, param_type: str) -> Optional[int]:
         """ Check if the value of a vt parameter matches with
         the type founded.
         """
