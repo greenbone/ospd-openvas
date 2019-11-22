@@ -327,7 +327,7 @@ class TestOspdOpenvas(TestCase):
         dep = [u"\u0006"]
         logging.Logger.error = Mock()
         w.get_dependencies_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', dep_list=dep
+            '1.3.6.1.4.1.25623.1.0.100061', vt_dependencies=dep
         )
         if hasattr(Mock, 'assert_called_once'):
             logging.Logger.error.assert_called_once()
@@ -349,7 +349,7 @@ class TestOspdOpenvas(TestCase):
         ctime = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_creation_time_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', creation_time=ctime
+            '1.3.6.1.4.1.25623.1.0.100061', vt_creation_time=ctime
         )
         if hasattr(Mock, 'assert_called_onc'):
             logging.Logger.warning.assert_called_once()
@@ -443,8 +443,10 @@ class TestOspdOpenvas(TestCase):
         solution_method = vt.get('solution_method')
 
         res = w.get_solution_vt_as_xml_str(
-            '1.3.6.1.4.1.25623.1.0.100061', solution, solution_type,
-            solution_method
+            '1.3.6.1.4.1.25623.1.0.100061',
+            solution,
+            solution_type,
+            solution_method,
         )
 
         self.assertEqual(res, out)
