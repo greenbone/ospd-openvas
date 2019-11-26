@@ -78,15 +78,12 @@ class OSPDaemonSimpleSSH(OSPDaemon):
     an array.
     """
 
-    def __init__(self, certfile, keyfile, cafile, niceness=None):
+    def __init__(self, **kwargs):
         """ Initializes the daemon and add parameters needed to remote SSH
         execution. """
+        super().__init__(**kwargs)
 
-        super(OSPDaemonSimpleSSH, self).__init__(
-            certfile=certfile, keyfile=keyfile, cafile=cafile, niceness=niceness
-        )
-
-        self._niceness = niceness
+        self._niceness = kwargs.get('niceness', None)
 
         if paramiko is None:
             raise ImportError(

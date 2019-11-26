@@ -71,16 +71,22 @@ class fakeparamiko(object):  # pylint: disable=invalid-name
     ssh_exception = FakeExceptions
 
 
+class DummyWrapper(OSPDaemonSimpleSSH):
+    def __init__(self, niceness=10):
+        super().__init__(niceness=niceness)
+
+
 class SSHDaemonTestCase(unittest.TestCase):
     def test_no_paramiko(self):
         ospd_ssh.paramiko = None
 
         with self.assertRaises(ImportError):
-            OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
+            OSPDaemonSimpleSSH()
 
     def test_run_command(self):
         ospd_ssh.paramiko = fakeparamiko
-        daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
+
+        daemon = DummyWrapper(niceness=10)
         scanid = daemon.create_scan(
             None,
             [['host.example.com', '80, 443', '', '', '']],
@@ -96,7 +102,7 @@ class SSHDaemonTestCase(unittest.TestCase):
     def test_run_command_legacy_credential(self):
         ospd_ssh.paramiko = fakeparamiko
 
-        daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
+        daemon = DummyWrapper(niceness=10)
         scanid = daemon.create_scan(
             None,
             [['host.example.com', '80, 443', '', '', '']],
@@ -112,7 +118,7 @@ class SSHDaemonTestCase(unittest.TestCase):
     def test_run_command_new_credential(self):
         ospd_ssh.paramiko = fakeparamiko
 
-        daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
+        daemon = DummyWrapper(niceness=10)
 
         cred_dict = {
             'ssh': {
@@ -138,7 +144,7 @@ class SSHDaemonTestCase(unittest.TestCase):
     def test_run_command_no_credential(self):
         ospd_ssh.paramiko = fakeparamiko
 
-        daemon = OSPDaemonSimpleSSH('cert', 'key', 'ca', '10')
+        daemon = DummyWrapper(niceness=10)
         scanid = daemon.create_scan(
             None,
             [['host.example.com', '80, 443', '', '', '']],
