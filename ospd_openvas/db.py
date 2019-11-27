@@ -100,10 +100,11 @@ class OpenvasDB(object):
             result = subprocess.check_output(
                 ['openvas', '-s'], stderr=subprocess.STDOUT
             )
-        except (PermissionError, OSError) as e:
-            sys.exit(
-                "ERROR: %s: Not possible to run openvas. %s"
-                % (self.get_db_connection.__name__, e)
+        except (PermissionError, OSError, subprocess.CalledProcessError) as e:
+            raise OspdOpenvasError(
+                "{}: Not possible to run openvas. {}".format(
+                    self.get_db_connection.__name__, e
+                )
             )
 
         if result:
@@ -121,7 +122,7 @@ class OpenvasDB(object):
             self.max_dbindex = int(resp.get('databases'))
         else:
             raise OspdOpenvasError(
-                'Redis Error: Not possible ' 'to get max_dbindex.'
+                'Redis Error: Not possible to get max_dbindex.'
             )
 
     def set_redisctx(self, ctx):
