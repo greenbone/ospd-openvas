@@ -100,10 +100,15 @@ class NVTICache(object):
             )
         )
 
+    def get_redis_context(self):
+        """ Return the redix context for this nvti cache
+        """
+        return self._openvas_db.db_find(self.get_nvti_cache_name())
+
     def get_feed_version(self):
         """ Get feed version.
         """
-        ctx = self._openvas_db.db_find(self.get_nvti_cache_name())
+        ctx = self.get_redis_context()
         return self._openvas_db.get_single_item(
             self.get_nvti_cache_name(), ctx=ctx
         )
