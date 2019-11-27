@@ -21,7 +21,6 @@
 
 import logging
 import subprocess
-import sys
 
 from typing import List, Dict, Optional
 
@@ -96,10 +95,12 @@ class NVTICache(object):
 
                 return
 
-        logger.error(
-            "Error setting nvticache. " "Incompatible nvticache version."
+        raise OspdOpenvasError(
+            "Error setting nvticache. Incompatible nvticache "
+            "version {}. Supported versions are {}.".format(
+                version_string, ", ".join(SUPPORTED_NVTICACHE_VERSIONS)
+            )
         )
-        sys.exit(1)
 
     def get_feed_version(self) -> str:
         """ Get feed version.
