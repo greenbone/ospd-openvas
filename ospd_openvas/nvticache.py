@@ -58,12 +58,17 @@ class NVTICache(object):
         'default': '70',
     }
 
-    NVTICACHE_STR = None
-
     def __init__(self, openvas_db):
         self._openvas_db = openvas_db
+        self._nvti_cache_name = None
 
-    def set_nvticache_str(self):
+    def get_nvti_cache_name(self):
+        if not self._nvti_cache_name:
+            self._set_nvti_cache_name()
+
+        return self._nvti_cache_name
+
+    def _set_nvti_cache_name(self):
         """Set nvticache name"""
         try:
             result = subprocess.check_output(
@@ -77,7 +82,8 @@ class NVTICache(object):
                 "gvm-libs version. %s" % e
             )
 
-        installed_lib = parse_version(str(result.decode('utf-8')))
+        version_string = str(result.decode('utf-8').rstrip())
+        installed_lib = parse_version(version_string)
 
         for supported_item in SUPPORTED_NVTICACHE_VERSIONS:
             supported_lib = parse_version(supported_item)
@@ -86,9 +92,8 @@ class NVTICache(object):
                 and installed_lib.base_version.split('.')[0]
                 == supported_lib.base_version.split('.')[0]
             ):
-                NVTICache.NVTICACHE_STR = (
-                    "nvticache" + result.decode('utf-8').rstrip()
-                )
+                self._nvti_cache_name = "nvticache{}".format(version_string)
+
                 return
 
         logger.error(
@@ -99,8 +104,10 @@ class NVTICache(object):
     def get_feed_version(self) -> str:
         """ Get feed version.
         """
-        ctx = self._openvas_db.db_find(self.NVTICACHE_STR)
-        return self._openvas_db.get_single_item(self.NVTICACHE_STR, ctx=ctx)
+        ctx = self._openvas_db.db_find(self.get_nvti_cache_name())
+        return self._openvas_db.get_single_item(
+            self.get_nvti_cache_name(), ctx=ctx
+        )
 
     def get_oids(self) -> list:
         """ Get the list of NVT OIDs.
