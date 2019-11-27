@@ -284,11 +284,11 @@ class OSPDopenvas(OSPDaemon):
     def init(self):
         self.openvas_db.db_init()
 
-        ctx = self.openvas_db.db_find(self.nvti.get_nvti_cache_str())
+        ctx = self.nvti.get_redis_context()
 
         if not ctx:
             self.redis_nvticache_init()
-            ctx = self.openvas_db.db_find(self.nvti.get_nvti_cache_str())
+            ctx = self.nvti.get_redis_context()
 
         self.openvas_db.set_redisctx(ctx)
 
@@ -371,7 +371,7 @@ class OSPDopenvas(OSPDaemon):
         # Check if the nvticache in redis is outdated
         if not current_feed or self.feed_is_outdated(current_feed):
             self.redis_nvticache_init()
-            ctx = self.openvas_db.db_find(self.nvti.get_nvti_cache_str())
+            ctx = self.nvti.get_redis_context()
             self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
 
