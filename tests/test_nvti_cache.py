@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-# pylint: disable=unused-argument
+# pylint: disable=unused-argument, protected-access
 
 """ Unit Test for ospd-openvas """
 
@@ -25,6 +25,7 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from ospd_openvas.db import OpenvasDB
+from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
 
 
@@ -35,6 +36,8 @@ class TestNVTICache(TestCase):
         self.nvti = NVTICache(self.db)
 
     def test_get_feed_version(self, mock_redis):
+        self.nvti._nvti_cache_name = '20.4'
+
         with patch.object(OpenvasDB, 'db_find', return_value=mock_redis):
             with patch.object(
                 OpenvasDB, 'get_single_item', return_value='1234'
@@ -274,13 +277,34 @@ class TestNVTICache(TestCase):
         self.assertEqual(out_dict, resp)
 
     @patch('ospd_openvas.nvticache.subprocess')
-    def test_set_nvticache_str(self, mock_subps, mock_redis):
-        self.assertIsNone(self.nvti.NVTICACHE_STR)
+    def test_set_nvti_cache_name(self, mock_subps, mock_redis):
+        self.assertIsNone(self.nvti._nvti_cache_name)
 
         mock_subps.check_output.return_value = '20.10\n'.encode()
-        self.nvti.set_nvticache_str()
-        self.assertEqual(self.nvti.NVTICACHE_STR, 'nvticache20.10')
+        self.nvti._set_nvti_cache_name()
 
+        self.assertTrue(mock_subps.check_output.called)
+        self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.10')
+
+        mock_subps.check_output.reset_mock()
         mock_subps.check_output.return_value = '11.0.1\n'.encode()
-        with self.assertRaises(SystemExit):
-            self.nvti.set_nvticache_str()
+
+        with self.assertRaises(OspdOpenvasError):
+            self.nvti._set_nvti_cache_name()
+
+        self.assertTrue(mock_subps.check_output.called)
+
+    @patch('ospd_openvas.nvticache.subprocess')
+    def test_get_nvti_cache_name(self, mock_subps, mock_redis):
+        self.assertIsNone(self.nvti._nvti_cache_name)
+
+        mock_subps.check_output.return_value = '20.4\n'.encode()
+
+        self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.4')
+        self.assertTrue(mock_subps.check_output.called)
+
+        mock_subps.check_output.reset_mock()
+        mock_subps.check_output.return_value = '20.10'.encode()
+
+        self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.4')
+        self.assertFalse(mock_subps.check_output.called)
