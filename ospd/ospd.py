@@ -683,7 +683,7 @@ class OSPDaemon:
             )
 
         if scan_process.ident != os.getpid():
-            scan_process.join()
+            scan_process.join(0)
         logger.info('%s: Scan stopped.', scan_id)
 
     @staticmethod
@@ -890,6 +890,7 @@ class OSPDaemon:
         """ Handle N parallel scans if 'parallel' is greater than 1. """
 
         os.setsid()
+
         multiscan_proc = []
         logger.info("%s: Scan started.", scan_id)
         target_list = targets
@@ -1541,8 +1542,10 @@ class OSPDaemon:
 
         if vt.get('solution'):
             solution_xml_str = self.get_solution_vt_as_xml_str(
-                vt_id, vt.get('solution'), vt.get('solution_type'),
-                vt.get('solution_method')
+                vt_id,
+                vt.get('solution'),
+                vt.get('solution_type'),
+                vt.get('solution_method'),
             )
             vt_xml.append(secET.fromstring(solution_xml_str))
 
@@ -1699,6 +1702,7 @@ class OSPDaemon:
                 time.sleep(10)
                 self.scheduler()
                 self.clean_forgotten_scans()
+                self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
         finally:
@@ -1708,6 +1712,11 @@ class OSPDaemon:
     def scheduler(self):
         """ Should be implemented by subclass in case of need
         to run tasks periodically. """
+
+    def wait_for_children(self):
+        """ Join the zombie process to releases resources."""
+        for scan_id in self.scan_processes:
+            self.scan_processes[scan_id].join(0)
 
     def create_scan(self, scan_id, targets, options, vts):
         """ Creates a new scan.
@@ -1780,7 +1789,7 @@ class OSPDaemon:
                 )
                 logger.info("%s: Scan stopped with errors.", scan_id)
         elif progress == 100:
-            scan_process.join()
+            scan_process.join(0)
 
     def get_scan_progress(self, scan_id):
         """ Gives a scan's current progress value. """
