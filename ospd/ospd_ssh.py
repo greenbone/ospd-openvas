@@ -27,6 +27,7 @@ from __future__ import absolute_import
 
 import socket
 
+from typing import Optional, Dict
 from ospd.ospd import OSPDaemon
 
 try:
@@ -34,7 +35,7 @@ try:
 except ImportError:
     paramiko = None
 
-SSH_SCANNER_PARAMS = {
+SSH_SCANNER_PARAMS: Dict = {
     'username_password': {
         'type': 'credential_up',
         'name': 'SSH credentials',
@@ -94,7 +95,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         for name, param in SSH_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
 
-    def run_command(self, scan_id, host, cmd):
+    def run_command(self, scan_id: str, host: str, cmd: str) -> Optional[str]:
         """
         Run a single command via SSH and return the content of stdout or
         None in case of an Error. A scan error is issued in the latter
