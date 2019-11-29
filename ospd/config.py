@@ -21,6 +21,7 @@ Module to store ospd configuration settings
 
 import configparser
 import logging
+
 from pathlib import Path
 from typing import Dict
 
@@ -30,8 +31,8 @@ logger = logging.getLogger(__name__)
 class Config:
     def __init__(self, section: str = 'main') -> None:
         self._parser = configparser.ConfigParser(default_section=section)
-        self._config: Dict = {}
-        self._defaults: Dict = dict()
+        self._config = {}   # type: Dict
+        self._defaults = {} # type: Dict
 
     def load(self, filepath: Path, def_section: str = 'main') -> None:
         path = filepath.expanduser()
