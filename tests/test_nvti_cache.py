@@ -289,7 +289,7 @@ class TestNVTICache(TestCase):
         self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.10')
 
         mock_version.reset_mock()
-        mock_version.return_value = '11.0.1'
+        mock_version.return_value = '10.0.1'
 
         with self.assertRaises(OspdOpenvasError):
             self.nvti._set_nvti_cache_name()
@@ -346,6 +346,9 @@ class TestNVTICache(TestCase):
             self.nvti._get_gvm_libs_version_string()
 
     def test_is_compatible_version(self, mock_redis):
+        self.assertFalse(self.nvti._is_compatible_version("1.0.0"))
+        self.assertFalse(self.nvti._is_compatible_version("10.0.0"))
+        self.assertTrue(self.nvti._is_compatible_version("11.0.1"))
         self.assertTrue(self.nvti._is_compatible_version("20.4"))
         self.assertTrue(self.nvti._is_compatible_version("20.4.2"))
         self.assertTrue(self.nvti._is_compatible_version("20.04"))
