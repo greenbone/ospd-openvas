@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class CliParser:
-    def __init__(self, description):
+    def __init__(self, description: str) -> None:
         """ Create a command-line arguments parser for OSPD. """
         self._name = description
         parser = argparse.ArgumentParser(description=description)
@@ -151,7 +151,7 @@ class CliParser:
 
         self.parser = parser
 
-    def network_port(self, string):
+    def network_port(self, string: str) -> int:
         """ Check if provided string is a valid network port. """
 
         value = int(string)
@@ -161,7 +161,7 @@ class CliParser:
             )
         return value
 
-    def log_level(self, string):
+    def log_level(self, string: str) -> int:
         """ Check if provided string is a valid log level. """
 
         value = getattr(logging, string.upper(), None)
@@ -171,11 +171,11 @@ class CliParser:
             )
         return value
 
-    def _set_defaults(self, configfilename=None):
+    def _set_defaults(self, configfilename=None) -> None:
         self._config = self._load_config(configfilename)
         self.parser.set_defaults(**self._config.defaults())
 
-    def _load_config(self, configfile):
+    def _load_config(self, configfile: str) -> Config:
         config = Config()
 
         if not configfile:
@@ -215,5 +215,5 @@ class CliParser:
         return args
 
 
-def create_parser(description):
+def create_parser(description: str) -> CliParser:
     return CliParser(description)
