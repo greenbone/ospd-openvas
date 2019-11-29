@@ -22,9 +22,11 @@
 import logging
 import subprocess
 
+from subprocess import CalledProcessError
 from typing import List, Dict, Optional
 
-from pkg_resources import parse_version
+from packaging.specifiers import SpecifierSet
+from packaging.version import parse as parse_version
 
 from ospd_openvas.db import NVT_META_FIELDS, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
@@ -35,7 +37,9 @@ logger = logging.getLogger(__name__)
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
 
-SUPPORTED_NVTICACHE_VERSIONS = ('20.4',)
+# actually the nvti cache with gvm-libs 10 should fit too but openvas was only
+# introduced with GVM 11 and gvm-libs 11
+SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER = SpecifierSet('>=11.0')
 
 
 class NVTICache(object):
@@ -67,40 +71,52 @@ class NVTICache(object):
 
         return self._nvti_cache_name
 
+    def _get_gvm_libs_version_string(self) -> str:
+        """ Parse version of gvm-libs
+        """
+        try:
+            result = subprocess.check_output(['openvas', '--version'],)
+        except (CalledProcessError, PermissionError) as e:
+            raise OspdOpenvasError(
+                "Not possible to get the installed gvm-libs version. %s" % e
+            )
+
+        output = result.decode('utf-8').rstrip()
+
+        if 'gvm-libs' not in output:
+            raise OspdOpenvasError(
+                "Not possible to get the installed gvm-libs version. "
+                "Outdated openvas version. openvas version needs to be at "
+                "least 7.0.1."
+            )
+
+        lines = output.splitlines()
+        _, version_string = lines[1].split(' ', 1)
+        return version_string
+
+    def _is_compatible_version(self, version: str) -> bool:
+        installed_version = parse_version(version)
+        return installed_version in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
+
     def _set_nvti_cache_name(self):
         """Set nvticache name"""
-        try:
-            result = subprocess.check_output(
-                ['pkg-config', '--modversion', 'libgvm_util'],
-                stderr=subprocess.STDOUT,
-            )
-        except (subprocess.CalledProcessError, PermissionError) as e:
+        version_string = self._get_gvm_libs_version_string()
+
+        if self._is_compatible_version(version_string):
+            self._nvti_cache_name = "nvticache{}".format(version_string)
+        else:
             raise OspdOpenvasError(
-                "Error setting nvticache. "
-                "Not possible to get the installed "
-                "gvm-libs version. %s" % e
+                "Error setting nvticache. Incompatible nvticache "
+                "version {}. Supported versions are {}.".format(
+                    version_string,
+                    ", ".join(
+                        [
+                            str(spec)
+                            for spec in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
+                        ]
+                    ),
+                )
             )
-
-        version_string = str(result.decode('utf-8').rstrip())
-        installed_lib = parse_version(version_string)
-
-        for supported_item in SUPPORTED_NVTICACHE_VERSIONS:
-            supported_lib = parse_version(supported_item)
-            if (
-                installed_lib >= supported_lib
-                and installed_lib.base_version.split('.')[0]
-                == supported_lib.base_version.split('.')[0]
-            ):
-                self._nvti_cache_name = "nvticache{}".format(version_string)
-
-                return
-
-        raise OspdOpenvasError(
-            "Error setting nvticache. Incompatible nvticache "
-            "version {}. Supported versions are {}.".format(
-                version_string, ", ".join(SUPPORTED_NVTICACHE_VERSIONS)
-            )
-        )
 
     def get_redis_context(self) -> RedisCtx:
         """ Return the redix context for this nvti cache

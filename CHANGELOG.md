@@ -11,7 +11,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add typing to daemon.py, nvticache.py and db.py. [#161](https://github.com/greenbone/ospd-openvas/pull/161)[#162](https://github.com/greenbone/ospd-openvas/pull/162)[#163](https://github.com/greenbone/ospd-openvas/pull/163)
 
 ### Changed
-- Less strict checks for the nvti cache version [#150](https://github.com/greenbone/ospd-openvas/pull/150)[#165](https://github.com/greenbone/ospd-openvas/pull/165)
+- Less strict checks for the nvti cache version
+  [#150](https://github.com/greenbone/ospd-openvas/pull/150)
+  [#165](https://github.com/greenbone/ospd-openvas/pull/165)
+  [#166](https://github.com/greenbone/ospd-openvas/pull/166)
 
 ## [1.0.1] (unreleased)
 

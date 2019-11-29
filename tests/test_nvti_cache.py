@@ -21,8 +21,10 @@
 
 """ Unit Test for ospd-openvas """
 
+from subprocess import CalledProcessError
+
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 from ospd_openvas.db import OpenvasDB
 from ospd_openvas.errors import OspdOpenvasError
@@ -276,35 +278,78 @@ class TestNVTICache(TestCase):
 
         self.assertEqual(out_dict, resp)
 
-    @patch('ospd_openvas.nvticache.subprocess')
-    def test_set_nvti_cache_name(self, mock_subps, mock_redis):
+    @patch('ospd_openvas.nvticache.NVTICache._get_gvm_libs_version_string')
+    def test_set_nvti_cache_name(self, mock_version, mock_redis):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
-        mock_subps.check_output.return_value = '20.10\n'.encode()
+        mock_version.return_value = '20.10'
         self.nvti._set_nvti_cache_name()
 
-        self.assertTrue(mock_subps.check_output.called)
+        self.assertTrue(mock_version.called)
         self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.10')
 
-        mock_subps.check_output.reset_mock()
-        mock_subps.check_output.return_value = '11.0.1\n'.encode()
+        mock_version.reset_mock()
+        mock_version.return_value = '10.0.1'
 
         with self.assertRaises(OspdOpenvasError):
             self.nvti._set_nvti_cache_name()
 
-        self.assertTrue(mock_subps.check_output.called)
+        self.assertTrue(mock_version.called)
 
-    @patch('ospd_openvas.nvticache.subprocess')
-    def test_get_nvti_cache_name(self, mock_subps, mock_redis):
+    @patch('ospd_openvas.nvticache.NVTICache._get_gvm_libs_version_string')
+    def test_get_nvti_cache_name(self, mock_version, mock_redis):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
-        mock_subps.check_output.return_value = '20.4\n'.encode()
+        mock_version.return_value = '20.4'
 
         self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.4')
-        self.assertTrue(mock_subps.check_output.called)
+        self.assertTrue(mock_version.called)
 
-        mock_subps.check_output.reset_mock()
-        mock_subps.check_output.return_value = '20.10'.encode()
+        mock_version.reset_mock()
+        mock_version.return_value = '20.10'
 
         self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.4')
-        self.assertFalse(mock_subps.check_output.called)
+        self.assertFalse(mock_version.called)
+
+    @patch('ospd_openvas.nvticache.subprocess')
+    def test_get_gvm_libs_version_string(
+        self, mock_subps: Mock, mock_redis: Mock
+    ):
+        mock_subps.check_output.return_value = (
+            'openvas 20.4.0\ngvm-libs 20.10\n'.encode()
+        )
+        self.assertEqual(self.nvti._get_gvm_libs_version_string(), '20.10')
+
+    @patch('ospd_openvas.nvticache.subprocess')
+    def test_get_gvm_libs_version_string_subprocess_error(
+        self, mock_subps: Mock, mock_redis: Mock
+    ):
+        mock_subps.check_output.side_effect = CalledProcessError(
+            returncode=1, cmd='foo bar'
+        )
+
+        with self.assertRaises(OspdOpenvasError):
+            self.nvti._get_gvm_libs_version_string()
+
+    @patch('ospd_openvas.nvticache.subprocess')
+    def test_get_gvm_libs_version_string_old_openvas(
+        self, mock_subps: Mock, mock_redis: Mock
+    ):
+        mock_subps.check_output.side_effect = CalledProcessError(
+            returncode=1, cmd='foo bar'
+        )
+        mock_subps.check_output.return_value = (
+            'openvas 7.0.0\nfoo bar\n'.encode()
+        )
+
+        with self.assertRaises(OspdOpenvasError):
+            self.nvti._get_gvm_libs_version_string()
+
+    def test_is_compatible_version(self, mock_redis):
+        self.assertFalse(self.nvti._is_compatible_version("1.0.0"))
+        self.assertFalse(self.nvti._is_compatible_version("10.0.0"))
+        self.assertTrue(self.nvti._is_compatible_version("11.0.1"))
+        self.assertTrue(self.nvti._is_compatible_version("20.4"))
+        self.assertTrue(self.nvti._is_compatible_version("20.4.2"))
+        self.assertTrue(self.nvti._is_compatible_version("20.04"))
+        self.assertTrue(self.nvti._is_compatible_version("20.10"))

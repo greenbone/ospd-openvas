@@ -7,6 +7,7 @@ url = "https://pypi.org/simple"
 psutil = "*"
 redis = ">=3.0.1"
 ospd = {git = "https://github.com/greenbone/ospd.git",ref = "master",editable = true}
+packaging = "*"
 
 [dev-packages]
 pylint = "*"
