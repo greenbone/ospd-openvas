@@ -8,10 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Check the vt's preference value for type 'file'. [#130](https://github.com/greenbone/ospd-openvas/pull/130).
-- Add set_nvticache_str(). [#151](https://github.com/greenbone/ospd-openvas/pull/151)
 - Check for malformed credentials. [#160](https://github.com/greenbone/ospd-openvas/pull/160).
 
 ### Changed
+- Less strict checks for the nvti cache version. [#151](https://github.com/greenbone/ospd-openvas/pull/151)
 - Exit with exit code 1 if it was not possible to connect to redis. [#133](https://github.com/greenbone/ospd-openvas/pull/133)
 - Return None if the scan finished successfully. [#137](https://github.com/greenbone/ospd-openvas/pull/137)
 
