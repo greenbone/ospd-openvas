@@ -25,7 +25,7 @@ import subprocess
 from subprocess import CalledProcessError
 from typing import List, Dict, Optional
 
-from pkg_resources import parse_version
+from packaging.version import parse as parse_version
 
 from ospd_openvas.db import NVT_META_FIELDS, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
