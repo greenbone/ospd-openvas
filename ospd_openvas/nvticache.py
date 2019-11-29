@@ -91,28 +91,35 @@ class NVTICache(object):
         _, version_string = lines[1].split(' ', 1)
         return version_string
 
+    def _is_compatible_version(self, version: str) -> bool:
+        installed_version = parse_version(version)
+
+        for supported_version_string in SUPPORTED_NVTICACHE_VERSIONS:
+            supported_version = parse_version(supported_version_string)
+
+            if (
+                installed_version >= supported_version
+                and installed_version.base_version.split('.')[0]
+                == supported_version.base_version.split('.')[0]
+            ):
+                return True
+
+        return False
+
     def _set_nvti_cache_name(self):
         """Set nvticache name"""
         version_string = self._get_gvm_libs_version_string()
         installed_lib = parse_version(version_string)
 
-        for supported_item in SUPPORTED_NVTICACHE_VERSIONS:
-            supported_lib = parse_version(supported_item)
-            if (
-                installed_lib >= supported_lib
-                and installed_lib.base_version.split('.')[0]
-                == supported_lib.base_version.split('.')[0]
-            ):
-                self._nvti_cache_name = "nvticache{}".format(version_string)
-
-                return
-
-        raise OspdOpenvasError(
-            "Error setting nvticache. Incompatible nvticache "
-            "version {}. Supported versions are {}.".format(
-                version_string, ", ".join(SUPPORTED_NVTICACHE_VERSIONS)
+        if self._is_compatible_version(installed_lib):
+            self._nvti_cache_name = "nvticache{}".format(version_string)
+        else:
+            raise OspdOpenvasError(
+                "Error setting nvticache. Incompatible nvticache "
+                "version {}. Supported versions are {}.".format(
+                    version_string, ", ".join(SUPPORTED_NVTICACHE_VERSIONS)
+                )
             )
-        )
 
     def get_redis_context(self) -> RedisCtx:
         """ Return the redix context for this nvti cache

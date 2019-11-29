@@ -344,3 +344,9 @@ class TestNVTICache(TestCase):
 
         with self.assertRaises(OspdOpenvasError):
             self.nvti._get_gvm_libs_version_string()
+
+    def test_is_compatible_version(self, mock_redis):
+        self.assertTrue(self.nvti._is_compatible_version("20.4"))
+        self.assertTrue(self.nvti._is_compatible_version("20.4.2"))
+        self.assertTrue(self.nvti._is_compatible_version("20.04"))
+        self.assertTrue(self.nvti._is_compatible_version("20.10"))
