@@ -24,6 +24,7 @@ import subprocess
 
 from subprocess import CalledProcessError
 
+from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 
 from ospd_openvas.db import NVT_META_FIELDS
@@ -35,7 +36,9 @@ logger = logging.getLogger(__name__)
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
 
-SUPPORTED_NVTICACHE_VERSIONS = ('11.0',)
+# actually the nvti cache with gvm-libs 10 should fit too but openvas was only
+# introduced with GVM 11 and gvm-libs 11
+SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER = SpecifierSet('>=11.0')
 
 
 class NVTICache(object):
@@ -92,31 +95,25 @@ class NVTICache(object):
 
     def _is_compatible_version(self, version: str) -> bool:
         installed_version = parse_version(version)
-
-        for supported_version_string in SUPPORTED_NVTICACHE_VERSIONS:
-            supported_version = parse_version(supported_version_string)
-
-            if (
-                installed_version >= supported_version
-                and installed_version.base_version.split('.')[0]
-                == supported_version.base_version.split('.')[0]
-            ):
-                return True
-
-        return False
+        return installed_version in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
 
     def _set_nvti_cache_name(self):
         """Set nvticache name"""
         version_string = self._get_gvm_libs_version_string()
-        installed_lib = parse_version(version_string)
 
-        if self._is_compatible_version(installed_lib):
+        if self._is_compatible_version(version_string):
             self._nvti_cache_name = "nvticache{}".format(version_string)
         else:
             raise OspdOpenvasError(
                 "Error setting nvticache. Incompatible nvticache "
                 "version {}. Supported versions are {}.".format(
-                    version_string, ", ".join(SUPPORTED_NVTICACHE_VERSIONS)
+                    version_string,
+                    ", ".join(
+                        [
+                            str(spec)
+                            for spec in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
+                        ]
+                    ),
                 )
             )
 
