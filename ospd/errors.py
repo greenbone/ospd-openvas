@@ -32,12 +32,12 @@ class RequiredArgument(OspdError):
     Derives from :py:class:`OspdError`
     """
 
-    def __init__(self, function, argument):
+    def __init__(self, function: str, argument: str) -> None:
         # pylint: disable=super-init-not-called
         self.function = function
         self.argument = argument
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}: Argument {} is required".format(
             self.function, self.argument
         )
@@ -48,12 +48,12 @@ class OspdCommandError(OspdError):
     """ This is an exception that will result in an error message to the
     client """
 
-    def __init__(self, message, command='osp', status=400):
+    def __init__(self, message: str, command: str = 'osp', status: int = 400) -> None:
         super().__init__(message)
         self.message = message
         self.command = command
         self.status = status
 
-    def as_xml(self):
+    def as_xml(self) -> str:
         """ Return the error in xml format. """
         return simple_response_str(self.command, self.status, self.message)
