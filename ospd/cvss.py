@@ -19,8 +19,9 @@
 """ Common Vulnerability Scoring System handling class. """
 
 import math
+from typing import List, Dict, Optional
 
-CVSS_V2_METRICS = {
+CVSS_V2_METRICS: Dict = {
     'AV': {'L': 0.395, 'A': 0.646, 'N': 1.0},
     'AC': {'H': 0.35, 'M': 0.61, 'L': 0.71},
     'Au': {'M': 0.45, 'S': 0.56, 'N': 0.704},
@@ -29,7 +30,7 @@ CVSS_V2_METRICS = {
     'A': {'N': 0.0, 'P': 0.275, 'C': 0.660},
 }
 
-CVSS_V3_METRICS = {
+CVSS_V3_METRICS: Dict = {
     'AV': {'N': 0.85, 'A': 0.62, 'L': 0.55, 'P': 0.2},
     'AC': {'L': 0.77, 'H': 0.44},
     'PR_SU': {'N': 0.85, 'L': 0.62, 'H': 0.27},
@@ -46,12 +47,12 @@ class CVSS(object):
     """ Handle cvss vectors and calculate the cvss scoring"""
 
     @staticmethod
-    def roundup(value):
+    def roundup(value: float) -> float:
         """It rounds up to 1 decimal. """
         return math.ceil(value * 10) / 10
 
     @staticmethod
-    def _parse_cvss_base_vector(cvss_vector):
+    def _parse_cvss_base_vector(cvss_vector: str) -> List:
         """Parse a string containing a cvss base vector.
 
         Arguments:
@@ -63,7 +64,7 @@ class CVSS(object):
         return [item.split(':')[1] for item in vector_as_list]
 
     @classmethod
-    def cvss_base_v2_value(cls, cvss_base_vector):
+    def cvss_base_v2_value(cls, cvss_base_vector: str) -> Optional[float]:
         """ Calculate the cvss base score from a cvss base vector
         for cvss version 2.
         Arguments:
@@ -99,7 +100,7 @@ class CVSS(object):
         return round(cvss_base, 1)
 
     @classmethod
-    def cvss_base_v3_value(cls, cvss_base_vector):
+    def cvss_base_v3_value(cls, cvss_base_vector: str) -> Optional[float]:
         """ Calculate the cvss base score from a cvss base vector
         for cvss version 3.
         Arguments:
