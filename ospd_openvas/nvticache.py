@@ -22,6 +22,8 @@
 import logging
 import subprocess
 
+from subprocess import CalledProcessError
+
 from pkg_resources import parse_version
 
 from ospd_openvas.db import NVT_META_FIELDS
@@ -65,21 +67,32 @@ class NVTICache(object):
 
         return self._nvti_cache_name
 
-    def _set_nvti_cache_name(self):
-        """Set nvticache name"""
+    def _get_gvm_libs_version_string(self) -> str:
+        """ Parse version of gvm-libs
+        """
         try:
-            result = subprocess.check_output(
-                ['pkg-config', '--modversion', 'libgvm_util'],
-                stderr=subprocess.STDOUT,
-            )
-        except (subprocess.CalledProcessError, PermissionError) as e:
+            result = subprocess.check_output(['openvas', '--version'],)
+        except (CalledProcessError, PermissionError) as e:
             raise OspdOpenvasError(
-                "Error setting nvticache. "
-                "Not possible to get the installed "
-                "gvm-libs version. %s" % e
+                "Not possible to get the installed gvm-libs version. %s" % e
             )
 
-        version_string = str(result.decode('utf-8').rstrip())
+        output = result.decode('utf-8').rstrip()
+
+        if 'gvm-libs' not in output:
+            raise OspdOpenvasError(
+                "Not possible to get the installed gvm-libs version. "
+                "Outdated openvas version. openvas version needs to be at "
+                "least 7.0.1."
+            )
+
+        lines = output.splitlines()
+        _, version_string = lines[1].split(' ', 1)
+        return version_string
+
+    def _set_nvti_cache_name(self):
+        """Set nvticache name"""
+        version_string = self._get_gvm_libs_version_string()
         installed_lib = parse_version(version_string)
 
         for supported_item in SUPPORTED_NVTICACHE_VERSIONS:
