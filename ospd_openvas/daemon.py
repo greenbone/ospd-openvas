@@ -925,13 +925,13 @@ class OSPDopenvas(OSPDaemon):
         res = self.openvas_db.get_result()
         while res:
             msg = res.split('|||')
-            roid = msg[3]
+            roid = msg[3].strip()
             rqod = ''
             rname = ''
-            rhostname = msg[1] if msg[1] else ''
+            rhostname = msg[1].strip() if msg[1] else ''
             host_is_dead = "Host dead" in msg[4]
 
-            if not host_is_dead:
+            if roid and not host_is_dead:
                 if self.vts[roid].get('qod_type'):
                     qod_t = self.vts[roid].get('qod_type')
                     rqod = self.nvti.QOD_TYPES[qod_t]
@@ -1507,6 +1507,7 @@ class OSPDopenvas(OSPDaemon):
 
             ctx = self.openvas_db.kb_connect(self.main_kbindex)
             self.openvas_db.set_redisctx(ctx)
+            self.get_openvas_result(scan_id, "")
             dbs = self.openvas_db.get_list_item('internal/dbindex')
             for i in list(dbs):
                 if i == self.main_kbindex:
