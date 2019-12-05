@@ -263,6 +263,8 @@ class OSPDaemon:
     ):
         """ Add a vulnerability test information.
         """
+        if self.vts is None:
+            self.vts = multiprocessing.Manager().dict()
 
         if not vt_id:
             raise OspdError('Invalid vt_id {}'.format(vt_id))
