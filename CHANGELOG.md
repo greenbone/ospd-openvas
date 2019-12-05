@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#167](https://github.com/greenbone/ospd-openvas/pull/167)
 - Exit with exit code 1 if it was not possible to connect to redis. [#133](https://github.com/greenbone/ospd-openvas/pull/133)
 - Return None if the scan finished successfully. [#137](https://github.com/greenbone/ospd-openvas/pull/137)
+- Set self.vts to None if there is a pending feed. [#172](https://github.com/greenbone/ospd-openvas/pull/172)
 
 ### Fixed
 - Improve redis clean out when stopping a scan. [#128](https://github.com/greenbone/ospd-openvas/pull/128)
