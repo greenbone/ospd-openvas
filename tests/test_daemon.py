@@ -702,11 +702,11 @@ class TestOspdOpenvas(TestCase):
         mock_ospd.assert_called_with(
             '123-456',
             host='localhost',
-            hostname=' ',
+            hostname='',
             name='',
             port='general/Host_Details',
             qod='',
-            test_id=' ',
+            test_id='',
             value='Host dead',
         )
 
