@@ -1603,7 +1603,10 @@ class OSPDaemon:
         elif vt_id:
             vts_xml.append(self.get_vt_xml(vt_id))
         else:
-            for vt_id in self.vts:
+            # TODO: Because DictProxy for python3.5 doesn't support
+            # iterkeys(), itervalues(), or iteritems() either, the iteration
+            # must be done as follow.
+            for vt_id in iter(self.vts.keys()):
                 vts_xml.append(self.get_vt_xml(vt_id))
 
         return vts_xml
