@@ -25,6 +25,8 @@ from unittest import TestCase
 from unittest.mock import patch
 from unittest.mock import Mock
 
+from multiprocessing import Manager
+
 import io
 import logging
 
@@ -213,7 +215,8 @@ class TestOspdOpenvas(TestCase):
         w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
         self.maxDiff = None
-        self.assertEqual(w.vts, w.VT)
+        self.assertIsInstance(w.vts, type(Manager().dict()))
+        self.assertEqual(len(w.vts), len(w.VT))
 
     def test_get_custom_xml(self, mock_nvti, mock_db):
         out = (
