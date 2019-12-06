@@ -205,7 +205,7 @@ class OSPDaemon:
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
 
-        self.vts = dict()
+        self.vts = None
         self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
         self.vts_version = None
 
@@ -1590,6 +1590,9 @@ class OSPDaemon:
         """
 
         vts_xml = Element('vts')
+
+        if not self.vts:
+            return vts_xml
 
         if filtered_vts is not None and len(filtered_vts) == 0:
             return vts_xml
