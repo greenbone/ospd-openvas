@@ -142,7 +142,7 @@
         "ospd": {
             "editable": true,
             "git": "https://github.com/greenbone/ospd.git",
-            "ref": "098f2f495af50e196315550fe4ee1269d15476f7"
+            "ref": "ea4bdef3ba9a961032f150f3c4481c9db6bee6fd"
         },
         "packaging": {
             "hashes": [
@@ -154,10 +154,10 @@
         },
         "paramiko": {
             "hashes": [
-                "sha256:99f0179bdc176281d21961a003ffdb2ec369daac1a1007241f53374e376576cf",
-                "sha256:f4b2edfa0d226b70bd4ca31ea7e389325990283da23465d572ed1f70a7583041"
+                "sha256:ee034658ca12be4eafb62609e192d68f89c83626f5ac4fcb29cedd4e3e7e3c51",
+                "sha256:fba9c46340e3d690ad5a9d0dbf06677cd91425de3afa7e9c0c187298ee4ddd0d"
             ],
-            "version": "==2.6.0"
+            "version": "==2.7.0"
         },
         "psutil": {
             "hashes": [

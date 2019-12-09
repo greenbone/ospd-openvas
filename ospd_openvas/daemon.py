@@ -26,6 +26,7 @@ import subprocess
 import time
 import uuid
 import binascii
+import copy
 
 from typing import Optional, Dict, List, Tuple
 from datetime import datetime
@@ -283,6 +284,8 @@ class OSPDopenvas(OSPDaemon):
 
         self.pending_feed = None
 
+        self.temp_vts_dict = None
+
     def init(self):
         self.openvas_db.db_init()
 
@@ -398,7 +401,7 @@ class OSPDopenvas(OSPDaemon):
                     'update will be performed later.'
                 )
         elif not _running_scan and _pending_feed:
-            self.vts = dict()
+            self.vts = None
             self.load_vts()
 
     def scheduler(self):
@@ -923,18 +926,16 @@ class OSPDopenvas(OSPDaemon):
             self.update_progress(scan_id, target, current_host, res)
             res = self.openvas_db.get_status()
 
-    def get_severity_score(self, oid: str) -> Optional[float]:
+    def get_severity_score(self, vt_aux: dict) -> Optional[float]:
         """ Return the severity score for the given oid.
         Arguments:
-            oid: VT OID from which to get the severity vector
+            vt_aux: VT element from which to get the severity vector
         Returns:
             The calculated cvss base value. None if there is no severity
             vector or severity type is not cvss base version 2.
         """
-        severity_type = self.vts[oid]['severities'].get('severity_type')
-        severity_vector = self.vts[oid]['severities'].get(
-            'severity_base_vector'
-        )
+        severity_type = vt_aux['severities'].get('severity_type')
+        severity_vector = vt_aux['severities'].get('severity_base_vector')
 
         if severity_type == "cvss_base_v2" and severity_vector:
             return CVSS.cvss_base_v2_value(severity_vector)
@@ -951,15 +952,17 @@ class OSPDopenvas(OSPDaemon):
             rname = ''
             rhostname = msg[1].strip() if msg[1] else ''
             host_is_dead = "Host dead" in msg[4]
+            vt_aux = None
 
             if roid and not host_is_dead:
-                if self.vts[roid].get('qod_type'):
-                    qod_t = self.vts[roid].get('qod_type')
+                vt_aux = copy.deepcopy(self.vts.get(roid))
+                if vt_aux.get('qod_type'):
+                    qod_t = vt_aux.get('qod_type')
                     rqod = self.nvti.QOD_TYPES[qod_t]
-                elif self.vts[roid].get('qod'):
-                    rqod = self.vts[roid].get('qod')
+                elif vt_aux.get('qod'):
+                    rqod = vt_aux.get('qod')
 
-                rname = self.vts[roid].get('name')
+                rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
@@ -993,7 +996,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             if msg[0] == 'ALARM':
-                rseverity = self.get_severity_score(roid)
+                rseverity = self.get_severity_score(vt_aux)
                 self.add_scan_alarm(
                     scan_id,
                     host=current_host,
@@ -1006,6 +1009,8 @@ class OSPDopenvas(OSPDaemon):
                     qod=rqod,
                 )
 
+            vt_aux = None
+            del vt_aux
             res = self.openvas_db.get_result()
 
     def get_openvas_timestamp_scan_host(self, scan_id: str, target: str):
@@ -1125,8 +1130,12 @@ class OSPDopenvas(OSPDaemon):
         """
         vts_list = list()
         families = dict()
-        for oid in self.vts:
-            family = self.vts[oid]['custom'].get('family')
+
+        # Because DictProxy for python3.5 doesn't support iterkeys(),
+        # itervalues(), or iteritems() either, the iteration must be
+        # done as follow with iter().
+        for oid in iter(self.temp_vts_dict.keys()):
+            family = self.temp_vts_dict[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
             families[family].append(oid)
@@ -1140,7 +1149,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.vts[vtid].get("vt_params")
+        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
         return None
@@ -1148,7 +1157,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_name(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.vts[vtid].get("vt_params")
+        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
         return None
@@ -1194,7 +1203,7 @@ class OSPDopenvas(OSPDaemon):
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.vts.keys():
+            if vtid not in self.temp_vts_dict.keys():
                 logger.warning(
                     'The vt %s was not found and it will not be loaded.', vtid
                 )
@@ -1459,7 +1468,11 @@ class OSPDopenvas(OSPDaemon):
                 )
                 do_not_launch = True
 
-        # Set plugins to run
+        # Set plugins to run.
+        # Make a deepcopy of the vts dictionary. Otherwise, consulting the
+        # DictProxy object of multiprocessing directly is to expensinve
+        # (interprocess communication).
+        self.temp_vts_dict = copy.deepcopy(self.vts)
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
@@ -1475,6 +1488,8 @@ class OSPDopenvas(OSPDaemon):
                 self.openvas_db.add_single_item(
                     'internal/%s/scanprefs' % openvas_scan_id, [item]
                 )
+            # Release temp vts dict memory.
+            self.temp_vts_dict = None
         else:
             self.add_scan_error(
                 scan_id, name='', host=target, value='No VTS to run.'

@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#150](https://github.com/greenbone/ospd-openvas/pull/150)
   [#165](https://github.com/greenbone/ospd-openvas/pull/165)
   [#166](https://github.com/greenbone/ospd-openvas/pull/166)
+- Set self.vts to None if there is a pending feed. [#172](https://github.com/greenbone/ospd-openvas/pull/172)
 
 ## [1.0.1] (unreleased)
 
