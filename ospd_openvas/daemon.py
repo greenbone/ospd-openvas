@@ -1130,7 +1130,11 @@ class OSPDopenvas(OSPDaemon):
         """
         vts_list = list()
         families = dict()
-        for oid in self.temp_vts_dict:
+
+        # Because DictProxy for python3.5 doesn't support iterkeys(),
+        # itervalues(), or iteritems() either, the iteration must be
+        # done as follow with iter().
+        for oid in iter(self.temp_vts_dict.keys()):
             family = self.temp_vts_dict[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
