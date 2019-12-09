@@ -905,11 +905,11 @@ class OSPDopenvas(OSPDaemon):
             self.update_progress(scan_id, target, current_host, res)
             res = self.openvas_db.get_status()
 
-    def get_severity_score(self, oid, vt_aux):
+    def get_severity_score(self, vt_aux):
 
         """ Return the severity score for the given oid.
         Arguments:
-            oid (str): VT OID from which to get the severity vector
+            vt_aux (dict): VT element from which to get the severity vector
         Returns:
             The calculated cvss base value. None if there is no severity
             vector or severity type is not cvss base version 2.
@@ -976,7 +976,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             if msg[0] == 'ALARM':
-                rseverity = self.get_severity_score(roid, vt_aux)
+                rseverity = self.get_severity_score(vt_aux)
                 self.add_scan_alarm(
                     scan_id,
                     host=current_host,
