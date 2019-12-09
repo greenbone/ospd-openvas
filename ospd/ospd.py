@@ -205,7 +205,7 @@ class OSPDaemon:
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
 
-        self.vts = dict()
+        self.vts = None
         self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
         self.vts_version = None
 
@@ -262,7 +262,16 @@ class OSPDaemon:
         severities=None,
     ):
         """ Add a vulnerability test information.
+
+        IMPORTANT: The VT's Data Manager will store the vts collection.
+        If the collection is considerably big and it will be consultated
+        intensible during a routine, consider to do a deepcopy(), since
+        accessing the shared memory in the data manager is very expensive.
+        At the end of the routine, the temporal copy must be set to None
+        and deleted.
         """
+        if self.vts is None:
+            self.vts = multiprocessing.Manager().dict()
 
         if not vt_id:
             raise OspdError('Invalid vt_id {}'.format(vt_id))
@@ -1589,6 +1598,9 @@ class OSPDaemon:
 
         vts_xml = Element('vts')
 
+        if not self.vts:
+            return vts_xml
+
         if filtered_vts is not None and len(filtered_vts) == 0:
             return vts_xml
 
@@ -1598,7 +1610,10 @@ class OSPDaemon:
         elif vt_id:
             vts_xml.append(self.get_vt_xml(vt_id))
         else:
-            for vt_id in self.vts:
+            # TODO: Because DictProxy for python3.5 doesn't support
+            # iterkeys(), itervalues(), or iteritems() either, the iteration
+            # must be done as follow.
+            for vt_id in iter(self.vts.keys()):
                 vts_xml.append(self.get_vt_xml(vt_id))
 
         return vts_xml
