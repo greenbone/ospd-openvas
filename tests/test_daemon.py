@@ -585,8 +585,10 @@ class TestOspdOpenvas(TestCase):
                 ]
             ],
         )
+
         w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
+        w.temp_vts_dict = w.vts
         ret = w.process_vts(vts)
         self.assertEqual(ret, vt_out)
 
@@ -597,6 +599,7 @@ class TestOspdOpenvas(TestCase):
         }
         w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
+        w.temp_vts_dict = w.vts
         ret = w.process_vts(vts)
         self.assertFalse(ret[1])
 
@@ -607,6 +610,7 @@ class TestOspdOpenvas(TestCase):
         }
         w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
+        w.temp_vts_dict = w.vts
         logging.Logger.warning = Mock()
         ret = w.process_vts(vts)
         if hasattr(Mock, 'assert_called_once'):
