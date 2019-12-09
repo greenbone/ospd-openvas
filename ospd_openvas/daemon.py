@@ -26,6 +26,7 @@ import subprocess
 import time
 import uuid
 import binascii
+import copy
 
 from datetime import datetime
 from base64 import b64decode
@@ -280,6 +281,8 @@ class OSPDopenvas(OSPDaemon):
         self.nvti = NVTICache(self.openvas_db)
 
         self.pending_feed = None
+
+        self.temp_vts_dict = None
 
     def init(self):
         self.openvas_db.db_init()
@@ -1104,8 +1107,8 @@ class OSPDopenvas(OSPDaemon):
         """
         vts_list = list()
         families = dict()
-        for oid in self.vts:
-            family = self.vts[oid]['custom'].get('family')
+        for oid in self.temp_vts_dict:
+            family = self.temp_vts_dict[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
             families[family].append(oid)
@@ -1119,7 +1122,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_type(self, vtid, vt_param_id):
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.vts[vtid].get("vt_params")
+        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
         return None
@@ -1127,7 +1130,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_name(self, vtid, vt_param_id):
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.vts[vtid].get("vt_params")
+        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
         return None
@@ -1173,7 +1176,7 @@ class OSPDopenvas(OSPDaemon):
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.vts.keys():
+            if vtid not in self.temp_vts_dict.keys():
                 logger.warning(
                     'The vt %s was not found and it will not be loaded.', vtid
                 )
@@ -1438,7 +1441,11 @@ class OSPDopenvas(OSPDaemon):
                 )
                 do_not_launch = True
 
-        # Set plugins to run
+        # Set plugins to run.
+        # Make a deepcopy of the vts dictionary. Otherwise, consulting the
+        # DictProxy object of multiprocessing directly is to expensinve
+        # (interprocess communication).
+        self.temp_vts_dict = copy.deepcopy(self.vts)
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
@@ -1454,6 +1461,8 @@ class OSPDopenvas(OSPDaemon):
                 self.openvas_db.add_single_item(
                     'internal/%s/scanprefs' % openvas_scan_id, [item]
                 )
+            # Release temp vts dict memory.
+            self.temp_vts_dict = None
         else:
             self.add_scan_error(
                 scan_id, name='', host=target, value='No VTS to run.'
