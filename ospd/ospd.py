@@ -262,6 +262,13 @@ class OSPDaemon:
         severities=None,
     ):
         """ Add a vulnerability test information.
+
+        IMPORTANT: The VT's Data Manager will store the vts collection.
+        If the collection is considerably big and it will be consultated
+        intensible during a routine, consider to do a deepcopy(), since
+        accessing the shared memory in the data manager is very expencive.
+        At the end of the routine, the temporal copy must be set to None
+        and deleted.
         """
         if self.vts is None:
             self.vts = multiprocessing.Manager().dict()
