@@ -926,7 +926,7 @@ class OSPDopenvas(OSPDaemon):
             self.update_progress(scan_id, target, current_host, res)
             res = self.openvas_db.get_status()
 
-    def get_severity_score(self, oid: str) -> Optional[float]:
+    def get_severity_score(self, oid: str, vt_aux: dict) -> Optional[float]:
         """ Return the severity score for the given oid.
         Arguments:
             oid: VT OID from which to get the severity vector
@@ -934,10 +934,8 @@ class OSPDopenvas(OSPDaemon):
             The calculated cvss base value. None if there is no severity
             vector or severity type is not cvss base version 2.
         """
-        severity_type = self.vts[oid]['severities'].get('severity_type')
-        severity_vector = self.vts[oid]['severities'].get(
-            'severity_base_vector'
-        )
+        severity_type = vt_aux['severities'].get('severity_type')
+        severity_vector = vt_aux['severities'].get('severity_base_vector')
 
         if severity_type == "cvss_base_v2" and severity_vector:
             return CVSS.cvss_base_v2_value(severity_vector)
@@ -954,15 +952,17 @@ class OSPDopenvas(OSPDaemon):
             rname = ''
             rhostname = msg[1].strip() if msg[1] else ''
             host_is_dead = "Host dead" in msg[4]
+            vt_aux = None
 
             if roid and not host_is_dead:
-                if self.vts[roid].get('qod_type'):
-                    qod_t = self.vts[roid].get('qod_type')
+                vt_aux = copy.deepcopy(self.vts.get(roid))
+                if vt_aux.get('qod_type'):
+                    qod_t = vt_aux.get('qod_type')
                     rqod = self.nvti.QOD_TYPES[qod_t]
-                elif self.vts[roid].get('qod'):
-                    rqod = self.vts[roid].get('qod')
+                elif vt_aux.get('qod'):
+                    rqod = vt_aux.get('qod')
 
-                rname = self.vts[roid].get('name')
+                rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
@@ -996,7 +996,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             if msg[0] == 'ALARM':
-                rseverity = self.get_severity_score(roid)
+                rseverity = self.get_severity_score(roid, vt_aux)
                 self.add_scan_alarm(
                     scan_id,
                     host=current_host,
@@ -1009,6 +1009,8 @@ class OSPDopenvas(OSPDaemon):
                     qod=rqod,
                 )
 
+            vt_aux = None
+            del vt_aux
             res = self.openvas_db.get_result()
 
     def get_openvas_timestamp_scan_host(self, scan_id: str, target: str):
