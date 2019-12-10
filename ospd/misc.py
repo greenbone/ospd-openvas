@@ -67,8 +67,8 @@ class ScanCollection(object):
     def __init__(self) -> None:
         """ Initialize the Scan Collection. """
 
-        self.data_manager: Optional[multiprocessing.managers.SyncManager] = None
-        self.scans_table: Dict[str, Any] = dict()
+        self.data_manager = None # type: Optional[multiprocessing.managers.SyncManager]
+        self.scans_table = dict() # type: Dict
 
     def add_result(
         self,
@@ -87,7 +87,7 @@ class ScanCollection(object):
 
         assert scan_id
         assert len(name) or len(value)
-        result: Dict[str, Any] = OrderedDict()
+        result = OrderedDict() # type: Dict
         result['type'] = result_type
         result['name'] = name
         result['severity'] = severity
@@ -146,7 +146,7 @@ class ScanCollection(object):
     def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
         """ Get a list of unfinished hosts."""
 
-        unfinished_hosts: List = list()
+        unfinished_hosts = list() # type: List
         for target in self.scans_table[scan_id]['finished_hosts']:
             unfinished_hosts.extend(target_str_to_list(target))
         for target in self.scans_table[scan_id]['finished_hosts']:
@@ -158,7 +158,7 @@ class ScanCollection(object):
     def get_hosts_finished(self, scan_id: str) -> List:
         """ Get a list of finished hosts."""
 
-        finished_hosts: List = list()
+        finished_hosts = list() # type: List
         for target in self.scans_table[scan_id]['finished_hosts']:
             finished_hosts.extend(
                 self.scans_table[scan_id]['finished_hosts'].get(target)
@@ -240,7 +240,7 @@ class ScanCollection(object):
 
         if not options:
             options = dict()
-        scan_info: Dict = self.data_manager.dict()
+        scan_info = self.data_manager.dict() # type: Dict
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
             [[target, []] for target, _, _, _, _ in targets]
@@ -320,7 +320,7 @@ class ScanCollection(object):
             target
         )
         try:
-            t_prog: float = sum(host_progresses.values()) / (total_hosts - exc_hosts)
+            t_prog = sum(host_progresses.values()) / (total_hosts - exc_hosts) # type: float
         except ZeroDivisionError:
             LOGGER.error(
                 "Zero division error in %s", self.get_target_progress.__name__
@@ -386,6 +386,7 @@ class ScanCollection(object):
 
     def get_vts(self, scan_id: str):
         """ Get a scan's vts list. """
+        
         return self.scans_table[scan_id]['vts']
 
     def id_exists(self, scan_id: str) -> bool:

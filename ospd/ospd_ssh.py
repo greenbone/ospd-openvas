@@ -35,7 +35,7 @@ try:
 except ImportError:
     paramiko = None
 
-SSH_SCANNER_PARAMS: Dict = {
+SSH_SCANNER_PARAMS = {
     'username_password': {
         'type': 'credential_up',
         'name': 'SSH credentials',
@@ -62,7 +62,7 @@ SSH_SCANNER_PARAMS: Dict = {
         'mandatory': 0,
         'description': 'Timeout when communicating with the target via SSH.',
     },
-}
+} # type: Dict
 
 # pylint: disable=abstract-method
 class OSPDaemonSimpleSSH(OSPDaemon):

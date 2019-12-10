@@ -55,7 +55,7 @@ PROTOCOL_VERSION = "1.2"
 
 SCHEDULER_CHECK_PERIOD = 5  # in seconds
 
-GVMCG_TITLES: List = [
+GVMCG_TITLES = [
     'cpu-*',
     'proc',
     'mem',
@@ -72,9 +72,9 @@ GVMCG_TITLES: List = [
     'sensors-*_fanspeed-*',
     'sensors-*_voltage-*',
     'titles',
-]
+] # type: List
 
-BASE_SCANNER_PARAMS: Dict = {
+BASE_SCANNER_PARAMS = {
     'debug_mode': {
         'type': 'boolean',
         'name': 'Debug Mode',
@@ -89,9 +89,9 @@ BASE_SCANNER_PARAMS: Dict = {
         'mandatory': 0,
         'description': 'Whether to dry run scan.',
     },
-}
+} # type: Dict
 
-COMMANDS_TABLE: Dict = {
+COMMANDS_TABLE = {
     'start_scan': {
         'description': 'Start a new scan.',
         'attributes': {
@@ -152,7 +152,7 @@ COMMANDS_TABLE: Dict = {
         },
         'elements': None,
     },
-}
+} # type: Dict
 
 
 class OSPDaemon:
@@ -180,28 +180,28 @@ class OSPDaemon:
         self, *, customvtfilter=None, **kwargs
     ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
-        self.scan_collection: ScanCollection = ScanCollection()
-        self.scan_processes: Dict = dict()
+        self.scan_collection = ScanCollection()
+        self.scan_processes = dict()
 
-        self.daemon_info: Dict = dict()
+        self.daemon_info = dict()
         self.daemon_info['name'] = "OSPd"
         self.daemon_info['version'] = __version__
         self.daemon_info['description'] = "No description"
 
-        self.scanner_info: Dict = dict()
+        self.scanner_info = dict()
         self.scanner_info['name'] = 'No name'
         self.scanner_info['version'] = 'No version'
         self.scanner_info['description'] = 'No description'
 
-        self.server_version: Optional[str] = None  # Set by the subclass.
+        self.server_version = None  # Set by the subclass.
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
-        self.protocol_version: str = PROTOCOL_VERSION
+        self.protocol_version = PROTOCOL_VERSION
 
-        self.commands: Dict = COMMANDS_TABLE
+        self.commands = COMMANDS_TABLE
 
-        self.scanner_params: Dict = dict()
+        self.scanner_params = dict()
 
         for name, param in BASE_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
@@ -440,7 +440,7 @@ class OSPDaemon:
                   'vt2': {'value_id': 'value'},
                   'vt_groups': ['family=debian', 'family=general']}
         """
-        vt_selection: Dict = {}
+        vt_selection = {} # type: Dict
         filters = list()
         for vt in scanner_vts:
             if vt.tag == 'vt_single':
@@ -495,7 +495,7 @@ class OSPDaemon:
                          },
                    }
         """
-        credentials: Dict = {}
+        credentials = {} # type: Dict
         for credential in cred_tree:
             service = credential.attrib.get('service')
             credentials[service] = {}
@@ -556,7 +556,7 @@ class OSPDaemon:
             exclude_hosts = ''
             finished_hosts = ''
             ports = ''
-            credentials: Dict = {}
+            credentials = {} # type: Dict
             for child in target:
                 if child.tag == 'hosts':
                     hosts = child.text
@@ -619,7 +619,7 @@ class OSPDaemon:
         params = self._preprocess_scan_params(scanner_params)
 
         # VTS is an optional element. If present should not be empty.
-        vt_selection: Dict = {}
+        vt_selection = {} # type: Dict
         scanner_vts = scan_et.find('vt_selection')
         if scanner_vts is not None:
             if len(scanner_vts) == 0:

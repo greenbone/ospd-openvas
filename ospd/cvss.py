@@ -21,16 +21,16 @@
 import math
 from typing import List, Dict, Optional
 
-CVSS_V2_METRICS: Dict = {
+CVSS_V2_METRICS = {
     'AV': {'L': 0.395, 'A': 0.646, 'N': 1.0},
     'AC': {'H': 0.35, 'M': 0.61, 'L': 0.71},
     'Au': {'M': 0.45, 'S': 0.56, 'N': 0.704},
     'C': {'N': 0.0, 'P': 0.275, 'C': 0.660},
     'I': {'N': 0.0, 'P': 0.275, 'C': 0.660},
     'A': {'N': 0.0, 'P': 0.275, 'C': 0.660},
-}
+} # type: Dict
 
-CVSS_V3_METRICS: Dict = {
+CVSS_V3_METRICS = {
     'AV': {'N': 0.85, 'A': 0.62, 'L': 0.55, 'P': 0.2},
     'AC': {'L': 0.77, 'H': 0.44},
     'PR_SU': {'N': 0.85, 'L': 0.62, 'H': 0.27},
@@ -40,7 +40,7 @@ CVSS_V3_METRICS: Dict = {
     'C': {'H': 0.56, 'L': 0.22, 'N': 0},
     'I': {'H': 0.56, 'L': 0.22, 'N': 0},
     'A': {'H': 0.56, 'L': 0.22, 'N': 0},
-}
+} # type: Dict
 
 
 class CVSS(object):
