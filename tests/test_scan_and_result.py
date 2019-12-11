@@ -136,8 +136,9 @@ class DummyWrapper(OSPDaemon):
         return response
 
     @staticmethod
-    def get_solution_vt_as_xml_str(vt_id, solution, solution_type=None,
-        solution_method=None):
+    def get_solution_vt_as_xml_str(
+        vt_id, solution, solution_type=None, solution_method=None
+    ):
         response = '<solution>Some solution</solution>'
 
         return response
@@ -670,7 +671,7 @@ class ScanTestCase(unittest.TestCase):
         daemon.scan_collection.scans_table[scan_id]['end_time'] = 123456
         # Run the check
         daemon.clean_forgotten_scans()
-        #Not removed
+        # Not removed
         self.assertEqual(len(list(daemon.scan_collection.ids_iterator())), 1)
 
         # Set the max time and run again
@@ -758,6 +759,40 @@ class ScanTestCase(unittest.TestCase):
             daemon.handle_command('<get_scans details="0" pop_results="1"/>')
         )
         self.assertEqual(response.findtext('scan/results/result'), None)
+
+    def test_get_scan_pop_max_res(self):
+        daemon = DummyWrapper(
+            [
+                Result('host-detail', value='Some Host Detail'),
+                Result('host-detail', value='Some Host Detail1'),
+                Result('host-detail', value='Some Host Detail2'),
+            ]
+        )
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<start_scan target="localhost" ports="80, 443">'
+                '<scanner_params /></start_scan>'
+            )
+        )
+
+        scan_id = response.findtext('id')
+        time.sleep(1)
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" pop_results="1" max_results="1"/>'
+                % scan_id
+            )
+        )
+        self.assertEqual(len(response.findall('scan/results/result')), 1)
+
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<get_scans scan_id="%s" pop_results="1"/>' % scan_id
+            )
+        )
+        self.assertEqual(len(response.findall('scan/results/result')), 2)
 
     def test_stop_scan(self):
         daemon = DummyWrapper([])
