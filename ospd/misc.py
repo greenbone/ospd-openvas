@@ -67,8 +67,10 @@ class ScanCollection(object):
     def __init__(self) -> None:
         """ Initialize the Scan Collection. """
 
-        self.data_manager = None # type: Optional[multiprocessing.managers.SyncManager]
-        self.scans_table = dict() # type: Dict
+        self.data_manager = (
+            None
+        )  # type: Optional[multiprocessing.managers.SyncManager]
+        self.scans_table = dict()  # type: Dict
 
     def add_result(
         self,
@@ -87,7 +89,7 @@ class ScanCollection(object):
 
         assert scan_id
         assert len(name) or len(value)
-        result = OrderedDict() # type: Dict
+        result = OrderedDict()  # type: Dict
         result['type'] = result_type
         result['name'] = name
         result['severity'] = severity
@@ -102,7 +104,9 @@ class ScanCollection(object):
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
-    def remove_hosts_from_target_progress(self, scan_id: str, target: str, hosts: List) -> None:
+    def remove_hosts_from_target_progress(
+        self, scan_id: str, target: str, hosts: List
+    ) -> None:
         """Remove a list of hosts from the main scan progress table to avoid
         the hosts to be included in the calculation of the scan progress"""
         if not hosts:
@@ -125,7 +129,9 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_host_progress(self, scan_id: str, target: str, host: str, progress: int) -> None:
+    def set_host_progress(
+        self, scan_id: str, target: str, host: str, progress: int
+    ) -> None:
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
             targets = self.scans_table[scan_id]['target_progress']
@@ -146,7 +152,7 @@ class ScanCollection(object):
     def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
         """ Get a list of unfinished hosts."""
 
-        unfinished_hosts = list() # type: List
+        unfinished_hosts = list()  # type: List
         for target in self.scans_table[scan_id]['finished_hosts']:
             unfinished_hosts.extend(target_str_to_list(target))
         for target in self.scans_table[scan_id]['finished_hosts']:
@@ -158,7 +164,7 @@ class ScanCollection(object):
     def get_hosts_finished(self, scan_id: str) -> List:
         """ Get a list of finished hosts."""
 
-        finished_hosts = list() # type: List
+        finished_hosts = list()  # type: List
         for target in self.scans_table[scan_id]['finished_hosts']:
             finished_hosts.extend(
                 self.scans_table[scan_id]['finished_hosts'].get(target)
@@ -166,10 +172,19 @@ class ScanCollection(object):
 
         return finished_hosts
 
-    def results_iterator(self, scan_id: str, pop_res: bool) -> Iterator[Any]:
+    def results_iterator(
+        self, scan_id: str, pop_res: bool = False, max_res: int = None
+    ) -> Iterator[Any]:
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
-        it removed the fetched results from the list. """
-        if pop_res:
+        it removed the fetched results from the list.
+        If max_res is None, return all the results. Otherwise, if max_res = N > 0
+        return N as maximum number of results. max_res works only together with pop_results.
+        """
+        if pop_res and max_res:
+            result_aux = self.scans_table[scan_id]['results']
+            self.scans_table[scan_id]['results'] = result_aux[max_res:]
+            return iter(result_aux[:max_res])
+        elif pop_res:
             result_aux = self.scans_table[scan_id]['results']
             self.scans_table[scan_id]['results'] = list()
             return iter(result_aux)
@@ -181,7 +196,9 @@ class ScanCollection(object):
 
         return iter(self.scans_table.keys())
 
-    def remove_single_result(self, scan_id: str, result: Dict[str, str]) -> None:
+    def remove_single_result(
+        self, scan_id: str, result: Dict[str, str]
+    ) -> None:
         """Removes a single result from the result list in scan_table.
 
         Parameters:
@@ -196,7 +213,9 @@ class ScanCollection(object):
         """ Remove results from the result table for those host
         """
         unfinished_hosts = self.get_hosts_unfinished(scan_id)
-        for result in self.results_iterator(scan_id, False):
+        for result in self.results_iterator(
+            scan_id, pop_res=False, max_res=None
+        ):
             if result['host'] in unfinished_hosts:
                 self.remove_single_result(scan_id, result)
 
@@ -221,7 +240,13 @@ class ScanCollection(object):
 
         return scan_id
 
-    def create_scan(self, scan_id: str = '', targets: List = [], options: Optional[Dict] = None, vts: str = '') -> str:
+    def create_scan(
+        self,
+        scan_id: str = '',
+        targets: List = [],
+        options: Optional[Dict] = None,
+        vts: str = '',
+    ) -> str:
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
@@ -240,7 +265,7 @@ class ScanCollection(object):
 
         if not options:
             options = dict()
-        scan_info = self.data_manager.dict() # type: Dict
+        scan_info = self.data_manager.dict()  # type: Dict
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
             [[target, []] for target, _, _, _, _ in targets]
@@ -287,7 +312,9 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['progress']
 
-    def simplify_exclude_host_list(self, scan_id: str, target: Any) -> List[Any]:
+    def simplify_exclude_host_list(
+        self, scan_id: str, target: Any
+    ) -> List[Any]:
         """ Remove from exclude_hosts the received hosts in the finished_hosts
         list sent by the client.
         The finished hosts are sent also as exclude hosts for backward
@@ -320,7 +347,9 @@ class ScanCollection(object):
             target
         )
         try:
-            t_prog = sum(host_progresses.values()) / (total_hosts - exc_hosts) # type: float
+            t_prog = sum(host_progresses.values()) / (
+                total_hosts - exc_hosts
+            )  # type: float
         except ZeroDivisionError:
             LOGGER.error(
                 "Zero division error in %s", self.get_target_progress.__name__
@@ -386,7 +415,7 @@ class ScanCollection(object):
 
     def get_vts(self, scan_id: str):
         """ Get a scan's vts list. """
-        
+
         return self.scans_table[scan_id]['vts']
 
     def id_exists(self, scan_id: str) -> bool:
