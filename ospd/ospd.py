@@ -72,7 +72,7 @@ GVMCG_TITLES = [
     'sensors-*_fanspeed-*',
     'sensors-*_voltage-*',
     'titles',
-] # type: List
+]  # type: List
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -89,7 +89,7 @@ BASE_SCANNER_PARAMS = {
         'mandatory': 0,
         'description': 'Whether to dry run scan.',
     },
-} # type: Dict
+}  # type: Dict
 
 COMMANDS_TABLE = {
     'start_scan': {
@@ -152,7 +152,7 @@ COMMANDS_TABLE = {
         },
         'elements': None,
     },
-} # type: Dict
+}  # type: Dict
 
 
 class OSPDaemon:
@@ -440,7 +440,7 @@ class OSPDaemon:
                   'vt2': {'value_id': 'value'},
                   'vt_groups': ['family=debian', 'family=general']}
         """
-        vt_selection = {} # type: Dict
+        vt_selection = {}  # type: Dict
         filters = list()
         for vt in scanner_vts:
             if vt.tag == 'vt_single':
@@ -495,7 +495,7 @@ class OSPDaemon:
                          },
                    }
         """
-        credentials = {} # type: Dict
+        credentials = {}  # type: Dict
         for credential in cred_tree:
             service = credential.attrib.get('service')
             credentials[service] = {}
@@ -556,7 +556,7 @@ class OSPDaemon:
             exclude_hosts = ''
             finished_hosts = ''
             ports = ''
-            credentials = {} # type: Dict
+            credentials = {}  # type: Dict
             for child in target:
                 if child.tag == 'hosts':
                     hosts = child.text
@@ -619,7 +619,7 @@ class OSPDaemon:
         params = self._preprocess_scan_params(scanner_params)
 
         # VTS is an optional element. If present should not be empty.
-        vt_selection = {} # type: Dict
+        vt_selection = {}  # type: Dict
         scanner_vts = scan_et.find('vt_selection')
         if scanner_vts is not None:
             if len(scanner_vts) == 0:
@@ -979,7 +979,9 @@ class OSPDaemon:
             scan_id, target, exc_hosts_list
         )
 
-    def set_scan_host_finished(self, scan_id: str, target: str, host: str) -> None:
+    def set_scan_host_finished(
+        self, scan_id: str, target: str, host: str
+    ) -> None:
         """ Add the host in a list of finished hosts """
         self.scan_collection.set_host_finished(scan_id, target, host)
 
@@ -988,7 +990,9 @@ class OSPDaemon:
         between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
-    def set_scan_host_progress(self, scan_id: str, target: str, host: str, progress: int) -> None:
+    def set_scan_host_progress(
+        self, scan_id: str, target: str, host: str, progress: int
+    ) -> None:
         """ Sets host's progress which is part of target. """
         self.scan_collection.set_host_progress(scan_id, target, host, progress)
 
@@ -1016,6 +1020,8 @@ class OSPDaemon:
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
         pop_res = scan_et.attrib.get('pop_results')
+        max_res = int(scan_et.attrib.get('max_results', '0'))
+
         if details and details == '0':
             details = False
         else:
@@ -1028,7 +1034,7 @@ class OSPDaemon:
         responses = []
         if scan_id and scan_id in self.scan_collection.ids_iterator():
             self.check_scan_process(scan_id)
-            scan = self.get_scan_xml(scan_id, details, pop_res)
+            scan = self.get_scan_xml(scan_id, details, pop_res, max_res)
             responses.append(scan)
         elif scan_id:
             text = "Failed to find scan '{0}'".format(scan_id)
@@ -1036,7 +1042,7 @@ class OSPDaemon:
         else:
             for scan_id in self.scan_collection.ids_iterator():
                 self.check_scan_process(scan_id)
-                scan = self.get_scan_xml(scan_id, details, pop_res)
+                scan = self.get_scan_xml(scan_id, details, pop_res, max_res)
                 responses.append(scan)
         return simple_response_str('get_scans', 200, 'OK', responses)
 
@@ -1212,13 +1218,15 @@ class OSPDaemon:
             logger.debug('Scan process for %s not found', scan_id)
         return self.scan_collection.delete_scan(scan_id)
 
-    def get_scan_results_xml(self, scan_id: str, pop_res: bool):
+    def get_scan_results_xml(self, scan_id: str, pop_res: bool, max_res: int):
         """ Gets scan_id scan's results in XML format.
 
         @return: String of scan results in xml.
         """
         results = Element('results')
-        for result in self.scan_collection.results_iterator(scan_id, pop_res):
+        for result in self.scan_collection.results_iterator(
+            scan_id, pop_res, max_res
+        ):
             results.append(get_result_xml(result))
 
         logger.debug('Returning %d results', len(results))
@@ -1245,7 +1253,13 @@ class OSPDaemon:
             responses.append(elem)
         return responses
 
-    def get_scan_xml(self, scan_id: str, detailed: bool = True, pop_res: bool = False):
+    def get_scan_xml(
+        self,
+        scan_id: str,
+        detailed: bool = True,
+        pop_res: bool = False,
+        max_res: int = 0,
+    ):
         """ Gets scan in XML format.
 
         @return: String of scan in XML format.
@@ -1269,7 +1283,9 @@ class OSPDaemon:
         ]:
             response.set(name, str(value))
         if detailed:
-            response.append(self.get_scan_results_xml(scan_id, pop_res))
+            response.append(
+                self.get_scan_results_xml(scan_id, pop_res, max_res)
+            )
         return response
 
     @staticmethod
@@ -1734,7 +1750,9 @@ class OSPDaemon:
         for scan_id in self.scan_processes:
             self.scan_processes[scan_id].join(0)
 
-    def create_scan(self, scan_id: str, targets: List, options: Optional[Dict], vts: Dict) -> Optional[str]:
+    def create_scan(
+        self, scan_id: str, targets: List, options: Optional[Dict], vts: Dict
+    ) -> Optional[str]:
         """ Creates a new scan.
 
         @target: Target to scan.
@@ -1858,7 +1876,7 @@ class OSPDaemon:
         scan_id: str,
         host: str = '',
         hostname: str = '',
-        name: str  = '',
+        name: str = '',
         value: str = '',
         port: str = '',
         test_id: str = '',
@@ -1879,7 +1897,13 @@ class OSPDaemon:
         )
 
     def add_scan_error(
-        self, scan_id:str, host: str = '', hostname: str = '', name: str = '', value: str = '', port: str = ''
+        self,
+        scan_id: str,
+        host: str = '',
+        hostname: str = '',
+        name: str = '',
+        value: str = '',
+        port: str = '',
     ) -> None:
         """ Adds an error result to scan_id scan. """
         self.scan_collection.add_result(
@@ -1887,7 +1911,12 @@ class OSPDaemon:
         )
 
     def add_scan_host_detail(
-        self, scan_id: str, host: str = '', hostname: str = '', name: str = '', value: str = ''
+        self,
+        scan_id: str,
+        host: str = '',
+        hostname: str = '',
+        name: str = '',
+        value: str = '',
     ) -> None:
         """ Adds a host detail result to scan_id scan. """
         self.scan_collection.add_result(
