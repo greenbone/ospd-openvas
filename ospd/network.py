@@ -471,7 +471,7 @@ def get_udp_port_list(port_str: str) -> Optional[List]:
     return ports_as_list(port_str)[1]
 
 
-def port_list_compress(port_list: str) -> str:
+def port_list_compress(port_list: List) -> str:
     """ Compress a port list and return a string. """
 
     if not port_list or len(port_list) == 0:

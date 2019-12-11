@@ -37,14 +37,14 @@ class OspdCommandErrorTestCase(unittest.TestCase):
         self.assertEqual('osp', e.command)
 
     def test_constructor(self):
-        e = OspdCommandError('message', 'command', '304')
+        e = OspdCommandError('message', 'command', 304)
 
         self.assertEqual('message', e.message)
         self.assertEqual('command', e.command)
-        self.assertEqual('304', e.status)
+        self.assertEqual(304, e.status)
 
     def test_string_conversion(self):
-        e = OspdCommandError('message foo bar', 'command', '304')
+        e = OspdCommandError('message foo bar', 'command', 304)
 
         self.assertEqual('message foo bar', str(e))
 

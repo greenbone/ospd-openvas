@@ -49,7 +49,7 @@ def get_result_xml(result):
     return result_xml
 
 
-def simple_response_str(command, status, status_text, content=""):
+def simple_response_str(command: str, status: int, status_text: str, content: str = "") -> str:
     """ Creates an OSP response XML string.
 
     Arguments:

@@ -20,6 +20,7 @@
 """
 import re
 import operator
+from typing import Dict, List, Optional
 
 from ospd.errors import OspdCommandError
 
@@ -27,7 +28,7 @@ from ospd.errors import OspdCommandError
 class VtsFilter(object):
     """ Helper class to filter Vulnerability Tests """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """ Initialize filter operator and allowed filters. """
         self.filter_operator = {
             '<': operator.lt,
@@ -40,7 +41,7 @@ class VtsFilter(object):
             'modification_time': self.format_vt_modification_time,
         }
 
-    def parse_filters(self, vt_filter):
+    def parse_filters(self, vt_filter: str) -> List:
         """ Parse a string containing one or more filters
         and return a list of filters
 
@@ -82,7 +83,7 @@ class VtsFilter(object):
         """
         return value
 
-    def format_filter_value(self, element, value):
+    def format_filter_value(self, element: str, value: Dict):
         """ Calls the specific function to format value,
         depending on the given element.
 
@@ -97,7 +98,7 @@ class VtsFilter(object):
         format_func = self.allowed_filter.get(element)
         return format_func(value)
 
-    def get_filtered_vts_list(self, vts, vt_filter):
+    def get_filtered_vts_list(self, vts: Dict, vt_filter: str) -> Optional[Dict]:
         """ Gets a collection of vulnerability test from the vts dictionary,
         which match the filter.
 

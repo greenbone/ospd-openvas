@@ -28,6 +28,7 @@ import time
 import uuid
 import multiprocessing
 
+from typing import List, Any, Dict, Iterator, Optional
 from enum import Enum
 from collections import OrderedDict
 from pathlib import Path
@@ -63,30 +64,30 @@ class ScanCollection(object):
 
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """ Initialize the Scan Collection. """
 
-        self.data_manager = None
-        self.scans_table = dict()
+        self.data_manager = None # type: Optional[multiprocessing.managers.SyncManager]
+        self.scans_table = dict() # type: Dict
 
     def add_result(
         self,
-        scan_id,
-        result_type,
-        host='',
-        hostname='',
-        name='',
-        value='',
-        port='',
-        test_id='',
-        severity='',
-        qod='',
-    ):
+        scan_id: str,
+        result_type: int,
+        host: str = '',
+        hostname: str = '',
+        name: str = '',
+        value: str = '',
+        port: str = '',
+        test_id: str = '',
+        severity: str = '',
+        qod: str = '',
+    ) -> None:
         """ Add a result to a scan in the table. """
 
         assert scan_id
         assert len(name) or len(value)
-        result = OrderedDict()
+        result = OrderedDict() # type: Dict
         result['type'] = result_type
         result['name'] = name
         result['severity'] = severity
@@ -101,7 +102,7 @@ class ScanCollection(object):
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
-    def remove_hosts_from_target_progress(self, scan_id, target, hosts):
+    def remove_hosts_from_target_progress(self, scan_id: str, target: str, hosts: List) -> None:
         """Remove a list of hosts from the main scan progress table to avoid
         the hosts to be included in the calculation of the scan progress"""
         if not hosts:
@@ -116,7 +117,7 @@ class ScanCollection(object):
         # to parent process.
         self.scans_table[scan_id]['target_progress'] = targets
 
-    def set_progress(self, scan_id, progress):
+    def set_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress. """
 
         if progress > 0 and progress <= 100:
@@ -124,7 +125,7 @@ class ScanCollection(object):
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_host_progress(self, scan_id, target, host, progress):
+    def set_host_progress(self, scan_id: str, target: str, host: str, progress: int) -> None:
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
             targets = self.scans_table[scan_id]['target_progress']
@@ -133,7 +134,7 @@ class ScanCollection(object):
             # to parent process.
             self.scans_table[scan_id]['target_progress'] = targets
 
-    def set_host_finished(self, scan_id, target, host):
+    def set_host_finished(self, scan_id: str, target: str, host: str) -> None:
         """ Add the host in a list of finished hosts """
         finished_hosts = self.scans_table[scan_id]['finished_hosts']
 
@@ -142,10 +143,10 @@ class ScanCollection(object):
 
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
-    def get_hosts_unfinished(self, scan_id):
+    def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
         """ Get a list of unfinished hosts."""
 
-        unfinished_hosts = list()
+        unfinished_hosts = list() # type: List
         for target in self.scans_table[scan_id]['finished_hosts']:
             unfinished_hosts.extend(target_str_to_list(target))
         for target in self.scans_table[scan_id]['finished_hosts']:
@@ -154,10 +155,10 @@ class ScanCollection(object):
 
         return unfinished_hosts
 
-    def get_hosts_finished(self, scan_id):
+    def get_hosts_finished(self, scan_id: str) -> List:
         """ Get a list of finished hosts."""
 
-        finished_hosts = list()
+        finished_hosts = list() # type: List
         for target in self.scans_table[scan_id]['finished_hosts']:
             finished_hosts.extend(
                 self.scans_table[scan_id]['finished_hosts'].get(target)
@@ -165,10 +166,9 @@ class ScanCollection(object):
 
         return finished_hosts
 
-    def results_iterator(self, scan_id, pop_res):
+    def results_iterator(self, scan_id: str, pop_res: bool) -> Iterator[Any]:
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
-        it removed the fetched results from the list.
-        """
+        it removed the fetched results from the list. """
         if pop_res:
             result_aux = self.scans_table[scan_id]['results']
             self.scans_table[scan_id]['results'] = list()
@@ -176,12 +176,12 @@ class ScanCollection(object):
 
         return iter(self.scans_table[scan_id]['results'])
 
-    def ids_iterator(self):
+    def ids_iterator(self) -> Iterator[str]:
         """ Returns an iterator over the collection's scan IDS. """
 
         return iter(self.scans_table.keys())
 
-    def remove_single_result(self, scan_id, result):
+    def remove_single_result(self, scan_id: str, result: Dict[str, str]) -> None:
         """Removes a single result from the result list in scan_table.
 
         Parameters:
@@ -192,7 +192,7 @@ class ScanCollection(object):
         results.remove(result)
         self.scans_table[scan_id]['results'] = results
 
-    def del_results_for_stopped_hosts(self, scan_id):
+    def del_results_for_stopped_hosts(self, scan_id: str) -> None:
         """ Remove results from the result table for those host
         """
         unfinished_hosts = self.get_hosts_unfinished(scan_id)
@@ -200,7 +200,7 @@ class ScanCollection(object):
             if result['host'] in unfinished_hosts:
                 self.remove_single_result(scan_id, result)
 
-    def resume_scan(self, scan_id, options):
+    def resume_scan(self, scan_id: str, options: Optional[Dict]) -> str:
         """ Reset the scan status in the scan_table to INIT.
         Also, overwrite the options, because a resume task cmd
         can add some new option. E.g. exclude hosts list.
@@ -221,7 +221,7 @@ class ScanCollection(object):
 
         return scan_id
 
-    def create_scan(self, scan_id='', targets='', options=None, vts=''):
+    def create_scan(self, scan_id: str = '', targets: List = [], options: Optional[Dict] = None, vts: str = '') -> str:
         """ Creates a new scan with provided scan information. """
 
         if self.data_manager is None:
@@ -240,7 +240,7 @@ class ScanCollection(object):
 
         if not options:
             options = dict()
-        scan_info = self.data_manager.dict()
+        scan_info = self.data_manager.dict() # type: Dict
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
             [[target, []] for target, _, _, _, _ in targets]
@@ -261,33 +261,33 @@ class ScanCollection(object):
         self.scans_table[scan_id] = scan_info
         return scan_id
 
-    def set_status(self, scan_id, status):
+    def set_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Sets scan_id scan's status. """
         self.scans_table[scan_id]['status'] = status
         if status == ScanStatus.STOPPED:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def get_status(self, scan_id):
+    def get_status(self, scan_id: str) -> ScanStatus:
         """ Get scan_id scans's status."""
 
         return self.scans_table[scan_id]['status']
 
-    def get_options(self, scan_id):
+    def get_options(self, scan_id: str) -> Dict:
         """ Get scan_id scan's options list. """
 
         return self.scans_table[scan_id]['options']
 
-    def set_option(self, scan_id, name, value):
+    def set_option(self, scan_id, name: str, value: Any) -> None:
         """ Set a scan_id scan's name option to value. """
 
         self.scans_table[scan_id]['options'][name] = value
 
-    def get_progress(self, scan_id):
+    def get_progress(self, scan_id: str) -> int:
         """ Get a scan's current progress value. """
 
         return self.scans_table[scan_id]['progress']
 
-    def simplify_exclude_host_list(self, scan_id, target):
+    def simplify_exclude_host_list(self, scan_id: str, target: Any) -> List[Any]:
         """ Remove from exclude_hosts the received hosts in the finished_hosts
         list sent by the client.
         The finished hosts are sent also as exclude hosts for backward
@@ -308,7 +308,7 @@ class ScanCollection(object):
 
         return exc_hosts_list
 
-    def get_target_progress(self, scan_id, target):
+    def get_target_progress(self, scan_id: str, target: str) -> float:
         """ Get a target's current progress value.
         The value is calculated with the progress of each single host
         in the target."""
@@ -320,7 +320,7 @@ class ScanCollection(object):
             target
         )
         try:
-            t_prog = sum(host_progresses.values()) / (total_hosts - exc_hosts)
+            t_prog = sum(host_progresses.values()) / (total_hosts - exc_hosts) # type: float
         except ZeroDivisionError:
             LOGGER.error(
                 "Zero division error in %s", self.get_target_progress.__name__
@@ -328,17 +328,17 @@ class ScanCollection(object):
             raise
         return t_prog
 
-    def get_start_time(self, scan_id):
+    def get_start_time(self, scan_id: str) -> str:
         """ Get a scan's start time. """
 
         return self.scans_table[scan_id]['start_time']
 
-    def get_end_time(self, scan_id):
+    def get_end_time(self, scan_id: str) -> str:
         """ Get a scan's end time. """
 
         return self.scans_table[scan_id]['end_time']
 
-    def get_target_list(self, scan_id):
+    def get_target_list(self, scan_id: str) -> List:
         """ Get a scan's target list. """
 
         target_list = []
@@ -346,7 +346,7 @@ class ScanCollection(object):
             target_list.append(target)
         return target_list
 
-    def get_ports(self, scan_id, target):
+    def get_ports(self, scan_id: str, target: str):
         """ Get a scan's ports list. If a target is specified
         it will return the corresponding port for it. If not,
         it returns the port item of the first nested list in
@@ -359,7 +359,7 @@ class ScanCollection(object):
 
         return self.scans_table[scan_id]['targets'][0][1]
 
-    def get_exclude_hosts(self, scan_id, target):
+    def get_exclude_hosts(self, scan_id: str, target: str):
         """ Get an exclude host list for a given target.
         """
         if target:
@@ -367,7 +367,7 @@ class ScanCollection(object):
                 if target == item[0]:
                     return item[3]
 
-    def get_finished_hosts(self, scan_id, target):
+    def get_finished_hosts(self, scan_id: str, target: str):
         """ Get the finished host list sent by the client for a given target.
         """
         if target:
@@ -375,7 +375,7 @@ class ScanCollection(object):
                 if target == item[0]:
                     return item[4]
 
-    def get_credentials(self, scan_id, target):
+    def get_credentials(self, scan_id: str, target: str):
         """ Get a scan's credential list. It return dictionary with
         the corresponding credential for a given target.
         """
@@ -384,17 +384,17 @@ class ScanCollection(object):
                 if target == item[0]:
                     return item[2]
 
-    def get_vts(self, scan_id):
+    def get_vts(self, scan_id: str):
         """ Get a scan's vts list. """
-
+        
         return self.scans_table[scan_id]['vts']
 
-    def id_exists(self, scan_id):
+    def id_exists(self, scan_id: str) -> bool:
         """ Check whether a scan exists in the table. """
 
         return self.scans_table.get(scan_id) is not None
 
-    def delete_scan(self, scan_id):
+    def delete_scan(self, scan_id: str) -> bool:
         """ Delete a scan if fully finished. """
 
         if self.get_status(scan_id) == ScanStatus.RUNNING:
@@ -416,7 +416,7 @@ class ResultType(object):
     HOST_DETAIL = 3
 
     @classmethod
-    def get_str(cls, result_type):
+    def get_str(cls, result_type: int) -> str:
         """ Return string name of a result type. """
         if result_type == cls.ALARM:
             return "Alarm"
@@ -430,7 +430,7 @@ class ResultType(object):
             assert False, "Erroneous result type {0}.".format(result_type)
 
     @classmethod
-    def get_type(cls, result_name):
+    def get_type(cls, result_name: str) -> int:
         """ Return string name of a result type. """
         if result_name == "Alarm":
             return cls.ALARM
@@ -444,7 +444,7 @@ class ResultType(object):
             assert False, "Erroneous result name {0}.".format(result_name)
 
 
-def valid_uuid(value):
+def valid_uuid(value) -> bool:
     """ Check if value is a valid UUID. """
 
     try:
@@ -454,7 +454,7 @@ def valid_uuid(value):
         return False
 
 
-def go_to_background():
+def go_to_background() -> None:
     """ Daemonize the running process. """
     try:
         if os.fork():
@@ -464,7 +464,7 @@ def go_to_background():
         sys.exit(1)
 
 
-def create_pid(pidfile):
+def create_pid(pidfile) -> bool:
     """ Check if there is an already running daemon and creates the pid file.
     Otherwise gives an error. """
 
@@ -485,7 +485,7 @@ def create_pid(pidfile):
     return True
 
 
-def remove_pidfile(pidfile, signum=None, frame=None):
+def remove_pidfile(pidfile, signum=None, frame=None) -> None:
     """ Removes the pidfile before ending the daemon. """
     pidpath = Path(pidfile)
     if pidpath.is_file():

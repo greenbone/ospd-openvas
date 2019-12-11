@@ -27,6 +27,7 @@ from __future__ import absolute_import
 
 import socket
 
+from typing import Optional, Dict
 from ospd.ospd import OSPDaemon
 
 try:
@@ -61,7 +62,7 @@ SSH_SCANNER_PARAMS = {
         'mandatory': 0,
         'description': 'Timeout when communicating with the target via SSH.',
     },
-}
+} # type: Dict
 
 # pylint: disable=abstract-method
 class OSPDaemonSimpleSSH(OSPDaemon):
@@ -94,7 +95,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         for name, param in SSH_SCANNER_PARAMS.items():
             self.add_scanner_param(name, param)
 
-    def run_command(self, scan_id, host, cmd):
+    def run_command(self, scan_id: str, host: str, cmd: str) -> Optional[str]:
         """
         Run a single command via SSH and return the content of stdout or
         None in case of an Error. A scan error is issued in the latter
