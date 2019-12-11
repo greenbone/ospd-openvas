@@ -173,11 +173,11 @@ class ScanCollection(object):
         return finished_hosts
 
     def results_iterator(
-        self, scan_id: str, pop_res: bool, max_res: int
+        self, scan_id: str, pop_res: bool = False, max_res: int = None
     ) -> Iterator[Any]:
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
-        If max_res is 0, return all the results. Otherwise, if max_res = N > 0
+        If max_res is None, return all the results. Otherwise, if max_res = N > 0
         return N as maximum number of results. max_res works only together with pop_results.
         """
         if pop_res and max_res:
@@ -213,7 +213,9 @@ class ScanCollection(object):
         """ Remove results from the result table for those host
         """
         unfinished_hosts = self.get_hosts_unfinished(scan_id)
-        for result in self.results_iterator(scan_id, False, 0):
+        for result in self.results_iterator(
+            scan_id, pop_res=False, max_res=None
+        ):
             if result['host'] in unfinished_hosts:
                 self.remove_single_result(scan_id, result)
 

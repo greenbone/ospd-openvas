@@ -1022,7 +1022,7 @@ class OSPDaemon:
         scan_id = scan_et.attrib.get('scan_id')
         details = scan_et.attrib.get('details')
         pop_res = scan_et.attrib.get('pop_results')
-        max_res = int(scan_et.attrib.get('max_results', '0'))
+        max_res = scan_et.attrib.get('max_results')
 
         if details and details == '0':
             details = False
@@ -1032,6 +1032,8 @@ class OSPDaemon:
                 pop_res = True
             else:
                 pop_res = False
+            if max_res:
+                max_res = int(max_res)
 
         responses = []
         if scan_id and scan_id in self.scan_collection.ids_iterator():
@@ -1220,7 +1222,9 @@ class OSPDaemon:
             logger.debug('Scan process for %s not found', scan_id)
         return self.scan_collection.delete_scan(scan_id)
 
-    def get_scan_results_xml(self, scan_id: str, pop_res: bool, max_res: int):
+    def get_scan_results_xml(
+        self, scan_id: str, pop_res: bool, max_res: Optional[int]
+    ):
         """ Gets scan_id scan's results in XML format.
 
         @return: String of scan results in xml.
