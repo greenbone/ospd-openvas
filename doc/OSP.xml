@@ -420,6 +420,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <scan_id>ID of a specific scan to get</scan_id>
               <details>Whether to return the full scan report</details>
               <pop_results>Whether to remove the fetched results</pop_results>
+              <max_results>Maximum number of results to fetch. Only considered if pop_results is enabled. Default = 0, which means that all available results are returned</max_results>
             </attributes>
             <elements></elements>
             <description>List the scans in buffer</description>
@@ -504,6 +505,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <summary>Whether to remove the fetched results</summary>
         <type>boolean</type>
       </attrib>
+      <attrib>
+        <name>max_results</name>
+        <summary>Maximum number of results to fetch. Only considered if pop_results is enabled. Default = 0, which means that all available results are returned</summary>
+        <type>int</type>
+      </attrib>
     </pattern>
     <response>
       <pattern>
@@ -572,7 +578,28 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                ...
              </results>
            </scan>
-
+        </get_scans_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get a scan report summary</summary>
+      <request>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="1" pop_results="1" max_results="1"/>
+      </request>
+      <response>
+        <get_scans_response status_text="OK" status="200">
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
+                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
+             <results>
+               <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp"
+                       test_id="" name="Path disclosure vulnerability"
+                       type="Alarm">
+                 The URL: &quot;https://192.168.1.252/&quot; has a path
+                 disclosure vulnerability which discloses "/var/www/phpinfo.php"
+                 ...
+               </result>
+             </results>
+           </scan>
         </get_scans_response>
       </response>
     </example>
