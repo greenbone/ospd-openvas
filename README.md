@@ -5,11 +5,11 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/?branch=master)
 
 This is an OSP server implementation to allow GVM to remotely control
-an OpenVAS Scanner, see <https://github.com/greenbone/openvas-scanner>.
+OpenVAS, see <https://github.com/greenbone/openvas>.
 
-Once running, you need to configure the Scanner for the Greenbone Vulnerability
+Once running, you need to configure OpenVAS for the Greenbone Vulnerability
 Manager, for example via the web interface Greenbone Security Assistant. Then
-you can create scan tasks to use this scanner.
+you can create scan tasks to use OpenVAS.
 
 ## Installation
 
@@ -76,6 +76,6 @@ development.
 
 ## License
 
-Copyright (C) 2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2018-2019 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).
