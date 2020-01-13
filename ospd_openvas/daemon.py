@@ -934,11 +934,12 @@ class OSPDopenvas(OSPDaemon):
             The calculated cvss base value. None if there is no severity
             vector or severity type is not cvss base version 2.
         """
-        severity_type = vt_aux['severities'].get('severity_type')
-        severity_vector = vt_aux['severities'].get('severity_base_vector')
+        if vt_aux:
+            severity_type = vt_aux['severities'].get('severity_type')
+            severity_vector = vt_aux['severities'].get('severity_base_vector')
 
-        if severity_type == "cvss_base_v2" and severity_vector:
-            return CVSS.cvss_base_v2_value(severity_vector)
+            if severity_type == "cvss_base_v2" and severity_vector:
+                return CVSS.cvss_base_v2_value(severity_vector)
 
         return None
 
@@ -956,13 +957,14 @@ class OSPDopenvas(OSPDaemon):
 
             if roid and not host_is_dead:
                 vt_aux = copy.deepcopy(self.vts.get(roid))
-                if vt_aux.get('qod_type'):
+                if vt_aux and vt_aux.get('qod_type'):
                     qod_t = vt_aux.get('qod_type')
                     rqod = self.nvti.QOD_TYPES[qod_t]
-                elif vt_aux.get('qod'):
+                elif vt_aux and vt_aux.get('qod'):
                     rqod = vt_aux.get('qod')
 
-                rname = vt_aux.get('name')
+                if vt_aux:
+                    rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
