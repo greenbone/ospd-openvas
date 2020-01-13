@@ -210,20 +210,6 @@ OSPD_PARAMS = {
         'description': 'To test the local network. '
         + 'Hosts will be referred to by their MAC address.',
     },
-    'vhosts': {
-        'type': 'string',
-        'name': 'vhosts',
-        'default': '',
-        'mandatory': 0,
-        'description': '',
-    },
-    'vhosts_ip': {
-        'type': 'string',
-        'name': 'vhosts_ip',
-        'default': '',
-        'mandatory': 0,
-        'description': '',
-    },
 }
 
 OID_SSH_AUTH = "1.3.6.1.4.1.25623.1.0.103591"
