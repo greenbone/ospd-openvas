@@ -1869,6 +1869,11 @@ class OSPDaemon:
         the credential list for the given target. """
         return self.scan_collection.get_credentials(scan_id, target)
 
+    def get_scan_target_options(self, scan_id: str, target: str = '') -> Dict:
+        """ Gives a scan's target option dict. If a target is passed gives
+        the credential list for the given target. """
+        return self.scan_collection.get_target_options(scan_id, target)
+
     def get_scan_vts(self, scan_id: str) -> Dict:
         """ Gives a scan's vts list. """
         return self.scan_collection.get_vts(scan_id)
