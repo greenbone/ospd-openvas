@@ -526,6 +526,7 @@ class OSPDaemon:
                     <hosts>localhosts</hosts>
                     <exclude_hosts>localhost1</exclude_hosts>
                     <ports>80,443</ports>
+                    <alive_test></alive_test>
                   </target>
                   <target>
                     <hosts>192.168.0.0/24</hosts>
@@ -543,14 +544,15 @@ class OSPDaemon:
                   </target>
                 </targets>
 
-        @return: A list of [hosts, port, {credentials}, exclude_hosts] list.
+        @return: A list of [hosts, port, {credentials}, exclude_hosts, options] list.
                  Example form:
-                 [['localhosts', '80,43', '', 'localhosts1'],
+                 [['localhosts', '80,43', '', 'localhosts1',
+                   {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE'}],
                   ['192.168.0.0/24', '22', {'smb': {'type': type,
                                                     'port': port,
                                                     'username': username,
                                                     'password': pass,
-                                                   }}], '']
+                                                   }}, '', {}]]
         """
 
         target_list = []
@@ -559,6 +561,7 @@ class OSPDaemon:
             finished_hosts = ''
             ports = ''
             credentials = {}  # type: Dict
+            options = {}
             for child in target:
                 if child.tag == 'hosts':
                     hosts = child.text
@@ -570,9 +573,18 @@ class OSPDaemon:
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
+                if child.tag == 'alive_test':
+                    options['alive_test'] = child.text
             if hosts:
                 target_list.append(
-                    [hosts, ports, credentials, exclude_hosts, finished_hosts]
+                    [
+                        hosts,
+                        ports,
+                        credentials,
+                        exclude_hosts,
+                        finished_hosts,
+                        options,
+                    ]
                 )
             else:
                 raise OspdCommandError('No target to scan', 'start_scan')
@@ -598,7 +610,7 @@ class OSPDaemon:
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, '', '', ''])
+                scan_targets.append([single_target, ports_str, '', '', '', ''])
 
         scan_id = scan_et.attrib.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -874,7 +886,7 @@ class OSPDaemon:
     def process_exclude_hosts(self, scan_id: str, target_list: List) -> None:
         """ Process the exclude hosts before launching the scans."""
 
-        for target, _, _, exclude_hosts, _ in target_list:
+        for target, _, _, exclude_hosts, _, _ in target_list:
             exc_hosts_list = ''
             if not exclude_hosts:
                 continue
@@ -888,7 +900,7 @@ class OSPDaemon:
         Set finished hosts as finished with 100% to calculate
         the scan progress."""
 
-        for target, _, _, _, finished_hosts in target_list:
+        for target, _, _, _, finished_hosts, _ in target_list:
             exc_hosts_list = ''
             if not finished_hosts:
                 continue
