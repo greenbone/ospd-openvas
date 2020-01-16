@@ -89,7 +89,7 @@ class SSHDaemonTestCase(unittest.TestCase):
         daemon = DummyWrapper(niceness=10)
         scanid = daemon.create_scan(
             None,
-            [['host.example.com', '80, 443', '', '', '']],
+            [['host.example.com', '80, 443', '', '', '', '']],
             dict(port=5, ssh_timeout=15, username_password='dummy:pw'),
             '',
         )
@@ -105,7 +105,7 @@ class SSHDaemonTestCase(unittest.TestCase):
         daemon = DummyWrapper(niceness=10)
         scanid = daemon.create_scan(
             None,
-            [['host.example.com', '80, 443', '', '', '']],
+            [['host.example.com', '80, 443', '', '', '', '']],
             dict(port=5, ssh_timeout=15, username='dummy', password='pw'),
             '',
         )
@@ -132,7 +132,7 @@ class SSHDaemonTestCase(unittest.TestCase):
 
         scanid = daemon.create_scan(
             None,
-            [['host.example.com', '80, 443', cred_dict, '', '']],
+            [['host.example.com', '80, 443', cred_dict, '', '', '']],
             dict(port=5, ssh_timeout=15),
             '',
         )
@@ -147,7 +147,7 @@ class SSHDaemonTestCase(unittest.TestCase):
         daemon = DummyWrapper(niceness=10)
         scanid = daemon.create_scan(
             None,
-            [['host.example.com', '80, 443', '', '', '']],
+            [['host.example.com', '80, 443', '', '', '', '']],
             dict(port=5, ssh_timeout=15),
             '',
         )
