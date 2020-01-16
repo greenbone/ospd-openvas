@@ -413,6 +413,16 @@ class ScanCollection(object):
                 if target == item[0]:
                     return item[2]
 
+    def get_target_options(self, scan_id: str, target: str):
+        """ Get a scan's target option dictionary.
+        It return dictionary with the corresponding options for
+        a given target.
+        """
+        if target:
+            for item in self.scans_table[scan_id]['targets']:
+                if target == item[0]:
+                    return item[5]
+
     def get_vts(self, scan_id: str):
         """ Get a scan's vts list. """
 
