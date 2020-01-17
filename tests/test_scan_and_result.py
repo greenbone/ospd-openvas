@@ -952,6 +952,7 @@ class ScanTestCase(unittest.TestCase):
                 '<targets><target>'
                 '<hosts>localhosts</hosts>'
                 '<ports>80,443</ports>'
+                '<alive_test>0</alive_test>'
                 '</target>'
                 '<target><hosts>192.168.0.0/24</hosts>'
                 '<ports>22</ports></target></targets>'
@@ -1020,6 +1021,25 @@ class ScanTestCase(unittest.TestCase):
         )
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
+
+    def test_scan_get_target_options(self):
+        daemon = DummyWrapper([])
+        response = secET.fromstring(
+            daemon.handle_command(
+                '<start_scan>'
+                '<scanner_params /><vts><vt id="1.2.3.4" />'
+                '</vts>'
+                '<targets>'
+                '<target><hosts>192.168.0.1</hosts>'
+                '<ports>22</ports><alive_test>0</alive_test></target>'
+                '</targets>'
+                '</start_scan>'
+            )
+        )
+        scan_id = response.findtext('id')
+        time.sleep(1)
+        target_options = daemon.get_scan_target_options(scan_id, '192.168.0.1')
+        self.assertEqual(target_options, {'alive_test': '0'})
 
     def test_scan_get_finished_hosts(self):
         daemon = DummyWrapper([])
