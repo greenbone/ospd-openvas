@@ -1195,10 +1195,10 @@ class OSPDopenvas(OSPDaemon):
 
         return 1
 
-    def process_vts(self, vts: List) -> Tuple[list, list]:
+    def process_vts(self, vts: List) -> Tuple[list, dict]:
         """ Add single VTs and their parameters. """
         vts_list = []
-        vts_params = []
+        vts_params = {}
         vtgroups = vts.pop('vt_groups')
 
         if vtgroups:
@@ -1238,13 +1238,12 @@ class OSPDopenvas(OSPDaemon):
                     continue
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
-                param = [
+                vts_params[
                     "{0}:{1}:{2}:{3}".format(
                         vtid, vt_param_id, param_type, param_name
-                    ),
-                    str(vt_param_value),
-                ]
-                vts_params.append(param)
+                    )
+                ] = str(vt_param_value)
+
         return vts_list, vts_params
 
     @staticmethod
@@ -1485,8 +1484,8 @@ class OSPDopenvas(OSPDaemon):
                 'internal/%s/scanprefs' % openvas_scan_id, [plugin_list]
             )
             # Add nvts parameters
-            for elem in nvts_params:
-                item = '%s|||%s' % (elem[0], elem[1])
+            for key, val in nvts_params.items():
+                item = '%s|||%s' % (key, val)
                 self.openvas_db.add_single_item(
                     'internal/%s/scanprefs' % openvas_scan_id, [item]
                 )
