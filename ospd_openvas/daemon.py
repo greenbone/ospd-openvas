@@ -1599,6 +1599,16 @@ class OSPDopenvas(OSPDaemon):
             self.openvas_db.add_single_item(
                 'internal/%s/scanprefs' % openvas_scan_id, [plugin_list]
             )
+            # Set alive test option. Overwrite the scan config settings.
+            target_options = self.get_scan_target_options(scan_id, target)
+            if target_options:
+                alive_test_opt = self.build_alive_test_opt_as_prefs(
+                    target_options
+                )
+                for elem in alive_test_opt:
+                    key, val = elem.split("|||", 2)
+                    nvts_params[key] = val
+
             # Add nvts parameters
             for key, val in nvts_params.items():
                 item = '%s|||%s' % (key, val)
