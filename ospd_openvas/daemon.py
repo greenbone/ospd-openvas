@@ -28,6 +28,7 @@ import uuid
 import binascii
 import copy
 
+from enum import IntEnum
 from typing import Optional, Dict, List, Tuple
 from datetime import datetime
 from base64 import b64decode
@@ -229,6 +230,17 @@ OID_SSH_AUTH = "1.3.6.1.4.1.25623.1.0.103591"
 OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
 OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
 OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
+OID_PING_HOST = "1.3.6.1.4.1.25623.1.0.100315"
+
+
+class AliveTest(IntEnum):
+    """ Alive Tests. """
+
+    ALIVE_TEST_TCP_ACK_SERVICE = 1
+    ALIVE_TEST_ICMP = 2
+    ALIVE_TEST_ARP = 4
+    ALIVE_TEST_CONSIDER_ALIVE = 8
+    ALIVE_TEST_TCP_SYN_SERVICE = 16
 
 
 def _from_bool_to_str(value: int) -> str:
