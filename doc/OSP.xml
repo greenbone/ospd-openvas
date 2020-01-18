@@ -179,6 +179,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <e>credentials</e>
       <e>exclude_hosts</e>
       <e>finished_hosts</e>
+      <e>alive_test</e>
     </pattern>
     <ele>
       <name>hosts</name>
@@ -209,12 +210,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </summary>
       <type>string</type>
     </ele>
+    <ele>
+      <name>alive_test</name>
+      <summary>Alive test type to be performed against the target.</summary>
+      <type>string</type>
+    </ele>
     <example>
       <summary>Target without credentials.</summary>
       <e>
         <target>
           <hosts>example.org</hosts>
           <ports>T:22,U:5060</ports>
+          <alive_test>0</alive_test>
         </target>
       </e>
     </example>

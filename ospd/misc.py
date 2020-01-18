@@ -268,11 +268,11 @@ class ScanCollection(object):
         scan_info = self.data_manager.dict()  # type: Dict
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
-            [[target, []] for target, _, _, _, _ in targets]
+            [[target, []] for target, _, _, _, _, _ in targets]
         )
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict(
-            [[target, {}] for target, _, _, _, _ in targets]
+            [[target, {}] for target, _, _, _, _, _ in targets]
         )
         scan_info['targets'] = targets
         scan_info['vts'] = vts
@@ -371,7 +371,7 @@ class ScanCollection(object):
         """ Get a scan's target list. """
 
         target_list = []
-        for target, _, _, _, _ in self.scans_table[scan_id]['targets']:
+        for target, _, _, _, _, _ in self.scans_table[scan_id]['targets']:
             target_list.append(target)
         return target_list
 
@@ -412,6 +412,16 @@ class ScanCollection(object):
             for item in self.scans_table[scan_id]['targets']:
                 if target == item[0]:
                     return item[2]
+
+    def get_target_options(self, scan_id: str, target: str):
+        """ Get a scan's target option dictionary.
+        It return dictionary with the corresponding options for
+        a given target.
+        """
+        if target:
+            for item in self.scans_table[scan_id]['targets']:
+                if target == item[0]:
+                    return item[5]
 
     def get_vts(self, scan_id: str):
         """ Get a scan's vts list. """
