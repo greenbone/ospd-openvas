@@ -28,6 +28,7 @@ import uuid
 import binascii
 import copy
 
+from enum import IntEnum
 from typing import Optional, Dict, List, Tuple
 from datetime import datetime
 from base64 import b64decode
@@ -229,6 +230,17 @@ OID_SSH_AUTH = "1.3.6.1.4.1.25623.1.0.103591"
 OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
 OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
 OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
+OID_PING_HOST = "1.3.6.1.4.1.25623.1.0.100315"
+
+
+class AliveTest(IntEnum):
+    """ Alive Tests. """
+
+    ALIVE_TEST_TCP_ACK_SERVICE = 1
+    ALIVE_TEST_ICMP = 2
+    ALIVE_TEST_ARP = 4
+    ALIVE_TEST_CONSIDER_ALIVE = 8
+    ALIVE_TEST_TCP_SYN_SERVICE = 16
 
 
 def _from_bool_to_str(value: int) -> str:
@@ -1195,10 +1207,10 @@ class OSPDopenvas(OSPDaemon):
 
         return 1
 
-    def process_vts(self, vts: List) -> Tuple[list, list]:
+    def process_vts(self, vts: List) -> Tuple[list, dict]:
         """ Add single VTs and their parameters. """
         vts_list = []
-        vts_params = []
+        vts_params = {}
         vtgroups = vts.pop('vt_groups')
 
         if vtgroups:
@@ -1238,13 +1250,12 @@ class OSPDopenvas(OSPDaemon):
                     continue
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
-                param = [
+                vts_params[
                     "{0}:{1}:{2}:{3}".format(
                         vtid, vt_param_id, param_type, param_name
-                    ),
-                    str(vt_param_value),
-                ]
-                vts_params.append(param)
+                    )
+                ] = str(vt_param_value)
+
         return vts_list, vts_params
 
     @staticmethod
@@ -1361,6 +1372,110 @@ class OSPDopenvas(OSPDaemon):
                 )
 
         return cred_prefs_list
+
+    @staticmethod
+    def build_alive_test_opt_as_prefs(target_options: Dict) -> List[str]:
+        """ Parse the target options dictionary.
+        @param credentials: Dictionary with the target options.
+
+        @return A list with the target options in string format to be
+                added to the redis KB.
+        """
+        target_opt_prefs_list = []
+        if target_options and target_options.get('alive_test'):
+            try:
+                alive_test = int(target_options.get('alive_test'))
+            except ValueError:
+                logger.debug(
+                    'Alive test settings not applied. '
+                    'Invalid alive test value %s',
+                    target_options.get('alive_test'),
+                )
+                return target_opt_prefs_list
+
+            if alive_test < 1 or alive_test > 31:
+                return target_opt_prefs_list
+
+            if (
+                alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+                or alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+            ):
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':1:checkbox:'
+                + 'Do a TCP ping|||'
+                + '{0}'.format(value)
+            )
+
+            if (
+                alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+                and alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+            ):
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':2:checkbox:'
+                + 'TCP ping tries also TCP-SYN ping|||'
+                + '{0}'.format(value)
+            )
+
+            if (alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE) and not (
+                alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+            ):
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':7:checkbox:'
+                + 'TCP ping tries only TCP-SYN ping|||'
+                + '{0}'.format(value)
+            )
+
+            if alive_test & AliveTest.ALIVE_TEST_ICMP:
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':3:checkbox:'
+                + 'Do an ICMP ping|||'
+                + '{0}'.format(value)
+            )
+
+            if alive_test & AliveTest.ALIVE_TEST_ARP:
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':4:checkbox:'
+                + 'Use ARP|||'
+                + '{0}'.format(value)
+            )
+
+            if alive_test & AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
+                value = "no"
+            else:
+                value = "yes"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':5:checkbox:'
+                + 'Mark unrechable Hosts as dead (not scanning)|||'
+                + '{0}'.format(value)
+            )
+
+            # Also select a method, otherwise Ping Host logs a warning.
+            if alive_test == AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
+                target_opt_prefs_list.append(
+                    OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping|||yes'
+                )
+        return target_opt_prefs_list
 
     def exec_scan(self, scan_id: str, target: str):
         """ Starts the OpenVAS scanner for scan_id scan. """
@@ -1484,9 +1599,19 @@ class OSPDopenvas(OSPDaemon):
             self.openvas_db.add_single_item(
                 'internal/%s/scanprefs' % openvas_scan_id, [plugin_list]
             )
+            # Set alive test option. Overwrite the scan config settings.
+            target_options = self.get_scan_target_options(scan_id, target)
+            if target_options:
+                alive_test_opt = self.build_alive_test_opt_as_prefs(
+                    target_options
+                )
+                for elem in alive_test_opt:
+                    key, val = elem.split("|||", 2)
+                    nvts_params[key] = val
+
             # Add nvts parameters
-            for elem in nvts_params:
-                item = '%s|||%s' % (elem[0], elem[1])
+            for key, val in nvts_params.items():
+                item = '%s|||%s' % (key, val)
                 self.openvas_db.add_single_item(
                     'internal/%s/scanprefs' % openvas_scan_id, [item]
                 )

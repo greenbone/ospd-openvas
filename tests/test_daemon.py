@@ -575,6 +575,40 @@ class TestOspdOpenvas(TestCase):
         ret = w.build_credentials_as_prefs(cred_dict)
         self.assertEqual(ret, cred_out)
 
+    def test_build_alive_test_opt_empty(self, mock_nvti, mock_db):
+        w = DummyDaemon(mock_nvti, mock_db)
+        target_options_dict = {'alive_test': '0'}
+
+        self.maxDiff = None
+        ret = w.build_alive_test_opt_as_prefs(target_options_dict)
+        self.assertEqual(ret, [])
+
+    def test_build_alive_test_opt(self, mock_nvti, mock_db):
+        w = DummyDaemon(mock_nvti, mock_db)
+        alive_test_out = [
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
+        ]
+        target_options_dict = {'alive_test': '2'}
+
+        self.maxDiff = None
+        ret = w.build_alive_test_opt_as_prefs(target_options_dict)
+        self.assertEqual(ret, alive_test_out)
+
+    def test_build_alive_test_opt_fail_1(self, mock_nvti, mock_db):
+        w = DummyDaemon(mock_nvti, mock_db)
+        target_options_dict = {'alive_test': 'a'}
+
+        self.maxDiff = None
+        logging.Logger.debug = Mock()
+        ret = w.build_alive_test_opt_as_prefs(target_options_dict)
+        if hasattr(Mock, 'assert_called_once'):
+            logging.Logger.debug.assert_called_once()
+
     def test_process_vts(self, mock_nvti, mock_db):
         vts = {
             '1.3.6.1.4.1.25623.1.0.100061': {'1': 'new value'},
@@ -582,12 +616,7 @@ class TestOspdOpenvas(TestCase):
         }
         vt_out = (
             ['1.3.6.1.4.1.25623.1.0.100061'],
-            [
-                [
-                    '1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :',
-                    'new value',
-                ]
-            ],
+            {'1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :': 'new value'},
         )
 
         w = DummyDaemon(mock_nvti, mock_db)

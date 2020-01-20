@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add solution method to solution of vt object. [#131](https://github.com/greenbone/ospd-openvas/pull/131)
 - Add typing to daemon.py, nvticache.py and db.py. [#161](https://github.com/greenbone/ospd-openvas/pull/161)[#162](https://github.com/greenbone/ospd-openvas/pull/162)[#163](https://github.com/greenbone/ospd-openvas/pull/163)
+- Add support for alive test settings. [#182](https://github.com/greenbone/ospd-openvas/pull/182)
 
 ### Changed
 - Less strict checks for the nvti cache version
