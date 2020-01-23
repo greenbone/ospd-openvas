@@ -206,6 +206,25 @@ OSPD_PARAMS = {
         'description': 'To test the local network. '
         + 'Hosts will be referred to by their MAC address.',
     },
+    'expand_vhosts': {
+        'type': 'boolean',
+        'name': 'expand_vhosts',
+        'default': 0,
+        'mandatory': 0,
+        'description': 'Whether to expand the target hosts '
+        + 'list of vhosts with values gathered from sources '
+        + 'such as reverse-lookup queries and VT checks '
+        + 'for SSL/TLS certificates.',
+    },
+    'test_empty_vhost': {
+        'type': 'boolean',
+        'name': 'test_empty_vhost',
+        'default': 0,
+        'mandatory': 0,
+        'description': 'If  set  to  yes, the scanner will '
+        + 'also test the target by using empty vhost value '
+        + 'in addition to the targets associated vhost values.',
+    },
 }
 
 OID_SSH_AUTH = "1.3.6.1.4.1.25623.1.0.103591"
