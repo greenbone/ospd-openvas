@@ -930,8 +930,12 @@ class OSPDopenvas(OSPDaemon):
             rname = ''
             rhostname = msg[1].strip() if msg[1] else ''
             host_is_dead = "Host dead" in msg[4]
+            valid_oid = roid and roid in self.vts
 
-            if roid and not host_is_dead:
+            if not valid_oid:
+                logger.warning('Invalid VT oid %s for a result', roid)
+
+            if valid_oid and not host_is_dead:
                 if self.vts[roid].get('qod_type'):
                     qod_t = self.vts[roid].get('qod_type')
                     rqod = self.nvti.QOD_TYPES[qod_t]
