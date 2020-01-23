@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
+- Fix missing scan preferences. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
 
 ## [1.0.1] (unreleased)
 
