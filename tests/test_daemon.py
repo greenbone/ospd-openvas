@@ -163,19 +163,24 @@ OSPD_PARAMS_OUT = {
         'description': 'To test the local network. '
         'Hosts will be referred to by their MAC address.',
     },
-    'vhosts': {
-        'type': 'string',
-        'name': 'vhosts',
-        'default': '',
+    'expand_vhosts': {
+        'type': 'boolean',
+        'name': 'expand_vhosts',
+        'default': 0,
         'mandatory': 0,
-        'description': '',
+        'description': 'Whether to expand the target hosts '
+        + 'list of vhosts with values gathered from sources '
+        + 'such as reverse-lookup queries and VT checks '
+        + 'for SSL/TLS certificates.',
     },
-    'vhosts_ip': {
-        'type': 'string',
-        'name': 'vhosts_ip',
-        'default': '',
+    'test_empty_vhost': {
+        'type': 'boolean',
+        'name': 'test_empty_vhost',
+        'default': 0,
         'mandatory': 0,
-        'description': '',
+        'description': 'If  set  to  yes, the scanner will '
+        + 'also test the target by using empty vhost value '
+        + 'in addition to the targets associated vhost values.',
     },
 }
 
