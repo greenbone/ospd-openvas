@@ -1106,7 +1106,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <ele>
             <name>severities</name>
             <pattern>
-              <e>severity</e>
+              <any><e>severity</e></any>
             </pattern>
             <ele>
               <name>severity</name>
@@ -1115,12 +1115,25 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                   <name>type</name>
                   <type>string</type>
                 </attrib>
-                <attrib>
-                  <name>origin</name>
-                  <summary>Optional reference to the origin of the severity</summary>
-                  <type>string</type>
-                </attrib>
+                <e>origin</e>
+                <e>date</e>
+                <e>value</e>
               </pattern>
+              <ele>
+                <name>origin</name>
+                <summary>Optional reference to the origin of the severity</summary>
+                <type>string</type>
+              </ele>
+              <ele>
+                <name>date</name>
+                <summary>Optional timestamp in seconds since epoch. Defaults to VT creation date</summary>
+                <type>string</type>
+              </ele>
+              <ele>
+                <name>value</name>
+                <summary>The actual value, the format must correspond with the type</summary>
+                <type>string</type>
+              </ele>
             </ele>
           </ele>
           <ele>
@@ -1174,7 +1187,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               </solution>
               <detection qod_type="package">Get the installed version with the help of detect NVT and check if the version is vulnerable or not.</detection>
               <severities>
-                <severity type="cvss_base_v2" origin="CVE-2014-9116">AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>
+                <severity type="cvss_base_v2">
+                  <origin>CVE-2014-9116</origin>
+                  <date>1200603949</date>
+                  <value>AV:N/AC:L/Au:N/C:N/I:N/A:P</value>
+                </severity>
               </severities>
             </vt>
           </vts>
@@ -1575,6 +1592,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>Target element receive new target options reverse_lookup_only, reverse_lookup_unify and alive_test.
     </description>
     <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Returned object changes and extends severity information</summary>
+    <description>
+      The element SEVERITY inside SEVERITIES of the returned VT moves the orogin and the value
+      into explicit elements ORIGIN and VALUE. Furthremore the element DATE is added.
+    </description>
+    <version>20.04</version>
   </change>
 
   <change>
