@@ -202,14 +202,6 @@ OSPD_PARAMS = {
         'mandatory': 1,
         'description': '',
     },
-    'use_mac_addr': {
-        'type': 'boolean',
-        'name': 'use_mac_addr',
-        'default': 0,
-        'mandatory': 0,
-        'description': 'To test the local network. '
-        + 'Hosts will be referred to by their MAC address.',
-    },
     'expand_vhosts': {
         'type': 'boolean',
         'name': 'expand_vhosts',
