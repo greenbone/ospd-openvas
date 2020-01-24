@@ -32,8 +32,8 @@ from base64 import b64decode
 
 from pathlib import Path
 from os import geteuid
-from lxml.etree import tostring, SubElement, Element
 from xml.sax.saxutils import escape
+from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
