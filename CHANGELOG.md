@@ -25,6 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Init the superclass with kwargs. [#141](https://github.com/greenbone/ospd-openvas/pull/141)
 - Avoid ospd-openvas to crash if redis is flushed during vt dictionary creation. [#146](https://github.com/greenbone/ospd-openvas/pull/146)
 - Check for a valid OID when prepare results. [#183](https://github.com/greenbone/ospd-openvas/pull/183)
+- Fix snmp credentials. [#187](https://github.com/greenbone/ospd-openvas/pull/187)
 
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#185](https://github.com/greenbone/ospd-openvas/pull/185)
