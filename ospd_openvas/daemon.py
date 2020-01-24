@@ -32,6 +32,7 @@ from base64 import b64decode
 
 from pathlib import Path
 from os import geteuid
+from xml.sax.saxutils import escape
 from lxml.etree import tostring, SubElement, Element
 
 import psutil
@@ -940,6 +941,9 @@ class OSPDopenvas(OSPDaemon):
                     rqod = self.vts[roid].get('qod')
 
                 rname = self.vts[roid].get('name')
+
+            if rname:
+                rname = escape(rname)
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
