@@ -1336,35 +1336,35 @@ class OSPDopenvas(OSPDaemon):
                 cred_prefs_list.append(
                     OID_SNMP_AUTH
                     + ':1:'
-                    + 'password:SNMP Community:'
+                    + 'password:SNMP Community:|||'
                     + '{0}'.format(community)
                 )
                 cred_prefs_list.append(
                     OID_SNMP_AUTH
                     + ':2:'
-                    + 'entry:SNMPv3 Username:'
+                    + 'entry:SNMPv3 Username:|||'
                     + '{0}'.format(username)
                 )
                 cred_prefs_list.append(
                     OID_SNMP_AUTH + ':3:'
-                    'password:SNMPv3 Password:' + '{0}'.format(password)
+                    'password:SNMPv3 Password:|||' + '{0}'.format(password)
                 )
                 cred_prefs_list.append(
                     OID_SNMP_AUTH
                     + ':4:'
-                    + 'radio:SNMPv3 Authentication '
-                    + 'Algorithm:{0}'.format(auth_algorithm)
+                    + 'radio:SNMPv3 Authentication Algorithm:|||'
+                    + '{0}'.format(auth_algorithm)
                 )
                 cred_prefs_list.append(
                     OID_SNMP_AUTH
                     + ':5:'
-                    + 'password:SNMPv3 Privacy Password:'
+                    + 'password:SNMPv3 Privacy Password:|||'
                     + '{0}'.format(privacy_password)
                 )
                 cred_prefs_list.append(
                     OID_SNMP_AUTH
                     + ':6:'
-                    + 'radio:SNMPv3 Privacy Algorithm:'
+                    + 'radio:SNMPv3 Privacy Algorithm:|||'
                     + '{0}'.format(privacy_algorithm)
                 )
 
