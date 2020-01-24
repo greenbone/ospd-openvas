@@ -205,7 +205,7 @@ OSPD_PARAMS = {
     'expand_vhosts': {
         'type': 'boolean',
         'name': 'expand_vhosts',
-        'default': 0,
+        'default': 1,
         'mandatory': 0,
         'description': 'Whether to expand the target hosts '
         + 'list of vhosts with values gathered from sources '
