@@ -743,6 +743,30 @@ class TestOspdOpenvas(TestCase):
             value='Host dead',
         )
 
+    @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
+    def test_get_openvas_result_escaped(self, mock_ospd, mock_nvti, mock_db):
+        results = [
+            "LOG||| |||general/Host_Details|||1.3.6.1.4.1.25623.1.0.100061|||Alive",
+            None,
+        ]
+        mock_db.get_result.side_effect = results
+        w = DummyDaemon(mock_nvti, mock_db)
+        w.load_vts()
+        mock_ospd.return_value = None
+        mock_nvti.QOD_TYPES.__getitem__.return_value = ''
+        w.get_openvas_result('123-456', 'localhost')
+
+        mock_ospd.assert_called_with(
+            '123-456',
+            host='localhost',
+            hostname='',
+            name='Mantis Detection &amp; foo',
+            port='general/Host_Details',
+            qod='',
+            test_id='1.3.6.1.4.1.25623.1.0.100061',
+            value='Alive',
+        )
+
     @patch('ospd_openvas.daemon.OSPDaemon.set_scan_host_progress')
     def test_update_progress(self, mock_ospd, mock_nvti, mock_db):
         msg = '0/-1'
