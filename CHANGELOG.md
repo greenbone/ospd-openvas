@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add solution method to solution of vt object. [#166](https://github.com/greenbone/ospd/pull/166)
 - Add wait_for_children(). [#167](https://github.com/greenbone/ospd/pull/167)
 - Extend osp to accept target options. [#194](https://github.com/greenbone/ospd/pull/194)
+- Accept reverse_lookup_only and reverse_lookup_unify target's options. [#195](https://github.com/greenbone/ospd/pull/195)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)
