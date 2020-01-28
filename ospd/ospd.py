@@ -527,6 +527,8 @@ class OSPDaemon:
                     <exclude_hosts>localhost1</exclude_hosts>
                     <ports>80,443</ports>
                     <alive_test></alive_test>
+                    <reverse_lookup_only>1</reverse_lookup_only>
+                    <reverse_lookup_unify>0</reverse_lookup_unify>
                   </target>
                   <target>
                     <hosts>192.168.0.0/24</hosts>
@@ -547,7 +549,11 @@ class OSPDaemon:
         @return: A list of [hosts, port, {credentials}, exclude_hosts, options] list.
                  Example form:
                  [['localhosts', '80,43', '', 'localhosts1',
-                   {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE'}],
+                   {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
+                    'reverse_lookup_only': '1',
+                    'reverse_lookup_unify': '0',
+                   }
+                  ],
                   ['192.168.0.0/24', '22', {'smb': {'type': type,
                                                     'port': port,
                                                     'username': username,
@@ -575,6 +581,10 @@ class OSPDaemon:
                     credentials = cls.process_credentials_elements(child)
                 if child.tag == 'alive_test':
                     options['alive_test'] = child.text
+                if child.tag == 'reverse_lookup_unify':
+                    options['reverse_lookup_unify'] = child.text
+                if child.tag == 'reverse_lookup_only':
+                    options['reverse_lookup_only'] = child.text
             if hosts:
                 target_list.append(
                     [
