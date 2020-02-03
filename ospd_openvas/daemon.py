@@ -407,13 +407,15 @@ class OSPDopenvas(OSPDaemon):
         which avoid to start a new scan.
         """
         current_feed = self.nvti.get_feed_version()
-        # Check if the feed is already accessible in the disk.
-        if current_feed and self.feed_is_outdated(current_feed) is None:
+        is_outdated = self.feed_is_outdated(current_feed)
+
+        # Check if the feed is already accessible from the disk.
+        if current_feed and is_outdated is None:
             self.pending_feed = True
             return
 
         # Check if the nvticache in redis is outdated
-        if not current_feed or self.feed_is_outdated(current_feed):
+        if not current_feed or is_outdated:
             self.redis_nvticache_init()
             ctx = self.nvti.get_redis_context()
             self.openvas_db.set_redisctx(ctx)
