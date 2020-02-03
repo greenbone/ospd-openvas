@@ -1709,12 +1709,13 @@ class OSPDopenvas(OSPDaemon):
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
-                msg = (
+                logger.error(
                     'It was not possible run the task %s, since openvas ended '
-                    'unexpectedly with errors during launching.' % scan_id
+                    'unexpectedly with errors during launching.',
+                    scan_id,
                 )
-                logger.error(msg)
                 return 1
+
             time.sleep(1)
 
         no_id_found = False
