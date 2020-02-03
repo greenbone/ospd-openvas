@@ -247,6 +247,16 @@ def _from_bool_to_str(value: int) -> str:
     return 'yes' if value == 1 else 'no'
 
 
+def safe_int(value: str) -> Optional[int]:
+    """ Convert a sring into an integer and return None in case of errors during
+    conversion
+    """
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
+
+
 class OpenVasVtsFilter(VtsFilter):
     """ Methods to overwrite the ones in the original class.
     Each method formats the value to be compatible with the filter
@@ -358,9 +368,8 @@ class OSPDopenvas(OSPDaemon):
         Return:
             False if there is no new feed.
             True if the feed version in disk is newer than the feed in
-            redis cache.
-            None if there is no feed
-            the disk.
+                redis cache.
+            None if there is no feed on the disk.
         """
         plugins_folder = self.scan_only_params.get('plugins_folder')
         if not plugins_folder:
@@ -369,20 +378,28 @@ class OSPDopenvas(OSPDaemon):
         feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
         if not feed_info_file.exists():
             self.parse_openvas_params()
-            msg = 'Plugins feed file %s not found.' % feed_info_file
-            logger.debug(msg)
+            logger.debug('Plugins feed file %s not found.', feed_info_file)
             return None
 
-        date = 0
-        with open(str(feed_info_file)) as fcontent:
+        current_feed = safe_int(current_feed)
+
+        feed_date = None
+        with feed_info_file.open() as fcontent:
             for line in fcontent:
                 if "PLUGIN_SET" in line:
-                    date = line.split(' = ')[1]
-                    date = date.replace(';', '')
-                    date = date.replace('"', '')
-        if int(current_feed) < int(date) or int(date) == 0:
-            return True
-        return False
+                    feed_date = line.split('=', 1)[1]
+                    feed_date = feed_date.strip()
+                    feed_date = feed_date.replace(';', '')
+                    feed_date = feed_date.replace('"', '')
+                    feed_date = safe_int(feed_date)
+                    break
+
+        logger.debug("Current feed version: %s", current_feed)
+        logger.debug("Plugin feed version: %s", feed_date)
+
+        return (
+            (not feed_date) or (not current_feed) or (current_feed < feed_date)
+        )
 
     def check_feed(self):
         """ Check if there is a feed update. Wait until all the running
