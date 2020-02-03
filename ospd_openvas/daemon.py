@@ -309,28 +309,40 @@ class OSPDopenvas(OSPDaemon):
 
         self.load_vts()
 
-    def parse_param(self):
-        """ Set OSPD_PARAMS with the params taken from the openvas_scanner. """
+    def parse_openvas_params(self):
+        """ Set OSPD_PARAMS with the params taken from the openvas executable.
+        """
         bool_dict = {'no': 0, 'yes': 1}
 
         result = subprocess.check_output(
             ['openvas', '-s'], stderr=subprocess.STDOUT
         )
+
         result = result.decode('ascii')
         param_list = dict()
+
         for conf in result.split('\n'):
-            elem = conf.split('=')
-            if len(elem) == 2:
-                value = str.strip(elem[1])
-                if str.strip(elem[1]) in bool_dict:
-                    value = bool_dict[value]
-                param_list[str.strip(elem[0])] = value
-        for elem in OSPD_PARAMS:
-            if elem in param_list:
-                OSPD_PARAMS[elem]['default'] = param_list[elem]
+            if not conf:
+                continue
+
+            try:
+                key, value = conf.split('=', 1)
+            except ValueError:
+                logger.warning("Could not parse openvas setting '%s'", conf)
+                continue
+
+            key = key.strip()
+            value = value.strip()
+
+            if value:
+                value = bool_dict.get(value, value)
+                param_list[key] = value
+
         for elem in param_list:
             if elem not in OSPD_PARAMS:
                 self.scan_only_params[elem] = param_list[elem]
+            else:
+                OSPD_PARAMS[elem]['default'] = param_list[elem]
 
     def redis_nvticache_init(self):
         """ Loads NVT's metadata into Redis DB. """
@@ -356,7 +368,7 @@ class OSPDopenvas(OSPDaemon):
 
         feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
         if not feed_info_file.exists():
-            self.parse_param()
+            self.parse_openvas_params()
             msg = 'Plugins feed file %s not found.' % feed_info_file
             logger.debug(msg)
             return None
@@ -895,7 +907,8 @@ class OSPDopenvas(OSPDaemon):
         if version[0].find('OpenVAS') < 0:
             return False
 
-        self.parse_param()
+        self.parse_openvas_params()
+
         self.scanner_info['version'] = version[0]
 
         return True
