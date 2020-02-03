@@ -1106,9 +1106,9 @@ class OSPDopenvas(OSPDaemon):
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'stop_all'
 
-    def stop_scan_cleanup(
+    def stop_scan_cleanup(  # pylint: disable=arguments-differ
         self, global_scan_id: str
-    ):  # pylint: disable=arguments-differ
+    ):
         """ Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
