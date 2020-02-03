@@ -357,10 +357,10 @@ class OSPDopenvas(OSPDaemon):
     def redis_nvticache_init(self):
         """ Loads NVT's metadata into Redis DB. """
         try:
-            logger.debug('Loading NVTs in Redis DB')
+            logger.debug('Loading VTs in Redis DB')
             subprocess.check_call(['openvas', '--update-vt-info'])
         except subprocess.CalledProcessError as err:
-            logger.error('OpenVAS Scanner failed to load NVTs. %s', err)
+            logger.error('OpenVAS Scanner failed to load VTs. %s', err)
 
     def feed_is_outdated(self, current_feed: str) -> Optional[bool]:
         """ Compare the current feed with the one in the disk.
@@ -448,9 +448,10 @@ class OSPDopenvas(OSPDaemon):
         self.check_feed()
 
     def load_vts(self):
-        """ Load the NVT's metadata into the vts
-        global  dictionary. """
-        logger.debug('Loading vts in memory.')
+        """ Load the VT's metadata into the vts global dictionary. """
+
+        logger.debug('Loading VTs in memory.')
+
         oids = dict(self.nvti.get_oids())
         for _filename, vt_id in oids.items():
             _vt_params = self.nvti.get_nvt_params(vt_id)
@@ -542,11 +543,13 @@ class OSPDopenvas(OSPDaemon):
                     severities=_severity,
                 )
             except OspdError as e:
-                logger.info("Error while adding vt. %s", e)
+                logger.info("Error while adding VT %s. %s", vt_id, e)
 
         _feed_version = self.nvti.get_feed_version()
+
         self.set_vts_version(vts_version=_feed_version)
         self.pending_feed = False
+
         logger.debug('Finish loading up vts.')
 
     @staticmethod
@@ -566,7 +569,7 @@ class OSPDopenvas(OSPDaemon):
                 xml_key.text = val
             except ValueError as e:
                 logger.warning(
-                    "Not possible to parse custom tag for vt %s: %s", vt_id, e
+                    "Not possible to parse custom tag for VT %s: %s", vt_id, e
                 )
         return tostring(_custom).decode('utf-8')
 
@@ -614,7 +617,7 @@ class OSPDopenvas(OSPDaemon):
                 xml_name.text = prefs['name']
             except ValueError as e:
                 logger.warning(
-                    "Not possible to parse parameter for vt %s: %s", vt_id, e
+                    "Not possible to parse parameter for VT %s: %s", vt_id, e
                 )
             if prefs['default']:
                 xml_def = SubElement(vt_param, 'default')
@@ -622,7 +625,7 @@ class OSPDopenvas(OSPDaemon):
                     xml_def.text = prefs['default']
                 except ValueError as e:
                     logger.warning(
-                        "Not possible to parse default parameter for vt %s: %s",
+                        "Not possible to parse default parameter for VT %s: %s",
                         vt_id,
                         e,
                     )
@@ -649,7 +652,7 @@ class OSPDopenvas(OSPDaemon):
                             _type, _id = xref.split(':', 1)
                         except ValueError:
                             logger.error(
-                                'Not possible to parse xref %s for vt %s',
+                                'Not possible to parse xref %s for VT %s',
                                 xref,
                                 vt_id,
                             )
@@ -683,7 +686,7 @@ class OSPDopenvas(OSPDaemon):
                 _vt_dep.set('vt_id', dep)
             except (ValueError, TypeError):
                 logger.error(
-                    'Not possible to add dependency %s for vt %s', dep, vt_id
+                    'Not possible to add dependency %s for VT %s', dep, vt_id
                 )
                 continue
             vt_deps_xml.append(_vt_dep)
@@ -706,7 +709,7 @@ class OSPDopenvas(OSPDaemon):
             _time.text = vt_creation_time
         except ValueError as e:
             logger.warning(
-                "Not possible to parse creation time for vt %s: %s", vt_id, e
+                "Not possible to parse creation time for VT %s: %s", vt_id, e
             )
         return tostring(_time).decode('utf-8')
 
@@ -726,7 +729,7 @@ class OSPDopenvas(OSPDaemon):
             _time.text = vt_modification_time
         except ValueError as e:
             logger.warning(
-                "Not possible to parse modification time for vt %s: %s",
+                "Not possible to parse modification time for VT %s: %s",
                 vt_id,
                 e,
             )
@@ -746,7 +749,7 @@ class OSPDopenvas(OSPDaemon):
             _summary.text = summary
         except ValueError as e:
             logger.warning(
-                "Not possible to parse summary tag for vt %s: %s", vt_id, e
+                "Not possible to parse summary tag for VT %s: %s", vt_id, e
             )
         return tostring(_summary).decode('utf-8')
 
@@ -765,7 +768,7 @@ class OSPDopenvas(OSPDaemon):
             _impact.text = impact
         except ValueError as e:
             logger.warning(
-                "Not possible to parse impact tag for vt %s: %s", vt_id, e
+                "Not possible to parse impact tag for VT %s: %s", vt_id, e
             )
         return tostring(_impact).decode('utf-8')
 
@@ -783,7 +786,7 @@ class OSPDopenvas(OSPDaemon):
             _affected.text = affected
         except ValueError as e:
             logger.warning(
-                "Not possible to parse affected tag for vt %s: %s", vt_id, e
+                "Not possible to parse affected tag for VT %s: %s", vt_id, e
             )
         return tostring(_affected).decode('utf-8')
 
@@ -801,7 +804,7 @@ class OSPDopenvas(OSPDaemon):
             _insight.text = insight
         except ValueError as e:
             logger.warning(
-                "Not possible to parse insight tag for vt %s: %s", vt_id, e
+                "Not possible to parse insight tag for VT %s: %s", vt_id, e
             )
         return tostring(_insight).decode('utf-8')
 
@@ -826,7 +829,7 @@ class OSPDopenvas(OSPDaemon):
             _solution.text = solution
         except ValueError as e:
             logger.warning(
-                "Not possible to parse solution tag for vt %s: %s", vt_id, e
+                "Not possible to parse solution tag for VT %s: %s", vt_id, e
             )
         if solution_type:
             _solution.set('type', solution_type)
@@ -857,7 +860,7 @@ class OSPDopenvas(OSPDaemon):
                 _detection.text = detection
             except ValueError as e:
                 logger.warning(
-                    "Not possible to parse detection tag for vt %s: %s",
+                    "Not possible to parse detection tag for VT %s: %s",
                     vt_id,
                     e,
                 )
@@ -1250,7 +1253,7 @@ class OSPDopenvas(OSPDaemon):
         for vtid, vt_params in vts.items():
             if vtid not in self.temp_vts_dict.keys():
                 logger.warning(
-                    'The vt %s was not found and it will not be loaded.', vtid
+                    'The VT %s was not found and it will not be loaded.', vtid
                 )
                 continue
             vts_list.append(vtid)
@@ -1259,7 +1262,7 @@ class OSPDopenvas(OSPDaemon):
                 param_name = self.get_vt_param_name(vtid, vt_param_id)
                 if not param_type or not param_name:
                     logger.debug(
-                        'Missing type or name for vt parameter %s of %s. '
+                        'Missing type or name for VT parameter %s of %s. '
                         'It could not be loaded.',
                         vt_param_id,
                         vtid,
@@ -1271,7 +1274,7 @@ class OSPDopenvas(OSPDaemon):
                     type_aux = param_type
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
-                        'The vt parameter %s for %s could not be loaded. '
+                        'The VT parameter %s for %s could not be loaded. '
                         'Expected %s type for parameter value %s',
                         vt_param_id,
                         vtid,
