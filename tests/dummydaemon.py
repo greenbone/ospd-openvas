@@ -19,14 +19,15 @@
 
 from unittest.mock import patch
 
-from ospd_openvas.daemon import OSPDopenvas
 from defusedxml import ElementTree as secET
+
+from ospd_openvas.daemon import OSPDopenvas
 
 
 class DummyDaemon(OSPDopenvas):
     def __init__(self, nvti, redis):
 
-        self.VT = {
+        self.VT = {  # pylint: disable=invalid-name
             '1.3.6.1.4.1.25623.1.0.100061': {
                 'creation_time': '1237458156',
                 'custom': {
@@ -64,7 +65,7 @@ class DummyDaemon(OSPDopenvas):
                         'id': '2',
                         'default': 'no',
                         'description': 'Description',
-                        'name': 'Do not randomize the  order  in  which ports are scanned',
+                        'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
                         'type': 'checkbox',
                     },
                 },
@@ -90,7 +91,7 @@ class DummyDaemon(OSPDopenvas):
                 'id': '2',
                 'default': 'no',
                 'description': 'Description',
-                'name': 'Do not randomize the  order  in  which ports are scanned',
+                'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
                 'type': 'checkbox',
             },
         }
