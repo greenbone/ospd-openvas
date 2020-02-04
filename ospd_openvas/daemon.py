@@ -22,7 +22,6 @@
 """ Setup for the OSP OpenVAS Server. """
 
 import logging
-import subprocess
 import time
 import uuid
 import binascii
@@ -51,6 +50,7 @@ from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
+from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +285,7 @@ class OSPDopenvas(OSPDaemon):
         self._niceness = str(niceness)
 
         self.scanner_info['name'] = 'openvas'
-        self.scanner_info['version'] = ''  # achieved during self.check()
+        self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
 
         for name, param in OSPD_PARAMS.items():
@@ -307,60 +307,32 @@ class OSPDopenvas(OSPDaemon):
         self.temp_vts_dict = None
 
     def init(self):
+        self.scanner_info['version'] = Openvas.get_version()
+
+        self.set_params_from_openvas_settings()
+
         self.openvas_db.db_init()
 
         ctx = self.nvti.get_redis_context()
 
         if not ctx:
-            self.redis_nvticache_init()
+            Openvas.load_vts_into_redis()
             ctx = self.nvti.get_redis_context()
 
         self.openvas_db.set_redisctx(ctx)
 
         self.load_vts()
 
-    def parse_openvas_params(self):
+    def set_params_from_openvas_settings(self):
         """ Set OSPD_PARAMS with the params taken from the openvas executable.
         """
-        bool_dict = {'no': 0, 'yes': 1}
-
-        result = subprocess.check_output(
-            ['openvas', '-s'], stderr=subprocess.STDOUT
-        )
-
-        result = result.decode('ascii')
-        param_list = dict()
-
-        for conf in result.split('\n'):
-            if not conf:
-                continue
-
-            try:
-                key, value = conf.split('=', 1)
-            except ValueError:
-                logger.warning("Could not parse openvas setting '%s'", conf)
-                continue
-
-            key = key.strip()
-            value = value.strip()
-
-            if value:
-                value = bool_dict.get(value, value)
-                param_list[key] = value
+        param_list = Openvas.get_settings()
 
         for elem in param_list:
             if elem not in OSPD_PARAMS:
                 self.scan_only_params[elem] = param_list[elem]
             else:
                 OSPD_PARAMS[elem]['default'] = param_list[elem]
-
-    def redis_nvticache_init(self):
-        """ Loads NVT's metadata into Redis DB. """
-        try:
-            logger.debug('Loading VTs in Redis DB')
-            subprocess.check_call(['openvas', '--update-vt-info'])
-        except subprocess.CalledProcessError as err:
-            logger.error('OpenVAS Scanner failed to load VTs. %s', err)
 
     def feed_is_outdated(self, current_feed: str) -> Optional[bool]:
         """ Compare the current feed with the one in the disk.
@@ -377,7 +349,7 @@ class OSPDopenvas(OSPDaemon):
 
         feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
         if not feed_info_file.exists():
-            self.parse_openvas_params()
+            self.set_params_from_openvas_settings()
             logger.debug('Plugins feed file %s not found.', feed_info_file)
             return None
 
@@ -416,7 +388,7 @@ class OSPDopenvas(OSPDaemon):
 
         # Check if the nvticache in redis is outdated
         if not current_feed or is_outdated:
-            self.redis_nvticache_init()
+            Openvas.load_vts_into_redis()
             ctx = self.nvti.get_redis_context()
             self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
@@ -895,45 +867,20 @@ class OSPDopenvas(OSPDaemon):
             self._sudo_available = False
             return self._sudo_available
 
-        try:
-            subprocess.check_call(
-                ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
-            )
-            self._sudo_available = True
-        except (subprocess.SubprocessError, OSError) as e:
-            logger.debug(
-                'It was not possible to call openvas with sudo. '
-                'The scanner will run as non-root user. Reason %s',
-                e,
-            )
-            self._sudo_available = False
+        self._sudo_available = Openvas.check_sudo()
 
         return self._sudo_available
 
     def check(self) -> bool:
         """ Checks that openvas command line tool is found and
         is executable. """
-        try:
-            result = subprocess.check_output(
-                ['openvas', '-V'], stderr=subprocess.STDOUT
+        has_openvas = Openvas.check()
+        if not has_openvas:
+            logger.error(
+                'openvas executable not available. Please install openvas'
+                ' into your PATH.'
             )
-            result = result.decode('ascii')
-        except OSError:
-            # The command is not available
-            return False
-
-        if result is None:
-            return False
-
-        version = result.split('\n')
-        if version[0].find('OpenVAS') < 0:
-            return False
-
-        self.parse_openvas_params()
-
-        self.scanner_info['version'] = version[0]
-
-        return True
+        return has_openvas
 
     def update_progress(
         self, scan_id: str, target: str, current_host: str, msg: str
@@ -1140,18 +1087,13 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                 if parent:
-                    cmd = ['openvas', '--scan-stop', scan_id]
-                    if not self.is_running_as_root and self.sudo_available:
-                        cmd = ['sudo', '-n'] + cmd
-
-                    try:
-                        subprocess.Popen(cmd, shell=False)
-                    except OSError as e:
-                        # the command is not available
+                    can_stop_scan = Openvas.stop_scan(
+                        scan_id,
+                        not self.is_running_as_root and self.sudo_available,
+                    )
+                    if not can_stop_scan:
                         logger.debug(
-                            'Not possible to Stopping process: %s.' 'Reason %s',
-                            parent,
-                            e,
+                            'Not possible to stop scan process: %s.', parent,
                         )
                         return False
 
@@ -1683,22 +1625,19 @@ class OSPDopenvas(OSPDaemon):
             self.openvas_db.release_db(self.main_kbindex)
             return 2
 
-        cmd = ['openvas', '--scan-start', openvas_scan_id]
-        if not self.is_running_as_root and self.sudo_available:
-            cmd = ['sudo', '-n'] + cmd
+        result = Openvas.start_scan(
+            openvas_scan_id,
+            not self.is_running_as_root and self.sudo_available,
+            self._niceness,
+        )
 
-        if self._niceness is not None:
-            cmd = ['nice', '-n', self._niceness] + cmd
-
-        logger.debug("Running scan with niceness %s", self._niceness)
-        try:
-            result = subprocess.Popen(cmd, shell=False)
-        except OSError:
-            # the command is not available
+        if result is None:
             return False
 
         ovas_pid = result.pid
+
         logger.debug('pid = %s', ovas_pid)
+
         self.openvas_db.add_single_item('internal/ovas_pid', [ovas_pid])
 
         # Wait until the scanner starts and loads all the preferences.

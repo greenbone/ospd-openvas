@@ -21,9 +21,10 @@
 
 """ Unit Test for ospd-openvas """
 
+from pathlib import Path
+
 from unittest import TestCase
-from unittest.mock import patch
-from unittest.mock import Mock
+from unittest.mock import patch, Mock, MagicMock
 
 from multiprocessing import Manager
 
@@ -32,8 +33,8 @@ import logging
 
 from tests.dummydaemon import DummyDaemon
 
-from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter, Path
-from ospd_openvas.errors import OspdOpenvasError
+from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter
+from ospd_openvas.openvas import Openvas
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {
@@ -180,32 +181,29 @@ OSPD_PARAMS_OUT = {
 @patch('ospd_openvas.db.OpenvasDB')
 @patch('ospd_openvas.nvticache.NVTICache')
 class TestOspdOpenvas(TestCase):
-    @patch('ospd_openvas.daemon.subprocess')
-    def test_redis_nvticache_init(self, mock_subproc, mock_nvti, mock_db):
-        mock_subproc.check_call.return_value = True
+    @patch('ospd_openvas.daemon.Openvas')
+    def test_set_params_from_openvas_settings(
+        self, mock_openvas: Openvas, mock_nvti: MagicMock, mock_db: MagicMock
+    ):
+        mock_openvas.get_settings.return_value = {
+            'non_simult_ports': '22',
+            'plugins_folder': '/foo/bar',
+        }
         w = DummyDaemon(mock_nvti, mock_db)
-        mock_subproc.reset_mock()
-        w.redis_nvticache_init()
-        self.assertEqual(mock_subproc.check_call.call_count, 1)
+        w.set_params_from_openvas_settings()
 
-    @patch('ospd_openvas.daemon.subprocess')
-    def test_parse_param(self, mock_subproc, mock_nvti, mock_db):
-
-        mock_subproc.check_output.return_value = (
-            'non_simult_ports = 22\nplugins_folder = /foo/bar'.encode()
-        )
-        w = DummyDaemon(mock_nvti, mock_db)
-        w.parse_param()
-        self.assertEqual(mock_subproc.check_output.call_count, 1)
+        self.assertEqual(mock_openvas.get_settings.call_count, 1)
         self.assertEqual(OSPD_PARAMS, OSPD_PARAMS_OUT)
         self.assertEqual(w.scan_only_params.get('plugins_folder'), '/foo/bar')
 
-    @patch('ospd_openvas.daemon.subprocess')
-    def test_sudo_available(self, mock_subproc, mock_nvti, mock_db):
-        mock_subproc.check_call.return_value = 0
+    @patch('ospd_openvas.daemon.Openvas')
+    def test_sudo_available(self, mock_openvas, mock_nvti, mock_db):
+        mock_openvas.check_sudo.return_value = True
+
         w = DummyDaemon(mock_nvti, mock_db)
         w._sudo_available = None  # pylint: disable=protected-access
         w.sudo_available  # pylint: disable=pointless-statement
+
         self.assertTrue(w.sudo_available)
 
     def test_load_vts(self, mock_nvti, mock_db):
@@ -685,44 +683,79 @@ class TestOspdOpenvas(TestCase):
         ret = w.scan_is_stopped('123-456')
         self.assertEqual(ret, True)
 
-    @patch('ospd_openvas.daemon.open')
-    def test_feed_is_outdated_none(self, mock_open, mock_nvti, mock_db):
+    @patch('ospd_openvas.daemon.Path.exists')
+    @patch('ospd_openvas.daemon.OSPDopenvas.set_params_from_openvas_settings')
+    def test_feed_is_outdated_none(
+        self,
+        mock_set_params: MagicMock,
+        mock_path_exists: MagicMock,
+        mock_nvti: MagicMock,
+        mock_db: MagicMock,
+    ):
         w = DummyDaemon(mock_nvti, mock_db)
-        # Mock parse_param, because feed_is_oudated() will call it.
-        with patch.object(w, 'parse_param', return_value=None):
-            # Return None
-            w.scan_only_params['plugins_folder'] = '/foo/bar'
-            ret = w.feed_is_outdated('1234')
-            self.assertIsNone(ret)
+        w.scan_only_params['plugins_folder'] = '/foo/bar'
 
-    def test_feed_is_outdated_true(self, mock_nvti, mock_db):
-        w = DummyDaemon(mock_nvti, mock_db)
-        # Mock parse_param, because feed_is_oudated() will call it.
-        with patch.object(w, 'parse_param', return_value=None):
-            with patch.object(Path, 'exists', return_value=True):
-                read_data = 'PLUGIN_SET = "1235";'
-                with patch(
-                    "builtins.open", return_value=io.StringIO(read_data)
-                ):
-                    # Return True
-                    w.scan_only_params['plugins_folder'] = '/foo/bar'
-                    ret = w.feed_is_outdated('1234')
-                    self.assertTrue(ret)
+        mock_path_exists.return_value = False
 
-    def test_feed_is_outdated_false(self, mock_nvti, mock_db):
+        # Return None
+        ret = w.feed_is_outdated('1234')
+        self.assertIsNone(ret)
+
+        self.assertEqual(mock_set_params.call_count, 1)
+        self.assertEqual(mock_path_exists.call_count, 1)
+
+    @patch('ospd_openvas.daemon.Path.exists')
+    @patch('ospd_openvas.daemon.Path.open')
+    def test_feed_is_outdated_true(
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
+        mock_nvti: MagicMock,
+        mock_db: MagicMock,
+    ):
+        read_data = 'PLUGIN_SET = "1235";'
+
+        mock_path_exists.return_value = True
+        mock_read = MagicMock(name='Path open context manager')
+        mock_read.__enter__ = MagicMock(return_value=io.StringIO(read_data))
+        mock_path_open.return_value = mock_read
+
         w = DummyDaemon(mock_nvti, mock_db)
-        # Mock parse_param, because feed_is_oudated() will call it.
-        with patch.object(w, 'parse_param', return_value=None):
-            read_data = 'PLUGIN_SET = "1234";'
-            with patch.object(Path, 'exists', return_value=True):
-                read_data = 'PLUGIN_SET = "1234"'
-                with patch(
-                    "builtins.open", return_value=io.StringIO(read_data)
-                ):
-                    # Return True
-                    w.scan_only_params['plugins_folder'] = '/foo/bar'
-                    ret = w.feed_is_outdated('1234')
-                    self.assertFalse(ret)
+
+        # Return True
+        w.scan_only_params['plugins_folder'] = '/foo/bar'
+
+        ret = w.feed_is_outdated('1234')
+        self.assertTrue(ret)
+
+        self.assertEqual(mock_path_exists.call_count, 1)
+        self.assertEqual(mock_path_open.call_count, 1)
+
+    @patch('ospd_openvas.daemon.Path.exists')
+    @patch('ospd_openvas.daemon.Path.open')
+    def test_feed_is_outdated_false(
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
+        mock_nvti: MagicMock,
+        mock_db: MagicMock,
+    ):
+        mock_path_exists.return_value = True
+
+        read_data = 'PLUGIN_SET = "1234"'
+        mock_path_exists.return_value = True
+        mock_read = MagicMock(name='Path open context manager')
+        mock_read.__enter__ = MagicMock(return_value=io.StringIO(read_data))
+        mock_path_open.return_value = mock_read
+
+        w = DummyDaemon(mock_nvti, mock_db)
+        w.scan_only_params['plugins_folder'] = '/foo/bar'
+
+        ret = w.feed_is_outdated('1234')
+        self.assertFalse(ret)
+
+        self.assertEqual(mock_path_exists.call_count, 1)
+        self.assertEqual(mock_path_open.call_count, 1)
 
     @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
     def test_get_openvas_result(self, mock_ospd, mock_nvti, mock_db):
