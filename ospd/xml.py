@@ -19,7 +19,7 @@
 """ OSP XML utils class.
 """
 
-from typing import List, Union
+from typing import List, Dict, Any, Union
 
 from xml.etree.ElementTree import tostring, Element
 
@@ -82,3 +82,31 @@ def simple_response_str(
         response.text = content
 
     return tostring(response)
+
+
+def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
+    """ Creates a list of etree elements from a dictionary
+
+    Args:
+        Dictionary of tags and their elements.
+
+    Return:
+        List of xml elements.
+    """
+
+    responses = []
+
+    for tag, value in data.items():
+        elem = Element(tag)
+
+        if isinstance(value, dict):
+            for val in get_elements_from_dict(value):
+                elem.append(val)
+        elif isinstance(value, list):
+            elem.text = ', '.join(value)
+        else:
+            elem.text = value
+
+        responses.append(elem)
+
+    return responses
