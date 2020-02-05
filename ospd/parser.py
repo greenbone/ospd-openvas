@@ -149,6 +149,11 @@ class CliParser:
             'forgotten and being delete from the scan table. '
             'Default %(default)s, disabled.',
         )
+        parser.add_argument(
+            '--list-commands',
+            action='store_true',
+            help='Display all protocol commands',
+        )
 
         self.parser = parser
 
