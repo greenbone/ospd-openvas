@@ -41,13 +41,19 @@ from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
 
+from deprecated import deprecated
+
 from ospd import __version__
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
-from ospd.xml import simple_response_str, get_result_xml
+from ospd.xml import (
+    simple_response_str,
+    get_result_xml,
+    get_elements_from_dict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -1169,7 +1175,7 @@ class OSPDaemon:
             # Default help format is text.
             return simple_response_str('help', 200, 'OK', self.get_help_text())
         elif help_format == "xml":
-            text = self.get_xml_str(self.commands)
+            text = get_elements_from_dict(self.commands)
             return simple_response_str('help', 200, 'OK', text)
         raise OspdCommandError('Bogus help format', 'help')
 
@@ -1262,6 +1268,10 @@ class OSPDaemon:
         logger.debug('Returning %d results', len(results))
         return results
 
+    @deprecated(
+        version="20.4",
+        reason="Please use ospd.xml.get_elements_from_dict instead.",
+    )
     def get_xml_str(self, data: Dict) -> List:
         """ Creates a string in XML Format using the provided data structure.
 
@@ -1269,19 +1279,7 @@ class OSPDaemon:
 
         @return: String of data in xml format.
         """
-
-        responses = []
-        for tag, value in data.items():
-            elem = Element(tag)
-            if isinstance(value, dict):
-                for val in self.get_xml_str(value):
-                    elem.append(val)
-            elif isinstance(value, list):
-                elem.text = ', '.join(value)
-            else:
-                elem.text = value
-            responses.append(elem)
-        return responses
+        return get_elements_from_dict(data)
 
     def get_scan_xml(
         self,
