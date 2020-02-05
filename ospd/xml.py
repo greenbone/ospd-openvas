@@ -75,7 +75,8 @@ def simple_response_str(
 
     if isinstance(content, list):
         for elem in content:
-            response.append(elem)
+            if isinstance(elem, Element):
+                response.append(elem)
     elif isinstance(content, Element):
         response.append(content)
     else:
