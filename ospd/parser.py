@@ -84,7 +84,8 @@ class CliParser:
         parser.add_argument(
             '--pid-file',
             default=DEFAULT_PID_PATH,
-            help='Location of the file for the process ID. Default: %(default)s',
+            help='Location of the file for the process ID. '
+            'Default: %(default)s',
         )
 
         parser.add_argument(
