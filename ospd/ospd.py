@@ -36,11 +36,11 @@ import time
 import os
 import subprocess
 
+from typing import List, Any, Dict, Optional
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
 
-from typing import List, Any, Dict, Iterator, Optional, Pattern
 from ospd import __version__
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, valid_uuid
@@ -546,7 +546,7 @@ class OSPDaemon:
                   </target>
                 </targets>
 
-        @return: A list of [hosts, port, {credentials}, exclude_hosts, options] list.
+        @return: A list of [hosts, port, {credentials}, exclude_hosts, options].
                  Example form:
                  [['localhosts', '80,43', '', 'localhosts1',
                    {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
@@ -970,7 +970,9 @@ class OSPDaemon:
         if self.get_scan_status(scan_id) != ScanStatus.STOPPED:
             self.finish_scan(scan_id)
 
-    def dry_run_scan(self, scan_id: str, targets: List, parallel: Any) -> None:
+    def dry_run_scan(  # pylint: disable=unused-argument
+        self, scan_id: str, targets: List, parallel: int
+    ) -> None:
         """ Dry runs a scan. """
 
         os.setsid()
@@ -1317,9 +1319,9 @@ class OSPDaemon:
         return response
 
     @staticmethod
-    def get_custom_vt_as_xml_str(
+    def get_custom_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, custom: Dict
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         custom data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1333,9 +1335,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_params_vt_as_xml_str(
+    def get_params_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_params
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         vt_params data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1349,9 +1351,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_refs_vt_as_xml_str(
+    def get_refs_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_refs
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         refs data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1365,9 +1367,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_dependencies_vt_as_xml_str(
+    def get_dependencies_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_dependencies
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         vt_dependencies data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1381,9 +1383,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_creation_time_vt_as_xml_str(
+    def get_creation_time_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_creation_time
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         vt_creation_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1397,9 +1399,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_modification_time_vt_as_xml_str(
+    def get_modification_time_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_modification_time
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         vt_modification_time data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1413,9 +1415,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_summary_vt_as_xml_str(
+    def get_summary_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, summary
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         summary data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1429,9 +1431,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_impact_vt_as_xml_str(
+    def get_impact_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, impact
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         impact data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1445,9 +1447,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_affected_vt_as_xml_str(
+    def get_affected_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, affected
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         affected data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1461,9 +1463,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_insight_vt_as_xml_str(
+    def get_insight_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, insight
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         insight data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1477,9 +1479,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_solution_vt_as_xml_str(
+    def get_solution_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, solution, solution_type=None, solution_method=None
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         solution data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1493,9 +1495,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_detection_vt_as_xml_str(
+    def get_detection_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, detection=None, qod_type=None, qod=None
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         detection data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1509,9 +1511,9 @@ class OSPDaemon:
         return ''
 
     @staticmethod
-    def get_severities_vt_as_xml_str(
+    def get_severities_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, severities
-    ) -> str:  # pylint: disable=unused-argument
+    ) -> str:
         """ Create a string representation of the XML object from the
         severities data object.
         This needs to be implemented by each ospd wrapper, in case
@@ -1655,7 +1657,7 @@ class OSPDaemon:
         elif vt_id:
             vts_xml.append(self.get_vt_xml(vt_id))
         else:
-            # TODO: Because DictProxy for python3.5 doesn't support
+            # Because DictProxy for python3.5 doesn't support
             # iterkeys(), itervalues(), or iteritems() either, the iteration
             # must be done as follow.
             for vt_id in iter(self.vts.keys()):
@@ -1844,7 +1846,7 @@ class OSPDaemon:
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
         if progress < 100 and not scan_process.is_alive():
-            if not (self.get_scan_status(scan_id) == ScanStatus.STOPPED):
+            if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
                     scan_id, name="", host="", value="Scan process failure."
