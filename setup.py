@@ -81,7 +81,7 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/technical.html#install-requires-vs-requirements-files
-    install_requires=['paramiko', 'defusedxml', 'lxml'],
+    install_requires=['paramiko', 'defusedxml', 'lxml', 'deprecated'],
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
     packages=find_packages(exclude=['tests']),
