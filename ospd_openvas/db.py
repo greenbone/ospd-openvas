@@ -19,7 +19,6 @@
 
 """ Access management for redis-based OpenVAS Scanner Database."""
 import logging
-import subprocess
 import sys
 import time
 
@@ -29,6 +28,7 @@ import redis
 
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
+from ospd_openvas.openvas import Openvas
 
 SOCKET_TIMEOUT = 60  # in seconds
 LIST_FIRST_POS = 0
@@ -75,47 +75,16 @@ class OpenvasDB(object):
         self.db_index = 0
         self.rediscontext = None
 
-    @staticmethod
-    def _parse_openvas_db_address(result: bytes) -> str:
-        """ Return the path to the redis socket.
-        Arguments:
-            result: Output of `openvas -s`
-        Return redis unix socket path.
-        """
-        path = None
-        result = result.decode('ascii')
-        for conf in result.split('\n'):
-            if conf.find('db_address') == 0:
-                path = conf.split('=')
-                break
-
-        if not path:
-            raise OspdOpenvasError(
-                'Redis Error: Not possible to '
-                'find the path to the redis socket.'
-            )
-        return path[1].strip()
-
     def get_db_connection(self):
         """ Retrieve the db address from openvas config.
         """
         if self.db_address:
             return
-        try:
-            result = subprocess.check_output(
-                ['openvas', '-s'], stderr=subprocess.STDOUT
-            )
-        except (PermissionError, OSError, subprocess.CalledProcessError) as e:
-            raise OspdOpenvasError(
-                "{}: Not possible to run openvas. {}".format(
-                    self.get_db_connection.__name__, e
-                )
-            )
 
-        if result:
-            path = self._parse_openvas_db_address(result)
+        settings = Openvas.get_settings()
 
-        self.db_address = path
+        if settings:
+            self.db_address = settings.get('db_address')
 
     def max_db_index(self):
         """Set the number of databases have been configured into kbr struct.

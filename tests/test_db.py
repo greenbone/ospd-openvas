@@ -22,7 +22,7 @@
 """ Unit Test for ospd-openvas """
 
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from redis.exceptions import ConnectionError as RCE
 
@@ -36,26 +36,23 @@ class TestDB(TestCase):
     def setUp(self):
         self.db = OpenvasDB()
 
-    def test_parse_openvas_db_addres(self, mock_redis):
-        with self.assertRaises(OspdOpenvasError):
-            self.db._parse_openvas_db_address(  # pylint: disable=protected-access
-                b'somedata'
-            )
-
-    @patch('ospd_openvas.db.subprocess')
-    def test_get_db_connection(self, mock_subproc, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_get_db_connection(
+        self, mock_openvas: MagicMock, mock_redis: MagicMock
+    ):
         # it is none
         self.assertIsNone(self.db.db_address)
         # set the first time
-        mock_subproc.check_output.return_value = (
-            'db_address = /foo/bar'.encode()
-        )
+        mock_openvas.get_settings.return_value = {'db_address': '/foo/bar'}
+
         self.db.get_db_connection()
         self.assertEqual(self.db.db_address, "/foo/bar")
 
         # return immediately because already set
         self.db.get_db_connection()
         self.assertEqual(self.db.db_address, "/foo/bar")
+
+        self.assertEqual(mock_openvas.get_settings.call_count, 1)
 
     def test_max_db_index_fail(self, mock_redis):
         mock_redis.config_get.return_value = {}

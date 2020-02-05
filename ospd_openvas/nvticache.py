@@ -20,9 +20,7 @@
 """ Provide functions to handle NVT Info Cache. """
 
 import logging
-import subprocess
 
-from subprocess import CalledProcessError
 from typing import List, Dict, Optional
 
 from packaging.specifiers import SpecifierSet
@@ -30,6 +28,7 @@ from packaging.version import parse as parse_version
 
 from ospd_openvas.db import NVT_META_FIELDS, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
+from ospd_openvas.openvas import Openvas
 
 
 logger = logging.getLogger(__name__)
@@ -71,36 +70,19 @@ class NVTICache(object):
 
         return self._nvti_cache_name
 
-    def _get_gvm_libs_version_string(self) -> str:
-        """ Parse version of gvm-libs
-        """
-        try:
-            result = subprocess.check_output(['openvas', '--version'],)
-        except (CalledProcessError, PermissionError) as e:
-            raise OspdOpenvasError(
-                "Not possible to get the installed gvm-libs version. %s" % e
-            )
-
-        output = result.decode('utf-8').rstrip()
-
-        if 'gvm-libs' not in output:
-            raise OspdOpenvasError(
-                "Not possible to get the installed gvm-libs version. "
-                "Outdated openvas version. openvas version needs to be at "
-                "least 7.0.1."
-            )
-
-        lines = output.splitlines()
-        _, version_string = lines[1].split(' ', 1)
-        return version_string
-
     def _is_compatible_version(self, version: str) -> bool:
         installed_version = parse_version(version)
         return installed_version in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
 
     def _set_nvti_cache_name(self):
         """Set nvticache name"""
-        version_string = self._get_gvm_libs_version_string()
+        version_string = Openvas.get_gvm_libs_version()
+        if not version_string:
+            raise OspdOpenvasError(
+                "Not possible to get the installed gvm-libs version. "
+                "Outdated openvas version. openvas version needs to be at "
+                "least 7.0.1."
+            )
 
         if self._is_compatible_version(version_string):
             self._nvti_cache_name = "nvticache{}".format(version_string)

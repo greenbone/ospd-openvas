@@ -22,7 +22,6 @@
 """ Setup for the OSP OpenVAS Server. """
 
 import logging
-import subprocess
 import time
 import uuid
 import binascii
@@ -51,6 +50,7 @@ from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import OpenvasDB
+from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
 
@@ -247,6 +247,16 @@ def _from_bool_to_str(value: int) -> str:
     return 'yes' if value == 1 else 'no'
 
 
+def safe_int(value: str) -> Optional[int]:
+    """ Convert a sring into an integer and return None in case of errors during
+    conversion
+    """
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
+
+
 class OpenVasVtsFilter(VtsFilter):
     """ Methods to overwrite the ones in the original class.
     Each method formats the value to be compatible with the filter
@@ -275,7 +285,7 @@ class OSPDopenvas(OSPDaemon):
         self._niceness = str(niceness)
 
         self.scanner_info['name'] = 'openvas'
-        self.scanner_info['version'] = ''  # achieved during self.check()
+        self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
 
         for name, param in OSPD_PARAMS.items():
@@ -297,48 +307,32 @@ class OSPDopenvas(OSPDaemon):
         self.temp_vts_dict = None
 
     def init(self):
+        self.scanner_info['version'] = Openvas.get_version()
+
+        self.set_params_from_openvas_settings()
+
         self.openvas_db.db_init()
 
         ctx = self.nvti.get_redis_context()
 
         if not ctx:
-            self.redis_nvticache_init()
+            Openvas.load_vts_into_redis()
             ctx = self.nvti.get_redis_context()
 
         self.openvas_db.set_redisctx(ctx)
 
         self.load_vts()
 
-    def parse_param(self):
-        """ Set OSPD_PARAMS with the params taken from the openvas_scanner. """
-        bool_dict = {'no': 0, 'yes': 1}
+    def set_params_from_openvas_settings(self):
+        """ Set OSPD_PARAMS with the params taken from the openvas executable.
+        """
+        param_list = Openvas.get_settings()
 
-        result = subprocess.check_output(
-            ['openvas', '-s'], stderr=subprocess.STDOUT
-        )
-        result = result.decode('ascii')
-        param_list = dict()
-        for conf in result.split('\n'):
-            elem = conf.split('=')
-            if len(elem) == 2:
-                value = str.strip(elem[1])
-                if str.strip(elem[1]) in bool_dict:
-                    value = bool_dict[value]
-                param_list[str.strip(elem[0])] = value
-        for elem in OSPD_PARAMS:
-            if elem in param_list:
-                OSPD_PARAMS[elem]['default'] = param_list[elem]
         for elem in param_list:
             if elem not in OSPD_PARAMS:
                 self.scan_only_params[elem] = param_list[elem]
-
-    def redis_nvticache_init(self):
-        """ Loads NVT's metadata into Redis DB. """
-        try:
-            logger.debug('Loading NVTs in Redis DB')
-            subprocess.check_call(['openvas', '--update-vt-info'])
-        except subprocess.CalledProcessError as err:
-            logger.error('OpenVAS Scanner failed to load NVTs. %s', err)
+            else:
+                OSPD_PARAMS[elem]['default'] = param_list[elem]
 
     def feed_is_outdated(self, current_feed: str) -> Optional[bool]:
         """ Compare the current feed with the one in the disk.
@@ -346,9 +340,8 @@ class OSPDopenvas(OSPDaemon):
         Return:
             False if there is no new feed.
             True if the feed version in disk is newer than the feed in
-            redis cache.
-            None if there is no feed
-            the disk.
+                redis cache.
+            None if there is no feed on the disk.
         """
         plugins_folder = self.scan_only_params.get('plugins_folder')
         if not plugins_folder:
@@ -356,21 +349,29 @@ class OSPDopenvas(OSPDaemon):
 
         feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
         if not feed_info_file.exists():
-            self.parse_param()
-            msg = 'Plugins feed file %s not found.' % feed_info_file
-            logger.debug(msg)
+            self.set_params_from_openvas_settings()
+            logger.debug('Plugins feed file %s not found.', feed_info_file)
             return None
 
-        date = 0
-        with open(str(feed_info_file)) as fcontent:
+        current_feed = safe_int(current_feed)
+
+        feed_date = None
+        with feed_info_file.open() as fcontent:
             for line in fcontent:
                 if "PLUGIN_SET" in line:
-                    date = line.split(' = ')[1]
-                    date = date.replace(';', '')
-                    date = date.replace('"', '')
-        if int(current_feed) < int(date) or int(date) == 0:
-            return True
-        return False
+                    feed_date = line.split('=', 1)[1]
+                    feed_date = feed_date.strip()
+                    feed_date = feed_date.replace(';', '')
+                    feed_date = feed_date.replace('"', '')
+                    feed_date = safe_int(feed_date)
+                    break
+
+        logger.debug("Current feed version: %s", current_feed)
+        logger.debug("Plugin feed version: %s", feed_date)
+
+        return (
+            (not feed_date) or (not current_feed) or (current_feed < feed_date)
+        )
 
     def check_feed(self):
         """ Check if there is a feed update. Wait until all the running
@@ -378,14 +379,16 @@ class OSPDopenvas(OSPDaemon):
         which avoid to start a new scan.
         """
         current_feed = self.nvti.get_feed_version()
-        # Check if the feed is already accessible in the disk.
-        if current_feed and self.feed_is_outdated(current_feed) is None:
+        is_outdated = self.feed_is_outdated(current_feed)
+
+        # Check if the feed is already accessible from the disk.
+        if current_feed and is_outdated is None:
             self.pending_feed = True
             return
 
         # Check if the nvticache in redis is outdated
-        if not current_feed or self.feed_is_outdated(current_feed):
-            self.redis_nvticache_init()
+        if not current_feed or is_outdated:
+            Openvas.load_vts_into_redis()
             ctx = self.nvti.get_redis_context()
             self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
@@ -419,9 +422,10 @@ class OSPDopenvas(OSPDaemon):
         self.check_feed()
 
     def load_vts(self):
-        """ Load the NVT's metadata into the vts
-        global  dictionary. """
-        logger.debug('Loading vts in memory.')
+        """ Load the VT's metadata into the vts global dictionary. """
+
+        logger.debug('Loading VTs in memory.')
+
         oids = dict(self.nvti.get_oids())
         for _filename, vt_id in oids.items():
             _vt_params = self.nvti.get_nvt_params(vt_id)
@@ -513,11 +517,13 @@ class OSPDopenvas(OSPDaemon):
                     severities=_severity,
                 )
             except OspdError as e:
-                logger.info("Error while adding vt. %s", e)
+                logger.info("Error while adding VT %s. %s", vt_id, e)
 
         _feed_version = self.nvti.get_feed_version()
+
         self.set_vts_version(vts_version=_feed_version)
         self.pending_feed = False
+
         logger.debug('Finish loading up vts.')
 
     @staticmethod
@@ -537,7 +543,7 @@ class OSPDopenvas(OSPDaemon):
                 xml_key.text = val
             except ValueError as e:
                 logger.warning(
-                    "Not possible to parse custom tag for vt %s: %s", vt_id, e
+                    "Not possible to parse custom tag for VT %s: %s", vt_id, e
                 )
         return tostring(_custom).decode('utf-8')
 
@@ -585,7 +591,7 @@ class OSPDopenvas(OSPDaemon):
                 xml_name.text = prefs['name']
             except ValueError as e:
                 logger.warning(
-                    "Not possible to parse parameter for vt %s: %s", vt_id, e
+                    "Not possible to parse parameter for VT %s: %s", vt_id, e
                 )
             if prefs['default']:
                 xml_def = SubElement(vt_param, 'default')
@@ -593,7 +599,7 @@ class OSPDopenvas(OSPDaemon):
                     xml_def.text = prefs['default']
                 except ValueError as e:
                     logger.warning(
-                        "Not possible to parse default parameter for vt %s: %s",
+                        "Not possible to parse default parameter for VT %s: %s",
                         vt_id,
                         e,
                     )
@@ -620,7 +626,7 @@ class OSPDopenvas(OSPDaemon):
                             _type, _id = xref.split(':', 1)
                         except ValueError:
                             logger.error(
-                                'Not possible to parse xref %s for vt %s',
+                                'Not possible to parse xref %s for VT %s',
                                 xref,
                                 vt_id,
                             )
@@ -654,7 +660,7 @@ class OSPDopenvas(OSPDaemon):
                 _vt_dep.set('vt_id', dep)
             except (ValueError, TypeError):
                 logger.error(
-                    'Not possible to add dependency %s for vt %s', dep, vt_id
+                    'Not possible to add dependency %s for VT %s', dep, vt_id
                 )
                 continue
             vt_deps_xml.append(_vt_dep)
@@ -677,7 +683,7 @@ class OSPDopenvas(OSPDaemon):
             _time.text = vt_creation_time
         except ValueError as e:
             logger.warning(
-                "Not possible to parse creation time for vt %s: %s", vt_id, e
+                "Not possible to parse creation time for VT %s: %s", vt_id, e
             )
         return tostring(_time).decode('utf-8')
 
@@ -697,7 +703,7 @@ class OSPDopenvas(OSPDaemon):
             _time.text = vt_modification_time
         except ValueError as e:
             logger.warning(
-                "Not possible to parse modification time for vt %s: %s",
+                "Not possible to parse modification time for VT %s: %s",
                 vt_id,
                 e,
             )
@@ -717,7 +723,7 @@ class OSPDopenvas(OSPDaemon):
             _summary.text = summary
         except ValueError as e:
             logger.warning(
-                "Not possible to parse summary tag for vt %s: %s", vt_id, e
+                "Not possible to parse summary tag for VT %s: %s", vt_id, e
             )
         return tostring(_summary).decode('utf-8')
 
@@ -736,7 +742,7 @@ class OSPDopenvas(OSPDaemon):
             _impact.text = impact
         except ValueError as e:
             logger.warning(
-                "Not possible to parse impact tag for vt %s: %s", vt_id, e
+                "Not possible to parse impact tag for VT %s: %s", vt_id, e
             )
         return tostring(_impact).decode('utf-8')
 
@@ -754,7 +760,7 @@ class OSPDopenvas(OSPDaemon):
             _affected.text = affected
         except ValueError as e:
             logger.warning(
-                "Not possible to parse affected tag for vt %s: %s", vt_id, e
+                "Not possible to parse affected tag for VT %s: %s", vt_id, e
             )
         return tostring(_affected).decode('utf-8')
 
@@ -772,7 +778,7 @@ class OSPDopenvas(OSPDaemon):
             _insight.text = insight
         except ValueError as e:
             logger.warning(
-                "Not possible to parse insight tag for vt %s: %s", vt_id, e
+                "Not possible to parse insight tag for VT %s: %s", vt_id, e
             )
         return tostring(_insight).decode('utf-8')
 
@@ -797,7 +803,7 @@ class OSPDopenvas(OSPDaemon):
             _solution.text = solution
         except ValueError as e:
             logger.warning(
-                "Not possible to parse solution tag for vt %s: %s", vt_id, e
+                "Not possible to parse solution tag for VT %s: %s", vt_id, e
             )
         if solution_type:
             _solution.set('type', solution_type)
@@ -828,7 +834,7 @@ class OSPDopenvas(OSPDaemon):
                 _detection.text = detection
             except ValueError as e:
                 logger.warning(
-                    "Not possible to parse detection tag for vt %s: %s",
+                    "Not possible to parse detection tag for VT %s: %s",
                     vt_id,
                     e,
                 )
@@ -861,44 +867,20 @@ class OSPDopenvas(OSPDaemon):
             self._sudo_available = False
             return self._sudo_available
 
-        try:
-            subprocess.check_call(
-                ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.PIPE
-            )
-            self._sudo_available = True
-        except (subprocess.SubprocessError, OSError) as e:
-            logger.debug(
-                'It was not possible to call openvas with sudo. '
-                'The scanner will run as non-root user. Reason %s',
-                e,
-            )
-            self._sudo_available = False
+        self._sudo_available = Openvas.check_sudo()
 
         return self._sudo_available
 
     def check(self) -> bool:
         """ Checks that openvas command line tool is found and
         is executable. """
-        try:
-            result = subprocess.check_output(
-                ['openvas', '-V'], stderr=subprocess.STDOUT
+        has_openvas = Openvas.check()
+        if not has_openvas:
+            logger.error(
+                'openvas executable not available. Please install openvas'
+                ' into your PATH.'
             )
-            result = result.decode('ascii')
-        except OSError:
-            # The command is not available
-            return False
-
-        if result is None:
-            return False
-
-        version = result.split('\n')
-        if version[0].find('OpenVAS') < 0:
-            return False
-
-        self.parse_param()
-        self.scanner_info['version'] = version[0]
-
-        return True
+        return has_openvas
 
     def update_progress(
         self, scan_id: str, target: str, current_host: str, msg: str
@@ -1071,9 +1053,9 @@ class OSPDopenvas(OSPDaemon):
         status = self.openvas_db.get_single_item('internal/%s' % scan_id)
         return status == 'stop_all'
 
-    def stop_scan_cleanup(
+    def stop_scan_cleanup(  # pylint: disable=arguments-differ
         self, global_scan_id: str
-    ):  # pylint: disable=arguments-differ
+    ):
         """ Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
@@ -1105,18 +1087,13 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                 if parent:
-                    cmd = ['openvas', '--scan-stop', scan_id]
-                    if not self.is_running_as_root and self.sudo_available:
-                        cmd = ['sudo', '-n'] + cmd
-
-                    try:
-                        subprocess.Popen(cmd, shell=False)
-                    except OSError as e:
-                        # the command is not available
+                    can_stop_scan = Openvas.stop_scan(
+                        scan_id,
+                        not self.is_running_as_root and self.sudo_available,
+                    )
+                    if not can_stop_scan:
                         logger.debug(
-                            'Not possible to Stopping process: %s.' 'Reason %s',
-                            parent,
-                            e,
+                            'Not possible to stop scan process: %s.', parent,
                         )
                         return False
 
@@ -1220,7 +1197,7 @@ class OSPDopenvas(OSPDaemon):
         for vtid, vt_params in vts.items():
             if vtid not in self.temp_vts_dict.keys():
                 logger.warning(
-                    'The vt %s was not found and it will not be loaded.', vtid
+                    'The VT %s was not found and it will not be loaded.', vtid
                 )
                 continue
             vts_list.append(vtid)
@@ -1229,7 +1206,7 @@ class OSPDopenvas(OSPDaemon):
                 param_name = self.get_vt_param_name(vtid, vt_param_id)
                 if not param_type or not param_name:
                     logger.debug(
-                        'Missing type or name for vt parameter %s of %s. '
+                        'Missing type or name for VT parameter %s of %s. '
                         'It could not be loaded.',
                         vt_param_id,
                         vtid,
@@ -1241,7 +1218,7 @@ class OSPDopenvas(OSPDaemon):
                     type_aux = param_type
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
-                        'The vt parameter %s for %s could not be loaded. '
+                        'The VT parameter %s for %s could not be loaded. '
                         'Expected %s type for parameter value %s',
                         vt_param_id,
                         vtid,
@@ -1648,22 +1625,19 @@ class OSPDopenvas(OSPDaemon):
             self.openvas_db.release_db(self.main_kbindex)
             return 2
 
-        cmd = ['openvas', '--scan-start', openvas_scan_id]
-        if not self.is_running_as_root and self.sudo_available:
-            cmd = ['sudo', '-n'] + cmd
+        result = Openvas.start_scan(
+            openvas_scan_id,
+            not self.is_running_as_root and self.sudo_available,
+            self._niceness,
+        )
 
-        if self._niceness is not None:
-            cmd = ['nice', '-n', self._niceness] + cmd
-
-        logger.debug("Running scan with niceness %s", self._niceness)
-        try:
-            result = subprocess.Popen(cmd, shell=False)
-        except OSError:
-            # the command is not available
+        if result is None:
             return False
 
         ovas_pid = result.pid
+
         logger.debug('pid = %s', ovas_pid)
+
         self.openvas_db.add_single_item('internal/ovas_pid', [ovas_pid])
 
         # Wait until the scanner starts and loads all the preferences.
@@ -1674,12 +1648,13 @@ class OSPDopenvas(OSPDaemon):
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
-                msg = (
+                logger.error(
                     'It was not possible run the task %s, since openvas ended '
-                    'unexpectedly with errors during launching.' % scan_id
+                    'unexpectedly with errors during launching.',
+                    scan_id,
                 )
-                logger.error(msg)
                 return 1
+
             time.sleep(1)
 
         no_id_found = False

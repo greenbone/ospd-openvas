@@ -21,8 +21,6 @@
 
 """ Unit Test for ospd-openvas """
 
-from subprocess import CalledProcessError
-
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
@@ -117,8 +115,8 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, out_dict)
         self.assertEqual(resp1, out_dict1)
 
-    @patch('ospd_openvas.db.subprocess')
-    def test_get_nvt_metadata(self, mock_subps, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_get_nvt_metadata(self, mock_openvas, mock_redis):
         metadata = [
             'mantis_detect.nasl',
             '',
@@ -166,10 +164,11 @@ class TestNVTICache(TestCase):
             'timeout': '0',
         }
 
-        mock_subps.check_output.return_value = (
-            'use_mac_addr = no\ndb_address = '
-            '/tmp/redis.sock\ndrop_privileges = no'
-        ).encode()
+        mock_openvas.get_version.return_value = {
+            'use_mac_addr': 0,
+            'db_address': '/tmp/redis.sock',
+            'drop_privileges': 0,
+        }
 
         mock_redis.return_value = mock_redis
         mock_redis.config_get.return_value = {'databases': '513'}
@@ -181,12 +180,13 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_metadata('1.2.3.4')
         self.assertEqual(resp, custom)
 
-    @patch('ospd_openvas.db.subprocess')
-    def test_get_nvt_metadata_fail(self, mock_subps, mock_redis):
-        mock_subps.check_output.return_value = (
-            'use_mac_addr = no\ndb_address = '
-            '/tmp/redis.sock\ndrop_privileges = no'.encode()
-        )
+    @patch('ospd_openvas.db.Openvas')
+    def test_get_nvt_metadata_fail(self, mock_openvas, mock_redis):
+        mock_openvas.get_version.return_value = {
+            'use_mac_addr': 0,
+            'db_address': '/tmp/redis.sock',
+            'drop_privileges': 0,
+        }
 
         mock_redis.return_value = mock_redis
         mock_redis.config_get.return_value = {'databases': '513'}
@@ -198,19 +198,20 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_metadata('1.2.3.4')
         self.assertEqual(resp, None)
 
-    @patch('ospd_openvas.db.subprocess')
-    def test_get_nvt_refs(self, mock_subps, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_get_nvt_refs(self, mock_openvas, mock_redis):
+        mock_openvas.get_version.return_value = {
+            'use_mac_addr': 0,
+            'db_address': '/tmp/redis.sock',
+            'drop_privileges': 0,
+        }
+
         refs = ['', '', 'URL:http://www.mantisbt.org/']
         out_dict = {
             'cve': [''],
             'bid': [''],
             'xref': ['URL:http://www.mantisbt.org/'],
         }
-
-        mock_subps.check_output.return_value = (
-            'use_mac_addr = no\ndb_address = '
-            '/tmp/redis.sock\ndrop_privileges = no'
-        ).encode()
 
         mock_redis.return_value = mock_redis
         mock_redis.config_get.return_value = {'databases': '513'}
@@ -222,12 +223,13 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_refs('1.2.3.4')
         self.assertEqual(resp, out_dict)
 
-    @patch('ospd_openvas.db.subprocess')
-    def test_get_nvt_refs_fail(self, mock_subps, mock_redis):
-        mock_subps.check_output.return_value = (
-            'use_mac_addr = no\ndb_address = '
-            '/tmp/redis.sock\ndrop_privileges = no'.encode()
-        )
+    @patch('ospd_openvas.db.Openvas')
+    def test_get_nvt_refs_fail(self, mock_openvas, mock_redis):
+        mock_openvas.get_version.return_value = {
+            'use_mac_addr': 0,
+            'db_address': '/tmp/redis.sock',
+            'drop_privileges': 0,
+        }
 
         mock_redis.return_value = mock_redis
         mock_redis.config_get.return_value = {'databases': '513'}
@@ -278,7 +280,7 @@ class TestNVTICache(TestCase):
 
         self.assertEqual(out_dict, resp)
 
-    @patch('ospd_openvas.nvticache.NVTICache._get_gvm_libs_version_string')
+    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
     def test_set_nvti_cache_name(self, mock_version, mock_redis):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
@@ -296,7 +298,25 @@ class TestNVTICache(TestCase):
 
         self.assertTrue(mock_version.called)
 
-    @patch('ospd_openvas.nvticache.NVTICache._get_gvm_libs_version_string')
+    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
+    def test_set_nvti_cache_name_raise_error(
+        self, mock_version: Mock, mock_redis: Mock
+    ):
+        mock_version.return_value = None
+
+        with self.assertRaises(OspdOpenvasError):
+            self.nvti._set_nvti_cache_name()
+
+    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
+    def test_set_nvti_cache_name_old_version(
+        self, mock_version: Mock, mock_redis: Mock
+    ):
+        mock_version.return_value = '7.0.0'
+
+        with self.assertRaises(OspdOpenvasError):
+            self.nvti._set_nvti_cache_name()
+
+    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
     def test_get_nvti_cache_name(self, mock_version, mock_redis):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
@@ -310,40 +330,6 @@ class TestNVTICache(TestCase):
 
         self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.4')
         self.assertFalse(mock_version.called)
-
-    @patch('ospd_openvas.nvticache.subprocess')
-    def test_get_gvm_libs_version_string(
-        self, mock_subps: Mock, mock_redis: Mock
-    ):
-        mock_subps.check_output.return_value = (
-            'openvas 20.4.0\ngvm-libs 20.10\n'.encode()
-        )
-        self.assertEqual(self.nvti._get_gvm_libs_version_string(), '20.10')
-
-    @patch('ospd_openvas.nvticache.subprocess')
-    def test_get_gvm_libs_version_string_subprocess_error(
-        self, mock_subps: Mock, mock_redis: Mock
-    ):
-        mock_subps.check_output.side_effect = CalledProcessError(
-            returncode=1, cmd='foo bar'
-        )
-
-        with self.assertRaises(OspdOpenvasError):
-            self.nvti._get_gvm_libs_version_string()
-
-    @patch('ospd_openvas.nvticache.subprocess')
-    def test_get_gvm_libs_version_string_old_openvas(
-        self, mock_subps: Mock, mock_redis: Mock
-    ):
-        mock_subps.check_output.side_effect = CalledProcessError(
-            returncode=1, cmd='foo bar'
-        )
-        mock_subps.check_output.return_value = (
-            'openvas 7.0.0\nfoo bar\n'.encode()
-        )
-
-        with self.assertRaises(OspdOpenvasError):
-            self.nvti._get_gvm_libs_version_string()
 
     def test_is_compatible_version(self, mock_redis):
         self.assertFalse(self.nvti._is_compatible_version("1.0.0"))
