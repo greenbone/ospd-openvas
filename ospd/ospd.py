@@ -280,7 +280,7 @@ class OSPDaemon:
 
     def command_exists(self, name: str) -> bool:
         """ Checks if a commands exists. """
-        return name in self.commands.keys()
+        return name in self.commands
 
     def get_scanner_name(self) -> str:
         """ Gives the wrapped scanner's name. """
