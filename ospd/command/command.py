@@ -28,10 +28,12 @@ from ospd.misc import valid_uuid, start_process
 from ospd.network import target_str_to_list
 from ospd.xml import simple_response_str, get_elements_from_dict
 
+from .initsubclass import InitSubclassMeta
+
 COMMANDS = []
 
 
-class BaseCommand:
+class BaseCommand(metaclass=InitSubclassMeta):
 
     name = None
     description = None
@@ -39,7 +41,11 @@ class BaseCommand:
     elements = None
 
     def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
+        super_cls = super()
+
+        if hasattr(super_cls, '__init_subclass__'):
+            super_cls.__init_subclass__(**kwargs)
+
         COMMANDS.append(cls)
 
     def __init__(self, daemon):
