@@ -18,7 +18,22 @@
 
 import time
 
+from unittest.mock import Mock
+
 from ospd.ospd import OSPDaemon
+
+
+def assert_called(mock: Mock):
+    if hasattr(mock, 'assert_called'):
+        return mock.assert_called()
+
+    if not mock.call_count == 1:
+        msg = "Expected '%s' to have been called once. Called %s times.%s" % (
+            mock._mock_name or 'mock',  # pylint: disable=protected-access
+            mock.call_count,
+            mock._calls_repr(),  # pylint: disable=protected-access
+        )
+        raise AssertionError(msg)
 
 
 class DummyWrapper(OSPDaemon):
