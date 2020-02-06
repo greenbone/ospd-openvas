@@ -28,7 +28,7 @@ import time
 import uuid
 import multiprocessing
 
-from typing import List, Any, Dict, Iterator, Optional
+from typing import List, Any, Dict, Iterator, Optional, Callable, Iterable
 from enum import Enum
 from collections import OrderedDict
 from pathlib import Path
@@ -36,6 +36,12 @@ from pathlib import Path
 from ospd.network import target_str_to_list
 
 LOGGER = logging.getLogger(__name__)
+
+
+def start_process(
+    func: Callable, *, args: Iterable[Any] = None
+) -> multiprocessing.Process:
+    return multiprocessing.Process(target=func, args=args)
 
 
 class ScanStatus(Enum):

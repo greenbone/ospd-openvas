@@ -84,7 +84,7 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command._start_process")
+    @patch("ospd.command.command.start_process")
     def test_scan_with_vts(self, mock_start_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -109,7 +109,7 @@ class StartScanTestCase(TestCase):
 
         assert_called(mock_start_process)
 
-    @patch("ospd.command.command._start_process")
+    @patch("ospd.command.command.start_process")
     def test_scan_without_vts(self, mock_start_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -145,7 +145,7 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command._start_process")
+    @patch("ospd.command.command.start_process")
     def test_scan_with_vts_and_param(self, mock_start_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -186,7 +186,7 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command._start_process")
+    @patch("ospd.command.command.start_process")
     def test_scan_with_vts_and_param_with_vt_group_filter(
         self, mock_start_process
     ):
@@ -228,7 +228,7 @@ class StartScanTestCase(TestCase):
             cmd.handle_xml(request)
 
     @patch("ospd.ospd.OSPDaemon")
-    @patch("ospd.command.command._start_process")
+    @patch("ospd.command.command.start_process")
     def test_scan_multi_target_parallel_100(
         self, mock_start_process, mock_daemon
     ):
@@ -255,7 +255,7 @@ class StartScanTestCase(TestCase):
 
 class StopCommandTestCase(TestCase):
     @patch("ospd.ospd.os")
-    @patch("ospd.command.command._start_process")
+    @patch("ospd.command.command.start_process")
     def test_stop_scan(self, mock_start_process, mock_os):
         mock_process = mock_start_process.return_value
         mock_process.is_alive.return_value = True

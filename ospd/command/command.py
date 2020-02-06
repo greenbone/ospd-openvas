@@ -16,26 +16,19 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import multiprocessing
 import re
 import subprocess
 
-from typing import Optional, Dict, Any, Callable, Iterable
+from typing import Optional, Dict, Any
 
 from xml.etree.ElementTree import Element, SubElement
 
 from ospd.errors import OspdCommandError
-from ospd.misc import valid_uuid
+from ospd.misc import valid_uuid, start_process
 from ospd.network import target_str_to_list
 from ospd.xml import simple_response_str, get_elements_from_dict
 
 COMMANDS = []
-
-
-def _start_process(
-    func: Callable, *, args: Iterable[Any] = None,
-) -> multiprocessing.Process:
-    return multiprocessing.Process(target=func, args=args)
 
 
 class BaseCommand:
@@ -483,7 +476,7 @@ class StartScan(BaseCommand):
             id_.text = scan_id_aux
             return simple_response_str('start_scan', 100, 'Continue', id_)
 
-        scan_process = _start_process(
+        scan_process = start_process(
             func=scan_func, args=(scan_id, scan_targets, parallel)
         )
 
