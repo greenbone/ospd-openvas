@@ -132,7 +132,7 @@ class OSPDaemon:
         self.scanner_params = dict()
 
         for name, params in BASE_SCANNER_PARAMS.items():
-            self.add_scanner_param(name, params)
+            self.set_scanner_param(name, params)
 
         self.vts = None
         self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
@@ -155,12 +155,18 @@ class OSPDaemon:
             command = self.commands.get(name)
             command.attributes = attributes
 
-    def add_scanner_param(self, name: str, scanner_param: Dict) -> None:
-        """ Add a scanner parameter. """
+    @deprecated(version="20.4", reason="Use set_scanner_param instead")
+    def add_scanner_param(self, name: str, scanner_params: Dict) -> None:
+        """ Set a scanner parameter. """
+        self.set_scanner_param(name, scanner_params)
+
+    def set_scanner_param(self, name: str, scanner_params: Dict) -> None:
+        """ Set a scanner parameter. """
 
         assert name
-        assert scanner_param
-        self.scanner_params[name] = scanner_param
+        assert scanner_params
+
+        self.scanner_params[name] = scanner_params
 
     def add_vt(
         self,
