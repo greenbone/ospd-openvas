@@ -150,7 +150,7 @@ class OSPDaemon:
     def init(self) -> None:
         """ Should be overridden by a subclass if the initialization is costly.
 
-            Will be called before check.
+            Will be called after check.
         """
 
     def set_command_attributes(self, name: str, attributes: Dict) -> None:
