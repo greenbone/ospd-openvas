@@ -79,6 +79,10 @@ BASE_SCANNER_PARAMS = {
 }  # type: Dict
 
 
+def _terminate_process_group(process: multiprocessing.Process) -> None:
+    os.killpg(os.getpgid(process.pid), 15)
+
+
 class OSPDaemon:
 
     """ Daemon class for OSP traffic handling.
@@ -547,10 +551,10 @@ class OSPDaemon:
             logger.debug('%s: The scanner task stopped unexpectedly.', scan_id)
 
         try:
-            os.killpg(os.getpgid(scan_process.ident), 15)
+            _terminate_process_group(scan_process)
         except ProcessLookupError as e:
             logger.info(
-                '%s: Scan already stopped %s.', scan_id, scan_process.ident
+                '%s: Scan already stopped %s.', scan_id, scan_process.pid
             )
 
         if scan_process.ident != os.getpid():
