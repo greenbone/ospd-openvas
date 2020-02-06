@@ -62,7 +62,7 @@ SSH_SCANNER_PARAMS = {
         'mandatory': 0,
         'description': 'Timeout when communicating with the target via SSH.',
     },
-} # type: Dict
+}  # type: Dict
 
 # pylint: disable=abstract-method
 class OSPDaemonSimpleSSH(OSPDaemon):
@@ -93,7 +93,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
             )
 
         for name, param in SSH_SCANNER_PARAMS.items():
-            self.add_scanner_param(name, param)
+            self.set_scanner_param(name, param)
 
     def run_command(self, scan_id: str, host: str, cmd: str) -> Optional[str]:
         """
