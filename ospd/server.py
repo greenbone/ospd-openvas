@@ -23,7 +23,6 @@ import logging
 import socket
 import ssl
 import time
-import os
 import threading
 import socketserver
 
@@ -78,7 +77,7 @@ class Stream:
                 except (socket.error, BrokenPipeError) as e:
                     logger.error("Error sending data to the client. %s", e)
                 finally:
-                    return
+                    return  # pylint: disable=lost-exception
 
             try:
                 b_sent = self.socket.send(data[b_start:b_end])
