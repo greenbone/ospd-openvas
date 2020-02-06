@@ -306,19 +306,23 @@ class OSPDaemon:
     def preprocess_scan_params(self, xml_params):
         """ Processes the scan parameters. """
         params = {}
+
         for param in xml_params:
             params[param.tag] = param.text or ''
+
         # Set default values.
         for key in self.scanner_params:
             if key not in params:
                 params[key] = self.get_scanner_param_default(key)
                 if self.get_scanner_param_type(key) == 'selection':
                     params[key] = params[key].split('|')[0]
+
         # Validate values.
         for key in params:
             param_type = self.get_scanner_param_type(key)
             if not param_type:
                 continue
+
             if param_type in ['integer', 'boolean']:
                 try:
                     params[key] = int(params[key])
@@ -326,6 +330,7 @@ class OSPDaemon:
                     raise OspdCommandError(
                         'Invalid %s value' % key, 'start_scan'
                     )
+
             if param_type == 'boolean':
                 if params[key] not in [0, 1]:
                     raise OspdCommandError(
@@ -341,6 +346,7 @@ class OSPDaemon:
                 raise OspdCommandError(
                     'Mandatory %s value is missing' % key, 'start_scan'
                 )
+
         return params
 
     def process_scan_params(self, params: Dict) -> Dict:
@@ -374,27 +380,35 @@ class OSPDaemon:
         """
         vt_selection = {}  # type: Dict
         filters = list()
+
         for vt in scanner_vts:
             if vt.tag == 'vt_single':
                 vt_id = vt.attrib.get('id')
                 vt_selection[vt_id] = {}
+
                 for vt_value in vt:
                     if not vt_value.attrib.get('id'):
                         raise OspdCommandError(
                             'Invalid VT preference. No attribute id',
                             'start_scan',
                         )
+
                     vt_value_id = vt_value.attrib.get('id')
                     vt_value_value = vt_value.text if vt_value.text else ''
                     vt_selection[vt_id][vt_value_id] = vt_value_value
+
             if vt.tag == 'vt_group':
                 vts_filter = vt.attrib.get('filter', None)
+
                 if vts_filter is None:
                     raise OspdCommandError(
                         'Invalid VT group. No filter given.', 'start_scan'
                     )
+
                 filters.append(vts_filter)
+
         vt_selection['vt_groups'] = filters
+
         return vt_selection
 
     @staticmethod
@@ -543,8 +557,11 @@ class OSPDaemon:
             )
 
         self.set_scan_status(scan_id, ScanStatus.STOPPED)
+
         logger.info('%s: Scan stopping %s.', scan_id, scan_process.ident)
+
         self.stop_scan_cleanup(scan_id)
+
         try:
             scan_process.terminate()
         except AttributeError:
@@ -559,6 +576,7 @@ class OSPDaemon:
 
         if scan_process.ident != os.getpid():
             scan_process.join(0)
+
         logger.info('%s: Scan stopped.', scan_id)
 
     @staticmethod
@@ -817,16 +835,21 @@ class OSPDaemon:
         """ Dry runs a scan. """
 
         os.setsid()
+
         for _, target in enumerate(targets):
             host = resolve_hostname(target[0])
             if host is None:
                 logger.info("Couldn't resolve %s.", target[0])
                 continue
+
             port = self.get_scan_ports(scan_id, target=target[0])
+
             logger.info("%s:%s: Dry run mode.", host, port)
+
             self.add_scan_log(
                 scan_id, name='', host=host, value='Dry run result'
             )
+
         self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id: str, host: str) -> None:
@@ -1504,13 +1527,16 @@ class OSPDaemon:
         """ Check the scan's process, and terminate the scan if not alive. """
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
+
         if progress < 100 and not scan_process.is_alive():
             if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
                     scan_id, name="", host="", value="Scan process failure."
                 )
+
                 logger.info("%s: Scan stopped with errors.", scan_id)
+
         elif progress == 100:
             scan_process.join(0)
 
