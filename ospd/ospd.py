@@ -21,12 +21,6 @@
 """ OSP Daemon core class.
 """
 
-
-# This is needed for older pythons as our current module is called the same
-# as the package we are in ...
-# Another solution would be to rename that file.
-from __future__ import absolute_import
-
 import logging
 import socket
 import ssl
