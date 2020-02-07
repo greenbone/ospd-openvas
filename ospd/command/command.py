@@ -71,7 +71,7 @@ class BaseCommand(metaclass=InitSubclassMeta):
             'name': self.get_name(),
             'attributes': self.get_attributes(),
             'description': self.get_description(),
-            'element': self.get_elements(),
+            'elements': self.get_elements(),
         }
 
     def __repr__(self):
