@@ -38,7 +38,7 @@ from ospd.network import target_str_to_list
 LOGGER = logging.getLogger(__name__)
 
 
-def start_process(
+def create_process(
     func: Callable, *, args: Iterable[Any] = None
 ) -> multiprocessing.Process:
     return multiprocessing.Process(target=func, args=args)

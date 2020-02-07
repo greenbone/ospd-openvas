@@ -84,8 +84,8 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command.start_process")
-    def test_scan_with_vts(self, mock_start_process):
+    @patch("ospd.command.command.create_process")
+    def test_scan_with_vts(self, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
 
@@ -107,10 +107,10 @@ class StartScanTestCase(TestCase):
         )
         self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
 
-    @patch("ospd.command.command.start_process")
-    def test_scan_without_vts(self, mock_start_process):
+    @patch("ospd.command.command.create_process")
+    def test_scan_without_vts(self, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
 
@@ -126,7 +126,7 @@ class StartScanTestCase(TestCase):
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_param_id(self):
         daemon = DummyWrapper([])
@@ -145,8 +145,8 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command.start_process")
-    def test_scan_with_vts_and_param(self, mock_start_process):
+    @patch("ospd.command.command.create_process")
+    def test_scan_with_vts_and_param(self, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
 
@@ -169,7 +169,7 @@ class StartScanTestCase(TestCase):
             {'1234': {'ABC': '200'}, 'vt_groups': []},
         )
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_group_filter(self):
         daemon = DummyWrapper([])
@@ -186,9 +186,9 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command.start_process")
+    @patch("ospd.command.command.create_process")
     def test_scan_with_vts_and_param_with_vt_group_filter(
-        self, mock_start_process
+        self, mock_create_process
     ):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -207,7 +207,7 @@ class StartScanTestCase(TestCase):
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
 
     def test_scan_multi_target_parallel_with_error(self):
         daemon = DummyWrapper([])
@@ -228,9 +228,9 @@ class StartScanTestCase(TestCase):
             cmd.handle_xml(request)
 
     @patch("ospd.ospd.OSPDaemon")
-    @patch("ospd.command.command.start_process")
+    @patch("ospd.command.command.create_process")
     def test_scan_multi_target_parallel_100(
-        self, mock_start_process, mock_daemon
+        self, mock_create_process, mock_daemon
     ):
         daemon = mock_daemon()
         daemon.create_scan.return_value = '1'
@@ -250,14 +250,14 @@ class StartScanTestCase(TestCase):
 
         self.assertEqual(response.get('status'), '200')
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
 
 
 class StopCommandTestCase(TestCase):
     @patch("ospd.ospd.os")
-    @patch("ospd.command.command.start_process")
-    def test_stop_scan(self, mock_start_process, mock_os):
-        mock_process = mock_start_process.return_value
+    @patch("ospd.command.command.create_process")
+    def test_stop_scan(self, mock_create_process, mock_os):
+        mock_process = mock_create_process.return_value
         mock_process.is_alive.return_value = True
         mock_process.pid = "foo"
 
@@ -269,7 +269,7 @@ class StopCommandTestCase(TestCase):
         )
         response = et.fromstring(daemon.handle_command(request))
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
         assert_called(mock_process.start)
 
         scan_id = response.findtext('id')

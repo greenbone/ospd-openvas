@@ -24,7 +24,7 @@ from typing import Optional, Dict, Any
 from xml.etree.ElementTree import Element, SubElement
 
 from ospd.errors import OspdCommandError
-from ospd.misc import valid_uuid, start_process
+from ospd.misc import valid_uuid, create_process
 from ospd.network import target_str_to_list
 from ospd.xml import simple_response_str, get_elements_from_dict
 
@@ -482,7 +482,7 @@ class StartScan(BaseCommand):
             id_.text = scan_id_aux
             return simple_response_str('start_scan', 100, 'Continue', id_)
 
-        scan_process = start_process(
+        scan_process = create_process(
             func=scan_func, args=(scan_id, scan_targets, parallel)
         )
 

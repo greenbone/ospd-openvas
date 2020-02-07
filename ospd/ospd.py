@@ -45,7 +45,7 @@ from deprecated import deprecated
 from ospd import __version__
 from ospd.command import COMMANDS
 from ospd.errors import OspdCommandError, OspdError
-from ospd.misc import ScanCollection, ResultType, ScanStatus, start_process
+from ospd.misc import ScanCollection, ResultType, ScanStatus, create_process
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
@@ -810,7 +810,7 @@ class OSPDaemon:
             logger.debug(
                 "%s: Host scan started on ports %s.", target[0], target[1]
             )
-            scan_process = start_process(
+            scan_process = create_process(
                 func=self.parallel_scan, args=(scan_id, target[0])
             )
             multiscan_proc.append((scan_process, target[0]))

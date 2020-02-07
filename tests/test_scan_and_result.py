@@ -807,8 +807,8 @@ class ScanTestCase(unittest.TestCase):
         self.assertRaises(TypeError, daemon.set_vts_version)
 
     @patch("ospd.ospd.os")
-    @patch("ospd.command.command.start_process")
-    def test_resume_task(self, mock_start_process, _mock_os):
+    @patch("ospd.command.command.create_process")
+    def test_resume_task(self, mock_create_process, _mock_os):
         daemon = DummyWrapper(
             [
                 Result(
@@ -821,7 +821,7 @@ class ScanTestCase(unittest.TestCase):
         )
 
         fp = FakeStartProcess()
-        mock_start_process.side_effect = fp
+        mock_create_process.side_effect = fp
         mock_process = fp.call_mock
         mock_process.start.side_effect = fp.run
         mock_process.is_alive.return_value = True
@@ -842,7 +842,7 @@ class ScanTestCase(unittest.TestCase):
 
         self.assertIsNotNone(scan_id)
 
-        assert_called(mock_start_process)
+        assert_called(mock_create_process)
         assert_called(mock_process.start)
 
         daemon.handle_command('<stop_scan scan_id="%s" />' % scan_id)
