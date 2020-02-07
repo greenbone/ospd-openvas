@@ -68,10 +68,10 @@ class BaseCommand(metaclass=InitSubclassMeta):
 
     def as_dict(self):
         return {
-            'name': self.name,
-            'attributes': self.attributes,
-            'description': self.description,
-            'element': self.elements,
+            'name': self.get_name(),
+            'attributes': self.get_attributes(),
+            'description': self.get_description(),
+            'element': self.get_elements(),
         }
 
     def __repr__(self):
