@@ -29,8 +29,7 @@ from ospd.network import target_str_to_list
 from ospd.xml import simple_response_str, get_elements_from_dict
 
 from .initsubclass import InitSubclassMeta
-
-COMMANDS = []
+from .registry import register_command
 
 
 class BaseCommand(metaclass=InitSubclassMeta):
@@ -46,7 +45,7 @@ class BaseCommand(metaclass=InitSubclassMeta):
         if hasattr(super_cls, '__init_subclass__'):
             super_cls.__init_subclass__(**kwargs)
 
-        COMMANDS.append(cls)
+        register_command(cls)
 
     def __init__(self, daemon):
         self._daemon = daemon

@@ -16,4 +16,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
-from .registry import get_commands
+from typing import List
+
+__COMMANDS = []
+
+
+def register_command(command: object) -> None:
+    """ Register a command class
+    """
+    __COMMANDS.append(command)
+
+
+def remove_command(command: object) -> None:
+    """ Unregister a command class
+    """
+    __COMMANDS.remove(command)
+
+
+def get_commands() -> List[object]:
+    """ Return the list of registered command classes
+    """
+    return __COMMANDS
