@@ -84,7 +84,8 @@ class CliParser:
         parser.add_argument(
             '--pid-file',
             default=DEFAULT_PID_PATH,
-            help='Location of the file for the process ID. Default: %(default)s',
+            help='Location of the file for the process ID. '
+            'Default: %(default)s',
         )
 
         parser.add_argument(
@@ -147,6 +148,11 @@ class CliParser:
             help='Time in hours a scan is stored before being considered '
             'forgotten and being delete from the scan table. '
             'Default %(default)s, disabled.',
+        )
+        parser.add_argument(
+            '--list-commands',
+            action='store_true',
+            help='Display all protocol commands',
         )
 
         self.parser = parser

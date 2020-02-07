@@ -7,6 +7,7 @@ name = "pypi"
 lxml = "*"
 paramiko = "*"
 defusedxml = "*"
+deprecated = "*"
 
 [dev-packages]
 coverage = "*"
@@ -15,3 +16,4 @@ black = "==19.10b0"
 autohooks-plugin-black = "*"
 autohooks = "*"
 autohooks-plugin-pylint = "*"
+rope = "*"

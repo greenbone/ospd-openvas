@@ -19,6 +19,8 @@
 """ OSP XML utils class.
 """
 
+from typing import List, Dict, Any, Union
+
 from xml.etree.ElementTree import tostring, Element
 
 from ospd.misc import ResultType
@@ -49,7 +51,12 @@ def get_result_xml(result):
     return result_xml
 
 
-def simple_response_str(command: str, status: int, status_text: str, content: str = "") -> str:
+def simple_response_str(
+    command: str,
+    status: int,
+    status_text: str,
+    content: Union[str, Element, List[str], List[Element]] = "",
+) -> str:
     """ Creates an OSP response XML string.
 
     Arguments:
@@ -62,13 +69,45 @@ def simple_response_str(command: str, status: int, status_text: str, content: st
         String of response in xml format.
     """
     response = Element('%s_response' % command)
+
     for name, value in [('status', str(status)), ('status_text', status_text)]:
         response.set(name, str(value))
+
     if isinstance(content, list):
         for elem in content:
-            response.append(elem)
+            if isinstance(elem, Element):
+                response.append(elem)
     elif isinstance(content, Element):
         response.append(content)
     else:
         response.text = content
+
     return tostring(response)
+
+
+def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
+    """ Creates a list of etree elements from a dictionary
+
+    Args:
+        Dictionary of tags and their elements.
+
+    Return:
+        List of xml elements.
+    """
+
+    responses = []
+
+    for tag, value in data.items():
+        elem = Element(tag)
+
+        if isinstance(value, dict):
+            for val in get_elements_from_dict(value):
+                elem.append(val)
+        elif isinstance(value, list):
+            elem.text = ', '.join(value)
+        else:
+            elem.text = value
+
+        responses.append(elem)
+
+    return responses

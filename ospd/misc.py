@@ -28,7 +28,7 @@ import time
 import uuid
 import multiprocessing
 
-from typing import List, Any, Dict, Iterator, Optional
+from typing import List, Any, Dict, Iterator, Optional, Callable, Iterable
 from enum import Enum
 from collections import OrderedDict
 from pathlib import Path
@@ -36,6 +36,12 @@ from pathlib import Path
 from ospd.network import target_str_to_list
 
 LOGGER = logging.getLogger(__name__)
+
+
+def create_process(
+    func: Callable, *, args: Iterable[Any] = None
+) -> multiprocessing.Process:
+    return multiprocessing.Process(target=func, args=args)
 
 
 class ScanStatus(Enum):
@@ -177,8 +183,11 @@ class ScanCollection(object):
     ) -> Iterator[Any]:
         """ Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
-        If max_res is None, return all the results. Otherwise, if max_res = N > 0
-        return N as maximum number of results. max_res works only together with pop_results.
+
+        If max_res is None, return all the results.
+        Otherwise, if max_res = N > 0 return N as maximum number of results.
+
+        max_res works only together with pop_results.
         """
         if pop_res and max_res:
             result_aux = self.scans_table[scan_id]['results']
@@ -243,11 +252,14 @@ class ScanCollection(object):
     def create_scan(
         self,
         scan_id: str = '',
-        targets: List = [],
+        targets: List = None,
         options: Optional[Dict] = None,
         vts: str = '',
     ) -> str:
         """ Creates a new scan with provided scan information. """
+
+        if not targets:
+            targets = []
 
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
@@ -524,7 +536,7 @@ def create_pid(pidfile) -> bool:
     return True
 
 
-def remove_pidfile(pidfile, signum=None, frame=None) -> None:
+def remove_pidfile(pidfile, _signum=None, _frame=None) -> None:
     """ Removes the pidfile before ending the daemon. """
     pidpath = Path(pidfile)
     if pidpath.is_file():
