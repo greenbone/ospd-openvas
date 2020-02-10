@@ -26,6 +26,7 @@ from xml.etree.ElementTree import Element, SubElement
 from ospd.errors import OspdCommandError
 from ospd.misc import valid_uuid, create_process
 from ospd.network import target_str_to_list
+from ospd.protocol import OspRequest, OspResponse
 from ospd.xml import simple_response_str, get_elements_from_dict
 
 from .initsubclass import InitSubclassMeta
@@ -240,7 +241,11 @@ class GetScannerDetails(BaseCommand):
         """
         desc_xml = Element('description')
         desc_xml.text = self._daemon.get_scanner_description()
-        details = [desc_xml, self._daemon.get_scanner_params_xml()]
+        scanner_params = self._daemon.get_scanner_params()
+        details = [
+            desc_xml,
+            OspResponse.create_scanner_params_xml(scanner_params),
+        ]
         return simple_response_str('get_scanner_details', 200, 'OK', details)
 
 
@@ -428,7 +433,7 @@ class StartScan(BaseCommand):
             if target_list is None or len(target_list) == 0:
                 raise OspdCommandError('No targets or ports', 'start_scan')
             else:
-                scan_targets = self._daemon.process_targets_element(target_list)
+                scan_targets = OspRequest.process_targets_element(target_list)
         else:
             scan_targets = []
             for single_target in target_str_to_list(target_str):
@@ -461,7 +466,7 @@ class StartScan(BaseCommand):
             if len(scanner_vts) == 0:
                 raise OspdCommandError('VTs list is empty', 'start_scan')
             else:
-                vt_selection = self._daemon.process_vts_params(scanner_vts)
+                vt_selection = OspRequest.process_vts_params(scanner_vts)
 
         # Dry run case.
         if 'dry_run' in params and int(params['dry_run']):
