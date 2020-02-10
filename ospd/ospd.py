@@ -496,7 +496,7 @@ class OSPDaemon:
             return
 
         try:
-            response = self.handle_command(data)
+            response = self.handle_command(data, stream)
         except OspdCommandError as exception:
             response = exception.as_xml()
             logger.debug('Command error: %s', exception.message)
@@ -505,7 +505,8 @@ class OSPDaemon:
             exception = OspdCommandError('Fatal error', 'error')
             response = exception.as_xml()
 
-        stream.write(response)
+        if response:
+            stream.write(response)
         stream.close()
 
     def parallel_scan(self, scan_id: str, target: str) -> None:
@@ -1180,7 +1181,7 @@ class OSPDaemon:
 
         return vts_xml
 
-    def handle_command(self, command: str) -> str:
+    def handle_command(self, command: str, stream) -> str:
         """ Handles an osp command in a string.
 
         @return: OSP Response to command.
@@ -1194,6 +1195,9 @@ class OSPDaemon:
         command = self.commands.get(tree.tag, None)
         if not command and tree.tag != "authenticate":
             raise OspdCommandError('Bogus command name')
+
+        if tree.tag == "get_vts":
+            return command.handle_xml(tree, stream)
 
         return command.handle_xml(tree)
 
