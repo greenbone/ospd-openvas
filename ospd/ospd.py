@@ -495,8 +495,9 @@ class OSPDaemon:
             logger.debug("Empty client stream")
             return
 
+        response = None
         try:
-            response = self.handle_command(data, stream)
+            self.handle_command(data, stream)
         except OspdCommandError as exception:
             response = exception.as_xml()
             logger.debug('Command error: %s', exception.message)
@@ -1177,8 +1178,7 @@ class OSPDaemon:
             # must be done as follow.
             vts_list = iter(self.vts.keys())
 
-        for vt_id in vts_list:
-            yield self.get_vt_xml(vt_id)
+        return vts_list
 
     def handle_command(self, command: str, stream) -> str:
         """ Handles an osp command in a string.
@@ -1195,10 +1195,13 @@ class OSPDaemon:
         if not command and tree.tag != "authenticate":
             raise OspdCommandError('Bogus command name')
 
-        if tree.tag == "get_vts":
-            return command.handle_xml(tree, stream)
+        response = command.handle_xml(tree)
 
-        return command.handle_xml(tree)
+        if isinstance(response, bytes):
+            stream.write(response)
+        else:
+            for data in response:
+                stream.write(data)
 
     def check(self):
         """ Asserts to False. Should be implemented by subclass. """

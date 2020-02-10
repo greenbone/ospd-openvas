@@ -19,6 +19,7 @@
 import re
 import subprocess
 
+from types import GeneratorType
 from typing import Optional, Dict, Any
 
 from xml.etree.ElementTree import Element, SubElement
@@ -289,7 +290,7 @@ class GetVts(BaseCommand):
         'filter': 'Optional filter to get an specific vt collection.',
     }
 
-    def handle_xml(self, xml: Element, stream) -> str:
+    def handle_xml(self, xml: Element) -> str:
         """ Handles <get_vts> command.
         Writes the vt collection on the stream.
         The <get_vts> element accept two optional arguments.
@@ -307,7 +308,6 @@ class GetVts(BaseCommand):
 
         if vt_id and vt_id not in self._daemon.vts:
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
-            return simple_response_str('get_vts', 404, 'VT Not Found', text)
 
         filtered_vts = None
         if vt_filter:
@@ -315,14 +315,26 @@ class GetVts(BaseCommand):
                 self._daemon.vts, vt_filter
             )
 
-        stream.write(xml_helper.create_response('get_vts'))
-        stream.write(xml_helper.create_element('vts'))
+        # Generator
+        vts_list = (vt for vt in self._daemon.get_vts_xml(vt_id, filtered_vts))
 
-        for vts_chunk in self._daemon.get_vts_xml(vt_id, filtered_vts):
-            stream.write(xml_helper.add_element(vts_chunk))
+        # List of xml pieces with the generator to be iterated
+        response = [
+            xml_helper.create_response('get_vts'),
+            xml_helper.create_element('vts'),
+            vts_list,
+            xml_helper.create_element('vts', end=True),
+            xml_helper.create_response('get_vts', end=True),
+        ]
 
-        stream.write(xml_helper.create_element('vts', end=True))
-        stream.write(xml_helper.create_response('get_vts', end=True))
+        for elem in response:
+            if isinstance(elem, GeneratorType):
+                for vts_chunk in elem:
+                    yield xml_helper.add_element(
+                        self._daemon.get_vt_xml(vts_chunk)
+                    )
+            else:
+                yield elem
 
 
 class StopScan(BaseCommand):
