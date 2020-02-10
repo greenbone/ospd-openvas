@@ -46,7 +46,6 @@ from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
 from ospd.xml import (
     elements_as_text,
-    simple_response_str,
     get_result_xml,
     get_elements_from_dict,
 )
@@ -1180,45 +1179,6 @@ class OSPDaemon:
                 vts_xml.append(self.get_vt_xml(vt_id))
 
         return vts_xml
-
-    def handle_get_version_command(self) -> str:
-        """ Handles <get_version> command.
-
-        @return: Response string for <get_version> command.
-        """
-        protocol = Element('protocol')
-        for name, value in [
-            ('name', 'OSP'),
-            ('version', self.get_protocol_version()),
-        ]:
-            elem = SubElement(protocol, name)
-            elem.text = value
-
-        daemon = Element('daemon')
-        for name, value in [
-            ('name', self.get_daemon_name()),
-            ('version', self.get_daemon_version()),
-        ]:
-            elem = SubElement(daemon, name)
-            elem.text = value
-
-        scanner = Element('scanner')
-        for name, value in [
-            ('name', self.get_scanner_name()),
-            ('version', self.get_scanner_version()),
-        ]:
-            elem = SubElement(scanner, name)
-            elem.text = value
-
-        content = [protocol, daemon, scanner]
-
-        if self.get_vts_version():
-            vts = Element('vts')
-            elem = SubElement(vts, 'version')
-            elem.text = self.get_vts_version()
-            content.append(vts)
-
-        return simple_response_str('get_version', 200, 'OK', content)
 
     def handle_command(self, command: str) -> str:
         """ Handles an osp command in a string.
