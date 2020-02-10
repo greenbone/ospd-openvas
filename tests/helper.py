@@ -20,6 +20,8 @@ import time
 
 from unittest.mock import Mock
 
+from xml.etree import ElementTree as et
+
 from ospd.ospd import OSPDaemon
 
 
@@ -34,6 +36,17 @@ def assert_called(mock: Mock):
             mock._calls_repr(),  # pylint: disable=protected-access
         )
         raise AssertionError(msg)
+
+
+class FakeStream:
+    def __init__(self):
+        self.response = b''
+
+    def write(self, data):
+        self.response = self.response + data
+
+    def get_response(self):
+        return et.fromstring(self.response)
 
 
 class DummyWrapper(OSPDaemon):

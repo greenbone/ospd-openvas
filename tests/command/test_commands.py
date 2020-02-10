@@ -24,7 +24,7 @@ from xml.etree import ElementTree as et
 from ospd.command.command import GetPerformance, StartScan, StopScan
 from ospd.errors import OspdCommandError, OspdError
 
-from ..helper import DummyWrapper, assert_called
+from ..helper import DummyWrapper, assert_called, FakeStream
 
 
 class GetPerformanceTestCase(TestCase):
@@ -261,13 +261,15 @@ class StopCommandTestCase(TestCase):
         mock_process.is_alive.return_value = True
         mock_process.pid = "foo"
 
+        fs = FakeStream()
         daemon = DummyWrapper([])
         request = (
             '<start_scan target="localhost" ports="80, 443">'
             '<scanner_params />'
             '</start_scan>'
         )
-        response = et.fromstring(daemon.handle_command(request))
+        daemon.handle_command(request, fs)
+        response = fs.get_response()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
