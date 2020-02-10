@@ -122,7 +122,9 @@ class VtsFilter(object):
         vt_oid_list = list(vts.keys())
 
         for _element, _oper, _filter_val in filters:
-            vts_generator = (vt for vt in vts)
+            # Use iter because python3.5 has no support for
+            # iteration over DictProxy.
+            vts_generator = (vt for vt in iter(vts.keys()))
             for vt_oid in vts_generator:
                 if vt_oid not in vt_oid_list:
                     continue
