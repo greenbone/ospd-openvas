@@ -98,7 +98,9 @@ class VtsFilter(object):
         format_func = self.allowed_filter.get(element)
         return format_func(value)
 
-    def get_filtered_vts_list(self, vts: Dict, vt_filter: str) -> Optional[Dict]:
+    def get_filtered_vts_list(
+        self, vts: Dict, vt_filter: str
+    ) -> Optional[Dict]:
         """ Gets a collection of vulnerability test from the vts dictionary,
         which match the filter.
 
@@ -107,7 +109,8 @@ class VtsFilter(object):
             vts (dictionary): The complete vts collection.
 
         Returns:
-            Dictionary with filtered vulnerability tests.
+            List with filtered vulnerability tests. The list can be empty.
+            None in case of filter parse failure.
         """
         if not vt_filter:
             raise OspdCommandError('vt_filter: A valid filter is required.')
@@ -116,17 +119,21 @@ class VtsFilter(object):
         if not filters:
             return None
 
-        _vts_aux = vts.copy()
+        vt_oid_list = list(vts.keys())
+
         for _element, _oper, _filter_val in filters:
-            for vt_id in _vts_aux.copy():
-                if not _vts_aux[vt_id].get(_element):
-                    _vts_aux.pop(vt_id)
+            vts_generator = (vt for vt in vts)
+            for vt_oid in vts_generator:
+                if vt_oid not in vt_oid_list:
                     continue
-                _elem_val = _vts_aux[vt_id].get(_element)
+                if not vts[vt_oid].get(_element):
+                    vt_oid_list.remove(vt_oid)
+                    continue
+                _elem_val = vts[vt_oid].get(_element)
                 _val = self.format_filter_value(_element, _elem_val)
                 if self.filter_operator[_oper](_val, _filter_val):
                     continue
                 else:
-                    _vts_aux.pop(vt_id)
+                    vt_oid_list.remove(vt_oid)
 
-        return _vts_aux
+        return vt_oid_list
