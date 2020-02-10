@@ -445,13 +445,14 @@ class StartScan(BaseCommand):
 
         try:
             parallel = int(xml.get('parallel', '1'))
-            if parallel < 1 or parallel > 20:
-                parallel = 1
         except ValueError:
             raise OspdCommandError(
                 'Invalid value for parallel scans. It must be a number',
                 'start_scan',
             )
+
+        if parallel < 1 or parallel > 20:
+            parallel = 1
 
         scanner_params = xml.find('scanner_params')
         if scanner_params is None:
