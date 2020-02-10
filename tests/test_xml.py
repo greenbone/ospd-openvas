@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+from collections import OrderedDict
+
 from unittest import TestCase
 
 from ospd.xml import elements_as_text
@@ -29,7 +31,7 @@ class ElementsAsText(TestCase):
         self.assertEqual(text, '\t  foo                    bar\n')
 
     def test_simple_elements(self):
-        elements = {'foo': 'bar', 'lorem': 'ipsum'}
+        elements = OrderedDict([('foo', 'bar'), ('lorem', 'ipsum')])
         text = elements_as_text(elements)
 
         self.assertEqual(
@@ -39,10 +41,20 @@ class ElementsAsText(TestCase):
         )
 
     def test_elements(self):
-        elements = {
-            'foo': 'bar',
-            'lorem': {'dolor': 'sit amet', 'consectetur': 'adipiscing elit',},
-        }
+        elements = OrderedDict(
+            [
+                ('foo', 'bar'),
+                (
+                    'lorem',
+                    OrderedDict(
+                        [
+                            ('dolor', 'sit amet'),
+                            ('consectetur', 'adipiscing elit'),
+                        ]
+                    ),
+                ),
+            ]
+        )
         text = elements_as_text(elements)
 
         self.assertEqual(
