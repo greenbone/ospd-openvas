@@ -48,7 +48,9 @@ class OspdCommandError(OspdError):
     """ This is an exception that will result in an error message to the
     client """
 
-    def __init__(self, message: str, command: str = 'osp', status: int = 400) -> None:
+    def __init__(
+        self, message: str, command: str = 'osp', status: int = 400
+    ) -> None:
         super().__init__(message)
         self.message = message
         self.command = command
