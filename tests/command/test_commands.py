@@ -24,7 +24,7 @@ from xml.etree import ElementTree as et
 from ospd.command.command import GetPerformance, StartScan, StopScan
 from ospd.errors import OspdCommandError
 
-from .helper import DummyWrapper, assert_called
+from ..helper import DummyWrapper, assert_called
 
 
 class GetPerformanceTestCase(TestCase):

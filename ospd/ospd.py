@@ -37,7 +37,7 @@ import defusedxml.ElementTree as secET
 from deprecated import deprecated
 
 from ospd import __version__
-from ospd.command import COMMANDS
+from ospd.command import get_commands
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, create_process
 from ospd.network import resolve_hostname, target_str_to_list
@@ -123,7 +123,7 @@ class OSPDaemon:
 
         self.commands = {}
 
-        for command_class in COMMANDS:
+        for command_class in get_commands():
             command = command_class(self)
             self.commands[command.get_name()] = command
 
