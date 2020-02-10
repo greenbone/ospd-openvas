@@ -27,7 +27,11 @@ from ospd.errors import OspdCommandError
 from ospd.misc import valid_uuid, create_process
 from ospd.network import target_str_to_list
 from ospd.protocol import OspRequest, OspResponse
-from ospd.xml import simple_response_str, get_elements_from_dict
+from ospd.xml import (
+    simple_response_str,
+    get_elements_from_dict,
+    XmlStringHelper,
+)
 
 from .initsubclass import InitSubclassMeta
 from .registry import register_command
@@ -285,23 +289,25 @@ class GetVts(BaseCommand):
         'filter': 'Optional filter to get an specific vt collection.',
     }
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element, stream) -> str:
         """ Handles <get_vts> command.
+        Writes the vt collection on the stream.
         The <get_vts> element accept two optional arguments.
         vt_id argument receives a single vt id.
         filter argument receives a filter selecting a sub set of vts.
         If both arguments are given, the vts which match with the filter
         are return.
 
-        @return: Response string for <get_vts> command.
+        @return: Response string for <get_vts> command on fail.
         """
+        xml_helper = XmlStringHelper()
 
         vt_id = xml.get('vt_id')
         vt_filter = xml.get('filter')
 
         if vt_id and vt_id not in self._daemon.vts:
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
-            return simple_response_str('get_vts', 404, text)
+            return simple_response_str('get_vts', 404, 'VT Not Found', text)
 
         filtered_vts = None
         if vt_filter:
@@ -309,13 +315,14 @@ class GetVts(BaseCommand):
                 self._daemon.vts, vt_filter
             )
 
-        responses = []
+        stream.write(xml_helper.create_response('get_vts'))
+        stream.write(xml_helper.create_element('vts'))
 
-        vts_xml = self._daemon.get_vts_xml(vt_id, filtered_vts)
+        for vts_chunk in self._daemon.get_vts_xml(vt_id, filtered_vts):
+            stream.write(xml_helper.add_element(vts_chunk))
 
-        responses.append(vts_xml)
-
-        return simple_response_str('get_vts', 200, 'OK', responses)
+        stream.write(xml_helper.create_element('vts', end=True))
+        stream.write(xml_helper.create_response('get_vts', end=True))
 
 
 class StopScan(BaseCommand):
