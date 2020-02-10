@@ -1142,7 +1142,8 @@ class OSPDaemon:
         return vt_xml
 
     def get_vts_xml(self, vt_id: str = None, filtered_vts: Dict = None):
-        """ Gets collection of vulnerability test information in XML format.
+        """ Python Generator for VTS.
+        Gets collection of vulnerability test information in XML format.
         If vt_id is specified, the collection will contain only this vt, if
         found.
         If no vt_id is specified or filtered_vts is None (default), the
@@ -1152,34 +1153,32 @@ class OSPDaemon:
 
         Arguments:
             vt_id (vt_id, optional): ID of the vt to get.
-            filtered_vts (dict, optional): Filtered VTs collection.
+            filtered_vts (list, optional): Filtered VTs collection.
 
         Return:
             String of collection of vulnerability test information in
             XML format.
         """
-
-        vts_xml = Element('vts')
-
+        vts_xml = []
         if not self.vts:
             return vts_xml
 
+        # No match for the filter
         if filtered_vts is not None and len(filtered_vts) == 0:
             return vts_xml
 
         if filtered_vts:
-            for vt_id in filtered_vts:
-                vts_xml.append(self.get_vt_xml(vt_id))
+            vts_list = filtered_vts
         elif vt_id:
-            vts_xml.append(self.get_vt_xml(vt_id))
+            vts_list = [vt_id]
         else:
-            # Because DictProxy for python3.5 doesn't support
+            # TODO: Because DictProxy for python3.5 doesn't support
             # iterkeys(), itervalues(), or iteritems() either, the iteration
             # must be done as follow.
-            for vt_id in iter(self.vts.keys()):
-                vts_xml.append(self.get_vt_xml(vt_id))
+            vts_list = iter(self.vts.keys())
 
-        return vts_xml
+        for vt_id in vts_list:
+            yield self.get_vt_xml(vt_id)
 
     def handle_command(self, command: str, stream) -> str:
         """ Handles an osp command in a string.
