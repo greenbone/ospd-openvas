@@ -254,7 +254,7 @@ class ScanCollection(object):
         scan_id: str = '',
         targets: List = None,
         options: Optional[Dict] = None,
-        vts: str = '',
+        vts: Dict = None,
     ) -> str:
         """ Creates a new scan with provided scan information. """
 
@@ -435,8 +435,8 @@ class ScanCollection(object):
                 if target == item[0]:
                     return item[5]
 
-    def get_vts(self, scan_id: str):
-        """ Get a scan's vts list. """
+    def get_vts(self, scan_id: str) -> Dict:
+        """ Get a scan's vts. """
 
         return self.scans_table[scan_id]['vts']
 
