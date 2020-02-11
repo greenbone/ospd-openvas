@@ -1,0 +1,249 @@
+# Copyright (C) 2020 Greenbone Networks GmbH
+#
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+
+""" Helper classes for parsing and creating OSP XML requests and responses
+"""
+
+from typing import Dict, Union, List, Any
+
+from xml.etree import ElementTree as et
+
+from ospd.errors import OspdError
+
+
+class OspRequest:
+    @staticmethod
+    def process_vts_params(
+        scanner_vts: et.Element,
+    ) -> Dict[str, Union[Dict, List]]:
+        """ Receive an XML object with the Vulnerability Tests an their
+        parameters to be use in a scan and return a dictionary.
+
+        @param: XML element with vt subelements. Each vt has an
+                id attribute. Optional parameters can be included
+                as vt child.
+                Example form:
+                <vt_selection>
+                  <vt_single id='vt1' />
+                  <vt_single id='vt2'>
+                    <vt_value id='param1'>value</vt_value>
+                  </vt_single>
+                  <vt_group filter='family=debian'/>
+                  <vt_group filter='family=general'/>
+                </vt_selection>
+
+        @return: Dictionary containing the vts attribute and subelements,
+                 like the VT's id and VT's parameters.
+                 Example form:
+                 {'vt1': {},
+                  'vt2': {'value_id': 'value'},
+                  'vt_groups': ['family=debian', 'family=general']}
+        """
+        vt_selection = {}  # type: Dict
+        filters = []
+
+        for vt in scanner_vts:
+            if vt.tag == 'vt_single':
+                vt_id = vt.attrib.get('id')
+                vt_selection[vt_id] = {}
+
+                for vt_value in vt:
+                    if not vt_value.attrib.get('id'):
+                        raise OspdError(
+                            'Invalid VT preference. No attribute id'
+                        )
+
+                    vt_value_id = vt_value.attrib.get('id')
+                    vt_value_value = vt_value.text if vt_value.text else ''
+                    vt_selection[vt_id][vt_value_id] = vt_value_value
+
+            if vt.tag == 'vt_group':
+                vts_filter = vt.attrib.get('filter', None)
+
+                if vts_filter is None:
+                    raise OspdError('Invalid VT group. No filter given.')
+
+                filters.append(vts_filter)
+
+        vt_selection['vt_groups'] = filters
+
+        return vt_selection
+
+    @staticmethod
+    def process_credentials_elements(cred_tree: et.Element) -> Dict:
+        """ Receive an XML object with the credentials to run
+        a scan against a given target.
+
+        @param:
+        <credentials>
+          <credential type="up" service="ssh" port="22">
+            <username>scanuser</username>
+            <password>mypass</password>
+          </credential>
+          <credential type="up" service="smb">
+            <username>smbuser</username>
+            <password>mypass</password>
+          </credential>
+        </credentials>
+
+        @return: Dictionary containing the credentials for a given target.
+                 Example form:
+                 {'ssh': {'type': type,
+                          'port': port,
+                          'username': username,
+                          'password': pass,
+                        },
+                  'smb': {'type': type,
+                          'username': username,
+                          'password': pass,
+                         },
+                   }
+        """
+        credentials = {}  # type: Dict
+
+        for credential in cred_tree:
+            service = credential.attrib.get('service')
+            credentials[service] = {}
+            credentials[service]['type'] = credential.attrib.get('type')
+
+            if service == 'ssh':
+                credentials[service]['port'] = credential.attrib.get('port')
+
+            for param in credential:
+                credentials[service][param.tag] = param.text
+
+        return credentials
+
+    @classmethod
+    def process_targets_element(cls, scanner_target: et.Element) -> List:
+        """ Receive an XML object with the target, ports and credentials to run
+        a scan against.
+
+        @param: XML element with target subelements. Each target has <hosts>
+        and <ports> subelements. Hosts can be a single host, a host range,
+        a comma-separated host list or a network address.
+        <ports> and  <credentials> are optional. Therefore each ospd-scanner
+        should check for a valid ones if needed.
+
+                Example form:
+                <targets>
+                  <target>
+                    <hosts>localhosts</hosts>
+                    <exclude_hosts>localhost1</exclude_hosts>
+                    <ports>80,443</ports>
+                    <alive_test></alive_test>
+                    <reverse_lookup_only>1</reverse_lookup_only>
+                    <reverse_lookup_unify>0</reverse_lookup_unify>
+                  </target>
+                  <target>
+                    <hosts>192.168.0.0/24</hosts>
+                    <ports>22</ports>
+                    <credentials>
+                      <credential type="up" service="ssh" port="22">
+                        <username>scanuser</username>
+                        <password>mypass</password>
+                      </credential>
+                      <credential type="up" service="smb">
+                        <username>smbuser</username>
+                        <password>mypass</password>
+                      </credential>
+                    </credentials>
+                  </target>
+                </targets>
+
+        @return: A list of [hosts, port, {credentials}, exclude_hosts, options].
+                 Example form:
+                 [['localhosts', '80,43', '', 'localhosts1',
+                   {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
+                    'reverse_lookup_only': '1',
+                    'reverse_lookup_unify': '0',
+                   }
+                  ],
+                  ['192.168.0.0/24', '22', {'smb': {'type': type,
+                                                    'port': port,
+                                                    'username': username,
+                                                    'password': pass,
+                                                   }}, '', {}]]
+        """
+
+        target_list = []
+
+        for target in scanner_target:
+            exclude_hosts = ''
+            finished_hosts = ''
+            ports = ''
+            credentials = {}  # type: Dict
+            options = {}
+
+            for child in target:
+                if child.tag == 'hosts':
+                    hosts = child.text
+                if child.tag == 'exclude_hosts':
+                    exclude_hosts = child.text
+                if child.tag == 'finished_hosts':
+                    finished_hosts = child.text
+                if child.tag == 'ports':
+                    ports = child.text
+                if child.tag == 'credentials':
+                    credentials = cls.process_credentials_elements(child)
+                if child.tag == 'alive_test':
+                    options['alive_test'] = child.text
+                if child.tag == 'reverse_lookup_unify':
+                    options['reverse_lookup_unify'] = child.text
+                if child.tag == 'reverse_lookup_only':
+                    options['reverse_lookup_only'] = child.text
+
+            if hosts:
+                target_list.append(
+                    [
+                        hosts,
+                        ports,
+                        credentials,
+                        exclude_hosts,
+                        finished_hosts,
+                        options,
+                    ]
+                )
+            else:
+                raise OspdError('No target to scan')
+
+        return target_list
+
+
+class OspResponse:
+    @staticmethod
+    def create_scanner_params_xml(scanner_params: Dict[str, Any]) -> et.Element:
+        """ Returns the OSP Daemon's scanner params in xml format. """
+        scanner_params = et.Element('scanner_params')
+
+        for param_id, param in scanner_params.items():
+            param_xml = et.SubElement(scanner_params, 'scanner_param')
+
+            for name, value in [('id', param_id), ('type', param['type'])]:
+                param_xml.set(name, value)
+
+            for name, value in [
+                ('name', param['name']),
+                ('description', param['description']),
+                ('default', param['default']),
+                ('mandatory', param['mandatory']),
+            ]:
+                elem = et.SubElement(param_xml, name)
+                elem.text = str(value)
+
+        return scanner_params

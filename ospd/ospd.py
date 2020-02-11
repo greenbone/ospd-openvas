@@ -41,10 +41,11 @@ from ospd.command import get_commands
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, create_process
 from ospd.network import resolve_hostname, target_str_to_list
+from ospd.protocol import OspRequest, OspResponse
 from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
 from ospd.xml import (
-    simple_response_str,
+    elements_as_text,
     get_result_xml,
     get_elements_from_dict,
 )
@@ -165,6 +166,9 @@ class OSPDaemon:
         assert scanner_params
 
         self.scanner_params[name] = scanner_params
+
+    def get_scanner_params(self) -> Dict:
+        return self.scanner_params
 
     def add_vt(
         self,
@@ -348,196 +352,29 @@ class OSPDaemon:
         """
         return params
 
-    def process_vts_params(self, scanner_vts) -> Dict:
-        """ Receive an XML object with the Vulnerability Tests an their
-        parameters to be use in a scan and return a dictionary.
-
-        @param: XML element with vt subelements. Each vt has an
-                id attribute. Optional parameters can be included
-                as vt child.
-                Example form:
-                <vt_selection>
-                  <vt_single id='vt1' />
-                  <vt_single id='vt2'>
-                    <vt_value id='param1'>value</vt_value>
-                  </vt_single>
-                  <vt_group filter='family=debian'/>
-                  <vt_group filter='family=general'/>
-                </vt_selection>
-
-        @return: Dictionary containing the vts attribute and subelements,
-                 like the VT's id and VT's parameters.
-                 Example form:
-                 {'vt1': {},
-                  'vt2': {'value_id': 'value'},
-                  'vt_groups': ['family=debian', 'family=general']}
-        """
-        vt_selection = {}  # type: Dict
-        filters = list()
-
-        for vt in scanner_vts:
-            if vt.tag == 'vt_single':
-                vt_id = vt.attrib.get('id')
-                vt_selection[vt_id] = {}
-
-                for vt_value in vt:
-                    if not vt_value.attrib.get('id'):
-                        raise OspdCommandError(
-                            'Invalid VT preference. No attribute id',
-                            'start_scan',
-                        )
-
-                    vt_value_id = vt_value.attrib.get('id')
-                    vt_value_value = vt_value.text if vt_value.text else ''
-                    vt_selection[vt_id][vt_value_id] = vt_value_value
-
-            if vt.tag == 'vt_group':
-                vts_filter = vt.attrib.get('filter', None)
-
-                if vts_filter is None:
-                    raise OspdCommandError(
-                        'Invalid VT group. No filter given.', 'start_scan'
-                    )
-
-                filters.append(vts_filter)
-
-        vt_selection['vt_groups'] = filters
-
-        return vt_selection
+    @staticmethod
+    @deprecated(
+        version="20.4",
+        reason="Please use OspRequest.process_vt_params instead.",
+    )
+    def process_vts_params(scanner_vts) -> Dict:
+        return OspRequest.process_vts_params(scanner_vts)
 
     @staticmethod
+    @deprecated(
+        version="20.4",
+        reason="Please use OspRequest.process_credential_elements instead.",
+    )
     def process_credentials_elements(cred_tree) -> Dict:
-        """ Receive an XML object with the credentials to run
-        a scan against a given target.
+        return OspRequest.process_credentials_elements(cred_tree)
 
-        @param:
-        <credentials>
-          <credential type="up" service="ssh" port="22">
-            <username>scanuser</username>
-            <password>mypass</password>
-          </credential>
-          <credential type="up" service="smb">
-            <username>smbuser</username>
-            <password>mypass</password>
-          </credential>
-        </credentials>
-
-        @return: Dictionary containing the credentials for a given target.
-                 Example form:
-                 {'ssh': {'type': type,
-                          'port': port,
-                          'username': username,
-                          'password': pass,
-                        },
-                  'smb': {'type': type,
-                          'username': username,
-                          'password': pass,
-                         },
-                   }
-        """
-        credentials = {}  # type: Dict
-        for credential in cred_tree:
-            service = credential.attrib.get('service')
-            credentials[service] = {}
-            credentials[service]['type'] = credential.attrib.get('type')
-            if service == 'ssh':
-                credentials[service]['port'] = credential.attrib.get('port')
-            for param in credential:
-                credentials[service][param.tag] = param.text
-
-        return credentials
-
-    @classmethod
-    def process_targets_element(cls, scanner_target) -> List:
-        """ Receive an XML object with the target, ports and credentials to run
-        a scan against.
-
-        @param: XML element with target subelements. Each target has <hosts>
-        and <ports> subelements. Hosts can be a single host, a host range,
-        a comma-separated host list or a network address.
-        <ports> and  <credentials> are optional. Therefore each ospd-scanner
-        should check for a valid ones if needed.
-
-                Example form:
-                <targets>
-                  <target>
-                    <hosts>localhosts</hosts>
-                    <exclude_hosts>localhost1</exclude_hosts>
-                    <ports>80,443</ports>
-                    <alive_test></alive_test>
-                    <reverse_lookup_only>1</reverse_lookup_only>
-                    <reverse_lookup_unify>0</reverse_lookup_unify>
-                  </target>
-                  <target>
-                    <hosts>192.168.0.0/24</hosts>
-                    <ports>22</ports>
-                    <credentials>
-                      <credential type="up" service="ssh" port="22">
-                        <username>scanuser</username>
-                        <password>mypass</password>
-                      </credential>
-                      <credential type="up" service="smb">
-                        <username>smbuser</username>
-                        <password>mypass</password>
-                      </credential>
-                    </credentials>
-                  </target>
-                </targets>
-
-        @return: A list of [hosts, port, {credentials}, exclude_hosts, options].
-                 Example form:
-                 [['localhosts', '80,43', '', 'localhosts1',
-                   {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
-                    'reverse_lookup_only': '1',
-                    'reverse_lookup_unify': '0',
-                   }
-                  ],
-                  ['192.168.0.0/24', '22', {'smb': {'type': type,
-                                                    'port': port,
-                                                    'username': username,
-                                                    'password': pass,
-                                                   }}, '', {}]]
-        """
-
-        target_list = []
-        for target in scanner_target:
-            exclude_hosts = ''
-            finished_hosts = ''
-            ports = ''
-            credentials = {}  # type: Dict
-            options = {}
-            for child in target:
-                if child.tag == 'hosts':
-                    hosts = child.text
-                if child.tag == 'exclude_hosts':
-                    exclude_hosts = child.text
-                if child.tag == 'finished_hosts':
-                    finished_hosts = child.text
-                if child.tag == 'ports':
-                    ports = child.text
-                if child.tag == 'credentials':
-                    credentials = cls.process_credentials_elements(child)
-                if child.tag == 'alive_test':
-                    options['alive_test'] = child.text
-                if child.tag == 'reverse_lookup_unify':
-                    options['reverse_lookup_unify'] = child.text
-                if child.tag == 'reverse_lookup_only':
-                    options['reverse_lookup_only'] = child.text
-            if hosts:
-                target_list.append(
-                    [
-                        hosts,
-                        ports,
-                        credentials,
-                        exclude_hosts,
-                        finished_hosts,
-                        options,
-                    ]
-                )
-            else:
-                raise OspdCommandError('No target to scan', 'start_scan')
-
-        return target_list
+    @staticmethod
+    @deprecated(
+        version="20.4",
+        reason="Please use OspRequest.process_targets_elements instead.",
+    )
+    def process_targets_element(scanner_target) -> List:
+        return OspRequest.process_targets_element(scanner_target)
 
     def stop_scan(self, scan_id: str) -> None:
         scan_process = self.scan_processes.get(scan_id)
@@ -625,22 +462,13 @@ class OSPDaemon:
             return None
         return entry.get('default')
 
+    @deprecated(
+        version="20.4",
+        reason="Please use OspResponse.create_scanner_params_xml instead.",
+    )
     def get_scanner_params_xml(self):
         """ Returns the OSP Daemon's scanner params in xml format. """
-        scanner_params = Element('scanner_params')
-        for param_id, param in self.scanner_params.items():
-            param_xml = SubElement(scanner_params, 'scanner_param')
-            for name, value in [('id', param_id), ('type', param['type'])]:
-                param_xml.set(name, value)
-            for name, value in [
-                ('name', param['name']),
-                ('description', param['description']),
-                ('default', param['default']),
-                ('mandatory', param['mandatory']),
-            ]:
-                elem = SubElement(param_xml, name)
-                elem.text = str(value)
-        return scanner_params
+        return OspResponse.create_scanner_params_xml(self.scanner_params)
 
     def handle_client_stream(self, stream) -> None:
         """ Handles stream of data received from client. """
@@ -915,34 +743,17 @@ class OSPDaemon:
 
             if elements:
                 command_txt = ''.join(
-                    [
-                        command_txt,
-                        "\t Elements:\n",
-                        self.elements_as_text(elements),
-                    ]
+                    [command_txt, "\t Elements:\n", elements_as_text(elements),]
                 )
 
             txt += command_txt
 
         return txt
 
+    @deprecated(version="20.4", reason="Use ospd.xml.elements_as_text instead.")
     def elements_as_text(self, elems: Dict, indent: int = 2) -> str:
         """ Returns the elems dictionary as formatted plain text. """
-        assert elems
-        text = ""
-        for elename, eledesc in elems.items():
-            if isinstance(eledesc, dict):
-                desc_txt = self.elements_as_text(eledesc, indent + 2)
-                desc_txt = ''.join(['\n', desc_txt])
-            elif isinstance(eledesc, str):
-                desc_txt = ''.join([eledesc, '\n'])
-            else:
-                assert False, "Only string or dictionary"
-            ele_txt = "\t{0}{1: <22} {2}".format(
-                ' ' * indent, elename, desc_txt
-            )
-            text = ''.join([text, ele_txt])
-        return text
+        return elements_as_text(elems, indent)
 
     def delete_scan(self, scan_id: str) -> int:
         """ Deletes scan_id scan from collection.
@@ -1368,45 +1179,6 @@ class OSPDaemon:
                 vts_xml.append(self.get_vt_xml(vt_id))
 
         return vts_xml
-
-    def handle_get_version_command(self) -> str:
-        """ Handles <get_version> command.
-
-        @return: Response string for <get_version> command.
-        """
-        protocol = Element('protocol')
-        for name, value in [
-            ('name', 'OSP'),
-            ('version', self.get_protocol_version()),
-        ]:
-            elem = SubElement(protocol, name)
-            elem.text = value
-
-        daemon = Element('daemon')
-        for name, value in [
-            ('name', self.get_daemon_name()),
-            ('version', self.get_daemon_version()),
-        ]:
-            elem = SubElement(daemon, name)
-            elem.text = value
-
-        scanner = Element('scanner')
-        for name, value in [
-            ('name', self.get_scanner_name()),
-            ('version', self.get_scanner_version()),
-        ]:
-            elem = SubElement(scanner, name)
-            elem.text = value
-
-        content = [protocol, daemon, scanner]
-
-        if self.get_vts_version():
-            vts = Element('vts')
-            elem = SubElement(vts, 'version')
-            elem.text = self.get_vts_version()
-            content.append(vts)
-
-        return simple_response_str('get_version', 200, 'OK', content)
 
     def handle_command(self, command: str) -> str:
         """ Handles an osp command in a string.

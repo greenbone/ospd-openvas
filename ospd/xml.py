@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2018 Greenbone Networks GmbH
+# Copyright (C) 2014-2020 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
@@ -111,3 +111,25 @@ def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
         responses.append(elem)
 
     return responses
+
+
+def elements_as_text(
+    elements: Dict[str, Union[str, Dict]], indent: int = 2
+) -> str:
+    """ Returns the elements dictionary as formatted plain text. """
+
+    text = ""
+    for elename, eledesc in elements.items():
+        if isinstance(eledesc, dict):
+            desc_txt = elements_as_text(eledesc, indent + 2)
+            desc_txt = ''.join(['\n', desc_txt])
+        elif isinstance(eledesc, str):
+            desc_txt = ''.join([eledesc, '\n'])
+        else:
+            assert False, "Only string or dictionary"
+
+        ele_txt = "\t{0}{1: <22} {2}".format(' ' * indent, elename, desc_txt)
+
+        text = ''.join([text, ele_txt])
+
+    return text

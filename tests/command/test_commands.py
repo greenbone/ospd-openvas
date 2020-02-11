@@ -22,7 +22,7 @@ from unittest.mock import patch
 from xml.etree import ElementTree as et
 
 from ospd.command.command import GetPerformance, StartScan, StopScan
-from ospd.errors import OspdCommandError
+from ospd.errors import OspdCommandError, OspdError
 
 from ..helper import DummyWrapper, assert_called
 
@@ -142,7 +142,7 @@ class StartScanTestCase(TestCase):
             '</start_scan>'
         )
 
-        with self.assertRaises(OspdCommandError):
+        with self.assertRaises(OspdError):
             cmd.handle_xml(request)
 
     @patch("ospd.command.command.create_process")
@@ -183,7 +183,7 @@ class StartScanTestCase(TestCase):
             '</start_scan>'
         )
 
-        with self.assertRaises(OspdCommandError):
+        with self.assertRaises(OspdError):
             cmd.handle_xml(request)
 
     @patch("ospd.command.command.create_process")
