@@ -42,6 +42,9 @@ class Vts:
         self.vt_id_pattern = vt_id_pattern
         self._vts = None
 
+    def __contains__(self, key: str) -> bool:
+        return key in self._vts
+
     def __init_vts(self):
         self._vts = self.storage()
 
