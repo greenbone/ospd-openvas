@@ -19,8 +19,7 @@
 import re
 import subprocess
 
-from types import GeneratorType
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Union, Generator
 
 from xml.etree.ElementTree import Element, SubElement
 
@@ -68,7 +67,9 @@ class BaseCommand(metaclass=InitSubclassMeta):
     def get_elements(self) -> Optional[Dict[str, Any]]:
         return self.elements
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(
+        self, xml: Element
+    ) -> Union[bytes, Generator[bytes, None, None]]:
         raise NotImplementedError()
 
     def as_dict(self):
@@ -90,7 +91,7 @@ class HelpCommand(BaseCommand):
     description = 'Print the commands help.'
     attributes = {'format': 'Help format. Could be text or xml.'}
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         help_format = xml.get('format')
 
         if help_format is None or help_format == "text":
@@ -111,7 +112,7 @@ class GetVersion(BaseCommand):
     name = "get_version"
     description = 'Return various version information'
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_version> command.
 
         Return:
@@ -183,7 +184,7 @@ class GetPerformance(BaseCommand):
         'title': 'Name of report.',
     }
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_performance> command.
 
         @return: Response string for <get_performance> command.
@@ -239,7 +240,7 @@ class GetScannerDetails(BaseCommand):
     name = 'get_scanner_details'
     description = 'Return scanner description and parameters'
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_scanner_details> command.
 
         @return: Response string for <get_scanner_details> command.
@@ -259,7 +260,7 @@ class DeleteScan(BaseCommand):
     description = 'Delete a finished scan.'
     attributes = {'scan_id': 'ID of scan to delete.'}
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <delete_scan> command.
 
         @return: Response string for <delete_scan> command.
@@ -290,7 +291,7 @@ class GetVts(BaseCommand):
         'filter': 'Optional filter to get an specific vt collection.',
     }
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> Generator[bytes, None, None]:
         """ Handles <get_vts> command.
         Writes the vt collection on the stream.
         The <get_vts> element accept two optional arguments.
@@ -332,7 +333,7 @@ class StopScan(BaseCommand):
     description = 'Stop a currently running scan.'
     attributes = {'scan_id': 'ID of scan to stop.'}
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <stop_scan> command.
 
         @return: Response string for <stop_scan> command.
@@ -364,7 +365,7 @@ class GetScans(BaseCommand):
         'max_results': 'Maximum number of results to fetch.',
     }
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_scans> command.
 
         @return: Response string for <get_scans> command.
@@ -433,7 +434,7 @@ class StartScan(BaseCommand):
 
         return elements
 
-    def handle_xml(self, xml: Element) -> str:
+    def handle_xml(self, xml: Element) -> bytes:
         """ Handles <start_scan> command.
 
         @return: Response string for <start_scan> command.
