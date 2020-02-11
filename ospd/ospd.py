@@ -28,7 +28,7 @@ import multiprocessing
 import time
 import os
 
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, Iterable
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
@@ -1115,7 +1115,7 @@ class OSPDaemon:
 
     def get_vts_selection_list(
         self, vt_id: str = None, filtered_vts: Dict = None
-    ) -> List:
+    ) -> Iterable[str]:
         """
         Get list of VT's OID.
         If vt_id is specified, the collection will contain only this vt, if
@@ -1145,10 +1145,7 @@ class OSPDaemon:
         elif vt_id:
             vts_list = [vt_id]
         else:
-            # TODO: Because DictProxy for python3.5 doesn't support
-            # iterkeys(), itervalues(), or iteritems() either, the iteration
-            # must be done as follow.
-            vts_list = iter(self.vts.keys())
+            vts_list = iter(self.vts)
 
         return vts_list
 
