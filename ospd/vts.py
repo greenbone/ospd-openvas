@@ -23,7 +23,7 @@ import multiprocessing
 import re
 
 from copy import deepcopy
-from typing import Dict, Any, Tuple, Type, Iterator
+from typing import Dict, Any, Type, Iterator, Iterable
 
 from ospd.errors import OspdError
 
@@ -151,14 +151,14 @@ class Vts:
     def get(self, vt_id: str) -> Dict[str, Any]:
         return self.vts.get(vt_id)
 
-    def keys(self) -> Tuple[str, Any]:
+    def keys(self) -> Iterable[str]:
         return self.vts.keys()
 
-    def clear(self):
+    def clear(self) -> None:
         self._vts.clear()
         self._vts = None
 
-    def copy(self):
+    def copy(self) -> "Vts":
         copy = Vts(self.storage, vt_id_pattern=self.vt_id_pattern)
         copy._vts = deepcopy(self._vts)  # pylint: disable=protected-access
         return copy
