@@ -19,7 +19,7 @@
 import re
 import subprocess
 
-from typing import Optional, Dict, Any, Union, Generator
+from typing import Optional, Dict, Any, Union, Iterator
 
 from xml.etree.ElementTree import Element, SubElement
 
@@ -67,9 +67,7 @@ class BaseCommand(metaclass=InitSubclassMeta):
     def get_elements(self) -> Optional[Dict[str, Any]]:
         return self.elements
 
-    def handle_xml(
-        self, xml: Element
-    ) -> Union[bytes, Generator[bytes, None, None]]:
+    def handle_xml(self, xml: Element) -> Union[bytes, Iterator[bytes]]:
         raise NotImplementedError()
 
     def as_dict(self):
@@ -291,7 +289,7 @@ class GetVts(BaseCommand):
         'filter': 'Optional filter to get an specific vt collection.',
     }
 
-    def handle_xml(self, xml: Element) -> Generator[bytes, None, None]:
+    def handle_xml(self, xml: Element) -> Iterator[bytes]:
         """ Handles <get_vts> command.
         Writes the vt collection on the stream.
         The <get_vts> element accept two optional arguments.
