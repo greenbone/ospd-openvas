@@ -23,7 +23,7 @@ import multiprocessing
 import re
 
 from copy import deepcopy
-from typing import Dict, Any, Tuple, Type
+from typing import Dict, Any, Tuple, Type, Iterator
 
 from ospd.errors import OspdError
 
@@ -44,6 +44,14 @@ class Vts:
 
     def __contains__(self, key: str) -> bool:
         return key in self._vts
+
+    def __iter__(self) -> Iterator[str]:
+        if hasattr(self.vts, '__iter__'):
+            return self.vts.__iter__()
+
+        # Use iter because python3.5 has no support for
+        # iteration over DictProxy.
+        return iter(self.vts.keys())
 
     def __init_vts(self):
         self._vts = self.storage()
