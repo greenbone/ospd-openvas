@@ -24,8 +24,10 @@ from typing import Dict, List, Optional
 
 from ospd.errors import OspdCommandError
 
+from .vts import Vts
 
-class VtsFilter(object):
+
+class VtsFilter:
     """ Helper class to filter Vulnerability Tests """
 
     def __init__(self) -> None:
@@ -99,14 +101,14 @@ class VtsFilter(object):
         return format_func(value)
 
     def get_filtered_vts_list(
-        self, vts: Dict, vt_filter: str
-    ) -> Optional[Dict]:
+        self, vts: Vts, vt_filter: str
+    ) -> Optional[List[str]]:
         """ Gets a collection of vulnerability test from the vts dictionary,
         which match the filter.
 
         Arguments:
-            vt_filter (string): Filter to apply to the vts collection.
-            vts (dictionary): The complete vts collection.
+            vt_filter: Filter to apply to the vts collection.
+            vts: The complete vts collection.
 
         Returns:
             List with filtered vulnerability tests. The list can be empty.
@@ -119,20 +121,21 @@ class VtsFilter(object):
         if not filters:
             return None
 
-        vt_oid_list = list(vts.keys())
+        vt_oid_list = list(vts)
 
         for _element, _oper, _filter_val in filters:
-            # Use iter because python3.5 has no support for
-            # iteration over DictProxy.
-            vts_generator = (vt for vt in iter(vts.keys()))
-            for vt_oid in vts_generator:
+            for vt_oid in vts:
                 if vt_oid not in vt_oid_list:
                     continue
-                if not vts[vt_oid].get(_element):
+
+                vt = vts.get(vt_oid)
+                if vt is None or not vt.get(_element):
                     vt_oid_list.remove(vt_oid)
                     continue
-                _elem_val = vts[vt_oid].get(_element)
+
+                _elem_val = vt.get(_element)
                 _val = self.format_filter_value(_element, _elem_val)
+
                 if self.filter_operator[_oper](_val, _filter_val):
                     continue
                 else:
