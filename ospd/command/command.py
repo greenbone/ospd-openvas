@@ -308,6 +308,7 @@ class GetVts(BaseCommand):
 
         if vt_id and vt_id not in self._daemon.vts:
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
+            raise OspdCommandError(text, 'get_vts', 404)
 
         filtered_vts = None
         if vt_filter:
@@ -315,26 +316,15 @@ class GetVts(BaseCommand):
                 self._daemon.vts, vt_filter
             )
 
-        # Generator
-        vts_list = (vt for vt in self._daemon.get_vts_xml(vt_id, filtered_vts))
-
         # List of xml pieces with the generator to be iterated
-        response = [
-            xml_helper.create_response('get_vts'),
-            xml_helper.create_element('vts'),
-            vts_list,
-            xml_helper.create_element('vts', end=True),
-            xml_helper.create_response('get_vts', end=True),
-        ]
+        yield xml_helper.create_response('get_vts')
+        yield xml_helper.create_element('vts')
 
-        for elem in response:
-            if isinstance(elem, GeneratorType):
-                for vts_chunk in elem:
-                    yield xml_helper.add_element(
-                        self._daemon.get_vt_xml(vts_chunk)
-                    )
-            else:
-                yield elem
+        for vt in self._daemon.get_vts_selection_list(vt_id, filtered_vts):
+            yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
+
+        yield xml_helper.create_element('vts', end=True)
+        yield xml_helper.create_response('get_vts', end=True)
 
 
 class StopScan(BaseCommand):

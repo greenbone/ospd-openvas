@@ -1142,9 +1142,11 @@ class OSPDaemon:
 
         return vt_xml
 
-    def get_vts_xml(self, vt_id: str = None, filtered_vts: Dict = None):
-        """ Python Generator for VTS.
-        Gets collection of vulnerability test information in XML format.
+    def get_vts_selection_list(
+        self, vt_id: str = None, filtered_vts: Dict = None
+    ) -> List:
+        """
+        Get list of VT's OID.
         If vt_id is specified, the collection will contain only this vt, if
         found.
         If no vt_id is specified or filtered_vts is None (default), the
@@ -1157,8 +1159,7 @@ class OSPDaemon:
             filtered_vts (list, optional): Filtered VTs collection.
 
         Return:
-            String of collection of vulnerability test information in
-            XML format.
+            List of selected VT's OID.
         """
         vts_xml = []
         if not self.vts:
