@@ -57,15 +57,20 @@ class VtsFilter:
 
         filter_list = vt_filter.split(';')
         filters = list()
+
         for single_filter in filter_list:
             filter_aux = re.split(r'(\W)', single_filter, 1)
+
             if len(filter_aux) < 3:
                 raise OspdCommandError(
                     "Invalid number of argument in the filter", "get_vts"
                 )
+
             _element, _oper, _val = filter_aux
+
             if _element not in self.allowed_filter:
                 raise OspdCommandError("Invalid filter element", "get_vts")
+
             if _oper not in self.filter_operator:
                 raise OspdCommandError("Invalid filter operator", "get_vts")
 
