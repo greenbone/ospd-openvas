@@ -133,3 +133,82 @@ def elements_as_text(
         text = ''.join([text, ele_txt])
 
     return text
+
+
+class XmlStringHelper:
+    """ Class with methods to help the creation of a xml object in
+    string format.
+    """
+
+    def create_element(self, elem_name: str, end: bool = False) -> bytes:
+        """ Get a name and create the open element of an entity.
+
+        Arguments:
+            elem_name (str): The name of the tag element.
+            end (bool): Create a initial tag if False, otherwise the end tag.
+
+        Return:
+            Encoded string representing a part of an xml element.
+        """
+        if end:
+            ret = "</%s>" % elem_name
+        else:
+            ret = "<%s>" % elem_name
+
+        return ret.encode()
+
+    def create_response(self, command: str, end: bool = False) -> bytes:
+        """ Create or end an xml response.
+
+        Arguments:
+            command (str): The name of the command for the response element.
+            end (bool): Create a initial tag if False, otherwise the end tag.
+
+        Return:
+            Encoded string representing a part of an xml element.
+        """
+        if not command:
+            return
+
+        if end:
+            return ('</%s_response>' % command).encode()
+
+        return (
+            '<%s_response status="200" status_text="OK">' % command
+        ).encode()
+
+    def add_element(
+        self,
+        content: Union[Element, str, list],
+        xml_str: bytes = None,
+        end: bool = False,
+    ) -> bytes:
+        """Create the initial or ending tag for a subelement, or add
+        one or many xml elements
+
+        Arguments:
+            content (Element, str, list): Content to add.
+            xml_str (bytes): Initial string where content to be added to.
+            end (bool): Create a initial tag if False, otherwise the end tag.
+                        It will be added to the xml_str.
+
+        Return:
+            Encoded string representing a part of an xml element.
+        """
+
+        if not xml_str:
+            xml_str = b''
+
+        if content:
+            if isinstance(content, list):
+                for elem in content:
+                    xml_str = xml_str + tostring(elem)
+            elif isinstance(content, Element):
+                xml_str = xml_str + tostring(content)
+            else:
+                if end:
+                    xml_str = xml_str + self.create_element(content, False)
+                else:
+                    xml_str = xml_str + self.create_element(content)
+
+        return xml_str

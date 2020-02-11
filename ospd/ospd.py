@@ -495,8 +495,9 @@ class OSPDaemon:
             logger.debug("Empty client stream")
             return
 
+        response = None
         try:
-            response = self.handle_command(data)
+            self.handle_command(data, stream)
         except OspdCommandError as exception:
             response = exception.as_xml()
             logger.debug('Command error: %s', exception.message)
@@ -505,7 +506,8 @@ class OSPDaemon:
             exception = OspdCommandError('Fatal error', 'error')
             response = exception.as_xml()
 
-        stream.write(response)
+        if response:
+            stream.write(response)
         stream.close()
 
     def parallel_scan(self, scan_id: str, target: str) -> None:
@@ -1140,8 +1142,11 @@ class OSPDaemon:
 
         return vt_xml
 
-    def get_vts_xml(self, vt_id: str = None, filtered_vts: Dict = None):
-        """ Gets collection of vulnerability test information in XML format.
+    def get_vts_selection_list(
+        self, vt_id: str = None, filtered_vts: Dict = None
+    ) -> List:
+        """
+        Get list of VT's OID.
         If vt_id is specified, the collection will contain only this vt, if
         found.
         If no vt_id is specified or filtered_vts is None (default), the
@@ -1151,36 +1156,32 @@ class OSPDaemon:
 
         Arguments:
             vt_id (vt_id, optional): ID of the vt to get.
-            filtered_vts (dict, optional): Filtered VTs collection.
+            filtered_vts (list, optional): Filtered VTs collection.
 
         Return:
-            String of collection of vulnerability test information in
-            XML format.
+            List of selected VT's OID.
         """
-
-        vts_xml = Element('vts')
-
+        vts_xml = []
         if not self.vts:
             return vts_xml
 
+        # No match for the filter
         if filtered_vts is not None and len(filtered_vts) == 0:
             return vts_xml
 
         if filtered_vts:
-            for vt_id in filtered_vts:
-                vts_xml.append(self.get_vt_xml(vt_id))
+            vts_list = filtered_vts
         elif vt_id:
-            vts_xml.append(self.get_vt_xml(vt_id))
+            vts_list = [vt_id]
         else:
-            # Because DictProxy for python3.5 doesn't support
+            # TODO: Because DictProxy for python3.5 doesn't support
             # iterkeys(), itervalues(), or iteritems() either, the iteration
             # must be done as follow.
-            for vt_id in iter(self.vts.keys()):
-                vts_xml.append(self.get_vt_xml(vt_id))
+            vts_list = iter(self.vts.keys())
 
-        return vts_xml
+        return vts_list
 
-    def handle_command(self, command: str) -> str:
+    def handle_command(self, command: str, stream) -> str:
         """ Handles an osp command in a string.
 
         @return: OSP Response to command.
@@ -1195,7 +1196,13 @@ class OSPDaemon:
         if not command and tree.tag != "authenticate":
             raise OspdCommandError('Bogus command name')
 
-        return command.handle_xml(tree)
+        response = command.handle_xml(tree)
+
+        if isinstance(response, bytes):
+            stream.write(response)
+        else:
+            for data in response:
+                stream.write(data)
 
     def check(self):
         """ Asserts to False. Should be implemented by subclass. """

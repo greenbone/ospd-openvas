@@ -31,7 +31,7 @@ import defusedxml.lxml as secET
 
 from defusedxml.common import EntitiesForbidden
 
-from .helper import DummyWrapper, assert_called
+from .helper import DummyWrapper, assert_called, FakeStream
 
 
 class FakeStartProcess:
@@ -77,9 +77,10 @@ class Result(object):
 class ScanTestCase(unittest.TestCase):
     def test_get_default_scanner_params(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command('<get_scanner_details />')
-        )
+        fs = FakeStream()
+
+        daemon.handle_command('<get_scanner_details />', fs)
+        response = fs.get_response()
 
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
@@ -90,35 +91,44 @@ class ScanTestCase(unittest.TestCase):
 
     def test_get_default_help(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(daemon.handle_command('<help />'))
+        fs = FakeStream()
 
+        daemon.handle_command('<help />', fs)
+        response = fs.get_response()
         self.assertEqual(response.get('status'), '200')
 
-        response = secET.fromstring(
-            daemon.handle_command('<help format="xml" />')
-        )
+        fs = FakeStream()
+        daemon.handle_command('<help format="xml" />', fs)
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
         self.assertEqual(response.tag, 'help_response')
 
     def test_get_default_scanner_version(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(daemon.handle_command('<get_version />'))
+        fs = FakeStream()
+        daemon.handle_command('<get_version />', fs)
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('protocol'))
 
     def test_get_vts_no_vt(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(daemon.handle_command('<get_vts />'))
+        fs = FakeStream()
+
+        daemon.handle_command('<get_vts />', fs)
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('vts'))
 
     def test_get_vts_single_vt(self):
         daemon = DummyWrapper([])
+        fs = FakeStream()
         daemon.add_vt('1.2.3.4', 'A vulnerability test')
-        response = secET.fromstring(daemon.handle_command('<get_vts />'))
+        daemon.handle_command('<get_vts />', fs)
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
 
@@ -136,12 +146,12 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_modification_time='19000202',
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_vts filter="modification_time&gt;19000201"></get_vts>'
-            )
+        daemon.handle_command(
+            '<get_vts filter="modification_time&gt;19000201"></get_vts>', fs
         )
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
         vts = response.find('vts')
@@ -164,12 +174,12 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_modification_time='19000202',
         )
-
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_vts filter="modification_time&lt;19000203"></get_vts>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_vts filter="modification_time&lt;19000203"></get_vts>', fs,
         )
+        response = fs.get_response()
+
         self.assertEqual(response.get('status'), '200')
 
         vts = response.find('vts')
@@ -190,8 +200,10 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_vt('1.2.3.5', 'Another vulnerability test')
         daemon.add_vt('123456789', 'Yet another vulnerability test')
 
-        response = secET.fromstring(daemon.handle_command('<get_vts />'))
+        fs = FakeStream()
 
+        daemon.handle_command('<get_vts />', fs)
+        response = fs.get_response()
         self.assertEqual(response.get('status'), '200')
 
         vts = response.find('vts')
@@ -204,8 +216,11 @@ class ScanTestCase(unittest.TestCase):
             '4.3.2.1', 'Another vulnerability test with custom info', custom='b'
         )
         daemon.add_vt('123456789', 'Yet another vulnerability test', custom='b')
+        fs = FakeStream()
 
-        response = secET.fromstring(daemon.handle_command('<get_vts />'))
+        daemon.handle_command('<get_vts />', fs)
+        response = fs.get_response()
+
         custom = response.findall('vts/vt/custom')
 
         self.assertEqual(3, len(custom))
@@ -215,10 +230,11 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_vt(
             '1.2.3.4', 'A vulnerability test', vt_params="a", custom="b"
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
+
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
 
@@ -245,10 +261,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             vt_refs="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
+
         # The status of the response must be success (i.e. 200)
         self.assertEqual(response.get('status'), '200')
 
@@ -276,10 +293,11 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             vt_dependencies="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+
+        response = fs.get_response()
 
         deps = response.findall('vts/vt/dependencies/dependency')
         self.assertEqual(2, len(deps))
@@ -293,10 +311,10 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             severities="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         severity = response.findall('vts/vt/severities/severity')
         self.assertEqual(1, len(severity))
@@ -311,10 +329,10 @@ class ScanTestCase(unittest.TestCase):
             detection="c",
             qod_t="d",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
@@ -329,10 +347,10 @@ class ScanTestCase(unittest.TestCase):
             detection="c",
             qod_v="d",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
@@ -346,10 +364,10 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             summary="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         summary = response.findall('vts/vt/summary')
         self.assertEqual(1, len(summary))
@@ -363,10 +381,10 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             impact="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         impact = response.findall('vts/vt/impact')
         self.assertEqual(1, len(impact))
@@ -380,10 +398,10 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             affected="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         affect = response.findall('vts/vt/affected')
         self.assertEqual(1, len(affect))
@@ -397,10 +415,10 @@ class ScanTestCase(unittest.TestCase):
             custom="b",
             insight="c",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         insight = response.findall('vts/vt/insight')
         self.assertEqual(1, len(insight))
@@ -416,10 +434,10 @@ class ScanTestCase(unittest.TestCase):
             solution_t="d",
             solution_m="e",
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         solution = response.findall('vts/vt/solution')
         self.assertEqual(1, len(solution))
@@ -432,10 +450,10 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_creation_time='01-01-1900',
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         creation_time = response.findall('vts/vt/creation_time')
         self.assertEqual(
@@ -451,10 +469,10 @@ class ScanTestCase(unittest.TestCase):
             vt_params="a",
             vt_modification_time='02-01-1900',
         )
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>')
-        )
+        daemon.handle_command('<get_vts vt_id="1.2.3.4"></get_vts>', fs)
+        response = fs.get_response()
 
         modification_time = response.findall('vts/vt/modification_time')
         self.assertEqual(
@@ -464,22 +482,26 @@ class ScanTestCase(unittest.TestCase):
 
     def test_clean_forgotten_scans(self):
         daemon = DummyWrapper([])
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan target="localhost" ports="80, '
-                '443"><scanner_params /></start_scan>'
-            )
+        daemon.handle_command(
+            '<start_scan target="localhost" ports="80, '
+            '443"><scanner_params /></start_scan>',
+            fs,
         )
+        response = fs.get_response()
+
         scan_id = response.findtext('id')
 
         finished = False
+
         while not finished:
-            response = secET.fromstring(
-                daemon.handle_command(
-                    '<get_scans scan_id="%s" details="1"/>' % scan_id
-                )
+            fs = FakeStream()
+            daemon.handle_command(
+                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
             )
+            response = fs.get_response()
+
             scans = response.findall('scan')
             self.assertEqual(1, len(scans))
 
@@ -492,11 +514,12 @@ class ScanTestCase(unittest.TestCase):
             else:
                 finished = True
 
-        response = secET.fromstring(
+            fs = FakeStream()
             daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id
+                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
             )
-        )
+            response = fs.get_response()
+
         self.assertEqual(len(list(daemon.scan_collection.ids_iterator())), 1)
 
         # Set an old end_time
@@ -514,22 +537,24 @@ class ScanTestCase(unittest.TestCase):
 
     def test_scan_with_error(self):
         daemon = DummyWrapper([Result('error', value='something went wrong')])
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan target="localhost" ports="80, '
-                '443"><scanner_params /></start_scan>'
-            )
+        daemon.handle_command(
+            '<start_scan target="localhost" ports="80, '
+            '443"><scanner_params /></start_scan>',
+            fs,
         )
+        response = fs.get_response()
         scan_id = response.findtext('id')
 
         finished = False
         while not finished:
-            response = secET.fromstring(
-                daemon.handle_command(
-                    '<get_scans scan_id="%s" details="1"/>' % scan_id
-                )
+            fs = FakeStream()
+            daemon.handle_command(
+                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
             )
+            response = fs.get_response()
+
             scans = response.findall('scan')
             self.assertEqual(1, len(scans))
 
@@ -542,54 +567,57 @@ class ScanTestCase(unittest.TestCase):
             else:
                 finished = True
 
-        response = secET.fromstring(
+            fs = FakeStream()
+
             daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id
+                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
             )
-        )
+            response = fs.get_response()
 
         self.assertEqual(
             response.findtext('scan/results/result'), 'something went wrong'
         )
-
-        response = secET.fromstring(
-            daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id)
-        )
+        fs = FakeStream()
+        daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id, fs)
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
 
     def test_get_scan_pop(self):
         daemon = DummyWrapper([Result('host-detail', value='Some Host Detail')])
+        fs = FakeStream()
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan target="localhost" ports="80, 443">'
-                '<scanner_params /></start_scan>'
-            )
+        daemon.handle_command(
+            '<start_scan target="localhost" ports="80, 443">'
+            '<scanner_params /></start_scan>',
+            fs,
         )
+        response = fs.get_response()
 
         scan_id = response.findtext('id')
         time.sleep(1)
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id)
+        fs = FakeStream()
+        daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id, fs)
+        response = fs.get_response()
+
+        self.assertEqual(
+            response.findtext('scan/results/result'), 'Some Host Detail'
         )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs
+        )
+        response = fs.get_response()
+
         self.assertEqual(
             response.findtext('scan/results/result'), 'Some Host Detail'
         )
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" pop_results="1"/>' % scan_id
-            )
-        )
-        self.assertEqual(
-            response.findtext('scan/results/result'), 'Some Host Detail'
-        )
+        fs = FakeStream()
+        daemon.handle_command('<get_scans details="0" pop_results="1"/>', fs)
+        response = fs.get_response()
 
-        response = secET.fromstring(
-            daemon.handle_command('<get_scans details="0" pop_results="1"/>')
-        )
         self.assertEqual(response.findtext('scan/results/result'), None)
 
     def test_get_scan_pop_max_res(self):
@@ -600,30 +628,33 @@ class ScanTestCase(unittest.TestCase):
                 Result('host-detail', value='Some Host Detail2'),
             ]
         )
-
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan target="localhost" ports="80, 443">'
-                '<scanner_params /></start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan target="localhost" ports="80, 443">'
+            '<scanner_params /></start_scan>',
+            fs,
         )
+        response = fs.get_response()
 
         scan_id = response.findtext('id')
         time.sleep(1)
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" pop_results="1" max_results="1"/>'
-                % scan_id
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_scans scan_id="%s" pop_results="1" max_results="1"/>'
+            % scan_id,
+            fs,
         )
+        response = fs.get_response()
+
         self.assertEqual(len(response.findall('scan/results/result')), 1)
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" pop_results="1"/>' % scan_id
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs
         )
+        response = fs.get_response()
+
         self.assertEqual(len(response.findall('scan/results/result')), 2)
 
     def test_billon_laughs(self):
@@ -645,49 +676,53 @@ class ScanTestCase(unittest.TestCase):
             ' <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">'
             ']>'
         )
-        self.assertRaises(EntitiesForbidden, daemon.handle_command, lol)
+        fs = FakeStream()
+        self.assertRaises(EntitiesForbidden, daemon.handle_command, lol, fs)
 
     def test_scan_multi_target(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan>'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '<targets><target>'
-                '<hosts>localhosts</hosts>'
-                '<ports>80,443</ports>'
-                '<alive_test>0</alive_test>'
-                '</target>'
-                '<target><hosts>192.168.0.0/24</hosts>'
-                '<ports>22</ports></target></targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts</hosts>'
+            '<ports>80,443</ports>'
+            '<alive_test>0</alive_test>'
+            '</target>'
+            '<target><hosts>192.168.0.0/24</hosts>'
+            '<ports>22</ports></target></targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
+
         self.assertEqual(response.get('status'), '200')
 
     def test_multi_target_with_credentials(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan>'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '<targets><target><hosts>localhosts</hosts>'
-                '<ports>80,443</ports></target><target>'
-                '<hosts>192.168.0.0/24</hosts><ports>22'
-                '</ports><credentials>'
-                '<credential type="up" service="ssh" port="22">'
-                '<username>scanuser</username>'
-                '<password>mypass</password>'
-                '</credential><credential type="up" service="smb">'
-                '<username>smbuser</username>'
-                '<password>mypass</password></credential>'
-                '</credentials>'
-                '</target></targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target><hosts>localhosts</hosts>'
+            '<ports>80,443</ports></target><target>'
+            '<hosts>192.168.0.0/24</hosts><ports>22'
+            '</ports><credentials>'
+            '<credential type="up" service="ssh" port="22">'
+            '<username>scanuser</username>'
+            '<password>mypass</password>'
+            '</credential><credential type="up" service="smb">'
+            '<username>smbuser</username>'
+            '<password>mypass</password></credential>'
+            '</credentials>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
 
@@ -706,41 +741,46 @@ class ScanTestCase(unittest.TestCase):
 
     def test_scan_get_target(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan>'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '<targets><target>'
-                '<hosts>localhosts</hosts>'
-                '<ports>80,443</ports>'
-                '</target>'
-                '<target><hosts>192.168.0.0/24</hosts>'
-                '<ports>22</ports></target></targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts</hosts>'
+            '<ports>80,443</ports>'
+            '</target>'
+            '<target><hosts>192.168.0.0/24</hosts>'
+            '<ports>22</ports></target></targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
         scan_id = response.findtext('id')
-        response = secET.fromstring(
-            daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id)
-        )
+
+        fs = FakeStream()
+        daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id, fs)
+        response = fs.get_response()
+
         scan_res = response.find('scan')
         self.assertEqual(scan_res.get('target'), 'localhosts,192.168.0.0/24')
 
     def test_scan_get_target_options(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan>'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '<targets>'
-                '<target><hosts>192.168.0.1</hosts>'
-                '<ports>22</ports><alive_test>0</alive_test></target>'
-                '</targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets>'
+            '<target><hosts>192.168.0.1</hosts>'
+            '<ports>22</ports><alive_test>0</alive_test></target>'
+            '</targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
+
         scan_id = response.findtext('id')
         time.sleep(1)
         target_options = daemon.get_scan_target_options(scan_id, '192.168.0.1')
@@ -748,23 +788,25 @@ class ScanTestCase(unittest.TestCase):
 
     def test_scan_get_finished_hosts(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan>'
-                '<scanner_params /><vts><vt id="1.2.3.4" />'
-                '</vts>'
-                '<targets><target>'
-                '<hosts>192.168.10.20-25</hosts>'
-                '<ports>80,443</ports>'
-                '<finished_hosts>192.168.10.23-24'
-                '</finished_hosts>'
-                '</target>'
-                '<target><hosts>192.168.0.0/24</hosts>'
-                '<ports>22</ports></target>'
-                '</targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>192.168.10.20-25</hosts>'
+            '<ports>80,443</ports>'
+            '<finished_hosts>192.168.10.23-24'
+            '</finished_hosts>'
+            '</target>'
+            '<target><hosts>192.168.0.0/24</hosts>'
+            '<ports>22</ports></target>'
+            '</targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
+
         scan_id = response.findtext('id')
         time.sleep(1)
         finished = daemon.get_scan_finished_hosts(scan_id)
@@ -773,20 +815,21 @@ class ScanTestCase(unittest.TestCase):
     def test_progress(self):
         daemon = DummyWrapper([])
 
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan parallel="2">'
-                '<scanner_params />'
-                '<targets><target>'
-                '<hosts>localhost1</hosts>'
-                '<ports>22</ports>'
-                '</target><target>'
-                '<hosts>localhost2</hosts>'
-                '<ports>22</ports>'
-                '</target></targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1</hosts>'
+            '<ports>22</ports>'
+            '</target><target>'
+            '<hosts>localhost2</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
 
         scan_id = response.findtext('id')
 
@@ -827,17 +870,18 @@ class ScanTestCase(unittest.TestCase):
         mock_process.is_alive.return_value = True
         mock_process.pid = "main-scan-process"
 
-        response = ET.fromstring(
-            daemon.handle_command(
-                '<start_scan>'
-                '<scanner_params />'
-                '<targets><target>'
-                '<hosts>localhost</hosts>'
-                '<ports>22</ports>'
-                '</target></targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
         )
+        response = fs.get_response()
         scan_id = response.findtext('id')
 
         self.assertIsNotNone(scan_id)
@@ -845,13 +889,14 @@ class ScanTestCase(unittest.TestCase):
         assert_called(mock_create_process)
         assert_called(mock_process.start)
 
-        daemon.handle_command('<stop_scan scan_id="%s" />' % scan_id)
+        fs = FakeStream()
+        daemon.handle_command('<stop_scan scan_id="%s" />' % scan_id, fs)
 
-        response = ET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
         )
+        response = fs.get_response()
 
         result = response.findall('scan/results/result')
         self.assertEqual(len(result), 2)
@@ -862,7 +907,9 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params />'
             '</start_scan>'.format(scan_id)
         )
-        response = ET.fromstring(daemon.handle_command(cmd))
+        fs = FakeStream()
+        daemon.handle_command(cmd, fs)
+        response = fs.get_response()
 
         # Check unfinished host
         self.assertEqual(response.findtext('id'), scan_id)
@@ -880,11 +927,11 @@ class ScanTestCase(unittest.TestCase):
         )
 
         # Check if the result was removed.
-        response = ET.fromstring(
-            daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
         )
+        response = fs.get_response()
         result = response.findall('scan/results/result')
 
         # current the response still contains the results
@@ -892,17 +939,19 @@ class ScanTestCase(unittest.TestCase):
 
     def test_result_order(self):
         daemon = DummyWrapper([])
-        response = secET.fromstring(
-            daemon.handle_command(
-                '<start_scan parallel="1">'
-                '<scanner_params />'
-                '<targets><target>'
-                '<hosts>a</hosts>'
-                '<ports>22</ports>'
-                '</target></targets>'
-                '</start_scan>'
-            )
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="1">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>a</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
         )
+
+        response = fs.get_response()
 
         scan_id = response.findtext('id')
 
@@ -910,9 +959,11 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_scan_log(scan_id, host='c', name='c')
         daemon.add_scan_log(scan_id, host='b', name='b')
         hosts = ['a', 'c', 'b']
-        response = secET.fromstring(
-            daemon.handle_command('<get_scans details="1"/>')
-        )
+
+        fs = FakeStream()
+        daemon.handle_command('<get_scans details="1"/>', fs)
+        response = fs.get_response()
+
         results = response.findall("scan/results/")
 
         for idx, res in enumerate(results):
