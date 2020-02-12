@@ -34,10 +34,7 @@ class Vts:
     def __init__(
         self, storage: Type[Dict] = None, vt_id_pattern=DEFAULT_VT_ID_PATTERN,
     ):
-        if storage is None:
-            self.storage = multiprocessing.Manager().dict
-        else:
-            self.storage = storage
+        self.storage = storage
 
         self.vt_id_pattern = vt_id_pattern
         self._vts = None
@@ -54,7 +51,10 @@ class Vts:
         return iter(self.vts.keys())
 
     def __init_vts(self):
-        self._vts = self.storage()
+        if self.storage:
+            self._vts = self.storage()
+        else:
+            self._vts = multiprocessing.Manager().dict()
 
     @property
     def vts(self) -> Dict[str, Any]:
