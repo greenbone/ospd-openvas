@@ -344,6 +344,13 @@ class StopScan(BaseCommand):
 
         self._daemon.stop_scan(scan_id)
 
+        # Don't send response until the scan is stopped.
+        try:
+            self._daemon.scan_processes[scan_id].join()
+            exitcode = self._daemon.scan_processes[scan_id].exitcode
+        except KeyError:
+            pass
+
         return simple_response_str('stop_scan', 200, 'OK')
 
 
