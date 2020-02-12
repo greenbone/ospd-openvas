@@ -50,6 +50,9 @@ class Vts:
         # iteration over DictProxy.
         return iter(self.vts.keys())
 
+    def __getitem__(self, key):
+        return self.vts[key]
+
     def __init_vts(self):
         if self.storage:
             self._vts = self.storage()
