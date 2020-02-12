@@ -765,10 +765,17 @@ class OSPDaemon:
         if self.get_scan_status(scan_id) == ScanStatus.RUNNING:
             return 0
 
+        # Don't delete the scan until the process stops
+        exitcode = None
         try:
-            del self.scan_processes[scan_id]
+            self.scan_processes[scan_id].join()
+            exitcode = self.scan_processes[scan_id].exitcode
         except KeyError:
             logger.debug('Scan process for %s not found', scan_id)
+
+        if exitcode or exitcode == 0:
+            del self.scan_processes[scan_id]
+
         return self.scan_collection.delete_scan(scan_id)
 
     def get_scan_results_xml(
