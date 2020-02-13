@@ -1569,6 +1569,35 @@ class OSPDopenvas(OSPDaemon):
             # Set alive test option. Overwrite the scan config settings.
             target_options = self.get_scan_target_options(scan_id)
             if target_options:
+                # check if test_alive_hosts_only() feature is active
+                # TODO: put this in build_alive_test_opt_as_prefs() and change function
+                # to nonstatic for self.openvas_db.add_item()?
+                # Or put it in completely new function? or something else?
+                settings = Openvas.get_settings()
+                if settings:
+                    test_alive_hosts_only = settings.get(
+                        'test_alive_hosts_only'
+                    )
+                    if test_alive_hosts_only:
+                        if target_options and target_options.get('alive_test'):
+                            try:
+                                alive_test = int(
+                                    target_options.get('alive_test')
+                                )
+                            except ValueError:
+                                logger.debug(
+                                    'Alive test settings not applied. '
+                                    'Invalid alive test value %s',
+                                    target_options.get('alive_test'),
+                                )
+                            # put ALIVE_TEST enum in db, this is then taken by openvas to determine the method to use
+                            if alive_test >= 1 and alive_test <= 31:
+                                item = 'ALIVE_TEST|||%s' % str(alive_test)
+                                self.openvas_db.add_single_item(
+                                    'internal/%s/scanprefs' % openvas_scan_id,
+                                    [item],
+                                )
+
                 alive_test_opt = self.build_alive_test_opt_as_prefs(
                     target_options
                 )
