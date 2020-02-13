@@ -212,3 +212,23 @@ class XmlStringHelper:
                     xml_str = xml_str + self.create_element(content)
 
         return xml_str
+
+    def add_attr(self, tag: bytes, attribute: str, value: str = None) -> bytes:
+        """ Add an attribute to the beginnig tag of an xml element.
+        Arguments:
+            tag (bytes): Tag to add the attrubute to.
+            attribute (str): Attribute name
+            value (str): Attribute value
+        Return:
+            Tag in encoded string format with the given attribute
+        """
+        if not tag:
+            return None
+
+        if not attribute:
+            return tag
+
+        if not value:
+            value = ''
+
+        return tag[:-1] + (" %s=\'%s\'>" % (attribute, value)).encode()

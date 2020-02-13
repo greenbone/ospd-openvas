@@ -1044,7 +1044,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
-          <vts>
+          <vts total="10">
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
             </vt>
@@ -1062,7 +1062,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
-          <vts>
+          <vts total="10">
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
               <refs>
@@ -1096,7 +1096,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
-          <vts>
+          <vts total="10" sent="1">
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
               <refs>
@@ -1130,7 +1130,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
-          <vts>
+          <vts total="10">
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
               <custom>
@@ -1149,7 +1149,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
-          <vts>
+          <vts total="10">
             <vt id="1.2.3.4.5">
               <name>Check for presence of vulnerability X</name>
               <params>
@@ -1361,6 +1361,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>
       The element SOLUTION of the returned VT object has a new optional attribute METHOD
       that describes the solution method in case the VT offers such a detail.
+    </description>
+    <version>20.04</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Returned object extended with amount of VTS</summary>
+    <description>
+      The main element vts has the new TOTAL attribute with the amount of vts in the collection and the new optional SENT attribute with the amount of vts which matched a given filter.
     </description>
     <version>20.04</version>
   </change>

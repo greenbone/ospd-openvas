@@ -53,6 +53,9 @@ class Vts:
     def __getitem__(self, key):
         return self.vts[key]
 
+    def __len__(self) -> int:
+        return len(self.vts)
+
     def __init_vts(self):
         if self.storage:
             self._vts = self.storage()

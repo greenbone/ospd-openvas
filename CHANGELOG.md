@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add wait_for_children(). [#167](https://github.com/greenbone/ospd/pull/167)
 - Extend osp to accept target options. [#194](https://github.com/greenbone/ospd/pull/194)
 - Accept reverse_lookup_only and reverse_lookup_unify target's options. [#195](https://github.com/greenbone/ospd/pull/195)
+- Add 'total' and 'sent' attributes to <vts> element for <get_vts> cmd response. [#206](https://github.com/greenbone/ospd/pull/206)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)
