@@ -102,17 +102,19 @@ def create_pid(pidfile: str) -> bool:
     Otherwise gives an error. """
 
     pid = str(os.getpid())
+    pidpath = Path(pidfile)
 
-    if Path(pidfile).is_file():
+    if pidpath.is_file():
         LOGGER.error("There is an already running process.")
         return False
 
     try:
-        with open(pidfile, 'w') as f:
+        with pidpath.open(mode='w') as f:
             f.write(pid)
     except (FileNotFoundError, PermissionError) as e:
-        msg = "Failed to create pid file %s. %s" % (os.path.dirname(pidfile), e)
-        LOGGER.error(msg)
+        LOGGER.error(
+            "Failed to create pid file %s. %s", str(pidpath.absolute()), e
+        )
         return False
 
     return True
