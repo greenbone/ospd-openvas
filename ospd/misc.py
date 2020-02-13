@@ -123,9 +123,12 @@ def create_pid(pidfile: str) -> bool:
 def remove_pidfile(pidfile: str, _signum=None, _frame=None) -> None:
     """ Removes the pidfile before ending the daemon. """
     pidpath = Path(pidfile)
-    if pidpath.is_file():
-        with pidpath.open() as f:
-            if int(f.read()) == os.getpid():
-                LOGGER.debug("Finishing daemon process")
-                pidpath.unlink()
-                sys.exit()
+
+    if not pidpath.is_file():
+        return
+
+    with pidpath.open() as f:
+        if int(f.read()) == os.getpid():
+            LOGGER.debug("Finishing daemon process")
+            pidpath.unlink()
+            sys.exit()
