@@ -31,6 +31,7 @@ COMMAND_NAMES = [
     "stop_scan",
     "get_scans",
     "start_scan",
+    "get_memory_usage",
 ]
 
 
