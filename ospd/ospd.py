@@ -38,9 +38,10 @@ from deprecated import deprecated
 from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
-from ospd.misc import ScanCollection, ResultType, ScanStatus, create_process
+from ospd.misc import ResultType, create_process
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.protocol import OspRequest, OspResponse
+from ospd.scan import ScanCollection, ScanStatus
 from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
 from ospd.vts import Vts
