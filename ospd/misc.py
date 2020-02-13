@@ -97,7 +97,7 @@ def go_to_background() -> None:
         sys.exit(1)
 
 
-def create_pid(pidfile) -> bool:
+def create_pid(pidfile: str) -> bool:
     """ Check if there is an already running daemon and creates the pid file.
     Otherwise gives an error. """
 
@@ -118,7 +118,7 @@ def create_pid(pidfile) -> bool:
     return True
 
 
-def remove_pidfile(pidfile, _signum=None, _frame=None) -> None:
+def remove_pidfile(pidfile: str, _signum=None, _frame=None) -> None:
     """ Removes the pidfile before ending the daemon. """
     pidpath = Path(pidfile)
     if pidpath.is_file():
