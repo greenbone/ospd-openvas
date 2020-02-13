@@ -317,7 +317,15 @@ class GetVts(BaseCommand):
 
         # List of xml pieces with the generator to be iterated
         yield xml_helper.create_response('get_vts')
-        yield xml_helper.create_element('vts')
+
+        begin_vts_tag = xml_helper.create_element('vts')
+        val = len(self._daemon.vts)
+        begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "total", val)
+        if filtered_vts:
+            val = len(filtered_vts)
+            begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "sent", val)
+
+        yield begin_vts_tag
 
         for vt in self._daemon.get_vts_selection_list(vt_id, filtered_vts):
             yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
