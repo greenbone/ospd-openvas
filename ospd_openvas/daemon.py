@@ -414,7 +414,7 @@ class OSPDopenvas(OSPDaemon):
                     'update will be performed later.'
                 )
         elif not _running_scan and _pending_feed:
-            self.vts = None
+            self.vts.clear()
             self.load_vts()
 
     def scheduler(self):

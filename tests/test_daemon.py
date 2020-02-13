@@ -26,7 +26,7 @@ from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
-from multiprocessing import Manager
+from ospd.vts import Vts
 
 import io
 import logging
@@ -210,7 +210,7 @@ class TestOspdOpenvas(TestCase):
         w = DummyDaemon(mock_nvti, mock_db)
         w.load_vts()
         self.maxDiff = None
-        self.assertIsInstance(w.vts, type(Manager().dict()))
+        self.assertIsInstance(w.vts, type(Vts()))
         self.assertEqual(len(w.vts), len(w.VT))
 
     def test_get_custom_xml(self, mock_nvti, mock_db):
