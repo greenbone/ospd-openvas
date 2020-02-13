@@ -144,6 +144,7 @@ def main(
 
     if args.list_commands:
         print(daemon.get_help_text())
+        sys.exit()
 
     if not args.foreground:
         go_to_background()
