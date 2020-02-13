@@ -56,7 +56,7 @@ def simple_response_str(
     status: int,
     status_text: str,
     content: Union[str, Element, List[str], List[Element]] = "",
-) -> str:
+) -> bytes:
     """ Creates an OSP response XML string.
 
     Arguments:

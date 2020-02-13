@@ -25,11 +25,10 @@ import logging
 import socket
 import ssl
 import multiprocessing
-import re
 import time
 import os
 
-from typing import List, Any, Dict, Optional
+from typing import List, Any, Dict, Optional, Iterable
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
@@ -38,12 +37,13 @@ from deprecated import deprecated
 
 from ospd import __version__
 from ospd.command import get_commands
-from ospd.errors import OspdCommandError, OspdError
+from ospd.errors import OspdCommandError
 from ospd.misc import ScanCollection, ResultType, ScanStatus, create_process
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.protocol import OspRequest, OspResponse
 from ospd.server import BaseServer
 from ospd.vtfilter import VtsFilter
+from ospd.vts import Vts
 from ospd.xml import (
     elements_as_text,
     get_result_xml,
@@ -133,8 +133,7 @@ class OSPDaemon:
         for name, params in BASE_SCANNER_PARAMS.items():
             self.set_scanner_param(name, params)
 
-        self.vts = None
-        self.vt_id_pattern = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
+        self.vts = Vts()
         self.vts_version = None
 
         if customvtfilter:
@@ -201,62 +200,27 @@ class OSPDaemon:
         At the end of the routine, the temporal copy must be set to None
         and deleted.
         """
-        if self.vts is None:
-            self.vts = multiprocessing.Manager().dict()
-
-        if not vt_id:
-            raise OspdError('Invalid vt_id {}'.format(vt_id))
-
-        if self.vt_id_pattern.fullmatch(vt_id) is None:
-            raise OspdError('Invalid vt_id {}'.format(vt_id))
-
-        if vt_id in self.vts:
-            raise OspdError('vt_id {} already exists'.format(vt_id))
-
-        if name is None:
-            name = ''
-
-        vt = {'name': name}
-        if custom is not None:
-            vt["custom"] = custom
-        if vt_params is not None:
-            vt["vt_params"] = vt_params
-        if vt_refs is not None:
-            vt["vt_refs"] = vt_refs
-        if vt_dependencies is not None:
-            vt["vt_dependencies"] = vt_dependencies
-        if vt_creation_time is not None:
-            vt["creation_time"] = vt_creation_time
-        if vt_modification_time is not None:
-            vt["modification_time"] = vt_modification_time
-        if summary is not None:
-            vt["summary"] = summary
-        if impact is not None:
-            vt["impact"] = impact
-        if affected is not None:
-            vt["affected"] = affected
-        if insight is not None:
-            vt["insight"] = insight
-
-        if solution is not None:
-            vt["solution"] = solution
-            if solution_t is not None:
-                vt["solution_type"] = solution_t
-            if solution_m is not None:
-                vt["solution_method"] = solution_m
-
-        if detection is not None:
-            vt["detection"] = detection
-
-        if qod_t is not None:
-            vt["qod_type"] = qod_t
-        elif qod_v is not None:
-            vt["qod"] = qod_v
-
-        if severities is not None:
-            vt["severities"] = severities
-
-        self.vts[vt_id] = vt
+        self.vts.add(
+            vt_id,
+            name=name,
+            vt_params=vt_params,
+            vt_refs=vt_refs,
+            custom=custom,
+            vt_creation_time=vt_creation_time,
+            vt_modification_time=vt_modification_time,
+            vt_dependencies=vt_dependencies,
+            summary=summary,
+            impact=impact,
+            affected=affected,
+            insight=insight,
+            solution=solution,
+            solution_t=solution_t,
+            solution_m=solution_m,
+            detection=detection,
+            qod_t=qod_t,
+            qod_v=qod_v,
+            severities=severities,
+        )
 
     def set_vts_version(self, vts_version: str) -> None:
         """ Add into the vts dictionary an entry to identify the
@@ -1151,7 +1115,7 @@ class OSPDaemon:
 
     def get_vts_selection_list(
         self, vt_id: str = None, filtered_vts: Dict = None
-    ) -> List:
+    ) -> Iterable[str]:
         """
         Get list of VT's OID.
         If vt_id is specified, the collection will contain only this vt, if
@@ -1181,10 +1145,7 @@ class OSPDaemon:
         elif vt_id:
             vts_list = [vt_id]
         else:
-            # TODO: Because DictProxy for python3.5 doesn't support
-            # iterkeys(), itervalues(), or iteritems() either, the iteration
-            # must be done as follow.
-            vts_list = iter(self.vts.keys())
+            vts_list = iter(self.vts)
 
         return vts_list
 
@@ -1243,7 +1204,11 @@ class OSPDaemon:
             self.scan_processes[scan_id].join(0)
 
     def create_scan(
-        self, scan_id: str, targets: List, options: Optional[Dict], vts: Dict
+        self,
+        scan_id: str,
+        targets: List,
+        options: Optional[Dict],
+        vt_selection: Dict,
     ) -> Optional[str]:
         """ Creates a new scan.
 
@@ -1267,7 +1232,9 @@ class OSPDaemon:
                 "Scan %s exists with status %s.", scan_id, status.name.lower()
             )
             return
-        return self.scan_collection.create_scan(scan_id, targets, options, vts)
+        return self.scan_collection.create_scan(
+            scan_id, targets, options, vt_selection
+        )
 
     def get_scan_options(self, scan_id: str) -> str:
         """ Gives a scan's list of options. """
@@ -1352,7 +1319,7 @@ class OSPDaemon:
         return self.scan_collection.get_target_options(scan_id, target)
 
     def get_scan_vts(self, scan_id: str) -> Dict:
-        """ Gives a scan's vts list. """
+        """ Gives a scan's vts. """
         return self.scan_collection.get_vts(scan_id)
 
     def get_scan_unfinished_hosts(self, scan_id: str) -> List:

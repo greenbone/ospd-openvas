@@ -254,7 +254,7 @@ class ScanCollection(object):
         scan_id: str = '',
         targets: List = None,
         options: Optional[Dict] = None,
-        vts: str = '',
+        vts: Dict = None,
     ) -> str:
         """ Creates a new scan with provided scan information. """
 
@@ -277,6 +277,7 @@ class ScanCollection(object):
 
         if not options:
             options = dict()
+
         scan_info = self.data_manager.dict()  # type: Dict
         scan_info['results'] = list()
         scan_info['finished_hosts'] = dict(
@@ -292,9 +293,12 @@ class ScanCollection(object):
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = 0
         scan_info['status'] = ScanStatus.INIT
+
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
+
         scan_info['scan_id'] = scan_id
+
         self.scans_table[scan_id] = scan_info
         return scan_id
 
@@ -435,8 +439,8 @@ class ScanCollection(object):
                 if target == item[0]:
                     return item[5]
 
-    def get_vts(self, scan_id: str):
-        """ Get a scan's vts list. """
+    def get_vts(self, scan_id: str) -> Dict:
+        """ Get a scan's vts. """
 
         return self.scans_table[scan_id]['vts']
 
