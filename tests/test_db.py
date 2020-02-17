@@ -255,3 +255,9 @@ class TestDB(TestCase):
         with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
             ret = self.db.get_host_ip()
         self.assertEqual(ret, '192.168.0.1')
+
+    def test_get_key_count(self, mock_redis):
+        mock_redis.keys.return_value = ['aa', 'ab']
+        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
+            ret = self.db.get_key_count("")
+        self.assertEqual(ret, 2)

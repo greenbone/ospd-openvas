@@ -373,6 +373,19 @@ class OSPDopenvas(OSPDaemon):
             (not feed_date) or (not current_feed) or (current_feed < feed_date)
         )
 
+    def feed_is_healthy(self):
+        """ Compare the amount of filename keys and nvt keys in redis
+        with the amount of oid loaded in memory.
+
+        Return:
+            True if the count is matching. False on failure.
+        """
+        ctx = self.nvti.get_redis_context()
+        filename_count = self.openvas_db.get_key_count("filename:*", ctx)
+        nvt_count = self.openvas_db.get_key_count("nvt:*", ctx)
+
+        return len(self.vts) == filename_count == nvt_count
+
     def check_feed(self):
         """ Check if there is a feed update. Wait until all the running
         scans finished. Set a flag to anounce there is a pending feed update,
@@ -387,9 +400,18 @@ class OSPDopenvas(OSPDaemon):
             return
 
         # Check if the nvticache in redis is outdated
-        if not current_feed or is_outdated:
-            Openvas.load_vts_into_redis()
+        feed_is_healthy = self.feed_is_healthy()
+        if not current_feed or is_outdated or not feed_is_healthy:
             ctx = self.nvti.get_redis_context()
+            if not feed_is_healthy:
+                # Force complete redis reload
+                self.openvas_db.release_db(kbindex=1)
+                logger.error(
+                    'Redis nvticache or ospd vts dictionary corrupted. '
+                    'Complete reload forced.'
+                )
+
+            Openvas.load_vts_into_redis()
             self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
 

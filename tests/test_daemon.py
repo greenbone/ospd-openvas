@@ -683,6 +683,30 @@ class TestOspdOpenvas(TestCase):
         ret = w.scan_is_stopped('123-456')
         self.assertEqual(ret, True)
 
+    def test_feed_is_healthy_true(
+        self, mock_nvti: MagicMock, mock_db: MagicMock,
+    ):
+        w = DummyDaemon(mock_nvti, mock_db)
+
+        mock_nvti.get_redix_context.return_value = None
+        mock_db.get_key_count.side_effect = [2, 2]
+        w.vts = ["a", "b"]
+
+        ret = w.feed_is_healthy()
+        self.assertTrue(ret)
+
+    def test_feed_is_healthy_false(
+        self, mock_nvti: MagicMock, mock_db: MagicMock,
+    ):
+        w = DummyDaemon(mock_nvti, mock_db)
+
+        mock_nvti.get_redix_context.return_value = None
+        mock_db.get_key_count.side_effect = [1, 2]
+        w.vts = ["a", "b"]
+
+        ret = w.feed_is_healthy()
+        self.assertFalse(ret)
+
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.OSPDopenvas.set_params_from_openvas_settings')
     def test_feed_is_outdated_none(

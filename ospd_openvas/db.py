@@ -252,6 +252,23 @@ class OpenvasDB(object):
             ctx = self.get_kb_context()
         return ctx.lrange(name, start, end)
 
+    def get_key_count(
+        self, pattern: Optional[str] = None, ctx: Optional[RedisCtx] = None,
+    ) -> Optional[int]:
+        """ Get the number of keys matching with the pattern.
+        Arguments:
+            pattern: pattern used as filter.
+            ctx: Redis context to use.
+        Return an element.
+        """
+        if not pattern:
+            pattern = "*"
+
+        if not ctx:
+            ctx = self.get_kb_context()
+
+        return len(ctx.keys(pattern))
+
     def remove_list_item(
         self, key: str, value: str, ctx: Optional[RedisCtx] = None
     ):

@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add support for alive test settings. [#182](https://github.com/greenbone/ospd-openvas/pull/182)
 - Add missing scan preferences expand_vhosts and test_empty_vhost. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
 - Set reverse lookup options. [#185](https://github.com/greenbone/ospd-openvas/pull/185)
+- Check if the amount of vts in redis is coherent. [#195](https://github.com/greenbone/ospd-openvas/pull/195)
 
 ### Changed
 - Less strict checks for the nvti cache version
