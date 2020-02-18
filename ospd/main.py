@@ -159,8 +159,7 @@ def main(
     if not daemon.check():
         return 1
 
-    daemon.init()
-
+    daemon.init(server)
     daemon.run(server)
 
     return 0
