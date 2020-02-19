@@ -160,6 +160,6 @@ def main(
         return 1
 
     daemon.init(server)
-    daemon.run(server)
+    daemon.run()
 
     return 0

@@ -1190,7 +1190,7 @@ class OSPDaemon:
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
-    def run(self, server: BaseServer) -> None:
+    def run(self) -> None:
         """ Starts the Daemon, handling commands until interrupted.
         """
 
@@ -1202,9 +1202,6 @@ class OSPDaemon:
                 self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
-        finally:
-            logger.info("Shutting-down server ...")
-            server.close()
 
     def scheduler(self):
         """ Should be implemented by subclass in case of need
