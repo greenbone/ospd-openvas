@@ -119,6 +119,8 @@ class OSPDaemon:
 
         self.server_version = None  # Set by the subclass.
 
+        self.initialized = None  # Set after initialization finished
+
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
         self.protocol_version = PROTOCOL_VERSION
@@ -142,11 +144,13 @@ class OSPDaemon:
         else:
             self.vts_filter = VtsFilter()
 
-    def init(self) -> None:
+    def init(self, server: BaseServer) -> None:
         """ Should be overridden by a subclass if the initialization is costly.
 
             Will be called after check.
         """
+        server.start(self.handle_client_stream)
+        self.initialized = True
 
     def set_command_attributes(self, name: str, attributes: Dict) -> None:
         """ Sets the xml attributes of a specified command. """
@@ -458,6 +462,15 @@ class OSPDaemon:
 
         if len(data) <= 0:
             logger.debug("Empty client stream")
+            return
+
+        if not self.initialized:
+            exception = OspdCommandError(
+                '%s is still starting' % self.daemon_info['name'], 'error'
+            )
+            response = exception.as_xml()
+            stream.write(response)
+            stream.close()
             return
 
         response = None
@@ -1177,11 +1190,9 @@ class OSPDaemon:
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
-    def run(self, server: BaseServer) -> None:
+    def run(self) -> None:
         """ Starts the Daemon, handling commands until interrupted.
         """
-
-        server.start(self.handle_client_stream)
 
         try:
             while True:
@@ -1191,9 +1202,6 @@ class OSPDaemon:
                 self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
-        finally:
-            logger.info("Shutting-down server ...")
-            server.close()
 
     def scheduler(self):
         """ Should be implemented by subclass in case of need
