@@ -466,7 +466,7 @@ class OSPDaemon:
 
         if not self.initialized:
             exception = OspdCommandError(
-                'OSPd OpenVAS is still starting', 'error'
+                '%s is still starting' % self.daemon_info['name'], 'error'
             )
             response = exception.as_xml()
             stream.write(response)
