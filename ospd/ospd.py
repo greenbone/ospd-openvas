@@ -1194,9 +1194,6 @@ class OSPDaemon:
         """ Starts the Daemon, handling commands until interrupted.
         """
 
-        while not self.initialized:
-            time.sleep(5)
-
         try:
             while True:
                 time.sleep(10)
