@@ -28,16 +28,19 @@ import signal
 from functools import partial
 
 from typing import Type, Optional
+from pathlib import Path
 
-from ospd.misc import go_to_background, create_pid, remove_pidfile
+from ospd.misc import go_to_background, create_pid
 from ospd.ospd import OSPDaemon
 from ospd.parser import create_parser, ParserType
-from ospd.server import TlsServer, UnixSocketServer
+from ospd.server import TlsServer, UnixSocketServer, BaseServer
 
 COPYRIGHT = """Copyright (C) 2014, 2015, 2018, 2019 Greenbone Networks GmbH
 License GPLv2+: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."""
+
+LOGGER = logging.getLogger(__name__)
 
 
 def print_version(daemon: OSPDaemon, file=sys.stdout):
@@ -102,6 +105,24 @@ def init_logging(
         syslog_fd = syslog.socket.fileno()
         os.dup2(syslog_fd, 1)
         os.dup2(syslog_fd, 2)
+
+
+def exit_cleanup(
+    pidfile: str, server: BaseServer, _signum=None, _frame=None
+) -> None:
+    """ Removes the pidfile before ending the daemon. """
+    pidpath = Path(pidfile)
+
+    if not pidpath.is_file():
+        return
+
+    with pidpath.open() as f:
+        if int(f.read()) == os.getpid():
+            LOGGER.info("Shutting-down server ...")
+            server.close()
+            LOGGER.debug("Finishing daemon process")
+            pidpath.unlink()
+            sys.exit()
 
 
 def main(
