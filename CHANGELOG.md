@@ -21,7 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
-
+- Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
 ## [2.0.1] (unreleased)
 
 ### Added
