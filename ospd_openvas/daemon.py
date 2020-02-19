@@ -285,6 +285,7 @@ class OSPDopenvas(OSPDaemon):
 
         self._niceness = str(niceness)
 
+        self.daemon_info['name'] = 'OSPd OpenVAS'
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
