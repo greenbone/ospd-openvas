@@ -21,7 +21,7 @@
 
 from typing import Dict, Union, List, Any
 
-from xml.etree import ElementTree as et
+from xml.etree.ElementTree import SubElement, Element
 
 from ospd.errors import OspdError
 
@@ -29,7 +29,7 @@ from ospd.errors import OspdError
 class OspRequest:
     @staticmethod
     def process_vts_params(
-        scanner_vts: et.Element,
+        scanner_vts: Element,
     ) -> Dict[str, Union[Dict, List]]:
         """ Receive an XML object with the Vulnerability Tests an their
         parameters to be use in a scan and return a dictionary.
@@ -85,7 +85,7 @@ class OspRequest:
         return vt_selection
 
     @staticmethod
-    def process_credentials_elements(cred_tree: et.Element) -> Dict:
+    def process_credentials_elements(cred_tree: Element) -> Dict:
         """ Receive an XML object with the credentials to run
         a scan against a given target.
 
@@ -130,7 +130,7 @@ class OspRequest:
         return credentials
 
     @classmethod
-    def process_targets_element(cls, scanner_target: et.Element) -> List:
+    def process_targets_element(cls, scanner_target: Element) -> List:
         """ Receive an XML object with the target, ports and credentials to run
         a scan against.
 
@@ -227,12 +227,12 @@ class OspRequest:
 
 class OspResponse:
     @staticmethod
-    def create_scanner_params_xml(scanner_params: Dict[str, Any]) -> et.Element:
+    def create_scanner_params_xml(scanner_params: Dict[str, Any]) -> Element:
         """ Returns the OSP Daemon's scanner params in xml format. """
-        scanner_params = et.Element('scanner_params')
+        scanner_params_xml = Element('scanner_params')
 
         for param_id, param in scanner_params.items():
-            param_xml = et.SubElement(scanner_params, 'scanner_param')
+            param_xml = SubElement(scanner_params_xml, 'scanner_param')
 
             for name, value in [('id', param_id), ('type', param['type'])]:
                 param_xml.set(name, value)
@@ -243,7 +243,7 @@ class OspResponse:
                 ('default', param['default']),
                 ('mandatory', param['mandatory']),
             ]:
-                elem = et.SubElement(param_xml, name)
+                elem = SubElement(param_xml, name)
                 elem.text = str(value)
 
-        return scanner_params
+        return scanner_params_xml
