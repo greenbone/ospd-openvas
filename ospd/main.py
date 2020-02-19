@@ -174,8 +174,8 @@ def main(
         sys.exit()
 
     # Set signal handler and cleanup
-    atexit.register(remove_pidfile, pidfile=args.pid_file)
-    signal.signal(signal.SIGTERM, partial(remove_pidfile, args.pid_file))
+    atexit.register(exit_cleanup, pidfile=args.pid_file, server=server)
+    signal.signal(signal.SIGTERM, partial(exit_cleanup, args.pid_file, server))
 
     if not daemon.check():
         return 1
