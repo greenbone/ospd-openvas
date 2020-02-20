@@ -409,7 +409,6 @@ class OSPDopenvas(OSPDaemon):
         # Check if the nvticache in redis is outdated
         feed_is_healthy = self.feed_is_healthy()
         if not current_feed or is_outdated or not feed_is_healthy:
-            ctx = self.nvti.get_redis_context()
             if not feed_is_healthy:
                 # Force complete redis reload
                 self.openvas_db.release_db(kbindex=1)
@@ -419,6 +418,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             Openvas.load_vts_into_redis()
+            ctx = self.nvti.get_redis_context()
             self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
 
