@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#166](https://github.com/greenbone/ospd-openvas/pull/166)
 - Set self.vts to None if there is a pending feed. [#172](https://github.com/greenbone/ospd-openvas/pull/172)
 - Use the new method clear() from Vts class. [#193](https://github.com/greenbone/ospd-openvas/pull/193)
+- Start server before initialize the vts. [#196](https://github.com/greenbone/ospd-openvas/pull/196)
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)

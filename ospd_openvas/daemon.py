@@ -41,6 +41,7 @@ import psutil
 
 from ospd.errors import OspdError
 from ospd.ospd import OSPDaemon
+from ospd.server import BaseServer
 from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
@@ -284,6 +285,7 @@ class OSPDopenvas(OSPDaemon):
 
         self._niceness = str(niceness)
 
+        self.daemon_info['name'] = 'OSPd OpenVAS'
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
@@ -306,7 +308,10 @@ class OSPDopenvas(OSPDaemon):
 
         self.temp_vts_dict = None
 
-    def init(self):
+    def init(self, server: BaseServer) -> None:
+
+        server.start(self.handle_client_stream)
+
         self.scanner_info['version'] = Openvas.get_version()
 
         self.set_params_from_openvas_settings()
@@ -322,6 +327,8 @@ class OSPDopenvas(OSPDaemon):
         self.openvas_db.set_redisctx(ctx)
 
         self.load_vts()
+
+        self.initialized = True
 
     def set_params_from_openvas_settings(self):
         """ Set OSPD_PARAMS with the params taken from the openvas executable.
