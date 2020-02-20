@@ -118,7 +118,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         # First and second modes should be removed in future releases.
         # On the third case it receives the credentials as a subelement of
         # the <target>.
-        credentials = self.get_scan_credentials(scan_id, host)
+        credentials = self.get_scan_credentials(scan_id)
         if (
             'username_password' in options
             and ':' in options['username_password']
