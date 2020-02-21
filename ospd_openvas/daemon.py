@@ -911,15 +911,11 @@ class OSPDopenvas(OSPDaemon):
             )
         return has_openvas
 
-    def update_progress(
-        self, scan_id: str, target: str, current_host: str, msg: str
-    ):
+    def update_progress(self, scan_id: str, current_host: str, msg: str):
         """ Calculate percentage and update the scan status of a host
         for the progress bar.
         Arguments:
             scan_id: Scan ID to identify the current scan process.
-            target: Target to be updated with the calculated
-                          scan progress.
             current_host: Host in the target to be updated.
             msg: String with launched and total plugins.
         """
@@ -933,9 +929,9 @@ class OSPDopenvas(OSPDaemon):
             host_prog = 100
         else:
             host_prog = (float(launched) / float(total)) * 100
-        self.set_scan_host_progress(scan_id, target, current_host, host_prog)
+        self.set_scan_host_progress(scan_id, current_host, host_prog)
 
-    def get_openvas_status(self, scan_id: str, target: str, current_host: str):
+    def get_openvas_status(self, scan_id: str, current_host: str):
         """ Get all status entries from redis kb.
         Arguments:
             scan_id: Scan ID to identify the current scan.
@@ -944,7 +940,7 @@ class OSPDopenvas(OSPDaemon):
         """
         res = self.openvas_db.get_status()
         while res:
-            self.update_progress(scan_id, target, current_host, res)
+            self.update_progress(scan_id, current_host, res)
             res = self.openvas_db.get_status()
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
@@ -1484,8 +1480,9 @@ class OSPDopenvas(OSPDaemon):
                 )
         return target_opt_prefs_list
 
-    def exec_scan(self, scan_id: str, target: str):
+    def exec_scan(self, scan_id: str):
         """ Starts the OpenVAS scanner for scan_id scan. """
+        target = self.get_scan_host(scan_id)
         if self.pending_feed:
             logger.info(
                 '%s: There is a pending feed update. '
@@ -1503,7 +1500,7 @@ class OSPDopenvas(OSPDaemon):
             )
             return 2
 
-        ports = self.get_scan_ports(scan_id, target)
+        ports = self.get_scan_ports(scan_id)
         if not ports:
             self.add_scan_error(
                 scan_id, name='', host=target, value='No port list defined.'
@@ -1528,7 +1525,7 @@ class OSPDopenvas(OSPDaemon):
         )
         self.openvas_db.add_single_item('internal/scanid', [openvas_scan_id])
 
-        exclude_hosts = self.get_scan_exclude_hosts(scan_id, target)
+        exclude_hosts = self.get_scan_exclude_hosts(scan_id)
         if exclude_hosts:
             options['exclude_hosts'] = exclude_hosts
 
@@ -1579,7 +1576,7 @@ class OSPDopenvas(OSPDaemon):
         do_not_launch = False
 
         # Set credentials
-        credentials = self.get_scan_credentials(scan_id, target)
+        credentials = self.get_scan_credentials(scan_id)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
@@ -1607,7 +1604,7 @@ class OSPDopenvas(OSPDaemon):
                 'internal/%s/scanprefs' % openvas_scan_id, [plugin_list]
             )
             # Set alive test option. Overwrite the scan config settings.
-            target_options = self.get_scan_target_options(scan_id, target)
+            target_options = self.get_scan_target_options(scan_id)
             if target_options:
                 alive_test_opt = self.build_alive_test_opt_as_prefs(
                     target_options
@@ -1708,13 +1705,11 @@ class OSPDopenvas(OSPDaemon):
                     no_id_found = False
                     current_host = self.openvas_db.get_host_ip()
                     self.get_openvas_result(scan_id, current_host)
-                    self.get_openvas_status(scan_id, target, current_host)
+                    self.get_openvas_status(scan_id, current_host)
                     self.get_openvas_timestamp_scan_host(scan_id, current_host)
                     if self.host_is_finished(openvas_scan_id):
-                        self.set_scan_host_finished(
-                            scan_id, target, current_host
-                        )
-                        self.get_openvas_status(scan_id, target, current_host)
+                        self.set_scan_host_finished(scan_id, current_host)
+                        self.get_openvas_status(scan_id, current_host)
                         self.get_openvas_timestamp_scan_host(
                             scan_id, current_host
                         )
