@@ -1326,6 +1326,88 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
   </command>
+
+  <command>
+    <name>get_memory_usage</name>
+    <summary>Return memory usage information of the osp daemon</summary>
+    <pattern>
+      <attrib>
+        <name>unit</name>
+        <summary>Size unit for the memory. b for bytes, kb for kilobytes and mb for megabytes.</summary>
+        <type>text</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
+      <ele>
+        <name>processes</name>
+        <summary>List of running processes</summary>
+        <ele>
+          <name>process</name>
+          <summary>Single running processes</summary>
+          <pattern>
+            <attrib>
+              <name>name</name>
+              <summary>Name of the process</summary>
+              <type>string</type>
+            </attrib>
+            <attrib>
+              <name>pid</name>
+              <summary>Process ID</summary>
+              <type>int</type>
+            </attrib>
+          </pattern>
+          <ele>
+            <name>rss</name>
+            <description>Resident Set Size. Non-swapped physical memory of the process</description>
+            <type>int</type>
+          </ele>
+          <ele>
+            <name>vms</name>
+            <description>Virtual Memory Size. Total amount of virtual memory used by the process.</description>
+            <type>int</type>
+          </ele>
+          <ele>
+            <name>shared</name>
+            <description>Memory shared with other processes</description>
+            <type>int</type>
+          </ele>
+        </ele>
+      </ele>
+      </pattern>
+    </response>
+    <example>
+      <request>
+        <get_memory_usage unit="kb"/>
+      </request>
+      <response>
+        <get_memory_usage status="200" status_text="OK">
+          <processes>
+            <process name="MainProcess" pid="12345">
+              <rss>127182</rss>
+              <vss>239616</vss>
+              <shared>135168</shared>
+            </process>
+            <process name="Process-1" pid="23456">
+            ...
+            </process>
+          </processes>
+        </get_memory_usage>
+      </response>
+    </example>
+  </command>
+
   <parameter_type>
     <name>integer</name>
     <summary>An integer value</summary>

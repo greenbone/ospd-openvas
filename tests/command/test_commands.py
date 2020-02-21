@@ -16,13 +16,21 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import time
+
 from unittest import TestCase
 from unittest.mock import patch
 
 from xml.etree import ElementTree as et
 
-from ospd.command.command import GetPerformance, StartScan, StopScan
+from ospd.command.command import (
+    GetPerformance,
+    StartScan,
+    StopScan,
+    GetMemoryUsage,
+)
 from ospd.errors import OspdCommandError, OspdError
+from ospd.misc import create_process
 
 from ..helper import DummyWrapper, assert_called, FakeStream
 
@@ -298,3 +306,98 @@ class StopCommandTestCase(TestCase):
 
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
+
+
+class GetMemoryUsageTestCase(TestCase):
+    def test_with_main_process_only(self):
+        cmd = GetMemoryUsage(None)
+
+        request = et.fromstring('<get_memory_usage />')
+
+        response = et.fromstring(cmd.handle_xml(request))
+        processes_element = response.find('processes')
+
+        process_elements = processes_element.findall('process')
+
+        self.assertTrue(len(process_elements), 1)
+
+        main_process_element = process_elements[0]
+
+        rss_element = main_process_element.find('rss')
+        vms_element = main_process_element.find('vms')
+        shared_element = main_process_element.find('shared')
+
+        self.assertIsNotNone(rss_element)
+        self.assertIsNotNone(rss_element.text)
+
+        self.assertIsNotNone(vms_element)
+        self.assertIsNotNone(vms_element.text)
+
+        self.assertIsNotNone(shared_element)
+        self.assertIsNotNone(shared_element.text)
+
+    def test_with_subprocess(self):
+        cmd = GetMemoryUsage(None)
+
+        def foo():  # pylint: disable=blacklisted-name
+            time.sleep(60)
+
+        create_process(foo, args=[])
+
+        request = et.fromstring('<get_memory_usage />')
+
+        response = et.fromstring(cmd.handle_xml(request))
+        processes_element = response.find('processes')
+
+        process_elements = processes_element.findall('process')
+
+        self.assertTrue(len(process_elements), 2)
+
+        for process_element in process_elements:
+            rss_element = process_element.find('rss')
+            vms_element = process_element.find('vms')
+            shared_element = process_element.find('shared')
+
+            self.assertIsNotNone(rss_element)
+            self.assertIsNotNone(rss_element.text)
+
+            self.assertIsNotNone(vms_element)
+            self.assertIsNotNone(vms_element.text)
+
+            self.assertIsNotNone(shared_element)
+            self.assertIsNotNone(shared_element.text)
+
+    def test_with_subsubprocess(self):
+        cmd = GetMemoryUsage(None)
+
+        def bar():  # pylint: disable=blacklisted-name
+            create_process(foo, args=[])
+
+        def foo():  # pylint: disable=blacklisted-name
+            time.sleep(60)
+
+        create_process(bar, args=[])
+
+        request = et.fromstring('<get_memory_usage />')
+
+        response = et.fromstring(cmd.handle_xml(request))
+        processes_element = response.find('processes')
+
+        process_elements = processes_element.findall('process')
+
+        # sub-sub-processes aren't listed
+        self.assertTrue(len(process_elements), 2)
+
+        for process_element in process_elements:
+            rss_element = process_element.find('rss')
+            vms_element = process_element.find('vms')
+            shared_element = process_element.find('shared')
+
+            self.assertIsNotNone(rss_element)
+            self.assertIsNotNone(rss_element.text)
+
+            self.assertIsNotNone(vms_element)
+            self.assertIsNotNone(vms_element.text)
+
+            self.assertIsNotNone(shared_element)
+            self.assertIsNotNone(shared_element.text)

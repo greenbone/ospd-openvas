@@ -16,12 +16,16 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import multiprocessing
 import re
 import subprocess
 
+from decimal import Decimal
 from typing import Optional, Dict, Any, Union, Iterator
 
 from xml.etree.ElementTree import Element, SubElement
+
+import psutil
 
 from ospd.errors import OspdCommandError
 from ospd.misc import valid_uuid, create_process
@@ -354,7 +358,9 @@ class StopScan(BaseCommand):
         # Don't send response until the scan is stopped.
         try:
             self._daemon.scan_processes[scan_id].join()
-            exitcode = self._daemon.scan_processes[scan_id].exitcode
+            exitcode = self._daemon.scan_processes[  # pylint: disable=unused-variable
+                scan_id
+            ].exitcode
         except KeyError:
             pass
 
@@ -522,3 +528,84 @@ class StartScan(BaseCommand):
         id_.text = scan_id
 
         return simple_response_str('start_scan', 200, 'OK', id_)
+
+
+class GetMemoryUsage(BaseCommand):
+
+    name = "get_memory_usage"
+    description = "print the memory consumption of all processes"
+    attributes = {
+        'unit': 'Unit for displaying memory consumption (b = bytes, '
+        'kb = kilobytes, mb = megabytes). Defaults to b.'
+    }
+
+    @staticmethod
+    def _get_memory(value: int, unit: str = None) -> str:
+        if not unit:
+            return str(value)
+
+        unit = unit.lower()
+
+        if unit == 'kb':
+            return str(Decimal(value) / 1024)
+
+        if unit == 'mb':
+            return str(Decimal(value) / (1024 * 1024))
+
+        return str(value)
+
+    @staticmethod
+    def _create_process_element(name: str, pid: int):
+        process_element = Element('process')
+        process_element.set('name', name)
+        process_element.set('pid', str(pid))
+
+        return process_element
+
+    @classmethod
+    def _add_memory_info(
+        cls, process_element: Element, pid: int, unit: str = None
+    ):
+        try:
+            ps_process = psutil.Process(pid)
+        except psutil.NoSuchProcess:
+            return
+
+        memory = ps_process.memory_info()
+
+        rss_element = Element('rss')
+        rss_element.text = cls._get_memory(memory.rss, unit)
+
+        process_element.append(rss_element)
+
+        vms_element = Element('vms')
+        vms_element.text = cls._get_memory(memory.vms, unit)
+
+        process_element.append(vms_element)
+
+        shared_element = Element('shared')
+        shared_element.text = cls._get_memory(memory.shared, unit)
+
+        process_element.append(shared_element)
+
+    def handle_xml(self, xml: Element) -> bytes:
+        processes_element = Element('processes')
+        unit = xml.get('unit')
+
+        current_process = multiprocessing.current_process()
+        process_element = self._create_process_element(
+            current_process.name, current_process.pid
+        )
+
+        self._add_memory_info(process_element, current_process.pid, unit)
+
+        processes_element.append(process_element)
+
+        for proc in multiprocessing.active_children():
+            process_element = self._create_process_element(proc.name, proc.pid)
+
+            self._add_memory_info(process_element, proc.pid, unit)
+
+            processes_element.append(process_element)
+
+        return simple_response_str('get_memory', 200, 'OK', processes_element)
