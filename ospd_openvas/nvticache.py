@@ -21,12 +21,12 @@
 
 import logging
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Iterator, Tuple
 
 from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 
-from ospd_openvas.db import NVT_META_FIELDS, RedisCtx
+from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.openvas import Openvas
 
@@ -41,7 +41,7 @@ LIST_LAST_POS = -1
 SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER = SpecifierSet('>=11.0')
 
 
-class NVTICache(object):
+class NVTICache(BaseDB):
 
     QOD_TYPES = {
         'exploit': '100',
@@ -60,8 +60,12 @@ class NVTICache(object):
         'default': '70',
     }
 
-    def __init__(self, openvas_db):
-        self._openvas_db = openvas_db
+    def __init__(  # pylint: disable=super-init-not-called
+        self, main_db: MainDB
+    ):
+        self._ctx = None
+        self.index = None
+        self._main_db = main_db
         self._nvti_cache_name = None
 
     def _get_nvti_cache_name(self) -> str:
@@ -100,26 +104,33 @@ class NVTICache(object):
                 )
             )
 
-    def get_redis_context(self) -> RedisCtx:
-        """ Return the redix context for this nvti cache
-        """
-        return self._openvas_db.db_find(self._get_nvti_cache_name())
+    @property
+    def ctx(self):
+        if self._ctx is None:
+            self._ctx, self.index = OpenvasDB.find_database_by_pattern(
+                self._get_nvti_cache_name(), self._main_db.max_database_index
+            )
+        return self._ctx
 
-    def get_feed_version(self) -> str:
-        """ Get feed version.
-        """
-        ctx = self.get_redis_context()
-        return self._openvas_db.get_single_item(
-            self._get_nvti_cache_name(), ctx=ctx
-        )
+    def get_feed_version(self) -> Optional[str]:
+        """ Get feed version of the nvti cache db.
 
-    def get_oids(self) -> list:
-        """ Get the list of NVT OIDs.
+        Returns the feed version or None if the nvt feed isn't available.
+        """
+        if not self.ctx:
+            # no nvti cache db available yet
+            return None
+
+        return OpenvasDB.get_single_item(self.ctx, self._get_nvti_cache_name())
+
+    def get_oids(self) -> Iterator[Tuple[str, str]]:
+        """ Get the list of NVT file names and OIDs.
+
         Returns:
-            A list of lists. Each single list contains the filename
+            A i. Each single list contains the filename
             as first element and the oid as second one.
         """
-        return self._openvas_db.get_elem_pattern_by_index('filename:*')
+        return OpenvasDB.get_elem_pattern_by_index(self.ctx, 'filename:*')
 
     def get_nvt_params(self, oid: str) -> Dict:
         """ Get NVT's preferences.
@@ -128,9 +139,8 @@ class NVTICache(object):
         Returns:
             A dictionary with preferences and timeout.
         """
-        ctx = self._openvas_db.get_kb_context()
-        prefs = self.get_nvt_prefs(ctx, oid)
-        timeout = self.get_nvt_timeout(ctx, oid)
+        prefs = self.get_nvt_prefs(oid)
+        timeout = self.get_nvt_timeout(oid)
 
         if timeout is None:
             return None
@@ -191,10 +201,9 @@ class NVTICache(object):
         Returns:
             A dictonary with the VT metadata.
         """
-        ctx = self._openvas_db.get_kb_context()
-        resp = self._openvas_db.get_list_item(
+        resp = OpenvasDB.get_list_item(
+            self.ctx,
             "nvt:%s" % oid,
-            ctx=ctx,
             start=NVT_META_FIELDS.index("NVT_FILENAME_POS"),
             end=NVT_META_FIELDS.index("NVT_NAME_POS"),
         )
@@ -236,10 +245,9 @@ class NVTICache(object):
         Returns:
             A dictionary with the VT references.
         """
-        ctx = self._openvas_db.get_kb_context()
-        resp = self._openvas_db.get_list_item(
+        resp = OpenvasDB.get_list_item(
+            self.ctx,
             "nvt:%s" % oid,
-            ctx=ctx,
             start=NVT_META_FIELDS.index("NVT_CVES_POS"),
             end=NVT_META_FIELDS.index("NVT_XREFS_POS"),
         )
@@ -255,7 +263,7 @@ class NVTICache(object):
 
         return refs
 
-    def get_nvt_prefs(self, ctx: RedisCtx, oid: str) -> Optional[List]:
+    def get_nvt_prefs(self, oid: str) -> Optional[List]:
         """ Get NVT preferences.
         Arguments:
             ctx: Redis context to be used.
@@ -264,10 +272,9 @@ class NVTICache(object):
             A list with the VT preferences.
         """
         key = 'oid:%s:prefs' % oid
-        prefs = self._openvas_db.get_list_item(key, ctx=ctx)
-        return prefs
+        return OpenvasDB.get_list_item(self.ctx, key)
 
-    def get_nvt_timeout(self, ctx: RedisCtx, oid: str) -> str:
+    def get_nvt_timeout(self, oid: str) -> str:
         """ Get NVT timeout
         Arguments:
             ctx: Redis context to be used.
@@ -275,15 +282,13 @@ class NVTICache(object):
         Returns:
             The timeout.
         """
-        timeout = self._openvas_db.get_single_item(
+        return OpenvasDB.get_single_item(
+            self.ctx,
             'nvt:%s' % oid,
-            ctx=ctx,
             index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"),
         )
 
-        return timeout
-
-    def get_nvt_tag(self, ctx: RedisCtx, oid: str) -> Dict:
+    def get_nvt_tag(self, oid: str) -> Dict:
         """ Get Tags of the given OID.
         Arguments:
             ctx: Redis context to be used.
@@ -291,9 +296,20 @@ class NVTICache(object):
         Returns:
             A dictionary with the VT tags.
         """
-        tag = self._openvas_db.get_single_item(
-            'nvt:%s' % oid, ctx=ctx, index=NVT_META_FIELDS.index('NVT_TAGS_POS')
+        tag = OpenvasDB.get_single_item(
+            self.ctx,
+            'nvt:%s' % oid,
+            index=NVT_META_FIELDS.index('NVT_TAGS_POS'),
         )
         tags = tag.split('|')
 
         return dict([item.split('=', 1) for item in tags])
+
+    def get_nvt_files_count(self) -> int:
+        return OpenvasDB.get_key_count(self.ctx, "filename:*")
+
+    def get_nvt_count(self) -> int:
+        return OpenvasDB.get_key_count(self.ctx, "nvt:*")
+
+    def force_reload(self):
+        self._main_db.release_database(self)
