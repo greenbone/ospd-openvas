@@ -386,9 +386,10 @@ class OSPDopenvas(OSPDaemon):
         return len(self.vts) == filename_count == nvt_count
 
     def check_feed(self):
-        """ Check if there is a feed update. Wait until all the running
-        scans finished. Set a flag to anounce there is a pending feed update,
-        which avoid to start a new scan.
+        """ Check if there is a feed update.
+
+        Wait until all the running scans finished. Set a flag to announce there
+        is a pending feed update, which avoids to start a new scan.
         """
         current_feed = self.nvti.get_feed_version()
         is_outdated = self.feed_is_outdated(current_feed)
