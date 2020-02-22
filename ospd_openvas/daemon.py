@@ -448,6 +448,9 @@ class OSPDopenvas(OSPDaemon):
         logger.debug('Loading VTs in memory.')
 
         oids = dict(self.nvti.get_oids())
+
+        logger.debug('Found %s NVTs in redis.', len(oids))
+
         for _filename, vt_id in oids.items():
             _vt_params = self.nvti.get_nvt_params(vt_id)
             _vt_refs = self.nvti.get_nvt_refs(vt_id)
@@ -546,6 +549,7 @@ class OSPDopenvas(OSPDaemon):
         self.pending_feed = False
 
         logger.debug('Finish loading up vts.')
+        logger.debug('Loaded %s vts.', len(self.vts))
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
