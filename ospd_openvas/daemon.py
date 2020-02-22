@@ -445,7 +445,7 @@ class OSPDopenvas(OSPDaemon):
     def load_vts(self):
         """ Load the VT's metadata into the vts global dictionary. """
 
-        logger.debug('Loading VTs in memory.')
+        logger.info('Loading VTs in memory.')
 
         oids = dict(self.nvti.get_oids())
 
@@ -541,14 +541,15 @@ class OSPDopenvas(OSPDaemon):
                     severities=_severity,
                 )
             except OspdError as e:
-                logger.info("Error while adding VT %s. %s", vt_id, e)
+                logger.warning("Error while adding VT %s. %s", vt_id, e)
 
         _feed_version = self.nvti.get_feed_version()
 
         self.set_vts_version(vts_version=_feed_version)
         self.pending_feed = False
 
-        logger.debug('Finish loading up vts.')
+        logger.info('Finish loading up vts.')
+
         logger.debug('Loaded %s vts.', len(self.vts))
 
     @staticmethod
