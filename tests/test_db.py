@@ -21,243 +21,376 @@
 
 """ Unit Test for ospd-openvas """
 
+import logging
+
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
 from redis.exceptions import ConnectionError as RCE
 
 from ospd.errors import RequiredArgument
-from ospd_openvas.db import OpenvasDB, time
+from ospd_openvas.db import OpenvasDB, MainDB, ScanDB, DBINDEX_NAME, time
 from ospd_openvas.errors import OspdOpenvasError
+
+from tests.helper import assert_called
 
 
 @patch('ospd_openvas.db.redis.Redis')
-class TestDB(TestCase):
-    def setUp(self):
-        self.db = OpenvasDB()
-
+class TestOpenvasDB(TestCase):
     @patch('ospd_openvas.db.Openvas')
     def test_get_db_connection(
         self, mock_openvas: MagicMock, mock_redis: MagicMock
     ):
-        # it is none
-        self.assertIsNone(self.db.db_address)
+        OpenvasDB._db_address = None  # pylint: disable=protected-access
+        mock_settings = mock_openvas.get_settings.return_value
+        mock_settings.get.return_value = None
+
+        self.assertIsNone(OpenvasDB.get_database_address())
+
         # set the first time
         mock_openvas.get_settings.return_value = {'db_address': '/foo/bar'}
 
-        self.db.get_db_connection()
-        self.assertEqual(self.db.db_address, "/foo/bar")
+        self.assertEqual(OpenvasDB.get_database_address(), "/foo/bar")
 
-        # return immediately because already set
-        self.db.get_db_connection()
-        self.assertEqual(self.db.db_address, "/foo/bar")
+        self.assertEqual(mock_openvas.get_settings.call_count, 2)
 
-        self.assertEqual(mock_openvas.get_settings.call_count, 1)
+        # should cache address
+        self.assertEqual(OpenvasDB.get_database_address(), "/foo/bar")
+        self.assertEqual(mock_openvas.get_settings.call_count, 2)
 
-    def test_max_db_index_fail(self, mock_redis):
-        mock_redis.config_get.return_value = {}
-        with patch.object(OpenvasDB, 'kb_connect', return_value=mock_redis):
-            with self.assertRaises(OspdOpenvasError):
-                self.db.max_db_index()
-
-    def test_set_ctx_with_error(self, mock_redis):
-        with self.assertRaises(RequiredArgument):
-            self.db.set_redisctx(None)
-
-    def test_set_ctx(self, mock_redis):
-        self.db.set_redisctx(mock_redis)
-        self.assertIs(self.db.rediscontext, mock_redis)
-
-    def test_try_db_index_success(self, mock_redis):
-        mock_redis.hsetnx.return_value = 1
-        ret = self.db.try_database_index(mock_redis, 1)
-        self.assertEqual(ret, True)
-
-    def test_try_db_index_no_succes(self, mock_redis):
-        mock_redis.hsetnx.return_value = 0
-        ret = self.db.try_database_index(mock_redis, 1)
-        self.assertEqual(ret, False)
-
-    def test_try_db_index_error(self, mock_redis):
-        mock_redis.hsetnx.side_effect = Exception
-        with self.assertRaises(OspdOpenvasError):
-            self.db.try_database_index(mock_redis, 1)
-
-    def test_kb_connect(self, mock_redis):
+    def test_create_context_fail(self, mock_redis):
         mock_redis.side_effect = RCE
-        with patch.object(OpenvasDB, 'get_db_connection', return_value=None):
-            with patch.object(time, 'sleep', return_value=None):
-                with self.assertRaises(SystemExit):
-                    self.db.kb_connect()
 
-    def test_kb_new_fail(self, mock_redis):
-        ret = self.db.kb_new()
-        self.assertEqual(ret, None)
+        logging.Logger.error = MagicMock()
 
-    def test_kb_new(self, mock_redis):
-        with patch.object(OpenvasDB, 'db_find', return_value=mock_redis):
-            with patch.object(
-                OpenvasDB, 'try_database_index', return_value=True
-            ):
-                with patch.object(
-                    OpenvasDB, 'kb_connect', return_value=mock_redis
-                ):
-                    self.db.max_dbindex = 10
-                    ret = self.db.kb_new()
-        self.assertIs(ret, mock_redis)
+        with patch.object(time, 'sleep', return_value=None):
+            with self.assertRaises(SystemExit):
+                OpenvasDB.create_context()
 
-    def test_get_kb_context(self, mock_redis):
-        self.db.rediscontext = mock_redis
-        ret = self.db.get_kb_context()
-        self.assertIs(ret, mock_redis)
+        logging.Logger.error.assert_called_with(  # pylint: disable=no-member
+            'Redis Error: Not possible to connect to the kb.'
+        )
 
-    def test_get_kb_context_fail(self, mock_redis):
-        with patch.object(OpenvasDB, 'db_find', return_value=None):
-            with self.assertRaises(OspdOpenvasError):
-                self.db.get_kb_context()
+    def test_create_context_success(self, mock_redis):
+        ctx = mock_redis.return_value
+        ret = OpenvasDB.create_context()
+        self.assertIs(ret, ctx)
 
-    def test_select_kb_error(self, mock_redis):
+    def test_select_database_error(self, mock_redis):
         with self.assertRaises(RequiredArgument):
-            self.db.select_kb(None, 1)
+            OpenvasDB.select_database(None, 1)
 
-    def test_select_kb_error1(self, mock_redis):
         with self.assertRaises(RequiredArgument):
-            self.db.select_kb(mock_redis, None)
+            OpenvasDB.select_database(mock_redis, None)
 
-    def test_select_kb(self, mock_redis):
+    def test_select_database(self, mock_redis):
         mock_redis.execute_command.return_value = mock_redis
-        self.db.select_kb(mock_redis, 1, True)
-        self.assertEqual(self.db.db_index, '1')
-        self.assertIs(self.db.rediscontext, mock_redis)
 
-    def test_get_list_item_fail(self, mock_redis):
+        OpenvasDB.select_database(mock_redis, 1)
+
+        mock_redis.execute_command.assert_called_with('SELECT 1')
+
+    def test_get_list_item_error(self, mock_redis):
+        ctx = mock_redis.return_value
+
         with self.assertRaises(RequiredArgument):
-            self.db.get_list_item(None)
+            OpenvasDB.get_list_item(None, 'foo')
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.get_list_item(ctx, None)
 
     def test_get_list_item(self, mock_redis):
-        mock_redis.lrange.return_value = ['1234']
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_list_item('name', ctx=None)
+        ctx = mock_redis.return_value
+        ctx.lrange.return_value = ['1234']
+
+        ret = OpenvasDB.get_list_item(ctx, 'name')
+
         self.assertEqual(ret, ['1234'])
+        assert_called(ctx.lrange)
 
-    def test_rm_list_item(self, mock_redis):
-        mock_redis.lrem.return_value = 1
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            self.db.remove_list_item('name', '1234', ctx=None)
-        mock_redis.lrem.assert_called_once_with('name', count=0, value='1234')
+    def test_get_last_list_item(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.rpop.return_value = 'foo'
 
-    def test_rm_list_item_error(self, mock_redis):
+        ret = OpenvasDB.get_last_list_item(ctx, 'name')
+
+        self.assertEqual(ret, 'foo')
+        ctx.rpop.assert_called_with('name')
+
+    def test_get_last_list_item_error(self, mock_redis):
+        ctx = mock_redis.return_value
+
         with self.assertRaises(RequiredArgument):
-            self.db.remove_list_item('1', None)
+            OpenvasDB.get_last_list_item(ctx, None)
 
-    def test_rm_list_item_error1(self, mock_redis):
         with self.assertRaises(RequiredArgument):
-            self.db.remove_list_item(None, '1')
+            OpenvasDB.get_last_list_item(None, 'name')
+
+    def test_remove_list_item(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.lrem.return_value = 1
+
+        OpenvasDB.remove_list_item(ctx, 'name', '1234')
+
+        ctx.lrem.assert_called_once_with('name', count=0, value='1234')
+
+    def test_remove_list_item_error(self, mock_redis):
+        ctx = mock_redis.return_value
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.remove_list_item(None, '1', 'bar')
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.remove_list_item(ctx, None, 'bar')
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.remove_list_item(ctx, '1', None)
 
     def test_get_single_item_error(self, mock_redis):
+        ctx = mock_redis.return_value
+
         with self.assertRaises(RequiredArgument):
-            self.db.get_single_item(None, '1')
+            OpenvasDB.get_single_item(None, 'foo')
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.get_single_item(ctx, None)
 
     def test_get_single_item(self, mock_redis):
-        mock_redis.lindex.return_value = 'a'
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            self.db.get_single_item('a', ctx=None)
-        mock_redis.lindex.assert_called_once_with('a', 0)
+        ctx = mock_redis.return_value
+        ctx.lindex.return_value = 'a'
+
+        value = OpenvasDB.get_single_item(ctx, 'a')
+
+        self.assertEqual(value, 'a')
+        ctx.lindex.assert_called_once_with('a', 0)
 
     def test_add_single_item(self, mock_redis):
-        mock_redis.rpush.return_value = 1
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            self.db.add_single_item('a', ['12'], ctx=None)
-        mock_redis.rpush.assert_called_once_with('a', '12')
+        ctx = mock_redis.return_value
+        ctx.rpush.return_value = 1
+
+        OpenvasDB.add_single_item(ctx, 'a', ['12'])
+
+        ctx.rpush.assert_called_once_with('a', '12')
 
     def test_add_single_item_error(self, mock_redis):
-        with self.assertRaises(RequiredArgument):
-            self.db.add_single_item(None, '1')
+        ctx = mock_redis.return_value
 
-    def test_add_single_item_error1(self, mock_redis):
         with self.assertRaises(RequiredArgument):
-            self.db.add_single_item('1', None)
+            OpenvasDB.add_single_item(None, '1', ['12'])
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.add_single_item(ctx, None, ['12'])
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.add_single_item(ctx, '1', None)
 
     def test_set_single_item_error(self, mock_redis):
-        with self.assertRaises(RequiredArgument):
-            self.db.set_single_item(None, '1')
+        ctx = mock_redis.return_value
 
-    def test_set_single_item_error1(self, mock_redis):
         with self.assertRaises(RequiredArgument):
-            self.db.set_single_item('1', None)
+            OpenvasDB.set_single_item(None, '1', ['12'])
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.set_single_item(ctx, None, ['12'])
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.set_single_item(ctx, '1', None)
 
     def test_set_single_item(self, mock_redis):
-        mock_redis.pipeline.return_value = mock_redis.pipeline
-        mock_redis.pipeline.delete.return_value = None
-        mock_redis.pipeline.rpush.return_value = None
-        mock_redis.execute.return_value = None
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            self.db.set_single_item('a', ['12'], ctx=None)
-        mock_redis.pipeline.rpush.assert_called_once_with('a', '12')
-        mock_redis.pipeline.delete.assert_called_once_with('a')
+        ctx = mock_redis.return_value
+        pipeline = ctx.pipeline.return_value
+        pipeline.delete.return_value = None
+        pipeline.rpush.return_value = None
+        pipeline.execute.return_value = None
+
+        OpenvasDB.set_single_item(ctx, 'foo', ['bar'])
+
+        pipeline.delete.assert_called_once_with('foo')
+        pipeline.rpush.assert_called_once_with('foo', 'bar')
+        assert_called(pipeline.execute)
 
     def test_get_pattern(self, mock_redis):
-        mock_redis.keys.return_value = ['a', 'b']
-        mock_redis.lrange.return_value = [1, 2, 3]
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_pattern('a')
+        ctx = mock_redis.return_value
+        ctx.keys.return_value = ['a', 'b']
+        ctx.lrange.return_value = [1, 2, 3]
+
+        ret = OpenvasDB.get_pattern(ctx, 'a')
+
         self.assertEqual(ret, [['a', [1, 2, 3]], ['b', [1, 2, 3]]])
 
     def test_get_pattern_error(self, mock_redis):
+        ctx = mock_redis.return_value
+
         with self.assertRaises(RequiredArgument):
-            self.db.get_pattern(None)
+            OpenvasDB.get_pattern(None, 'a')
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.get_pattern(ctx, None)
 
     def test_get_elem_pattern_by_index_error(self, mock_redis):
+        ctx = mock_redis.return_value
+
         with self.assertRaises(RequiredArgument):
-            self.db.get_elem_pattern_by_index(None)
+            OpenvasDB.get_elem_pattern_by_index(None, 'a')
+
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.get_elem_pattern_by_index(ctx, None)
 
     def test_get_elem_pattern_by_index(self, mock_redis):
-        mock_redis.keys.return_value = ['aa', 'ab']
-        mock_redis.lindex.side_effect = [1, 2]
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_elem_pattern_by_index('a')
-        self.assertEqual(ret, [['aa', 1], ['ab', 2]])
+        ctx = mock_redis.return_value
+        ctx.keys.return_value = ['aa', 'ab']
+        ctx.lindex.side_effect = [1, 2]
 
-    def test_release_db(self, mock_redis):
-        mock_redis.delete.return_value = None
-        mock_redis.flushdb.return_value = None
-        mock_redis.hdel.return_value = 1
-        with patch.object(OpenvasDB, 'kb_connect', return_value=mock_redis):
-            self.db.release_db(3)
-        mock_redis.hdel.assert_called_once_with('GVM.__GlobalDBIndex', 3)
+        ret = OpenvasDB.get_elem_pattern_by_index(ctx, 'a')
 
-    def test_get_result(self, mock_redis):
-        mock_redis.rpop.return_value = 'some result'
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_result()
-        self.assertEqual(ret, 'some result')
-
-    def test_get_status(self, mock_redis):
-        mock_redis.rpop.return_value = 'some status'
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_status()
-        self.assertEqual(ret, 'some status')
-
-    def test_get_stime(self, mock_redis):
-        mock_redis.rpop.return_value = 'some start time'
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_host_scan_scan_start_time()
-        self.assertEqual(ret, 'some start time')
-
-    def test_get_etime(self, mock_redis):
-        mock_redis.rpop.return_value = 'some end time'
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_host_scan_scan_end_time()
-        self.assertEqual(ret, 'some end time')
-
-    def test_get_host_ip(self, mock_redis):
-        mock_redis.lindex.return_value = '192.168.0.1'
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_host_ip()
-        self.assertEqual(ret, '192.168.0.1')
+        self.assertEqual(list(ret), [('aa', 1), ('ab', 2)])
 
     def test_get_key_count(self, mock_redis):
-        mock_redis.keys.return_value = ['aa', 'ab']
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            ret = self.db.get_key_count("")
+        ctx = mock_redis.return_value
+
+        ctx.keys.return_value = ['aa', 'ab']
+
+        ret = OpenvasDB.get_key_count(ctx, "foo")
+
         self.assertEqual(ret, 2)
+        ctx.keys.assert_called_with('foo')
+
+    def test_get_key_count_with_default_pattern(self, mock_redis):
+        ctx = mock_redis.return_value
+
+        ctx.keys.return_value = ['aa', 'ab']
+
+        ret = OpenvasDB.get_key_count(ctx)
+
+        self.assertEqual(ret, 2)
+        ctx.keys.assert_called_with('*')
+
+    def test_get_key_count_error(self, mock_redis):
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.get_key_count(None)
+
+
+@patch('ospd_openvas.db.OpenvasDB')
+class ScanDBTestCase(TestCase):
+    @patch('ospd_openvas.db.redis.Redis')
+    def setUp(self, mock_redis):  # pylint: disable=arguments-differ
+        self.ctx = mock_redis.return_value
+        self.db = ScanDB(10, self.ctx)
+
+    def test_get_result(self, mock_openvas_db):
+        mock_openvas_db.get_last_list_item.return_value = 'some result'
+
+        ret = self.db.get_result()
+
+        self.assertEqual(ret, 'some result')
+        mock_openvas_db.get_last_list_item.assert_called_with(
+            self.ctx, 'internal/results'
+        )
+
+    def test_get_status(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = 'some status'
+
+        ret = self.db.get_status('foo')
+
+        self.assertEqual(ret, 'some status')
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/foo'
+        )
+
+    def test_get_host_scan_start_time(self, mock_openvas_db):
+        mock_openvas_db.get_last_list_item.return_value = 'some start time'
+
+        ret = self.db.get_host_scan_start_time()
+
+        self.assertEqual(ret, 'some start time')
+        mock_openvas_db.get_last_list_item.assert_called_with(
+            self.ctx, 'internal/start_time'
+        )
+
+    def test_get_host_scan_end_time(self, mock_openvas_db):
+        mock_openvas_db.get_last_list_item.return_value = 'some end time'
+
+        ret = self.db.get_host_scan_end_time()
+
+        self.assertEqual(ret, 'some end time')
+        mock_openvas_db.get_last_list_item.assert_called_with(
+            self.ctx, 'internal/end_time'
+        )
+
+    def test_get_host_ip(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = '192.168.0.1'
+
+        ret = self.db.get_host_ip()
+
+        self.assertEqual(ret, '192.168.0.1')
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/ip'
+        )
+
+
+@patch('ospd_openvas.db.redis.Redis')
+class MainDBTestCase(TestCase):
+    def test_max_database_index_fail(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.config_get.return_value = {}
+
+        maindb = MainDB(ctx)
+
+        with self.assertRaises(OspdOpenvasError):
+            max_db = (  # pylint: disable=unused-variable
+                maindb.max_database_index
+            )
+
+        ctx.config_get.assert_called_with('databases')
+
+    def test_max_database_index(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.config_get.return_value = {'databases': '123'}
+
+        maindb = MainDB(ctx)
+
+        max_db = maindb.max_database_index
+
+        self.assertEqual(max_db, 123)
+        ctx.config_get.assert_called_with('databases')
+
+    def test_try_database_success(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.hsetnx.return_value = 1
+
+        maindb = MainDB(ctx)
+
+        ret = maindb.try_database(1)
+
+        self.assertEqual(ret, True)
+        ctx.hsetnx.assert_called_with(DBINDEX_NAME, 1, 1)
+
+    def test_try_database_false(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.hsetnx.return_value = 0
+
+        maindb = MainDB(ctx)
+
+        ret = maindb.try_database(1)
+
+        self.assertEqual(ret, False)
+        ctx.hsetnx.assert_called_with(DBINDEX_NAME, 1, 1)
+
+    def test_try_db_index_error(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.hsetnx.side_effect = Exception
+
+        maindb = MainDB(ctx)
+
+        with self.assertRaises(OspdOpenvasError):
+            maindb.try_database(1)
+
+    def test_release_database_by_index(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.hdel.return_value = 1
+
+        maindb = MainDB(ctx)
+
+        maindb.release_database_by_index(3)
+
+        ctx.hdel.assert_called_once_with(DBINDEX_NAME, 3)
