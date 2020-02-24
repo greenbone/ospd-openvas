@@ -517,7 +517,7 @@ class OSPDaemon:
             self.set_scan_host_finished(scan_id, host)
             self.set_scan_host_progress(scan_id, host, 100)
 
-    def start_scan(self, scan_id: str, target: Dict, parallel=1) -> None:
+    def start_scan(self, scan_id: str, target: Dict) -> None:
         """ Starts the scan with scan_id. """
         os.setsid()
 
@@ -546,9 +546,7 @@ class OSPDaemon:
         if self.get_scan_status(scan_id) != ScanStatus.STOPPED:
             self.finish_scan(scan_id)
 
-    def dry_run_scan(  # pylint: disable=unused-argument
-        self, scan_id: str, target: Dict, parallel: int
-    ) -> None:
+    def dry_run_scan(self, scan_id: str, target: Dict) -> None:
         """ Dry runs a scan. """
 
         os.setsid()

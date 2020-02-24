@@ -483,9 +483,11 @@ class StartScan(BaseCommand):
                 'Invalid value for parallel scans. It must be a number',
                 'start_scan',
             )
-
-        if parallel < 1 or parallel > 20:
-            parallel = 1
+        finally:
+            logger.warning(
+                "Parallel attribute will be ignored, sice parallel "
+                "scan is not supported by OSPd."
+            )
 
         scanner_params = xml.find('scanner_params')
         if scanner_params is None:
@@ -521,7 +523,7 @@ class StartScan(BaseCommand):
             return simple_response_str('start_scan', 100, 'Continue', id_)
 
         scan_process = create_process(
-            func=scan_func, args=(scan_id, scan_target, parallel)
+            func=scan_func, args=(scan_id, scan_target)
         )
 
         self._daemon.scan_processes[scan_id] = scan_process
