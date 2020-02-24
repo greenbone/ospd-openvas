@@ -291,7 +291,7 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['description'] = OSPD_DESC
 
         for name, param in OSPD_PARAMS.items():
-            self.add_scanner_param(name, param)
+            self.set_scanner_param(name, param)
 
         self._sudo_available = None
         self._is_running_as_root = None
