@@ -834,8 +834,8 @@ class TestOspdOpenvas(TestCase):
         w.create_scan('123-456', targets, None, [])
 
         mock_ospd.return_value = None
-        w.update_progress('123-456', 'localhost', 'localhost', msg)
-        mock_ospd.assert_called_with('123-456', 'localhost', 'localhost', 100)
+        w.update_progress('123-456', 'localhost', msg)
+        mock_ospd.assert_called_with('123-456', 'localhost', 100)
 
 
 class TestFilters(TestCase):
