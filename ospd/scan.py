@@ -400,7 +400,9 @@ class ScanCollection:
     def release_vts_list(self, scan_id: str) -> None:
         """ Release the memory used for the vts list. """
 
-        self.scans_table[scan_id].pop('vts')
+        scan_data = self.scans_table.get(scan_id)
+        if scan_data and 'vts' in scan_data:
+            del scan_data['vts']
 
     def id_exists(self, scan_id: str) -> bool:
         """ Check whether a scan exists in the table. """
