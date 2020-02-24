@@ -332,3 +332,10 @@ class TestNVTICache(TestCase):
         self.nvti.force_reload()
 
         self.db.release_database.assert_called_with(self.nvti)
+
+    def test_flush(self, _MockOpenvasDB):
+        self.nvti._ctx = Mock()
+
+        self.nvti.flush()
+
+        self.nvti._ctx.flushdb.assert_called_with()
