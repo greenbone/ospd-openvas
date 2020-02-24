@@ -17,54 +17,79 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
-# pylint: disable=unused-argument, protected-access
+# pylint: disable=unused-argument, protected-access, invalid-name
 
 """ Unit Test for ospd-openvas """
+
+import logging
 
 from unittest import TestCase
 from unittest.mock import patch, Mock
 
-from ospd_openvas.db import OpenvasDB
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
 
+from tests.helper import assert_called
 
-@patch('ospd_openvas.db.redis.Redis')
+
+@patch('ospd_openvas.nvticache.OpenvasDB')
 class TestNVTICache(TestCase):
-    def setUp(self):
-        self.db = OpenvasDB()
+    @patch('ospd_openvas.db.MainDB')
+    def setUp(self, MockMainDB):  # pylint: disable=arguments-differ
+        self.db = MockMainDB()
         self.nvti = NVTICache(self.db)
+        self.nvti._ctx = 'foo'
 
-    def test_get_feed_version(self, mock_redis):
+    def test_get_feed_version(self, MockOpenvasDB):
         self.nvti._nvti_cache_name = '20.4'
 
-        with patch.object(OpenvasDB, 'db_find', return_value=mock_redis):
-            with patch.object(
-                OpenvasDB, 'get_single_item', return_value='1234'
-            ):
-                resp = self.nvti.get_feed_version()
-        self.assertEqual(resp, '1234')
+        MockOpenvasDB.get_single_item.return_value = '1234'
 
-    def test_get_oids(self, mock_redis):
-        with patch.object(
-            OpenvasDB, 'get_elem_pattern_by_index', return_value=['oids']
-        ):
-            resp = self.nvti.get_oids()
+        resp = self.nvti.get_feed_version()
+
+        self.assertEqual(resp, '1234')
+        MockOpenvasDB.get_single_item.assert_called_with('foo', '20.4')
+
+    def test_get_oids(self, MockOpenvasDB):
+        MockOpenvasDB.get_elem_pattern_by_index.return_value = ['oids']
+
+        resp = self.nvti.get_oids()
+
         self.assertEqual(resp, ['oids'])
 
-    def test_parse_metadata_tags(self, mock_redis):
+    def test_parse_metadata_tag_missing_value(self, MockOpenvasDB):
+        logging.Logger.error = Mock()
+
         tags = 'tag1'
-        ret = self.nvti._parse_metadata_tags(  # pylint: disable=protected-access
+        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
             tags, '1.2.3'
         )
-        self.assertEqual(ret, {})
 
-    def test_get_nvt_params(self, mock_redis):
-        prefs = ['1|||dns-fuzz.timelimit|||entry|||default']
-        prefs1 = ['1|||dns-fuzz.timelimit|||entry|||']
+        self.assertEqual(ret, {})
+        assert_called(logging.Logger.error)
+
+    def test_parse_metadata_tag(self, MockOpenvasDB):
+        tags = 'tag1=value1'
+        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+            tags, '1.2.3'
+        )
+
+        self.assertEqual(ret, {'tag1': 'value1'})
+
+    def test_parse_metadata_tags(self, MockOpenvasDB):
+        tags = 'tag1=value1|foo=bar'
+        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+            tags, '1.2.3'
+        )
+
+        self.assertEqual(ret, {'tag1': 'value1', 'foo': 'bar'})
+
+    def test_get_nvt_params(self, MockOpenvasDB):
+        prefs1 = ['1|||dns-fuzz.timelimit|||entry|||default']
+        prefs2 = ['1|||dns-fuzz.timelimit|||entry|||']
 
         timeout = '300'
-        out_dict = {
+        out_dict1 = {
             '1': {
                 'id': '1',
                 'type': 'entry',
@@ -81,7 +106,7 @@ class TestNVTICache(TestCase):
             },
         }
 
-        out_dict1 = {
+        out_dict2 = {
             '1': {
                 'id': '1',
                 'type': 'entry',
@@ -97,26 +122,19 @@ class TestNVTICache(TestCase):
                 'description': 'Script Timeout',
             },
         }
-        with patch.object(OpenvasDB, 'get_kb_context', return_value=mock_redis):
-            with patch.object(
-                NVTICache, 'get_nvt_timeout', return_value=timeout
-            ):
-                with patch.object(
-                    NVTICache, 'get_nvt_prefs', return_value=prefs
-                ):
 
-                    resp = self.nvti.get_nvt_params('1.2.3.4')
+        MockOpenvasDB.get_list_item.return_value = prefs1
+        MockOpenvasDB.get_single_item.return_value = timeout
 
-                with patch.object(
-                    NVTICache, 'get_nvt_prefs', return_value=prefs1
-                ):
+        resp = self.nvti.get_nvt_params('1.2.3.4')
+        self.assertEqual(resp, out_dict1)
 
-                    resp1 = self.nvti.get_nvt_params('1.2.3.4')
-        self.assertEqual(resp, out_dict)
-        self.assertEqual(resp1, out_dict1)
+        MockOpenvasDB.get_list_item.return_value = prefs2
 
-    @patch('ospd_openvas.db.Openvas')
-    def test_get_nvt_metadata(self, mock_openvas, mock_redis):
+        resp = self.nvti.get_nvt_params('1.2.3.4')
+        self.assertEqual(resp, out_dict2)
+
+    def test_get_nvt_metadata(self, MockOpenvasDB):
         metadata = [
             'mantis_detect.nasl',
             '',
@@ -164,48 +182,19 @@ class TestNVTICache(TestCase):
             'timeout': '0',
         }
 
-        mock_openvas.get_version.return_value = {
-            'use_mac_addr': 0,
-            'db_address': '/tmp/redis.sock',
-            'drop_privileges': 0,
-        }
-
-        mock_redis.return_value = mock_redis
-        mock_redis.config_get.return_value = {'databases': '513'}
-        mock_redis.lrange.return_value = metadata
-        mock_redis.keys.return_value = 1
-
-        self.db.db_init()
+        MockOpenvasDB.get_list_item.return_value = metadata
 
         resp = self.nvti.get_nvt_metadata('1.2.3.4')
         self.assertEqual(resp, custom)
 
-    @patch('ospd_openvas.db.Openvas')
-    def test_get_nvt_metadata_fail(self, mock_openvas, mock_redis):
-        mock_openvas.get_version.return_value = {
-            'use_mac_addr': 0,
-            'db_address': '/tmp/redis.sock',
-            'drop_privileges': 0,
-        }
-
-        mock_redis.return_value = mock_redis
-        mock_redis.config_get.return_value = {'databases': '513'}
-        mock_redis.lrange.return_value = {}
-        mock_redis.keys.return_value = 1
-
-        self.db.db_init()
+    def test_get_nvt_metadata_fail(self, MockOpenvasDB):
+        MockOpenvasDB.get_list_item.return_value = []
 
         resp = self.nvti.get_nvt_metadata('1.2.3.4')
-        self.assertEqual(resp, None)
 
-    @patch('ospd_openvas.db.Openvas')
-    def test_get_nvt_refs(self, mock_openvas, mock_redis):
-        mock_openvas.get_version.return_value = {
-            'use_mac_addr': 0,
-            'db_address': '/tmp/redis.sock',
-            'drop_privileges': 0,
-        }
+        self.assertIsNone(resp)
 
+    def test_get_nvt_refs(self, MockOpenvasDB):
         refs = ['', '', 'URL:http://www.mantisbt.org/']
         out_dict = {
             'cve': [''],
@@ -213,48 +202,36 @@ class TestNVTICache(TestCase):
             'xref': ['URL:http://www.mantisbt.org/'],
         }
 
-        mock_redis.return_value = mock_redis
-        mock_redis.config_get.return_value = {'databases': '513'}
-        mock_redis.lrange.return_value = refs
-        mock_redis.keys.return_value = 1
-
-        self.db.db_init()
+        MockOpenvasDB.get_list_item.return_value = refs
 
         resp = self.nvti.get_nvt_refs('1.2.3.4')
+
         self.assertEqual(resp, out_dict)
 
-    @patch('ospd_openvas.db.Openvas')
-    def test_get_nvt_refs_fail(self, mock_openvas, mock_redis):
-        mock_openvas.get_version.return_value = {
-            'use_mac_addr': 0,
-            'db_address': '/tmp/redis.sock',
-            'drop_privileges': 0,
-        }
-
-        mock_redis.return_value = mock_redis
-        mock_redis.config_get.return_value = {'databases': '513'}
-        mock_redis.lrange.return_value = {}
-        mock_redis.keys.return_value = 1
-
-        self.db.db_init()
+    def test_get_nvt_refs_fail(self, MockOpenvasDB):
+        MockOpenvasDB.get_list_item.return_value = []
 
         resp = self.nvti.get_nvt_refs('1.2.3.4')
-        self.assertEqual(resp, None)
 
-    def test_get_nvt_prefs(self, mock_redis):
+        self.assertIsNone(resp)
+
+    def test_get_nvt_prefs(self, MockOpenvasDB):
         prefs = ['dns-fuzz.timelimit|||entry|||default']
-        mock_redis.lrange.return_value = prefs
-        mock_redis.return_value = mock_redis
-        resp = self.nvti.get_nvt_prefs(mock_redis(), '1.2.3.4')
+
+        MockOpenvasDB.get_list_item.return_value = prefs
+
+        resp = self.nvti.get_nvt_prefs('1.2.3.4')
+
         self.assertEqual(resp, prefs)
 
-    def test_get_nvt_timeout(self, mock_redis):
-        mock_redis.lindex.return_value = '300'
-        mock_redis.return_value = mock_redis
-        resp = self.nvti.get_nvt_timeout(mock_redis(), '1.2.3.4')
+    def test_get_nvt_timeout(self, MockOpenvasDB):
+        MockOpenvasDB.get_single_item.return_value = '300'
+
+        resp = self.nvti.get_nvt_timeout('1.2.3.4')
+
         self.assertEqual(resp, '300')
 
-    def test_get_nvt_tag(self, mock_redis):
+    def test_get_nvt_tags(self, MockOpenvasDB):
         tag = (
             'last_modification=1533906565'
             '|creation_date=1517443741|cvss_bas'
@@ -273,15 +250,14 @@ class TestNVTICache(TestCase):
             'solution_method': 'DebianAPTUpgrade',
         }
 
-        mock_redis.lindex.return_value = tag
-        mock_redis.return_value = mock_redis
+        MockOpenvasDB.get_single_item.return_value = tag
 
-        resp = self.nvti.get_nvt_tag(mock_redis(), '1.2.3.4')
+        resp = self.nvti.get_nvt_tags('1.2.3.4')
 
         self.assertEqual(out_dict, resp)
 
     @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_set_nvti_cache_name(self, mock_version, mock_redis):
+    def test_set_nvti_cache_name(self, mock_version, MockOpenvasDB):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
         mock_version.return_value = '20.10'
@@ -300,7 +276,7 @@ class TestNVTICache(TestCase):
 
     @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
     def test_set_nvti_cache_name_raise_error(
-        self, mock_version: Mock, mock_redis: Mock
+        self, mock_version: Mock, MockOpenvasDB: Mock
     ):
         mock_version.return_value = None
 
@@ -309,7 +285,7 @@ class TestNVTICache(TestCase):
 
     @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
     def test_set_nvti_cache_name_old_version(
-        self, mock_version: Mock, mock_redis: Mock
+        self, mock_version: Mock, MockOpenvasDB: Mock
     ):
         mock_version.return_value = '7.0.0'
 
@@ -317,7 +293,7 @@ class TestNVTICache(TestCase):
             self.nvti._set_nvti_cache_name()
 
     @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_get_nvti_cache_name(self, mock_version, mock_redis):
+    def test_get_nvti_cache_name(self, mock_version, MockOpenvasDB):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
         mock_version.return_value = '20.4'
@@ -331,7 +307,7 @@ class TestNVTICache(TestCase):
         self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.4')
         self.assertFalse(mock_version.called)
 
-    def test_is_compatible_version(self, mock_redis):
+    def test_is_compatible_version(self, MockOpenvasDB):
         self.assertFalse(self.nvti._is_compatible_version("1.0.0"))
         self.assertFalse(self.nvti._is_compatible_version("10.0.0"))
         self.assertTrue(self.nvti._is_compatible_version("11.0.1"))
