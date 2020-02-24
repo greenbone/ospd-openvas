@@ -471,6 +471,11 @@ class StartScan(BaseCommand):
                 'finished_hosts': '',
                 'options': {},
             }
+            logger.warning(
+                "Legacy start scan command format is beeing used, which "
+                "is deprecated since 20.04. Please read the documentation "
+                "for start scan command."
+            )
 
         scan_id = xml.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
