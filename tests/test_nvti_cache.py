@@ -315,3 +315,15 @@ class TestNVTICache(TestCase):
         self.assertTrue(self.nvti._is_compatible_version("20.4.2"))
         self.assertTrue(self.nvti._is_compatible_version("20.04"))
         self.assertTrue(self.nvti._is_compatible_version("20.10"))
+
+    def test_get_nvt_files_count(self, MockOpenvasDB):
+        MockOpenvasDB.get_key_count.return_value = 20
+
+        self.assertEqual(self.nvti.get_nvt_files_count(), 20)
+        MockOpenvasDB.get_key_count.assert_called_with('foo', 'filename:*')
+
+    def test_get_nvt_count(self, MockOpenvasDB):
+        MockOpenvasDB.get_key_count.return_value = 20
+
+        self.assertEqual(self.nvti.get_nvt_count(), 20)
+        MockOpenvasDB.get_key_count.assert_called_with('foo', 'nvt:*')
