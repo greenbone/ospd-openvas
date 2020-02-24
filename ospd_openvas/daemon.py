@@ -1040,14 +1040,14 @@ class OSPDopenvas(OSPDaemon):
         self, scan_db: ScanDB, scan_id: str, target: str
     ):
         """ Get start and end timestamp of a host scan from redis kb. """
-        timestamp = scan_db.get_host_scan_scan_end_time()
+        timestamp = scan_db.get_host_scan_end_time()
         if timestamp:
             self.add_scan_log(
                 scan_id, host=target, name='HOST_END', value=timestamp
             )
             return
 
-        timestamp = scan_db.get_host_scan_scan_start_time()
+        timestamp = scan_db.get_host_scan_start_time()
         if timestamp:
             self.add_scan_log(
                 scan_id, host=target, name='HOST_START', value=timestamp
@@ -1664,9 +1664,7 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                     if scan_db.host_is_finished(openvas_scan_id):
-                        self.set_scan_host_finished(
-                            scan_id, current_host
-                        )
+                        self.set_scan_host_finished(scan_id, current_host)
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host
                         )

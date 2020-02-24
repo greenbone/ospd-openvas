@@ -422,14 +422,14 @@ class ScanDB(BaseKbDB):
         """
         return self._get_single_item("internal/ip")
 
-    def get_host_scan_scan_start_time(self) -> Optional[str]:
+    def get_host_scan_start_time(self) -> Optional[str]:
         """ Get the timestamp of the scan start from redis.
 
         Return a string with the timestamp of the scan start.
         """
         return OpenvasDB.get_last_list_item(self.ctx, "internal/start_time")
 
-    def get_host_scan_scan_end_time(self) -> Optional[str]:
+    def get_host_scan_end_time(self) -> Optional[str]:
         """ Get the timestamp of the scan end from redis.
 
         Return a string with the timestamp of scan end .
