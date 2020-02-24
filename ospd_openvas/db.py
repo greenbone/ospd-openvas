@@ -70,7 +70,7 @@ class OpenvasDB:
     _db_address = None
 
     @classmethod
-    def get_database_address(cls):
+    def get_database_address(cls) -> Optional[str]:
         if not cls._db_address:
             settings = Openvas.get_settings()
 
