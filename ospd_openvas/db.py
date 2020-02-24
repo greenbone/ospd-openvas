@@ -235,7 +235,7 @@ class OpenvasDB:
         return ctx.lindex(name, index)
 
     @staticmethod
-    def add_single_item(ctx: RedisCtx, name: str, values: List):
+    def add_single_item(ctx: RedisCtx, name: str, values: Iterable):
         """ Add a single KB element with one or more values.
 
         Arguments:
