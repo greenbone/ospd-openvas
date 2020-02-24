@@ -385,7 +385,7 @@ class BaseKbDB(BaseDB):
 
         Return the oldest scan results
         """
-        return self.ctx.rpop("internal/results")
+        return OpenvasDB.get_last_list_item(self.ctx, "internal/results")
 
     def get_status(self, openvas_scan_id: str) -> Optional[str]:
         """ Return the status of the host scan """
@@ -413,7 +413,7 @@ class ScanDB(BaseKbDB):
 
         Return a string which represents the host scan status.
         """
-        return self.ctx.rpop("internal/status")
+        return OpenvasDB.get_last_list_item(self.ctx, "internal/status")
 
     def get_host_ip(self) -> Optional[str]:
         """ Get the ip of host_kb.
@@ -427,14 +427,14 @@ class ScanDB(BaseKbDB):
 
         Return a string with the timestamp of the scan start.
         """
-        return self.ctx.rpop("internal/start_time")
+        return OpenvasDB.get_last_list_item(self.ctx, "internal/start_time")
 
     def get_host_scan_scan_end_time(self) -> Optional[str]:
         """ Get the timestamp of the scan end from redis.
 
         Return a string with the timestamp of scan end .
         """
-        return self.ctx.rpop("internal/end_time")
+        return OpenvasDB.get_last_list_item(self.ctx, "internal/end_time")
 
     def host_is_finished(self, openvas_scan_id: str) -> bool:
         """ Returns true if the scan of the host is finished """
