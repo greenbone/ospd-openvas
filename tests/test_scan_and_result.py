@@ -546,7 +546,7 @@ class ScanTestCase(unittest.TestCase):
         )
         response = fs.get_response()
         scan_id = response.findtext('id')
-
+        print(scan_id)
         finished = False
         while not finished:
             fs = FakeStream()
@@ -679,7 +679,7 @@ class ScanTestCase(unittest.TestCase):
         fs = FakeStream()
         self.assertRaises(EntitiesForbidden, daemon.handle_command, lol, fs)
 
-    def test_scan_multi_target(self):
+    def test_target_with_credentials(self):
         daemon = DummyWrapper([])
         fs = FakeStream()
         daemon.handle_command(
@@ -687,28 +687,6 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /><vts><vt id="1.2.3.4" />'
             '</vts>'
             '<targets><target>'
-            '<hosts>localhosts</hosts>'
-            '<ports>80,443</ports>'
-            '<alive_test>0</alive_test>'
-            '</target>'
-            '<target><hosts>192.168.0.0/24</hosts>'
-            '<ports>22</ports></target></targets>'
-            '</start_scan>',
-            fs,
-        )
-        response = fs.get_response()
-
-        self.assertEqual(response.get('status'), '200')
-
-    def test_multi_target_with_credentials(self):
-        daemon = DummyWrapper([])
-        fs = FakeStream()
-        daemon.handle_command(
-            '<start_scan>'
-            '<scanner_params /><vts><vt id="1.2.3.4" />'
-            '</vts>'
-            '<targets><target><hosts>localhosts</hosts>'
-            '<ports>80,443</ports></target><target>'
             '<hosts>192.168.0.0/24</hosts><ports>22'
             '</ports><credentials>'
             '<credential type="up" service="ssh" port="22">'
@@ -736,7 +714,7 @@ class ScanTestCase(unittest.TestCase):
             'smb': {'type': 'up', 'password': 'mypass', 'username': 'smbuser'},
         }
         scan_id = response.findtext('id')
-        response = daemon.get_scan_credentials(scan_id, "192.168.0.0/24")
+        response = daemon.get_scan_credentials(scan_id)
         self.assertEqual(response, cred_dict)
 
     def test_scan_get_target(self):
@@ -747,11 +725,9 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /><vts><vt id="1.2.3.4" />'
             '</vts>'
             '<targets><target>'
-            '<hosts>localhosts</hosts>'
+            '<hosts>localhosts,192.168.0.0/24</hosts>'
             '<ports>80,443</ports>'
-            '</target>'
-            '<target><hosts>192.168.0.0/24</hosts>'
-            '<ports>22</ports></target></targets>'
+            '</target></targets>'
             '</start_scan>',
             fs,
         )
@@ -783,7 +759,7 @@ class ScanTestCase(unittest.TestCase):
 
         scan_id = response.findtext('id')
         time.sleep(1)
-        target_options = daemon.get_scan_target_options(scan_id, '192.168.0.1')
+        target_options = daemon.get_scan_target_options(scan_id)
         self.assertEqual(target_options, {'alive_test': '0'})
 
     def test_scan_get_finished_hosts(self):
@@ -820,10 +796,7 @@ class ScanTestCase(unittest.TestCase):
             '<start_scan parallel="2">'
             '<scanner_params />'
             '<targets><target>'
-            '<hosts>localhost1</hosts>'
-            '<ports>22</ports>'
-            '</target><target>'
-            '<hosts>localhost2</hosts>'
+            '<hosts>localhost1, localhost2</hosts>'
             '<ports>22</ports>'
             '</target></targets>'
             '</start_scan>',
@@ -833,8 +806,8 @@ class ScanTestCase(unittest.TestCase):
 
         scan_id = response.findtext('id')
 
-        daemon.set_scan_host_progress(scan_id, 'localhost1', 'localhost1', 75)
-        daemon.set_scan_host_progress(scan_id, 'localhost2', 'localhost2', 25)
+        daemon.set_scan_host_progress(scan_id, 'localhost1', 75)
+        daemon.set_scan_host_progress(scan_id, 'localhost2', 25)
 
         self.assertEqual(daemon.calculate_progress(scan_id), 50)
 
@@ -918,7 +891,7 @@ class ScanTestCase(unittest.TestCase):
         )
 
         # Finished the host and check unfinished again.
-        daemon.set_scan_host_finished(scan_id, "localhost", "localhost")
+        daemon.set_scan_host_finished(scan_id, "localhost")
         self.assertEqual(len(daemon.get_scan_unfinished_hosts(scan_id)), 0)
 
         # Check finished hosts

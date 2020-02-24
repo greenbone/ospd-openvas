@@ -130,7 +130,7 @@ class OspRequest:
         return credentials
 
     @classmethod
-    def process_targets_element(cls, scanner_target: Element) -> List:
+    def process_targets_element(cls, scanner_target: Element) -> Dict:
         """ Receive an XML object with the target, ports and credentials to run
         a scan against.
 
@@ -142,14 +142,6 @@ class OspRequest:
 
                 Example form:
                 <targets>
-                  <target>
-                    <hosts>localhosts</hosts>
-                    <exclude_hosts>localhost1</exclude_hosts>
-                    <ports>80,443</ports>
-                    <alive_test></alive_test>
-                    <reverse_lookup_only>1</reverse_lookup_only>
-                    <reverse_lookup_unify>0</reverse_lookup_unify>
-                  </target>
                   <target>
                     <hosts>192.168.0.0/24</hosts>
                     <ports>22</ports>
@@ -163,34 +155,38 @@ class OspRequest:
                         <password>mypass</password>
                       </credential>
                     </credentials>
+                    <alive_test></alive_test>
+                    <reverse_lookup_only>1</reverse_lookup_only>
+                    <reverse_lookup_unify>0</reverse_lookup_unify>
                   </target>
                 </targets>
 
-        @return: A list of [hosts, port, {credentials}, exclude_hosts, options].
+        @return: A Dict  hosts, port, {credentials}, exclude_hosts, options].
                  Example form:
-                 [['localhosts', '80,43', '', 'localhosts1',
-                   {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
-                    'reverse_lookup_only': '1',
-                    'reverse_lookup_unify': '0',
-                   }
-                  ],
-                  ['192.168.0.0/24', '22', {'smb': {'type': type,
-                                                    'port': port,
-                                                    'username': username,
-                                                    'password': pass,
-                                                   }}, '', {}]]
+                  {'hosts':'192.168.0.0/24', '22',
+                   'credentials': {'smb': {'type': type,
+                                           'port': port,
+                                           'username': username,
+                                           'password': pass,
+                                          }
+                                  },
+
+                    'exclude_hosts': '',
+                    'finished_hosts': '',
+                    'options': {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
+                                'reverse_lookup_only': '1',
+                                'reverse_lookup_unify': '0',
+                               },
+                  }
         """
-
-        target_list = []
-
-        for target in scanner_target:
+        if scanner_target:
             exclude_hosts = ''
             finished_hosts = ''
             ports = ''
             credentials = {}  # type: Dict
             options = {}
 
-            for child in target:
+            for child in scanner_target:
                 if child.tag == 'hosts':
                     hosts = child.text
                 if child.tag == 'exclude_hosts':
@@ -209,20 +205,16 @@ class OspRequest:
                     options['reverse_lookup_only'] = child.text
 
             if hosts:
-                target_list.append(
-                    [
-                        hosts,
-                        ports,
-                        credentials,
-                        exclude_hosts,
-                        finished_hosts,
-                        options,
-                    ]
-                )
+                return {
+                    'hosts': hosts,
+                    'ports': ports,
+                    'credentials': credentials,
+                    'exclude_hosts': exclude_hosts,
+                    'finished_hosts': finished_hosts,
+                    'options': options,
+                }
             else:
                 raise OspdError('No target to scan')
-
-        return target_list
 
 
 class OspResponse:

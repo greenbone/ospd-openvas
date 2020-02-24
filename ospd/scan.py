@@ -99,21 +99,21 @@ class ScanCollection:
         self.scans_table[scan_id]['results'] = results
 
     def remove_hosts_from_target_progress(
-        self, scan_id: str, target: str, hosts: List
+        self, scan_id: str, hosts: List
     ) -> None:
         """Remove a list of hosts from the main scan progress table to avoid
         the hosts to be included in the calculation of the scan progress"""
         if not hosts:
             return
 
-        targets = self.scans_table[scan_id]['target_progress']
+        target = self.scans_table[scan_id].get('target_progress')
         for host in hosts:
-            if host in targets[target]:
-                del targets[target][host]
+            if host in target:
+                del target[host]
 
         # Set scan_info's target_progress to propagate progresses
         # to parent process.
-        self.scans_table[scan_id]['target_progress'] = targets
+        self.scans_table[scan_id]['target_progress'] = target
 
     def set_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress. """
@@ -124,50 +124,40 @@ class ScanCollection:
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_host_progress(
-        self, scan_id: str, target: str, host: str, progress: int
-    ) -> None:
+    def set_host_progress(self, scan_id: str, host: str, progress: int) -> None:
         """ Sets scan_id scan's progress. """
         if progress > 0 and progress <= 100:
-            targets = self.scans_table[scan_id]['target_progress']
-            targets[target][host] = progress
+            host_progresses = self.scans_table[scan_id].get('target_progress')
+            host_progresses[host] = progress
             # Set scan_info's target_progress to propagate progresses
             # to parent process.
-            self.scans_table[scan_id]['target_progress'] = targets
+            self.scans_table[scan_id]['target_progress'] = host_progresses
 
-    def set_host_finished(self, scan_id: str, target: str, host: str) -> None:
+    def set_host_finished(self, scan_id: str, host: str) -> None:
         """ Add the host in a list of finished hosts """
-        finished_hosts = self.scans_table[scan_id]['finished_hosts']
+        finished_hosts = self.scans_table[scan_id].get('finished_hosts')
 
-        if host not in finished_hosts[target]:
-            finished_hosts[target].append(host)
+        if host not in finished_hosts:
+            finished_hosts.append(host)
 
         self.scans_table[scan_id]['finished_hosts'] = finished_hosts
 
     def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
         """ Get a list of unfinished hosts."""
 
-        unfinished_hosts = list()  # type: List
+        unfinished_hosts = target_str_to_list(self.get_host_list(scan_id))
 
-        for target in self.scans_table[scan_id]['finished_hosts']:
-            unfinished_hosts.extend(target_str_to_list(target))
+        finished_hosts = self.get_hosts_finished(scan_id)
 
-        for target in self.scans_table[scan_id]['finished_hosts']:
-            for host in self.scans_table[scan_id]['finished_hosts'][target]:
-                unfinished_hosts.remove(host)
+        for host in finished_hosts:
+            unfinished_hosts.remove(host)
 
         return unfinished_hosts
 
     def get_hosts_finished(self, scan_id: str) -> List:
         """ Get a list of finished hosts."""
 
-        finished_hosts = list()  # type: List
-        for target in self.scans_table[scan_id]['finished_hosts']:
-            finished_hosts.extend(
-                self.scans_table[scan_id]['finished_hosts'].get(target)
-            )
-
-        return finished_hosts
+        return self.scans_table[scan_id].get('finished_hosts')
 
     def results_iterator(
         self, scan_id: str, pop_res: bool = False, max_res: int = None
@@ -243,14 +233,14 @@ class ScanCollection:
     def create_scan(
         self,
         scan_id: str = '',
-        targets: List = None,
+        target: Dict = None,
         options: Optional[Dict] = None,
         vts: Dict = None,
     ) -> str:
         """ Creates a new scan with provided scan information. """
 
-        if not targets:
-            targets = []
+        if not target:
+            target = {}
 
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
@@ -271,14 +261,10 @@ class ScanCollection:
 
         scan_info = self.data_manager.dict()  # type: Dict
         scan_info['results'] = list()
-        scan_info['finished_hosts'] = dict(
-            [[target, []] for target, _, _, _, _, _ in targets]
-        )
+        scan_info['finished_hosts'] = list()
         scan_info['progress'] = 0
-        scan_info['target_progress'] = dict(
-            [[target, {}] for target, _, _, _, _, _ in targets]
-        )
-        scan_info['targets'] = targets
+        scan_info['target_progress'] = dict()
+        scan_info['target'] = target
         scan_info['vts'] = vts
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
@@ -319,21 +305,17 @@ class ScanCollection:
 
         return self.scans_table[scan_id]['progress']
 
-    def simplify_exclude_host_list(
-        self, scan_id: str, target: Any
-    ) -> List[Any]:
+    def simplify_exclude_host_list(self, scan_id: str) -> List[Any]:
         """ Remove from exclude_hosts the received hosts in the finished_hosts
         list sent by the client.
         The finished hosts are sent also as exclude hosts for backward
         compatibility purposses.
         """
 
-        exc_hosts_list = target_str_to_list(
-            self.get_exclude_hosts(scan_id, target)
-        )
+        exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
 
         finished_hosts_list = target_str_to_list(
-            self.get_finished_hosts(scan_id, target)
+            self.get_finished_hosts(scan_id)
         )
 
         if finished_hosts_list and exc_hosts_list:
@@ -343,17 +325,16 @@ class ScanCollection:
 
         return exc_hosts_list
 
-    def get_target_progress(self, scan_id: str, target: str) -> float:
+    def calculate_target_progress(self, scan_id: str) -> float:
         """ Get a target's current progress value.
         The value is calculated with the progress of each single host
         in the target."""
 
-        total_hosts = len(target_str_to_list(target))
-        exc_hosts_list = self.simplify_exclude_host_list(scan_id, target)
+        host = self.get_host_list(scan_id)
+        total_hosts = len(target_str_to_list(host))
+        exc_hosts_list = self.simplify_exclude_host_list(scan_id)
         exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
-        host_progresses = self.scans_table[scan_id]['target_progress'].get(
-            target
-        )
+        host_progresses = self.scans_table[scan_id].get('target_progress')
 
         try:
             t_prog = sum(host_progresses.values()) / (
@@ -361,7 +342,8 @@ class ScanCollection:
             )  # type: float
         except ZeroDivisionError:
             LOGGER.error(
-                "Zero division error in %s", self.get_target_progress.__name__
+                "Zero division error in %s",
+                self.calculate_target_progress.__name__,
             )
             raise
 
@@ -377,62 +359,38 @@ class ScanCollection:
 
         return self.scans_table[scan_id]['end_time']
 
-    def get_target_list(self, scan_id: str) -> List:
-        """ Get a scan's target list. """
+    def get_host_list(self, scan_id: str) -> Dict:
+        """ Get a scan's host list. """
 
-        target_list = []
-        for target, _, _, _, _, _ in self.scans_table[scan_id]['targets']:
-            target_list.append(target)
+        return self.scans_table[scan_id]['target'].get('hosts')
 
-        return target_list
-
-    def get_ports(self, scan_id: str, target: str):
-        """ Get a scan's ports list. If a target is specified
-        it will return the corresponding port for it. If not,
-        it returns the port item of the first nested list in
-        the target's list.
+    def get_ports(self, scan_id: str):
+        """ Get a scan's ports list.
         """
-        if target:
-            for item in self.scans_table[scan_id]['targets']:
-                if target == item[0]:
-                    return item[1]
+        return self.scans_table[scan_id]['target'].get('ports')
 
-        return self.scans_table[scan_id]['targets'][0][1]
-
-    def get_exclude_hosts(self, scan_id: str, target: str):
+    def get_exclude_hosts(self, scan_id: str):
         """ Get an exclude host list for a given target.
         """
-        if target:
-            for item in self.scans_table[scan_id]['targets']:
-                if target == item[0]:
-                    return item[3]
+        return self.scans_table[scan_id]['target'].get('exclude_hosts')
 
-    def get_finished_hosts(self, scan_id: str, target: str):
+    def get_finished_hosts(self, scan_id: str):
         """ Get the finished host list sent by the client for a given target.
         """
-        if target:
-            for item in self.scans_table[scan_id]['targets']:
-                if target == item[0]:
-                    return item[4]
+        return self.scans_table[scan_id]['target'].get('finished_hosts')
 
-    def get_credentials(self, scan_id: str, target: str):
+    def get_credentials(self, scan_id: str):
         """ Get a scan's credential list. It return dictionary with
         the corresponding credential for a given target.
         """
-        if target:
-            for item in self.scans_table[scan_id]['targets']:
-                if target == item[0]:
-                    return item[2]
+        return self.scans_table[scan_id]['target'].get('credentials')
 
-    def get_target_options(self, scan_id: str, target: str):
+    def get_target_options(self, scan_id: str):
         """ Get a scan's target option dictionary.
         It return dictionary with the corresponding options for
         a given target.
         """
-        if target:
-            for item in self.scans_table[scan_id]['targets']:
-                if target == item[0]:
-                    return item[5]
+        return self.scans_table[scan_id]['target'].get('options')
 
     def get_vts(self, scan_id: str) -> Dict:
         """ Get a scan's vts. """

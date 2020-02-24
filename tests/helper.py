@@ -160,13 +160,13 @@ class DummyWrapper(OSPDaemon):
 
         return response
 
-    def exec_scan(self, scan_id, target):
+    def exec_scan(self, scan_id):
         time.sleep(0.01)
         for res in self.results:
             if res.result_type == 'log':
                 self.add_scan_log(
                     scan_id,
-                    res.host or target,
+                    res.host,
                     res.hostname,
                     res.name,
                     res.value,
@@ -175,7 +175,7 @@ class DummyWrapper(OSPDaemon):
             if res.result_type == 'error':
                 self.add_scan_error(
                     scan_id,
-                    res.host or target,
+                    res.host,
                     res.hostname,
                     res.name,
                     res.value,
@@ -183,16 +183,12 @@ class DummyWrapper(OSPDaemon):
                 )
             elif res.result_type == 'host-detail':
                 self.add_scan_host_detail(
-                    scan_id,
-                    res.host or target,
-                    res.hostname,
-                    res.name,
-                    res.value,
+                    scan_id, res.host, res.hostname, res.name, res.value,
                 )
             elif res.result_type == 'alarm':
                 self.add_scan_alarm(
                     scan_id,
-                    res.host or target,
+                    res.host,
                     res.hostname,
                     res.name,
                     res.value,

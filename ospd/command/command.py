@@ -18,6 +18,7 @@
 
 import multiprocessing
 import re
+import logging
 import subprocess
 
 from decimal import Decimal
@@ -29,7 +30,6 @@ import psutil
 
 from ospd.errors import OspdCommandError
 from ospd.misc import valid_uuid, create_process
-from ospd.network import target_str_to_list
 from ospd.protocol import OspRequest, OspResponse
 from ospd.xml import (
     simple_response_str,
@@ -39,6 +39,8 @@ from ospd.xml import (
 
 from .initsubclass import InitSubclassMeta
 from .registry import register_command
+
+logger = logging.getLogger(__name__)
 
 
 class BaseCommand(metaclass=InitSubclassMeta):
@@ -358,9 +360,6 @@ class StopScan(BaseCommand):
         # Don't send response until the scan is stopped.
         try:
             self._daemon.scan_processes[scan_id].join()
-            exitcode = self._daemon.scan_processes[  # pylint: disable=unused-variable
-                scan_id
-            ].exitcode
         except KeyError:
             pass
 
@@ -458,15 +457,25 @@ class StartScan(BaseCommand):
         # For backward compatibility, if target and ports attributes are set,
         # <targets> element is ignored.
         if target_str is None or ports_str is None:
-            target_list = xml.find('targets')
+            target_list = xml.find('targets/target')
             if target_list is None or len(target_list) == 0:
                 raise OspdCommandError('No targets or ports', 'start_scan')
             else:
-                scan_targets = OspRequest.process_targets_element(target_list)
+                scan_target = OspRequest.process_targets_element(target_list)
         else:
-            scan_targets = []
-            for single_target in target_str_to_list(target_str):
-                scan_targets.append([single_target, ports_str, '', '', '', ''])
+            scan_target = {
+                'target': target_str,
+                'ports': ports_str,
+                'credentials': {},
+                'exclude_hosts': '',
+                'finished_hosts': '',
+                'options': {},
+            }
+            logger.warning(
+                "Legacy start scan command format is beeing used, which "
+                "is deprecated since 20.04. Please read the documentation "
+                "for start scan command."
+            )
 
         scan_id = xml.get('scan_id')
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
@@ -479,9 +488,11 @@ class StartScan(BaseCommand):
                 'Invalid value for parallel scans. It must be a number',
                 'start_scan',
             )
-
-        if parallel < 1 or parallel > 20:
-            parallel = 1
+        finally:
+            logger.warning(
+                "Parallel attribute will be ignored, sice parallel "
+                "scan is not supported by OSPd."
+            )
 
         scanner_params = xml.find('scanner_params')
         if scanner_params is None:
@@ -508,7 +519,7 @@ class StartScan(BaseCommand):
 
         scan_id_aux = scan_id
         scan_id = self._daemon.create_scan(
-            scan_id, scan_targets, scan_params, vt_selection
+            scan_id, scan_target, scan_params, vt_selection
         )
 
         if not scan_id:
@@ -517,7 +528,7 @@ class StartScan(BaseCommand):
             return simple_response_str('start_scan', 100, 'Continue', id_)
 
         scan_process = create_process(
-            func=scan_func, args=(scan_id, scan_targets, parallel)
+            func=scan_func, args=(scan_id, scan_target)
         )
 
         self._daemon.scan_processes[scan_id] = scan_process

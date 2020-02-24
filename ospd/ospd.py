@@ -38,7 +38,7 @@ from deprecated import deprecated
 from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
-from ospd.misc import ResultType, create_process
+from ospd.misc import ResultType
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.protocol import OspRequest, OspResponse
 from ospd.scan import ScanCollection, ScanStatus
@@ -389,7 +389,7 @@ class OSPDaemon:
         """ Should be implemented by subclass in case of a check before
         stopping is needed. """
 
-    def exec_scan(self, scan_id: str, target):
+    def exec_scan(self, scan_id: str):
         """ Asserts to False. Should be implemented by subclass. """
         raise NotImplementedError
 
@@ -488,169 +488,78 @@ class OSPDaemon:
             stream.write(response)
         stream.close()
 
-    def parallel_scan(self, scan_id: str, target: str) -> None:
-        """ Starts the scan with scan_id. """
-        try:
-            ret = self.exec_scan(scan_id, target)
-            if ret == 0:
-                logger.info("%s: Host scan dead.", target)
-            elif ret == 1:
-                logger.info("%s: Host scan alived.", target)
-            elif ret == 2:
-                logger.info("%s: Scan error or status unknown.", target)
-            else:
-                logger.debug('%s: No host status returned', target)
-        except Exception as e:  # pylint: disable=broad-except
-            self.add_scan_error(
-                scan_id,
-                name='',
-                host=target,
-                value='Host process failure (%s).' % e,
-            )
-            logger.exception('While scanning %s:', target)
-        else:
-            logger.info("%s: Host scan finished.", target)
-
-    def check_pending_target(self, scan_id: str, multiscan_proc: List) -> List:
-        """ Check if a scan process is still alive. In case the process
-        finished or is stopped, removes the process from the multiscan
-        _process list.
-        Processes dead and with progress < 100% are considered stopped
-        or with failures. Then will try to stop the other runnings (target)
-        scans owned by the same task.
-
-        @input scan_id        Scan_id of the whole scan.
-        @input multiscan_proc A list with the scan process which
-                              may still be alive.
-
-        @return Actualized list with current running scan processes.
-        """
-        for running_target_proc, running_target_id in multiscan_proc:
-            if not running_target_proc.is_alive():
-                target_prog = self.get_scan_target_progress(
-                    scan_id, running_target_id
-                )
-
-                _not_finished_clean = target_prog < 100
-                _not_stopped = (
-                    self.get_scan_status(scan_id) != ScanStatus.STOPPED
-                )
-
-                if _not_finished_clean and _not_stopped:
-                    if not self.target_is_finished(scan_id):
-                        self.stop_scan(scan_id)
-
-                running_target = (running_target_proc, running_target_id)
-                multiscan_proc.remove(running_target)
-
-        return multiscan_proc
-
     def calculate_progress(self, scan_id: str) -> float:
-        """ Calculate the total scan progress from the
-        partial target progress. """
+        """ Calculate the total scan progress. """
 
-        t_prog = dict()
-        for target in self.get_scan_target(scan_id):
-            t_prog[target] = self.get_scan_target_progress(scan_id, target)
-        return sum(t_prog.values()) / len(t_prog)
+        return self.scan_collection.calculate_target_progress(scan_id)
 
-    def process_exclude_hosts(self, scan_id: str, target_list: List) -> None:
+    def process_exclude_hosts(self, scan_id: str, exclude_hosts: str) -> None:
         """ Process the exclude hosts before launching the scans."""
 
-        for target, _, _, exclude_hosts, _, _ in target_list:
-            exc_hosts_list = ''
-            if not exclude_hosts:
-                continue
-            exc_hosts_list = target_str_to_list(exclude_hosts)
-            self.remove_scan_hosts_from_target_progress(
-                scan_id, target, exc_hosts_list
-            )
+        exc_hosts_list = ''
+        if not exclude_hosts:
+            return
+        exc_hosts_list = target_str_to_list(exclude_hosts)
+        self.remove_scan_hosts_from_target_progress(scan_id, exc_hosts_list)
 
-    def process_finished_hosts(self, scan_id: str, target_list: List) -> None:
+    def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
         """ Process the finished hosts before launching the scans.
         Set finished hosts as finished with 100% to calculate
         the scan progress."""
 
-        for target, _, _, _, finished_hosts, _ in target_list:
-            exc_hosts_list = ''
-            if not finished_hosts:
-                continue
-            exc_hosts_list = target_str_to_list(finished_hosts)
+        exc_hosts_list = ''
+        if not finished_hosts:
+            return
 
-            for host in exc_hosts_list:
-                self.set_scan_host_finished(scan_id, target, host)
-                self.set_scan_host_progress(scan_id, target, host, 100)
+        exc_hosts_list = target_str_to_list(finished_hosts)
 
-    def start_scan(self, scan_id: str, targets: List, parallel=1) -> None:
-        """ Handle N parallel scans if 'parallel' is greater than 1. """
+        for host in exc_hosts_list:
+            self.set_scan_host_finished(scan_id, host)
+            self.set_scan_host_progress(scan_id, host, 100)
 
+    def start_scan(self, scan_id: str, target: Dict) -> None:
+        """ Starts the scan with scan_id. """
         os.setsid()
 
-        multiscan_proc = []
+        if target is None or not target:
+            raise OspdCommandError('Erroneous target', 'start_scan')
+
         logger.info("%s: Scan started.", scan_id)
-        target_list = targets
-        if target_list is None or not target_list:
-            raise OspdCommandError('Erroneous targets list', 'start_scan')
 
-        self.process_exclude_hosts(scan_id, target_list)
-        self.process_finished_hosts(scan_id, target_list)
+        self.process_exclude_hosts(scan_id, target.get('exclude_hosts'))
+        self.process_finished_hosts(scan_id, target.get('finished_hosts'))
 
-        for _index, target in enumerate(target_list):
-            while len(multiscan_proc) >= parallel:
-                progress = self.calculate_progress(scan_id)
-                self.set_scan_progress(scan_id, progress)
-                multiscan_proc = self.check_pending_target(
-                    scan_id, multiscan_proc
-                )
-                time.sleep(1)
-
-            # If the scan status is stopped, does not launch anymore target
-            # scans
-            if self.get_scan_status(scan_id) == ScanStatus.STOPPED:
-                return
-
-            logger.debug(
-                "%s: Host scan started on ports %s.", target[0], target[1]
-            )
-            scan_process = create_process(
-                func=self.parallel_scan, args=(scan_id, target[0])
-            )
-            multiscan_proc.append((scan_process, target[0]))
-            scan_process.start()
+        try:
             self.set_scan_status(scan_id, ScanStatus.RUNNING)
+            ret = self.exec_scan(scan_id)
+        except Exception as e:  # pylint: disable=broad-except
+            self.add_scan_error(
+                scan_id,
+                name='',
+                host=self.get_scan_host(scan_id),
+                value='Host process failure (%s).' % e,
+            )
+            logger.exception('While scanning: %s', scan_id)
+        else:
+            logger.info("%s: Host scan finished.", scan_id)
 
-        # Wait until all single target were scanned
-        while multiscan_proc:
-            multiscan_proc = self.check_pending_target(scan_id, multiscan_proc)
-            if multiscan_proc:
-                progress = self.calculate_progress(scan_id)
-                self.set_scan_progress(scan_id, progress)
-            time.sleep(1)
-
-        # Only set the scan as finished if the scan was not stopped.
         if self.get_scan_status(scan_id) != ScanStatus.STOPPED:
             self.finish_scan(scan_id)
 
-    def dry_run_scan(  # pylint: disable=unused-argument
-        self, scan_id: str, targets: List, parallel: int
-    ) -> None:
+    def dry_run_scan(self, scan_id: str, target: Dict) -> None:
         """ Dry runs a scan. """
 
         os.setsid()
 
-        for _, target in enumerate(targets):
-            host = resolve_hostname(target[0])
-            if host is None:
-                logger.info("Couldn't resolve %s.", target[0])
-                continue
+        host = resolve_hostname(target[0])
+        if host is None:
+            logger.info("Couldn't resolve %s.", self.get_scan_host(scan_id))
 
-            port = self.get_scan_ports(scan_id, target=target[0])
+        port = self.get_scan_ports(scan_id)
 
-            logger.info("%s:%s: Dry run mode.", host, port)
+        logger.info("%s:%s: Dry run mode.", host, port)
 
-            self.add_scan_log(
-                scan_id, name='', host=host, value='Dry run result'
-            )
+        self.add_scan_log(scan_id, name='', host=host, value='Dry run result')
 
         self.finish_scan(scan_id)
 
@@ -664,18 +573,16 @@ class OSPDaemon:
         )
 
     def remove_scan_hosts_from_target_progress(
-        self, scan_id: str, target: str, exc_hosts_list: List
+        self, scan_id: str, exc_hosts_list: List
     ) -> None:
         """ Remove a list of hosts from the main scan progress table."""
         self.scan_collection.remove_hosts_from_target_progress(
-            scan_id, target, exc_hosts_list
+            scan_id, exc_hosts_list
         )
 
-    def set_scan_host_finished(
-        self, scan_id: str, target: str, host: str
-    ) -> None:
+    def set_scan_host_finished(self, scan_id: str, host: str) -> None:
         """ Add the host in a list of finished hosts """
-        self.scan_collection.set_host_finished(scan_id, target, host)
+        self.scan_collection.set_host_finished(scan_id, host)
 
     def set_scan_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress which is a number
@@ -683,10 +590,16 @@ class OSPDaemon:
         self.scan_collection.set_progress(scan_id, progress)
 
     def set_scan_host_progress(
-        self, scan_id: str, target: str, host: str, progress: int
+        self, scan_id: str, host: str, progress: int
     ) -> None:
-        """ Sets host's progress which is part of target. """
-        self.scan_collection.set_host_progress(scan_id, target, host, progress)
+        """ Sets host's progress which is part of target.
+        Each time a host progress is updated, the scan progress
+        is updated too.
+        """
+        self.scan_collection.set_host_progress(scan_id, host, progress)
+
+        scan_progress = self.calculate_progress(scan_id)
+        self.set_scan_progress(scan_id, scan_progress)
 
     def set_scan_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Set the scan's status."""
@@ -799,7 +712,7 @@ class OSPDaemon:
         if not scan_id:
             return Element('scan')
 
-        target = ','.join(self.get_scan_target(scan_id))
+        target = self.get_scan_host(scan_id)
         progress = self.get_scan_progress(scan_id)
         status = self.get_scan_status(scan_id)
         start_time = self.get_scan_start_time(scan_id)
@@ -1215,7 +1128,7 @@ class OSPDaemon:
     def create_scan(
         self,
         scan_id: str,
-        targets: List,
+        targets: Dict,
         options: Optional[Dict],
         vt_selection: Dict,
     ) -> Optional[str]:
@@ -1300,32 +1213,28 @@ class OSPDaemon:
         """ Gives a scan's current progress value. """
         return self.scan_collection.get_progress(scan_id)
 
-    def get_scan_target_progress(self, scan_id: str, target: str) -> float:
-        """ Gives a list with scan's current progress value of each target. """
-        return self.scan_collection.get_target_progress(scan_id, target)
-
-    def get_scan_target(self, scan_id: str) -> List:
+    def get_scan_host(self, scan_id: str) -> str:
         """ Gives a scan's target. """
-        return self.scan_collection.get_target_list(scan_id)
+        return self.scan_collection.get_host_list(scan_id)
 
-    def get_scan_ports(self, scan_id: str, target: str = '') -> str:
+    def get_scan_ports(self, scan_id: str) -> str:
         """ Gives a scan's ports list. """
-        return self.scan_collection.get_ports(scan_id, target)
+        return self.scan_collection.get_ports(scan_id)
 
-    def get_scan_exclude_hosts(self, scan_id: str, target: str = ''):
+    def get_scan_exclude_hosts(self, scan_id: str):
         """ Gives a scan's exclude host list. If a target is passed gives
         the exclude host list for the given target. """
-        return self.scan_collection.get_exclude_hosts(scan_id, target)
+        return self.scan_collection.get_exclude_hosts(scan_id)
 
-    def get_scan_credentials(self, scan_id: str, target: str = '') -> Dict:
+    def get_scan_credentials(self, scan_id: str) -> Dict:
         """ Gives a scan's credential list. If a target is passed gives
         the credential list for the given target. """
-        return self.scan_collection.get_credentials(scan_id, target)
+        return self.scan_collection.get_credentials(scan_id)
 
-    def get_scan_target_options(self, scan_id: str, target: str = '') -> Dict:
+    def get_scan_target_options(self, scan_id: str) -> Dict:
         """ Gives a scan's target option dict. If a target is passed gives
         the credential list for the given target. """
-        return self.scan_collection.get_target_options(scan_id, target)
+        return self.scan_collection.get_target_options(scan_id)
 
     def get_scan_vts(self, scan_id: str) -> Dict:
         """ Gives a scan's vts. """
