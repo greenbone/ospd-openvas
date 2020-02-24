@@ -21,15 +21,13 @@
 
 """ Unit Test for ospd-openvas """
 
-from pathlib import Path
+import io
+import logging
 
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
 from ospd.vts import Vts
-
-import io
-import logging
 
 from tests.dummydaemon import DummyDaemon
 
