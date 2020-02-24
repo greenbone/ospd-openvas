@@ -130,11 +130,9 @@ class DummyDaemon(OSPDopenvas):
 
     def create_xml_target(self):
         target = secET.fromstring(
-            "<targets>"
             "<target>"
             "<hosts>192.168.0.1</hosts>"
             "<ports>80,443</ports>"
             "</target>"
-            "</targets>"
         )
         return target
