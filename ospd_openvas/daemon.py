@@ -1555,6 +1555,8 @@ class OSPDopenvas(OSPDaemon):
             'internal/%s/scanprefs' % openvas_scan_id, prefs_val
         )
 
+        prefs_val = None
+
         # Store main_kbindex as global preference
         ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
         self.openvas_db.add_single_item(
@@ -1619,6 +1621,13 @@ class OSPDopenvas(OSPDaemon):
                 self.openvas_db.add_single_item(
                     'internal/%s/scanprefs' % openvas_scan_id, [item]
                 )
+
+            nvts_params = None
+            nvts_list = None
+            item = None
+            plugin_list = None
+            nvts = None
+
             # Release temp vts dict memory.
             self.temp_vts_dict = None
         else:
@@ -1626,6 +1635,8 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, name='', host=target, value='No VTS to run.'
             )
             do_not_launch = True
+
+        self.scan_collection.release_vts_list(scan_id)
 
         # Set reverse lookup options
         if target_options:
