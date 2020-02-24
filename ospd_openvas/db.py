@@ -138,9 +138,9 @@ class OpenvasDB:
             kbindex: The new kb to select
         """
         if not ctx:
-            raise RequiredArgument('select_kb', 'ctx')
+            raise RequiredArgument('select_database', 'ctx')
         if not kbindex:
-            raise RequiredArgument('select_kb', 'kbindex')
+            raise RequiredArgument('select_database', 'kbindex')
 
         ctx.execute_command('SELECT ' + str(kbindex))
 
