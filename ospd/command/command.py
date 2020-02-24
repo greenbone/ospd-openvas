@@ -18,6 +18,7 @@
 
 import multiprocessing
 import re
+import logging
 import subprocess
 
 from decimal import Decimal
@@ -38,6 +39,8 @@ from ospd.xml import (
 
 from .initsubclass import InitSubclassMeta
 from .registry import register_command
+
+logger = logging.getLogger(__name__)
 
 
 class BaseCommand(metaclass=InitSubclassMeta):
