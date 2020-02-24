@@ -1626,6 +1626,7 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, name='', host=target, value='No VTS to run.'
             )
             do_not_launch = True
+        self.scan_collection.release_vts_list(scan_id)
 
         # Set reverse lookup options
         if target_options:
