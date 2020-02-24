@@ -170,6 +170,15 @@ class OpenvasDB:
         return ctx.lrange(name, start, end)
 
     @staticmethod
+    def get_last_list_item(ctx: RedisCtx, name: str) -> str:
+        if not ctx:
+            raise RequiredArgument('get_last_list_item', 'ctx')
+        if not name:
+            raise RequiredArgument('get_last_list_item', 'name')
+
+        return ctx.rpop(name)
+
+    @staticmethod
     def get_key_count(ctx: RedisCtx, pattern: Optional[str] = None) -> int:
         """ Get the number of keys matching with the pattern.
 
