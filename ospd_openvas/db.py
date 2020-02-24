@@ -371,10 +371,10 @@ class BaseKbDB(BaseDB):
         """
         OpenvasDB.remove_list_item(self.ctx, key, value)
 
-    def get_result(self) -> Optional[List]:
+    def get_result(self) -> Optional[str]:
         """ Get and remove the oldest result from the list.
 
-        Return a list with scan results
+        Return the oldest scan results
         """
         return self.ctx.rpop("internal/results")
 
