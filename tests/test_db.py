@@ -462,3 +462,24 @@ class MainDBTestCase(TestCase):
         maindb.release_database_by_index(3)
 
         ctx.hdel.assert_called_once_with(DBINDEX_NAME, 3)
+
+    def test_release_database(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.hdel.return_value = 1
+
+        db = MagicMock()
+        db.index = 3
+        maindb = MainDB(ctx)
+        maindb.release_database(db)
+
+        ctx.hdel.assert_called_once_with(DBINDEX_NAME, 3)
+        db.flush.assert_called_with()
+
+    def test_release(self, mock_redis):
+        ctx = mock_redis.return_value
+
+        maindb = MainDB(ctx)
+        maindb.release()
+
+        ctx.hdel.assert_called_with(DBINDEX_NAME, maindb.index)
+        ctx.flushdb.assert_called_with()
