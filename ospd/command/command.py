@@ -448,7 +448,8 @@ class StartScan(BaseCommand):
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <start_scan> command.
 
-        @return: Response string for <start_scan> command.
+        Return:
+            Response string for <start_scan> command.
         """
 
         target_str = xml.get('target')
@@ -481,17 +482,10 @@ class StartScan(BaseCommand):
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
             raise OspdCommandError('Invalid scan_id UUID', 'start_scan')
 
-        try:
-            parallel = int(xml.get('parallel', '1'))
-        except ValueError:
-            raise OspdCommandError(
-                'Invalid value for parallel scans. It must be a number',
-                'start_scan',
-            )
-        finally:
+        if xml.get('parallel'):
             logger.warning(
-                "Parallel attribute will be ignored, sice parallel "
-                "scan is not supported by OSPd."
+                "parallel attribute of start_scan will be ignored, sice "
+                "parallel scan is not supported by OSPd."
             )
 
         scanner_params = xml.find('scanner_params')
