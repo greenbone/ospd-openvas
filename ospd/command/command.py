@@ -462,7 +462,7 @@ class StartScan(BaseCommand):
             if target_element is None or len(target_element) == 0:
                 raise OspdCommandError('No targets or ports', 'start_scan')
             else:
-                scan_target = OspRequest.process_targets_element(target_element)
+                scan_target = OspRequest.process_target_element(target_element)
         else:
             scan_target = {
                 'hosts': target_str,
