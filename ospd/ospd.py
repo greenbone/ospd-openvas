@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = "1.2"
 
-SCHEDULER_CHECK_PERIOD = 5  # in seconds
+SCHEDULER_CHECK_PERIOD = 10  # in seconds
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -1109,7 +1109,7 @@ class OSPDaemon:
 
         try:
             while True:
-                time.sleep(10)
+                time.sleep(SCHEDULER_CHECK_PERIOD)
                 self.scheduler()
                 self.clean_forgotten_scans()
                 self.wait_for_children()
