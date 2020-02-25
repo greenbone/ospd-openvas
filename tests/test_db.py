@@ -335,6 +335,16 @@ class ScanDBTestCase(TestCase):
             self.ctx, 'internal/scan_id'
         )
 
+    def test_get_scan_status(self, mock_openvas_db):
+        mock_openvas_db.get_last_list_item.return_value = 'foo'
+
+        ret = self.db.get_scan_status()
+
+        self.assertEqual(ret, 'foo')
+        mock_openvas_db.get_last_list_item.assert_called_with(
+            self.ctx, 'internal/status'
+        )
+
     def test_get_host_scan_start_time(self, mock_openvas_db):
         mock_openvas_db.get_last_list_item.return_value = 'some start time'
 
