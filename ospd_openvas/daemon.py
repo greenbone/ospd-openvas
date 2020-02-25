@@ -1187,7 +1187,7 @@ class OSPDopenvas(OSPDaemon):
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.temp_vts.keys():
+            if vtid not in self.temp_vts:
                 logger.warning(
                     'The VT %s was not found and it will not be loaded.', vtid
                 )
