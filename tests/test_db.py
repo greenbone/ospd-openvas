@@ -269,6 +269,26 @@ class TestOpenvasDB(TestCase):
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_key_count(None)
 
+    def test_find_database_by_pattern_none(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.keys.return_value = None
+
+        new_ctx, index = OpenvasDB.find_database_by_pattern('foo*', 123)
+
+        self.assertIsNone(new_ctx)
+        self.assertIsNone(index)
+
+    def test_find_database_by_pattern(self, mock_redis):
+        ctx = mock_redis.return_value
+
+        # keys is called twice per iteration
+        ctx.keys.side_effect = [None, None, None, None, True, True]
+
+        new_ctx, index = OpenvasDB.find_database_by_pattern('foo*', 123)
+
+        self.assertEqual(new_ctx, ctx)
+        self.assertEqual(index, 2)
+
 
 @patch('ospd_openvas.db.OpenvasDB')
 class ScanDBTestCase(TestCase):
