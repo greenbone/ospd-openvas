@@ -699,3 +699,44 @@ class MainDBTestCase(TestCase):
 
         self.assertIsNone(kbdb)
         ctx.flushdb.assert_not_called()
+
+    @patch('ospd_openvas.db.OpenvasDB')
+    def test_find_kb_database_by_scan_id_none(
+        self, mock_openvas_db, mock_redis
+    ):
+        ctx = mock_redis.return_value
+
+        new_ctx = 'bar'  # just some object to compare
+        mock_openvas_db.create_context.return_value = new_ctx
+        mock_openvas_db.get_single_item.return_value = None
+
+        maindb = MainDB(ctx)
+        maindb._max_dbindex = 2  # pylint: disable=protected-access
+
+        scan_id, kbdb = maindb.find_kb_database_by_scan_id('foo')
+
+        mock_openvas_db.get_single_item.assert_called_once_with(
+            new_ctx, 'internal/foo/globalscanid'
+        )
+        self.assertIsNone(scan_id)
+        self.assertIsNone(kbdb)
+
+    @patch('ospd_openvas.db.OpenvasDB')
+    def test_find_kb_database_by_scan_id(self, mock_openvas_db, mock_redis):
+        ctx = mock_redis.return_value
+
+        new_ctx = 'bar'  # just some object to compare
+        mock_openvas_db.create_context.return_value = new_ctx
+        mock_openvas_db.get_single_item.side_effect = [None, 'ipsum']
+
+        maindb = MainDB(ctx)
+        maindb._max_dbindex = 3  # pylint: disable=protected-access
+
+        scan_id, kbdb = maindb.find_kb_database_by_scan_id('foo')
+
+        mock_openvas_db.get_single_item.assert_called_with(
+            new_ctx, 'internal/foo/globalscanid'
+        )
+        self.assertEqual(scan_id, 'ipsum')
+        self.assertEqual(kbdb.index, 2)
+        self.assertIs(kbdb.ctx, new_ctx)
