@@ -391,6 +391,9 @@ class BaseKbDB(BaseDB):
         """ Return the status of the host scan """
         return self._get_single_item('internal/{}'.format(openvas_scan_id))
 
+    def __repr__(self):
+        return '<{} index={}>'.format(self.__class__.__name__, self.index)
+
 
 class ScanDB(BaseKbDB):
     """ Database for a scanning a single host """
