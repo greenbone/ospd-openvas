@@ -648,7 +648,7 @@ class TestOspdOpenvas(TestCase):
         )
 
         w.load_vts()
-        w.temp_vts_dict = w.vts
+        w.temp_vts = w.vts
 
         ret = w.process_vts(vts)
 
@@ -663,7 +663,7 @@ class TestOspdOpenvas(TestCase):
         }
 
         w.load_vts()
-        w.temp_vts_dict = w.vts
+        w.temp_vts = w.vts
 
         ret = w.process_vts(vts)
 
@@ -679,7 +679,7 @@ class TestOspdOpenvas(TestCase):
         }
 
         w.load_vts()
-        w.temp_vts_dict = w.vts
+        w.temp_vts = w.vts
 
         w.process_vts(vts)
 

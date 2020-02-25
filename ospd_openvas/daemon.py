@@ -306,7 +306,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.pending_feed = None
 
-        self.temp_vts_dict = None
+        self.temp_vts = None
 
     def init(self, server: BaseServer) -> None:
 
@@ -1116,8 +1116,8 @@ class OSPDopenvas(OSPDaemon):
         vts_list = list()
         families = dict()
 
-        for oid in self.temp_vts_dict:
-            family = self.temp_vts_dict[oid]['custom'].get('family')
+        for oid in self.temp_vts:
+            family = self.temp_vts[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
 
@@ -1133,7 +1133,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
+        vt_params_list = self.temp_vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
         return None
@@ -1141,7 +1141,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_name(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
+        vt_params_list = self.temp_vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
         return None
@@ -1187,7 +1187,7 @@ class OSPDopenvas(OSPDaemon):
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.temp_vts_dict.keys():
+            if vtid not in self.temp_vts.keys():
                 logger.warning(
                     'The VT %s was not found and it will not be loaded.', vtid
                 )
@@ -1548,7 +1548,7 @@ class OSPDopenvas(OSPDaemon):
         # Make a deepcopy of the vts dictionary. Otherwise, consulting the
         # DictProxy object of multiprocessing directly is to expensinve
         # (interprocess communication).
-        self.temp_vts_dict = self.vts.copy()
+        self.temp_vts = self.vts.copy()
 
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
@@ -1580,7 +1580,7 @@ class OSPDopenvas(OSPDaemon):
             nvts = None
 
             # Release temp vts dict memory.
-            self.temp_vts_dict = None
+            self.temp_vts = None
         else:
             self.add_scan_error(
                 scan_id, name='', host=target, value='No VTS to run.'
