@@ -572,7 +572,7 @@ class MainDB(BaseDB):
         for index in range(1, self.max_database_index):
             ctx = OpenvasDB.create_context(index)
             openvas_scan_id = OpenvasDB.get_single_item(
-                'internal/{}/globalscanid'.format(scan_id), ctx
+                ctx, 'internal/{}/globalscanid'.format(scan_id)
             )
             if openvas_scan_id:
                 return (openvas_scan_id, KbDB(index, ctx))
