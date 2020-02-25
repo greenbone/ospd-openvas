@@ -673,3 +673,29 @@ class MainDBTestCase(TestCase):
 
         ctx.hdel.assert_called_with(DBINDEX_NAME, maindb.index)
         ctx.flushdb.assert_called_with()
+
+    def test_get_new_kb_database(self, mock_redis):
+        ctx = mock_redis.return_value
+
+        maindb = MainDB(ctx)
+        maindb._max_dbindex = 123  # pylint: disable=protected-access
+
+        ctx.hsetnx.side_effect = [0, 0, 1]
+
+        kbdb = maindb.get_new_kb_database()
+
+        self.assertEqual(kbdb.index, 3)
+        ctx.flushdb.assert_called_once_with()
+
+    def test_get_new_kb_database_none(self, mock_redis):
+        ctx = mock_redis.return_value
+
+        maindb = MainDB(ctx)
+        maindb._max_dbindex = 3  # pylint: disable=protected-access
+
+        ctx.hsetnx.side_effect = [0, 0, 0]
+
+        kbdb = maindb.get_new_kb_database()
+
+        self.assertIsNone(kbdb)
+        ctx.flushdb.assert_not_called()
