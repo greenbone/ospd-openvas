@@ -325,6 +325,16 @@ class ScanDBTestCase(TestCase):
 
         mock_openvas_db.select_database.assert_called_with(self.ctx, 11)
 
+    def test_get_scan_id(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = 'foo'
+
+        ret = self.db.get_scan_id()
+
+        self.assertEqual(ret, 'foo')
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/scan_id'
+        )
+
     def test_get_host_scan_start_time(self, mock_openvas_db):
         mock_openvas_db.get_last_list_item.return_value = 'some start time'
 
