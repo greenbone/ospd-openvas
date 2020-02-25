@@ -447,7 +447,13 @@ class ScanDB(BaseKbDB):
 
 class KbDB(BaseKbDB):
     def get_scan_databases(self) -> Iterator[ScanDB]:
-        """ Returns an iterator yielding corresponding ScanDBs """
+        """ Returns an iterator yielding corresponding ScanDBs
+
+        The returned Iterator can't be converted to an Iterable like a List.
+        Each yielded ScanDB must be used independently in a for loop. If the
+        Iterator gets converted into an Iterable all returned ScanDBs will use
+        the same redis context pointing to the same redis database.
+        """
         dbs = self._get_list_item('internal/dbindex')
         scan_db = ScanDB(self.index)
         for kbindex in dbs:
