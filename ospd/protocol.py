@@ -188,6 +188,7 @@ class OspRequest:
             exclude_hosts = ''
             finished_hosts = ''
             ports = ''
+            hosts = None
             credentials = {}  # type: Dict
             options = {}
 
