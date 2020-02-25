@@ -146,7 +146,7 @@ class OpenvasCommandTestCase(TestCase):
     ):
         mock_check_output.return_value = (
             b'non_simult_ports = 22 \n plugins_folder = /foo/bar\nfoo = yes\n'
-            b'bar=no\nipsum= \n'
+            b'bar=no\nipsum= \nlorem\n'
         )
 
         settings = Openvas.get_settings()
@@ -158,6 +158,7 @@ class OpenvasCommandTestCase(TestCase):
         self.assertEqual(settings['foo'], 1)
         self.assertEqual(settings['bar'], 0)
         self.assertFalse('ipsum' in settings)
+        self.assertFalse('lorem' in settings)
 
     @patch('ospd_openvas.openvas.logger')
     @patch('ospd_openvas.openvas.subprocess.check_output')
