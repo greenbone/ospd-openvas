@@ -563,6 +563,28 @@ class KbDBTestCase(TestCase):
             self.ctx, 'internal/foo'
         )
 
+    def test_get_scan_databases(self, mock_openvas_db):
+        mock_openvas_db.get_list_item.return_value = [
+            '4',
+            self.db.index,
+            '7',
+            '11',
+        ]
+
+        scan_dbs = self.db.get_scan_databases()
+
+        scan_db = next(scan_dbs)
+        self.assertEqual(scan_db.index, '4')
+
+        scan_db = next(scan_dbs)
+        self.assertEqual(scan_db.index, '7')
+
+        scan_db = next(scan_dbs)
+        self.assertEqual(scan_db.index, '11')
+
+        with self.assertRaises(StopIteration):
+            next(scan_dbs)
+
 
 @patch('ospd_openvas.db.redis.Redis')
 class MainDBTestCase(TestCase):
