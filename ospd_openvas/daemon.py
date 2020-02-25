@@ -1103,30 +1103,31 @@ class OSPDopenvas(OSPDaemon):
             for scan_db in kbdb.get_scan_databases():
                 scan_db.release()
 
-    def get_vts_in_groups(self, filters: List) -> List:
+    def get_vts_in_groups(self, filters: List[str]) -> List[str]:
         """ Return a list of vts which match with the given filter.
 
-        @input filters A list of filters. Each filter has key, operator and
-                       a value. They are separated by a space.
-                       Supported keys: family
-        @return Return a list of vts which match with the given filter.
+        Arguments:
+            filters A list of filters. Each filter has key, operator and
+                    a value. They are separated by a space.
+                    Supported keys: family
+
+        Returns a list of vt oids which match with the given filter.
         """
         vts_list = list()
         families = dict()
 
-        # Because DictProxy for python3.5 doesn't support iterkeys(),
-        # itervalues(), or iteritems() either, the iteration must be
-        # done as follow with iter().
-        for oid in iter(self.temp_vts_dict.keys()):
+        for oid in self.temp_vts_dict:
             family = self.temp_vts_dict[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
+
             families[family].append(oid)
 
         for elem in filters:
             key, value = elem.split('=')
             if key == 'family' and value in families:
                 vts_list.extend(families[value])
+
         return vts_list
 
     def get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
