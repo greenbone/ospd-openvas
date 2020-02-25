@@ -458,11 +458,11 @@ class StartScan(BaseCommand):
         # For backward compatibility, if target and ports attributes are set,
         # <targets> element is ignored.
         if target_str is None or ports_str is None:
-            target_list = xml.find('targets/target')
-            if target_list is None or len(target_list) == 0:
+            target_element = xml.find('targets/target')
+            if target_element is None or len(target_element) == 0:
                 raise OspdCommandError('No targets or ports', 'start_scan')
             else:
-                scan_target = OspRequest.process_targets_element(target_list)
+                scan_target = OspRequest.process_targets_element(target_element)
         else:
             scan_target = {
                 'hosts': target_str,
