@@ -459,7 +459,7 @@ class StartScan(BaseCommand):
         # <targets> element is ignored.
         if target_str is None or ports_str is None:
             target_element = xml.find('targets/target')
-            if target_element is None or len(target_element) == 0:
+            if target_element is None:
                 raise OspdCommandError('No targets or ports', 'start_scan')
             else:
                 scan_target = OspRequest.process_target_element(target_element)
