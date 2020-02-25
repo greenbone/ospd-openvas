@@ -26,7 +26,7 @@ from typing import List, Dict, Optional, Iterator, Tuple
 from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
 
-from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB
+from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.openvas import Openvas
 
@@ -105,7 +105,7 @@ class NVTICache(BaseDB):
             )
 
     @property
-    def ctx(self):
+    def ctx(self) -> Optional[RedisCtx]:
         if self._ctx is None:
             self._ctx, self.index = OpenvasDB.find_database_by_pattern(
                 self._get_nvti_cache_name(), self._main_db.max_database_index
@@ -132,7 +132,7 @@ class NVTICache(BaseDB):
         """
         return OpenvasDB.get_elem_pattern_by_index(self.ctx, 'filename:*')
 
-    def get_nvt_params(self, oid: str) -> Dict[str, str]:
+    def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
         """ Get NVT's preferences.
 
         Arguments:
@@ -202,7 +202,7 @@ class NVTICache(BaseDB):
 
         return tags_dict
 
-    def get_nvt_metadata(self, oid: str) -> Optional[Dict]:
+    def get_nvt_metadata(self, oid: str) -> Optional[Dict[str, str]]:
         """ Get a full NVT. Returns an XML tree with the NVT metadata.
 
         Arguments:
@@ -275,7 +275,7 @@ class NVTICache(BaseDB):
 
         return refs
 
-    def get_nvt_prefs(self, oid: str) -> Optional[List]:
+    def get_nvt_prefs(self, oid: str) -> Optional[List[str]]:
         """ Get NVT preferences.
 
         Arguments:
