@@ -395,6 +395,11 @@ class ScanDBTestCase(TestCase):
             self.ctx, 'internal/bar'
         )
 
+    def test_flush(self, mock_openvas_db):
+        self.db.flush()
+
+        self.ctx.flushdb.assert_called_with()
+
 
 @patch('ospd_openvas.db.redis.Redis')
 class MainDBTestCase(TestCase):
