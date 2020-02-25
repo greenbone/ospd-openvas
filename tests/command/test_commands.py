@@ -84,7 +84,13 @@ class StartScanTestCase(TestCase):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params /><vt_selection />'
             '</start_scan>'
         )
@@ -98,7 +104,13 @@ class StartScanTestCase(TestCase):
         cmd = StartScan(daemon)
 
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '<vt_selection>'
             '<vt_single id="1.2.3.4" />'
@@ -122,9 +134,15 @@ class StartScanTestCase(TestCase):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
 
-        # With out vtS
+        # With out vts
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '</start_scan>'
         )
@@ -142,7 +160,13 @@ class StartScanTestCase(TestCase):
 
         # Raise because no vt_param id attribute
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '<vt_selection>'
             '<vt_single id="1234"><vt_value>200</vt_value></vt_single>'
@@ -160,7 +184,13 @@ class StartScanTestCase(TestCase):
 
         # No error
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '<vt_selection>'
             '<vt_single id="1234">'
@@ -185,7 +215,13 @@ class StartScanTestCase(TestCase):
 
         # Raise because no vtgroup filter attribute
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '<vt_selection><vt_group/></vt_selection>'
             '</start_scan>'
@@ -203,7 +239,13 @@ class StartScanTestCase(TestCase):
 
         # No error
         request = et.fromstring(
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '<vt_selection>'
             '<vt_group filter="a"/>'
@@ -217,47 +259,50 @@ class StartScanTestCase(TestCase):
 
         assert_called(mock_create_process)
 
-    def test_scan_multi_target_parallel_with_error(self):
+    @patch("ospd.command.command.create_process")
+    @patch("ospd.command.command.logger")
+    def test_scan_ignore_multi_target(self, mock_logger, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
         request = et.fromstring(
             '<start_scan parallel="100a">'
-            '<scanner_params />'
             '<targets>'
             '<target>'
             '<hosts>localhosts</hosts>'
             '<ports>22</ports>'
             '</target>'
             '</targets>'
+            '<scanner_params />'
             '</start_scan>'
         )
 
-        with self.assertRaises(OspdCommandError):
-            cmd.handle_xml(request)
+        cmd.handle_xml(request)
 
-    @patch("ospd.ospd.OSPDaemon")
+        assert_called(mock_logger.warning)
+        assert_called(mock_create_process)
+
     @patch("ospd.command.command.create_process")
-    def test_scan_multi_target_parallel_100(
-        self, mock_create_process, mock_daemon
+    @patch("ospd.command.command.logger")
+    def test_scan_use_legacy_target_and_port(
+        self, mock_logger, mock_create_process
     ):
-        daemon = mock_daemon()
-        daemon.create_scan.return_value = '1'
+        daemon = DummyWrapper([])
         cmd = StartScan(daemon)
         request = et.fromstring(
-            '<start_scan parallel="100">'
+            '<start_scan target="localhost" ports="22">'
             '<scanner_params />'
-            '<targets>'
-            '<target>'
-            '<hosts>localhosts</hosts>'
-            '<ports>22</ports>'
-            '</target>'
-            '</targets>'
             '</start_scan>'
         )
+
         response = et.fromstring(cmd.handle_xml(request))
+        scan_id = response.findtext('id')
 
-        self.assertEqual(response.get('status'), '200')
+        self.assertIsNotNone(scan_id)
 
+        self.assertEqual(daemon.get_scan_host(scan_id), 'localhost')
+        self.assertEqual(daemon.get_scan_ports(scan_id), '22')
+
+        assert_called(mock_logger.warning)
         assert_called(mock_create_process)
 
 
@@ -272,7 +317,13 @@ class StopCommandTestCase(TestCase):
         fs = FakeStream()
         daemon = DummyWrapper([])
         request = (
-            '<start_scan target="localhost" ports="80, 443">'
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhosts</hosts>'
+            '<ports>22</ports>'
+            '</target>'
+            '</targets>'
             '<scanner_params />'
             '</start_scan>'
         )
