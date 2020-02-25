@@ -1547,7 +1547,8 @@ class OSPDopenvas(OSPDaemon):
         # Make a deepcopy of the vts dictionary. Otherwise, consulting the
         # DictProxy object of multiprocessing directly is to expensinve
         # (interprocess communication).
-        self.temp_vts_dict = copy.deepcopy(self.vts)
+        self.temp_vts_dict = self.vts.copy()
+
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
