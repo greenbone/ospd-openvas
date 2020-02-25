@@ -29,7 +29,7 @@ from unittest.mock import patch, MagicMock
 from redis.exceptions import ConnectionError as RCE
 
 from ospd.errors import RequiredArgument
-from ospd_openvas.db import OpenvasDB, MainDB, ScanDB, DBINDEX_NAME, time
+from ospd_openvas.db import OpenvasDB, MainDB, ScanDB, KbDB, DBINDEX_NAME, time
 from ospd_openvas.errors import OspdOpenvasError
 
 from tests.helper import assert_called
@@ -399,6 +399,169 @@ class ScanDBTestCase(TestCase):
         self.db.flush()
 
         self.ctx.flushdb.assert_called_with()
+
+
+@patch('ospd_openvas.db.OpenvasDB')
+class KbDBTestCase(TestCase):
+    @patch('ospd_openvas.db.redis.Redis')
+    def setUp(self, mock_redis):  # pylint: disable=arguments-differ
+        self.ctx = mock_redis.return_value
+        self.db = KbDB(10, self.ctx)
+
+    def test_get_result(self, mock_openvas_db):
+        mock_openvas_db.get_last_list_item.return_value = 'some result'
+
+        ret = self.db.get_result()
+
+        self.assertEqual(ret, 'some result')
+        mock_openvas_db.get_last_list_item.assert_called_with(
+            self.ctx, 'internal/results'
+        )
+
+    def test_get_status(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = 'some status'
+
+        ret = self.db.get_status('foo')
+
+        self.assertEqual(ret, 'some status')
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/foo'
+        )
+
+    def test_flush(self, mock_openvas_db):
+        self.db.flush()
+
+        self.ctx.flushdb.assert_called_with()
+
+    def test_add_scan_id(self, mock_openvas_db):
+        self.db.add_scan_id('foo', 'bar')
+
+        calls = mock_openvas_db.add_single_item.call_args_list
+
+        call = calls[0]
+        kwargs = call[0]
+
+        self.assertEqual(kwargs[1], 'internal/bar')
+        self.assertEqual(kwargs[2], ['new'])
+
+        call = calls[1]
+        kwargs = call[0]
+
+        self.assertEqual(kwargs[1], 'internal/foo/globalscanid')
+        self.assertEqual(kwargs[2], ['bar'])
+
+        call = calls[2]
+        kwargs = call[0]
+
+        self.assertEqual(kwargs[1], 'internal/scanid')
+        self.assertEqual(kwargs[2], ['bar'])
+
+    def test_add_scan_preferences(self, mock_openvas_db):
+        prefs = ['foo', 'bar']
+
+        self.db.add_scan_preferences('foo', prefs)
+
+        mock_openvas_db.add_single_item.assert_called_with(
+            self.ctx, 'internal/foo/scanprefs', prefs
+        )
+
+    def test_add_scan_process_id(self, mock_openvas_db):
+        self.db.add_scan_process_id(123)
+
+        mock_openvas_db.add_single_item.assert_called_with(
+            self.ctx, 'internal/ovas_pid', [123]
+        )
+
+    def test_get_scan_process_id(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = '123'
+
+        ret = self.db.get_scan_process_id()
+
+        self.assertEqual(ret, '123')
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/ovas_pid'
+        )
+
+    def test_remove_scan_database(self, mock_openvas_db):
+        scan_db = MagicMock(spec=ScanDB)
+        scan_db.index = 123
+
+        self.db.remove_scan_database(scan_db)
+
+        mock_openvas_db.remove_list_item.assert_called_with(
+            self.ctx, 'internal/dbindex', 123
+        )
+
+    def test_target_is_finished_false(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.side_effect = ['bar', 'new']
+
+        ret = self.db.target_is_finished('foo')
+
+        self.assertFalse(ret)
+
+        calls = mock_openvas_db.get_single_item.call_args_list
+
+        call = calls[0]
+        args = call[0]
+
+        self.assertEqual(args[1], 'internal/foo/globalscanid')
+
+        call = calls[1]
+        args = call[0]
+
+        self.assertEqual(args[1], 'internal/bar')
+
+    def test_target_is_finished_true(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.side_effect = ['bar', 'finished']
+
+        ret = self.db.target_is_finished('foo')
+
+        self.assertTrue(ret)
+
+        calls = mock_openvas_db.get_single_item.call_args_list
+
+        call = calls[0]
+        args = call[0]
+
+        self.assertEqual(args[1], 'internal/foo/globalscanid')
+
+        call = calls[1]
+        args = call[0]
+
+        self.assertEqual(args[1], 'internal/bar')
+
+        mock_openvas_db.get_single_item.side_effect = ['bar', None]
+
+        ret = self.db.target_is_finished('foo')
+
+        self.assertTrue(ret)
+
+    def test_stop_scan(self, mock_openvas_db):
+        self.db.stop_scan('foo')
+
+        mock_openvas_db.set_single_item.assert_called_with(
+            self.ctx, 'internal/foo', ['stop_all']
+        )
+
+    def test_scan_is_stopped_false(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = 'new'
+
+        ret = self.db.scan_is_stopped('foo')
+
+        self.assertFalse(ret)
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/foo'
+        )
+
+    def test_scan_is_stopped_true(self, mock_openvas_db):
+        mock_openvas_db.get_single_item.return_value = 'stop_all'
+
+        ret = self.db.scan_is_stopped('foo')
+
+        self.assertTrue(ret)
+        mock_openvas_db.get_single_item.assert_called_with(
+            self.ctx, 'internal/foo'
+        )
 
 
 @patch('ospd_openvas.db.redis.Redis')
