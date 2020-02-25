@@ -40,6 +40,18 @@ class TestNVTICache(TestCase):
         self.nvti = NVTICache(self.db)
         self.nvti._ctx = 'foo'
 
+    def test_set_index(self, MockOpenvasDB):
+        self.nvti._nvti_cache_name = '20.4'
+        self.nvti._ctx = None
+
+        MockOpenvasDB.find_database_by_pattern.return_value = ('foo', 22)
+
+        ctx = self.nvti.ctx
+
+        self.assertIsNotNone(ctx)
+        self.assertEqual(ctx, 'foo')
+        self.assertEqual(self.nvti.index, 22)
+
     def test_get_feed_version(self, MockOpenvasDB):
         self.nvti._nvti_cache_name = '20.4'
 
