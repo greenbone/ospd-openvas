@@ -465,7 +465,7 @@ class StartScan(BaseCommand):
                 scan_target = OspRequest.process_targets_element(target_list)
         else:
             scan_target = {
-                'target': target_str,
+                'hosts': target_str,
                 'ports': ports_str,
                 'credentials': {},
                 'exclude_hosts': '',
