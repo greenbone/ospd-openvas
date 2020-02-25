@@ -160,16 +160,22 @@ class NVTICache(BaseDB):
         if prefs:
             for nvt_pref in prefs:
                 elem = nvt_pref.split('|||')
-                _param_id = elem[0]
-                vt_params[_param_id] = dict()
-                vt_params[_param_id]['id'] = _param_id
-                vt_params[_param_id]['type'] = elem[2]
-                vt_params[_param_id]['name'] = elem[1].strip()
-                vt_params[_param_id]['description'] = 'Description'
-                if elem[2]:
-                    vt_params[_param_id]['default'] = elem[3]
+
+                param_id = elem[0]
+                param_name = elem[1]
+                param_type = elem[2]
+
+                vt_params[param_id] = dict()
+                vt_params[param_id]['id'] = param_id
+                vt_params[param_id]['type'] = param_type
+                vt_params[param_id]['name'] = param_name.strip()
+                vt_params[param_id]['description'] = 'Description'
+
+                if len(elem) > 3:
+                    param_default = elem[3]
+                    vt_params[param_id]['default'] = param_default
                 else:
-                    vt_params[_param_id]['default'] = ''
+                    vt_params[param_id]['default'] = ''
 
         return vt_params
 

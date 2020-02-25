@@ -112,6 +112,7 @@ class TestNVTICache(TestCase):
     def test_get_nvt_params(self, MockOpenvasDB):
         prefs1 = ['1|||dns-fuzz.timelimit|||entry|||default']
         prefs2 = ['1|||dns-fuzz.timelimit|||entry|||']
+        prefs3 = ['1|||dns-fuzz.timelimit|||entry']
 
         timeout = '300'
         out_dict1 = {
@@ -155,6 +156,11 @@ class TestNVTICache(TestCase):
         self.assertEqual(resp, out_dict1)
 
         MockOpenvasDB.get_list_item.return_value = prefs2
+
+        resp = self.nvti.get_nvt_params('1.2.3.4')
+        self.assertEqual(resp, out_dict2)
+
+        MockOpenvasDB.get_list_item.return_value = prefs3
 
         resp = self.nvti.get_nvt_params('1.2.3.4')
         self.assertEqual(resp, out_dict2)
