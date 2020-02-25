@@ -1177,7 +1177,9 @@ class OSPDopenvas(OSPDaemon):
 
         return 1
 
-    def process_vts(self, vts: List) -> Tuple[list, dict]:
+    def process_vts(
+        self, vts: Dict[str, Dict[str, str]]
+    ) -> Tuple[List[str], Dict[str, str]]:
         """ Add single VTs and their parameters. """
         vts_list = []
         vts_params = {}
@@ -1192,10 +1194,12 @@ class OSPDopenvas(OSPDaemon):
                     'The VT %s was not found and it will not be loaded.', vtid
                 )
                 continue
+
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 param_name = self.get_vt_param_name(vtid, vt_param_id)
+
                 if not param_type or not param_name:
                     logger.debug(
                         'Missing type or name for VT parameter %s of %s. '
@@ -1204,10 +1208,12 @@ class OSPDopenvas(OSPDaemon):
                         vtid,
                     )
                     continue
+
                 if vt_param_id == '0':
                     type_aux = 'integer'
                 else:
                     type_aux = param_type
+
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
                         'The VT parameter %s for %s could not be loaded. '
@@ -1218,8 +1224,10 @@ class OSPDopenvas(OSPDaemon):
                         str(vt_param_value),
                     )
                     continue
+
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
+
                 vts_params[
                     "{0}:{1}:{2}:{3}".format(
                         vtid, vt_param_id, param_type, param_name
