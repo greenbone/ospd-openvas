@@ -159,6 +159,16 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_params('1.2.3.4')
         self.assertEqual(resp, out_dict2)
 
+    def test_get_nvt_params_timeout_none(self, MockOpenvasDB):
+        prefs = ['1|||dns-fuzz.timelimit|||entry|||default']
+        timeout = None
+
+        MockOpenvasDB.get_single_item.return_value = timeout
+        MockOpenvasDB.get_list_item.return_value = prefs
+
+        resp = self.nvti.get_nvt_params('1.2.3.4')
+        self.assertIsNone(resp)
+
     def test_get_nvt_metadata(self, MockOpenvasDB):
         metadata = [
             'mantis_detect.nasl',
