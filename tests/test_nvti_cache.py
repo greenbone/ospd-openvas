@@ -24,7 +24,7 @@
 import logging
 
 from unittest import TestCase
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
@@ -49,6 +49,19 @@ class TestNVTICache(TestCase):
 
         self.assertEqual(resp, '1234')
         MockOpenvasDB.get_single_item.assert_called_with('foo', '20.4')
+
+    def test_get_feed_version_not_available(self, MockOpenvasDB):
+        pmock = PropertyMock(return_value=123)
+        type(self.db).max_database_index = pmock
+        self.nvti._nvti_cache_name = '20.4'
+        self.nvti._ctx = None
+
+        MockOpenvasDB.find_database_by_pattern.return_value = (None, None)
+
+        resp = self.nvti.get_feed_version()
+
+        self.assertIsNone(resp)
+        MockOpenvasDB.find_database_by_pattern.assert_called_with('20.4', 123)
 
     def test_get_oids(self, MockOpenvasDB):
         MockOpenvasDB.get_elem_pattern_by_index.return_value = ['oids']
