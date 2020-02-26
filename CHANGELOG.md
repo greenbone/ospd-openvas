@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Check if the amount of vts in redis is coherent. 
   [#195](https://github.com/greenbone/ospd-openvas/pull/195)
   [#197](https://github.com/greenbone/ospd-openvas/pull/197)
+- Add support for test_alive_hosts_only feature of openvas. [#204](https://github.com/greenbone/ospd-openvas/pull/204)
 
 ### Changed
 - Less strict checks for the nvti cache version

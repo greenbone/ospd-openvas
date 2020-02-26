@@ -1588,8 +1588,9 @@ class OSPDopenvas(OSPDaemon):
                                     'Invalid alive test value %s',
                                     target_options.get('alive_test'),
                                 )
-                            # Put ALIVE_TEST enum in db, this is then taken by openvas
-                            # to determine the method to use for the alive test.
+                            # Put ALIVE_TEST enum in db, this is then taken
+                            # by openvas to determine the method to use
+                            # for the alive test.
                             if alive_test >= 1 and alive_test <= 31:
                                 item = 'ALIVE_TEST|||%s' % str(alive_test)
                                 kbdb.add_scan_preferences(
