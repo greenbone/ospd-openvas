@@ -448,7 +448,8 @@ class StartScan(BaseCommand):
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <start_scan> command.
 
-        @return: Response string for <start_scan> command.
+        Return:
+            Response string for <start_scan> command.
         """
 
         target_str = xml.get('target')
@@ -457,14 +458,14 @@ class StartScan(BaseCommand):
         # For backward compatibility, if target and ports attributes are set,
         # <targets> element is ignored.
         if target_str is None or ports_str is None:
-            target_list = xml.find('targets/target')
-            if target_list is None or len(target_list) == 0:
+            target_element = xml.find('targets/target')
+            if target_element is None:
                 raise OspdCommandError('No targets or ports', 'start_scan')
             else:
-                scan_target = OspRequest.process_targets_element(target_list)
+                scan_target = OspRequest.process_target_element(target_element)
         else:
             scan_target = {
-                'target': target_str,
+                'hosts': target_str,
                 'ports': ports_str,
                 'credentials': {},
                 'exclude_hosts': '',
@@ -481,17 +482,10 @@ class StartScan(BaseCommand):
         if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
             raise OspdCommandError('Invalid scan_id UUID', 'start_scan')
 
-        try:
-            parallel = int(xml.get('parallel', '1'))
-        except ValueError:
-            raise OspdCommandError(
-                'Invalid value for parallel scans. It must be a number',
-                'start_scan',
-            )
-        finally:
+        if xml.get('parallel'):
             logger.warning(
-                "Parallel attribute will be ignored, sice parallel "
-                "scan is not supported by OSPd."
+                "parallel attribute of start_scan will be ignored, sice "
+                "parallel scan is not supported by OSPd."
             )
 
         scanner_params = xml.find('scanner_params')

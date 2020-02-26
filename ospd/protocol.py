@@ -130,59 +130,65 @@ class OspRequest:
         return credentials
 
     @classmethod
-    def process_targets_element(cls, scanner_target: Element) -> Dict:
+    def process_target_element(cls, scanner_target: Element) -> Dict:
         """ Receive an XML object with the target, ports and credentials to run
         a scan against.
 
-        @param: XML element with target subelements. Each target has <hosts>
-        and <ports> subelements. Hosts can be a single host, a host range,
-        a comma-separated host list or a network address.
-        <ports> and  <credentials> are optional. Therefore each ospd-scanner
-        should check for a valid ones if needed.
+        Arguments:
+            Single XML target element. The target has <hosts> and <ports>
+            subelements. Hosts can be a single host, a host range, a
+            comma-separated host list or a network address.
+            <ports> and  <credentials> are optional. Therefore each
+            ospd-scanner should check for a valid ones if needed.
 
-                Example form:
-                <targets>
-                  <target>
-                    <hosts>192.168.0.0/24</hosts>
-                    <ports>22</ports>
-                    <credentials>
-                      <credential type="up" service="ssh" port="22">
-                        <username>scanuser</username>
-                        <password>mypass</password>
-                      </credential>
-                      <credential type="up" service="smb">
-                        <username>smbuser</username>
-                        <password>mypass</password>
-                      </credential>
-                    </credentials>
-                    <alive_test></alive_test>
-                    <reverse_lookup_only>1</reverse_lookup_only>
-                    <reverse_lookup_unify>0</reverse_lookup_unify>
-                  </target>
-                </targets>
+            Example form:
 
-        @return: A Dict  hosts, port, {credentials}, exclude_hosts, options].
-                 Example form:
-                  {'hosts':'192.168.0.0/24', '22',
-                   'credentials': {'smb': {'type': type,
-                                           'port': port,
-                                           'username': username,
-                                           'password': pass,
-                                          }
-                                  },
+            <target>
+                <hosts>192.168.0.0/24</hosts>
+                <ports>22</ports>
+                <credentials>
+                    <credential type="up" service="ssh" port="22">
+                    <username>scanuser</username>
+                    <password>mypass</password>
+                    </credential>
+                    <credential type="up" service="smb">
+                    <username>smbuser</username>
+                    <password>mypass</password>
+                    </credential>
+                </credentials>
+                <alive_test></alive_test>
+                <reverse_lookup_only>1</reverse_lookup_only>
+                <reverse_lookup_unify>0</reverse_lookup_unify>
+            </target>
 
-                    'exclude_hosts': '',
-                    'finished_hosts': '',
-                    'options': {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
-                                'reverse_lookup_only': '1',
-                                'reverse_lookup_unify': '0',
-                               },
-                  }
+        Return:
+            A Dict  hosts, port, {credentials}, exclude_hosts, options].
+
+            Example form:
+
+            {
+                'hosts': '192.168.0.0/24',
+                'port': '22',
+                'credentials': {'smb': {'type': type,
+                                        'port': port,
+                                        'username': username,
+                                        'password': pass,
+                                        }
+                                },
+
+                'exclude_hosts': '',
+                'finished_hosts': '',
+                'options': {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
+                            'reverse_lookup_only': '1',
+                            'reverse_lookup_unify': '0',
+                            },
+            }
         """
         if scanner_target:
             exclude_hosts = ''
             finished_hosts = ''
             ports = ''
+            hosts = None
             credentials = {}  # type: Dict
             options = {}
 
