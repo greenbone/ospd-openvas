@@ -50,7 +50,7 @@ from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.db import OpenvasDB
+from ospd_openvas.db import MainDB, BaseDB, ScanDB
 from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
@@ -300,9 +300,9 @@ class OSPDopenvas(OSPDaemon):
 
         self.main_kbindex = None
 
-        self.openvas_db = OpenvasDB()
+        self.main_db = MainDB()
 
-        self.nvti = NVTICache(self.openvas_db)
+        self.nvti = NVTICache(self.main_db)
 
         self.pending_feed = None
 
@@ -316,15 +316,8 @@ class OSPDopenvas(OSPDaemon):
 
         self.set_params_from_openvas_settings()
 
-        self.openvas_db.db_init()
-
-        ctx = self.nvti.get_redis_context()
-
-        if not ctx:
+        if not self.nvti.ctx:
             Openvas.load_vts_into_redis()
-            ctx = self.nvti.get_redis_context()
-
-        self.openvas_db.set_redisctx(ctx)
 
         self.load_vts()
 
@@ -387,16 +380,16 @@ class OSPDopenvas(OSPDaemon):
         Return:
             True if the count is matching. False on failure.
         """
-        ctx = self.nvti.get_redis_context()
-        filename_count = self.openvas_db.get_key_count("filename:*", ctx)
-        nvt_count = self.openvas_db.get_key_count("nvt:*", ctx)
+        filename_count = self.nvti.get_nvt_files_count()
+        nvt_count = self.nvti.get_nvt_count()
 
         return len(self.vts) == filename_count == nvt_count
 
     def check_feed(self):
-        """ Check if there is a feed update. Wait until all the running
-        scans finished. Set a flag to anounce there is a pending feed update,
-        which avoid to start a new scan.
+        """ Check if there is a feed update.
+
+        Wait until all the running scans finished. Set a flag to announce there
+        is a pending feed update, which avoids to start a new scan.
         """
         current_feed = self.nvti.get_feed_version()
         is_outdated = self.feed_is_outdated(current_feed)
@@ -411,15 +404,14 @@ class OSPDopenvas(OSPDaemon):
         if not current_feed or is_outdated or not feed_is_healthy:
             if not feed_is_healthy:
                 # Force complete redis reload
-                self.openvas_db.release_db(kbindex=1)
+                self.nvti.force_reload()
+
                 logger.error(
                     'Redis nvticache or ospd vts dictionary corrupted. '
                     'Complete reload forced.'
                 )
 
             Openvas.load_vts_into_redis()
-            ctx = self.nvti.get_redis_context()
-            self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
 
         _running_scan = False
@@ -453,9 +445,12 @@ class OSPDopenvas(OSPDaemon):
     def load_vts(self):
         """ Load the VT's metadata into the vts global dictionary. """
 
-        logger.debug('Loading VTs in memory.')
+        logger.info('Loading VTs in memory.')
 
         oids = dict(self.nvti.get_oids())
+
+        logger.debug('Found %s NVTs in redis.', len(oids))
+
         for _filename, vt_id in oids.items():
             _vt_params = self.nvti.get_nvt_params(vt_id)
             _vt_refs = self.nvti.get_nvt_refs(vt_id)
@@ -546,14 +541,16 @@ class OSPDopenvas(OSPDaemon):
                     severities=_severity,
                 )
             except OspdError as e:
-                logger.info("Error while adding VT %s. %s", vt_id, e)
+                logger.warning("Error while adding VT %s. %s", vt_id, e)
 
         _feed_version = self.nvti.get_feed_version()
 
         self.set_vts_version(vts_version=_feed_version)
         self.pending_feed = False
 
-        logger.debug('Finish loading up vts.')
+        logger.info('Finish loading up vts.')
+
+        logger.debug('Loaded %s vts.', len(self.vts))
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
@@ -931,17 +928,19 @@ class OSPDopenvas(OSPDaemon):
             host_prog = (float(launched) / float(total)) * 100
         self.set_scan_host_progress(scan_id, current_host, host_prog)
 
-    def get_openvas_status(self, scan_id: str, current_host: str):
+    def report_openvas_scan_status(
+        self, scan_db: ScanDB, scan_id: str, current_host: str
+    ):
         """ Get all status entries from redis kb.
+
         Arguments:
             scan_id: Scan ID to identify the current scan.
-            target: Target progress to be updated.
             current_host: Host to be updated.
         """
-        res = self.openvas_db.get_status()
+        res = scan_db.get_scan_status()
         while res:
             self.update_progress(scan_id, current_host, res)
-            res = self.openvas_db.get_status()
+            res = scan_db.get_scan_status()
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
         """ Return the severity score for the given oid.
@@ -960,9 +959,11 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def get_openvas_result(self, scan_id: str, current_host: str):
+    def report_openvas_results(
+        self, db: BaseDB, scan_id: str, current_host: str
+    ):
         """ Get all result entries from redis kb. """
-        res = self.openvas_db.get_result()
+        res = db.get_result()
         while res:
             msg = res.split('|||')
             roid = msg[3].strip()
@@ -1033,50 +1034,25 @@ class OSPDopenvas(OSPDaemon):
 
             vt_aux = None
             del vt_aux
-            res = self.openvas_db.get_result()
+            res = db.get_result()
 
-    def get_openvas_timestamp_scan_host(self, scan_id: str, target: str):
+    def report_openvas_timestamp_scan_host(
+        self, scan_db: ScanDB, scan_id: str, target: str
+    ):
         """ Get start and end timestamp of a host scan from redis kb. """
-        timestamp = self.openvas_db.get_host_scan_scan_end_time()
+        timestamp = scan_db.get_host_scan_end_time()
         if timestamp:
             self.add_scan_log(
                 scan_id, host=target, name='HOST_END', value=timestamp
             )
             return
-        timestamp = self.openvas_db.get_host_scan_scan_start_time()
+
+        timestamp = scan_db.get_host_scan_start_time()
         if timestamp:
             self.add_scan_log(
                 scan_id, host=target, name='HOST_START', value=timestamp
             )
             return
-
-    def host_is_finished(self, scan_id: str) -> bool:
-        """ Check if the host has finished. """
-        status = self.openvas_db.get_single_item('internal/%s' % scan_id)
-        return status == 'finished'
-
-    def target_is_finished(self, scan_id: str) -> bool:
-        """ Check if a target has finished. The scan id to be used is
-        the scan id passed to the openvas, is not the global scan id."""
-        ctx = self.openvas_db.kb_connect(dbnum=self.main_kbindex)
-        scan_id = self.openvas_db.get_single_item(
-            'internal/%s/globalscanid' % scan_id, ctx=ctx
-        )
-        status = self.openvas_db.get_single_item(
-            'internal/%s' % scan_id, ctx=ctx
-        )
-
-        return status == 'finished' or status is None
-
-    def scan_is_stopped(self, scan_id: str) -> bool:
-        """ Check if the parent process has received the stop_scan order.
-        @in scan_id: ID to identify the scan to be stopped.
-        @return 1 if yes, None in other case.
-        """
-        ctx = self.openvas_db.kb_connect(dbnum=self.main_kbindex)
-        self.openvas_db.set_redisctx(ctx)
-        status = self.openvas_db.get_single_item('internal/%s' % scan_id)
-        return status == 'stop_all'
 
     def stop_scan_cleanup(  # pylint: disable=arguments-differ
         self, global_scan_id: str
@@ -1086,56 +1062,46 @@ class OSPDopenvas(OSPDaemon):
         instance and it is not possible to reach the variables
         of the grandchild process. Send SIGUSR2 to openvas to stop
         each running scan."""
-        ctx = self.openvas_db.kb_connect()
-        for current_kbi in range(0, self.openvas_db.max_dbindex):
-            self.openvas_db.select_kb(ctx, str(current_kbi), set_global=True)
-            scan_id = self.openvas_db.get_single_item(
-                'internal/%s/globalscanid' % global_scan_id
-            )
-            if scan_id:
-                self.openvas_db.set_single_item(
-                    'internal/%s' % scan_id, ['stop_all']
+
+        openvas_scan_id, kbdb = self.main_db.find_kb_database_by_scan_id(
+            global_scan_id
+        )
+        if kbdb:
+            kbdb.stop_scan(openvas_scan_id)
+            ovas_pid = kbdb.get_scan_process_id()
+
+            parent = None
+            try:
+                parent = psutil.Process(int(ovas_pid))
+            except psutil.NoSuchProcess:
+                logger.debug('Process with pid %s already stopped', ovas_pid)
+            except TypeError:
+                logger.debug(
+                    'Scan with ID %s never started and stopped unexpectedly',
+                    openvas_scan_id,
                 )
-                ovas_pid = self.openvas_db.get_single_item('internal/ovas_pid')
-                parent = None
-                try:
-                    parent = psutil.Process(int(ovas_pid))
-                except psutil.NoSuchProcess:
+
+            if parent:
+                can_stop_scan = Openvas.stop_scan(
+                    openvas_scan_id,
+                    not self.is_running_as_root and self.sudo_available,
+                )
+                if not can_stop_scan:
                     logger.debug(
-                        'Process with pid %s already stopped', ovas_pid
+                        'Not possible to stop scan process: %s.', parent,
                     )
-                except TypeError:
-                    logger.debug(
-                        'Scan with ID %s never started and stopped '
-                        'unexpectedly',
-                        scan_id,
-                    )
+                    return False
 
-                if parent:
-                    can_stop_scan = Openvas.stop_scan(
-                        scan_id,
-                        not self.is_running_as_root and self.sudo_available,
-                    )
-                    if not can_stop_scan:
-                        logger.debug(
-                            'Not possible to stop scan process: %s.', parent,
-                        )
-                        return False
+                logger.debug('Stopping process: %s', parent)
 
-                    logger.debug('Stopping process: %s', parent)
-                    while parent:
-                        try:
-                            parent = psutil.Process(int(ovas_pid))
-                        except psutil.NoSuchProcess:
-                            parent = None
+                while parent:
+                    try:
+                        parent = psutil.Process(int(ovas_pid))
+                    except psutil.NoSuchProcess:
+                        parent = None
 
-                self.openvas_db.release_db(current_kbi)
-                for host_kb in range(0, self.openvas_db.max_dbindex):
-                    self.openvas_db.select_kb(
-                        ctx, str(host_kb), set_global=True
-                    )
-                    if self.openvas_db.get_single_item('internal/%s' % scan_id):
-                        self.openvas_db.release_db(host_kb)
+            for scan_db in kbdb.get_scan_databases():
+                scan_db.release()
 
     def get_vts_in_groups(self, filters: List) -> List:
         """ Return a list of vts which match with the given filter.
@@ -1510,20 +1476,14 @@ class OSPDopenvas(OSPDaemon):
         # Get scan options
         options = self.get_scan_options(scan_id)
         prefs_val = []
-        ctx = self.openvas_db.kb_new()
-        self.openvas_db.set_redisctx(ctx)
-        self.main_kbindex = self.openvas_db.db_index
+        kbdb = self.main_db.get_new_kb_database()
+        self.main_kbindex = kbdb.index
 
         # To avoid interference between scan process during a parallel scanning
         # new uuid is used internally for each scan.
         openvas_scan_id = str(uuid.uuid4())
-        self.openvas_db.add_single_item(
-            'internal/%s' % openvas_scan_id, ['new']
-        )
-        self.openvas_db.add_single_item(
-            'internal/%s/globalscanid' % scan_id, [openvas_scan_id]
-        )
-        self.openvas_db.add_single_item('internal/scanid', [openvas_scan_id])
+
+        kbdb.add_scan_id(scan_id, openvas_scan_id)
 
         exclude_hosts = self.get_scan_exclude_hosts(scan_id)
         if exclude_hosts:
@@ -1551,28 +1511,22 @@ class OSPDopenvas(OSPDaemon):
             else:
                 val = str(value)
             prefs_val.append(key + "|||" + val)
-        self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, prefs_val
-        )
+
+        kbdb.add_scan_preferences(openvas_scan_id, prefs_val)
 
         prefs_val = None
 
         # Store main_kbindex as global preference
         ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
-        self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, [ov_maindbid]
-        )
+        kbdb.add_scan_preferences(openvas_scan_id, [ov_maindbid])
 
         # Set target
         target_aux = 'TARGET|||%s' % target
-        self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, [target_aux]
-        )
+        kbdb.add_scan_preferences(openvas_scan_id, [target_aux])
+
         # Set port range
         port_range = 'port_range|||%s' % ports
-        self.openvas_db.add_single_item(
-            'internal/%s/scanprefs' % openvas_scan_id, [port_range]
-        )
+        kbdb.add_scan_preferences(openvas_scan_id, [port_range])
 
         # If credentials or vts fail, set this variable.
         do_not_launch = False
@@ -1582,9 +1536,7 @@ class OSPDopenvas(OSPDaemon):
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
-                self.openvas_db.add_single_item(
-                    'internal/%s/scanprefs' % openvas_scan_id, cred_prefs
-                )
+                kbdb.add_scan_preferences(openvas_scan_id, cred_prefs)
             else:
                 self.add_scan_error(
                     scan_id, name='', host=target, value='Malformed credential.'
@@ -1602,9 +1554,8 @@ class OSPDopenvas(OSPDaemon):
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            self.openvas_db.add_single_item(
-                'internal/%s/scanprefs' % openvas_scan_id, [plugin_list]
-            )
+            kbdb.add_scan_preferences(openvas_scan_id, [plugin_list])
+
             # Set alive test option. Overwrite the scan config settings.
             target_options = self.get_scan_target_options(scan_id)
             if target_options:
@@ -1618,9 +1569,7 @@ class OSPDopenvas(OSPDaemon):
             # Add nvts parameters
             for key, val in nvts_params.items():
                 item = '%s|||%s' % (key, val)
-                self.openvas_db.add_single_item(
-                    'internal/%s/scanprefs' % openvas_scan_id, [item]
-                )
+                kbdb.add_scan_preferences(openvas_scan_id, [item])
 
             nvts_params = None
             nvts_list = None
@@ -1645,21 +1594,17 @@ class OSPDopenvas(OSPDaemon):
             )
             rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
             item = 'reverse_lookup_only|||%s' % (rev_lookup_only)
-            self.openvas_db.add_single_item(
-                'internal/%s/scanprefs' % openvas_scan_id, [item]
-            )
+            kbdb.add_scan_preferences(openvas_scan_id, [item])
 
             _rev_lookup_unify = int(
                 target_options.get('reverse_lookup_unify', '0')
             )
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
             item = 'reverse_lookup_unify|||%s' % rev_lookup_unify
-            self.openvas_db.add_single_item(
-                'internal/%s/scanprefs' % openvas_scan_id, [item]
-            )
+            kbdb.add_scan_preferences(openvas_scan_id, [item])
 
         if do_not_launch:
-            self.openvas_db.release_db(self.main_kbindex)
+            self.main_db.release_database(kbdb)
             return 2
 
         result = Openvas.start_scan(
@@ -1675,13 +1620,10 @@ class OSPDopenvas(OSPDaemon):
 
         logger.debug('pid = %s', ovas_pid)
 
-        self.openvas_db.add_single_item('internal/ovas_pid', [ovas_pid])
+        kbdb.add_scan_process_id(ovas_pid)
 
         # Wait until the scanner starts and loads all the preferences.
-        while (
-            self.openvas_db.get_single_item('internal/' + openvas_scan_id)
-            == 'new'
-        ):
+        while kbdb.get_status(openvas_scan_id) == 'new':
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
@@ -1698,45 +1640,49 @@ class OSPDopenvas(OSPDaemon):
         while True:
             time.sleep(3)
             # Check if the client stopped the whole scan
-            if self.scan_is_stopped(openvas_scan_id):
+            if kbdb.scan_is_stopped(openvas_scan_id):
                 return 1
 
-            ctx = self.openvas_db.kb_connect(self.main_kbindex)
-            self.openvas_db.set_redisctx(ctx)
-            self.get_openvas_result(scan_id, "")
-            dbs = self.openvas_db.get_list_item('internal/dbindex')
-            for i in list(dbs):
-                if i == self.main_kbindex:
-                    continue
-                self.openvas_db.select_kb(ctx, str(i), set_global=True)
-                id_aux = self.openvas_db.get_single_item('internal/scan_id')
+            self.report_openvas_results(kbdb, scan_id, "")
+
+            for scan_db in kbdb.get_scan_databases():
+
+                id_aux = scan_db.get_scan_id()
                 if not id_aux:
                     continue
+
                 if id_aux == openvas_scan_id:
                     no_id_found = False
-                    current_host = self.openvas_db.get_host_ip()
-                    self.get_openvas_result(scan_id, current_host)
-                    self.get_openvas_status(scan_id, current_host)
-                    self.get_openvas_timestamp_scan_host(scan_id, current_host)
-                    if self.host_is_finished(openvas_scan_id):
+                    current_host = scan_db.get_host_ip()
+
+                    self.report_openvas_results(scan_db, scan_id, current_host)
+                    self.report_openvas_scan_status(
+                        scan_db, scan_id, current_host
+                    )
+                    self.report_openvas_timestamp_scan_host(
+                        scan_db, scan_id, current_host
+                    )
+
+                    if scan_db.host_is_finished(openvas_scan_id):
                         self.set_scan_host_finished(scan_id, current_host)
-                        self.get_openvas_status(scan_id, current_host)
-                        self.get_openvas_timestamp_scan_host(
-                            scan_id, current_host
+                        self.report_openvas_scan_status(
+                            scan_db, scan_id, current_host
                         )
-                        self.openvas_db.select_kb(
-                            ctx, str(self.main_kbindex), set_global=False
+                        self.report_openvas_timestamp_scan_host(
+                            scan_db, scan_id, current_host
                         )
-                        self.openvas_db.remove_list_item('internal/dbindex', i)
-                        self.openvas_db.release_db(i)
+
+                        kbdb.remove_scan_database(scan_db)
+                        self.main_db.release_database(scan_db)
 
             # Scan end. No kb in use for this scan id
-            if no_id_found and self.target_is_finished(scan_id):
+            if no_id_found and kbdb.target_is_finished(scan_id):
                 break
+
             no_id_found = True
 
         # Delete keys from KB related to this scan task.
-        self.openvas_db.release_db(self.main_kbindex)
+        self.main_db.release_database(kbdb)
 
 
 def main():
