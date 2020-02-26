@@ -306,7 +306,7 @@ class OSPDopenvas(OSPDaemon):
 
         self.pending_feed = None
 
-        self.temp_vts_dict = None
+        self.temp_vts = None
 
     def init(self, server: BaseServer) -> None:
 
@@ -1103,36 +1103,37 @@ class OSPDopenvas(OSPDaemon):
             for scan_db in kbdb.get_scan_databases():
                 scan_db.release()
 
-    def get_vts_in_groups(self, filters: List) -> List:
+    def get_vts_in_groups(self, filters: List[str]) -> List[str]:
         """ Return a list of vts which match with the given filter.
 
-        @input filters A list of filters. Each filter has key, operator and
-                       a value. They are separated by a space.
-                       Supported keys: family
-        @return Return a list of vts which match with the given filter.
+        Arguments:
+            filters A list of filters. Each filter has key, operator and
+                    a value. They are separated by a space.
+                    Supported keys: family
+
+        Returns a list of vt oids which match with the given filter.
         """
         vts_list = list()
         families = dict()
 
-        # Because DictProxy for python3.5 doesn't support iterkeys(),
-        # itervalues(), or iteritems() either, the iteration must be
-        # done as follow with iter().
-        for oid in iter(self.temp_vts_dict.keys()):
-            family = self.temp_vts_dict[oid]['custom'].get('family')
+        for oid in self.temp_vts:
+            family = self.temp_vts[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
+
             families[family].append(oid)
 
         for elem in filters:
             key, value = elem.split('=')
             if key == 'family' and value in families:
                 vts_list.extend(families[value])
+
         return vts_list
 
     def get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
+        vt_params_list = self.temp_vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
         return None
@@ -1140,7 +1141,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_param_name(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.temp_vts_dict[vtid].get("vt_params")
+        vt_params_list = self.temp_vts[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
         return None
@@ -1176,7 +1177,9 @@ class OSPDopenvas(OSPDaemon):
 
         return 1
 
-    def process_vts(self, vts: List) -> Tuple[list, dict]:
+    def process_vts(
+        self, vts: Dict[str, Dict[str, str]]
+    ) -> Tuple[List[str], Dict[str, str]]:
         """ Add single VTs and their parameters. """
         vts_list = []
         vts_params = {}
@@ -1186,15 +1189,17 @@ class OSPDopenvas(OSPDaemon):
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.temp_vts_dict.keys():
+            if vtid not in self.temp_vts:
                 logger.warning(
                     'The VT %s was not found and it will not be loaded.', vtid
                 )
                 continue
+
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
                 param_type = self.get_vt_param_type(vtid, vt_param_id)
                 param_name = self.get_vt_param_name(vtid, vt_param_id)
+
                 if not param_type or not param_name:
                     logger.debug(
                         'Missing type or name for VT parameter %s of %s. '
@@ -1203,10 +1208,12 @@ class OSPDopenvas(OSPDaemon):
                         vtid,
                     )
                     continue
+
                 if vt_param_id == '0':
                     type_aux = 'integer'
                 else:
                     type_aux = param_type
+
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
                         'The VT parameter %s for %s could not be loaded. '
@@ -1217,8 +1224,10 @@ class OSPDopenvas(OSPDaemon):
                         str(vt_param_value),
                     )
                     continue
+
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
+
                 vts_params[
                     "{0}:{1}:{2}:{3}".format(
                         vtid, vt_param_id, param_type, param_name
@@ -1547,7 +1556,8 @@ class OSPDopenvas(OSPDaemon):
         # Make a deepcopy of the vts dictionary. Otherwise, consulting the
         # DictProxy object of multiprocessing directly is to expensinve
         # (interprocess communication).
-        self.temp_vts_dict = copy.deepcopy(self.vts)
+        self.temp_vts = self.vts.copy()
+
         nvts = self.get_scan_vts(scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
@@ -1578,7 +1588,7 @@ class OSPDopenvas(OSPDaemon):
             nvts = None
 
             # Release temp vts dict memory.
-            self.temp_vts_dict = None
+            self.temp_vts = None
         else:
             self.add_scan_error(
                 scan_id, name='', host=target, value='No VTS to run.'
