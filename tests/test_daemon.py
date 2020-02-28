@@ -223,7 +223,8 @@ class TestOspdOpenvas(TestCase):
             'timeout></custom>'
         )
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         res = w.get_custom_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', vt.get('custom')
         )
@@ -245,7 +246,8 @@ class TestOspdOpenvas(TestCase):
             '<severities><severity type="cvss_base_v2">'
             'AV:N/AC:L/Au:N/C:N/I:N/A:N</severity></severities>'
         )
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         severities = vt.get('severities')
         res = w.get_severities_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', severities
@@ -255,7 +257,7 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_severities_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+
         sever = {'severity_base_vector': u"\u0006"}
         logging.Logger.warning = Mock()
         w.get_severities_vt_as_xml_str(
@@ -274,14 +276,15 @@ class TestOspdOpenvas(TestCase):
             '/param></params>'
         )
 
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         params = vt.get('vt_params')
         res = w.get_params_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', params)
         self.assertEqual(len(res), len(out))
 
     def test_get_params_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+
         params = {
             '1': {
                 'id': '1',
@@ -299,7 +302,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_refs_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<refs><ref type="url" id="http://www.mantisbt.org/"/>' '</refs>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         refs = vt.get('vt_refs')
         res = w.get_refs_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', refs)
 
@@ -320,7 +324,7 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_dependencies_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+
         dep = [u"\u0006"]
         logging.Logger.error = Mock()
         w.get_dependencies_vt_as_xml_str(
@@ -332,7 +336,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_ctime_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<creation_time>1237458156</creation_time>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         ctime = vt.get('creation_time')
         res = w.get_creation_time_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', ctime
@@ -342,7 +347,7 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_ctime_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+
         ctime = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_creation_time_vt_as_xml_str(
@@ -354,7 +359,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_mtime_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<modification_time>1533906565</modification_time>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         mtime = vt.get('modification_time')
         res = w.get_modification_time_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', mtime
@@ -364,7 +370,8 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_mtime_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         mtime = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_modification_time_vt_as_xml_str(
@@ -376,7 +383,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_summary_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<summary>some summary</summary>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         summary = vt.get('summary')
         res = w.get_summary_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', summary
@@ -386,7 +394,6 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_summary_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         summary = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_summary_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', summary)
@@ -396,7 +403,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_impact_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<impact>some impact</impact>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         impact = vt.get('impact')
         res = w.get_impact_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', impact)
 
@@ -404,7 +412,7 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_impact_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+
         impact = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_impact_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', impact)
@@ -414,7 +422,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_insight_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<insight>some insight</insight>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         insight = vt.get('insight')
         res = w.get_insight_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', insight
@@ -424,7 +433,6 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_insight_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
         insight = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_insight_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', insight)
@@ -434,7 +442,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_solution_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<solution type="WillNotFix">some solution</solution>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         solution = vt.get('solution')
         solution_type = vt.get('solution_type')
 
@@ -446,7 +455,7 @@ class TestOspdOpenvas(TestCase):
 
     def test_get_solution_xml_failed(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+
         solution = u'\u0006'
         logging.Logger.warning = Mock()
         w.get_solution_vt_as_xml_str('1.3.6.1.4.1.25623.1.0.100061', solution)
@@ -456,7 +465,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_detection_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<detection qod_type="remote_banner"/>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         detection_type = vt.get('qod_type')
 
         res = w.get_detection_vt_as_xml_str(
@@ -476,7 +486,8 @@ class TestOspdOpenvas(TestCase):
     def test_get_affected_xml(self, mock_nvti, mock_db):
         w = DummyDaemon(mock_nvti, mock_db)
         out = '<affected>some affection</affected>'
-        vt = w.VT['1.3.6.1.4.1.25623.1.0.100061']
+        for item in w.get_vt_iterator():
+            vt_id, vt = item
         affected = vt.get('affected')
 
         res = w.get_affected_vt_as_xml_str(
