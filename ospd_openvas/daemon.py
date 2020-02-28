@@ -406,10 +406,6 @@ class OSPDopenvas(OSPDaemon):
         _vt_refs = self.nvti.get_nvt_refs(vt_id)
         _custom = self.nvti.get_nvt_metadata(vt_id)
 
-        if _vt_params is None or _custom is None:
-            logger.warning('Error loading VTs in memory. Trying again...')
-            return
-
         _name = _custom.pop('name')
         _vt_creation_time = _custom.pop('creation_date')
         _vt_modification_time = _custom.pop('last_modification')
@@ -468,7 +464,7 @@ class OSPDopenvas(OSPDaemon):
         if _name is None:
             _name = ''
 
-        vt = {'id': vt_id, 'name': _name}
+        vt = {'name': _name}
         if _custom is not None:
             vt["custom"] = _custom
         if _vt_params is not None:
@@ -522,6 +518,17 @@ class OSPDopenvas(OSPDaemon):
         oids = dict(self.nvti.get_oids())
         for _, vt_id in oids.items():
             vt = self.get_single_vt(vt_id, oids)
+
+            if (
+                not vt
+                or vt.get('vt_params') is None
+                or vt.get('custom') is None
+            ):
+                logger.warning(
+                    'Error loading VTs in memory. Trying again later...'
+                )
+                return
+
             custom = {'family': vt['custom'].get('family')}
             try:
                 self.add_vt(
