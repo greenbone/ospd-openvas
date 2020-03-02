@@ -320,7 +320,7 @@ class GetVts(BaseCommand):
             filtered_vts = self._daemon.vts_filter.get_filtered_vts_list(
                 self._daemon.vts, vt_filter
             )
-
+        vts_selection = self._daemon.get_vts_selection_list(vt_id, filtered_vts)
         # List of xml pieces with the generator to be iterated
         yield xml_helper.create_response('get_vts')
 
@@ -333,7 +333,10 @@ class GetVts(BaseCommand):
 
         yield begin_vts_tag
 
-        for vt in self._daemon.get_vts_selection_list(vt_id, filtered_vts):
+        for vt in self._daemon.get_vt_iterator():
+            vt_id, _ = vt
+            if vt_id not in vts_selection:
+                continue
             yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
 
         yield xml_helper.create_element('vts', end=True)
