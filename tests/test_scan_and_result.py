@@ -546,7 +546,6 @@ class ScanTestCase(unittest.TestCase):
         )
         response = fs.get_response()
         scan_id = response.findtext('id')
-        print(scan_id)
         finished = False
         while not finished:
             fs = FakeStream()
