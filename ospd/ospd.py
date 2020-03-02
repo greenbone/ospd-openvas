@@ -28,7 +28,7 @@ import multiprocessing
 import time
 import os
 
-from typing import List, Any, Dict, Optional, Iterable
+from typing import List, Any, Dict, Optional, Iterable, Tuple
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
@@ -941,15 +941,20 @@ class OSPDaemon:
         """
         return ''
 
-    def get_vt_xml(self, vt_id: str):
+    def get_vt_iterator(self) -> Iterable:
+        """ Return iterator object for getting elements
+        from the VTs dictionary. """
+        return iter(self.vts.items())
+
+    def get_vt_xml(self, single_vt: Tuple[str, Dict]) -> Element:
         """ Gets a single vulnerability test information in XML format.
 
         @return: String of single vulnerability test information in XML format.
         """
-        if not vt_id:
+        if not single_vt:
             return Element('vt')
 
-        vt = self.vts.get(vt_id)
+        vt_id, vt = single_vt
 
         name = vt.get('name')
         vt_xml = Element('vt')
@@ -1072,7 +1077,7 @@ class OSPDaemon:
         elif vt_id:
             vts_list = [vt_id]
         else:
-            vts_list = iter(self.vts)
+            vts_list = self.vts.keys()
 
         return vts_list
 
