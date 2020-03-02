@@ -53,6 +53,9 @@ class Vts:
     def __getitem__(self, key):
         return self.vts[key]
 
+    def items(self):
+        return self.vts.items()
+
     def __len__(self) -> int:
         return len(self.vts)
 
