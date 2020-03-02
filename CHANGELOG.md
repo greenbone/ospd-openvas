@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Update daemon start sequence. Run daemon.check before daemon.init now. [#197](https://github.com/greenbone/ospd/pull/197)
 - Improve get_vts cmd response, sending the vts piece by piece.[#201](https://github.com/greenbone/ospd/pull/201)
 - Start the server before initialize to respond to the client.[#209](https://github.com/greenbone/ospd/pull/209)
+- Use an iterator to get the vts when get_vts cmd is called. [#216](https://github.com/greenbone/ospd/pull/216)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
