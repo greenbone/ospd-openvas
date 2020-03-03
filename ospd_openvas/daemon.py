@@ -428,14 +428,14 @@ class OSPDopenvas(OSPDaemon):
                 self.get_vts_version() != self.nvti.get_feed_version()
             )
 
-        if _running_scan and _pending_feed:
+        if _pending_feed and (_running_scan or self.feed_locked()):
             if not self.pending_feed:
                 self.pending_feed = True
-                logger.debug(
+                logger.info(
                     'There is a running scan. Therefore the feed '
                     'update will be performed later.'
                 )
-        elif not _running_scan and _pending_feed:
+        elif _pending_feed and not _running_scan and not self.feed_locked():
             self.vts = dict()
             self.load_vts()
 
