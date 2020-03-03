@@ -225,6 +225,8 @@ OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
 OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
 OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 
+FEED_LOCK_FILE_PATH = "/var/run/ospd/feed-update.lock"
+
 
 def _from_bool_to_str(value):
     """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
@@ -354,6 +356,46 @@ class OSPDopenvas(OSPDaemon):
         if int(current_feed) < int(date) or int(date) == 0:
             return True
         return False
+
+    @staticmethod
+    def feed_locked():
+        """ Check if there is an already lock file set for the feed. """
+        if Path(FEE_LOCK_FILE_PATH).is_file():
+            logger.info(
+                "A feed update process is running. Trying again later..."
+            )
+            return True
+
+        return False
+
+    @staticmethod
+    def create_feed_lock_file():
+        """ Create a lock file.
+            Return: True in success, False otherwise.
+        """
+        if self.feed_locked():
+            return False
+        else:
+            try:
+                with open(FEE_LOCK_FILE_PATH, 'w') as f:
+                    f.write("locked")
+            except (FileNotFoundError, PermissionError) as e:
+                logger.error(
+                    "Failed to create feed lock file %s. %s"
+                    % (os.path.dirname(FEE_LOCK_FILE_PATH), e)
+                )
+                return False
+
+        return True
+
+    @staticmethod
+    def delete_feed_lock_file():
+        """ Delete the feed lock file.
+        """
+        feedlockpath = Path(FEE_LOCK_FILE_PATH)
+        if feedlockpath.is_file():
+            logger.debug("Feed lock file removed.")
+            feedlockpath.unlink()
 
     def check_feed(self):
         """ Check if there is a feed update. Wait until all the running
