@@ -260,7 +260,7 @@ class OSPDopenvas(OSPDaemon):
         self._niceness = str(niceness)
 
         self.feed_lock_file = (
-            Path(kwargs.get('feed_lock_dir')) / 'feed-update.lock'
+            Path(kwargs.get('lock_file_dir')) / 'feed-update.lock'
         )
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.check()
