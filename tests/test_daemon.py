@@ -876,7 +876,7 @@ class TestOspdOpenvas(TestCase):
 
         msg = '0/-1'
         target_element = w.create_xml_target()
-        targets = OspRequest.process_targets_element(target_element)
+        targets = OspRequest.process_target_element(target_element)
 
         w.create_scan('123-456', targets, None, [])
         w.update_progress('123-456', 'localhost', msg)

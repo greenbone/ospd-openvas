@@ -145,7 +145,7 @@
         "ospd": {
             "editable": true,
             "git": "https://github.com/greenbone/ospd.git",
-            "ref": "d4dfd110944be7e280f241c11cfaaef155edbcc3"
+            "ref": "5170464c7f79e4a290e802e360f54d91ad74928b"
         },
         "packaging": {
             "hashes": [
