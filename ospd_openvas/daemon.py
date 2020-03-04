@@ -379,7 +379,7 @@ class OSPDopenvas(OSPDaemon):
             return False
         else:
             try:
-                with open(str(self.feed_lock_file), 'w') as f:
+                with self.feed_lock_file.open('w') as f:
                     f.write("locked")
             except (FileNotFoundError, PermissionError) as e:
                 logger.error(
