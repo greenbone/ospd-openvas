@@ -250,7 +250,9 @@ class OSPDopenvas(OSPDaemon):
 
     """ Class for ospd-openvas daemon. """
 
-    def __init__(self, *, niceness=None, **kwargs):
+    def __init__(
+        self, *, niceness=None, lock_file_dir='/var/run/ospd', **kwargs
+    ):
         """ Initializes the ospd-openvas daemon's internal data. """
 
         super().__init__(customvtfilter=OpenVasVtsFilter(), **kwargs)
@@ -259,9 +261,7 @@ class OSPDopenvas(OSPDaemon):
 
         self._niceness = str(niceness)
 
-        self.feed_lock_file = (
-            Path(kwargs.get('lock_file_dir')) / 'feed-update.lock'
-        )
+        self.feed_lock_file = Path(lock_file_dir) / 'feed-update.lock'
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.check()
         self.scanner_info['description'] = OSPD_DESC
