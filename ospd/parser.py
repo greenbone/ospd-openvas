@@ -34,6 +34,7 @@ DEFAULT_UNIX_SOCKET_MODE = "0o700"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
 DEFAULT_UNIX_SOCKET_PATH = "/var/run/ospd/ospd.sock"
 DEFAULT_PID_PATH = "/var/run/ospd.pid"
+DEFAULT_LOCKFILE_DIR_PATH = "/var/run/ospd"
 DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
 
@@ -87,14 +88,17 @@ class CliParser:
             help='Location of the file for the process ID. '
             'Default: %(default)s',
         )
-
+        parser.add_argument(
+            '--lock-file-dir',
+            default=DEFAULT_LOCKFILE_DIR_PATH,
+            help='Directory where lock files are placed. Default: %(default)s',
+        )
         parser.add_argument(
             '-m',
             '--socket-mode',
             default=DEFAULT_UNIX_SOCKET_MODE,
             help='Unix file socket mode. Default: %(default)s',
         )
-
         parser.add_argument(
             '-k',
             '--key-file',

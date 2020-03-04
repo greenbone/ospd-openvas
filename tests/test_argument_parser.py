@@ -35,6 +35,10 @@ from ospd.parser import (
     DEFAULT_KEY_FILE,
     DEFAULT_NICENESS,
     DEFAULT_SCANINFO_STORE_TIME,
+    DEFAULT_CONFIG_PATH,
+    DEFAULT_UNIX_SOCKET_PATH,
+    DEFAULT_PID_PATH,
+    DEFAULT_LOCKFILE_DIR_PATH,
 )
 
 
@@ -94,4 +98,8 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.log_level, logging.WARNING)
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
-        self.assertEqual(args.port, DEFAULT_SCANINFO_STORE_TIME)
+        self.assertEqual(args.scaninfo_store_time, DEFAULT_SCANINFO_STORE_TIME)
+        self.assertEqual(args.config, DEFAULT_CONFIG_PATH)
+        self.assertEqual(args.unix_socket, DEFAULT_UNIX_SOCKET_PATH)
+        self.assertEqual(args.pid_file, DEFAULT_PID_PATH)
+        self.assertEqual(args.lock_file_dir, DEFAULT_LOCKFILE_DIR_PATH)
