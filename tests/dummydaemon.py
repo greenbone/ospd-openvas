@@ -100,10 +100,11 @@ class DummyDaemon(OSPDopenvas):
 
         self.openvas_db = redis
         self.nvti = nvti
+        kwargs = {'lock_file_dir': '/tmp'}
         with patch('ospd_openvas.daemon.OpenvasDB', return_value=redis):
             with patch('ospd_openvas.daemon.NVTICache', return_value=nvti):
                 with patch.object(OSPDopenvas, 'load_vts', return_value=None):
-                    super().__init__(niceness=10)
+                    super().__init__(niceness=10, **kwargs)
 
     def create_xml_target(self):
         target = secET.fromstring(
