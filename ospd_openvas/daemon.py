@@ -503,7 +503,7 @@ class OSPDopenvas(OSPDaemon):
             _severity['severity_origin'] = _custom.pop('severity_origin')
 
         if _name is None:
-            name = ''
+            _name = ''
 
         vt = {'name': _name}
         if _custom is not None:
@@ -548,7 +548,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_iterator(self):
         """ Yield the vts from the Redis NVTicache. """
         oids = dict(self.nvti.get_oids())
-        for filename, vt_id in oids.items():
+        for _, vt_id in oids.items():
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
 
@@ -561,7 +561,7 @@ class OSPDopenvas(OSPDaemon):
 
         logger.debug('Found %s NVTs in redis.', len(oids))
 
-        for filename, vt_id in oids.items():
+        for _, vt_id in oids.items():
             vt = self.get_single_vt(vt_id, oids)
 
             if (
