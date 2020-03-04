@@ -326,7 +326,6 @@ class OSPDopenvas(OSPDaemon):
         try:
             logger.debug('Loading NVTs in Redis DB')
             subprocess.check_call(['openvas', '--update-vt-info'])
-            self.delete_feed_lock_file()
         except subprocess.CalledProcessError as err:
             logger.error('OpenVAS Scanner failed to load NVTs. %s', err)
 
@@ -443,8 +442,8 @@ class OSPDopenvas(OSPDaemon):
             if not self.pending_feed:
                 self.pending_feed = True
                 logger.info(
-                    'There is a running scan. Therefore the feed '
-                    'update will be performed later.'
+                    'There is a running process blocking the feed update. '
+                    'Therefore the feed update will be performed later.'
                 )
         elif _pending_feed and not _running_scan and not self.feed_locked():
             self.vts = dict()
