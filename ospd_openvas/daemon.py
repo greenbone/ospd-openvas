@@ -416,6 +416,11 @@ class OSPDopenvas(OSPDaemon):
                 self.openvas_db.set_redisctx(ctx)
                 self.delete_feed_lock_file()
             else:
+                logger.debug(
+                    "The feed was not upload or it is outdated, "
+                    "but other process is locking the update. "
+                    "Trying again later..."
+                )
                 return
 
         _running_scan = False
