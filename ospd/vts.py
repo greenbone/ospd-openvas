@@ -23,7 +23,14 @@ import multiprocessing
 import re
 
 from copy import deepcopy
-from typing import Dict, Any, Type, Iterator, Iterable
+from typing import (
+    Dict,
+    Any,
+    Type,
+    Iterator,
+    Iterable,
+    Tuple,
+)
 
 from ospd.errors import OspdError
 
@@ -53,8 +60,8 @@ class Vts:
     def __getitem__(self, key):
         return self.vts[key]
 
-    def items(self):
-        return self.vts.items()
+    def items(self) -> Iterator[Tuple[str, Dict]]:
+        return iter(self.vts.items())
 
     def __len__(self) -> int:
         return len(self.vts)

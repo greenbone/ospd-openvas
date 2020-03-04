@@ -28,7 +28,15 @@ import multiprocessing
 import time
 import os
 
-from typing import List, Any, Dict, Optional, Iterable, Tuple
+from typing import (
+    List,
+    Any,
+    Iterator,
+    Dict,
+    Optional,
+    Iterable,
+    Tuple,
+)
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
@@ -941,10 +949,10 @@ class OSPDaemon:
         """
         return ''
 
-    def get_vt_iterator(self) -> Iterable:
+    def get_vt_iterator(self) -> Iterator[Tuple[str, Dict]]:
         """ Return iterator object for getting elements
         from the VTs dictionary. """
-        return iter(self.vts.items())
+        return self.vts.items()
 
     def get_vt_xml(self, single_vt: Tuple[str, Dict]) -> Element:
         """ Gets a single vulnerability test information in XML format.
