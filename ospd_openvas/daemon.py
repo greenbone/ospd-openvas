@@ -323,6 +323,7 @@ class OSPDopenvas(OSPDaemon):
         try:
             logger.debug('Loading NVTs in Redis DB')
             subprocess.check_call(['openvas', '--update-vt-info'])
+            self.delete_feed_lock_file()
         except subprocess.CalledProcessError as err:
             logger.error('OpenVAS Scanner failed to load NVTs. %s', err)
 
@@ -407,10 +408,14 @@ class OSPDopenvas(OSPDaemon):
 
         # Check if the nvticache in redis is outdated
         if not current_feed or self.feed_is_outdated(current_feed):
-            self.redis_nvticache_init()
-            ctx = self.nvti.get_redis_context()
-            self.openvas_db.set_redisctx(ctx)
             self.pending_feed = True
+            if self.create_feed_lock_file():
+                self.redis_nvticache_init()
+                ctx = self.nvti.get_redis_context()
+                self.openvas_db.set_redisctx(ctx)
+                self.delete_feed_lock_file()
+            else:
+                return
 
         _running_scan = False
         for scan_id in self.scan_processes:
@@ -553,7 +558,14 @@ class OSPDopenvas(OSPDaemon):
     def load_vts(self):
         """ Load the NVT's metadata into the vts
         global  dictionary. """
-        logger.debug('Loading vts in memory.')
+
+        if not self.create_feed_lock_file():
+            logger.warning(
+                'Error creating feed lock file. Trying again later...'
+            )
+            return
+
+        logger.info('Loading vts in memory.')
         oids = dict(self.nvti.get_oids())
         for _, vt_id in oids.items():
             vt = self.get_single_vt(vt_id, oids)
@@ -585,8 +597,10 @@ class OSPDopenvas(OSPDaemon):
 
         _feed_version = self.nvti.get_feed_version()
         self.set_vts_version(vts_version=_feed_version)
+        self.delete_feed_lock_file()
         self.pending_feed = False
-        logger.debug('Finish loading up vts.')
+
+        logger.info('Finish loading up vts.')
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
