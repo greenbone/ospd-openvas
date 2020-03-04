@@ -288,7 +288,10 @@ class OSPDopenvas(OSPDaemon):
         ctx = self.nvti.get_redis_context()
 
         if not ctx:
+            while not self.create_feed_lock_file():
+                time.sleep(10)
             self.redis_nvticache_init()
+            self.delete_feed_lock_file()
             ctx = self.nvti.get_redis_context()
 
         self.openvas_db.set_redisctx(ctx)
