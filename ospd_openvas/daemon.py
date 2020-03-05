@@ -320,7 +320,10 @@ class OSPDopenvas(OSPDaemon):
         self.set_params_from_openvas_settings()
 
         if not self.nvti.ctx:
+            while not self.create_feed_lock_file():
+                time.sleep(10)
             Openvas.load_vts_into_redis()
+            self.delete_feed_lock_file()
 
         self.load_vts()
 
