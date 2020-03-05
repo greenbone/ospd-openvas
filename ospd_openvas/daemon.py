@@ -604,6 +604,7 @@ class OSPDopenvas(OSPDaemon):
             )
             return
 
+        self.initialized = False
         logger.info('Loading VTs in memory.')
 
         oids = dict(self.nvti.get_oids())
@@ -643,6 +644,7 @@ class OSPDopenvas(OSPDaemon):
         self.set_vts_version(vts_version=_feed_version)
         self.delete_feed_lock_file()
         self.pending_feed = False
+        self.initialized = True
 
         logger.info('Finish loading up vts.')
 
