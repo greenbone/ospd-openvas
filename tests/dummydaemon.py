@@ -124,7 +124,7 @@ class DummyDaemon(OSPDopenvas):
         }
         nvti.get_feed_version.return_value = '123'
 
-        super().__init__(niceness=10)
+        super().__init__(niceness=10, lock_file_dir='/tmp')
 
     def create_xml_target(self) -> et.Element:
         target = et.fromstring(
