@@ -598,6 +598,12 @@ class OSPDopenvas(OSPDaemon):
     def load_vts(self):
         """ Load the VT's metadata into the vts global dictionary. """
 
+        if not self.create_feed_lock_file():
+            logger.warning(
+                'Error creating feed lock file. Trying again later...'
+            )
+            return
+
         logger.info('Loading VTs in memory.')
 
         oids = dict(self.nvti.get_oids())
@@ -635,6 +641,7 @@ class OSPDopenvas(OSPDaemon):
         _feed_version = self.nvti.get_feed_version()
 
         self.set_vts_version(vts_version=_feed_version)
+        self.delete_feed_lock_file()
         self.pending_feed = False
 
         logger.info('Finish loading up vts.')
