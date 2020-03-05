@@ -209,6 +209,29 @@ class TestOspdOpenvas(TestCase):
         self.assertIsInstance(w.vts, type(Vts()))
         self.assertEqual(len(w.vts), len(w.VTS))
 
+    def test_lock_file(self):
+        w = DummyDaemon()
+        # Not locked
+        res = w.feed_locked()
+        self.assertFalse(res)
+
+        # Created
+        res = w.create_feed_lock_file()
+        self.assertTrue(res)
+
+        # Locked
+        res = w.feed_locked()
+        self.assertTrue(res)
+
+        # Not created because locked
+        res = w.create_feed_lock_file()
+        self.assertFalse(res)
+
+        # Delete
+        w.delete_feed_lock_file()
+        res = w.feed_locked()
+        self.assertFalse(res)
+
     def test_get_custom_xml(self):
         out = (
             '<custom>'
