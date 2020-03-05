@@ -376,6 +376,43 @@ class OSPDopenvas(OSPDaemon):
             (not feed_date) or (not current_feed) or (current_feed < feed_date)
         )
 
+    def feed_locked(self):
+        """ Check if there is an already lock file set for the feed. """
+        if self.feed_lock_file.is_file():
+            logger.info(
+                "A feed update process is running. Trying again later..."
+            )
+            return True
+
+        return False
+
+    def create_feed_lock_file(self):
+        """ Create a lock file.
+            Return: True in success, False otherwise.
+        """
+        if self.feed_locked():
+            return False
+        else:
+            try:
+                with self.feed_lock_file.open('w') as f:
+                    f.write("locked")
+            except (FileNotFoundError, PermissionError) as e:
+                logger.error(
+                    "Failed to create feed lock file %s. %s",
+                    self.feed_lock_file,
+                    e,
+                )
+                return False
+
+        return True
+
+    def delete_feed_lock_file(self):
+        """ Delete the feed lock file.
+        """
+        if self.feed_lock_file.is_file():
+            self.feed_lock_file.unlink()
+            logger.debug("Feed lock file removed.")
+
     def feed_is_healthy(self):
         """ Compare the amount of filename keys and nvt keys in redis
         with the amount of oid loaded in memory.
