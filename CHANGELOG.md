@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Accept reverse_lookup_only and reverse_lookup_unify target's options. [#195](https://github.com/greenbone/ospd/pull/195)
 - Add 'total' and 'sent' attributes to <vts> element for <get_vts> cmd response. [#206](https://github.com/greenbone/ospd/pull/206)
 - Add new get_memory_usage command. [#207](https://github.com/greenbone/ospd/pull/207)
+- Add lock-file-dir configuration option. [#218](https://github.com/greenbone/ospd/pull/218)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)
@@ -25,6 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
 - Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
+
 ## [2.0.1] (unreleased)
 
 ### Added
