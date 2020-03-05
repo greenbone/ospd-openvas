@@ -443,19 +443,18 @@ class OSPDopenvas(OSPDaemon):
             return
 
         # Check if the nvticache in redis is outdated
-        feed_is_healthy = self.feed_is_healthy()
-        if not current_feed or is_outdated or not feed_is_healthy:
-            if not feed_is_healthy:
-                # Force complete redis reload
-                self.nvti.force_reload()
-
-                logger.error(
-                    'Redis nvticache or ospd vts dictionary corrupted. '
-                    'Complete reload forced.'
-                )
-
-            Openvas.load_vts_into_redis()
+        if not current_feed or is_outdated:
             self.pending_feed = True
+            if self.create_feed_lock_file():
+                Openvas.load_vts_into_redis()
+                self.delete_feed_lock_file()
+            else:
+                logger.debug(
+                    "The feed was not upload or it is outdated, "
+                    "but other process is locking the update. "
+                    "Trying again later..."
+                )
+                return
 
         _running_scan = False
         for scan_id in self.scan_processes:
@@ -470,14 +469,29 @@ class OSPDopenvas(OSPDaemon):
                 self.get_vts_version() != self.nvti.get_feed_version()
             )
 
+        _feed_is_healthy = self.feed_is_healthy()
+        if _running_scan and not _feed_is_healthy:
+            _pending_feed = True
+            if self.create_feed_lock_file():
+                self.nvti.force_reload()
+                Openvas.load_vts_into_redis()
+                self.delete_feed_lock_file()
+            else:
+                logger.debug(
+                    "The VT Cache in memory is not healthy "
+                    "and other process is locking the update. "
+                    "Trying again later..."
+                )
+                return
+
         if _running_scan and _pending_feed:
             if not self.pending_feed:
                 self.pending_feed = True
-                logger.debug(
-                    'There is a running scan. Therefore the feed '
-                    'update will be performed later.'
+                logger.info(
+                    'There is a running scan process locking the feed update. '
+                    'Therefore the feed update will be performed later.'
                 )
-        elif not _running_scan and _pending_feed:
+        elif _pending_feed and not _running_scan and not self.feed_locked():
             self.vts.clear()
             self.load_vts()
 
