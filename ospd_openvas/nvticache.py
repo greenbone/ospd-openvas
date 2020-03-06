@@ -121,7 +121,7 @@ class NVTICache(BaseDB):
             # no nvti cache db available yet
             return None
 
-        return OpenvasDB.get_single_item(self.ctx, self._get_nvti_cache_name())
+        return OpenvasDB.get_single_item(self._main_db.ctx, self._get_nvti_cache_name())
 
     def get_oids(self) -> Iterator[Tuple[str, str]]:
         """ Get the list of NVT file names and OIDs.
@@ -130,7 +130,7 @@ class NVTICache(BaseDB):
             A i. Each single list contains the filename
             as first element and the oid as second one.
         """
-        return OpenvasDB.get_elem_pattern_by_index(self.ctx, 'filename:*')
+        return OpenvasDB.get_elem_pattern_by_index(self._main_db.ctx, 'filename:*')
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
         """ Get NVT's preferences.
