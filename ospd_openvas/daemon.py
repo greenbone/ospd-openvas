@@ -1147,7 +1147,7 @@ class OSPDopenvas(OSPDaemon):
                         parent = None
 
             for scan_db in kbdb.get_scan_databases():
-                scan_db.release()
+                self.main_db.release_database(scan_db)
 
     def get_vts_in_groups(self, filters: List[str]) -> List[str]:
         """ Return a list of vts which match with the given filter.
