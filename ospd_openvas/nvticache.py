@@ -117,7 +117,7 @@ class NVTICache(BaseDB):
 
         Returns the feed version or None if the nvt feed isn't available.
         """
-        if not self.ctx:
+        if not self._main_db.ctx:
             # no nvti cache db available yet
             return None
 
