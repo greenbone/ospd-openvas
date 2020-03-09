@@ -470,6 +470,7 @@ class OSPDaemon:
                 logger.debug('Error: %s', exception)
                 break
             except (socket.timeout) as exception:
+                logger.debug('Request timeout: %s', exception)
                 break
 
         if len(data) <= 0:
