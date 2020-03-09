@@ -30,7 +30,7 @@ class LockFileTestCase(unittest.TestCase):
         self.temp_dir = Path(tempfile.mkdtemp())
 
     def tearDown(self):
-        shutil.rmtree(self.temp_dir)
+        shutil.rmtree(str(self.temp_dir))
 
     def test_is_locked(self):
         lock_file_path = self.temp_dir / 'test.lock'
