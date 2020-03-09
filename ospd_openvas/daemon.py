@@ -51,6 +51,7 @@ from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB, ScanDB
+from ospd_openvas.lock import LockFile
 from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
@@ -287,7 +288,7 @@ class OSPDopenvas(OSPDaemon):
 
         self._niceness = str(niceness)
 
-        self.feed_lock_file = Path(lock_file_dir) / 'feed-update.lock'
+        self.feed_lock = LockFile(Path(lock_file_dir) / 'feed-update.lock')
         self.daemon_info['name'] = 'OSPd OpenVAS'
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.init()
@@ -320,10 +321,8 @@ class OSPDopenvas(OSPDaemon):
         self.set_params_from_openvas_settings()
 
         if not self.nvti.ctx:
-            while not self.create_feed_lock_file():
-                time.sleep(10)
-            Openvas.load_vts_into_redis()
-            self.delete_feed_lock_file()
+            with self.feed_lock.wait_for_lock():
+                Openvas.load_vts_into_redis()
 
         self.load_vts()
 
@@ -379,43 +378,6 @@ class OSPDopenvas(OSPDaemon):
             (not feed_date) or (not current_feed) or (current_feed < feed_date)
         )
 
-    def feed_locked(self):
-        """ Check if there is an already lock file set for the feed. """
-        if self.feed_lock_file.is_file():
-            logger.info(
-                "A feed update process is running. Trying again later..."
-            )
-            return True
-
-        return False
-
-    def create_feed_lock_file(self):
-        """ Create a lock file.
-            Return: True in success, False otherwise.
-        """
-        if self.feed_locked():
-            return False
-        else:
-            try:
-                with self.feed_lock_file.open('w') as f:
-                    f.write("locked")
-            except (FileNotFoundError, PermissionError) as e:
-                logger.error(
-                    "Failed to create feed lock file %s. %s",
-                    self.feed_lock_file,
-                    e,
-                )
-                return False
-
-        return True
-
-    def delete_feed_lock_file(self):
-        """ Delete the feed lock file.
-        """
-        if self.feed_lock_file.is_file():
-            self.feed_lock_file.unlink()
-            logger.debug("Feed lock file removed.")
-
     def feed_is_healthy(self):
         """ Compare the amount of filename keys and nvt keys in redis
         with the amount of oid loaded in memory.
@@ -445,16 +407,17 @@ class OSPDopenvas(OSPDaemon):
         # Check if the nvticache in redis is outdated
         if not current_feed or is_outdated:
             self.pending_feed = True
-            if self.create_feed_lock_file():
-                Openvas.load_vts_into_redis()
-                self.delete_feed_lock_file()
-            else:
-                logger.debug(
-                    "The feed was not upload or it is outdated, "
-                    "but other process is locking the update. "
-                    "Trying again later..."
-                )
-                return
+
+            with self.feed_lock as fl:
+                if fl.has_lock():
+                    Openvas.load_vts_into_redis()
+                else:
+                    logger.debug(
+                        "The feed was not upload or it is outdated, "
+                        "but other process is locking the update. "
+                        "Trying again later..."
+                    )
+                    return
 
         _running_scan = False
         for scan_id in self.scan_processes:
@@ -472,17 +435,18 @@ class OSPDopenvas(OSPDaemon):
         _feed_is_healthy = self.feed_is_healthy()
         if _running_scan and not _feed_is_healthy:
             _pending_feed = True
-            if self.create_feed_lock_file():
-                self.nvti.force_reload()
-                Openvas.load_vts_into_redis()
-                self.delete_feed_lock_file()
-            else:
-                logger.debug(
-                    "The VT Cache in memory is not healthy "
-                    "and other process is locking the update. "
-                    "Trying again later..."
-                )
-                return
+
+            with self.feed_lock as fl:
+                if fl.has_lock():
+                    self.nvti.force_reload()
+                    Openvas.load_vts_into_redis()
+                else:
+                    logger.debug(
+                        "The VT Cache in memory is not healthy "
+                        "and other process is locking the update. "
+                        "Trying again later..."
+                    )
+                    return
 
         if _running_scan and _pending_feed:
             if not self.pending_feed:
@@ -491,7 +455,11 @@ class OSPDopenvas(OSPDaemon):
                     'There is a running scan process locking the feed update. '
                     'Therefore the feed update will be performed later.'
                 )
-        elif _pending_feed and not _running_scan and not self.feed_locked():
+        elif (
+            _pending_feed
+            and not _running_scan
+            and not self.feed_lock.is_locked()
+        ):
             self.vts.clear()
             self.load_vts()
 
@@ -612,57 +580,57 @@ class OSPDopenvas(OSPDaemon):
     def load_vts(self):
         """ Load the VT's metadata into the vts global dictionary. """
 
-        if not self.create_feed_lock_file():
-            logger.warning(
-                'Error creating feed lock file. Trying again later...'
-            )
-            return
-
-        self.initialized = False
-        logger.info('Loading VTs in memory.')
-
-        oids = dict(self.nvti.get_oids())
-
-        logger.debug('Found %s NVTs in redis.', len(oids))
-
-        for _, vt_id in oids.items():
-            vt = self.get_single_vt(vt_id, oids)
-
-            if (
-                not vt
-                or vt.get('vt_params') is None
-                or vt.get('custom') is None
-            ):
+        with self.feed_lock as fl:
+            if not fl.has_lock():
                 logger.warning(
-                    'Error loading VTs in memory. Trying again later...'
+                    'Error acquiring feed lock. Trying again later...'
                 )
                 return
 
-            custom = {'family': vt['custom'].get('family')}
-            try:
-                self.add_vt(
-                    vt_id,
-                    name=vt.get('name'),
-                    qod_t=vt.get('qod_type'),
-                    qod_v=vt.get('qod'),
-                    severities=vt.get('severities'),
-                    vt_modification_time=vt.get('modification_time'),
-                    vt_params=vt.get('vt_params'),
-                    custom=custom,
-                )
-            except OspdError as e:
-                logger.warning("Error while adding VT %s. %s", vt_id, e)
+            self.initialized = False
+            logger.info('Loading VTs in memory.')
 
-        _feed_version = self.nvti.get_feed_version()
+            oids = dict(self.nvti.get_oids())
 
-        self.set_vts_version(vts_version=_feed_version)
-        self.delete_feed_lock_file()
-        self.pending_feed = False
-        self.initialized = True
+            logger.debug('Found %s NVTs in redis.', len(oids))
 
-        logger.info('Finish loading up vts.')
+            for _, vt_id in oids.items():
+                vt = self.get_single_vt(vt_id, oids)
 
-        logger.debug('Loaded %s vts.', len(self.vts))
+                if (
+                    not vt
+                    or vt.get('vt_params') is None
+                    or vt.get('custom') is None
+                ):
+                    logger.warning(
+                        'Error loading VTs in memory. Trying again later...'
+                    )
+                    return
+
+                custom = {'family': vt['custom'].get('family')}
+                try:
+                    self.add_vt(
+                        vt_id,
+                        name=vt.get('name'),
+                        qod_t=vt.get('qod_type'),
+                        qod_v=vt.get('qod'),
+                        severities=vt.get('severities'),
+                        vt_modification_time=vt.get('modification_time'),
+                        vt_params=vt.get('vt_params'),
+                        custom=custom,
+                    )
+                except OspdError as e:
+                    logger.warning("Error while adding VT %s. %s", vt_id, e)
+
+            _feed_version = self.nvti.get_feed_version()
+
+            self.set_vts_version(vts_version=_feed_version)
+            self.pending_feed = False
+            self.initialized = True
+
+            logger.info('Finish loading up vts.')
+
+            logger.debug('Loaded %s vts.', len(self.vts))
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
