@@ -1103,8 +1103,12 @@ class OSPDaemon:
             logger.debug("Erroneous client input: %s", data)
             raise OspdCommandError('Invalid data')
 
-        command = self.commands.get(tree.tag, None)
-        if not command and tree.tag != "authenticate":
+        command_name = tree.tag
+
+        logger.debug('Handling %s command request.', command_name)
+
+        command = self.commands.get(command_name, None)
+        if not command and command_name != "authenticate":
             raise OspdCommandError('Bogus command name')
 
         response = command.handle_xml(tree)
