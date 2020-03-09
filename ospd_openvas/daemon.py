@@ -28,7 +28,7 @@ import binascii
 import copy
 
 from enum import IntEnum
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple, Iterator
 from datetime import datetime
 from base64 import b64decode
 
@@ -570,10 +570,16 @@ class OSPDopenvas(OSPDaemon):
 
         return vt
 
-    def get_vt_iterator(self):
+    def get_vt_iterator(
+        self, vt_selection: List[str] = None
+    ) -> Iterator[Tuple[str, Dict]]:
         """ Yield the vts from the Redis NVTicache. """
         oids = dict(self.nvti.get_oids())
-        for _, vt_id in oids.items():
+        if vt_selection:
+            vt_id_list = vt_selection
+        else:
+            vt_id_list = oids.values()
+        for vt_id in vt_id_list:
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
 
