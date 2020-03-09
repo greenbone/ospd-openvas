@@ -351,7 +351,7 @@ class OSPDaemon:
         reason="Please use OspRequest.process_targets_elements instead.",
     )
     def process_targets_element(scanner_target) -> List:
-        return OspRequest.process_targets_element(scanner_target)
+        return OspRequest.process_target_element(scanner_target)
 
     def stop_scan(self, scan_id: str) -> None:
         scan_process = self.scan_processes.get(scan_id)
