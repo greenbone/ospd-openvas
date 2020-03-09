@@ -48,9 +48,9 @@ from ospd.command import get_commands
 from ospd.errors import OspdCommandError
 from ospd.misc import ResultType
 from ospd.network import resolve_hostname, target_str_to_list
-from ospd.protocol import OspRequest, OspResponse
+from ospd.protocol import OspRequest, OspResponse, RequestParser
 from ospd.scan import ScanCollection, ScanStatus
-from ospd.server import BaseServer
+from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
 from ospd.vts import Vts
 from ospd.xml import (
@@ -351,7 +351,7 @@ class OSPDaemon:
         reason="Please use OspRequest.process_targets_elements instead.",
     )
     def process_targets_element(scanner_target) -> List:
-        return OspRequest.process_targets_element(scanner_target)
+        return OspRequest.process_target_element(scanner_target)
 
     def stop_scan(self, scan_id: str) -> None:
         scan_process = self.scan_processes.get(scan_id)
@@ -447,10 +447,11 @@ class OSPDaemon:
         """ Returns the OSP Daemon's scanner params in xml format. """
         return OspResponse.create_scanner_params_xml(self.scanner_params)
 
-    def handle_client_stream(self, stream) -> None:
+    def handle_client_stream(self, stream: Stream) -> None:
         """ Handles stream of data received from client. """
-
         data = b''
+
+        request_parser = RequestParser()
 
         while True:
             try:
@@ -459,6 +460,9 @@ class OSPDaemon:
                     break
 
                 data += buf
+
+                if request_parser.has_ended(buf):
+                    break
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
@@ -466,6 +470,7 @@ class OSPDaemon:
                 logger.debug('Error: %s', exception)
                 break
             except (socket.timeout) as exception:
+                logger.debug('Request timeout: %s', exception)
                 break
 
         if len(data) <= 0:
@@ -494,6 +499,7 @@ class OSPDaemon:
 
         if response:
             stream.write(response)
+
         stream.close()
 
     def calculate_progress(self, scan_id: str) -> float:
@@ -1089,19 +1095,21 @@ class OSPDaemon:
 
         return vts_list
 
-    def handle_command(self, command: str, stream) -> str:
+    def handle_command(self, data: bytes, stream: Stream) -> None:
         """ Handles an osp command in a string.
-
-        @return: OSP Response to command.
         """
         try:
-            tree = secET.fromstring(command)
+            tree = secET.fromstring(data)
         except secET.ParseError:
-            logger.debug("Erroneous client input: %s", command)
+            logger.debug("Erroneous client input: %s", data)
             raise OspdCommandError('Invalid data')
 
-        command = self.commands.get(tree.tag, None)
-        if not command and tree.tag != "authenticate":
+        command_name = tree.tag
+
+        logger.debug('Handling %s command request.', command_name)
+
+        command = self.commands.get(command_name, None)
+        if not command and command_name != "authenticate":
             raise OspdCommandError('Bogus command name')
 
         response = command.handle_xml(tree)

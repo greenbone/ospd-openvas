@@ -21,9 +21,27 @@
 
 from typing import Dict, Union, List, Any
 
-from xml.etree.ElementTree import SubElement, Element
+from xml.etree.ElementTree import SubElement, Element, XMLPullParser
 
 from ospd.errors import OspdError
+
+
+class RequestParser:
+    def __init__(self):
+        self._parser = XMLPullParser(['start', 'end'])
+        self._root_element = None
+
+    def has_ended(self, data: bytes) -> bool:
+        self._parser.feed(data)
+
+        for event, element in self._parser.read_events():
+            if event == 'start' and self._root_element is None:
+                self._root_element = element
+            elif event == 'end' and self._root_element is not None:
+                if element.tag == self._root_element.tag:
+                    return True
+
+        return False
 
 
 class OspRequest:
