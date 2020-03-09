@@ -48,7 +48,7 @@ from ospd.command import get_commands
 from ospd.errors import OspdCommandError
 from ospd.misc import ResultType
 from ospd.network import resolve_hostname, target_str_to_list
-from ospd.protocol import OspRequest, OspResponse
+from ospd.protocol import OspRequest, OspResponse, RequestParser
 from ospd.scan import ScanCollection, ScanStatus
 from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
@@ -451,6 +451,8 @@ class OSPDaemon:
         """ Handles stream of data received from client. """
         data = b''
 
+        request_parser = RequestParser()
+
         while True:
             try:
                 buf = stream.read()
@@ -458,6 +460,9 @@ class OSPDaemon:
                     break
 
                 data += buf
+
+                if request_parser.has_ended(buf):
+                    break
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
@@ -493,6 +498,7 @@ class OSPDaemon:
 
         if response:
             stream.write(response)
+
         stream.close()
 
     def calculate_progress(self, scan_id: str) -> float:
