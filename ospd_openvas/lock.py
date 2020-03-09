@@ -39,7 +39,7 @@ class LockFile:
     def acquire_lock(self) -> "LockFile":
         """ Acquite a lock by creating a lock file.
         """
-        if self.is_locked():
+        if self.has_lock() or self.is_locked():
             return self
 
         try:
@@ -71,7 +71,7 @@ class LockFile:
     def release_lock(self) -> None:
         """ Release the lock by deleting the lock file
         """
-        if self._lock_file_path.is_file():
+        if self.has_lock() and self.is_locked():
             self._lock_file_path.unlink()
             self._has_lock = False
             logger.debug("Removed lock file %s.", str(self._lock_file_path))
