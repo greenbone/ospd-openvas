@@ -50,7 +50,7 @@ from ospd.misc import ResultType
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.protocol import OspRequest, OspResponse
 from ospd.scan import ScanCollection, ScanStatus
-from ospd.server import BaseServer
+from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
 from ospd.vts import Vts
 from ospd.xml import (
@@ -447,9 +447,8 @@ class OSPDaemon:
         """ Returns the OSP Daemon's scanner params in xml format. """
         return OspResponse.create_scanner_params_xml(self.scanner_params)
 
-    def handle_client_stream(self, stream) -> None:
+    def handle_client_stream(self, stream: Stream) -> None:
         """ Handles stream of data received from client. """
-
         data = b''
 
         while True:
@@ -1089,15 +1088,13 @@ class OSPDaemon:
 
         return vts_list
 
-    def handle_command(self, command: str, stream) -> str:
+    def handle_command(self, data: bytes, stream: Stream) -> None:
         """ Handles an osp command in a string.
-
-        @return: OSP Response to command.
         """
         try:
-            tree = secET.fromstring(command)
+            tree = secET.fromstring(data)
         except secET.ParseError:
-            logger.debug("Erroneous client input: %s", command)
+            logger.debug("Erroneous client input: %s", data)
             raise OspdCommandError('Invalid data')
 
         command = self.commands.get(tree.tag, None)
