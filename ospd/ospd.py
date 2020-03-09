@@ -955,7 +955,9 @@ class OSPDaemon:
         """
         return ''
 
-    def get_vt_iterator(self) -> Iterator[Tuple[str, Dict]]:
+    def get_vt_iterator(
+        self, vt_selection: List[str] = None
+    ) -> Iterator[Tuple[str, Dict]]:
         """ Return iterator object for getting elements
         from the VTs dictionary. """
         return self.vts.items()
