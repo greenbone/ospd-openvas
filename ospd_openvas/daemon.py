@@ -570,10 +570,16 @@ class OSPDopenvas(OSPDaemon):
 
         return vt
 
-    def get_vt_iterator(self):
+    def get_vt_iterator(
+        self, filtered_vts: List[str] = None
+    ) -> Iterator[Tuple[str, Dict]]:
         """ Yield the vts from the Redis NVTicache. """
         oids = dict(self.nvti.get_oids())
-        for _, vt_id in oids.items():
+        if filtered_vts:
+            vt_id_list = filtered_vts
+        else:
+            vt_id_list = oids.values()
+        for vt_id in vt_id_list:
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
 
