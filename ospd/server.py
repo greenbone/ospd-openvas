@@ -222,7 +222,7 @@ class UnixSocketServer(BaseServer):
         self._cleanup_socket()
 
     def handle_request(self, request, client_address):
-        logger.debug("New connection from %s", str(self.socket_path))
+        logger.debug("New request from %s", str(self.socket_path))
 
         stream = Stream(request, self.stream_timeout)
         self.stream_callback(stream)
