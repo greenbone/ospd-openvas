@@ -85,7 +85,7 @@ def simple_response_str(
     else:
         response.text = content
 
-    return tostring(response)
+    return tostring(response, encoding='utf-8')
 
 
 def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
@@ -158,7 +158,7 @@ class XmlStringHelper:
         else:
             ret = "<%s>" % elem_name
 
-        return ret.encode()
+        return ret.encode('utf-8')
 
     def create_response(self, command: str, end: bool = False) -> bytes:
         """ Create or end an xml response.
@@ -174,11 +174,11 @@ class XmlStringHelper:
             return
 
         if end:
-            return ('</%s_response>' % command).encode()
+            return ('</%s_response>' % command).encode('utf-8')
 
-        return (
-            '<%s_response status="200" status_text="OK">' % command
-        ).encode()
+        return ('<%s_response status="200" status_text="OK">' % command).encode(
+            'utf-8'
+        )
 
     def add_element(
         self,
@@ -205,9 +205,9 @@ class XmlStringHelper:
         if content:
             if isinstance(content, list):
                 for elem in content:
-                    xml_str = xml_str + tostring(elem)
+                    xml_str = xml_str + tostring(elem, encoding='utf-8')
             elif isinstance(content, Element):
-                xml_str = xml_str + tostring(content)
+                xml_str = xml_str + tostring(content, encoding='utf-8')
             else:
                 if end:
                     xml_str = xml_str + self.create_element(content, False)
@@ -234,4 +234,4 @@ class XmlStringHelper:
         if not value:
             value = ''
 
-        return tag[:-1] + (" %s=\'%s\'>" % (attribute, value)).encode()
+        return tag[:-1] + (" %s=\'%s\'>" % (attribute, value)).encode('utf-8')
