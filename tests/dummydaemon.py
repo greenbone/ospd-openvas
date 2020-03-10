@@ -37,7 +37,7 @@ class DummyDaemon(OSPDopenvas):
                 'timeout': '0',
             },
             'modification_time': ('1533906565'),
-            'name': 'Mantis Detection & foo',
+            'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'insight': 'some insight',
             'severities': {
@@ -110,7 +110,7 @@ class DummyDaemon(OSPDopenvas):
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
             'last_modification': ('1533906565'),
-            'name': 'Mantis Detection & foo',
+            'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
             'solution': 'some solution',
