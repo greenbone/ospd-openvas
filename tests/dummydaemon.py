@@ -30,7 +30,7 @@ class DummyDaemon(OSPDopenvas):
             '1.3.6.1.4.1.25623.1.0.100061': {
                 'custom': {'family': 'Product detection',},
                 'modification_time': ('1533906565'),
-                'name': 'Mantis Detection & foo',
+                'name': 'Mantis Detection',
                 'qod_type': 'remote_banner',
                 'severities': {
                     'severity_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
@@ -86,7 +86,7 @@ class DummyDaemon(OSPDopenvas):
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
             'last_modification': ('1533906565'),
-            'name': 'Mantis Detection & foo',
+            'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
             'solution': 'some solution',
