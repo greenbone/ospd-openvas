@@ -337,7 +337,6 @@ class GetVts(BaseCommand):
         yield begin_vts_tag
 
         for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):
-            vt_id, _ = vt
             yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
 
         yield xml_helper.create_element('vts', end=True)
