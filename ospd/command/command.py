@@ -310,6 +310,9 @@ class GetVts(BaseCommand):
 
         vt_id = xml.get('vt_id')
         vt_filter = xml.get('filter')
+        _details = xml.get('details')
+
+        vt_details = False if _details == '0' else True
 
         if vt_id and vt_id not in self._daemon.vts:
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
@@ -333,7 +336,7 @@ class GetVts(BaseCommand):
 
         yield begin_vts_tag
 
-        for vt in self._daemon.get_vt_iterator(vts_selection):
+        for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):
             vt_id, _ = vt
             yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
 
