@@ -877,6 +877,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <summary>Filter to get a sub group of a VT collection</summary>
         <type>string</type>
       </attrib>
+      <attrib>
+        <name>details</name>
+        <summary>Return more details about vulnerability tests, if offered by the scanner</summary>
+        <type>string</type>
+      </attrib>
     </pattern>
     <response>
       <pattern>
@@ -1090,9 +1095,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </response>
     </example>
     <example>
-      <summary>Get information for a filtered collection of vulnerability test</summary>
+      <summary>Get information for a filtered collection of vulnerability test without details</summary>
       <request>
-        <get_vts filter='modification_time&gt;201903150834;modification_time&lt;201903150835'/>
+        <get_vts filter='modification_time&gt;201903150834;modification_time&lt;201903150835' details='0'/>
       </request>
       <response>
         <get_vts_response status_text="OK" status="200">
@@ -1104,9 +1109,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                 <ref id="https://lists.fedoraproject.org/" type="url" />
                 <ref id="CVE-2014-9116" type="cve" />
               </refs>
-              <dependencies>
-                <dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />
-              </dependencies>
               <creation_time>1200603949</creation_time>
               <modification_time>1567429142</modification_time>
               <summary>Check the version of App</summary>
@@ -1452,6 +1454,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Returned object extended with amount of VTS</summary>
     <description>
       The main element vts has the new TOTAL attribute with the amount of vts in the collection and the new optional SENT attribute with the amount of vts which matched a given filter.
+    </description>
+    <version>20.04</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Add attribute DETAILS</summary>
+    <description>
+      The new attribute DETAILS allows to get more details about a vulnerability test if the scanner support it. By default is set True, and for a lighter response must be explicitly set to False.
     </description>
     <version>20.04</version>
   </change>
