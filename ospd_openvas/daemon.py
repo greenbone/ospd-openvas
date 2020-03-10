@@ -467,7 +467,7 @@ class OSPDopenvas(OSPDaemon):
         """This method is called periodically to run tasks."""
         self.check_feed()
 
-    def get_single_vt(self, vt_id, oids):
+    def get_single_vt(self, vt_id, oids=None):
         _vt_params = self.nvti.get_nvt_params(vt_id)
         _vt_refs = self.nvti.get_nvt_refs(vt_id)
         _custom = self.nvti.get_nvt_metadata(vt_id)
@@ -476,12 +476,15 @@ class OSPDopenvas(OSPDaemon):
         _vt_creation_time = _custom.pop('creation_date')
         _vt_modification_time = _custom.pop('last_modification')
 
-        _vt_dependencies = list()
-        if 'dependencies' in _custom:
-            _deps = _custom.pop('dependencies')
-            _deps_list = _deps.split(', ')
-            for dep in _deps_list:
-                _vt_dependencies.append(oids.get('filename:' + dep))
+        if oids:
+            _vt_dependencies = list()
+            if 'dependencies' in _custom:
+                _deps = _custom.pop('dependencies')
+                _deps_list = _deps.split(', ')
+                for dep in _deps_list:
+                    _vt_dependencies.append(oids.get('filename:' + dep))
+        else:
+            _vt_dependencies = None
 
         _summary = None
         _impact = None
@@ -571,15 +574,15 @@ class OSPDopenvas(OSPDaemon):
         return vt
 
     def get_vt_iterator(
-        self, vt_selection: List[str] = None
+        self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
         """ Yield the vts from the Redis NVTicache. """
-        oids = dict(self.nvti.get_oids())
-        if vt_selection:
-            vt_id_list = vt_selection
-        else:
-            vt_id_list = oids.values()
-        for vt_id in vt_id_list:
+
+        oids = None
+        if details:
+            oids = dict(self.nvti.get_oids())
+
+        for vt_id in vt_selection:
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
 
