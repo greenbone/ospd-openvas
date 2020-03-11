@@ -19,6 +19,7 @@
 """ OSP XML utils class.
 """
 
+import re
 
 from typing import List, Dict, Any, Union
 
@@ -26,6 +27,49 @@ from xml.sax.saxutils import escape
 from xml.etree.ElementTree import tostring, Element
 
 from ospd.misc import ResultType
+
+
+r = re.compile(
+    r'(.*?)(?:([^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF'
+    + r'\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD])|([\n])|$)'
+)
+
+
+def split_invalid_xml(result_text: str) -> Union[List[Union[str, int]], str]:
+    """ Search for occurence of non printable chars and replace them
+    with the integer representation the Unicode code. The original string
+    is splitted where a non printable char is found.
+    """
+    splitted_string = []
+
+    def replacer(match):
+        regex_g1 = match.group(1)
+        if len(regex_g1) > 0:
+            splitted_string.append(regex_g1)
+        regex_g2 = match.group(2)
+        if regex_g2 is not None:
+            splitted_string.append(ord(regex_g2))
+        regex_g3 = match.group(3)
+        if regex_g3 is not None:
+            splitted_string.append(regex_g3)
+        return ""
+
+    re.sub(r, replacer, result_text)
+    return splitted_string
+
+
+def escape_ctrl_chars(result_text):
+    """ Replace non printable chars in result_text with an hexa code
+    in string format.
+    """
+    escaped_str = ''
+    for fragment in split_invalid_xml(result_text):
+        if isinstance(fragment, int):
+            escaped_str += '\\x%04X' % fragment
+        else:
+            escaped_str += fragment
+
+    return escaped_str
 
 
 def get_result_xml(result):
@@ -37,6 +81,7 @@ def get_result_xml(result):
     Return:
         Result as xml element object.
     """
+
     result_xml = Element('result')
     for name, value in [
         ('name', result['name']),
@@ -49,7 +94,8 @@ def get_result_xml(result):
         ('qod', result['qod']),
     ]:
         result_xml.set(name, escape(str(value)))
-    result_xml.text = result['value']
+    if result['value'] is not None:
+        result_xml.text = escape_ctrl_chars(result['value'])
 
     return result_xml
 
