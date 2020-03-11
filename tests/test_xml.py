@@ -20,7 +20,9 @@ from collections import OrderedDict
 
 from unittest import TestCase
 
-from ospd.xml import elements_as_text
+from ospd.xml import elements_as_text, escape_ctrl_chars
+
+from xml.etree.ElementTree import Element, tostring, fromstring
 
 
 class ElementsAsText(TestCase):
@@ -63,4 +65,54 @@ class ElementsAsText(TestCase):
             '\t  lorem                  \n'
             '\t    dolor                  sit amet\n'
             '\t    consectetur            adipiscing elit\n',
+        )
+
+
+class EscapeText(TestCase):
+    def test_escape_xml_valid_text(self):
+        text = 'this is a valid xml'
+        res = escape_ctrl_chars(text)
+
+        self.assertEqual(text, res)
+
+    def test_escape_xml_invalid_char(self):
+        text = 'End of transmission is not printable \x04.'
+        res = escape_ctrl_chars(text)
+        self.assertEqual(res, 'End of transmission is not printable \\x0004.')
+
+        # Create element
+        elem = Element('text')
+        elem.text = res
+        self.assertEqual(
+            tostring(elem),
+            b'<text>End of transmission is not printable \\x0004.</text>',
+        )
+
+        # The string format of the element does not break the xml.
+        elem_as_str = tostring(elem, encoding='utf-8')
+        new_elem = fromstring(elem_as_str)
+        self.assertEqual(
+            b'<text>' + new_elem.text.encode('utf-8') + b'</text>', elem_as_str
+        )
+
+    def test_escape_xml_printable_char(self):
+        text = 'Latin Capital Letter A With Circumflex \xc2 is printable.'
+        res = escape_ctrl_chars(text)
+        self.assertEqual(
+            res, 'Latin Capital Letter A With Circumflex Â is printable.'
+        )
+
+        # Create the element
+        elem = Element('text')
+        elem.text = res
+        self.assertEqual(
+            tostring(elem),
+            b'<text>Latin Capital Letter A With Circumflex &#194; is printable.</text>',
+        )
+
+        # The string format of the element does not break the xml
+        elem_as_str = tostring(elem, encoding='utf-8')
+        new_elem = fromstring(elem_as_str)
+        self.assertEqual(
+            b'<text>' + new_elem.text.encode('utf-8') + b'</text>', elem_as_str
         )
