@@ -508,11 +508,10 @@ class ScanTestCase(unittest.TestCase):
             scan = scans[0]
             status = scan.get('status')
 
-            if status == "init" or status == "running":
-                self.assertEqual('0', scan.get('end_time'))
-                time.sleep(0.010)
-            else:
+            if scan.get('end_time') != '0':
                 finished = True
+            else:
+                time.sleep(0.01)
 
             fs = FakeStream()
             daemon.handle_command(
