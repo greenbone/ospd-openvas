@@ -23,7 +23,7 @@ import re
 
 from typing import List, Dict, Any, Union
 
-from xml.sax.saxutils import escape
+from xml.sax.saxutils import escape, quoteattr
 from xml.etree.ElementTree import tostring, Element
 
 from ospd.misc import ResultType
@@ -129,7 +129,7 @@ def simple_response_str(
     elif isinstance(content, Element):
         response.append(content)
     else:
-        response.text = content
+        response.text = escape_ctrl_chars(content)
 
     return tostring(response, encoding='utf-8')
 
@@ -155,7 +155,7 @@ def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
         elif isinstance(value, list):
             elem.text = ', '.join(value)
         else:
-            elem.text = value
+            elem.text = escape_ctrl_chars(value)
 
         responses.append(elem)
 
@@ -262,7 +262,9 @@ class XmlStringHelper:
 
         return xml_str
 
-    def add_attr(self, tag: bytes, attribute: str, value: str = None) -> bytes:
+    def add_attr(
+        self, tag: bytes, attribute: str, value: Union[str, int] = None
+    ) -> bytes:
         """ Add an attribute to the beginnig tag of an xml element.
         Arguments:
             tag (bytes): Tag to add the attrubute to.
@@ -280,4 +282,6 @@ class XmlStringHelper:
         if not value:
             value = ''
 
-        return tag[:-1] + (" %s=\'%s\'>" % (attribute, value)).encode('utf-8')
+        return tag[:-1] + (
+            " %s=%s>" % (attribute, quoteattr(str(value)))
+        ).encode('utf-8')
