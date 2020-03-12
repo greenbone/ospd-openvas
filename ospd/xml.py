@@ -128,7 +128,7 @@ def simple_response_str(
                 response.append(elem)
     elif isinstance(content, Element):
         response.append(content)
-    else:
+    elif content is not None:
         response.text = escape_ctrl_chars(content)
 
     return tostring(response, encoding='utf-8')
@@ -154,7 +154,7 @@ def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
                 elem.append(val)
         elif isinstance(value, list):
             elem.text = ', '.join(value)
-        else:
+        elif value is not None:
             elem.text = escape_ctrl_chars(value)
 
         responses.append(elem)
