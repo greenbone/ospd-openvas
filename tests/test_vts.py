@@ -20,6 +20,7 @@ from unittest import TestCase
 
 from ospd.errors import OspdError
 from ospd.vts import Vts
+from hashlib import sha256
 
 
 class VtsTestCase(TestCase):
@@ -135,3 +136,16 @@ class VtsTestCase(TestCase):
         vtb = vts2.get('id_2')
         self.assertEqual(vta['name'], vtb['name'])
         self.assertIsNot(vta, vtb)
+
+    def test_calculate_vts_collection_hash(self):
+        vts = Vts()
+
+        vts.add('id_2', name='bar', vt_modification_time='56789')
+        vts.add('id_1', name='foo', vt_modification_time='01234')
+        vts.calculate_vts_collection_hash()
+
+        h = sha256()
+        h.update("id_101234id_256789".encode('utf-8'))
+        hash_test = h.hexdigest()
+
+        self.assertEqual(hash_test, vts.get_sha256_hash())

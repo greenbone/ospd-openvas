@@ -184,10 +184,9 @@ class Vts:
     def calculate_vts_collection_hash(self):
         """ Calculate the vts collection sha256 hash. """
         m = sha256()
-        for vt in sorted(self._vts):
-            m.update(
-                (vt + self._vts[vt].get('modification_time')).encode('utf-8')
-            )
+
+        for vt_id, vt in sorted(self._vts.items()):
+            m.update((vt_id + vt.get('modification_time')).encode('utf-8'))
 
         self.sha256_hash = m.hexdigest()
 
