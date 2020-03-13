@@ -334,6 +334,11 @@ class GetVts(BaseCommand):
             val = len(filtered_vts)
             begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "sent", val)
 
+        if self._daemon.vts.sha256_hash is not None:
+            begin_vts_tag = xml_helper.add_attr(
+                begin_vts_tag, "sha256_hash", self._daemon.vts.sha256_hash
+            )
+
         yield begin_vts_tag
 
         for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):

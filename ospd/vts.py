@@ -20,6 +20,7 @@
 """
 
 import multiprocessing
+from hashlib import sha256
 import re
 
 from copy import deepcopy
@@ -45,6 +46,7 @@ class Vts:
 
         self.vt_id_pattern = vt_id_pattern
         self._vts = None
+        self.sha256_hash = None
 
     def __contains__(self, key: str) -> bool:
         return key in self._vts
@@ -178,3 +180,12 @@ class Vts:
         copy = Vts(self.storage, vt_id_pattern=self.vt_id_pattern)
         copy._vts = deepcopy(self._vts)  # pylint: disable=protected-access
         return copy
+
+    def calculate_vts_collection_hash(self):
+        """ Calculate the vts collection sha256 hash. """
+        m = sha256()
+
+        for vt_id, vt in sorted(self._vts.items()):
+            m.update((vt_id + vt.get('modification_time')).encode('utf-8'))
+
+        self.sha256_hash = m.hexdigest()
