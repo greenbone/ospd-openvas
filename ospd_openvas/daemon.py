@@ -633,6 +633,7 @@ class OSPDopenvas(OSPDaemon):
             _feed_version = self.nvti.get_feed_version()
 
             self.set_vts_version(vts_version=_feed_version)
+            self.vts.calculate_vts_collection_hash()
             self.pending_feed = False
             self.initialized = True
 
