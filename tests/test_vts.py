@@ -148,4 +148,4 @@ class VtsTestCase(TestCase):
         h.update("id_101234id_256789".encode('utf-8'))
         hash_test = h.hexdigest()
 
-        self.assertEqual(hash_test, vts.get_sha256_hash())
+        self.assertEqual(hash_test, vts.sha256_hash)

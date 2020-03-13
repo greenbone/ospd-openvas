@@ -189,6 +189,3 @@ class Vts:
             m.update((vt_id + vt.get('modification_time')).encode('utf-8'))
 
         self.sha256_hash = m.hexdigest()
-
-    def get_sha256_hash(self):
-        return self.sha256_hash
