@@ -1040,7 +1040,7 @@ class OSPDopenvas(OSPDaemon):
             host_is_dead = "Host dead" in msg[4]
             valid_oid = roid and roid in self.vts
 
-            if not valid_oid:
+            if not valid_oid and not host_is_dead:
                 logger.warning('Invalid VT oid %s for a result', roid)
 
             if valid_oid and not host_is_dead:
