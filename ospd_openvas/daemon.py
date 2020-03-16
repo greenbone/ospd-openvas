@@ -1060,6 +1060,7 @@ class OSPDopenvas(OSPDaemon):
                     name=rname,
                     value=msg[4],
                     port=msg[2],
+                    test_id=roid,
                 )
 
             if msg[0] == 'LOG':
