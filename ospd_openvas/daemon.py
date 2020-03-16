@@ -1064,14 +1064,18 @@ class OSPDopenvas(OSPDaemon):
 
             if roid and not host_is_dead:
                 vt_aux = copy.deepcopy(self.vts.get(roid))
-                if vt_aux and vt_aux.get('qod_type'):
+
+            if not vt_aux and not host_is_dead:
+                logger.warning('Invalid VT oid %s for a result', roid)
+
+            if vt_aux:
+                if vt_aux.get('qod_type'):
                     qod_t = vt_aux.get('qod_type')
                     rqod = self.nvti.QOD_TYPES[qod_t]
-                elif vt_aux and vt_aux.get('qod'):
+                elif vt_aux.get('qod'):
                     rqod = vt_aux.get('qod')
 
-                if vt_aux:
-                    rname = vt_aux.get('name')
+                rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
