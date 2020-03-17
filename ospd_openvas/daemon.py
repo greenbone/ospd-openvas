@@ -1464,7 +1464,6 @@ class OSPDopenvas(OSPDaemon):
             )
             do_not_launch = True
 
-        self.scan_collection.release_vts_list(scan_id)
         self.temp_vts = None
 
         scan_prefs.set_reverse_lookup_opt()

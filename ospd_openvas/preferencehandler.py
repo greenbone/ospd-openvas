@@ -287,6 +287,7 @@ class PreferenceHandler:
         self, vts_cache,
     ):
         nvts = self.scan_collection.get_vts(self.scan_id)
+        self.scan_collection.release_vts_list(self.scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts, vts_cache)
             # Add nvts list
