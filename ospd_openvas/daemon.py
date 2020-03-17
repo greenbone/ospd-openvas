@@ -1368,7 +1368,6 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id: str):
         """ Starts the OpenVAS scanner for scan_id scan. """
-        target = self.get_scan_host(scan_id)
         if self.pending_feed:
             logger.info(
                 '%s: There is a pending feed update. '
@@ -1378,7 +1377,7 @@ class OSPDopenvas(OSPDaemon):
             self.add_scan_error(
                 scan_id,
                 name='',
-                host=target,
+                host='',
                 value=(
                     'It was not possible to start the scan,'
                     'because a pending feed update. Please try later'
@@ -1391,10 +1390,12 @@ class OSPDopenvas(OSPDaemon):
 
         scan_prefs = PreferenceHandler(scan_id, kbdb, self.scan_collection)
 
+        target = scan_prefs.set_target()
+
         ports = self.get_scan_ports(scan_id)
         if not ports:
             self.add_scan_error(
-                scan_id, name='', host=target, value='No port list defined.'
+                scan_id, name='', host='', value='No port list defined.'
             )
             return 2
 
@@ -1436,10 +1437,6 @@ class OSPDopenvas(OSPDaemon):
         # Store main_kbindex as global preference
         ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
         kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [ov_maindbid])
-
-        # Set target
-        target_aux = 'TARGET|||%s' % target
-        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [target_aux])
 
         # Set port range
         port_range = 'port_range|||%s' % ports

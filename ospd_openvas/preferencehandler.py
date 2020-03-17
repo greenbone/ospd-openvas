@@ -325,3 +325,13 @@ class PreferenceHandler:
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
             item = 'reverse_lookup_unify|||%s' % rev_lookup_unify
             self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+
+    def set_target(self):
+        """ Get the target from the scan collection and set the target
+        in redis. Returns the target """
+
+        target = self.scan_collection.get_host_list(self.scan_id)
+        target_aux = 'TARGET|||%s' % target
+        self.kbdb.add_scan_preferences(self.openvas_scan_id, [target_aux])
+
+        return target
