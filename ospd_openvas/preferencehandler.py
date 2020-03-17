@@ -60,7 +60,7 @@ class PreferenceHandler:
         return self._target_options
 
     def process_vts(
-        self, vts: Dict[str, Dict[str, str]]
+        self, vts: Dict[str, Dict[str, str]], vts_cache: Dict[str, Dict],
     ) -> Tuple[List[str], Dict[str, str]]:
         """ Add single VTs and their parameters. """
         vts_list = []
@@ -71,7 +71,7 @@ class PreferenceHandler:
             vts_list = self.get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.temp_vts:
+            if vtid not in vts_cache:
                 logger.warning(
                     'The VT %s was not found and it will not be loaded.', vtid
                 )
@@ -119,15 +119,15 @@ class PreferenceHandler:
         return vts_list, vts_params
 
     def set_plugins(
-        self, vts,
+        self, vts_cache,
     ):
         nvts = self.scan_collection.get_vts(self.scan_id)
         if nvts != '':
-            nvts_list, nvts_params = self.process_vts(nvts)
+            nvts_list, nvts_params = self.process_vts(nvts, vts_cache)
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
+            self.kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
 
             # Set alive test option. Overwrite the scan config settings.
             if self.target_options:
@@ -157,7 +157,7 @@ class PreferenceHandler:
                             # for the alive test.
                             if alive_test >= 1 and alive_test <= 31:
                                 item = 'ALIVE_TEST|||%s' % str(alive_test)
-                                kbdb.add_scan_preferences(
+                                self.kbdb.add_scan_preferences(
                                     self.openvas_scan_id, [item]
                                 )
 
@@ -171,7 +171,7 @@ class PreferenceHandler:
             # Add nvts parameters
             for key, val in nvts_params.items():
                 item = '%s|||%s' % (key, val)
-                kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+                self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
 
             nvts_params = None
             nvts_list = None
@@ -179,8 +179,6 @@ class PreferenceHandler:
             plugin_list = None
             nvts = None
 
-            # Release temp vts dict memory.
-            self.temp_vts = None
         else:
             self.add_scan_error(
                 self.scan_id, name='', host=target, value='No VTS to run.'

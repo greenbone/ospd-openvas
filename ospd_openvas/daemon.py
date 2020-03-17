@@ -1592,6 +1592,9 @@ class OSPDopenvas(OSPDaemon):
         scan_prefs.set_plugins(self.temp_vts)
         self.scan_collection.release_vts_list(scan_id)
 
+        # Release temp vts dict memory.
+        self.temp_vts = None
+
         target_options = scan_prefs.target_options
 
         # Set reverse lookup options
