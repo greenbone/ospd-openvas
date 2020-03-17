@@ -1591,22 +1591,6 @@ class OSPDopenvas(OSPDaemon):
 
         target_options = scan_prefs.target_options
 
-        # Set reverse lookup options
-        if target_options:
-            _rev_lookup_only = int(
-                target_options.get('reverse_lookup_only', '0')
-            )
-            rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
-            item = 'reverse_lookup_only|||%s' % (rev_lookup_only)
-            kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [item])
-
-            _rev_lookup_unify = int(
-                target_options.get('reverse_lookup_unify', '0')
-            )
-            rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
-            item = 'reverse_lookup_unify|||%s' % rev_lookup_unify
-            kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [item])
-
         if do_not_launch:
             self.main_db.release_database(kbdb)
             return 2

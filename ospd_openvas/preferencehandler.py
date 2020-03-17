@@ -190,3 +190,20 @@ class PreferenceHandler:
                 self.scan_id, name='', host=target, value='No VTS to run.'
             )
             do_not_launch = True
+
+    def set_reverse_lookup_opt(self):
+        # Set reverse lookup options
+        if self.target_options:
+            _rev_lookup_only = int(
+                self.target_options.get('reverse_lookup_only', '0')
+            )
+            rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
+            item = 'reverse_lookup_only|||%s' % (rev_lookup_only)
+            self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+
+            _rev_lookup_unify = int(
+                self.target_options.get('reverse_lookup_unify', '0')
+            )
+            rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
+            item = 'reverse_lookup_unify|||%s' % rev_lookup_unify
+            self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
