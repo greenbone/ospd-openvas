@@ -335,3 +335,10 @@ class PreferenceHandler:
         self.kbdb.add_scan_preferences(self.openvas_scan_id, [target_aux])
 
         return target
+
+    def set_ports(self):
+        ports = self.scan_collection.get_ports(self.scan_id)
+        port_range = 'port_range|||%s' % ports
+        self.kbdb.add_scan_preferences(self.openvas_scan_id, [port_range])
+
+        return ports

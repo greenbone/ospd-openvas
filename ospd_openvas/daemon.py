@@ -1385,6 +1385,7 @@ class OSPDopenvas(OSPDaemon):
             )
             return 2
 
+        do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         self.main_kbindex = kbdb.index
 
@@ -1392,12 +1393,12 @@ class OSPDopenvas(OSPDaemon):
 
         target = scan_prefs.set_target()
 
-        ports = self.get_scan_ports(scan_id)
+        ports = scan_prefs.set_ports()
         if not ports:
             self.add_scan_error(
                 scan_id, name='', host='', value='No port list defined.'
             )
-            return 2
+            do_not_launch = True
 
         # Get scan options
         options = self.get_scan_options(scan_id)
@@ -1438,13 +1439,6 @@ class OSPDopenvas(OSPDaemon):
         ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
         kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [ov_maindbid])
 
-        # Set port range
-        port_range = 'port_range|||%s' % ports
-        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [port_range])
-
-        # If credentials or vts fail, set this variable.
-        do_not_launch = False
-
         # Set credentials
         credentials = self.get_scan_credentials(scan_id)
         if credentials:
@@ -1470,16 +1464,11 @@ class OSPDopenvas(OSPDaemon):
             )
             do_not_launch = True
 
-        # Remove list of vts from scan_collection, as it is not necessary anymore.
         self.scan_collection.release_vts_list(scan_id)
-
-        # Release temp vts dict memory.
         self.temp_vts = None
 
         scan_prefs.set_reverse_lookup_opt()
         scan_prefs.set_alive_test_option()
-
-        target_options = scan_prefs.target_options
 
         if do_not_launch:
             self.main_db.release_database(kbdb)
