@@ -1610,21 +1610,21 @@ class OSPDopenvas(OSPDaemon):
                 val = str(value)
             prefs_val.append(key + "|||" + val)
 
-        kbdb.add_scan_preferences(openvas_scan_id, prefs_val)
+        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, prefs_val)
 
         prefs_val = None
 
         # Store main_kbindex as global preference
         ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
-        kbdb.add_scan_preferences(openvas_scan_id, [ov_maindbid])
+        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [ov_maindbid])
 
         # Set target
         target_aux = 'TARGET|||%s' % target
-        kbdb.add_scan_preferences(openvas_scan_id, [target_aux])
+        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [target_aux])
 
         # Set port range
         port_range = 'port_range|||%s' % ports
-        kbdb.add_scan_preferences(openvas_scan_id, [port_range])
+        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [port_range])
 
         # If credentials or vts fail, set this variable.
         do_not_launch = False
@@ -1634,7 +1634,9 @@ class OSPDopenvas(OSPDaemon):
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
-                kbdb.add_scan_preferences(openvas_scan_id, cred_prefs)
+                kbdb.add_scan_preferences(
+                    scan_prefs.openvas_scan_id, cred_prefs
+                )
             else:
                 self.add_scan_error(
                     scan_id, name='', host=target, value='Malformed credential.'
@@ -1721,21 +1723,21 @@ class OSPDopenvas(OSPDaemon):
             )
             rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
             item = 'reverse_lookup_only|||%s' % (rev_lookup_only)
-            kbdb.add_scan_preferences(openvas_scan_id, [item])
+            kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [item])
 
             _rev_lookup_unify = int(
                 target_options.get('reverse_lookup_unify', '0')
             )
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
             item = 'reverse_lookup_unify|||%s' % rev_lookup_unify
-            kbdb.add_scan_preferences(openvas_scan_id, [item])
+            kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [item])
 
         if do_not_launch:
             self.main_db.release_database(kbdb)
             return 2
 
         result = Openvas.start_scan(
-            openvas_scan_id,
+            scan_prefs.openvas_scan_id,
             not self.is_running_as_root and self.sudo_available,
             self._niceness,
         )
@@ -1750,7 +1752,7 @@ class OSPDopenvas(OSPDaemon):
         kbdb.add_scan_process_id(ovas_pid)
 
         # Wait until the scanner starts and loads all the preferences.
-        while kbdb.get_status(openvas_scan_id) == 'new':
+        while kbdb.get_status(scan_prefs.openvas_scan_id) == 'new':
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
@@ -1767,7 +1769,7 @@ class OSPDopenvas(OSPDaemon):
         while True:
             time.sleep(3)
             # Check if the client stopped the whole scan
-            if kbdb.scan_is_stopped(openvas_scan_id):
+            if kbdb.scan_is_stopped(scan_prefs.openvas_scan_id):
                 return 1
 
             self.report_openvas_results(kbdb, scan_id, "")
@@ -1778,7 +1780,7 @@ class OSPDopenvas(OSPDaemon):
                 if not id_aux:
                     continue
 
-                if id_aux == openvas_scan_id:
+                if id_aux == scan_prefs.openvas_scan_id:
                     no_id_found = False
                     current_host = scan_db.get_host_ip()
 
@@ -1790,7 +1792,7 @@ class OSPDopenvas(OSPDaemon):
                         scan_db, scan_id, current_host
                     )
 
-                    if scan_db.host_is_finished(openvas_scan_id):
+                    if scan_db.host_is_finished(scan_prefs.openvas_scan_id):
                         self.set_scan_host_finished(scan_id, current_host)
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host

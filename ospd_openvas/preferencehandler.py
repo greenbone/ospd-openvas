@@ -26,11 +26,20 @@ import uuid
 from typing import Optional, Dict, List, Tuple, Iterator
 
 
-class PreferenceHandler():
-
+class PreferenceHandler:
     def __init__(self, scan_id, kbdb, scan_collection):
         self.scan_id = scan_id
         self.kbdb = kbdb
         self.scan_collection = scan_collection
-        
+
         self.openvas_scan_id = None
+
+    @property
+    def openvas_scan_id(self):
+        if self.openvas_scan_id:
+            return self.openvas_scan_id
+
+        self.openvas_scan_id = str(uuid.uuid4())
+        self.kbdb.add_scan_id(scan_id, openvas_scan_id)
+
+        return self.openvas_scan_id
