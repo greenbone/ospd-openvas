@@ -1479,7 +1479,13 @@ class OSPDopenvas(OSPDaemon):
         # DictProxy object of multiprocessing directly is to expensinve
         # (interprocess communication).
         self.temp_vts = self.vts.copy()
-        scan_prefs.set_plugins(self.temp_vts)
+        if not scan_prefs.set_plugins(self.temp_vts):
+            self.add_scan_error(
+                scan_id, name='', host=target, value='No VTS to run.'
+            )
+            do_not_launch = True
+
+        # Remove list of vts from scan_collection, as it is not necessary anymore.
         self.scan_collection.release_vts_list(scan_id)
 
         # Release temp vts dict memory.

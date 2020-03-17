@@ -26,6 +26,8 @@ import uuid
 
 from typing import Optional, Dict, List, Tuple, Iterator
 
+from ospd_openvas.openvas import Openvas
+
 logger = logging.getLogger(__name__)
 
 
@@ -288,11 +290,9 @@ class PreferenceHandler:
             plugin_list = None
             nvts = None
 
-        else:
-            self.add_scan_error(
-                self.scan_id, name='', host=target, value='No VTS to run.'
-            )
-            do_not_launch = True
+            return True
+
+        return False
 
     def set_reverse_lookup_opt(self):
         # Set reverse lookup options
