@@ -51,6 +51,7 @@ from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB, ScanDB
 from ospd_openvas.lock import LockFile
+from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
@@ -1566,6 +1567,11 @@ class OSPDopenvas(OSPDaemon):
             )
             return 2
 
+        kbdb = self.main_db.get_new_kb_database()
+        self.main_kbindex = kbdb.index
+
+        scan_prefs = PreferenceHandler(scan_id, kbdb, self.scan_collection)
+
         ports = self.get_scan_ports(scan_id)
         if not ports:
             self.add_scan_error(
@@ -1576,14 +1582,6 @@ class OSPDopenvas(OSPDaemon):
         # Get scan options
         options = self.get_scan_options(scan_id)
         prefs_val = []
-        kbdb = self.main_db.get_new_kb_database()
-        self.main_kbindex = kbdb.index
-
-        # To avoid interference between scan process during a parallel scanning
-        # new uuid is used internally for each scan.
-        openvas_scan_id = str(uuid.uuid4())
-
-        kbdb.add_scan_id(scan_id, openvas_scan_id)
 
         exclude_hosts = self.get_scan_exclude_hosts(scan_id)
         if exclude_hosts:
