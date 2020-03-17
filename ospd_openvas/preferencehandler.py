@@ -29,6 +29,12 @@ from typing import Optional, Dict, List, Tuple, Iterator
 logger = logging.getLogger(__name__)
 
 
+def _from_bool_to_str(value: int) -> str:
+    """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
+    uses 1 and 0."""
+    return 'yes' if value == 1 else 'no'
+
+
 class PreferenceHandler:
     def __init__(self, scan_id, kbdb, scan_collection):
         self.scan_id = scan_id

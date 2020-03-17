@@ -51,7 +51,7 @@ from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB, ScanDB
 from ospd_openvas.lock import LockFile
-from ospd_openvas.preferencehandler import PreferenceHandler
+from ospd_openvas.preferencehandler import PreferenceHandler, _from_bool_to_str
 from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
@@ -241,12 +241,6 @@ class AliveTest(IntEnum):
     ALIVE_TEST_ARP = 4
     ALIVE_TEST_CONSIDER_ALIVE = 8
     ALIVE_TEST_TCP_SYN_SERVICE = 16
-
-
-def _from_bool_to_str(value: int) -> str:
-    """ The OpenVAS scanner use yes and no as boolean values, whereas ospd
-    uses 1 and 0."""
-    return 'yes' if value == 1 else 'no'
 
 
 def safe_int(value: str) -> Optional[int]:
