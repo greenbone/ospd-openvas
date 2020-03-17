@@ -24,11 +24,25 @@
 import logging
 import uuid
 
+from enum import IntEnum
 from typing import Optional, Dict, List, Tuple, Iterator
 
 from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
+
+
+OID_PING_HOST = "1.3.6.1.4.1.25623.1.0.100315"
+
+
+class AliveTest(IntEnum):
+    """ Alive Tests. """
+
+    ALIVE_TEST_TCP_ACK_SERVICE = 1
+    ALIVE_TEST_ICMP = 2
+    ALIVE_TEST_ARP = 4
+    ALIVE_TEST_CONSIDER_ALIVE = 8
+    ALIVE_TEST_TCP_SYN_SERVICE = 16
 
 
 def _from_bool_to_str(value: int) -> str:
@@ -232,41 +246,42 @@ class PreferenceHandler:
 
     def set_alive_test_option(self):
         """ Set alive test option. Overwrite the scan config settings."""
-        if self.target_options:
-            # Check if test_alive_hosts_only feature of openvas is active.
-            # If active, put ALIVE_TEST enum in preferences.
-            settings = Openvas.get_settings()
-            if settings:
-                test_alive_hosts_only = settings.get('test_alive_hosts_only')
-                if test_alive_hosts_only:
-                    if self.target_options and self.target_options.get(
-                        'alive_test'
-                    ):
-                        try:
-                            alive_test = int(
-                                self.target_options.get('alive_test')
-                            )
-                        except ValueError:
-                            logger.debug(
-                                'Alive test settings not applied. '
-                                'Invalid alive test value %s',
-                                self.target_options.get('alive_test'),
-                            )
-                        # Put ALIVE_TEST enum in db, this is then taken
-                        # by openvas to determine the method to use
-                        # for the alive test.
-                        if alive_test >= 1 and alive_test <= 31:
-                            item = 'ALIVE_TEST|||%s' % str(alive_test)
-                            self.kbdb.add_scan_preferences(
-                                self.openvas_scan_id, [item]
-                            )
+        # Check if test_alive_hosts_only feature of openvas is active.
+        # If active, put ALIVE_TEST enum in preferences.
+        settings = Openvas.get_settings()
+        if settings:
+            test_alive_hosts_only = settings.get('test_alive_hosts_only')
+            if test_alive_hosts_only:
+                if self.target_options.get('alive_test'):
+                    try:
+                        alive_test = int(self.target_options.get('alive_test'))
+                    except ValueError:
+                        logger.debug(
+                            'Alive test settings not applied. '
+                            'Invalid alive test value %s',
+                            self.target_options.get('alive_test'),
+                        )
+                    # Put ALIVE_TEST enum in db, this is then taken
+                    # by openvas to determine the method to use
+                    # for the alive test.
+                    if alive_test >= 1 and alive_test <= 31:
+                        item = 'ALIVE_TEST|||%s' % str(alive_test)
+                        self.kbdb.add_scan_preferences(
+                            self.openvas_scan_id, [item]
+                        )
+            else:
+                alive_test_opt = self.build_alive_test_opt_as_prefs(
+                    self.target_options
+                )
+                nvts_params = {}
+                for elem in alive_test_opt:
+                    key, val = elem.split("|||", 2)
+                    nvts_params[key] = val
 
-            alive_test_opt = self.build_alive_test_opt_as_prefs(
-                self.target_options
-            )
-            for elem in alive_test_opt:
-                key, val = elem.split("|||", 2)
-                nvts_params[key] = val
+            # Add nvts parameters
+            for key, val in nvts_params.items():
+                item = '%s|||%s' % (key, val)
+                self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
 
     def set_plugins(
         self, vts_cache,
