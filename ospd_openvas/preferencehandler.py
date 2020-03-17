@@ -124,6 +124,148 @@ class PreferenceHandler:
 
         return vts_list, vts_params
 
+    @staticmethod
+    def build_alive_test_opt_as_prefs(target_options: Dict) -> List[str]:
+        """ Parse the target options dictionary.
+        @param credentials: Dictionary with the target options.
+
+        @return A list with the target options in string format to be
+                added to the redis KB.
+        """
+        target_opt_prefs_list = []
+        if target_options and target_options.get('alive_test'):
+            try:
+                alive_test = int(target_options.get('alive_test'))
+            except ValueError:
+                logger.debug(
+                    'Alive test settings not applied. '
+                    'Invalid alive test value %s',
+                    target_options.get('alive_test'),
+                )
+                return target_opt_prefs_list
+
+            if alive_test < 1 or alive_test > 31:
+                return target_opt_prefs_list
+
+            if (
+                alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+                or alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+            ):
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':1:checkbox:'
+                + 'Do a TCP ping|||'
+                + '{0}'.format(value)
+            )
+
+            if (
+                alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+                and alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+            ):
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':2:checkbox:'
+                + 'TCP ping tries also TCP-SYN ping|||'
+                + '{0}'.format(value)
+            )
+
+            if (alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE) and not (
+                alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+            ):
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':7:checkbox:'
+                + 'TCP ping tries only TCP-SYN ping|||'
+                + '{0}'.format(value)
+            )
+
+            if alive_test & AliveTest.ALIVE_TEST_ICMP:
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':3:checkbox:'
+                + 'Do an ICMP ping|||'
+                + '{0}'.format(value)
+            )
+
+            if alive_test & AliveTest.ALIVE_TEST_ARP:
+                value = "yes"
+            else:
+                value = "no"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':4:checkbox:'
+                + 'Use ARP|||'
+                + '{0}'.format(value)
+            )
+
+            if alive_test & AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
+                value = "no"
+            else:
+                value = "yes"
+            target_opt_prefs_list.append(
+                OID_PING_HOST
+                + ':5:checkbox:'
+                + 'Mark unrechable Hosts as dead (not scanning)|||'
+                + '{0}'.format(value)
+            )
+
+            # Also select a method, otherwise Ping Host logs a warning.
+            if alive_test == AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
+                target_opt_prefs_list.append(
+                    OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping|||yes'
+                )
+        return target_opt_prefs_list
+
+    def set_alive_test_option(self):
+        """ Set alive test option. Overwrite the scan config settings."""
+        if self.target_options:
+            # Check if test_alive_hosts_only feature of openvas is active.
+            # If active, put ALIVE_TEST enum in preferences.
+            settings = Openvas.get_settings()
+            if settings:
+                test_alive_hosts_only = settings.get('test_alive_hosts_only')
+                if test_alive_hosts_only:
+                    if self.target_options and self.target_options.get(
+                        'alive_test'
+                    ):
+                        try:
+                            alive_test = int(
+                                self.target_options.get('alive_test')
+                            )
+                        except ValueError:
+                            logger.debug(
+                                'Alive test settings not applied. '
+                                'Invalid alive test value %s',
+                                self.target_options.get('alive_test'),
+                            )
+                        # Put ALIVE_TEST enum in db, this is then taken
+                        # by openvas to determine the method to use
+                        # for the alive test.
+                        if alive_test >= 1 and alive_test <= 31:
+                            item = 'ALIVE_TEST|||%s' % str(alive_test)
+                            self.kbdb.add_scan_preferences(
+                                self.openvas_scan_id, [item]
+                            )
+
+            alive_test_opt = self.build_alive_test_opt_as_prefs(
+                self.target_options
+            )
+            for elem in alive_test_opt:
+                key, val = elem.split("|||", 2)
+                nvts_params[key] = val
+
     def set_plugins(
         self, vts_cache,
     ):
@@ -134,45 +276,6 @@ class PreferenceHandler:
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
             self.kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
-
-            # Set alive test option. Overwrite the scan config settings.
-            if self.target_options:
-                # Check if test_alive_hosts_only feature of openvas is active.
-                # If active, put ALIVE_TEST enum in preferences.
-                settings = Openvas.get_settings()
-                if settings:
-                    test_alive_hosts_only = settings.get(
-                        'test_alive_hosts_only'
-                    )
-                    if test_alive_hosts_only:
-                        if self.target_options and self.target_options.get(
-                            'alive_test'
-                        ):
-                            try:
-                                alive_test = int(
-                                    self.target_options.get('alive_test')
-                                )
-                            except ValueError:
-                                logger.debug(
-                                    'Alive test settings not applied. '
-                                    'Invalid alive test value %s',
-                                    self.target_options.get('alive_test'),
-                                )
-                            # Put ALIVE_TEST enum in db, this is then taken
-                            # by openvas to determine the method to use
-                            # for the alive test.
-                            if alive_test >= 1 and alive_test <= 31:
-                                item = 'ALIVE_TEST|||%s' % str(alive_test)
-                                self.kbdb.add_scan_preferences(
-                                    self.openvas_scan_id, [item]
-                                )
-
-                alive_test_opt = self.build_alive_test_opt_as_prefs(
-                    self.target_options
-                )
-                for elem in alive_test_opt:
-                    key, val = elem.split("|||", 2)
-                    nvts_params[key] = val
 
             # Add nvts parameters
             for key, val in nvts_params.items():
