@@ -1269,65 +1269,6 @@ class OSPDopenvas(OSPDaemon):
 
         return 1
 
-    def process_vts(
-        self, vts: Dict[str, Dict[str, str]]
-    ) -> Tuple[List[str], Dict[str, str]]:
-        """ Add single VTs and their parameters. """
-        vts_list = []
-        vts_params = {}
-        vtgroups = vts.pop('vt_groups')
-
-        if vtgroups:
-            vts_list = self.get_vts_in_groups(vtgroups)
-
-        for vtid, vt_params in vts.items():
-            if vtid not in self.temp_vts:
-                logger.warning(
-                    'The VT %s was not found and it will not be loaded.', vtid
-                )
-                continue
-
-            vts_list.append(vtid)
-            for vt_param_id, vt_param_value in vt_params.items():
-                param_type = self.get_vt_param_type(vtid, vt_param_id)
-                param_name = self.get_vt_param_name(vtid, vt_param_id)
-
-                if not param_type or not param_name:
-                    logger.debug(
-                        'Missing type or name for VT parameter %s of %s. '
-                        'It could not be loaded.',
-                        vt_param_id,
-                        vtid,
-                    )
-                    continue
-
-                if vt_param_id == '0':
-                    type_aux = 'integer'
-                else:
-                    type_aux = param_type
-
-                if self.check_param_type(vt_param_value, type_aux):
-                    logger.debug(
-                        'The VT parameter %s for %s could not be loaded. '
-                        'Expected %s type for parameter value %s',
-                        vt_param_id,
-                        vtid,
-                        type_aux,
-                        str(vt_param_value),
-                    )
-                    continue
-
-                if type_aux == 'checkbox':
-                    vt_param_value = _from_bool_to_str(int(vt_param_value))
-
-                vts_params[
-                    "{0}:{1}:{2}:{3}".format(
-                        vtid, vt_param_id, param_type, param_name
-                    )
-                ] = str(vt_param_value)
-
-        return vts_list, vts_params
-
     @staticmethod
     def build_credentials_as_prefs(credentials: Dict) -> List[str]:
         """ Parse the credential dictionary.
@@ -1648,71 +1589,9 @@ class OSPDopenvas(OSPDaemon):
         # DictProxy object of multiprocessing directly is to expensinve
         # (interprocess communication).
         self.temp_vts = self.vts.copy()
+        target_options = self.get_scan_target_options(scan_id)
 
-        nvts = self.get_scan_vts(scan_id)
-        if nvts != '':
-            nvts_list, nvts_params = self.process_vts(nvts)
-            # Add nvts list
-            separ = ';'
-            plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            kbdb.add_scan_preferences(openvas_scan_id, [plugin_list])
-
-            # Set alive test option. Overwrite the scan config settings.
-            target_options = self.get_scan_target_options(scan_id)
-            if target_options:
-                # Check if test_alive_hosts_only feature of openvas is active.
-                # If active, put ALIVE_TEST enum in preferences.
-                settings = Openvas.get_settings()
-                if settings:
-                    test_alive_hosts_only = settings.get(
-                        'test_alive_hosts_only'
-                    )
-                    if test_alive_hosts_only:
-                        if target_options and target_options.get('alive_test'):
-                            try:
-                                alive_test = int(
-                                    target_options.get('alive_test')
-                                )
-                            except ValueError:
-                                logger.debug(
-                                    'Alive test settings not applied. '
-                                    'Invalid alive test value %s',
-                                    target_options.get('alive_test'),
-                                )
-                            # Put ALIVE_TEST enum in db, this is then taken
-                            # by openvas to determine the method to use
-                            # for the alive test.
-                            if alive_test >= 1 and alive_test <= 31:
-                                item = 'ALIVE_TEST|||%s' % str(alive_test)
-                                kbdb.add_scan_preferences(
-                                    openvas_scan_id, [item]
-                                )
-
-                alive_test_opt = self.build_alive_test_opt_as_prefs(
-                    target_options
-                )
-                for elem in alive_test_opt:
-                    key, val = elem.split("|||", 2)
-                    nvts_params[key] = val
-
-            # Add nvts parameters
-            for key, val in nvts_params.items():
-                item = '%s|||%s' % (key, val)
-                kbdb.add_scan_preferences(openvas_scan_id, [item])
-
-            nvts_params = None
-            nvts_list = None
-            item = None
-            plugin_list = None
-            nvts = None
-
-            # Release temp vts dict memory.
-            self.temp_vts = None
-        else:
-            self.add_scan_error(
-                scan_id, name='', host=target, value='No VTS to run.'
-            )
-            do_not_launch = True
+        scan_prefs.set_plugins(self.temp_vts)
 
         self.scan_collection.release_vts_list(scan_id)
 
