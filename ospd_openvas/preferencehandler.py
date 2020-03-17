@@ -35,17 +35,29 @@ class PreferenceHandler:
         self.kbdb = kbdb
         self.scan_collection = scan_collection
 
-        self.openvas_scan_id = None
+        self._openvas_scan_id = None
+
+        self._target_options = None
 
     @property
     def openvas_scan_id(self):
-        if self.openvas_scan_id:
-            return self.openvas_scan_id
+        if self._openvas_scan_id is not None:
+            return self._openvas_scan_id
 
-        self.openvas_scan_id = str(uuid.uuid4())
-        self.kbdb.add_scan_id(scan_id, openvas_scan_id)
+        self._openvas_scan_id = str(uuid.uuid4())
+        self.kbdb.add_scan_id(self.scan_id, self._openvas_scan_id)
 
-        return self.openvas_scan_id
+        return self._openvas_scan_id
+
+    @property
+    def target_options(self):
+        if self._target_options is not None:
+            return self._target_options
+
+        self._target_options = self.scan_collection.get_target_options(
+            self.scan_id
+        )
+        return self._target_options
 
     def process_vts(
         self, vts: Dict[str, Dict[str, str]]
@@ -109,16 +121,16 @@ class PreferenceHandler:
     def set_plugins(
         self, vts,
     ):
-        nvts = self.scan_collection.get_scan_vts(self.scan_id, target_options)
+        nvts = self.scan_collection.get_vts(self.scan_id)
         if nvts != '':
             nvts_list, nvts_params = self.process_vts(nvts)
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            kbdb.add_scan_preferences(self._openvas_scan_id, [plugin_list])
+            kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
 
             # Set alive test option. Overwrite the scan config settings.
-            if target_options:
+            if self.target_options:
                 # Check if test_alive_hosts_only feature of openvas is active.
                 # If active, put ALIVE_TEST enum in preferences.
                 settings = Openvas.get_settings()
@@ -127,16 +139,18 @@ class PreferenceHandler:
                         'test_alive_hosts_only'
                     )
                     if test_alive_hosts_only:
-                        if target_options and target_options.get('alive_test'):
+                        if self.target_options and self.target_options.get(
+                            'alive_test'
+                        ):
                             try:
                                 alive_test = int(
-                                    target_options.get('alive_test')
+                                    self.target_options.get('alive_test')
                                 )
                             except ValueError:
                                 logger.debug(
                                     'Alive test settings not applied. '
                                     'Invalid alive test value %s',
-                                    target_options.get('alive_test'),
+                                    self.target_options.get('alive_test'),
                                 )
                             # Put ALIVE_TEST enum in db, this is then taken
                             # by openvas to determine the method to use
@@ -144,11 +158,11 @@ class PreferenceHandler:
                             if alive_test >= 1 and alive_test <= 31:
                                 item = 'ALIVE_TEST|||%s' % str(alive_test)
                                 kbdb.add_scan_preferences(
-                                    self._openvas_scan_id, [item]
+                                    self.openvas_scan_id, [item]
                                 )
 
                 alive_test_opt = self.build_alive_test_opt_as_prefs(
-                    target_options
+                    self.target_options
                 )
                 for elem in alive_test_opt:
                     key, val = elem.split("|||", 2)
@@ -157,7 +171,7 @@ class PreferenceHandler:
             # Add nvts parameters
             for key, val in nvts_params.items():
                 item = '%s|||%s' % (key, val)
-                kbdb.add_scan_preferences(self._openvas_scan_id, [item])
+                kbdb.add_scan_preferences(self.openvas_scan_id, [item])
 
             nvts_params = None
             nvts_list = None

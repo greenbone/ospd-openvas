@@ -1589,11 +1589,10 @@ class OSPDopenvas(OSPDaemon):
         # DictProxy object of multiprocessing directly is to expensinve
         # (interprocess communication).
         self.temp_vts = self.vts.copy()
-        target_options = self.get_scan_target_options(scan_id)
-
         scan_prefs.set_plugins(self.temp_vts)
-
         self.scan_collection.release_vts_list(scan_id)
+
+        target_options = scan_prefs.target_options
 
         # Set reverse lookup options
         if target_options:
