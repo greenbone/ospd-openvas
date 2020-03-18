@@ -1104,20 +1104,20 @@ class OSPDopenvas(OSPDaemon):
             res = db.get_result()
 
     def report_openvas_timestamp_scan_host(
-        self, scan_db: ScanDB, scan_id: str, target: str
+        self, scan_db: ScanDB, scan_id: str, host: str
     ):
         """ Get start and end timestamp of a host scan from redis kb. """
         timestamp = scan_db.get_host_scan_end_time()
         if timestamp:
             self.add_scan_log(
-                scan_id, host=target, name='HOST_END', value=timestamp
+                scan_id, host=host, name='HOST_END', value=timestamp
             )
             return
 
         timestamp = scan_db.get_host_scan_start_time()
         if timestamp:
             self.add_scan_log(
-                scan_id, host=target, name='HOST_START', value=timestamp
+                scan_id, host=host, name='HOST_START', value=timestamp
             )
             return
 
@@ -1265,14 +1265,10 @@ class OSPDopenvas(OSPDaemon):
 
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
-
         scan_prefs = PreferenceHandler(scan_id, kbdb, self.scan_collection)
-
-        scan_prefs.set_main_kbindex(kbdb.index)
-
-        target = scan_prefs.set_target()
-
+        scan_prefs.set_target()
         ports = scan_prefs.set_ports()
+
         if not ports:
             self.add_scan_error(
                 scan_id, name='', host='', value='No port list defined.'
@@ -1282,7 +1278,7 @@ class OSPDopenvas(OSPDaemon):
         # Set credentials
         if not scan_prefs.set_credentials():
             self.add_scan_error(
-                scan_id, name='', host=target, value='Malformed credential.'
+                scan_id, name='', host='', value='Malformed credential.'
             )
             do_not_launch = True
 
@@ -1293,12 +1289,13 @@ class OSPDopenvas(OSPDaemon):
         self.temp_vts = self.vts.copy()
         if not scan_prefs.set_plugins(self.temp_vts):
             self.add_scan_error(
-                scan_id, name='', host=target, value='No VTS to run.'
+                scan_id, name='', host='', value='No VTS to run.'
             )
             do_not_launch = True
 
         self.temp_vts = None
 
+        scan_prefs.set_main_kbindex(kbdb.index)
         scan_prefs.set_host_options()
         scan_prefs.set_scan_params(OSPD_PARAMS)
         scan_prefs.set_reverse_lookup_opt()
@@ -1318,10 +1315,8 @@ class OSPDopenvas(OSPDaemon):
             return False
 
         ovas_pid = result.pid
-
-        logger.debug('pid = %s', ovas_pid)
-
         kbdb.add_scan_process_id(ovas_pid)
+        logger.debug('pid = %s', ovas_pid)
 
         # Wait until the scanner starts and loads all the preferences.
         while kbdb.get_status(scan_prefs.openvas_scan_id) == 'new':

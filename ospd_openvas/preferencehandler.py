@@ -333,13 +333,11 @@ class PreferenceHandler:
 
     def set_target(self):
         """ Get the target from the scan collection and set the target
-        in redis. Returns the target """
+        in redis. """
 
         target = self.scan_collection.get_host_list(self.scan_id)
         target_aux = 'TARGET|||%s' % target
         self.kbdb.add_scan_preferences(self.openvas_scan_id, [target_aux])
-
-        return target
 
     def set_ports(self):
         ports = self.scan_collection.get_ports(self.scan_id)
