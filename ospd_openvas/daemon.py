@@ -50,7 +50,7 @@ from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB, ScanDB
 from ospd_openvas.lock import LockFile
-from ospd_openvas.preferencehandler import PreferenceHandler, _from_bool_to_str
+from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 
 logger = logging.getLogger(__name__)
@@ -1400,41 +1400,6 @@ class OSPDopenvas(OSPDaemon):
             )
             do_not_launch = True
 
-        # Get scan options
-        options = self.get_scan_options(scan_id)
-        prefs_val = []
-
-        exclude_hosts = self.get_scan_exclude_hosts(scan_id)
-        if exclude_hosts:
-            options['exclude_hosts'] = exclude_hosts
-
-        # Get unfinished hosts, in case it is a resumed scan. And added
-        # into exclude_hosts scan preference. Set progress for the finished ones
-        # to 100%.
-        finished_hosts = self.get_scan_finished_hosts(scan_id)
-        if finished_hosts:
-            if exclude_hosts:
-                finished_hosts_str = ','.join(finished_hosts)
-                exclude_hosts = exclude_hosts + ',' + finished_hosts_str
-                options['exclude_hosts'] = exclude_hosts
-            else:
-                options['exclude_hosts'] = ','.join(finished_hosts)
-
-        # Set scan preferences
-        for key, value in options.items():
-            item_type = ''
-            if key in OSPD_PARAMS:
-                item_type = OSPD_PARAMS[key].get('type')
-            if item_type == 'boolean':
-                val = _from_bool_to_str(value)
-            else:
-                val = str(value)
-            prefs_val.append(key + "|||" + val)
-
-        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, prefs_val)
-
-        prefs_val = None
-
         # Store main_kbindex as global preference
         ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
         kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [ov_maindbid])
@@ -1466,6 +1431,8 @@ class OSPDopenvas(OSPDaemon):
 
         self.temp_vts = None
 
+        scan_prefs.set_host_options()
+        scan_prefs.set_scan_params(OSPD_PARAMS)
         scan_prefs.set_reverse_lookup_opt()
         scan_prefs.set_alive_test_option()
 

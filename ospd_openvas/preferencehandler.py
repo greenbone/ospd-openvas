@@ -343,3 +343,39 @@ class PreferenceHandler:
         self.kbdb.add_scan_preferences(self.openvas_scan_id, [port_range])
 
         return ports
+
+    def set_host_options(self):
+        options = self.scan_collection.get_options(self.scan_id)
+
+        exclude_hosts = self.scan_collection.get_exclude_hosts(self.scan_id)
+
+        # Get unfinished hosts, in case it is a resumed scan. And added
+        # into exclude_hosts scan preference. Set progress for the finished ones
+        # to 100%.
+        finished_hosts = self.scan_collection.get_hosts_finished(self.scan_id)
+        if finished_hosts:
+            if _exclude_hosts:
+                finished_hosts_str = ','.join(finished_hosts)
+                exclude_hosts = exclude_hosts + ',' + finished_hosts_str
+            else:
+                exclude_hosts = ','.join(finished_hosts)
+
+        pref_val = "exclude_hosts|||" + exclude_hosts
+        self.kbdb.add_scan_preferences(self.openvas_scan_id, [pref_val])
+
+    def set_scan_params(self, ospd_params: Dict[str, Dict]):
+        options = self.scan_collection.get_options(self.scan_id)
+        prefs_val = []
+
+        # Set scan parameters
+        for key, value in options.items():
+            item_type = ''
+            if key in ospd_params:
+                item_type = ospd_params[key].get('type')
+            if item_type == 'boolean':
+                val = _from_bool_to_str(value)
+            else:
+                val = str(value)
+            prefs_val.append(key + "|||" + val)
+
+        self.kbdb.add_scan_preferences(self.openvas_scan_id, prefs_val)
