@@ -279,8 +279,6 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
 
-        self.main_kbindex = None
-
         self.main_db = MainDB()
 
         self.nvti = NVTICache(self.main_db)
@@ -1267,9 +1265,10 @@ class OSPDopenvas(OSPDaemon):
 
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
-        self.main_kbindex = kbdb.index
 
         scan_prefs = PreferenceHandler(scan_id, kbdb, self.scan_collection)
+
+        scan_prefs.set_main_kbindex(kbdb.index)
 
         target = scan_prefs.set_target()
 
@@ -1279,10 +1278,6 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, name='', host='', value='No port list defined.'
             )
             do_not_launch = True
-
-        # Store main_kbindex as global preference
-        ov_maindbid = 'ov_maindbid|||%d' % self.main_kbindex
-        kbdb.add_scan_preferences(scan_prefs.openvas_scan_id, [ov_maindbid])
 
         # Set credentials
         if not scan_prefs.set_credentials():

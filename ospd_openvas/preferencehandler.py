@@ -508,3 +508,8 @@ class PreferenceHandler:
 
         self.kbdb.add_scan_preferences(self.openvas_scan_id, cred_prefs)
         return True
+
+    def set_main_kbindex(self, main_kbindex: int):
+        """ Store main_kbindex as global preference """
+        ov_maindbid = 'ov_maindbid|||%d' % main_kbindex
+        self.kbdb.add_scan_preferences(self.openvas_scan_id, [ov_maindbid])
