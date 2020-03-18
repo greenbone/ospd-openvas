@@ -23,9 +23,11 @@
 
 import logging
 import uuid
+import binascii
 
 from enum import IntEnum
-from typing import Optional, Dict, List, Tuple, Iterator
+from typing import Optional, Dict, List, Tuple
+from base64 import b64decode
 
 from ospd.scan import ScanCollection
 from ospd_openvas.openvas import Openvas
@@ -451,7 +453,7 @@ class PreferenceHandler:
         # to 100%.
         finished_hosts = self.scan_collection.get_hosts_finished(self.scan_id)
         if finished_hosts:
-            if _exclude_hosts:
+            if exclude_hosts:
                 finished_hosts_str = ','.join(finished_hosts)
                 exclude_hosts = exclude_hosts + ',' + finished_hosts_str
             else:
@@ -606,6 +608,7 @@ class PreferenceHandler:
         return True
 
     def set_main_kbindex(self, main_kbindex: int):
-        """ Store main_kbindex as global preference in the kb, used by OpenVAS"""
+        """ Store main_kbindex as global preference in the
+        kb, used by OpenVAS"""
         ov_maindbid = 'ov_maindbid|||%d' % main_kbindex
         self.kbdb.add_scan_preferences(self.openvas_scan_id, [ov_maindbid])

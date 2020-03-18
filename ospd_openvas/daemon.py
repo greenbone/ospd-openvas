@@ -23,13 +23,10 @@
 
 import logging
 import time
-import uuid
-import binascii
 import copy
 
 from typing import Optional, Dict, List, Tuple, Iterator
 from datetime import datetime
-from base64 import b64decode
 
 from pathlib import Path
 from os import geteuid
