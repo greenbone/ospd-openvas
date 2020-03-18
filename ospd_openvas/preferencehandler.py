@@ -93,6 +93,86 @@ class PreferenceHandler:
         )
         return self._target_options
 
+    def get_vts_in_groups(
+        self, filters: List[str], vts_cache: Dict[str, Dict],
+    ) -> List[str]:
+        """ Return a list of vts which match with the given filter.
+
+        Arguments:
+            filters A list of filters. Each filter has key, operator and
+                    a value. They are separated by a space.
+                    Supported keys: family
+
+        Returns a list of vt oids which match with the given filter.
+        """
+        vts_list = list()
+        families = dict()
+
+        for oid in vts_cache:
+            family = vts_cache[oid]['custom'].get('family')
+            if family not in families:
+                families[family] = list()
+
+            families[family].append(oid)
+
+        for elem in filters:
+            key, value = elem.split('=')
+            if key == 'family' and value in families:
+                vts_list.extend(families[value])
+
+        return vts_list
+
+    def get_vt_param_type(
+        self, vtid: str, vt_param_id: str, vts_cache: Dict[str, Dict],
+    ) -> Optional[str]:
+        """ Return the type of the vt parameter from the vts dictionary. """
+
+        vt_params_list = vts_cache[vtid].get("vt_params")
+        if vt_params_list.get(vt_param_id):
+            return vt_params_list[vt_param_id]["type"]
+        return None
+
+    def get_vt_param_name(
+        self, vtid: str, vt_param_id: str, vts_cache: Dict[str, Dict],
+    ) -> Optional[str]:
+        """ Return the type of the vt parameter from the vts dictionary. """
+
+        vt_params_list = vts_cache[vtid].get("vt_params")
+        if vt_params_list.get(vt_param_id):
+            return vt_params_list[vt_param_id]["name"]
+        return None
+
+    @staticmethod
+    def check_param_type(vt_param_value: str, param_type: str) -> Optional[int]:
+        """ Check if the value of a vt parameter matches with
+        the type founded.
+        """
+        if param_type in [
+            'entry',
+            'password',
+            'radio',
+            'sshlogin',
+        ] and isinstance(vt_param_value, str):
+            return None
+        elif param_type == 'checkbox' and (
+            vt_param_value == '0' or vt_param_value == '1'
+        ):
+            return None
+        elif param_type == 'file':
+            try:
+                b64decode(vt_param_value.encode())
+            except (binascii.Error, AttributeError, TypeError):
+                return 1
+            return None
+        elif param_type == 'integer':
+            try:
+                int(vt_param_value)
+            except ValueError:
+                return 1
+            return None
+
+        return 1
+
     def process_vts(
         self, vts: Dict[str, Dict[str, str]], vts_cache: Dict[str, Dict],
     ) -> Tuple[List[str], Dict[str, str]]:
@@ -102,7 +182,7 @@ class PreferenceHandler:
         vtgroups = vts.pop('vt_groups')
 
         if vtgroups:
-            vts_list = self.get_vts_in_groups(vtgroups)
+            vts_list = self.get_vts_in_groups(vtgroups, vts_cache)
 
         for vtid, vt_params in vts.items():
             if vtid not in vts_cache:
@@ -113,8 +193,12 @@ class PreferenceHandler:
 
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
-                param_type = self.get_vt_param_type(vtid, vt_param_id)
-                param_name = self.get_vt_param_name(vtid, vt_param_id)
+                param_type = self.get_vt_param_type(
+                    vtid, vt_param_id, vts_cache
+                )
+                param_name = self.get_vt_param_name(
+                    vtid, vt_param_id, vts_cache
+                )
 
                 if not param_type or not param_name:
                     logger.debug(
@@ -151,6 +235,34 @@ class PreferenceHandler:
                 ] = str(vt_param_value)
 
         return vts_list, vts_params
+
+    def set_plugins(self, vts_cache: Dict[str, Dict],) -> bool:
+        """ Get the plugin list to be launched from the Scan Collection
+        and prepare the vts preferences. Store the data in the kb.
+        """
+        nvts = self.scan_collection.get_vts(self.scan_id)
+        self.scan_collection.release_vts_list(self.scan_id)
+        if nvts:
+            nvts_list, nvts_params = self.process_vts(nvts, vts_cache)
+            # Add nvts list
+            separ = ';'
+            plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
+            self.kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
+
+            # Add nvts parameters
+            for key, val in nvts_params.items():
+                item = '%s|||%s' % (key, val)
+                self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+
+            nvts_params = None
+            nvts_list = None
+            item = None
+            plugin_list = None
+            nvts = None
+
+            return True
+
+        return False
 
     @staticmethod
     def build_alive_test_opt_as_prefs(target_options: Dict) -> List[str]:
@@ -295,34 +407,6 @@ class PreferenceHandler:
                 item = '%s|||%s' % (key, val)
                 self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
 
-    def set_plugins(self, vts_cache: Dict[str, Dict],) -> bool:
-        """ Get the plugin list to be launched from the Scan Collection
-        and prepare the vts preferences. Store the data in the kb.
-        """
-        nvts = self.scan_collection.get_vts(self.scan_id)
-        self.scan_collection.release_vts_list(self.scan_id)
-        if nvts != '':
-            nvts_list, nvts_params = self.process_vts(nvts, vts_cache)
-            # Add nvts list
-            separ = ';'
-            plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            self.kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
-
-            # Add nvts parameters
-            for key, val in nvts_params.items():
-                item = '%s|||%s' % (key, val)
-                self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
-
-            nvts_params = None
-            nvts_list = None
-            item = None
-            plugin_list = None
-            nvts = None
-
-            return True
-
-        return False
-
     def set_reverse_lookup_opt(self):
         """ Set reverse lookup options in the kb"""
         if self.target_options:
@@ -360,8 +444,6 @@ class PreferenceHandler:
     def set_host_options(self):
         """ Get the excluded and finished hosts from the scan collection and
         stores the list of hosts that must not be scanned in the kb. """
-        options = self.scan_collection.get_options(self.scan_id)
-
         exclude_hosts = self.scan_collection.get_exclude_hosts(self.scan_id)
 
         # Get unfinished hosts, in case it is a resumed scan. And added
