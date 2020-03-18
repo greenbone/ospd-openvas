@@ -1312,6 +1312,7 @@ class OSPDopenvas(OSPDaemon):
         )
 
         if result is None:
+            self.main_db.release_database(kbdb)
             return False
 
         ovas_pid = result.pid
