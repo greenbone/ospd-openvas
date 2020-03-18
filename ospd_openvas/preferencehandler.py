@@ -27,7 +27,9 @@ import uuid
 from enum import IntEnum
 from typing import Optional, Dict, List, Tuple, Iterator
 
+from ospd.scan import ScanCollection
 from ospd_openvas.openvas import Openvas
+from ospd_openvas.db import KbDB
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +58,9 @@ def _from_bool_to_str(value: int) -> str:
 
 
 class PreferenceHandler:
-    def __init__(self, scan_id, kbdb, scan_collection):
+    def __init__(
+        self, scan_id: str, kbdb: KbDB, scan_collection: ScanCollection
+    ):
         self.scan_id = scan_id
         self.kbdb = kbdb
         self.scan_collection = scan_collection
@@ -66,7 +70,7 @@ class PreferenceHandler:
         self._target_options = None
 
     @property
-    def openvas_scan_id(self):
+    def openvas_scan_id(self) -> str:
         if self._openvas_scan_id is not None:
             return self._openvas_scan_id
 
@@ -76,7 +80,7 @@ class PreferenceHandler:
         return self._openvas_scan_id
 
     @property
-    def target_options(self):
+    def target_options(self) -> Dict:
         if self._target_options is not None:
             return self._target_options
 
@@ -287,9 +291,7 @@ class PreferenceHandler:
                 item = '%s|||%s' % (key, val)
                 self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
 
-    def set_plugins(
-        self, vts_cache,
-    ):
+    def set_plugins(self, vts_cache: Dict[str, Dict],) -> bool:
         nvts = self.scan_collection.get_vts(self.scan_id)
         self.scan_collection.release_vts_list(self.scan_id)
         if nvts != '':
@@ -339,7 +341,7 @@ class PreferenceHandler:
         target_aux = 'TARGET|||%s' % target
         self.kbdb.add_scan_preferences(self.openvas_scan_id, [target_aux])
 
-    def set_ports(self):
+    def set_ports(self) -> str:
         ports = self.scan_collection.get_ports(self.scan_id)
         port_range = 'port_range|||%s' % ports
         self.kbdb.add_scan_preferences(self.openvas_scan_id, [port_range])
@@ -497,7 +499,7 @@ class PreferenceHandler:
 
         return cred_prefs_list
 
-    def set_credentials(self):
+    def set_credentials(self) -> bool:
         credentials = self.scan_collection.get_credentials(self.scan_id)
         cred_prefs = self.build_credentials_as_prefs(credentials)
 
