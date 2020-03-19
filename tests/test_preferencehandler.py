@@ -343,7 +343,7 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        r = p.set_host_options()
+        p.set_host_options()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['exclude_hosts|||192.168.0.1,192.168.0.2'],
@@ -362,7 +362,7 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        r = p.set_host_options()
+        p.set_host_options()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['exclude_hosts|||192.168.0.2'],
@@ -381,7 +381,7 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        r = p.set_host_options()
+        p.set_host_options()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['exclude_hosts|||192.168.0.1'],
@@ -400,6 +400,49 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        r = p.set_host_options()
+        p.set_host_options()
 
         p.kbdb.add_scan_preferences.assert_not_called()
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_scan_params(self, mock_kb):
+        w = DummyDaemon()
+
+        OSPD_PARAMS_MOCK = {
+            'plugins_timeout': {
+                'type': 'integer',
+                'name': 'plugins_timeout',
+                'default': 5,
+                'mandatory': 0,
+                'description': 'This is the maximum lifetime...',
+            },
+            'drop_privileges': {
+                'type': 'boolean',
+                'name': 'drop_privileges',
+                'default': 0,
+                'mandatory': 1,
+                'description': '',
+            },
+        }
+
+        opt = {
+            'param_test': '1',
+            'plugins_timeout': '320',
+            'drop_privileges': 1,
+        }
+
+        w.scan_collection.get_options = MagicMock(return_value=opt)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.set_scan_params(OSPD_PARAMS_MOCK)
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id,
+            [
+                'param_test|||1',
+                'plugins_timeout|||320',
+                'drop_privileges|||yes',
+            ],
+        )
