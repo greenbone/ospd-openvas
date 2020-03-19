@@ -470,6 +470,24 @@ class PreferenceHandlerTestCase(TestCase):
         )
 
     @patch('ospd_openvas.db.KbDB')
+    def test_set_alive_no_setting(self, mock_kb):
+        w = DummyDaemon()
+
+        t_opt = {}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {}
+
+        Openvas.get_settings = MagicMock(return_value=ov_setting)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.set_alive_test_option()
+
+        p.kbdb.add_scan_preferences.assert_not_called()
+
+    @patch('ospd_openvas.db.KbDB')
     def test_set_alive_pinghost(self, mock_kb):
         w = DummyDaemon()
 

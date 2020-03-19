@@ -395,7 +395,7 @@ class PreferenceHandler:
                         self.kbdb.add_scan_preferences(
                             self.openvas_scan_id, [item]
                         )
-            else:
+            elif self.target_options.get('alive_test'):
                 alive_test_opt = self.build_alive_test_opt_as_prefs(
                     self.target_options
                 )
