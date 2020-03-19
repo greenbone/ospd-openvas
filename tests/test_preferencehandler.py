@@ -313,7 +313,7 @@ class PreferenceHandlerTestCase(TestCase):
         r = p.set_credentials()
 
         self.assertTrue(r)
-        p.kbdb.add_scan_preferences.assert_called_once()
+        assert_called_once(p.kbdb.add_scan_preferences)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_credentials_false(self, mock_kb):
