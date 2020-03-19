@@ -446,3 +446,20 @@ class PreferenceHandlerTestCase(TestCase):
                 'drop_privileges|||yes',
             ],
         )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_reverse_lookup_opt(self, mock_kb):
+        w = DummyDaemon()
+
+        t_opt = {'reverse_lookup_only': 1}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.set_reverse_lookup_opt()
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id,
+            ['reverse_lookup_only|||yes', 'reverse_lookup_unify|||no',],
+        )

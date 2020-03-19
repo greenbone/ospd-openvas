@@ -412,19 +412,20 @@ class PreferenceHandler:
     def set_reverse_lookup_opt(self):
         """ Set reverse lookup options in the kb"""
         if self.target_options:
+            items = []
             _rev_lookup_only = int(
                 self.target_options.get('reverse_lookup_only', '0')
             )
             rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
-            item = 'reverse_lookup_only|||%s' % (rev_lookup_only)
-            self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+            items.append('reverse_lookup_only|||%s' % (rev_lookup_only))
 
             _rev_lookup_unify = int(
                 self.target_options.get('reverse_lookup_unify', '0')
             )
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
-            item = 'reverse_lookup_unify|||%s' % rev_lookup_unify
-            self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+            items.append('reverse_lookup_unify|||%s' % rev_lookup_unify)
+
+            self.kbdb.add_scan_preferences(self.openvas_scan_id, items)
 
     def set_target(self):
         """ Get the target from the scan collection and set the target
