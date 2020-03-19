@@ -399,15 +399,9 @@ class PreferenceHandler:
                 alive_test_opt = self.build_alive_test_opt_as_prefs(
                     self.target_options
                 )
-                nvts_params = {}
-                for elem in alive_test_opt:
-                    key, val = elem.split("|||", 2)
-                    nvts_params[key] = val
-
-            # Add nvts parameters
-            for key, val in nvts_params.items():
-                item = '%s|||%s' % (key, val)
-                self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+                self.kbdb.add_scan_preferences(
+                    self.openvas_scan_id, alive_test_opt
+                )
 
     def set_reverse_lookup_opt(self):
         """ Set reverse lookup options in the kb"""

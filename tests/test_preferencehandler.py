@@ -29,6 +29,7 @@ from tests.helper import assert_called_once
 
 import ospd_openvas.db
 
+from ospd_openvas.openvas import Openvas
 from ospd_openvas.preferencehandler import PreferenceHandler
 
 
@@ -462,4 +463,55 @@ class PreferenceHandlerTestCase(TestCase):
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id,
             ['reverse_lookup_only|||yes', 'reverse_lookup_unify|||no',],
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_alive_only(self, mock_kb):
+        w = DummyDaemon()
+
+        t_opt = {'alive_test': 16}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {'test_alive_hosts_only': 'yes'}
+
+        Openvas.get_settings = MagicMock(return_value=ov_setting)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.set_alive_test_option()
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id, ['ALIVE_TEST|||16'],
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_alive_pinghost(self, mock_kb):
+        w = DummyDaemon()
+
+        alive_test_out = [
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
+        ]
+
+        t_opt = {'alive_test': 2}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {'some_setiting': 1}
+        Openvas.get_settings = Mock()
+        Openvas.get_settings.reset_mock()
+        Openvas.get_settings.return_value = ov_setting
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.set_alive_test_option()
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id, alive_test_out,
         )
