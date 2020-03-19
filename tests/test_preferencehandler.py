@@ -264,3 +264,68 @@ class PreferenceHandlerTestCase(TestCase):
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['port_range|||80,443'],
         )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_main_kbindex(self, mock_kb):
+        w = DummyDaemon()
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.set_main_kbindex(2)
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id, ['ov_maindbid|||2'],
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'ssh': {
+                'type': 'ssh',
+                'port': '22',
+                'username': 'username',
+                'password': 'pass',
+            },
+            'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
+            'esxi': {
+                'type': 'esxi',
+                'username': 'username',
+                'password': 'pass',
+            },
+            'snmp': {
+                'type': 'snmp',
+                'username': 'username',
+                'password': 'pass',
+                'community': 'some comunity',
+                'auth_algorithm': 'some auth algo',
+                'privacy_password': 'privacy pass',
+                'privacy_algorithm': 'privacy algo',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.set_credentials()
+
+        self.assertTrue(r)
+        p.kbdb.add_scan_preferences.assert_called_once()
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_credentials_false(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {}
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.set_credentials()
+
+        self.assertFalse(r)

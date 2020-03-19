@@ -599,13 +599,13 @@ class PreferenceHandler:
         """ Get the credentials from the scan collection and store them
         in the kb. """
         credentials = self.scan_collection.get_credentials(self.scan_id)
-        cred_prefs = self.build_credentials_as_prefs(credentials)
+        if credentials:
+            cred_prefs = self.build_credentials_as_prefs(credentials)
+            if cred_prefs:
+                self.kbdb.add_scan_preferences(self.openvas_scan_id, cred_prefs)
+                return True
 
-        if credentials and not cred_prefs:
-            return False
-
-        self.kbdb.add_scan_preferences(self.openvas_scan_id, cred_prefs)
-        return True
+        return False
 
     def set_main_kbindex(self, main_kbindex: int):
         """ Store main_kbindex as global preference in the
