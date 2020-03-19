@@ -410,13 +410,6 @@ class PreferenceHandlerTestCase(TestCase):
         w = DummyDaemon()
 
         OSPD_PARAMS_MOCK = {
-            'plugins_timeout': {
-                'type': 'integer',
-                'name': 'plugins_timeout',
-                'default': 5,
-                'mandatory': 0,
-                'description': 'This is the maximum lifetime...',
-            },
             'drop_privileges': {
                 'type': 'boolean',
                 'name': 'drop_privileges',
@@ -426,11 +419,7 @@ class PreferenceHandlerTestCase(TestCase):
             },
         }
 
-        opt = {
-            'param_test': '1',
-            'plugins_timeout': '320',
-            'drop_privileges': 1,
-        }
+        opt = {'drop_privileges': 1}
 
         w.scan_collection.get_options = MagicMock(return_value=opt)
 
@@ -440,12 +429,7 @@ class PreferenceHandlerTestCase(TestCase):
         p.set_scan_params(OSPD_PARAMS_MOCK)
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
-            [
-                'param_test|||1',
-                'plugins_timeout|||320',
-                'drop_privileges|||yes',
-            ],
+            p._openvas_scan_id, ['drop_privileges|||yes']
         )
 
     @patch('ospd_openvas.db.KbDB')
