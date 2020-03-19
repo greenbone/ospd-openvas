@@ -459,8 +459,9 @@ class PreferenceHandler:
             else:
                 exclude_hosts = ','.join(finished_hosts)
 
-        pref_val = "exclude_hosts|||" + exclude_hosts
-        self.kbdb.add_scan_preferences(self.openvas_scan_id, [pref_val])
+        if exclude_hosts:
+            pref_val = "exclude_hosts|||" + exclude_hosts
+            self.kbdb.add_scan_preferences(self.openvas_scan_id, [pref_val])
 
     def set_scan_params(self, ospd_params: Dict[str, Dict]):
         """ Get the scan parameters from the scan collection and store them
