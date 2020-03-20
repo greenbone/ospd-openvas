@@ -1226,6 +1226,9 @@ class OSPDopenvas(OSPDaemon):
         scan_prefs.prepare_reverse_lookup_opt_for_openvas()
         scan_prefs.prepare_alive_test_option_for_openvas()
 
+        # Release memory used for scan preferences.
+        del scan_prefs
+
         if do_not_launch:
             self.main_db.release_database(kbdb)
             return 2
