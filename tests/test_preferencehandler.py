@@ -43,11 +43,12 @@ class PreferenceHandlerTestCase(TestCase):
             '1.3.6.1.4.1.25623.1.0.100065': {'3': 'new value'},
             'vt_groups': ['family=debian', 'family=general'],
         }
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
 
         w.load_vts()
-        w.temp_vts = w.vts
-        p.process_vts(vts, w.temp_vts)
+        temp_vts = w.vts
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, temp_vts)
+
+        p._process_vts(vts)
 
         assert_called_once(logging.Logger.warning)
 
@@ -59,11 +60,11 @@ class PreferenceHandlerTestCase(TestCase):
             'vt_groups': ['family=debian', 'family=general'],
         }
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
-
         w.load_vts()
-        w.temp_vts = w.vts
-        ret = p.process_vts(vts, w.temp_vts)
+        temp_vts = w.vts
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, temp_vts)
+
+        ret = p._process_vts(vts)
 
         self.assertFalse(ret[1])
 
@@ -79,12 +80,10 @@ class PreferenceHandlerTestCase(TestCase):
             {'1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :': 'new value'},
         )
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
-
         w.load_vts()
-        w.temp_vts = w.vts
-
-        ret = p.process_vts(vts, w.temp_vts)
+        temp_vts = w.vts
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, temp_vts)
+        ret = p._process_vts(vts)
 
         self.assertEqual(ret, vt_out)
 
@@ -95,11 +94,11 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_vts = Mock()
         w.scan_collection.get_vts.return_value = {}
         w.load_vts()
-        w.temp_vts = w.vts
+        temp_vts = w.vts
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, temp_vts)
         p.kbdb.add_scan_preferences = Mock()
-        r = p.set_plugins(w.temp_vts)
+        r = p.prepare_plugins_for_openvas()
 
         self.assertFalse(r)
 
@@ -115,11 +114,11 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_vts = Mock()
         w.scan_collection.get_vts.return_value = vts
         w.load_vts()
-        w.temp_vts = w.vts
+        temp_vts = w.vts
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, temp_vts)
         p.kbdb.add_scan_preferences = Mock()
-        r = p.set_plugins(w.temp_vts)
+        r = p.prepare_plugins_for_openvas()
 
         self.assertTrue(r)
 
@@ -139,7 +138,7 @@ class PreferenceHandlerTestCase(TestCase):
                 'password': 'pass',
             }
         }
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
 
         ret = p.build_credentials_as_prefs(cred_dict)
 
@@ -188,7 +187,7 @@ class PreferenceHandlerTestCase(TestCase):
             },
         }
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_credentials_as_prefs(cred_dict)
 
         self.assertEqual(len(ret), len(cred_out))
@@ -203,7 +202,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         target_options_dict = {'alive_test': '0'}
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
 
         self.assertEqual(ret, [])
@@ -220,7 +219,7 @@ class PreferenceHandlerTestCase(TestCase):
             "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
         ]
         target_options_dict = {'alive_test': '2'}
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
 
         self.assertEqual(ret, alive_test_out)
@@ -230,7 +229,7 @@ class PreferenceHandlerTestCase(TestCase):
         logging.Logger.debug = Mock()
 
         target_options_dict = {'alive_test': 'a'}
-        p = PreferenceHandler('1234-1234', None, w.scan_collection)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         target_options = p.build_alive_test_opt_as_prefs(target_options_dict)
 
         assert_called_once(logging.Logger.debug)
@@ -242,10 +241,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_host_list = MagicMock(return_value='192.168.0.1')
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_target()
+        p.prepare_target_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['TARGET|||192.168.0.1'],
@@ -257,10 +256,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_ports = MagicMock(return_value='80,443')
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_ports()
+        p.prepare_ports_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['port_range|||80,443'],
@@ -270,9 +269,10 @@ class PreferenceHandlerTestCase(TestCase):
     def test_set_main_kbindex(self, mock_kb):
         w = DummyDaemon()
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.set_main_kbindex(2)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.kbdb.add_scan_preferences = Mock()
+        p.kbdb.index = 2
+        p.prepare_main_kbindex_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['ov_maindbid|||2'],
@@ -308,10 +308,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_credentials = MagicMock(return_value=creds)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        r = p.set_credentials()
+        r = p.prepare_credentials_for_openvas()
 
         self.assertTrue(r)
         assert_called_once(p.kbdb.add_scan_preferences)
@@ -324,10 +324,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_credentials = MagicMock(return_value=creds)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        r = p.set_credentials()
+        r = p.prepare_credentials_for_openvas()
 
         self.assertFalse(r)
 
@@ -341,10 +341,10 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
         w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_host_options()
+        p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['exclude_hosts|||192.168.0.1,192.168.0.2'],
@@ -360,10 +360,10 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
         w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_host_options()
+        p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['exclude_hosts|||192.168.0.2'],
@@ -379,10 +379,10 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
         w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_host_options()
+        p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['exclude_hosts|||192.168.0.1'],
@@ -398,10 +398,10 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
         w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_host_options()
+        p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_not_called()
 
@@ -423,10 +423,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_options = MagicMock(return_value=opt)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_scan_params(OSPD_PARAMS_MOCK)
+        p.prepare_scan_params_for_openvas(OSPD_PARAMS_MOCK)
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['drop_privileges|||yes']
@@ -439,10 +439,10 @@ class PreferenceHandlerTestCase(TestCase):
         t_opt = {'reverse_lookup_only': 1}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_reverse_lookup_opt()
+        p.prepare_reverse_lookup_opt_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id,
@@ -460,10 +460,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         Openvas.get_settings = MagicMock(return_value=ov_setting)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_alive_test_option()
+        p.prepare_alive_test_option_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, ['ALIVE_TEST|||16'],
@@ -480,10 +480,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         Openvas.get_settings = MagicMock(return_value=ov_setting)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_alive_test_option()
+        p.prepare_alive_test_option_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_not_called()
 
@@ -505,14 +505,14 @@ class PreferenceHandlerTestCase(TestCase):
 
         ov_setting = {'some_setiting': 1}
         Openvas.get_settings = Mock()
-        Openvas.get_settings.reset_mock()
+        Openvas.get_settings.reprepare_mock()
         Openvas.get_settings.return_value = ov_setting
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
 
         p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
-        p.set_alive_test_option()
+        p.prepare_alive_test_option_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id, alive_test_out,

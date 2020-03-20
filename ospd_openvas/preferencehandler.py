@@ -19,7 +19,9 @@
 
 # pylint: disable=too-many-lines
 
-""" Prepare the preferences to be used by OpenVAS """
+""" Prepare the preferences to be used by OpenVAS. Get the data from the scan
+collection and store the data in a redis KB in the right format to be used by
+OpenVAS. """
 
 import logging
 import uuid
@@ -61,7 +63,11 @@ def _from_bool_to_str(value: int) -> str:
 
 class PreferenceHandler:
     def __init__(
-        self, scan_id: str, kbdb: KbDB, scan_collection: ScanCollection
+        self,
+        scan_id: str,
+        kbdb: KbDB,
+        scan_collection: ScanCollection,
+        vts_cache: Dict[str, Dict],
     ):
         self.scan_id = scan_id
         self.kbdb = kbdb
@@ -71,14 +77,12 @@ class PreferenceHandler:
 
         self._target_options = None
 
-    @property
-    def openvas_scan_id(self) -> str:
+        self.vts_cache = vts_cache
+
+    def prepare_openvas_scan_id_for_openvas(self):
         """ Create the openvas scan id and store it in the redis kb.
         Return the openvas scan_id.
         """
-        if self._openvas_scan_id is not None:
-            return self._openvas_scan_id
-
         self._openvas_scan_id = str(uuid.uuid4())
         self.kbdb.add_scan_id(self.scan_id, self._openvas_scan_id)
 
@@ -95,9 +99,7 @@ class PreferenceHandler:
         )
         return self._target_options
 
-    def get_vts_in_groups(
-        self, filters: List[str], vts_cache: Dict[str, Dict],
-    ) -> List[str]:
+    def _get_vts_in_groups(self, filters: List[str],) -> List[str]:
         """ Return a list of vts which match with the given filter.
 
         Arguments:
@@ -110,8 +112,8 @@ class PreferenceHandler:
         vts_list = list()
         families = dict()
 
-        for oid in vts_cache:
-            family = vts_cache[oid]['custom'].get('family')
+        for oid in self.vts_cache:
+            family = self.vts_cache[oid]['custom'].get('family')
             if family not in families:
                 families[family] = list()
 
@@ -124,22 +126,18 @@ class PreferenceHandler:
 
         return vts_list
 
-    def get_vt_param_type(
-        self, vtid: str, vt_param_id: str, vts_cache: Dict[str, Dict],
-    ) -> Optional[str]:
+    def _get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = vts_cache[vtid].get("vt_params")
+        vt_params_list = self.vts_cache[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
         return None
 
-    def get_vt_param_name(
-        self, vtid: str, vt_param_id: str, vts_cache: Dict[str, Dict],
-    ) -> Optional[str]:
+    def _get_vt_param_name(self, vtid: str, vt_param_id: str,) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = vts_cache[vtid].get("vt_params")
+        vt_params_list = self.vts_cache[vtid].get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
         return None
@@ -175,8 +173,8 @@ class PreferenceHandler:
 
         return 1
 
-    def process_vts(
-        self, vts: Dict[str, Dict[str, str]], vts_cache: Dict[str, Dict],
+    def _process_vts(
+        self, vts: Dict[str, Dict[str, str]],
     ) -> Tuple[List[str], Dict[str, str]]:
         """ Add single VTs and their parameters. """
         vts_list = []
@@ -184,10 +182,10 @@ class PreferenceHandler:
         vtgroups = vts.pop('vt_groups')
 
         if vtgroups:
-            vts_list = self.get_vts_in_groups(vtgroups, vts_cache)
+            vts_list = self._get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in vts_cache:
+            if vtid not in self.vts_cache:
                 logger.warning(
                     'The VT %s was not found and it will not be loaded.', vtid
                 )
@@ -195,12 +193,8 @@ class PreferenceHandler:
 
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
-                param_type = self.get_vt_param_type(
-                    vtid, vt_param_id, vts_cache
-                )
-                param_name = self.get_vt_param_name(
-                    vtid, vt_param_id, vts_cache
-                )
+                param_type = self._get_vt_param_type(vtid, vt_param_id)
+                param_name = self._get_vt_param_name(vtid, vt_param_id)
 
                 if not param_type or not param_name:
                     logger.debug(
@@ -238,23 +232,23 @@ class PreferenceHandler:
 
         return vts_list, vts_params
 
-    def set_plugins(self, vts_cache: Dict[str, Dict],) -> bool:
+    def prepare_plugins_for_openvas(self) -> bool:
         """ Get the plugin list to be launched from the Scan Collection
         and prepare the vts preferences. Store the data in the kb.
         """
         nvts = self.scan_collection.get_vts(self.scan_id)
         self.scan_collection.release_vts_list(self.scan_id)
         if nvts:
-            nvts_list, nvts_params = self.process_vts(nvts, vts_cache)
+            nvts_list, nvts_params = self._process_vts(nvts)
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            self.kbdb.add_scan_preferences(self.openvas_scan_id, [plugin_list])
+            self.kbdb.add_scan_preferences(self._openvas_scan_id, [plugin_list])
 
             # Add nvts parameters
             for key, val in nvts_params.items():
                 item = '%s|||%s' % (key, val)
-                self.kbdb.add_scan_preferences(self.openvas_scan_id, [item])
+                self.kbdb.add_scan_preferences(self._openvas_scan_id, [item])
 
             nvts_params = None
             nvts_list = None
@@ -267,12 +261,16 @@ class PreferenceHandler:
         return False
 
     @staticmethod
-    def build_alive_test_opt_as_prefs(target_options: Dict) -> List[str]:
+    def build_alive_test_opt_as_prefs(
+        target_options: Dict[str, str]
+    ) -> List[str]:
         """ Parse the target options dictionary.
-        @param credentials: Dictionary with the target options.
+        Arguments:
+            credentials: Dictionary with the target options.
 
-        @return A list with the target options in string format to be
-                added to the redis KB.
+        Return:
+            A list with the target options in string format to be
+            added to the redis KB.
         """
         target_opt_prefs_list = []
         if target_options and target_options.get('alive_test'):
@@ -370,7 +368,7 @@ class PreferenceHandler:
                 )
         return target_opt_prefs_list
 
-    def set_alive_test_option(self):
+    def prepare_alive_test_option_for_openvas(self):
         """ Set alive test option. Overwrite the scan config settings.
         Check if test_alive_hosts_only feature of openvas is active.
         If active, put ALIVE_TEST enum in preferences. """
@@ -393,17 +391,17 @@ class PreferenceHandler:
                     if alive_test >= 1 and alive_test <= 31:
                         item = 'ALIVE_TEST|||%s' % str(alive_test)
                         self.kbdb.add_scan_preferences(
-                            self.openvas_scan_id, [item]
+                            self._openvas_scan_id, [item]
                         )
             elif self.target_options.get('alive_test'):
                 alive_test_opt = self.build_alive_test_opt_as_prefs(
                     self.target_options
                 )
                 self.kbdb.add_scan_preferences(
-                    self.openvas_scan_id, alive_test_opt
+                    self._openvas_scan_id, alive_test_opt
                 )
 
-    def set_reverse_lookup_opt(self):
+    def prepare_reverse_lookup_opt_for_openvas(self):
         """ Set reverse lookup options in the kb"""
         if self.target_options:
             items = []
@@ -419,26 +417,26 @@ class PreferenceHandler:
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
             items.append('reverse_lookup_unify|||%s' % rev_lookup_unify)
 
-            self.kbdb.add_scan_preferences(self.openvas_scan_id, items)
+            self.kbdb.add_scan_preferences(self._openvas_scan_id, items)
 
-    def set_target(self):
+    def prepare_target_for_openvas(self):
         """ Get the target from the scan collection and set the target
         in the kb """
 
         target = self.scan_collection.get_host_list(self.scan_id)
         target_aux = 'TARGET|||%s' % target
-        self.kbdb.add_scan_preferences(self.openvas_scan_id, [target_aux])
+        self.kbdb.add_scan_preferences(self._openvas_scan_id, [target_aux])
 
-    def set_ports(self) -> str:
+    def prepare_ports_for_openvas(self) -> str:
         """ Get the port list from the scan collection and store the list
         in the kb. """
         ports = self.scan_collection.get_ports(self.scan_id)
         port_range = 'port_range|||%s' % ports
-        self.kbdb.add_scan_preferences(self.openvas_scan_id, [port_range])
+        self.kbdb.add_scan_preferences(self._openvas_scan_id, [port_range])
 
         return ports
 
-    def set_host_options(self):
+    def prepare_host_options_for_openvas(self):
         """ Get the excluded and finished hosts from the scan collection and
         stores the list of hosts that must not be scanned in the kb. """
         exclude_hosts = self.scan_collection.get_exclude_hosts(self.scan_id)
@@ -456,11 +454,14 @@ class PreferenceHandler:
 
         if exclude_hosts:
             pref_val = "exclude_hosts|||" + exclude_hosts
-            self.kbdb.add_scan_preferences(self.openvas_scan_id, [pref_val])
+            self.kbdb.add_scan_preferences(self._openvas_scan_id, [pref_val])
 
-    def set_scan_params(self, ospd_params: Dict[str, Dict]):
+    def prepare_scan_params_for_openvas(self, ospd_params: Dict[str, Dict]):
         """ Get the scan parameters from the scan collection and store them
-        in the kb. """
+        in the kb.
+        Arguments:
+            ospd_params: Dictionary with the OSPD Params.
+        """
         options = self.scan_collection.get_options(self.scan_id)
         prefs_val = []
 
@@ -474,15 +475,17 @@ class PreferenceHandler:
                 val = str(value)
             prefs_val.append(key + "|||" + val)
 
-        self.kbdb.add_scan_preferences(self.openvas_scan_id, prefs_val)
+        self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
 
     @staticmethod
     def build_credentials_as_prefs(credentials: Dict) -> List[str]:
         """ Parse the credential dictionary.
-        @param credentials: Dictionary with the credentials.
+        Arguments:
+            credentials: Dictionary with the credentials.
 
-        @return A list with the credentials in string format to be
-                added to the redis KB.
+        Return:
+            A list with the credentials in string format to be
+            added to the redis KB.
         """
         cred_prefs_list = []
         for credential in credentials.items():
@@ -591,20 +594,22 @@ class PreferenceHandler:
 
         return cred_prefs_list
 
-    def set_credentials(self) -> bool:
+    def prepare_credentials_for_openvas(self) -> bool:
         """ Get the credentials from the scan collection and store them
         in the kb. """
         credentials = self.scan_collection.get_credentials(self.scan_id)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
-                self.kbdb.add_scan_preferences(self.openvas_scan_id, cred_prefs)
+                self.kbdb.add_scan_preferences(
+                    self._openvas_scan_id, cred_prefs
+                )
                 return True
 
         return False
 
-    def set_main_kbindex(self, main_kbindex: int):
+    def prepare_main_kbindex_for_openvas(self):
         """ Store main_kbindex as global preference in the
         kb, used by OpenVAS"""
-        ov_maindbid = 'ov_maindbid|||%d' % main_kbindex
-        self.kbdb.add_scan_preferences(self.openvas_scan_id, [ov_maindbid])
+        ov_maindbid = 'ov_maindbid|||%d' % self.kbdb.index
+        self.kbdb.add_scan_preferences(self._openvas_scan_id, [ov_maindbid])

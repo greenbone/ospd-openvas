@@ -282,8 +282,6 @@ class OSPDopenvas(OSPDaemon):
 
         self.pending_feed = None
 
-        self.temp_vts = None
-
     def init(self, server: BaseServer) -> None:
 
         server.start(self.handle_client_stream)
@@ -1187,49 +1185,53 @@ class OSPDopenvas(OSPDaemon):
             return 2
 
         do_not_launch = False
-        kbdb = self.main_db.get_new_kb_database()
-        scan_prefs = PreferenceHandler(scan_id, kbdb, self.scan_collection)
-        scan_prefs.set_target()
-        ports = scan_prefs.set_ports()
 
-        if not ports:
+        # Set plugins to run.
+        # Make a deepcopy of the vts dictionary. Otherwise, consulting the
+        # DictProxy object of multiprocessing directly is to expensinve
+        # (interprocess communication).
+        temp_vts = self.vts.copy()
+
+        kbdb = self.main_db.get_new_kb_database()
+        scan_prefs = PreferenceHandler(
+            scan_id, kbdb, self.scan_collection, temp_vts
+        )
+        openvas_scan_id = scan_prefs.prepare_openvas_scan_id_for_openvas()
+        scan_prefs.prepare_target_for_openvas()
+
+        if not scan_prefs.prepare_ports_for_openvas():
             self.add_scan_error(
                 scan_id, name='', host='', value='No port list defined.'
             )
             do_not_launch = True
 
         # Set credentials
-        if not scan_prefs.set_credentials():
+        if not scan_prefs.prepare_credentials_for_openvas():
             self.add_scan_error(
                 scan_id, name='', host='', value='Malformed credential.'
             )
             do_not_launch = True
 
-        # Set plugins to run.
-        # Make a deepcopy of the vts dictionary. Otherwise, consulting the
-        # DictProxy object of multiprocessing directly is to expensinve
-        # (interprocess communication).
-        self.temp_vts = self.vts.copy()
-        if not scan_prefs.set_plugins(self.temp_vts):
+        if not scan_prefs.prepare_plugins_for_openvas():
             self.add_scan_error(
                 scan_id, name='', host='', value='No VTS to run.'
             )
             do_not_launch = True
 
-        self.temp_vts = None
+        temp_vts = None
 
-        scan_prefs.set_main_kbindex(kbdb.index)
-        scan_prefs.set_host_options()
-        scan_prefs.set_scan_params(OSPD_PARAMS)
-        scan_prefs.set_reverse_lookup_opt()
-        scan_prefs.set_alive_test_option()
+        scan_prefs.prepare_main_kbindex_for_openvas()
+        scan_prefs.prepare_host_options_for_openvas()
+        scan_prefs.prepare_scan_params_for_openvas(OSPD_PARAMS)
+        scan_prefs.prepare_reverse_lookup_opt_for_openvas()
+        scan_prefs.prepare_alive_test_option_for_openvas()
 
         if do_not_launch:
             self.main_db.release_database(kbdb)
             return 2
 
         result = Openvas.start_scan(
-            scan_prefs.openvas_scan_id,
+            openvas_scan_id,
             not self.is_running_as_root and self.sudo_available,
             self._niceness,
         )
@@ -1243,7 +1245,7 @@ class OSPDopenvas(OSPDaemon):
         logger.debug('pid = %s', ovas_pid)
 
         # Wait until the scanner starts and loads all the preferences.
-        while kbdb.get_status(scan_prefs.openvas_scan_id) == 'new':
+        while kbdb.get_status(openvas_scan_id) == 'new':
             res = result.poll()
             if res and res < 0:
                 self.stop_scan_cleanup(scan_id)
@@ -1260,7 +1262,7 @@ class OSPDopenvas(OSPDaemon):
         while True:
             time.sleep(3)
             # Check if the client stopped the whole scan
-            if kbdb.scan_is_stopped(scan_prefs.openvas_scan_id):
+            if kbdb.scan_is_stopped(openvas_scan_id):
                 return 1
 
             self.report_openvas_results(kbdb, scan_id, "")
@@ -1271,7 +1273,7 @@ class OSPDopenvas(OSPDaemon):
                 if not id_aux:
                     continue
 
-                if id_aux == scan_prefs.openvas_scan_id:
+                if id_aux == openvas_scan_id:
                     no_id_found = False
                     current_host = scan_db.get_host_ip()
 
@@ -1283,7 +1285,7 @@ class OSPDopenvas(OSPDaemon):
                         scan_db, scan_id, current_host
                     )
 
-                    if scan_db.host_is_finished(scan_prefs.openvas_scan_id):
+                    if scan_db.host_is_finished(openvas_scan_id):
                         self.set_scan_host_finished(scan_id, current_host)
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host
