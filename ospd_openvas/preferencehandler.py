@@ -266,11 +266,11 @@ class PreferenceHandler:
     ) -> List[str]:
         """ Parse the target options dictionary.
         Arguments:
-            credentials: Dictionary with the target options.
+            target_options: Dictionary with the target options.
 
         Return:
-            A list with the target options in string format to be
-            added to the redis KB.
+            A list with the target options related to alive test method
+            in string format to be added to the redis KB.
         """
         target_opt_prefs_list = []
         if target_options and target_options.get('alive_test'):
