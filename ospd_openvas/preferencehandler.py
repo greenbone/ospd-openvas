@@ -604,9 +604,11 @@ class PreferenceHandler:
                 self.kbdb.add_scan_preferences(
                     self._openvas_scan_id, cred_prefs
                 )
-                return True
 
-        return False
+        if credentials and not cred_prefs:
+            return False
+
+        return True
 
     def prepare_main_kbindex_for_openvas(self):
         """ Store main_kbindex as global preference in the
