@@ -317,7 +317,30 @@ class PreferenceHandlerTestCase(TestCase):
         assert_called_once(p.kbdb.add_scan_preferences)
 
     @patch('ospd_openvas.db.KbDB')
-    def test_set_credentials_false(self, mock_kb):
+    def test_set_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        # bad cred type shh instead of ssh
+        creds = {
+            'shh': {
+                'type': 'ssh',
+                'port': '22',
+                'username': 'username',
+                'password': 'pass',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+
+        self.assertFalse(r)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_credentials_empty(self, mock_kb):
         w = DummyDaemon()
 
         creds = {}
@@ -329,7 +352,7 @@ class PreferenceHandlerTestCase(TestCase):
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
 
-        self.assertFalse(r)
+        self.assertTrue(r)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_host_options(self, mock_kb):
