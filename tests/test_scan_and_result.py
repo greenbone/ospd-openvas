@@ -138,6 +138,24 @@ class ScanTestCase(unittest.TestCase):
         vt = vts.find('vt')
         self.assertEqual(vt.get('id'), '1.2.3.4')
 
+    def test_get_vts_still_not_init(self):
+        daemon = DummyWrapper([])
+        fs = FakeStream()
+        daemon.initialized = False
+        daemon.handle_command('<get_vts />', fs)
+        response = fs.get_response()
+
+        self.assertEqual(response.get('status'), '400')
+
+    def test_get_help_still_not_init(self):
+        daemon = DummyWrapper([])
+        fs = FakeStream()
+        daemon.initialized = False
+        daemon.handle_command('<help/>', fs)
+        response = fs.get_response()
+
+        self.assertEqual(response.get('status'), '200')
+
     def test_get_vts_filter_positive(self):
         daemon = DummyWrapper([])
         daemon.add_vt(
