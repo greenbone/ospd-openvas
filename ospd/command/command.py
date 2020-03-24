@@ -49,6 +49,7 @@ class BaseCommand(metaclass=InitSubclassMeta):
     description = None
     attributes = None
     elements = None
+    must_be_initialized = None
 
     def __init_subclass__(cls, **kwargs):
         super_cls = super()
@@ -73,7 +74,9 @@ class BaseCommand(metaclass=InitSubclassMeta):
     def get_elements(self) -> Optional[Dict[str, Any]]:
         return self.elements
 
-    def handle_xml(self, xml: Element) -> Union[bytes, Iterator[bytes]]:
+    def handle_xml(
+        self, xml: Element, initialized: bool
+    ) -> Union[bytes, Iterator[bytes]]:
         raise NotImplementedError()
 
     def as_dict(self):
@@ -94,6 +97,7 @@ class HelpCommand(BaseCommand):
     name = "help"
     description = 'Print the commands help.'
     attributes = {'format': 'Help format. Could be text or xml.'}
+    must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
         help_format = xml.get('format')
@@ -115,6 +119,7 @@ class HelpCommand(BaseCommand):
 class GetVersion(BaseCommand):
     name = "get_version"
     description = 'Return various version information'
+    must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_version> command.
@@ -187,6 +192,7 @@ class GetPerformance(BaseCommand):
         'end': 'Time of last data point in report.',
         'title': 'Name of report.',
     }
+    must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_performance> command.
@@ -243,6 +249,7 @@ class GetPerformance(BaseCommand):
 class GetScannerDetails(BaseCommand):
     name = 'get_scanner_details'
     description = 'Return scanner description and parameters'
+    must_be_initialized = True
 
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_scanner_details> command.
@@ -263,6 +270,7 @@ class DeleteScan(BaseCommand):
     name = 'delete_scan'
     description = 'Delete a finished scan.'
     attributes = {'scan_id': 'ID of scan to delete.'}
+    must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <delete_scan> command.
@@ -294,6 +302,7 @@ class GetVts(BaseCommand):
         'vt_id': 'ID of a specific vulnerability test to get.',
         'filter': 'Optional filter to get an specific vt collection.',
     }
+    must_be_initialized = True
 
     def handle_xml(self, xml: Element) -> Iterator[bytes]:
         """ Handles <get_vts> command.
@@ -352,6 +361,7 @@ class StopScan(BaseCommand):
     name = 'stop_scan'
     description = 'Stop a currently running scan.'
     attributes = {'scan_id': 'ID of scan to stop.'}
+    must_be_initialized = True
 
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <stop_scan> command.
@@ -383,6 +393,7 @@ class GetScans(BaseCommand):
         'pop_results': 'Whether to remove the fetched results.',
         'max_results': 'Maximum number of results to fetch.',
     }
+    must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <get_scans> command.
@@ -434,6 +445,7 @@ class StartScan(BaseCommand):
         'scan_id': 'Optional UUID value to use as scan ID',
         'parallel': 'Optional nummer of parallel target to scan',
     }
+    must_be_initialized = False
 
     def get_elements(self):
         elements = {}
@@ -551,6 +563,7 @@ class GetMemoryUsage(BaseCommand):
         'unit': 'Unit for displaying memory consumption (b = bytes, '
         'kb = kilobytes, mb = megabytes). Defaults to b.'
     }
+    must_be_initialized = False
 
     @staticmethod
     def _get_memory(value: int, unit: str = None) -> str:

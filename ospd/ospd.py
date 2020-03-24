@@ -477,15 +477,6 @@ class OSPDaemon:
             logger.debug("Empty client stream")
             return
 
-        if not self.initialized:
-            exception = OspdCommandError(
-                '%s is still starting' % self.daemon_info['name'], 'error'
-            )
-            response = exception.as_xml()
-            stream.write(response)
-            stream.close()
-            return
-
         response = None
         try:
             self.handle_command(data, stream)
@@ -1113,6 +1104,14 @@ class OSPDaemon:
         command = self.commands.get(command_name, None)
         if not command and command_name != "authenticate":
             raise OspdCommandError('Bogus command name')
+
+        if not self.initialized and command.must_be_initialized:
+            exception = OspdCommandError(
+                '%s is still starting' % self.daemon_info['name'], 'error'
+            )
+            response = exception.as_xml()
+            stream.write(response)
+            return
 
         response = command.handle_xml(tree)
 
