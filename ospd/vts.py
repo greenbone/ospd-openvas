@@ -195,8 +195,9 @@ class Vts:
 
         for vt_id, vt in sorted(self._vts.items()):
             param_chain = ""
-            if include_vt_params and vt.get('vt_params'):
-                for _, param in sorted(vt.get('vt_params').items()):
+            vt_params = vt.get('vt_params')
+            if include_vt_params and vt_params:
+                for _, param in sorted(vt_params.items()):
                     param_chain += (
                         param.get('id')
                         + param.get('name')
