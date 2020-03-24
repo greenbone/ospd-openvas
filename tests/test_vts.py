@@ -144,11 +144,21 @@ class VtsTestCase(TestCase):
         vts = Vts()
 
         vts.add('id_2', name='bar', vt_modification_time='56789')
-        vts.add('id_1', name='foo', vt_modification_time='01234')
+        vts.add(
+            'id_1',
+            name='foo',
+            vt_modification_time='01234',
+            vt_params={
+                '0': {'id': '0', 'name': 'timeout', 'default': '20',},
+                '1': {'id': '1', 'name': 'foo_pref:', 'default': 'bar_value',},
+            },
+        )
         vts.calculate_vts_collection_hash()
 
         h = sha256()
-        h.update("id_101234id_256789".encode('utf-8'))
+        h.update(
+            "id_1012340timeout201foo_pref:bar_valueid_256789".encode('utf-8')
+        )
         hash_test = h.hexdigest()
 
         self.assertEqual(hash_test, vts.sha256_hash)
