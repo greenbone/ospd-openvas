@@ -183,7 +183,7 @@ class Vts:
         copy._vts = deepcopy(self._vts)  # pylint: disable=protected-access
         return copy
 
-    def calculate_vts_collection_hash(self):
+    def calculate_vts_collection_hash(self, include_vt_params: bool = True):
         """ Calculate the vts collection sha256 hash. """
         if not self._vts:
             logger.debug(
@@ -194,6 +194,18 @@ class Vts:
         m = sha256()
 
         for vt_id, vt in sorted(self._vts.items()):
-            m.update((vt_id + vt.get('modification_time')).encode('utf-8'))
+            param_chain = ""
+            if include_vt_params and vt.get('vt_params'):
+                for param_id, param in sorted(vt.get('vt_params').items()):
+                    param_chain += (
+                        param.get('id')
+                        + param.get('name')
+                        + param.get('default')
+                    )
+
+            m.update(
+                (vt_id + vt.get('modification_time')).encode('utf-8')
+                + param_chain.encode('utf-8')
+            )
 
         self.sha256_hash = m.hexdigest()
