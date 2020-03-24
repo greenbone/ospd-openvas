@@ -16,7 +16,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import logging
+
 from unittest import TestCase
+from unittest.mock import Mock
 
 from ospd.errors import OspdError
 from ospd.vts import Vts
@@ -149,3 +152,14 @@ class VtsTestCase(TestCase):
         hash_test = h.hexdigest()
 
         self.assertEqual(hash_test, vts.sha256_hash)
+
+    def test_calculate_vts_collection_hash_empty(self):
+        vts = Vts()
+        logging.Logger.debug = Mock()
+
+        vts.calculate_vts_collection_hash()
+
+        self.assertEqual(vts.sha256_hash, None)
+        logging.Logger.debug.assert_called_with(
+            "Error calculating VTs collection hash. Cache is empty"
+        )

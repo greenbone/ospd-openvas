@@ -18,7 +18,7 @@
 
 """ Classes for storing VTs
 """
-
+import logging
 import multiprocessing
 from hashlib import sha256
 import re
@@ -34,6 +34,8 @@ from typing import (
 )
 
 from ospd.errors import OspdError
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_VT_ID_PATTERN = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
 
@@ -183,6 +185,12 @@ class Vts:
 
     def calculate_vts_collection_hash(self):
         """ Calculate the vts collection sha256 hash. """
+        if not self._vts:
+            logger.debug(
+                "Error calculating VTs collection hash. Cache is empty"
+            )
+            return
+
         m = sha256()
 
         for vt_id, vt in sorted(self._vts.items()):
