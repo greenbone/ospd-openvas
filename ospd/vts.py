@@ -192,8 +192,8 @@ class Vts:
             return
 
         m = sha256()
-
-        for vt_id, vt in sorted(self._vts.items()):
+        temp_vts = self.vts.copy()
+        for vt_id, vt in sorted(temp_vts.items()):
             param_chain = ""
             vt_params = vt.get('vt_params')
             if include_vt_params and vt_params:
