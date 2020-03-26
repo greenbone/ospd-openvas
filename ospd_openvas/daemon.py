@@ -1048,6 +1048,11 @@ class OSPDopenvas(OSPDaemon):
 
                 rname = vt_aux.get('name')
 
+            if msg[0] == 'DEADHOST':
+                hosts = msg[3].split(',')
+                for host in hosts:
+                    self.update_progress(scan_id, host, "-1/-1")
+
             if msg[0] == 'ERRMSG':
                 self.add_scan_error(
                     scan_id,
