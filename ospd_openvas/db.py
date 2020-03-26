@@ -300,29 +300,43 @@ class OpenvasDB:
             )
         return elem_list
 
-    @staticmethod
-    def get_elem_pattern_by_index(
-        ctx: RedisCtx, pattern: str, index: Optional[int] = 1,
-    ) -> Iterable[Tuple[str, str]]:
+    @classmethod
+    def get_keys_by_pattern(cls, ctx: RedisCtx, pattern: str) -> List[str]:
         """ Get all items with index 'index', stored under
         a given pattern.
 
         Arguments:
             ctx: Redis context to use.
             pattern: key pattern to match.
-            index: Index of the element to get from the list.
 
-        Return an iterable with the elements under the matched key and given
-        index.
+        Return a sorted list with the elements under the matched key
         """
         if not ctx:
             raise RequiredArgument('get_elem_pattern_by_index', 'ctx')
         if not pattern:
             raise RequiredArgument('get_elem_pattern_by_index', 'pattern')
 
-        items = ctx.keys(pattern)
+        return sorted(ctx.keys(pattern))
 
-        return ((item, ctx.lindex(item, index)) for item in items)
+    @classmethod
+    def get_filenames_and_oids(
+        cls, ctx: RedisCtx,
+    ) -> Iterable[Tuple[str, str]]:
+        """ Get all items with index 'index', stored under
+        a given pattern.
+
+        Arguments:
+            ctx: Redis context to use.
+
+        Return an iterable where each single tuple contains the filename
+            as first element and the oid as the second one.
+        """
+        if not ctx:
+            raise RequiredArgument('get_filenames_and_oids', 'ctx')
+
+        items = cls.get_keys_by_pattern(ctx, 'nvt:*')
+
+        return ((ctx.lindex(item, 0), item[4:]) for item in items)
 
 
 class BaseDB:

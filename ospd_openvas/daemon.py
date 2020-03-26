@@ -452,7 +452,7 @@ class OSPDopenvas(OSPDaemon):
                 _deps = _custom.pop('dependencies')
                 _deps_list = _deps.split(', ')
                 for dep in _deps_list:
-                    _vt_dependencies.append(oids.get('filename:' + dep))
+                    _vt_dependencies.append(oids.get(dep))
         else:
             _vt_dependencies = None
 

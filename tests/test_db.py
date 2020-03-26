@@ -227,23 +227,38 @@ class TestOpenvasDB(TestCase):
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_pattern(ctx, None)
 
-    def test_get_elem_pattern_by_index_error(self, mock_redis):
+    def test_get_filenames_and_oids_error(self, mock_redis):
         ctx = mock_redis.return_value
 
         with self.assertRaises(RequiredArgument):
-            OpenvasDB.get_elem_pattern_by_index(None, 'a')
+            OpenvasDB.get_filenames_and_oids(None)
+
+    def test_get_filenames_and_oids(self, mock_redis):
+        ctx = mock_redis.return_value
+        ctx.keys.return_value = ['nvt:1', 'nvt:2']
+        ctx.lindex.side_effect = ['aa', 'ab']
+
+        ret = OpenvasDB.get_filenames_and_oids(ctx)
+
+        self.assertEqual(list(ret), [('aa', '1'), ('ab', '2')])
+
+    def test_get_keys_by_pattern_error(self, mock_redis):
+        ctx = mock_redis.return_value
 
         with self.assertRaises(RequiredArgument):
-            OpenvasDB.get_elem_pattern_by_index(ctx, None)
+            OpenvasDB.get_keys_by_pattern(None, 'a')
 
-    def test_get_elem_pattern_by_index(self, mock_redis):
+        with self.assertRaises(RequiredArgument):
+            OpenvasDB.get_keys_by_pattern(ctx, None)
+
+    def test_get_keys_by_pattern(self, mock_redis):
         ctx = mock_redis.return_value
-        ctx.keys.return_value = ['aa', 'ab']
-        ctx.lindex.side_effect = [1, 2]
+        ctx.keys.return_value = ['nvt:2', 'nvt:1']
 
-        ret = OpenvasDB.get_elem_pattern_by_index(ctx, 'a')
+        ret = OpenvasDB.get_keys_by_pattern(ctx, 'nvt:*')
 
-        self.assertEqual(list(ret), [('aa', 1), ('ab', 2)])
+        # Return sorted list
+        self.assertEqual(ret, ['nvt:1', 'nvt:2'])
 
     def test_get_key_count(self, mock_redis):
         ctx = mock_redis.return_value
