@@ -192,8 +192,9 @@ class Vts:
             return
 
         m = sha256()
-        temp_vts = self.vts.copy()
-        for vt_id, vt in sorted(temp_vts.items()):
+
+        # The vts must already sorted in the dictionary.
+        for vt_id, vt in self.vts.items():
             param_chain = ""
             vt_params = vt.get('vt_params')
             if include_vt_params and vt_params:
