@@ -193,7 +193,8 @@ class Vts:
 
         m = sha256()
 
-        # The vts must already sorted in the dictionary.
+        # for a reproducable hash calculation
+        # the vts must already be sorted in the dictionary.
         for vt_id, vt in self.vts.items():
             param_chain = ""
             vt_params = vt.get('vt_params')
