@@ -76,7 +76,7 @@ class TestNVTICache(TestCase):
         MockOpenvasDB.find_database_by_pattern.assert_called_with('20.4', 123)
 
     def test_get_oids(self, MockOpenvasDB):
-        MockOpenvasDB.get_elem_pattern_by_index.return_value = ['oids']
+        MockOpenvasDB.get_filenames_and_oids.return_value = ['oids']
 
         resp = self.nvti.get_oids()
 

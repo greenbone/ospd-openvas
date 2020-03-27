@@ -130,7 +130,7 @@ class NVTICache(BaseDB):
             A i. Each single list contains the filename
             as first element and the oid as second one.
         """
-        return OpenvasDB.get_elem_pattern_by_index(self.ctx, 'filename:*')
+        return OpenvasDB.get_filenames_and_oids(self.ctx)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
         """ Get NVT's preferences.
