@@ -959,3 +959,44 @@ class ScanTestCase(unittest.TestCase):
         for idx, res in enumerate(results):
             att_dict = res.attrib
             self.assertEqual(hosts[idx], att_dict['name'])
+
+    def test_batch_result(self):
+        daemon = DummyWrapper([])
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="1">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>a</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        result_batch = list()
+        result_batch = daemon.add_scan_log(
+            host='a', name='a', batch=True, result_batch=result_batch
+        )
+        result_batch = daemon.add_scan_log(
+            host='c', name='c', batch=True, result_batch=result_batch
+        )
+        result_batch = daemon.add_scan_log(
+            host='b', name='b', batch=True, result_batch=result_batch
+        )
+        daemon.scan_collection.add_result_batch(scan_id, result_batch)
+
+        hosts = ['a', 'c', 'b']
+
+        fs = FakeStream()
+        daemon.handle_command('<get_scans details="1"/>', fs)
+        response = fs.get_response()
+
+        results = response.findall("scan/results/")
+
+        for idx, res in enumerate(results):
+            att_dict = res.attrib
+            self.assertEqual(hosts[idx], att_dict['name'])
