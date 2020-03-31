@@ -801,7 +801,9 @@ class ScanTestCase(unittest.TestCase):
         scan_id = response.findtext('id')
         time.sleep(1)
         finished = daemon.get_scan_finished_hosts(scan_id)
-        self.assertEqual(finished, ['192.168.10.23', '192.168.10.24'])
+        for host in ['192.168.10.23', '192.168.10.24']:
+            self.assertIn(host, finished)
+        self.assertEqual(len(finished), 2)
 
     def test_progress(self):
         daemon = DummyWrapper([])
