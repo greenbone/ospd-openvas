@@ -1027,7 +1027,8 @@ class OSPDopenvas(OSPDaemon):
         """ Get all result entries from redis kb. """
         res = db.get_result()
         result_batch = list()
-        host_progress_batch = {}
+        host_progress_batch = dict()
+        finished_host_batch = list()
         while res:
             msg = res.split('|||')
             roid = msg[3].strip()
@@ -1109,6 +1110,7 @@ class OSPDopenvas(OSPDaemon):
                 for _host in hosts:
                     if _host:
                         host_progress_batch[_host] = 100
+                        finished_host_batch.append(_host)
                         result_batch = self.add_scan_log(
                             host=_host,
                             hostname=rhostname,
@@ -1147,6 +1149,11 @@ class OSPDopenvas(OSPDaemon):
         if host_progress_batch:
             self.set_scan_host_progress(
                 scan_id, host_progress_batch=host_progress_batch
+            )
+
+        if finished_host_batch:
+            self.set_scan_host_finished(
+                scan_id, finished_host_batch=finished_host_batch
             )
 
     def report_openvas_timestamp_scan_host(
@@ -1388,7 +1395,7 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                     if scan_db.host_is_finished(openvas_scan_id):
-                        self.set_scan_host_finished(scan_id, current_host)
+                        self.set_scan_host_finished(scan_id, host=current_host)
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host
                         )
