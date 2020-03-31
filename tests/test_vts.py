@@ -20,6 +20,7 @@ import logging
 from unittest import TestCase
 from unittest.mock import Mock
 
+from collections import OrderedDict
 from ospd.errors import OspdError
 from ospd.vts import Vts
 from hashlib import sha256
@@ -140,7 +141,7 @@ class VtsTestCase(TestCase):
         self.assertIsNot(vta, vtb)
 
     def test_calculate_vts_collection_hash(self):
-        vts = Vts()
+        vts = Vts(storage=OrderedDict())
 
         vts.add(
             'id_1',
@@ -164,7 +165,7 @@ class VtsTestCase(TestCase):
         self.assertEqual(hash_test, vts.sha256_hash)
 
     def test_calculate_vts_collection_hash_no_params(self):
-        vts = Vts()
+        vts = Vts(storage=OrderedDict())
 
         vts.add(
             'id_1',
