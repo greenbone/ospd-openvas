@@ -144,14 +144,13 @@ class ScanCollection:
         # to parent process.
         self.scans_table[scan_id]['target_progress'] = host_progresses
 
-    def set_host_finished(self, scan_id: str, host: str) -> None:
+    def set_host_finished(self, scan_id: str, hosts: List[str]) -> None:
         """ Add the host in a list of finished hosts """
         finished_hosts = self.scans_table[scan_id].get('finished_hosts')
+        finished_hosts.extend(hosts)
+        uniq_set_of_hosts = set(finished_hosts)
 
-        if host not in finished_hosts:
-            finished_hosts.append(host)
-
-        self.scans_table[scan_id]['finished_hosts'] = finished_hosts
+        self.scans_table[scan_id]['finished_hosts'] = list(uniq_set_of_hosts)
 
     def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
         """ Get a list of unfinished hosts."""

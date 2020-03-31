@@ -517,7 +517,7 @@ class OSPDaemon:
         exc_hosts_list = target_str_to_list(finished_hosts)
 
         for host in exc_hosts_list:
-            self.set_scan_host_finished(scan_id, host)
+            self.set_scan_host_finished(scan_id, host=host)
             self.set_scan_host_progress(scan_id, host=host, progress=100)
 
     def start_scan(self, scan_id: str, target: Dict) -> None:
@@ -583,9 +583,17 @@ class OSPDaemon:
             scan_id, exc_hosts_list
         )
 
-    def set_scan_host_finished(self, scan_id: str, host: str) -> None:
+    def set_scan_host_finished(
+        self,
+        scan_id: str,
+        host: str = None,
+        finished_host_batch: List[str] = None,
+    ) -> None:
         """ Add the host in a list of finished hosts """
-        self.scan_collection.set_host_finished(scan_id, host)
+        if host:
+            finished_host_batch = [host]
+
+        self.scan_collection.set_host_finished(scan_id, finished_host_batch)
 
     def set_scan_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress which is a number
