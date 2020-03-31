@@ -1024,6 +1024,7 @@ class OSPDopenvas(OSPDaemon):
     ):
         """ Get all result entries from redis kb. """
         res = db.get_result()
+        result_batch = list()
         while res:
             msg = res.split('|||')
             roid = msg[3].strip()
@@ -1049,19 +1050,19 @@ class OSPDopenvas(OSPDaemon):
                 rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
-                self.add_scan_error(
-                    scan_id,
+                result_batch = self.add_scan_error(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
                     test_id=roid,
+                    batch=True,
+                    result_batch=result_batch,
                 )
 
             if msg[0] == 'LOG':
-                self.add_scan_log(
-                    scan_id,
+                result_batch = self.add_scan_log(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
@@ -1069,21 +1070,23 @@ class OSPDopenvas(OSPDaemon):
                     port=msg[2],
                     qod=rqod,
                     test_id=roid,
+                    batch=True,
+                    result_batch=result_batch,
                 )
 
             if msg[0] == 'HOST_DETAIL':
-                self.add_scan_host_detail(
-                    scan_id,
+                result_batch = self.add_scan_host_detail(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
                     value=msg[4],
+                    batch=True,
+                    result_batch=result_batch,
                 )
 
             if msg[0] == 'ALARM':
                 rseverity = self.get_severity_score(vt_aux)
-                self.add_scan_alarm(
-                    scan_id,
+                result_batch = self.add_scan_alarm(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
@@ -1092,6 +1095,8 @@ class OSPDopenvas(OSPDaemon):
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
+                    batch=True,
+                    result_batch=result_batch,
                 )
 
             # To process non scanned dead hosts when
