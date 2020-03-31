@@ -133,14 +133,16 @@ class ScanCollection:
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_host_progress(self, scan_id: str, host: str, progress: int) -> None:
+    def set_host_progress(
+        self, scan_id: str, host_progress_batch: Dict[str, int]
+    ) -> None:
         """ Sets scan_id scan's progress. """
-        if progress > 0 and progress <= 100:
-            host_progresses = self.scans_table[scan_id].get('target_progress')
-            host_progresses[host] = progress
-            # Set scan_info's target_progress to propagate progresses
-            # to parent process.
-            self.scans_table[scan_id]['target_progress'] = host_progresses
+        host_progresses = self.scans_table[scan_id].get('target_progress')
+        host_progresses.update(host_progress_batch)
+
+        # Set scan_info's target_progress to propagate progresses
+        # to parent process.
+        self.scans_table[scan_id]['target_progress'] = host_progresses
 
     def set_host_finished(self, scan_id: str, host: str) -> None:
         """ Add the host in a list of finished hosts """

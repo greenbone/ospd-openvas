@@ -518,7 +518,7 @@ class OSPDaemon:
 
         for host in exc_hosts_list:
             self.set_scan_host_finished(scan_id, host)
-            self.set_scan_host_progress(scan_id, host, 100)
+            self.set_scan_host_progress(scan_id, host=host, progress=100)
 
     def start_scan(self, scan_id: str, target: Dict) -> None:
         """ Starts the scan with scan_id. """
@@ -593,13 +593,22 @@ class OSPDaemon:
         self.scan_collection.set_progress(scan_id, progress)
 
     def set_scan_host_progress(
-        self, scan_id: str, host: str, progress: int
+        self,
+        scan_id: str,
+        host: str = None,
+        progress: int = None,
+        host_progress_batch: Dict[str, int] = None,
     ) -> None:
         """ Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
         is updated too.
         """
-        self.scan_collection.set_host_progress(scan_id, host, progress)
+        if host and progress > 0 and progress <= 100:
+            host_progress_batch = {host: progress}
+        elif host_progress_batch is None:
+            return
+
+        self.scan_collection.set_host_progress(scan_id, host_progress_batch)
 
         scan_progress = self.calculate_progress(scan_id)
         self.set_scan_progress(scan_id, scan_progress)
