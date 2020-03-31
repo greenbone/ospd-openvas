@@ -638,9 +638,8 @@ class TestOspdOpenvas(TestCase):
 
         w.load_vts()
         w.report_openvas_results(mock_db, '123-456', 'localhost')
-
+        result_batch = list()
         mock_add_scan_log.assert_called_with(
-            '123-456',
             host='localhost',
             hostname='',
             name='',
@@ -648,6 +647,8 @@ class TestOspdOpenvas(TestCase):
             qod='',
             test_id='',
             value='Host dead',
+            batch=True,
+            result_batch=result_batch,
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -682,7 +683,7 @@ class TestOspdOpenvas(TestCase):
         w.update_progress('123-456', 'localhost', msg)
 
         mock_set_scan_host_progress.assert_called_with(
-            '123-456', 'localhost', 100
+            '123-456', host='localhost', progress=100
         )
 
 
