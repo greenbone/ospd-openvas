@@ -1137,6 +1137,10 @@ class OSPDopenvas(OSPDaemon):
             del vt_aux
             res = db.get_result()
 
+        # Insert result batch into the scan collection table.
+        if result_batch:
+            self.scan_collection.add_result_batch(scan_id, result_batch)
+
     def report_openvas_timestamp_scan_host(
         self, scan_db: ScanDB, scan_id: str, host: str
     ):
