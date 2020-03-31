@@ -1285,8 +1285,26 @@ class OSPDaemon:
         port: str = '',
         test_id: str = '',
         qod: str = '',
-    ):
+        batch: bool = False,
+        result_batch: Optional[List] = None,
+    ) -> Optional[List[Dict[str, str]]]:
         """ Adds a log result to scan_id scan. """
+
+        if batch:
+            result_batch = self.add_result_to_batch(
+                result_batch,
+                ResultType.LOG,
+                host,
+                hostname,
+                name,
+                value,
+                port,
+                test_id,
+                '0.0',
+                qod,
+            )
+            return result_batch
+
         self.scan_collection.add_result(
             scan_id,
             ResultType.LOG,
@@ -1309,8 +1327,24 @@ class OSPDaemon:
         value: str = '',
         port: str = '',
         test_id='',
-    ) -> None:
+        batch: bool = False,
+        result_batch: Optional[List] = None,
+    ) -> Optional[List[Dict[str, str]]]:
         """ Adds an error result to scan_id scan. """
+
+        if batch:
+            result_batch = self.add_result_to_batch(
+                result_batch,
+                ResultType.ERROR,
+                host,
+                hostname,
+                name,
+                value,
+                port,
+                test_id,
+            )
+            return result_batch
+
         self.scan_collection.add_result(
             scan_id,
             ResultType.ERROR,
@@ -1329,8 +1363,22 @@ class OSPDaemon:
         hostname: str = '',
         name: str = '',
         value: str = '',
-    ) -> None:
+        batch: bool = False,
+        result_batch: Optional[List] = None,
+    ) -> Optional[List[Dict[str, str]]]:
         """ Adds a host detail result to scan_id scan. """
+
+        if batch:
+            result_batch = self.add_result_to_batch(
+                result_batch,
+                ResultType.HOST_DETAIL,
+                host,
+                hostname,
+                name,
+                value,
+            )
+            return result_batch
+
         self.scan_collection.add_result(
             scan_id, ResultType.HOST_DETAIL, host, hostname, name, value
         )
@@ -1346,8 +1394,26 @@ class OSPDaemon:
         test_id: str = '',
         severity: str = '',
         qod: str = '',
-    ):
+        batch: bool = False,
+        result_batch: Optional[List] = None,
+    ) -> Optional[List[Dict[str, str]]]:
         """ Adds an alarm result to scan_id scan. """
+
+        if batch:
+            result_batch = self.add_result_to_batch(
+                result_batch,
+                ResultType.ALARM,
+                host,
+                hostname,
+                name,
+                value,
+                port,
+                test_id,
+                severity,
+                qod,
+            )
+            return result_batch
+
         self.scan_collection.add_result(
             scan_id,
             ResultType.ALARM,
