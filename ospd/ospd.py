@@ -27,6 +27,7 @@ import multiprocessing
 import time
 import os
 
+from collections import OrderedDict
 from typing import (
     List,
     Any,
@@ -1426,3 +1427,35 @@ class OSPDaemon:
             severity,
             qod,
         )
+
+    def add_result_to_batch(
+        self,
+        results: List[Dict[str, str]],
+        result_type: int,
+        host: str = '',
+        hostname: str = '',
+        name: str = '',
+        value: str = '',
+        port: str = '',
+        test_id: str = '',
+        severity: str = '',
+        qod: str = '',
+        batch: bool = False,
+    ) -> List[Dict[str, str]]:
+
+        result = OrderedDict()  # type: Dict
+        result['type'] = result_type
+        result['name'] = name
+        result['severity'] = severity
+        result['test_id'] = test_id
+        result['value'] = value
+        result['host'] = host
+        result['hostname'] = hostname
+        result['port'] = port
+        result['qod'] = qod
+
+        if results is None:
+            results = list()
+        results.append(result)
+
+        return results
