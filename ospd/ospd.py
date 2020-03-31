@@ -1277,7 +1277,7 @@ class OSPDaemon:
 
     def add_scan_log(
         self,
-        scan_id: str,
+        scan_id: str = '',
         host: str = '',
         hostname: str = '',
         name: str = '',
@@ -1302,7 +1302,7 @@ class OSPDaemon:
 
     def add_scan_error(
         self,
-        scan_id: str,
+        scan_id: str = '',
         host: str = '',
         hostname: str = '',
         name: str = '',
@@ -1324,7 +1324,7 @@ class OSPDaemon:
 
     def add_scan_host_detail(
         self,
-        scan_id: str,
+        scan_id: str = '',
         host: str = '',
         hostname: str = '',
         name: str = '',
@@ -1337,7 +1337,7 @@ class OSPDaemon:
 
     def add_scan_alarm(
         self,
-        scan_id: str,
+        scan_id: str = '',
         host: str = '',
         hostname: str = '',
         name: str = '',
