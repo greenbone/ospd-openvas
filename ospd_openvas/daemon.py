@@ -1116,6 +1116,38 @@ class OSPDopenvas(OSPDaemon):
             )
             return
 
+    def openvas_process_is_alive(
+        self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str
+    ) -> bool:
+        parent_exists = True
+        parent = None
+        try:
+            parent = psutil.Process(int(ovas_pid))
+        except psutil.NoSuchProcess:
+            logger.debug('Process with pid %s already stopped', ovas_pid)
+            parent_exists = False
+        except TypeError:
+            logger.debug(
+                'Scan with ID %s never started and stopped unexpectedly',
+                openvas_scan_id,
+            )
+            parent_exists = False
+
+        is_zombie = False
+        if parent and parent.status() == psutil.STATUS_ZOMBIE:
+            is_zombie = True
+
+        if (not parent_exists or is_zombie) and kbdb:
+            if kbdb and kbdb.scan_is_stopped(openvas_scan_id):
+                return True
+            kbdb.stop_scan(openvas_scan_id)
+            for scan_db in kbdb.get_scan_databases():
+                self.main_db.release_database(scan_db)
+            self.main_db.release_database(kbdb)
+            return False
+
+        return True
+
     def stop_scan_cleanup(  # pylint: disable=arguments-differ
         self, global_scan_id: str
     ):
