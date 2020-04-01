@@ -1295,6 +1295,14 @@ class OSPDopenvas(OSPDaemon):
 
         no_id_found = False
         while True:
+            if not self.openvas_process_is_alive(
+                kbdb, ovas_pid, openvas_scan_id
+            ):
+                logger.error(
+                    'Task %s was unexpectedly stopped or killed.', scan_id,
+                )
+                return 1
+
             time.sleep(3)
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
