@@ -650,6 +650,24 @@ class TestOspdOpenvas(TestCase):
             value='Host dead',
         )
 
+    @patch('ospd_openvas.db.KbDB')
+    def test_openvas_is_alive_already_stopped(self, mock_db):
+        w = DummyDaemon()
+        # mock_psutil = MockPsutil.return_value
+        mock_db.scan_is_stopped.return_value = True
+        ret = w.openvas_process_is_alive(mock_db, '1234', 'a1-b2-c3-d4')
+
+        self.assertTrue(ret)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_openvas_is_alive_still(self, mock_db):
+        w = DummyDaemon()
+        # mock_psutil = MockPsutil.return_value
+        mock_db.scan_is_stopped.return_value = False
+        ret = w.openvas_process_is_alive(mock_db, '1234', 'a1-b2-c3-d4')
+
+        self.assertFalse(ret)
+
     @patch('ospd_openvas.daemon.OSPDaemon.set_scan_host_progress')
     def test_update_progress(self, mock_set_scan_host_progress):
         w = DummyDaemon()
