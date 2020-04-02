@@ -1297,6 +1297,12 @@ class OSPDopenvas(OSPDaemon):
                 logger.error(
                     'Task %s was unexpectedly stopped or killed.', scan_id,
                 )
+                self.add_scan_error(
+                    scan_id,
+                    name='',
+                    host='',
+                    value='Task was unexpectedly stopped or killed.',
+                )
                 kbdb.stop_scan(openvas_scan_id)
                 for scan_db in kbdb.get_scan_databases():
                     self.main_db.release_database(scan_db)
