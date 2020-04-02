@@ -655,7 +655,7 @@ class TestOspdOpenvas(TestCase):
         w = DummyDaemon()
         # mock_psutil = MockPsutil.return_value
         mock_db.scan_is_stopped.return_value = True
-        ret = w.openvas_process_is_alive(mock_db, '1234', 'a1-b2-c3-d4')
+        ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
 
         self.assertTrue(ret)
 
@@ -664,7 +664,7 @@ class TestOspdOpenvas(TestCase):
         w = DummyDaemon()
         # mock_psutil = MockPsutil.return_value
         mock_db.scan_is_stopped.return_value = False
-        ret = w.openvas_process_is_alive(mock_db, '1234', 'a1-b2-c3-d4')
+        ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
 
         self.assertFalse(ret)
 

@@ -1116,7 +1116,7 @@ class OSPDopenvas(OSPDaemon):
             )
             return
 
-    def openvas_process_is_alive(
+    def is_openvas_process_alive(
         self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str
     ) -> bool:
         parent_exists = True
@@ -1140,10 +1140,6 @@ class OSPDopenvas(OSPDaemon):
         if (not parent_exists or is_zombie) and kbdb:
             if kbdb and kbdb.scan_is_stopped(openvas_scan_id):
                 return True
-            kbdb.stop_scan(openvas_scan_id)
-            for scan_db in kbdb.get_scan_databases():
-                self.main_db.release_database(scan_db)
-            self.main_db.release_database(kbdb)
             return False
 
         return True
@@ -1295,12 +1291,16 @@ class OSPDopenvas(OSPDaemon):
 
         no_id_found = False
         while True:
-            if not self.openvas_process_is_alive(
+            if not self.is_openvas_process_alive(
                 kbdb, ovas_pid, openvas_scan_id
             ):
                 logger.error(
                     'Task %s was unexpectedly stopped or killed.', scan_id,
                 )
+                kbdb.stop_scan(openvas_scan_id)
+                for scan_db in kbdb.get_scan_databases():
+                    self.main_db.release_database(scan_db)
+                self.main_db.release_database(kbdb)
                 return 1
 
             time.sleep(3)
