@@ -598,26 +598,26 @@ class OSPDaemon:
         between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
+    def set_scan_progress_batch(
+        self, scan_id: str, host_progress: Dict[str, int]
+    ):
+        self.scan_collection.set_host_progress(scan_id, host_progress)
+
+        scan_progress = self.calculate_progress(scan_id)
+        self.set_scan_progress(scan_id, scan_progress)
+
     def set_scan_host_progress(
-        self,
-        scan_id: str,
-        host: str = None,
-        progress: int = None,
-        host_progress_batch: Dict[str, int] = None,
+        self, scan_id: str, host: str = None, progress: int = None,
     ) -> None:
         """ Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
         is updated too.
         """
-        if host and progress > 0 and progress <= 100:
-            host_progress_batch = {host: progress}
-        elif host_progress_batch is None:
+        if host and progress < 0 or progress > 100:
             return
 
-        self.scan_collection.set_host_progress(scan_id, host_progress_batch)
-
-        scan_progress = self.calculate_progress(scan_id)
-        self.set_scan_progress(scan_id, scan_progress)
+        host_progress = {host: progress}
+        self.set_scan_progress_batch(scan_id, host_progress)
 
     def set_scan_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Set the scan's status."""
