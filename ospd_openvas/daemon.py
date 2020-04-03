@@ -1026,7 +1026,7 @@ class OSPDopenvas(OSPDaemon):
     ):
         """ Get all result entries from redis kb. """
         res = db.get_result()
-        result_batch = list()
+        result_list = list()
         host_progress_batch = dict()
         finished_host_batch = list()
         while res:
@@ -1054,19 +1054,19 @@ class OSPDopenvas(OSPDaemon):
                 rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
-                result_batch = self.add_scan_error(
+                result_list = self.add_scan_error_to_list(
+                    result_list,
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
                     value=msg[4],
                     port=msg[2],
                     test_id=roid,
-                    batch=True,
-                    result_batch=result_batch,
                 )
 
             if msg[0] == 'LOG':
-                result_batch = self.add_scan_log(
+                result_list = self.add_scan_log_to_list(
+                    result_list,
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
@@ -1074,23 +1074,21 @@ class OSPDopenvas(OSPDaemon):
                     port=msg[2],
                     qod=rqod,
                     test_id=roid,
-                    batch=True,
-                    result_batch=result_batch,
                 )
 
             if msg[0] == 'HOST_DETAIL':
-                result_batch = self.add_scan_host_detail(
+                result_list = self.add_scan_host_detail_to_list(
+                    result_list,
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
                     value=msg[4],
-                    batch=True,
-                    result_batch=result_batch,
                 )
 
             if msg[0] == 'ALARM':
                 rseverity = self.get_severity_score(vt_aux)
-                result_batch = self.add_scan_alarm(
+                result_list = self.add_scan_alarm_to_list(
+                    result_list,
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
@@ -1099,8 +1097,6 @@ class OSPDopenvas(OSPDaemon):
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
-                    batch=True,
-                    result_batch=result_batch,
                 )
 
             # To process non scanned dead hosts when
@@ -1111,7 +1107,8 @@ class OSPDopenvas(OSPDaemon):
                     if _host:
                         host_progress_batch[_host] = 100
                         finished_host_batch.append(_host)
-                        result_batch = self.add_scan_log(
+                        result_list = self.add_scan_log_to_list(
+                            result_list,
                             host=_host,
                             hostname=rhostname,
                             name=rname,
@@ -1119,23 +1116,19 @@ class OSPDopenvas(OSPDaemon):
                             port=msg[2],
                             qod=rqod,
                             test_id='',
-                            batch=True,
-                            result_batch=result_batch,
                         )
                         timestamp = time.ctime(time.time())
-                        result_batch = self.add_scan_log(
+                        result_list = self.add_scan_log_to_list(
+                            result_list,
                             host=_host,
                             name='HOST_START',
                             value=timestamp,
-                            batch=True,
-                            result_batch=result_batch,
                         )
-                        result_batch = self.add_scan_log(
+                        result_list = self.add_scan_log_to_list(
+                            result_list,
                             host=_host,
                             name='HOST_END',
                             value=timestamp,
-                            batch=True,
-                            result_batch=result_batch,
                         )
 
             vt_aux = None
@@ -1143,17 +1136,17 @@ class OSPDopenvas(OSPDaemon):
             res = db.get_result()
 
         # Insert result batch into the scan collection table.
-        if result_batch:
-            self.scan_collection.add_result_batch(scan_id, result_batch)
+        if result_list:
+            self.scan_collection.add_result_list(scan_id, result_list)
 
         if host_progress_batch:
-            self.set_scan_host_progress(
-                scan_id, host_progress_batch=host_progress_batch
+            self.set_scan_progress_batch(
+                scan_id, host_progress=host_progress_batch
             )
 
         if finished_host_batch:
             self.set_scan_host_finished(
-                scan_id, finished_host_batch=finished_host_batch
+                scan_id, finished_hosts=finished_host_batch
             )
 
     def report_openvas_timestamp_scan_host(
@@ -1395,7 +1388,9 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                     if scan_db.host_is_finished(openvas_scan_id):
-                        self.set_scan_host_finished(scan_id, host=current_host)
+                        self.set_scan_host_finished(
+                            scan_id, finished_hosts=current_host
+                        )
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host
                         )
