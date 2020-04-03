@@ -1210,7 +1210,7 @@ class OSPDopenvas(OSPDaemon):
                     'because a pending feed update. Please try later'
                 ),
             )
-            return 2
+            return
 
         do_not_launch = False
 
@@ -1259,7 +1259,7 @@ class OSPDopenvas(OSPDaemon):
 
         if do_not_launch:
             self.main_db.release_database(kbdb)
-            return 2
+            return
 
         result = Openvas.start_scan(
             openvas_scan_id,
@@ -1269,7 +1269,7 @@ class OSPDopenvas(OSPDaemon):
 
         if result is None:
             self.main_db.release_database(kbdb)
-            return False
+            return
 
         ovas_pid = result.pid
         kbdb.add_scan_process_id(ovas_pid)
@@ -1285,7 +1285,7 @@ class OSPDopenvas(OSPDaemon):
                     'unexpectedly with errors during launching.',
                     scan_id,
                 )
-                return 1
+                return
 
             time.sleep(1)
 
@@ -1307,14 +1307,14 @@ class OSPDopenvas(OSPDaemon):
                 for scan_db in kbdb.get_scan_databases():
                     self.main_db.release_database(scan_db)
                 self.main_db.release_database(kbdb)
-                return 1
+                return
 
             time.sleep(3)
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
                 # clean main_db
                 self.main_db.release_database(kbdb)
-                return 1
+                return
 
             self.report_openvas_results(kbdb, scan_id, "")
 
