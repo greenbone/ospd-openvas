@@ -36,6 +36,7 @@ from typing import (
     Optional,
     Iterable,
     Tuple,
+    Union,
 )
 from xml.etree.ElementTree import Element, SubElement
 
@@ -517,7 +518,7 @@ class OSPDaemon:
         exc_hosts_list = target_str_to_list(finished_hosts)
 
         for host in exc_hosts_list:
-            self.set_scan_host_finished(scan_id, host=host)
+            self.set_scan_host_finished(scan_id, finished_hosts=host)
             self.set_scan_host_progress(scan_id, host=host, progress=100)
 
     def start_scan(self, scan_id: str, target: Dict) -> None:
@@ -584,16 +585,13 @@ class OSPDaemon:
         )
 
     def set_scan_host_finished(
-        self,
-        scan_id: str,
-        host: str = None,
-        finished_host_batch: List[str] = None,
+        self, scan_id: str, finished_hosts: Union[List[str], str],
     ) -> None:
         """ Add the host in a list of finished hosts """
-        if host:
-            finished_host_batch = [host]
+        if isinstance(finished_hosts, str):
+            finished_hosts = [finished_hosts]
 
-        self.scan_collection.set_host_finished(scan_id, finished_host_batch)
+        self.scan_collection.set_host_finished(scan_id, finished_hosts)
 
     def set_scan_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress which is a number
