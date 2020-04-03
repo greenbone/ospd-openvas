@@ -627,19 +627,20 @@ class TestOspdOpenvas(TestCase):
         self.assertEqual(mock_path_open.call_count, 1)
 
     @patch('ospd_openvas.daemon.ScanDB')
-    @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
-    def test_get_openvas_result(self, mock_add_scan_log, MockDBClass):
+    @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log_to_list')
+    def test_get_openvas_result(self, mock_add_scan_log_to_list, MockDBClass):
         w = DummyDaemon()
         mock_db = MockDBClass.return_value
 
         results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
         mock_db.get_result.side_effect = results
-        mock_add_scan_log.return_value = None
+        mock_add_scan_log_to_list.return_value = None
 
         w.load_vts()
         w.report_openvas_results(mock_db, '123-456', 'localhost')
-        result_batch = list()
-        mock_add_scan_log.assert_called_with(
+        result_list = list()
+        mock_add_scan_log_to_list.assert_called_with(
+            result_list,
             host='localhost',
             hostname='',
             name='',
@@ -647,8 +648,6 @@ class TestOspdOpenvas(TestCase):
             qod='',
             test_id='',
             value='Host dead',
-            batch=True,
-            result_batch=result_batch,
         )
 
     @patch('ospd_openvas.db.KbDB')
