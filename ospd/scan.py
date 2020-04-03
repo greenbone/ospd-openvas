@@ -97,12 +97,12 @@ class ScanCollection:
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
-    def add_result_batch(
-        self, scan_id: str, result_batch: List[Dict[str, str]]
+    def add_result_list(
+        self, scan_id: str, result_list: List[Dict[str, str]]
     ) -> None:
         """ Add a batch of results to the result's table for the corresponding scan_id """
         results = self.scans_table[scan_id]['results']
-        results.extend(result_batch)
+        results.extend(result_list)
 
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
