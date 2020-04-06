@@ -979,17 +979,10 @@ class ScanTestCase(unittest.TestCase):
         response = fs.get_response()
 
         scan_id = response.findtext('id')
-        result_list = list()
-        result_list = reslist.add_scan_log_to_list(
-            result_list, host='a', name='a'
-        )
-        result_list = reslist.add_scan_log_to_list(
-            result_list, host='c', name='c'
-        )
-        result_list = reslist.add_scan_log_to_list(
-            result_list, host='b', name='b'
-        )
-        daemon.scan_collection.add_result_list(scan_id, result_list)
+        reslist.add_scan_log_to_list(host='a', name='a')
+        reslist.add_scan_log_to_list(host='c', name='c')
+        reslist.add_scan_log_to_list(host='b', name='b')
+        daemon.scan_collection.add_result_list(scan_id, reslist)
 
         hosts = ['a', 'c', 'b']
 

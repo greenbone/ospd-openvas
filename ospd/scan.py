@@ -22,7 +22,7 @@ import uuid
 
 from collections import OrderedDict
 from enum import Enum
-from typing import List, Any, Dict, Iterator, Optional
+from typing import List, Any, Dict, Iterator, Optional, Iterable
 
 from ospd.network import target_str_to_list
 
@@ -98,7 +98,7 @@ class ScanCollection:
         self.scans_table[scan_id]['results'] = results
 
     def add_result_list(
-        self, scan_id: str, result_list: List[Dict[str, str]]
+        self, scan_id: str, result_list: Iterable[Dict[str, str]]
     ) -> None:
         """ Add a batch of results to the result's table for the corresponding scan_id """
         results = self.scans_table[scan_id]['results']
