@@ -627,20 +627,22 @@ class TestOspdOpenvas(TestCase):
         self.assertEqual(mock_path_open.call_count, 1)
 
     @patch('ospd_openvas.daemon.ScanDB')
-    @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
-    def test_get_openvas_result(self, mock_add_scan_log, MockDBClass):
+    @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
+    def test_get_openvas_result(self, mock_add_scan_log_to_list, MockDBClass):
         w = DummyDaemon()
-        mock_db = MockDBClass.return_value
+
+        target_element = w.create_xml_target()
+        targets = OspRequest.process_target_element(target_element)
+        w.create_scan('123-456', targets, None, [])
 
         results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
+        mock_db = MockDBClass.return_value
         mock_db.get_result.side_effect = results
-        mock_add_scan_log.return_value = None
+        mock_add_scan_log_to_list.return_value = None
 
         w.load_vts()
         w.report_openvas_results(mock_db, '123-456', 'localhost')
-
-        mock_add_scan_log.assert_called_with(
-            '123-456',
+        mock_add_scan_log_to_list.assert_called_with(
             host='localhost',
             hostname='',
             name='',
@@ -682,7 +684,7 @@ class TestOspdOpenvas(TestCase):
         w.update_progress('123-456', 'localhost', msg)
 
         mock_set_scan_host_progress.assert_called_with(
-            '123-456', 'localhost', 100
+            '123-456', host='localhost', progress=100
         )
 
 
