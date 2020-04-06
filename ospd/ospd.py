@@ -35,6 +35,7 @@ from typing import (
     Optional,
     Iterable,
     Tuple,
+    Union,
 )
 from xml.etree.ElementTree import Element, SubElement
 
@@ -516,8 +517,8 @@ class OSPDaemon:
         exc_hosts_list = target_str_to_list(finished_hosts)
 
         for host in exc_hosts_list:
-            self.set_scan_host_finished(scan_id, host)
-            self.set_scan_host_progress(scan_id, host, 100)
+            self.set_scan_host_finished(scan_id, finished_hosts=host)
+            self.set_scan_host_progress(scan_id, host=host, progress=100)
 
     def start_scan(self, scan_id: str, target: Dict) -> None:
         """ Starts the scan with scan_id. """
@@ -582,26 +583,40 @@ class OSPDaemon:
             scan_id, exc_hosts_list
         )
 
-    def set_scan_host_finished(self, scan_id: str, host: str) -> None:
+    def set_scan_host_finished(
+        self, scan_id: str, finished_hosts: Union[List[str], str],
+    ) -> None:
         """ Add the host in a list of finished hosts """
-        self.scan_collection.set_host_finished(scan_id, host)
+        if isinstance(finished_hosts, str):
+            finished_hosts = [finished_hosts]
+
+        self.scan_collection.set_host_finished(scan_id, finished_hosts)
 
     def set_scan_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress which is a number
         between 0 and 100. """
         self.scan_collection.set_progress(scan_id, progress)
 
+    def set_scan_progress_batch(
+        self, scan_id: str, host_progress: Dict[str, int]
+    ):
+        self.scan_collection.set_host_progress(scan_id, host_progress)
+
+        scan_progress = self.calculate_progress(scan_id)
+        self.set_scan_progress(scan_id, scan_progress)
+
     def set_scan_host_progress(
-        self, scan_id: str, host: str, progress: int
+        self, scan_id: str, host: str = None, progress: int = None,
     ) -> None:
         """ Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
         is updated too.
         """
-        self.scan_collection.set_host_progress(scan_id, host, progress)
+        if host and progress < 0 or progress > 100:
+            return
 
-        scan_progress = self.calculate_progress(scan_id)
-        self.set_scan_progress(scan_id, scan_progress)
+        host_progress = {host: progress}
+        self.set_scan_progress_batch(scan_id, host_progress)
 
     def set_scan_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Set the scan's status."""
@@ -1285,8 +1300,9 @@ class OSPDaemon:
         port: str = '',
         test_id: str = '',
         qod: str = '',
-    ):
+    ) -> None:
         """ Adds a log result to scan_id scan. """
+
         self.scan_collection.add_result(
             scan_id,
             ResultType.LOG,
@@ -1346,7 +1362,7 @@ class OSPDaemon:
         test_id: str = '',
         severity: str = '',
         qod: str = '',
-    ):
+    ) -> None:
         """ Adds an alarm result to scan_id scan. """
         self.scan_collection.add_result(
             scan_id,

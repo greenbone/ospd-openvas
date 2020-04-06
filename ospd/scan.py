@@ -22,7 +22,7 @@ import uuid
 
 from collections import OrderedDict
 from enum import Enum
-from typing import List, Any, Dict, Iterator, Optional
+from typing import List, Any, Dict, Iterator, Optional, Iterable
 
 from ospd.network import target_str_to_list
 
@@ -97,6 +97,16 @@ class ScanCollection:
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
 
+    def add_result_list(
+        self, scan_id: str, result_list: Iterable[Dict[str, str]]
+    ) -> None:
+        """ Add a batch of results to the result's table for the corresponding scan_id """
+        results = self.scans_table[scan_id]['results']
+        results.extend(result_list)
+
+        # Set scan_info's results to propagate results to parent process.
+        self.scans_table[scan_id]['results'] = results
+
     def remove_hosts_from_target_progress(
         self, scan_id: str, hosts: List
     ) -> None:
@@ -123,23 +133,24 @@ class ScanCollection:
         if progress == 100:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
-    def set_host_progress(self, scan_id: str, host: str, progress: int) -> None:
+    def set_host_progress(
+        self, scan_id: str, host_progress_batch: Dict[str, int]
+    ) -> None:
         """ Sets scan_id scan's progress. """
-        if progress > 0 and progress <= 100:
-            host_progresses = self.scans_table[scan_id].get('target_progress')
-            host_progresses[host] = progress
-            # Set scan_info's target_progress to propagate progresses
-            # to parent process.
-            self.scans_table[scan_id]['target_progress'] = host_progresses
+        host_progresses = self.scans_table[scan_id].get('target_progress')
+        host_progresses.update(host_progress_batch)
 
-    def set_host_finished(self, scan_id: str, host: str) -> None:
+        # Set scan_info's target_progress to propagate progresses
+        # to parent process.
+        self.scans_table[scan_id]['target_progress'] = host_progresses
+
+    def set_host_finished(self, scan_id: str, hosts: List[str]) -> None:
         """ Add the host in a list of finished hosts """
         finished_hosts = self.scans_table[scan_id].get('finished_hosts')
+        finished_hosts.extend(hosts)
+        uniq_set_of_hosts = set(finished_hosts)
 
-        if host not in finished_hosts:
-            finished_hosts.append(host)
-
-        self.scans_table[scan_id]['finished_hosts'] = finished_hosts
+        self.scans_table[scan_id]['finished_hosts'] = list(uniq_set_of_hosts)
 
     def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
         """ Get a list of unfinished hosts."""

@@ -31,6 +31,7 @@ import defusedxml.lxml as secET
 from defusedxml.common import EntitiesForbidden
 
 from .helper import DummyWrapper, assert_called, FakeStream
+from ospd.resultlist import ResultList
 
 
 class FakeStartProcess:
@@ -801,7 +802,9 @@ class ScanTestCase(unittest.TestCase):
         scan_id = response.findtext('id')
         time.sleep(1)
         finished = daemon.get_scan_finished_hosts(scan_id)
-        self.assertEqual(finished, ['192.168.10.23', '192.168.10.24'])
+        for host in ['192.168.10.23', '192.168.10.24']:
+            self.assertIn(host, finished)
+        self.assertEqual(len(finished), 2)
 
     def test_progress(self):
         daemon = DummyWrapper([])
@@ -946,6 +949,41 @@ class ScanTestCase(unittest.TestCase):
         daemon.add_scan_log(scan_id, host='a', name='a')
         daemon.add_scan_log(scan_id, host='c', name='c')
         daemon.add_scan_log(scan_id, host='b', name='b')
+        hosts = ['a', 'c', 'b']
+
+        fs = FakeStream()
+        daemon.handle_command('<get_scans details="1"/>', fs)
+        response = fs.get_response()
+
+        results = response.findall("scan/results/")
+
+        for idx, res in enumerate(results):
+            att_dict = res.attrib
+            self.assertEqual(hosts[idx], att_dict['name'])
+
+    def test_batch_result(self):
+        daemon = DummyWrapper([])
+        reslist = ResultList()
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="1">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>a</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        reslist.add_scan_log_to_list(host='a', name='a')
+        reslist.add_scan_log_to_list(host='c', name='c')
+        reslist.add_scan_log_to_list(host='b', name='b')
+        daemon.scan_collection.add_result_list(scan_id, reslist)
+
         hosts = ['a', 'c', 'b']
 
         fs = FakeStream()
