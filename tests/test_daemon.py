@@ -29,7 +29,6 @@ from unittest.mock import patch, Mock, MagicMock
 
 from ospd.vts import Vts
 from ospd.protocol import OspRequest
-from ospd.resultlist import ResultList
 
 from tests.dummydaemon import DummyDaemon
 from tests.helper import assert_called_once
@@ -636,8 +635,6 @@ class TestOspdOpenvas(TestCase):
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
 
-        res_list = ResultList()
-
         results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
         mock_db = MockDBClass.return_value
         mock_db.get_result.side_effect = results
@@ -645,7 +642,6 @@ class TestOspdOpenvas(TestCase):
 
         w.load_vts()
         w.report_openvas_results(mock_db, '123-456', 'localhost')
-        result_list = list()
         mock_add_scan_log_to_list.assert_called_with(
             host='localhost',
             hostname='',
