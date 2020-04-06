@@ -35,6 +35,9 @@ class ResultList:
     def __init__(self):
         self._result_list = list()
 
+    def __len__(self):
+        return len(self._result_list)
+
     def add_scan_host_detail_to_list(
         self,
         host: str = '',
