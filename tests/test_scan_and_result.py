@@ -31,6 +31,7 @@ import defusedxml.lxml as secET
 from defusedxml.common import EntitiesForbidden
 
 from .helper import DummyWrapper, assert_called, FakeStream
+from ospd.resultlist import ResultList
 
 
 class FakeStartProcess:
@@ -962,6 +963,7 @@ class ScanTestCase(unittest.TestCase):
 
     def test_batch_result(self):
         daemon = DummyWrapper([])
+        reslist = ResultList()
         fs = FakeStream()
         daemon.handle_command(
             '<start_scan parallel="1">'
@@ -978,13 +980,13 @@ class ScanTestCase(unittest.TestCase):
 
         scan_id = response.findtext('id')
         result_list = list()
-        result_list = daemon.add_scan_log_to_list(
+        result_list = reslist.add_scan_log_to_list(
             result_list, host='a', name='a'
         )
-        result_list = daemon.add_scan_log_to_list(
+        result_list = reslist.add_scan_log_to_list(
             result_list, host='c', name='c'
         )
-        result_list = daemon.add_scan_log_to_list(
+        result_list = reslist.add_scan_log_to_list(
             result_list, host='b', name='b'
         )
         daemon.scan_collection.add_result_list(scan_id, result_list)
