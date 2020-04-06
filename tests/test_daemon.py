@@ -29,6 +29,7 @@ from unittest.mock import patch, Mock, MagicMock
 
 from ospd.vts import Vts
 from ospd.protocol import OspRequest
+from ospd.resultlist import ResultList
 
 from tests.dummydaemon import DummyDaemon
 from tests.helper import assert_called_once
@@ -627,9 +628,10 @@ class TestOspdOpenvas(TestCase):
         self.assertEqual(mock_path_open.call_count, 1)
 
     @patch('ospd_openvas.daemon.ScanDB')
-    @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log_to_list')
+    @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
     def test_get_openvas_result(self, mock_add_scan_log_to_list, MockDBClass):
         w = DummyDaemon()
+        res_list = ResultList()
         mock_db = MockDBClass.return_value
 
         results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
