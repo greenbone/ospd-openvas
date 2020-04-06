@@ -1126,7 +1126,7 @@ class OSPDopenvas(OSPDaemon):
             res = db.get_result()
 
         # Insert result batch into the scan collection table.
-        if res_list:
+        if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
 
         if host_progress_batch:
