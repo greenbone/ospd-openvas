@@ -99,8 +99,6 @@ class OSPDaemon:
     * Implement process_scan_params and exec_scan methods which are
       specific to handling the <start_scan> command, executing the wrapped
       scanner and storing the results.
-    * exec_scan() should return 0 if host is dead or not reached, 1 if host is
-      alive and 2 if scan error or status is unknown.
     * Implement other methods that assert to False such as get_scanner_name,
       get_scanner_version.
     * Use Call set_command_attributes at init time to add scanner command
@@ -535,7 +533,7 @@ class OSPDaemon:
 
         try:
             self.set_scan_status(scan_id, ScanStatus.RUNNING)
-            ret = self.exec_scan(scan_id)
+            self.exec_scan(scan_id)
         except Exception as e:  # pylint: disable=broad-except
             self.add_scan_error(
                 scan_id,
