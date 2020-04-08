@@ -464,12 +464,30 @@ class StartScan(BaseCommand):
 
         return elements
 
+    def is_new_scan_allowed(self) -> bool:
+        """ Check if max_scans has been reached.
+        
+        Return:
+            True if a new scan can be launch.
+        """
+        if (self._daemon.max_scans == 0) or (
+            len(self._daemon.scan_processes) < self._daemon.max_scans
+        ):
+            return True
+
+        return False
+
     def handle_xml(self, xml: Element) -> bytes:
         """ Handles <start_scan> command.
 
         Return:
             Response string for <start_scan> command.
         """
+        if not self.is_new_scan_allowed():
+            raise OspdCommandError(
+                'Not possible to run a new scan. Max scan limit reached.',
+                'start_scan',
+            )
 
         target_str = xml.get('target')
         ports_str = xml.get('ports')
