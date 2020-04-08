@@ -36,6 +36,7 @@ DEFAULT_PID_PATH = "/var/run/ospd.pid"
 DEFAULT_LOCKFILE_DIR_PATH = "/var/run/ospd"
 DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
+DEFAULT_MAX_SCAN = 0  # 0 = disable
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -156,6 +157,13 @@ class CliParser:
             '--list-commands',
             action='store_true',
             help='Display all protocol commands',
+        )
+        parser.add_argument(
+            '--max-scans',
+            default=DEFAULT_MAX_SCAN,
+            type=int,
+            help='Max. amount of parallel task that can be started. '
+            'Default %(default)s, disabled',
         )
 
         self.parser = parser
