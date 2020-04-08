@@ -107,7 +107,12 @@ class OSPDaemon:
     """
 
     def __init__(
-        self, *, customvtfilter=None, max_scans=0, **kwargs
+        self,
+        *,
+        customvtfilter=None,
+        max_scans=0,
+        check_free_memory=False,
+        **kwargs
     ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
         self.scan_collection = ScanCollection()
@@ -128,6 +133,7 @@ class OSPDaemon:
         self.initialized = None  # Set after initialization finished
 
         self.max_scans = max_scans
+        self.check_free_memory = check_free_memory
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
