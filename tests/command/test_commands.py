@@ -128,6 +128,24 @@ class StartScanTestCase(TestCase):
 
         assert_called(mock_create_process)
 
+    def test_is_new_scan_allowed_false(self):
+        daemon = DummyWrapper([])
+        cmd = StartScan(daemon)
+
+        cmd._daemon.scan_processes = {'a': 1, 'b': 2}
+        daemon.max_scans = 1
+
+        self.assertFalse(cmd.is_new_scan_allowed())
+
+    def test_is_new_scan_allowed_true(self):
+        daemon = DummyWrapper([])
+        cmd = StartScan(daemon)
+
+        cmd._daemon.scan_processes = {'a': 1, 'b': 2}
+        daemon.max_scans = 3
+
+        self.assertTrue(cmd.is_new_scan_allowed())
+
     @patch("ospd.command.command.create_process")
     def test_scan_without_vts(self, mock_create_process):
         daemon = DummyWrapper([])
