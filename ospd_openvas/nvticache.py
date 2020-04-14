@@ -275,6 +275,20 @@ class NVTICache(BaseDB):
 
         return refs
 
+    def get_nvt_family(self, oid: str) -> str:
+        """ Get NVT family
+        Arguments:
+            oid: OID of VT from which to get the VT family.
+
+        Returns:
+            A str with the VT family.
+        """
+        return OpenvasDB.get_single_item(
+            self.ctx,
+            'nvt:%s' % oid,
+            index=NVT_META_FIELDS.index("NVT_FAMILY_POS"),
+        )
+
     def get_nvt_prefs(self, oid: str) -> Optional[List[str]]:
         """ Get NVT preferences.
 
