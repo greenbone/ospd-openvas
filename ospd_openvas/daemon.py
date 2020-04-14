@@ -1263,7 +1263,7 @@ class OSPDopenvas(OSPDaemon):
 
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
-            scan_id, kbdb, self.scan_collection, temp_vts
+            scan_id, kbdb, self.scan_collection, temp_vts, self.nvti
         )
         openvas_scan_id = scan_prefs.prepare_openvas_scan_id_for_openvas()
         scan_prefs.prepare_target_for_openvas()
