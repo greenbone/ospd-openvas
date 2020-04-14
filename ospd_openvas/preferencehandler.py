@@ -34,6 +34,8 @@ from base64 import b64decode
 from ospd.scan import ScanCollection
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.db import KbDB
+from ospd_openvas.nvticache import NVTICache
+
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +70,7 @@ class PreferenceHandler:
         kbdb: KbDB,
         scan_collection: ScanCollection,
         vts_cache: Dict[str, Dict],
+        nvticache: NVTICache,
     ):
         self.scan_id = scan_id
         self.kbdb = kbdb
@@ -78,6 +81,7 @@ class PreferenceHandler:
         self._target_options = None
 
         self.vts_cache = vts_cache
+        self.nvti = nvticache
 
     def prepare_openvas_scan_id_for_openvas(self):
         """ Create the openvas scan id and store it in the redis kb.
