@@ -116,8 +116,10 @@ class PreferenceHandler:
         vts_list = list()
         families = dict()
 
-        for oid in self.vts_cache:
-            family = self.vts_cache[oid]['custom'].get('family')
+        oids = self.nvti.get_oids()
+
+        for _, oid in oids:
+            family = self.nvti.get_nvt_family(oid)
             if family not in families:
                 families[family] = list()
 
