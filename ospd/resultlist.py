@@ -21,11 +21,7 @@
 """
 
 from collections import OrderedDict
-from typing import (
-    List,
-    Dict,
-    Optional,
-)
+from typing import Dict
 from ospd.misc import ResultType
 
 

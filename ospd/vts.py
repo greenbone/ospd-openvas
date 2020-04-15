@@ -190,7 +190,7 @@ class Vts:
             )
             return
 
-        m = sha256()
+        m = sha256()  # pylint: disable=invalid-name
 
         # for a reproducable hash calculation
         # the vts must already be sorted in the dictionary.

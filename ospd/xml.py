@@ -28,7 +28,7 @@ from xml.etree.ElementTree import tostring, Element
 from ospd.misc import ResultType
 
 
-r = re.compile(
+r = re.compile(  # pylint: disable=invalid-name
     r'(.*?)(?:([^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF'
     + r'\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD])|([\n])|$)'
 )
