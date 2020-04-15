@@ -75,7 +75,7 @@ commands:
           command: pipenv run black --check ospd
       - run:
           name: Run pylint
-          command: pipenv run pylint --score=n --disable=R ospd
+          command: pipenv run pylint --score=n --disable=R ospd tests
 
 jobs:
   lint-python-files:
