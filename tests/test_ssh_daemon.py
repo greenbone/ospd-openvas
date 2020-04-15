@@ -37,7 +37,7 @@ commands = None  # pylint: disable=invalid-name
 
 class FakeSSHClient(object):
     def __init__(self):
-        global commands
+        global commands  # pylint: disable=global-statement,invalid-name
         commands = []
 
     def set_missing_host_key_policy(self, policy):
@@ -73,6 +73,12 @@ class fakeparamiko(object):  # pylint: disable=invalid-name
 class DummyWrapper(OSPDaemonSimpleSSH):
     def __init__(self, niceness=10):
         super().__init__(niceness=niceness)
+
+    def check(self):
+        return True
+
+    def exec_scan(self, scan_id: str):
+        return
 
 
 class SSHDaemonTestCase(unittest.TestCase):

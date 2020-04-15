@@ -81,12 +81,11 @@ commands:
           command: pipenv run black --check ospd
       - run:
           name: Run pylint
-          command: |
-            pipenv run pylint --score=n --disable=R ospd
+          command: pipenv run pylint --score=n --disable=R ospd tests
 
 jobs:
   lint-python-files:
-    executor: python-36
+    executor: python-37
     steps:
       - lint
   build-35:
@@ -126,7 +125,7 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      # - lint-python-files
+      - lint-python-files
       - build-35
       - test-35
       - build-36

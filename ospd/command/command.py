@@ -73,9 +73,7 @@ class BaseCommand(metaclass=InitSubclassMeta):
     def get_elements(self) -> Optional[Dict[str, Any]]:
         return self.elements
 
-    def handle_xml(
-        self, xml: Element, initialized: bool
-    ) -> Union[bytes, Iterator[bytes]]:
+    def handle_xml(self, xml: Element) -> Union[bytes, Iterator[bytes]]:
         raise NotImplementedError()
 
     def as_dict(self):

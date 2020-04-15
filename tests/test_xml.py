@@ -19,9 +19,9 @@ from collections import OrderedDict
 
 from unittest import TestCase
 
-from ospd.xml import elements_as_text, escape_ctrl_chars
-
 from xml.etree.ElementTree import Element, tostring, fromstring
+
+from ospd.xml import elements_as_text, escape_ctrl_chars
 
 
 class ElementsAsText(TestCase):
@@ -106,7 +106,8 @@ class EscapeText(TestCase):
         elem.text = res
         self.assertEqual(
             tostring(elem),
-            b'<text>Latin Capital Letter A With Circumflex &#194; is printable.</text>',
+            b'<text>Latin Capital Letter A With Circumflex &#194; is '
+            b'printable.</text>',
         )
 
         # The string format of the element does not break the xml

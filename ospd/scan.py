@@ -100,7 +100,10 @@ class ScanCollection:
     def add_result_list(
         self, scan_id: str, result_list: Iterable[Dict[str, str]]
     ) -> None:
-        """ Add a batch of results to the result's table for the corresponding scan_id """
+        """
+        Add a batch of results to the result's table for the corresponding
+        scan_id
+        """
         results = self.scans_table[scan_id]['results']
         results.extend(result_list)
 
