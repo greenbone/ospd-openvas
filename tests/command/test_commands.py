@@ -132,7 +132,10 @@ class StartScanTestCase(TestCase):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
 
-        cmd._daemon.scan_processes = {'a': 1, 'b': 2}
+        cmd._daemon.scan_processes = {  # pylint: disable=protected-access
+            'a': 1,
+            'b': 2,
+        }
         daemon.max_scans = 1
 
         self.assertFalse(cmd.is_new_scan_allowed())
@@ -141,7 +144,10 @@ class StartScanTestCase(TestCase):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
 
-        cmd._daemon.scan_processes = {'a': 1, 'b': 2}
+        cmd._daemon.scan_processes = {  # pylint: disable=protected-access
+            'a': 1,
+            'b': 2,
+        }
         daemon.max_scans = 3
 
         self.assertTrue(cmd.is_new_scan_allowed())

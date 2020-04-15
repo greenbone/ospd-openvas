@@ -17,13 +17,13 @@
 
 import logging
 
+from hashlib import sha256
 from unittest import TestCase
 from unittest.mock import Mock
 
 from collections import OrderedDict
 from ospd.errors import OspdError
 from ospd.vts import Vts
-from hashlib import sha256
 
 
 class VtsTestCase(TestCase):
@@ -141,7 +141,7 @@ class VtsTestCase(TestCase):
         self.assertIsNot(vta, vtb)
 
     def test_calculate_vts_collection_hash(self):
-        vts = Vts(storage=OrderedDict())
+        vts = Vts(storage=OrderedDict)
 
         vts.add(
             'id_1',
@@ -156,16 +156,16 @@ class VtsTestCase(TestCase):
 
         vts.calculate_vts_collection_hash()
 
-        h = sha256()
-        h.update(
+        vt_hash = sha256()
+        vt_hash.update(
             "id_1012340timeout201foo_pref:bar_valueid_256789".encode('utf-8')
         )
-        hash_test = h.hexdigest()
+        hash_test = vt_hash.hexdigest()
 
         self.assertEqual(hash_test, vts.sha256_hash)
 
     def test_calculate_vts_collection_hash_no_params(self):
-        vts = Vts(storage=OrderedDict())
+        vts = Vts(storage=OrderedDict)
 
         vts.add(
             'id_1',
@@ -180,9 +180,9 @@ class VtsTestCase(TestCase):
 
         vts.calculate_vts_collection_hash(include_vt_params=False)
 
-        h = sha256()
-        h.update("id_101234id_256789".encode('utf-8'))
-        hash_test = h.hexdigest()
+        vt_hash = sha256()
+        vt_hash.update("id_101234id_256789".encode('utf-8'))
+        hash_test = vt_hash.hexdigest()
 
         self.assertEqual(hash_test, vts.sha256_hash)
 
@@ -193,6 +193,6 @@ class VtsTestCase(TestCase):
         vts.calculate_vts_collection_hash()
 
         self.assertEqual(vts.sha256_hash, None)
-        logging.Logger.debug.assert_called_with(
+        logging.Logger.debug.assert_called_with(  # pylint: disable=no-member
             "Error calculating VTs collection hash. Cache is empty"
         )

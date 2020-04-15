@@ -26,12 +26,12 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 import xml.etree.ElementTree as ET
-import defusedxml.lxml as secET
 
 from defusedxml.common import EntitiesForbidden
 
-from .helper import DummyWrapper, assert_called, FakeStream
 from ospd.resultlist import ResultList
+
+from .helper import DummyWrapper, assert_called, FakeStream
 
 
 class FakeStartProcess:
@@ -524,7 +524,6 @@ class ScanTestCase(unittest.TestCase):
             self.assertEqual(1, len(scans))
 
             scan = scans[0]
-            status = scan.get('status')
 
             if scan.get('end_time') != '0':
                 finished = True

@@ -966,7 +966,7 @@ class OSPDaemon:
         """
         return ''
 
-    def get_vt_iterator(
+    def get_vt_iterator(  # pylint: disable=unused-argument
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
         """ Return iterator object for getting elements
