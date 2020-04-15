@@ -1194,15 +1194,9 @@ class OSPDopenvas(OSPDaemon):
 
         do_not_launch = False
 
-        # Set plugins to run.
-        # Make a deepcopy of the vts dictionary. Otherwise, consulting the
-        # DictProxy object of multiprocessing directly is to expensinve
-        # (interprocess communication).
-        temp_vts = self.vts.copy()
-
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
-            scan_id, kbdb, self.scan_collection, temp_vts, self.nvti
+            scan_id, kbdb, self.scan_collection, self.nvti
         )
         openvas_scan_id = scan_prefs.prepare_openvas_scan_id_for_openvas()
         scan_prefs.prepare_target_for_openvas()
@@ -1225,8 +1219,6 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, name='', host='', value='No VTS to run.'
             )
             do_not_launch = True
-
-        temp_vts = None
 
         scan_prefs.prepare_main_kbindex_for_openvas()
         scan_prefs.prepare_host_options_for_openvas()
