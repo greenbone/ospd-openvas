@@ -238,7 +238,6 @@ def safe_int(value: str) -> Optional[int]:
 class OpenVasVtsFilter(VtsFilter):
 
     """ Methods to overwrite the ones in the original class.
-    
     """
 
     def __init__(self, nvticache: NVTICache) -> None:
@@ -965,6 +964,9 @@ class OSPDopenvas(OSPDaemon):
         self, db: BaseDB, scan_id: str, current_host: str
     ):
         """ Get all result entries from redis kb. """
+
+        vthelper = VtHelper(self.nvti)
+
         res = db.get_result()
         res_list = ResultList()
         host_progress_batch = dict()
@@ -979,7 +981,7 @@ class OSPDopenvas(OSPDaemon):
             vt_aux = None
 
             if roid and not host_is_dead:
-                vt_aux = copy.deepcopy(self.vts.get(roid))
+                vt_aux = vthelper.get_single_vt(roid)
 
             if not vt_aux and not host_is_dead:
                 logger.warning('Invalid VT oid %s for a result', roid)
@@ -1060,8 +1062,6 @@ class OSPDopenvas(OSPDaemon):
                             host=_host, name='HOST_END', value=timestamp,
                         )
 
-            vt_aux = None
-            del vt_aux
             res = db.get_result()
 
         # Insert result batch into the scan collection table.
