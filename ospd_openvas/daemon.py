@@ -1332,7 +1332,9 @@ class OSPDopenvas(OSPDaemon):
 
         no_id_found = False
         while True:
-            if not self.is_openvas_process_alive(
+            if not kbdb.target_is_finished(
+                scan_id
+            ) and not self.is_openvas_process_alive(
                 kbdb, ovas_pid, openvas_scan_id
             ):
                 logger.error(
