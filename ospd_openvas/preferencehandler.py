@@ -35,6 +35,7 @@ from ospd.scan import ScanCollection
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.db import KbDB
 from ospd_openvas.nvticache import NVTICache
+from ospd_openvas.vthelper import VtHelper
 
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,6 @@ class PreferenceHandler:
         scan_id: str,
         kbdb: KbDB,
         scan_collection: ScanCollection,
-        vts_cache: Dict[str, Dict],
         nvticache: NVTICache,
     ):
         self.scan_id = scan_id
@@ -80,7 +80,6 @@ class PreferenceHandler:
 
         self._target_options = None
 
-        self.vts_cache = vts_cache
         self.nvti = nvticache
 
     def prepare_openvas_scan_id_for_openvas(self):
@@ -132,18 +131,22 @@ class PreferenceHandler:
 
         return vts_list
 
-    def _get_vt_param_type(self, vtid: str, vt_param_id: str) -> Optional[str]:
+    def _get_vt_param_type(
+        self, vtid: str, vt_param_id: str, vt: Dict
+    ) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.vts_cache[vtid].get("vt_params")
+        vt_params_list = vt.get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["type"]
         return None
 
-    def _get_vt_param_name(self, vtid: str, vt_param_id: str,) -> Optional[str]:
+    def _get_vt_param_name(
+        self, vtid: str, vt_param_id: str, vt: Dict
+    ) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
-        vt_params_list = self.vts_cache[vtid].get("vt_params")
+        vt_params_list = vt.get("vt_params")
         if vt_params_list.get(vt_param_id):
             return vt_params_list[vt_param_id]["name"]
         return None
@@ -187,25 +190,30 @@ class PreferenceHandler:
         vts_params = {}
         vtgroups = vts.pop('vt_groups')
 
+        vthelper = VtHelper(self.nvti)
+
         if vtgroups:
             vts_list = self._get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
-            if vtid not in self.vts_cache:
+            vt = vthelper.get_single_vt(vtid)
+            if not vt:
                 logger.warning(
-                    'The VT %s was not found and it will not be loaded.', vtid
+                    'The VT %s was not found and it will not be added to the '
+                    'plugin scheduler.',
+                    vtid,
                 )
                 continue
 
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
-                param_type = self._get_vt_param_type(vtid, vt_param_id)
-                param_name = self._get_vt_param_name(vtid, vt_param_id)
+                param_type = self._get_vt_param_type(vtid, vt_param_id, vt)
+                param_name = self._get_vt_param_name(vtid, vt_param_id, vt)
 
                 if not param_type or not param_name:
                     logger.debug(
                         'Missing type or name for VT parameter %s of %s. '
-                        'It could not be loaded.',
+                        'This VT parameter will not be set.',
                         vt_param_id,
                         vtid,
                     )
@@ -218,7 +226,7 @@ class PreferenceHandler:
 
                 if self.check_param_type(vt_param_value, type_aux):
                     logger.debug(
-                        'The VT parameter %s for %s could not be loaded. '
+                        'The VT parameter %s for %s could not be set. '
                         'Expected %s type for parameter value %s',
                         vt_param_id,
                         vtid,
