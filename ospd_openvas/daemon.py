@@ -235,6 +235,7 @@ def safe_int(value: str) -> Optional[int]:
 
 
 class OpenVasVtsFilter(VtsFilter):
+
     """ Methods to overwrite the ones in the original class.
     Each method formats the value to be compatible with the filter
     """
@@ -251,6 +252,52 @@ class OpenVasVtsFilter(VtsFilter):
         """
 
         return datetime.utcfromtimestamp(int(value)).strftime("%Y%m%d%H%M%S")
+
+    def get_filtered_vts_list(self, vts, vt_filter: str) -> Optional[List[str]]:
+        """ Gets a collection of vulnerability test from the vts dictionary,
+        which match the filter.
+
+        Arguments:
+            vt_filter: Filter to apply to the vts collection.
+            vts: The complete vts collection.
+
+        Returns:
+            List with filtered vulnerability tests. The list can be empty.
+            None in case of filter parse failure.
+        """
+        if not vt_filter:
+            raise OspdCommandError('vt_filter: A valid filter is required.')
+
+        filters = self.parse_filters(vt_filter)
+        if not filters:
+            return None
+
+        if not self.nvti:
+            return None
+
+        vt_oid_list = [vtlist[1] for vtlist in self.nvti.get_oids()]
+        vt_oid_list_temp = copy.copy(vt_oid_list)
+        vthelper = VtHelper(self.nvti)
+
+        for _element, _oper, _filter_val in filters:
+            for vt_oid in vt_oid_list_temp:
+                if vt_oid not in vt_oid_list:
+                    continue
+
+                vt = vthelper.get_single_vt(vt_oid)
+                if vt is None or not vt.get(_element):
+                    vt_oid_list.remove(vt_oid)
+                    continue
+
+                _elem_val = vt.get(_element)
+                _val = self.format_filter_value(_element, _elem_val)
+
+                if self.filter_operator[_oper](_val, _filter_val):
+                    continue
+                else:
+                    vt_oid_list.remove(vt_oid)
+
+        return vt_oid_list
 
 
 class OSPDopenvas(OSPDaemon):
