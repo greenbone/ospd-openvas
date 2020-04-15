@@ -239,6 +239,11 @@ class OpenVasVtsFilter(VtsFilter):
     Each method formats the value to be compatible with the filter
     """
 
+    def __init__(self, nvticache: NVTICache) -> None:
+        super().__init__()
+
+        self.nvti = nvticache
+
     def format_vt_modification_time(self, value: str) -> str:
         """ Convert the string seconds since epoch into a 19 character
         string representing YearMonthDayHourMinuteSecond,
@@ -256,8 +261,10 @@ class OSPDopenvas(OSPDaemon):
         self, *, niceness=None, lock_file_dir='/var/run/ospd', **kwargs
     ):
         """ Initializes the ospd-openvas daemon's internal data. """
+        self.main_db = MainDB()
+        self.nvti = NVTICache(self.main_db)
 
-        super().__init__(customvtfilter=OpenVasVtsFilter(), **kwargs)
+        super().__init__(customvtfilter=OpenVasVtsFilter(self.nvti), **kwargs)
 
         self.server_version = __version__
 
@@ -276,10 +283,6 @@ class OSPDopenvas(OSPDaemon):
         self._is_running_as_root = None
 
         self.scan_only_params = dict()
-
-        self.main_db = MainDB()
-
-        self.nvti = NVTICache(self.main_db)
 
         self.pending_feed = None
 
