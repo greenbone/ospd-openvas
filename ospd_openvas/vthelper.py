@@ -28,8 +28,11 @@ class VtHelper:
     def __init__(self, nvticache: NVTICache):
         self.nvti = nvticache
 
-    def get_single_vt(self, vt_id: str, oids=None) -> Dict[str, any]:
+    def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, any]]:
         _custom = self.nvti.get_nvt_metadata(vt_id)
+
+        if not _custom:
+            return None
 
         _vt_params = _custom.pop('vt_params')
         _vt_refs = _custom.pop('refs')
