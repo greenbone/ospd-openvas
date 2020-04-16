@@ -1093,8 +1093,6 @@ class OSPDaemon:
             List of selected VT's OID.
         """
         vts_xml = []
-        if not self.vts:
-            return vts_xml
 
         # No match for the filter
         if filtered_vts is not None and len(filtered_vts) == 0:
