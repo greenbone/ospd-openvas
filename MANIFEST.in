@@ -1,2 +1,2 @@
-include CHANGELOG.md  COPYING Pipfile  Pipfile.lock  README.md  setup.py docs/ospd-openvas.8
+include CHANGELOG.md  COPYING poetry.toml  poetry.lock  README.md  setup.py docs/ospd-openvas.8 pyproject.toml
 recursive-include tests *.py
