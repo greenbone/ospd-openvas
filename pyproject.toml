@@ -31,7 +31,6 @@ keywords = [
 packages = [
   { include = "ospd"},
   { include = "tests", format = "sdist" },
-  { include = "INSTALL", format = "sdist"},
   { include = "COPYING", format = "sdist"},
   { include = "CHANGELOG.md", format = "sdist"},
   { include = "poetry.lock", format = "sdist"},
