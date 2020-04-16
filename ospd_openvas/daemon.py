@@ -347,8 +347,6 @@ class OSPDopenvas(OSPDaemon):
             with self.feed_lock.wait_for_lock():
                 Openvas.load_vts_into_redis()
 
-        self.load_vts()
-
         self.initialized = True
 
     def set_params_from_openvas_settings(self):
@@ -495,63 +493,6 @@ class OSPDopenvas(OSPDaemon):
     ) -> Iterator[Tuple[str, Dict]]:
         vthelper = VtHelper(self.nvti)
         return vthelper.get_vt_iterator(vt_selection, details)
-
-    def load_vts(self):
-        """ Load the VT's metadata into the vts global dictionary. """
-
-        with self.feed_lock as fl:
-            if not fl.has_lock():
-                logger.warning(
-                    'Error acquiring feed lock. Trying again later...'
-                )
-                return
-
-            self.initialized = False
-            logger.info('Loading VTs in memory.')
-
-            oids = dict(self.nvti.get_oids())
-
-            logger.debug('Found %s NVTs in redis.', len(oids))
-
-            vthelper = VtHelper(self.nvti)
-            for _, vt_id in oids.items():
-                vt = vthelper.get_single_vt(vt_id, oids)
-
-                if (
-                    not vt
-                    or vt.get('vt_params') is None
-                    or vt.get('custom') is None
-                ):
-                    logger.warning(
-                        'Error loading VTs in memory. Trying again later...'
-                    )
-                    return
-
-                custom = {'family': vt['custom'].get('family')}
-                try:
-                    self.add_vt(
-                        vt_id,
-                        name=vt.get('name'),
-                        qod_t=vt.get('qod_type'),
-                        qod_v=vt.get('qod'),
-                        severities=vt.get('severities'),
-                        vt_modification_time=vt.get('modification_time'),
-                        vt_params=vt.get('vt_params'),
-                        custom=custom,
-                    )
-                except OspdError as e:
-                    logger.warning("Error while adding VT %s. %s", vt_id, e)
-
-            _feed_version = self.nvti.get_feed_version()
-
-            self.set_vts_version(vts_version=_feed_version)
-            self.vts.calculate_vts_collection_hash()
-            self.pending_feed = False
-            self.initialized = True
-
-            logger.info('Finish loading up vts.')
-
-            logger.debug('Loaded %s vts.', len(self.vts))
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
