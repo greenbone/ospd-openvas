@@ -22,6 +22,7 @@ Beyond the [ospd base library](https://github.com/greenbone/ospd),
 
 - `redis`
 - `psutil`
+- `packaging`
 
 There are no special installation aspects for this module beyond the general
 installation guide for ospd-based scanners.
@@ -60,19 +61,26 @@ request](https://github.com/greenbone/ospd-openvas/pulls) on GitHub. Bigger
 changes need to be discussed with the development team via the [issues section
 at GitHub](https://github.com/greenbone/ospd-openvas/issues) first.
 
-For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+For development you should use [poetry](https://python-poetry.org)
 to keep you python packages separated in different environments. First install
-pipenv via pip
+poetry via pip
 
-    pip install --user pipenv
+    python3 -m pip install --user poetry
 
 Afterwards run
 
-    pipenv install --dev
+    poetry install
 
-in the checkout directory of ospd-openvas (the directory containing the Pipfile)
-to install all dependencies including the packages only required for
-development.
+in the checkout directory of python-gvm (the directory containing the
+`pyproject.toml` file) to install all dependencies including the packages only
+required for development.
+
+The python-gvm repository uses [autohooks](https://github.com/greenbone/autohooks)
+to apply linting and auto formatting via git hooks. Please ensure the git hooks
+are active.
+
+    poetry install
+    poetry run autohooks activate --force
 
 ## License
 
