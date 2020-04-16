@@ -1055,25 +1055,7 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id: str):
         """ Starts the OpenVAS scanner for scan_id scan. """
-        if self.pending_feed:
-            logger.info(
-                '%s: There is a pending feed update. '
-                'The scan can not be started.',
-                scan_id,
-            )
-            self.add_scan_error(
-                scan_id,
-                name='',
-                host='',
-                value=(
-                    'It was not possible to start the scan,'
-                    'because a pending feed update. Please try later'
-                ),
-            )
-            return
-
         do_not_launch = False
-
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
             scan_id, kbdb, self.scan_collection, self.nvti
