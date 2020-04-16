@@ -28,7 +28,7 @@ setup(
     url='https://github.com/greenbone/ospd-openvas',
     author='Greenbone Networks GmbH',
     author_email='info@greenbone.net',
-    license='GPLV2+',
+    license='AGPLv3+',
     # See https://pypi.python.org/pypi?%3Aaction=list_classifiers
     classifiers=[
         # How mature is this project? Common values are
@@ -40,12 +40,13 @@ setup(
         'Intended Audience :: Developers',
         'Intended Audience :: System Administrators',
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
     python_requires='>=3.5',
     install_requires=['ospd>=2.0.0', 'redis>=3.0.1', 'psutil', 'packaging'],
