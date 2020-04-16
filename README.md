@@ -1,6 +1,6 @@
 ![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_logo_resilience_horizontal.png)
 
-# OSPD
+# ospd <!-- omit in toc -->
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/ospd.svg)](https://github.com/greenbone/ospd/releases)
 [![PyPI](https://img.shields.io/pypi/v/ospd.svg)](https://pypi.org/project/ospd/)
@@ -8,7 +8,7 @@
 [![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/master/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
 [![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/master)
 
-OSPD is a base class for scanner wrappers which share the same communication
+ospd is a base class for scanner wrappers which share the same communication
 protocol: OSP (Open Scanner Protocol). OSP creates a unified interface for
 different security scanners and makes their control flow and scan results
 consistently available under the central Greenbone Vulnerability Manager service.
@@ -22,15 +22,16 @@ options.
 
 ## Table of Contents
 
-* [Releases](#releases)
-* [Installation](#installation)
-  * [Requirements](#requirements)
-  * [Install using pip](#install-using-pip)
-* [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
-* [Support](#support)
-* [Maintainer](#maintainer)
-* [Contributing](#contributing)
-* [License](#license)
+- [Table of Contents](#table-of-contents)
+- [Releases](#releases)
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Install using pip](#install-using-pip)
+- [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
+- [Support](#support)
+- [Maintainer](#maintainer)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Releases
 ￼
@@ -43,7 +44,7 @@ and the fingerprint is `8AE4 BE42 9B60 A59B 311C  2E73 9823 FAA6 0ED1 E580`.
 
 ### Requirements
 
-OSPD requires Python >= 3.5 along with the following libraries:
+ospd requires Python >= 3.5 along with the following libraries:
 
     - python3-paramiko
 
