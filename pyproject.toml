@@ -81,5 +81,5 @@ exclude = '''
 '''
 
 [tool.autohooks]
-mode = "pipenv"
+mode = "poetry"
 pre-commit = ['autohooks.plugins.black']
