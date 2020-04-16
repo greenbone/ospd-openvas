@@ -19,6 +19,7 @@
 
 """ Provide functions to handle VT Info. """
 
+from hashlib import sha256
 from typing import Optional, Dict, List, Tuple, Iterator
 
 from ospd_openvas.nvticache import NVTICache
@@ -155,3 +156,27 @@ class VtHelper:
         for vt_id in vt_selection:
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
+
+    def calculate_vts_collection_hash(self) -> str:
+        """ Calculate the vts collection sha256 hash. """
+        m = sha256()  # pylint: disable=invalid-name
+
+        # for a reproducable hash calculation
+        # the vts must already be sorted in the dictionary.
+        for vt_id, vt in self.get_vt_iterator(details=False):
+            param_chain = ""
+            vt_params = vt.get('vt_params')
+            if vt_params:
+                for _, param in sorted(vt_params.items()):
+                    param_chain += (
+                        param.get('id')
+                        + param.get('name')
+                        + param.get('default')
+                    )
+
+            m.update(
+                (vt_id + vt.get('modification_time')).encode('utf-8')
+                + param_chain.encode('utf-8')
+            )
+
+        return m.hexdigest()
