@@ -410,7 +410,11 @@ class OSPDopenvas(OSPDaemon):
         if not current_feed or is_outdated:
             with self.feed_lock as fl:
                 if fl.has_lock():
+                    self.initialized = False
                     Openvas.load_vts_into_redis()
+                    current_feed = self.nvti.get_feed_version()
+                    self.set_vts_version(vts_version=current_feed)
+                    self.initialized = True
                 else:
                     logger.debug(
                         "The feed was not upload or it is outdated, "
@@ -418,8 +422,6 @@ class OSPDopenvas(OSPDaemon):
                         "Trying again later..."
                     )
                     return
-
-        self.set_vts_version(vts_version=current_feed)
 
     def scheduler(self):
         """This method is called periodically to run tasks."""
