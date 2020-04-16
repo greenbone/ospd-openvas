@@ -143,8 +143,14 @@ class VtHelper:
         """ Yield the vts from the Redis NVTicache. """
 
         oids = None
-        if details:
-            oids = dict(self.nvti.get_oids())
+        if not vt_selection or details:
+            vt_collection = dict(self.nvti.get_oids())
+
+            if not vt_selection:
+                vt_selection = vt_collection.values()
+
+            if details:
+                oids = vt_collection
 
         for vt_id in vt_selection:
             vt = self.get_single_vt(vt_id, oids)
