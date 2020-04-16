@@ -1,2 +1,2 @@
-include CHANGES  COPYING  INSTALL Pipfile  Pipfile.lock  README.md  setup.py
+include CHANGLOG.md  COPYING  Poetry.toml  Poetry.lock  pyproject.toml README.md setup.py
 recursive-include tests *.py

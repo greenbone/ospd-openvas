@@ -1,6 +1,6 @@
 ![Greenbone Logo](https://www.greenbone.net/wp-content/uploads/gb_logo_resilience_horizontal.png)
 
-# OSPD
+# ospd <!-- omit in toc -->
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/ospd.svg)](https://github.com/greenbone/ospd/releases)
 [![PyPI](https://img.shields.io/pypi/v/ospd.svg)](https://pypi.org/project/ospd/)
@@ -8,7 +8,7 @@
 [![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/master/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
 [![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/master.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/master)
 
-OSPD is a base class for scanner wrappers which share the same communication
+ospd is a base class for scanner wrappers which share the same communication
 protocol: OSP (Open Scanner Protocol). OSP creates a unified interface for
 different security scanners and makes their control flow and scan results
 consistently available under the central Greenbone Vulnerability Manager service.
@@ -22,15 +22,16 @@ options.
 
 ## Table of Contents
 
-* [Releases](#releases)
-* [Installation](#installation)
-  * [Requirements](#requirements)
-  * [Install using pip](#install-using-pip)
-* [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
-* [Support](#support)
-* [Maintainer](#maintainer)
-* [Contributing](#contributing)
-* [License](#license)
+- [Table of Contents](#table-of-contents)
+- [Releases](#releases)
+- [Installation](#installation)
+  - [Requirements](#requirements)
+  - [Install using pip](#install-using-pip)
+- [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
+- [Support](#support)
+- [Maintainer](#maintainer)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Releases
 ￼
@@ -43,7 +44,7 @@ and the fingerprint is `8AE4 BE42 9B60 A59B 311C  2E73 9823 FAA6 0ED1 E580`.
 
 ### Requirements
 
-OSPD requires Python >= 3.5 along with the following libraries:
+ospd requires Python >= 3.5 along with the following libraries:
 
     - python3-paramiko
 
@@ -55,11 +56,11 @@ OSPD requires Python >= 3.5 along with the following libraries:
 
 You can install ospd from the Python Package Index using [pip](https://pip.pypa.io/):
 
-    pip install ospd
+    python3 -m pip install ospd
 
 Alternatively download or clone this repository and install the latest development version:
 
-    pip install .
+    python3 -m pip install .
 
 ## How to write your own OSP Scanner Wrapper
 
@@ -86,22 +87,29 @@ This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.ne
 
 Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/ospd/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/ospd/issues).
 
-For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+For development you should use [poetry](https://python-poetry.org)
 to keep you python packages separated in different environments. First install
-pipenv via pip
+poetry via pip
 
-    pip install --user pipenv
+    python3 -m pip install --user poetry
 
 Afterwards run
 
-    pipenv install --dev
+    poetry install
 
-in the checkout directory of ospd (the directory containing the Pipfile)
-to install all dependencies including the packages only required for
-development.
+in the checkout directory of python-gvm (the directory containing the
+`pyproject.toml` file) to install all dependencies including the packages only
+required for development.
+
+The python-gvm repository uses [autohooks](https://github.com/greenbone/autohooks)
+to apply linting and auto formatting via git hooks. Please ensure the git hooks
+are active.
+
+    poetry install
+    poetry run autohooks activate --force
 
 ## License
 
-Copyright (C) 2009-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2009-2020 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
-Licensed under the [GNU General Public License v2.0 or later](COPYING).
+Licensed under the [GNU Affero General Public License v3.0 or later](COPYING).

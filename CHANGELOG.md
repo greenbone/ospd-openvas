@@ -24,6 +24,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Start the server before initialize to respond to the client.[#209](https://github.com/greenbone/ospd/pull/209)
 - Use an iterator to get the vts when get_vts cmd is called. [#216](https://github.com/greenbone/ospd/pull/216)
 - Update license to AGPL-3.0+ [#241](https://github.com/greenbone/ospd/pull/241)
+- Replaced pipenv with poetry for dependency management. `poetry install` works
+  a bit different then `pipenv install`. It installs dev packages by default and
+  also ospd in editable mode. This means after running poetry install ospd will
+  directly be importable in the virtual python environment. [#252](https://github.com/greenbone/ospd/pull/252)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
