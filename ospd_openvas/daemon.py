@@ -333,8 +333,6 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
 
-        self.pending_feed = None
-
     def init(self, server: BaseServer) -> None:
 
         server.start(self.handle_client_stream)
@@ -399,18 +397,6 @@ class OSPDopenvas(OSPDaemon):
             (not feed_date) or (not current_feed) or (current_feed < feed_date)
         )
 
-    def feed_is_healthy(self):
-        """ Compare the amount of filename keys and nvt keys in redis
-        with the amount of oid loaded in memory.
-
-        Return:
-            True if the count is matching. False on failure.
-        """
-        filename_count = self.nvti.get_nvt_files_count()
-        nvt_count = self.nvti.get_nvt_count()
-
-        return len(self.vts) == filename_count == nvt_count
-
     def check_feed(self):
         """ Check if there is a feed update.
 
@@ -420,15 +406,8 @@ class OSPDopenvas(OSPDaemon):
         current_feed = self.nvti.get_feed_version()
         is_outdated = self.feed_is_outdated(current_feed)
 
-        # Check if the feed is already accessible from the disk.
-        if current_feed and is_outdated is None:
-            self.pending_feed = True
-            return
-
         # Check if the nvticache in redis is outdated
         if not current_feed or is_outdated:
-            self.pending_feed = True
-
             with self.feed_lock as fl:
                 if fl.has_lock():
                     Openvas.load_vts_into_redis()
@@ -440,49 +419,7 @@ class OSPDopenvas(OSPDaemon):
                     )
                     return
 
-        _running_scan = False
-        for scan_id in self.scan_processes:
-            if self.scan_processes[scan_id].is_alive():
-                _running_scan = True
-
-        # Check if the NVT dict is outdated
-        if self.pending_feed:
-            _pending_feed = True
-        else:
-            _pending_feed = (
-                self.get_vts_version() != self.nvti.get_feed_version()
-            )
-
-        _feed_is_healthy = self.feed_is_healthy()
-        if _running_scan and not _feed_is_healthy:
-            _pending_feed = True
-
-            with self.feed_lock as fl:
-                if fl.has_lock():
-                    self.nvti.force_reload()
-                    Openvas.load_vts_into_redis()
-                else:
-                    logger.debug(
-                        "The VT Cache in memory is not healthy "
-                        "and other process is locking the update. "
-                        "Trying again later..."
-                    )
-                    return
-
-        if _running_scan and _pending_feed:
-            if not self.pending_feed:
-                self.pending_feed = True
-                logger.info(
-                    'There is a running scan process locking the feed update. '
-                    'Therefore the feed update will be performed later.'
-                )
-        elif (
-            _pending_feed
-            and not _running_scan
-            and not self.feed_lock.is_locked()
-        ):
-            self.vts.clear()
-            self.load_vts()
+        self.set_vts_version(vts_version=current_feed)
 
     def scheduler(self):
         """This method is called periodically to run tasks."""
