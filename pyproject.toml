@@ -1,6 +1,66 @@
 [build-system]
 requires = ["setuptools", "wheel"]
 
+[tool.poetry]
+name = "ospd-openvas"
+version = "20.4a1"
+description = "ospd based scanner for openvas"
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+license = "AGPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/greenbone/ospd-openvas"
+repository = "https://github.com/greenbone/ospd-openvas"
+classifiers=[
+  # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Programming Language :: Python :: 3.5",
+  "Programming Language :: Python :: 3.6",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+]
+keywords = [
+  "openvas",
+  "Greenbone Vulnerability Management",
+  "Vulnerability Scanning",
+  "OSP",
+  "Open Scanner Protocol",
+]
+
+packages = [
+  { include = "ospd_openvas"},
+  { include = "docs/ospd-openvas.8", format = "sdist"},
+  { include = "config/ospd-openvas.default", format = "sdist"},
+  { include = "config/ospd-openvas.service", format = "sdist"},
+  { include = "config/ospd.conf", format = "sdist"},
+  { include = "tests", format = "sdist" },
+  { include = "CHANGELOG.md", format = "sdist"},
+  { include = "COPYING", format = "sdist"},
+  { include = "poetry.lock", format = "sdist"},
+  { include = "poetry.toml", format = "sdist"},
+  { include = "setup.py", format = "sdist"},
+  { include = "MANIFEST.in", format = "sdist"},
+]
+
+[tool.poetry.dependencies]
+python = "^3.5"
+redis = "^3.0.1"
+psutil = "^5.7.0"
+packaging = "^20.3"
+ospd = {git = "https://github.com/greenbone/ospd.git"}
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.4.4"
+rope = "^0.16.0"
+autohooks-plugin-pylint = "^1.2.0"
+autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
+black = {version = "19.10b0", python = "^3.6"}
+
+[tool.poetry.scripts]
+ospd-openvas = "ospd_openvas.daemon:main"
+
 [tool.black]
 line-length = 80
 target-version = ['py35', 'py36', 'py37', 'py38']
