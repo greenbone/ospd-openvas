@@ -56,11 +56,11 @@ ospd requires Python >= 3.5 along with the following libraries:
 
 You can install ospd from the Python Package Index using [pip](https://pip.pypa.io/):
 
-    pip install ospd
+    python3 -m pip install ospd
 
 Alternatively download or clone this repository and install the latest development version:
 
-    pip install .
+    python3 -m pip install .
 
 ## How to write your own OSP Scanner Wrapper
 
