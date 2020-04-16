@@ -87,19 +87,26 @@ This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.ne
 
 Your contributions are highly appreciated. Please [create a pull request](https://github.com/greenbone/ospd/pulls) on GitHub. For bigger changes, please discuss it first in the [issues](https://github.com/greenbone/ospd/issues).
 
-For development you should use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+For development you should use [poetry](https://python-poetry.org)
 to keep you python packages separated in different environments. First install
-pipenv via pip
+poetry via pip
 
-    pip install --user pipenv
+    python3 -m pip install --user poetry
 
 Afterwards run
 
-    pipenv install --dev
+    poetry install
 
-in the checkout directory of ospd (the directory containing the Pipfile)
-to install all dependencies including the packages only required for
-development.
+in the checkout directory of python-gvm (the directory containing the
+`pyproject.toml` file) to install all dependencies including the packages only
+required for development.
+
+The python-gvm repository uses [autohooks](https://github.com/greenbone/autohooks)
+to apply linting and auto formatting via git hooks. Please ensure the git hooks
+are active.
+
+    poetry install
+    poetry run autohooks activate --force
 
 ## License
 
