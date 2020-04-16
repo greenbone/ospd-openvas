@@ -110,6 +110,7 @@ class OSPDaemon:
         self,
         *,
         customvtfilter=None,
+        storage=None,
         max_scans=0,
         check_free_memory=False,
         **kwargs
@@ -150,7 +151,7 @@ class OSPDaemon:
         for name, params in BASE_SCANNER_PARAMS.items():
             self.set_scanner_param(name, params)
 
-        self.vts = Vts()
+        self.vts = Vts(storage)
         self.vts_version = None
 
         if customvtfilter:
