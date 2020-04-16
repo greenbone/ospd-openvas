@@ -110,6 +110,6 @@ are active.
 
 ## License
 
-Copyright (C) 2009-2018 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2009-2020 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU General Public License v2.0 or later](COPYING).
