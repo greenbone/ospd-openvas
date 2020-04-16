@@ -29,6 +29,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Start server before initialize the vts. [#196](https://github.com/greenbone/ospd-openvas/pull/196)
 - Get vts metadata from redis and reduce stored data in cache. [#205](https://github.com/greenbone/ospd-openvas/pull/205)
 - Update license to AGPL-3.0+ [#228](https://github.com/greenbone/ospd-openvas/pull/228)
+- Replaced pipenv with poetry for dependency management. `poetry install` works
+  a bit different then `pipenv install`. It installs dev packages by default and
+  also ospd in editable mode. This means after running poetry install ospd will
+  directly be importable in the virtual python environment. [#235](https://github.com/greenbone/ospd-openvas/pull/235)
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
