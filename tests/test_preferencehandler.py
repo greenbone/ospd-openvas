@@ -481,16 +481,15 @@ class PreferenceHandlerTestCase(TestCase):
 
         ov_setting = {'test_alive_hosts_only': 'yes'}
 
-        Openvas.get_settings = MagicMock(return_value=ov_setting)
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p._openvas_scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_alive_test_option_for_openvas()
-
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['ALIVE_TEST|||16'],
-        )
+            p.kbdb.add_scan_preferences.assert_called_with(
+                p._openvas_scan_id, ['ALIVE_TEST|||16'],
+            )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_alive_no_setting(self, mock_kb):
@@ -501,14 +500,13 @@ class PreferenceHandlerTestCase(TestCase):
 
         ov_setting = {}
 
-        Openvas.get_settings = MagicMock(return_value=ov_setting)
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p._openvas_scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_alive_test_option_for_openvas()
-
-        p.kbdb.add_scan_preferences.assert_not_called()
+            p.kbdb.add_scan_preferences.assert_not_called()
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_alive_pinghost(self, mock_kb):
@@ -526,17 +524,15 @@ class PreferenceHandlerTestCase(TestCase):
         t_opt = {'alive_test': 2}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
-        ov_setting = {'some_setiting': 1}
-        Openvas.get_settings = Mock()
-        Openvas.get_settings.reprepare_mock()
-        Openvas.get_settings.return_value = ov_setting
+        ov_setting = {'some_setting': 1}
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
 
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_alive_test_option_for_openvas()
+            p._openvas_scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, alive_test_out,
-        )
+            p.kbdb.add_scan_preferences.assert_called_with(
+                p._openvas_scan_id, alive_test_out,
+            )
