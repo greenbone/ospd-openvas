@@ -225,8 +225,8 @@ OSPD_PARAMS = {
 
 
 def safe_int(value: str) -> Optional[int]:
-    """ Convert a sring into an integer and return None in case of errors during
-    conversion
+    """ Convert a string into an integer and return None in case of errors
+    during conversion
     """
     try:
         return int(value)
