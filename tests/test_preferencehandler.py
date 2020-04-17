@@ -524,7 +524,7 @@ class PreferenceHandlerTestCase(TestCase):
         t_opt = {'alive_test': 2}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
-        ov_setting = {'some_setiting': 1}
+        ov_setting = {'some_setting': 1}
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
