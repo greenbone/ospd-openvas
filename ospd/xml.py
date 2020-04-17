@@ -35,7 +35,7 @@ r = re.compile(  # pylint: disable=invalid-name
 
 
 def split_invalid_xml(result_text: str) -> Union[List[Union[str, int]], str]:
-    """ Search for occurence of non printable chars and replace them
+    """ Search for occurrence of non printable chars and replace them
     with the integer representation the Unicode code. The original string
     is splitted where a non printable char is found.
     """
@@ -264,9 +264,9 @@ class XmlStringHelper:
     def add_attr(
         self, tag: bytes, attribute: str, value: Union[str, int] = None
     ) -> bytes:
-        """ Add an attribute to the beginnig tag of an xml element.
+        """ Add an attribute to the beginning tag of an xml element.
         Arguments:
-            tag (bytes): Tag to add the attrubute to.
+            tag (bytes): Tag to add the attribute to.
             attribute (str): Attribute name
             value (str): Attribute value
         Return:
