@@ -15,6 +15,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add new get_memory_usage command. [#207](https://github.com/greenbone/ospd/pull/207)
 - Add lock-file-dir configuration option. [#218](https://github.com/greenbone/ospd/pull/218)
 - Add details attribute to get_vts command. [#222](https://github.com/greenbone/ospd/pull/222)
+- Add [pontos](https://github.com/greenbone/pontos) as dev dependency for
+  managing the version information in ospd [#254](https://github.com/greenbone/ospd/pull/254)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)

@@ -65,6 +65,9 @@ commands:
       - run:
           name: Run pylint
           command: poetry run pylint --score=n --disable=R ospd tests
+      - run:
+          name: Check version information
+          command: poetry run python -m pontos.version verify current
 
 jobs:
   lint-python-files:
