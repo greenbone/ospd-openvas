@@ -88,7 +88,7 @@ class VtsTestCase(TestCase):
         it = iter(vts)
 
         vt_id = next(it)
-        # Python 3.5 doesn't ensure the order of the retuned keys
+        # Python 3.5 doesn't ensure the order of the returned keys
         self.assertIn(vt_id, ['id_1', 'id_2'])
 
         vt_id = next(it)
