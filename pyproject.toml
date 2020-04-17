@@ -84,3 +84,6 @@ exclude = '''
 [tool.autohooks]
 mode = "poetry"
 pre-commit = ['autohooks.plugins.black']
+
+[tool.pontos.version]
+version-module-file = "ospd_openvas/__version__.py"
