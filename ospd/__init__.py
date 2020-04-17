@@ -18,4 +18,4 @@
 
 """ OSPd core module. """
 
-__version__ = '20.4a1'
+from .__version__ import __version__
