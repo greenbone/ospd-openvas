@@ -412,10 +412,12 @@ class OSPDopenvas(OSPDaemon):
         if not current_feed or self.feed_is_outdated(current_feed):
             self.pending_feed = True
             if self.create_feed_lock_file():
+                self.initialized = False
                 self.redis_nvticache_init()
                 ctx = self.nvti.get_redis_context()
                 self.openvas_db.set_redisctx(ctx)
                 self.delete_feed_lock_file()
+                self.initialized = True
             else:
                 logger.debug(
                     "The feed was not upload or it is outdated, "
@@ -565,6 +567,7 @@ class OSPDopenvas(OSPDaemon):
     def load_vts(self):
         """ Load the NVT's metadata into the vts
         global  dictionary. """
+        self.initialized = False
 
         if not self.create_feed_lock_file():
             logger.warning(
@@ -605,6 +608,7 @@ class OSPDopenvas(OSPDaemon):
         _feed_version = self.nvti.get_feed_version()
         self.set_vts_version(vts_version=_feed_version)
         self.delete_feed_lock_file()
+        self.initialized = True
         self.pending_feed = False
 
         logger.info('Finish loading up vts.')
