@@ -652,7 +652,7 @@ class TestOspdOpenvas(TestCase):
 
 class TestFilters(TestCase):
     def test_format_vt_modification_time(self):
-        ovformat = OpenVasVtsFilter()
+        ovformat = OpenVasVtsFilter(None)
         td = '1517443741'
         formatted = ovformat.format_vt_modification_time(td)
         self.assertEqual(formatted, "20180201000901")
