@@ -132,7 +132,7 @@ class PreferenceHandler:
         return vts_list
 
     def _get_vt_param_type(
-        self, vtid: str, vt_param_id: str, vt: Dict
+        self, vt: Dict, vtid: str, vt_param_id: str
     ) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
@@ -142,7 +142,7 @@ class PreferenceHandler:
         return None
 
     def _get_vt_param_name(
-        self, vtid: str, vt_param_id: str, vt: Dict
+        self, vt: Dict, vtid: str, vt_param_id: str
     ) -> Optional[str]:
         """ Return the type of the vt parameter from the vts dictionary. """
 
@@ -207,8 +207,8 @@ class PreferenceHandler:
 
             vts_list.append(vtid)
             for vt_param_id, vt_param_value in vt_params.items():
-                param_type = self._get_vt_param_type(vtid, vt_param_id, vt)
-                param_name = self._get_vt_param_name(vtid, vt_param_id, vt)
+                param_type = self._get_vt_param_type(vt, vtid, vt_param_id)
+                param_name = self._get_vt_param_name(vt, vtid, vt_param_id)
 
                 if not param_type or not param_name:
                     logger.debug(
