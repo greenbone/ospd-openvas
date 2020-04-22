@@ -320,7 +320,7 @@ class GetVts(BaseCommand):
 
         vt_details = False if _details == '0' else True
 
-        if vt_id and vt_id not in self._daemon.vts:
+        if self._daemon.vts and vt_id and vt_id not in self._daemon.vts:
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
             raise OspdCommandError(text, 'get_vts', 404)
 
