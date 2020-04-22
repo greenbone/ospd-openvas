@@ -648,3 +648,23 @@ class TestFilters(TestCase):
         td = '1517443741'
         formatted = ovformat.format_vt_modification_time(td)
         self.assertEqual(formatted, "20180201000901")
+
+    def test_get_filtered_vts_false(self):
+        w = DummyDaemon()
+        vts_collection = ['1234', '1.3.6.1.4.1.25623.1.0.100061']
+
+        ovfilter = OpenVasVtsFilter(w.nvti)
+        res = ovfilter.get_filtered_vts_list(
+            vts_collection, "modification_time<10"
+        )
+        self.assertNotIn('1.3.6.1.4.1.25623.1.0.100061', res)
+
+    def test_get_filtered_vts_true(self):
+        w = DummyDaemon()
+        vts_collection = ['1234', '1.3.6.1.4.1.25623.1.0.100061']
+
+        ovfilter = OpenVasVtsFilter(w.nvti)
+        res = ovfilter.get_filtered_vts_list(
+            vts_collection, "modification_time>10"
+        )
+        self.assertIn('1.3.6.1.4.1.25623.1.0.100061', res)
