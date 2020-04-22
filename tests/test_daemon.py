@@ -525,44 +525,6 @@ class TestOspdOpenvas(TestCase):
 
         assert_called_once(logging.Logger.warning)
 
-    def test_feed_is_healthy_true(self):
-        w = DummyDaemon()
-
-        w.nvti.get_nvt_count.return_value = 2
-        w.nvti.get_nvt_files_count.return_value = 2
-        w.vts = ["a", "b"]
-
-        ret = w.feed_is_healthy()
-        self.assertTrue(ret)
-
-    def test_feed_is_healthy_false(self):
-        w = DummyDaemon()
-
-        w.nvti.get_nvt_count.return_value = 1
-        w.nvti.get_nvt_files_count.return_value = 2
-
-        w.vts = ["a", "b"]
-
-        ret = w.feed_is_healthy()
-
-        self.assertFalse(ret)
-
-        w.nvti.get_nvt_count.return_value = 2
-        w.nvti.get_nvt_files_count.return_value = 1
-
-        ret = w.feed_is_healthy()
-
-        self.assertFalse(ret)
-
-        w.nvti.get_nvt_count.return_value = 2
-        w.nvti.get_nvt_files_count.return_value = 2
-
-        w.vts = ["a"]
-
-        ret = w.feed_is_healthy()
-
-        self.assertFalse(ret)
-
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.OSPDopenvas.set_params_from_openvas_settings')
     def test_feed_is_outdated_none(
