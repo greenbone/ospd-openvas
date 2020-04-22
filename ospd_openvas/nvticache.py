@@ -235,7 +235,7 @@ class NVTICache(BaseDB):
                 custom[child] = res
             elif child == 'tag':
                 custom.update(self._parse_metadata_tags(res, oid))
-            elif child in ['cve', 'bid', 'xref']:
+            elif child in ['cve', 'bid', 'xref'] and res:
                 custom['refs'][child] = res.split(", ")
             elif child == 'timeout':
                 if res is None:
