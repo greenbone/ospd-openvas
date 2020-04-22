@@ -34,7 +34,6 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
-from ospd.errors import OspdError
 from ospd.ospd import OSPDaemon
 from ospd.server import BaseServer
 from ospd.main import main as daemon_main
@@ -265,9 +264,6 @@ class OpenVasVtsFilter(VtsFilter):
             List with filtered vulnerability tests. The list can be empty.
             None in case of filter parse failure.
         """
-        if not vt_filter:
-            raise OspdCommandError('vt_filter: A valid filter is required.')
-
         filters = self.parse_filters(vt_filter)
         if not filters:
             return None
