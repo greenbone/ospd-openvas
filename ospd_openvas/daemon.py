@@ -279,20 +279,20 @@ class OpenVasVtsFilter(VtsFilter):
         vt_oid_list_temp = copy.copy(vt_oid_list)
         vthelper = VtHelper(self.nvti)
 
-        for _element, _oper, _filter_val in filters:
+        for element, oper, filter_val in filters:
             for vt_oid in vt_oid_list_temp:
                 if vt_oid not in vt_oid_list:
                     continue
 
                 vt = vthelper.get_single_vt(vt_oid)
-                if vt is None or not vt.get(_element):
+                if vt is None or not vt.get(element):
                     vt_oid_list.remove(vt_oid)
                     continue
 
-                _elem_val = vt.get(_element)
-                _val = self.format_filter_value(_element, _elem_val)
+                elem_val = vt.get(element)
+                val = self.format_filter_value(element, elem_val)
 
-                if self.filter_operator[_oper](_val, _filter_val):
+                if self.filter_operator[oper](val, filter_val):
                     continue
                 else:
                     vt_oid_list.remove(vt_oid)
