@@ -202,13 +202,6 @@ class TestOspdOpenvas(TestCase):
 
         self.assertTrue(w.sudo_available)
 
-    def test_load_vts(self,):
-        w = DummyDaemon()
-        w.load_vts()
-
-        self.assertIsInstance(w.vts, type(Vts()))
-        self.assertEqual(len(w.vts), len(w.VTS))
-
     def test_get_custom_xml(self):
         out = (
             '<custom>'
@@ -602,7 +595,6 @@ class TestOspdOpenvas(TestCase):
         mock_db.get_result.side_effect = results
         mock_add_scan_log_to_list.return_value = None
 
-        w.load_vts()
         w.report_openvas_results(mock_db, '123-456', 'localhost')
         mock_add_scan_log_to_list.assert_called_with(
             host='localhost',

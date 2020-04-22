@@ -44,10 +44,8 @@ class PreferenceHandlerTestCase(TestCase):
             'vt_groups': ['family=debian', 'family=general'],
         }
 
-        w.load_vts()
-        temp_vts = w.vts
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, temp_vts)
-
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
+        w.nvti.get_nvt_metadata.return_value = None
         p._process_vts(vts)
 
         assert_called_once(logging.Logger.warning)
@@ -60,9 +58,7 @@ class PreferenceHandlerTestCase(TestCase):
             'vt_groups': ['family=debian', 'family=general'],
         }
 
-        w.load_vts()
-        temp_vts = w.vts
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, temp_vts)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, w.nvti)
 
         ret = p._process_vts(vts)
 
@@ -80,9 +76,7 @@ class PreferenceHandlerTestCase(TestCase):
             {'1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :': 'new value'},
         )
 
-        w.load_vts()
-        temp_vts = w.vts
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, temp_vts)
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, w.nvti)
         ret = p._process_vts(vts)
 
         self.assertEqual(ret, vt_out)
@@ -93,10 +87,8 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_vts = Mock()
         w.scan_collection.get_vts.return_value = {}
-        w.load_vts()
-        temp_vts = w.vts
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, temp_vts)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
         p.kbdb.add_scan_preferences = Mock()
         r = p.prepare_plugins_for_openvas()
 
@@ -113,10 +105,8 @@ class PreferenceHandlerTestCase(TestCase):
 
         w.scan_collection.get_vts = Mock()
         w.scan_collection.get_vts.return_value = vts
-        w.load_vts()
-        temp_vts = w.vts
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, temp_vts)
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
         p.kbdb.add_scan_preferences = Mock()
         r = p.prepare_plugins_for_openvas()
 

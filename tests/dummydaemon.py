@@ -121,6 +121,27 @@ class DummyDaemon(OSPDopenvas):
             'summary': ('some summary'),
             'affected': 'some affection',
             'timeout': '0',
+            'vt_params': {
+                '1': {
+                    'id': '1',
+                    'default': '',
+                    'description': 'Description',
+                    'name': 'Data length :',
+                    'type': 'entry',
+                },
+                '2': {
+                    'id': '2',
+                    'default': 'no',
+                    'description': 'Description',
+                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'type': 'checkbox',
+                },
+            },
+            'refs': {
+                'bid': [''],
+                'cve': [''],
+                'xref': ['URL:http://www.mantisbt.org/'],
+            },
         }
         nvti.get_feed_version.return_value = '123'
 
