@@ -402,6 +402,9 @@ class OSPDopenvas(OSPDaemon):
         scans finished. Set a flag to anounce there is a pending feed update,
         which avoid to start a new scan.
         """
+        if not self.is_cache_available:
+            return
+
         current_feed = self.nvti.get_feed_version()
         # Check if the feed is already accessible in the disk.
         if current_feed and self.feed_is_outdated(current_feed) is None:
