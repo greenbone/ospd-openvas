@@ -57,6 +57,7 @@ class VtHelper:
         insight = None
         solution = None
         solution_t = None
+        solution_m = None
         vuldetect = None
         qod_t = None
         qod_v = None
@@ -73,6 +74,8 @@ class VtHelper:
             solution = custom.pop('solution')
             if 'solution_type' in custom:
                 solution_t = custom.pop('solution_type')
+            if 'solution_method' in custom:
+                solution_m = custom.pop('solution_method')
 
         if 'vuldetect' in custom:
             vuldetect = custom.pop('vuldetect')
@@ -124,6 +127,8 @@ class VtHelper:
             vt["solution"] = solution
             if solution_t is not None:
                 vt["solution_type"] = solution_t
+            if solution_m is not None:
+                vt["solution_method"] = solution_m
 
         if vuldetect is not None:
             vt["detection"] = vuldetect
