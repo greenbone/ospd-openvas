@@ -581,6 +581,15 @@ class TestOspdOpenvas(TestCase):
         self.assertEqual(mock_path_exists.call_count, 1)
         self.assertEqual(mock_path_open.call_count, 1)
 
+    def test_check_feed_cache_unavailable(self):
+        w = DummyDaemon()
+        w.vts.is_cache_available = False
+        w.feed_is_outdated = Mock()
+        res = w.check_feed()
+
+        self.assertFalse(res)
+        w.feed_is_outdated.assert_not_called()
+
     @patch('ospd_openvas.daemon.ScanDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
     def test_get_openvas_result(self, mock_add_scan_log_to_list, MockDBClass):
