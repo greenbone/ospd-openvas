@@ -142,20 +142,8 @@ class NVTICache(BaseDB):
             A dictionary with preferences and timeout.
         """
         prefs = self.get_nvt_prefs(oid)
-        timeout = self.get_nvt_timeout(oid)
-
-        if timeout is None:
-            return None
 
         vt_params = {}
-        if int(timeout) > 0:
-            _param_id = '0'
-            vt_params[_param_id] = dict()
-            vt_params[_param_id]['id'] = _param_id
-            vt_params[_param_id]['type'] = 'entry'
-            vt_params[_param_id]['name'] = 'timeout'
-            vt_params[_param_id]['description'] = 'Script Timeout'
-            vt_params[_param_id]['default'] = timeout
 
         if prefs:
             for nvt_pref in prefs:
@@ -240,11 +228,29 @@ class NVTICache(BaseDB):
         ]
 
         custom = dict()
+        custom['refs'] = dict()
+        custom['vt_params'] = dict()
         for child, res in zip(subelem, resp):
-            if child not in ['cve', 'bid', 'xref', 'tag'] and res:
+            if child not in ['cve', 'bid', 'xref', 'tag', 'timeout'] and res:
                 custom[child] = res
             elif child == 'tag':
                 custom.update(self._parse_metadata_tags(res, oid))
+            elif child in ['cve', 'bid', 'xref'] and res:
+                custom['refs'][child] = res.split(", ")
+            elif child == 'timeout':
+                if res is None:
+                    continue
+                vt_params = {}
+                if int(res) > 0:
+                    _param_id = '0'
+                    vt_params[_param_id] = dict()
+                    vt_params[_param_id]['id'] = _param_id
+                    vt_params[_param_id]['type'] = 'entry'
+                    vt_params[_param_id]['name'] = 'timeout'
+                    vt_params[_param_id]['description'] = 'Script Timeout'
+                    vt_params[_param_id]['default'] = res
+                custom['vt_params'] = vt_params
+                custom['vt_params'].update(self.get_nvt_params(oid))
 
         return custom
 
@@ -274,6 +280,20 @@ class NVTICache(BaseDB):
             refs[child] = res.split(", ")
 
         return refs
+
+    def get_nvt_family(self, oid: str) -> str:
+        """ Get NVT family
+        Arguments:
+            oid: OID of VT from which to get the VT family.
+
+        Returns:
+            A str with the VT family.
+        """
+        return OpenvasDB.get_single_item(
+            self.ctx,
+            'nvt:%s' % oid,
+            index=NVT_META_FIELDS.index("NVT_FAMILY_POS"),
+        )
 
     def get_nvt_prefs(self, oid: str) -> Optional[List[str]]:
         """ Get NVT preferences.

@@ -114,7 +114,6 @@ class TestNVTICache(TestCase):
         prefs2 = ['1|||dns-fuzz.timelimit|||entry|||']
         prefs3 = ['1|||dns-fuzz.timelimit|||entry']
 
-        timeout = '300'
         out_dict1 = {
             '1': {
                 'id': '1',
@@ -122,13 +121,6 @@ class TestNVTICache(TestCase):
                 'default': 'default',
                 'name': 'dns-fuzz.timelimit',
                 'description': 'Description',
-            },
-            '0': {
-                'type': 'entry',
-                'id': '0',
-                'default': '300',
-                'name': 'timeout',
-                'description': 'Script Timeout',
             },
         }
 
@@ -140,17 +132,9 @@ class TestNVTICache(TestCase):
                 'name': 'dns-fuzz.timelimit',
                 'description': 'Description',
             },
-            '0': {
-                'type': 'entry',
-                'id': '0',
-                'default': '300',
-                'name': 'timeout',
-                'description': 'Script Timeout',
-            },
         }
 
         MockOpenvasDB.get_list_item.return_value = prefs1
-        MockOpenvasDB.get_single_item.return_value = timeout
 
         resp = self.nvti.get_nvt_params('1.2.3.4')
         self.assertEqual(resp, out_dict1)
@@ -164,16 +148,6 @@ class TestNVTICache(TestCase):
 
         resp = self.nvti.get_nvt_params('1.2.3.4')
         self.assertEqual(resp, out_dict2)
-
-    def test_get_nvt_params_timeout_none(self, MockOpenvasDB):
-        prefs = ['1|||dns-fuzz.timelimit|||entry|||default']
-        timeout = None
-
-        MockOpenvasDB.get_single_item.return_value = timeout
-        MockOpenvasDB.get_list_item.return_value = prefs
-
-        resp = self.nvti.get_nvt_params('1.2.3.4')
-        self.assertIsNone(resp)
 
     def test_get_nvt_metadata(self, MockOpenvasDB):
         metadata = [
@@ -196,7 +170,7 @@ class TestNVTICache(TestCase):
             '',
             'URL:http://www.mantisbt.org/',
             '3',
-            '0',
+            '10',
             'Product detection',
             'Mantis Detection',
         ]
@@ -212,6 +186,7 @@ class TestNVTICache(TestCase):
             'last_modification': ('1533906565'),
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
+            'refs': {'xref': ['URL:http://www.mantisbt.org/']},
             'required_ports': 'Services/www, 80',
             'summary': (
                 'Detects the installed version of\n  Mantis a '
@@ -220,12 +195,29 @@ class TestNVTICache(TestCase):
                 'ry to get the version from the\n  response, '
                 'and sets the result in KB.'
             ),
-            'timeout': '0',
+            'vt_params': {
+                '0': {
+                    'id': '0',
+                    'type': 'entry',
+                    'name': 'timeout',
+                    'description': 'Script Timeout',
+                    'default': '10',
+                },
+                '1': {
+                    'id': '1',
+                    'type': 'entry',
+                    'name': 'dns-fuzz.timelimit',
+                    'description': 'Description',
+                    'default': 'default',
+                },
+            },
         }
 
-        MockOpenvasDB.get_list_item.return_value = metadata
+        prefs1 = ['1|||dns-fuzz.timelimit|||entry|||default']
 
+        MockOpenvasDB.get_list_item.side_effect = [metadata, prefs1]
         resp = self.nvti.get_nvt_metadata('1.2.3.4')
+        self.maxDiff = None
         self.assertEqual(resp, custom)
 
     def test_get_nvt_metadata_fail(self, MockOpenvasDB):

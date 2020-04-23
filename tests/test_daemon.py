@@ -202,13 +202,6 @@ class TestOspdOpenvas(TestCase):
 
         self.assertTrue(w.sudo_available)
 
-    def test_load_vts(self,):
-        w = DummyDaemon()
-        w.load_vts()
-
-        self.assertIsInstance(w.vts, type(Vts()))
-        self.assertEqual(len(w.vts), len(w.VTS))
-
     def test_get_custom_xml(self):
         out = (
             '<custom>'
@@ -525,44 +518,6 @@ class TestOspdOpenvas(TestCase):
 
         assert_called_once(logging.Logger.warning)
 
-    def test_feed_is_healthy_true(self):
-        w = DummyDaemon()
-
-        w.nvti.get_nvt_count.return_value = 2
-        w.nvti.get_nvt_files_count.return_value = 2
-        w.vts = ["a", "b"]
-
-        ret = w.feed_is_healthy()
-        self.assertTrue(ret)
-
-    def test_feed_is_healthy_false(self):
-        w = DummyDaemon()
-
-        w.nvti.get_nvt_count.return_value = 1
-        w.nvti.get_nvt_files_count.return_value = 2
-
-        w.vts = ["a", "b"]
-
-        ret = w.feed_is_healthy()
-
-        self.assertFalse(ret)
-
-        w.nvti.get_nvt_count.return_value = 2
-        w.nvti.get_nvt_files_count.return_value = 1
-
-        ret = w.feed_is_healthy()
-
-        self.assertFalse(ret)
-
-        w.nvti.get_nvt_count.return_value = 2
-        w.nvti.get_nvt_files_count.return_value = 2
-
-        w.vts = ["a"]
-
-        ret = w.feed_is_healthy()
-
-        self.assertFalse(ret)
-
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.OSPDopenvas.set_params_from_openvas_settings')
     def test_feed_is_outdated_none(
@@ -640,7 +595,6 @@ class TestOspdOpenvas(TestCase):
         mock_db.get_result.side_effect = results
         mock_add_scan_log_to_list.return_value = None
 
-        w.load_vts()
         w.report_openvas_results(mock_db, '123-456', 'localhost')
         mock_add_scan_log_to_list.assert_called_with(
             host='localhost',
@@ -690,7 +644,27 @@ class TestOspdOpenvas(TestCase):
 
 class TestFilters(TestCase):
     def test_format_vt_modification_time(self):
-        ovformat = OpenVasVtsFilter()
+        ovformat = OpenVasVtsFilter(None)
         td = '1517443741'
         formatted = ovformat.format_vt_modification_time(td)
         self.assertEqual(formatted, "20180201000901")
+
+    def test_get_filtered_vts_false(self):
+        w = DummyDaemon()
+        vts_collection = ['1234', '1.3.6.1.4.1.25623.1.0.100061']
+
+        ovfilter = OpenVasVtsFilter(w.nvti)
+        res = ovfilter.get_filtered_vts_list(
+            vts_collection, "modification_time<10"
+        )
+        self.assertNotIn('1.3.6.1.4.1.25623.1.0.100061', res)
+
+    def test_get_filtered_vts_true(self):
+        w = DummyDaemon()
+        vts_collection = ['1234', '1.3.6.1.4.1.25623.1.0.100061']
+
+        ovfilter = OpenVasVtsFilter(w.nvti)
+        res = ovfilter.get_filtered_vts_list(
+            vts_collection, "modification_time>10"
+        )
+        self.assertIn('1.3.6.1.4.1.25623.1.0.100061', res)

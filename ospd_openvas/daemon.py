@@ -34,7 +34,6 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
-from ospd.errors import OspdError
 from ospd.ospd import OSPDaemon
 from ospd.server import BaseServer
 from ospd.main import main as daemon_main
@@ -50,6 +49,7 @@ from ospd_openvas.db import MainDB, BaseDB, ScanDB
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
+from ospd_openvas.vthelper import VtHelper
 
 logger = logging.getLogger(__name__)
 
@@ -235,9 +235,14 @@ def safe_int(value: str) -> Optional[int]:
 
 
 class OpenVasVtsFilter(VtsFilter):
+
     """ Methods to overwrite the ones in the original class.
-    Each method formats the value to be compatible with the filter
     """
+
+    def __init__(self, nvticache: NVTICache) -> None:
+        super().__init__()
+
+        self.nvti = nvticache
 
     def format_vt_modification_time(self, value: str) -> str:
         """ Convert the string seconds since epoch into a 19 character
@@ -246,6 +251,49 @@ class OpenVasVtsFilter(VtsFilter):
         """
 
         return datetime.utcfromtimestamp(int(value)).strftime("%Y%m%d%H%M%S")
+
+    def get_filtered_vts_list(self, vts, vt_filter: str) -> Optional[List[str]]:
+        """ Gets a collection of vulnerability test from the redis cache,
+        which match the filter.
+
+        Arguments:
+            vt_filter: Filter to apply to the vts collection.
+            vts: The complete vts collection.
+
+        Returns:
+            List with filtered vulnerability tests. The list can be empty.
+            None in case of filter parse failure.
+        """
+        filters = self.parse_filters(vt_filter)
+        if not filters:
+            return None
+
+        if not self.nvti:
+            return None
+
+        vt_oid_list = [vtlist[1] for vtlist in self.nvti.get_oids()]
+        vt_oid_list_temp = copy.copy(vt_oid_list)
+        vthelper = VtHelper(self.nvti)
+
+        for element, oper, filter_val in filters:
+            for vt_oid in vt_oid_list_temp:
+                if vt_oid not in vt_oid_list:
+                    continue
+
+                vt = vthelper.get_single_vt(vt_oid)
+                if vt is None or not vt.get(element):
+                    vt_oid_list.remove(vt_oid)
+                    continue
+
+                elem_val = vt.get(element)
+                val = self.format_filter_value(element, elem_val)
+
+                if self.filter_operator[oper](val, filter_val):
+                    continue
+                else:
+                    vt_oid_list.remove(vt_oid)
+
+        return vt_oid_list
 
 
 class OSPDopenvas(OSPDaemon):
@@ -256,8 +304,12 @@ class OSPDopenvas(OSPDaemon):
         self, *, niceness=None, lock_file_dir='/var/run/ospd', **kwargs
     ):
         """ Initializes the ospd-openvas daemon's internal data. """
+        self.main_db = MainDB()
+        self.nvti = NVTICache(self.main_db)
 
-        super().__init__(customvtfilter=OpenVasVtsFilter(), **kwargs)
+        super().__init__(
+            customvtfilter=OpenVasVtsFilter(self.nvti), storage=dict, **kwargs
+        )
 
         self.server_version = __version__
 
@@ -277,12 +329,6 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
 
-        self.main_db = MainDB()
-
-        self.nvti = NVTICache(self.main_db)
-
-        self.pending_feed = None
-
     def init(self, server: BaseServer) -> None:
 
         server.start(self.handle_client_stream)
@@ -293,9 +339,13 @@ class OSPDopenvas(OSPDaemon):
 
         if not self.nvti.ctx:
             with self.feed_lock.wait_for_lock():
-                Openvas.load_vts_into_redis()
 
-        self.load_vts()
+                Openvas.load_vts_into_redis()
+                current_feed = self.nvti.get_feed_version()
+                self.set_vts_version(vts_version=current_feed)
+
+        vthelper = VtHelper(self.nvti)
+        self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
 
         self.initialized = True
 
@@ -349,18 +399,6 @@ class OSPDopenvas(OSPDaemon):
             (not feed_date) or (not current_feed) or (current_feed < feed_date)
         )
 
-    def feed_is_healthy(self):
-        """ Compare the amount of filename keys and nvt keys in redis
-        with the amount of oid loaded in memory.
-
-        Return:
-            True if the count is matching. False on failure.
-        """
-        filename_count = self.nvti.get_nvt_files_count()
-        nvt_count = self.nvti.get_nvt_count()
-
-        return len(self.vts) == filename_count == nvt_count
-
     def check_feed(self):
         """ Check if there is a feed update.
 
@@ -370,18 +408,20 @@ class OSPDopenvas(OSPDaemon):
         current_feed = self.nvti.get_feed_version()
         is_outdated = self.feed_is_outdated(current_feed)
 
-        # Check if the feed is already accessible from the disk.
-        if current_feed and is_outdated is None:
-            self.pending_feed = True
-            return
-
         # Check if the nvticache in redis is outdated
         if not current_feed or is_outdated:
-            self.pending_feed = True
-
             with self.feed_lock as fl:
                 if fl.has_lock():
+                    self.initialized = False
                     Openvas.load_vts_into_redis()
+                    current_feed = self.nvti.get_feed_version()
+                    self.set_vts_version(vts_version=current_feed)
+
+                    vthelper = VtHelper(self.nvti)
+                    self.vts.sha256_hash = (
+                        vthelper.calculate_vts_collection_hash()
+                    )
+                    self.initialized = True
                 else:
                     logger.debug(
                         "The feed was not upload or it is outdated, "
@@ -390,228 +430,15 @@ class OSPDopenvas(OSPDaemon):
                     )
                     return
 
-        _running_scan = False
-        for scan_id in self.scan_processes:
-            if self.scan_processes[scan_id].is_alive():
-                _running_scan = True
-
-        # Check if the NVT dict is outdated
-        if self.pending_feed:
-            _pending_feed = True
-        else:
-            _pending_feed = (
-                self.get_vts_version() != self.nvti.get_feed_version()
-            )
-
-        _feed_is_healthy = self.feed_is_healthy()
-        if _running_scan and not _feed_is_healthy:
-            _pending_feed = True
-
-            with self.feed_lock as fl:
-                if fl.has_lock():
-                    self.nvti.force_reload()
-                    Openvas.load_vts_into_redis()
-                else:
-                    logger.debug(
-                        "The VT Cache in memory is not healthy "
-                        "and other process is locking the update. "
-                        "Trying again later..."
-                    )
-                    return
-
-        if _running_scan and _pending_feed:
-            if not self.pending_feed:
-                self.pending_feed = True
-                logger.info(
-                    'There is a running scan process locking the feed update. '
-                    'Therefore the feed update will be performed later.'
-                )
-        elif (
-            _pending_feed
-            and not _running_scan
-            and not self.feed_lock.is_locked()
-        ):
-            self.vts.clear()
-            self.load_vts()
-
     def scheduler(self):
         """This method is called periodically to run tasks."""
         self.check_feed()
 
-    def get_single_vt(self, vt_id, oids=None):
-        _vt_params = self.nvti.get_nvt_params(vt_id)
-        _vt_refs = self.nvti.get_nvt_refs(vt_id)
-        _custom = self.nvti.get_nvt_metadata(vt_id)
-
-        _name = _custom.pop('name')
-        _vt_creation_time = _custom.pop('creation_date')
-        _vt_modification_time = _custom.pop('last_modification')
-
-        if oids:
-            _vt_dependencies = list()
-            if 'dependencies' in _custom:
-                _deps = _custom.pop('dependencies')
-                _deps_list = _deps.split(', ')
-                for dep in _deps_list:
-                    _vt_dependencies.append(oids.get(dep))
-        else:
-            _vt_dependencies = None
-
-        _summary = None
-        _impact = None
-        _affected = None
-        _insight = None
-        _solution = None
-        _solution_t = None
-        _vuldetect = None
-        _qod_t = None
-        _qod_v = None
-
-        if 'summary' in _custom:
-            _summary = _custom.pop('summary')
-        if 'impact' in _custom:
-            _impact = _custom.pop('impact')
-        if 'affected' in _custom:
-            _affected = _custom.pop('affected')
-        if 'insight' in _custom:
-            _insight = _custom.pop('insight')
-        if 'solution' in _custom:
-            _solution = _custom.pop('solution')
-            if 'solution_type' in _custom:
-                _solution_t = _custom.pop('solution_type')
-
-        if 'vuldetect' in _custom:
-            _vuldetect = _custom.pop('vuldetect')
-        if 'qod_type' in _custom:
-            _qod_t = _custom.pop('qod_type')
-        elif 'qod' in _custom:
-            _qod_v = _custom.pop('qod')
-
-        _severity = dict()
-        if 'severity_base_vector' in _custom:
-            _severity_vector = _custom.pop('severity_base_vector')
-        else:
-            _severity_vector = _custom.pop('cvss_base_vector')
-        _severity['severity_base_vector'] = _severity_vector
-        if 'severity_type' in _custom:
-            _severity_type = _custom.pop('severity_type')
-        else:
-            _severity_type = 'cvss_base_v2'
-        _severity['severity_type'] = _severity_type
-        if 'severity_origin' in _custom:
-            _severity['severity_origin'] = _custom.pop('severity_origin')
-
-        if _name is None:
-            _name = ''
-
-        vt = {'name': _name}
-        if _custom is not None:
-            vt["custom"] = _custom
-        if _vt_params is not None:
-            vt["vt_params"] = _vt_params
-        if _vt_refs is not None:
-            vt["vt_refs"] = _vt_refs
-        if _vt_dependencies is not None:
-            vt["vt_dependencies"] = _vt_dependencies
-        if _vt_creation_time is not None:
-            vt["creation_time"] = _vt_creation_time
-        if _vt_modification_time is not None:
-            vt["modification_time"] = _vt_modification_time
-        if _summary is not None:
-            vt["summary"] = _summary
-        if _impact is not None:
-            vt["impact"] = _impact
-        if _affected is not None:
-            vt["affected"] = _affected
-        if _insight is not None:
-            vt["insight"] = _insight
-
-        if _solution is not None:
-            vt["solution"] = _solution
-            if _solution_t is not None:
-                vt["solution_type"] = _solution_t
-
-        if _vuldetect is not None:
-            vt["detection"] = _vuldetect
-
-        if _qod_t is not None:
-            vt["qod_type"] = _qod_t
-        elif _qod_v is not None:
-            vt["qod"] = _qod_v
-
-        if _severity is not None:
-            vt["severities"] = _severity
-
-        return vt
-
     def get_vt_iterator(
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
-        """ Yield the vts from the Redis NVTicache. """
-
-        oids = None
-        if details:
-            oids = dict(self.nvti.get_oids())
-
-        for vt_id in vt_selection:
-            vt = self.get_single_vt(vt_id, oids)
-            yield (vt_id, vt)
-
-    def load_vts(self):
-        """ Load the VT's metadata into the vts global dictionary. """
-
-        with self.feed_lock as fl:
-            if not fl.has_lock():
-                logger.warning(
-                    'Error acquiring feed lock. Trying again later...'
-                )
-                return
-
-            self.initialized = False
-            logger.info('Loading VTs in memory.')
-
-            oids = dict(self.nvti.get_oids())
-
-            logger.debug('Found %s NVTs in redis.', len(oids))
-
-            for _, vt_id in oids.items():
-                vt = self.get_single_vt(vt_id, oids)
-
-                if (
-                    not vt
-                    or vt.get('vt_params') is None
-                    or vt.get('custom') is None
-                ):
-                    logger.warning(
-                        'Error loading VTs in memory. Trying again later...'
-                    )
-                    return
-
-                custom = {'family': vt['custom'].get('family')}
-                try:
-                    self.add_vt(
-                        vt_id,
-                        name=vt.get('name'),
-                        qod_t=vt.get('qod_type'),
-                        qod_v=vt.get('qod'),
-                        severities=vt.get('severities'),
-                        vt_modification_time=vt.get('modification_time'),
-                        vt_params=vt.get('vt_params'),
-                        custom=custom,
-                    )
-                except OspdError as e:
-                    logger.warning("Error while adding VT %s. %s", vt_id, e)
-
-            _feed_version = self.nvti.get_feed_version()
-
-            self.set_vts_version(vts_version=_feed_version)
-            self.vts.calculate_vts_collection_hash()
-            self.pending_feed = False
-            self.initialized = True
-
-            logger.info('Finish loading up vts.')
-
-            logger.debug('Loaded %s vts.', len(self.vts))
+        vthelper = VtHelper(self.nvti)
+        return vthelper.get_vt_iterator(vt_selection, details)
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
@@ -1026,6 +853,9 @@ class OSPDopenvas(OSPDaemon):
         self, db: BaseDB, scan_id: str, current_host: str
     ):
         """ Get all result entries from redis kb. """
+
+        vthelper = VtHelper(self.nvti)
+
         res = db.get_result()
         res_list = ResultList()
         host_progress_batch = dict()
@@ -1040,7 +870,7 @@ class OSPDopenvas(OSPDaemon):
             vt_aux = None
 
             if roid and not host_is_dead:
-                vt_aux = copy.deepcopy(self.vts.get(roid))
+                vt_aux = vthelper.get_single_vt(roid)
 
             if not vt_aux and not host_is_dead:
                 logger.warning('Invalid VT oid %s for a result', roid)
@@ -1121,8 +951,6 @@ class OSPDopenvas(OSPDaemon):
                             host=_host, name='HOST_END', value=timestamp,
                         )
 
-            vt_aux = None
-            del vt_aux
             res = db.get_result()
 
         # Insert result batch into the scan collection table.
@@ -1236,34 +1064,10 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id: str):
         """ Starts the OpenVAS scanner for scan_id scan. """
-        if self.pending_feed:
-            logger.info(
-                '%s: There is a pending feed update. '
-                'The scan can not be started.',
-                scan_id,
-            )
-            self.add_scan_error(
-                scan_id,
-                name='',
-                host='',
-                value=(
-                    'It was not possible to start the scan,'
-                    'because a pending feed update. Please try later'
-                ),
-            )
-            return
-
         do_not_launch = False
-
-        # Set plugins to run.
-        # Make a deepcopy of the vts dictionary. Otherwise, consulting the
-        # DictProxy object of multiprocessing directly is to expensinve
-        # (interprocess communication).
-        temp_vts = self.vts.copy()
-
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
-            scan_id, kbdb, self.scan_collection, temp_vts
+            scan_id, kbdb, self.scan_collection, self.nvti
         )
         openvas_scan_id = scan_prefs.prepare_openvas_scan_id_for_openvas()
         scan_prefs.prepare_target_for_openvas()
@@ -1286,8 +1090,6 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, name='', host='', value='No VTS to run.'
             )
             do_not_launch = True
-
-        temp_vts = None
 
         scan_prefs.prepare_main_kbindex_for_openvas()
         scan_prefs.prepare_host_options_for_openvas()
