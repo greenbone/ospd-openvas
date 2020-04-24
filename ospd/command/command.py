@@ -312,6 +312,8 @@ class GetVts(BaseCommand):
 
         @return: Response string for <get_vts> command on fail.
         """
+        self._daemon.vts.is_cache_available = False
+
         xml_helper = XmlStringHelper()
 
         vt_id = xml.get('vt_id')
@@ -321,14 +323,20 @@ class GetVts(BaseCommand):
         vt_details = False if _details == '0' else True
 
         if self._daemon.vts and vt_id and vt_id not in self._daemon.vts:
+            self._daemon.vts.is_cache_available = True
             text = "Failed to find vulnerability test '{0}'".format(vt_id)
             raise OspdCommandError(text, 'get_vts', 404)
 
         filtered_vts = None
         if vt_filter:
-            filtered_vts = self._daemon.vts_filter.get_filtered_vts_list(
-                self._daemon.vts, vt_filter
-            )
+            try:
+                filtered_vts = self._daemon.vts_filter.get_filtered_vts_list(
+                    self._daemon.vts, vt_filter
+                )
+            except OspdCommandError as filter_error:
+                self._daemon.vts.is_cache_available = True
+                raise OspdCommandError(filter_error)
+
         vts_selection = self._daemon.get_vts_selection_list(vt_id, filtered_vts)
         # List of xml pieces with the generator to be iterated
         yield xml_helper.create_response('get_vts')
@@ -352,6 +360,8 @@ class GetVts(BaseCommand):
 
         yield xml_helper.create_element('vts', end=True)
         yield xml_helper.create_response('get_vts', end=True)
+
+        self._daemon.vts.is_cache_available = True
 
 
 class StopScan(BaseCommand):

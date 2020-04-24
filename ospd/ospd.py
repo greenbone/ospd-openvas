@@ -979,7 +979,7 @@ class OSPDaemon:
 
         @return: String of single vulnerability test information in XML format.
         """
-        if not single_vt:
+        if not single_vt or single_vt[1] is None:
             return Element('vt')
 
         vt_id, vt = single_vt

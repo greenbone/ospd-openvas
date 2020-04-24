@@ -49,6 +49,8 @@ class Vts:
         self._vts = None
         self.sha256_hash = None
 
+        self.is_cache_available = True
+
     def __contains__(self, key: str) -> bool:
         return key in self._vts
 
