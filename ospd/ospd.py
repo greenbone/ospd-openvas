@@ -173,7 +173,7 @@ class OSPDaemon:
             command = self.commands.get(name)
             command.attributes = attributes
 
-    @deprecated(version="20.4", reason="Use set_scanner_param instead")
+    @deprecated(version="20.8", reason="Use set_scanner_param instead")
     def add_scanner_param(self, name: str, scanner_params: Dict) -> None:
         """ Set a scanner parameter. """
         self.set_scanner_param(name, scanner_params)
@@ -338,7 +338,7 @@ class OSPDaemon:
 
     @staticmethod
     @deprecated(
-        version="20.4",
+        version="20.8",
         reason="Please use OspRequest.process_vt_params instead.",
     )
     def process_vts_params(scanner_vts) -> Dict:
@@ -346,7 +346,7 @@ class OSPDaemon:
 
     @staticmethod
     @deprecated(
-        version="20.4",
+        version="20.8",
         reason="Please use OspRequest.process_credential_elements instead.",
     )
     def process_credentials_elements(cred_tree) -> Dict:
@@ -354,7 +354,7 @@ class OSPDaemon:
 
     @staticmethod
     @deprecated(
-        version="20.4",
+        version="20.8",
         reason="Please use OspRequest.process_targets_elements instead.",
     )
     def process_targets_element(scanner_target) -> List:
@@ -447,7 +447,7 @@ class OSPDaemon:
         return entry.get('default')
 
     @deprecated(
-        version="20.4",
+        version="20.8",
         reason="Please use OspResponse.create_scanner_params_xml instead.",
     )
     def get_scanner_params_xml(self):
@@ -669,7 +669,7 @@ class OSPDaemon:
 
         return txt
 
-    @deprecated(version="20.4", reason="Use ospd.xml.elements_as_text instead.")
+    @deprecated(version="20.8", reason="Use ospd.xml.elements_as_text instead.")
     def elements_as_text(self, elems: Dict, indent: int = 2) -> str:
         """ Returns the elems dictionary as formatted plain text. """
         return elements_as_text(elems, indent)
@@ -712,7 +712,7 @@ class OSPDaemon:
         return results
 
     @deprecated(
-        version="20.4",
+        version="20.8",
         reason="Please use ospd.xml.get_elements_from_dict instead.",
     )
     def get_xml_str(self, data: Dict) -> List:

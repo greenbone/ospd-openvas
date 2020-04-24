@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <name>Open Scanner Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
-  <version>20.04</version>
+  <version>20.08</version>
 
   <!-- Types. -->
 
@@ -1445,7 +1445,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       The element SOLUTION of the returned VT object has a new optional attribute METHOD
       that describes the solution method in case the VT offers such a detail.
     </description>
-    <version>20.04</version>
+    <version>20.08</version>
   </change>
 
   <change>
@@ -1454,7 +1454,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>
       The main element vts has the new TOTAL attribute with the amount of vts in the collection and the new optional SENT attribute with the amount of vts which matched a given filter.
     </description>
-    <version>20.04</version>
+    <version>20.08</version>
   </change>
 
   <change>
@@ -1463,7 +1463,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>
       The new attribute DETAILS allows to get more details about a vulnerability test if the scanner support it. By default is set True, and for a lighter response must be explicitly set to False.
     </description>
-    <version>20.04</version>
+    <version>20.08</version>
   </change>
 
   <change>
@@ -1471,7 +1471,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Add support for target options</summary>
     <description>Target element receive new target options reverse_lookup_only, reverse_lookup_unify and alive_test.
     </description>
-    <version>20.04</version>
+    <version>20.08</version>
   </change>
 
   <change>
