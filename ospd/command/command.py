@@ -545,7 +545,7 @@ class StartScan(BaseCommand):
             }
             logger.warning(
                 "Legacy start scan command format is being used, which "
-                "is deprecated since 20.04. Please read the documentation "
+                "is deprecated since 20.08. Please read the documentation "
                 "for start scan command."
             )
 
