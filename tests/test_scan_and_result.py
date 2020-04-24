@@ -30,6 +30,7 @@ import xml.etree.ElementTree as ET
 from defusedxml.common import EntitiesForbidden
 
 from ospd.resultlist import ResultList
+from ospd.errors import OspdCommandError
 
 from .helper import DummyWrapper, assert_called, FakeStream
 
@@ -123,6 +124,12 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(response.get('status'), '200')
         self.assertIsNotNone(response.find('vts'))
 
+    def test_get_vt_xml_no_dict(self):
+        daemon = DummyWrapper([])
+        single_vt = ('1234', None)
+        vt = daemon.get_vt_xml(single_vt)
+        self.assertFalse(vt.get('id'))
+
     def test_get_vts_single_vt(self):
         daemon = DummyWrapper([])
         fs = FakeStream()
@@ -211,6 +218,14 @@ class ScanTestCase(unittest.TestCase):
             '<modification_time>19000202</modification_time>',
             ET.tostring(modification_time[0]).decode('utf-8'),
         )
+
+    def test_get_vts_bad_filter(self):
+        daemon = DummyWrapper([])
+        fs = FakeStream()
+        cmd = '<get_vts filter="modification_time"/>'
+
+        self.assertRaises(OspdCommandError, daemon.handle_command, cmd, fs)
+        self.assertTrue(daemon.vts.is_cache_available)
 
     def test_get_vtss_multiple_vts(self):
         daemon = DummyWrapper([])
