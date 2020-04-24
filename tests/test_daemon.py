@@ -695,6 +695,15 @@ class TestOspdOpenvas(TestCase):
                     ret = w.feed_is_outdated('1234')
                     self.assertFalse(ret)
 
+    def test_check_feed_cache_unavailable(self, mock_nvti, mock_db):
+        w = DummyDaemon(mock_nvti, mock_db)
+        w.is_cache_available = False
+        w.feed_is_outdated = Mock()
+        res = w.check_feed()
+
+        self.assertFalse(res)
+        w.feed_is_outdated.assert_not_called()
+
     @patch('ospd_openvas.daemon.OSPDaemon.add_scan_log')
     def test_get_openvas_result(self, mock_ospd, mock_nvti, mock_db):
         results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
