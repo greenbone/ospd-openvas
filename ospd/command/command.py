@@ -312,6 +312,8 @@ class GetVts(BaseCommand):
 
         @return: Response string for <get_vts> command on fail.
         """
+        self._daemon.vts.is_cache_available = False
+
         xml_helper = XmlStringHelper()
 
         vt_id = xml.get('vt_id')
@@ -352,6 +354,8 @@ class GetVts(BaseCommand):
 
         yield xml_helper.create_element('vts', end=True)
         yield xml_helper.create_response('get_vts', end=True)
+
+        self._daemon.vts.is_cache_available = True
 
 
 class StopScan(BaseCommand):
