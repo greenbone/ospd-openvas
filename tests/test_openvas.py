@@ -28,9 +28,9 @@ from ospd_openvas.openvas import Openvas
 class OpenvasCommandTestCase(TestCase):
     @patch('ospd_openvas.openvas.subprocess.check_output')
     def test_get_version(self, mock_check_output: MagicMock):
-        mock_check_output.return_value = b"OpenVAS 20.04"
+        mock_check_output.return_value = b"OpenVAS 20.08"
 
-        self.assertEqual(Openvas.get_version(), 'OpenVAS 20.04')
+        self.assertEqual(Openvas.get_version(), 'OpenVAS 20.08')
 
         mock_check_output.assert_called_with(
             ['openvas', '-V'], stderr=subprocess.STDOUT
@@ -38,7 +38,7 @@ class OpenvasCommandTestCase(TestCase):
 
     @patch('ospd_openvas.openvas.subprocess.check_output')
     def test_get_version_not_found(self, mock_check_output: MagicMock):
-        mock_check_output.return_value = b"Foo 20.04"
+        mock_check_output.return_value = b"Foo 20.08"
 
         self.assertIsNone(Openvas.get_version())
 
@@ -319,9 +319,9 @@ class OpenvasCommandTestCase(TestCase):
 
     @patch('ospd_openvas.openvas.subprocess.check_output')
     def test_get_gvm_libs_version(self, mock_check_output):
-        mock_check_output.return_value = b"OpenVAS 20.04\ngvm-libs 20.04"
+        mock_check_output.return_value = b"OpenVAS 20.08\ngvm-libs 20.08"
 
-        self.assertEqual(Openvas.get_gvm_libs_version(), '20.04')
+        self.assertEqual(Openvas.get_gvm_libs_version(), '20.08')
 
         mock_check_output.assert_called_with(
             ['openvas', '-V'], stderr=subprocess.STDOUT
@@ -329,7 +329,7 @@ class OpenvasCommandTestCase(TestCase):
 
     @patch('ospd_openvas.openvas.subprocess.check_output')
     def test_get_gvm_libs_version_not_version(self, mock_check_output):
-        mock_check_output.return_value = b"OpenVAS 20.04\n"
+        mock_check_output.return_value = b"OpenVAS 20.08\n"
 
         self.assertIsNone(Openvas.get_gvm_libs_version())
 
