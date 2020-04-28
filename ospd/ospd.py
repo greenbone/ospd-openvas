@@ -384,7 +384,7 @@ class OSPDaemon:
 
         try:
             _terminate_process_group(scan_process)
-        except ProcessLookupError as e:
+        except ProcessLookupError:
             logger.info(
                 '%s: Scan already stopped %s.', scan_id, scan_process.pid
             )
