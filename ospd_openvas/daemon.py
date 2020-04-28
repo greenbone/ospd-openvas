@@ -337,12 +337,10 @@ class OSPDopenvas(OSPDaemon):
 
         self.set_params_from_openvas_settings()
 
-        if not self.nvti.ctx:
-            with self.feed_lock.wait_for_lock():
-
-                Openvas.load_vts_into_redis()
-                current_feed = self.nvti.get_feed_version()
-                self.set_vts_version(vts_version=current_feed)
+        with self.feed_lock.wait_for_lock():
+            Openvas.load_vts_into_redis()
+            current_feed = self.nvti.get_feed_version()
+            self.set_vts_version(vts_version=current_feed)
 
         vthelper = VtHelper(self.nvti)
         self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
