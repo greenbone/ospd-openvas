@@ -1155,10 +1155,12 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            time.sleep(3)
+            time.sleep(1)
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
-                # clean main_db
+                # clean main_db, but wait for scanner to finish.
+                while not kbdb.target_is_finished(scan_id):
+                    time.sleep(1)
                 self.main_db.release_database(kbdb)
                 return
 
