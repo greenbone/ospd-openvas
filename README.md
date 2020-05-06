@@ -71,11 +71,11 @@ Afterwards run
 
     poetry install
 
-in the checkout directory of python-gvm (the directory containing the
+in the checkout directory of ospd-openvas (the directory containing the
 `pyproject.toml` file) to install all dependencies including the packages only
 required for development.
 
-The python-gvm repository uses [autohooks](https://github.com/greenbone/autohooks)
+The ospd-openvas repository uses [autohooks](https://github.com/greenbone/autohooks)
 to apply linting and auto formatting via git hooks. Please ensure the git hooks
 are active.
 
