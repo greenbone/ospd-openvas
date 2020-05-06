@@ -927,7 +927,7 @@ class OSPDopenvas(OSPDaemon):
                     qod=rqod,
                 )
 
-            # To process non scanned dead hosts when
+            # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
             if msg[0] == 'DEADHOST':
                 hosts = msg[3].split(',')
@@ -935,22 +935,6 @@ class OSPDopenvas(OSPDaemon):
                     if _host:
                         host_progress_batch[_host] = 100
                         finished_host_batch.append(_host)
-                        res_list.add_scan_log_to_list(
-                            host=_host,
-                            hostname=rhostname,
-                            name=rname,
-                            value=msg[4],
-                            port=msg[2],
-                            qod=rqod,
-                            test_id='',
-                        )
-                        timestamp = time.ctime(time.time())
-                        res_list.add_scan_log_to_list(
-                            host=_host, name='HOST_START', value=timestamp,
-                        )
-                        res_list.add_scan_log_to_list(
-                            host=_host, name='HOST_END', value=timestamp,
-                        )
 
             res = db.get_result()
 
