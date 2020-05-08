@@ -348,15 +348,15 @@ class ScanCollection:
         The value is calculated with the progress of each single host
         in the target."""
 
-        host = self.get_host_list(scan_id)
-        total_hosts = len(target_str_to_list(host))
-        exc_hosts_list = self.simplify_exclude_host_list(scan_id)
-        exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
+        total_hosts = self.get_host_count(scan_id)
+        exc_hosts = self.simplify_exclude_host_count(scan_id)
+        count_alive = self.get_count_alive(scan_id)
+        count_dead = self.get_count_dead(scan_id)
         host_progresses = self.scans_table[scan_id].get('target_progress')
 
         try:
-            t_prog = sum(host_progresses.values()) / (
-                total_hosts - exc_hosts
+            t_prog = (sum(host_progresses.values()) + 100 * count_alive) / (
+                total_hosts - exc_hosts - count_dead
             )  # type: float
         except ZeroDivisionError:
             LOGGER.error(
