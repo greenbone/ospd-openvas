@@ -305,11 +305,29 @@ class ScanCollection:
 
         return self.scans_table[scan_id]['progress']
 
-    def simplify_exclude_host_list(self, scan_id: str) -> List[Any]:
+    def get_count_dead(self, scan_id: str) -> int:
+        """ Get a scan's current dead host count. """
+
+        return self.scans_table[scan_id]['count_dead']
+
+    def get_count_alive(self, scan_id: str) -> int:
+        """ Get a scan's current dead host count. """
+
+        return self.scans_table[scan_id]['count_alive']
+
+    def get_current_target_progress(self, scan_id: str) -> Dict[str, int]:
+        """ Get a scan's current dead host count. """
+
+        return self.scans_table[scan_id]['target_progress']
+
+    def simplify_exclude_host_count(self, scan_id: str) -> int:
         """ Remove from exclude_hosts the received hosts in the finished_hosts
         list sent by the client.
         The finished hosts are sent also as exclude hosts for backward
         compatibility purposses.
+
+        Return:
+            Count of excluded host.
         """
 
         exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
@@ -323,7 +341,7 @@ class ScanCollection:
                 if finished in exc_hosts_list:
                     exc_hosts_list.remove(finished)
 
-        return exc_hosts_list
+        return len(exc_hosts_list) if exc_hosts_list else 0
 
     def calculate_target_progress(self, scan_id: str) -> float:
         """ Get a target's current progress value.
@@ -363,6 +381,13 @@ class ScanCollection:
         """ Get a scan's host list. """
 
         return self.scans_table[scan_id]['target'].get('hosts')
+
+    def get_host_count(self, scan_id: str) -> int:
+        """ Get total host count in the target. """
+        host = self.get_host_list(scan_id)
+        total_hosts = len(target_str_to_list(host))
+
+        return total_hosts
 
     def get_ports(self, scan_id: str):
         """ Get a scan's ports list.
