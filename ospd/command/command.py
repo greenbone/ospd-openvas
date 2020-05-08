@@ -412,6 +412,7 @@ class GetScans(BaseCommand):
         details = xml.get('details')
         pop_res = xml.get('pop_results')
         max_res = xml.get('max_results')
+        progress = xml.get('progress')
 
         if details and details == '0':
             details = False
@@ -424,10 +425,17 @@ class GetScans(BaseCommand):
             if max_res:
                 max_res = int(max_res)
 
+        if progress and progress == '1':
+            progress = True
+        else:
+            progress = False
+
         responses = []
         if scan_id and scan_id in self._daemon.scan_collection.ids_iterator():
             self._daemon.check_scan_process(scan_id)
-            scan = self._daemon.get_scan_xml(scan_id, details, pop_res, max_res)
+            scan = self._daemon.get_scan_xml(
+                scan_id, details, pop_res, max_res, progress
+            )
             responses.append(scan)
         elif scan_id:
             text = "Failed to find scan '{0}'".format(scan_id)
@@ -436,7 +444,7 @@ class GetScans(BaseCommand):
             for scan_id in self._daemon.scan_collection.ids_iterator():
                 self._daemon.check_scan_process(scan_id)
                 scan = self._daemon.get_scan_xml(
-                    scan_id, details, pop_res, max_res
+                    scan_id, details, pop_res, max_res, progress
                 )
                 responses.append(scan)
 
