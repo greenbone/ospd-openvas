@@ -410,7 +410,7 @@ class OSPDaemon:
 
     def finish_scan(self, scan_id: str) -> None:
         """ Sets a scan as finished. """
-        self.set_scan_progress(scan_id, 100)
+        self.scan_collection.set_progress(scan_id, 100)
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
@@ -569,27 +569,34 @@ class OSPDaemon:
             value="{0} exec timeout.".format(self.get_scanner_name()),
         )
 
-    def remove_scan_hosts_from_target_progress(
-        self, scan_id: str, exc_hosts_list: List
-    ) -> None:
-        """ Remove a list of hosts from the main scan progress table."""
-        self.scan_collection.remove_hosts_from_target_progress(
-            scan_id, exc_hosts_list
-        )
-
-    def set_scan_host_finished(
+    def sort_host_finished(
         self, scan_id: str, finished_hosts: Union[List[str], str],
     ) -> None:
-        """ Add the host in a list of finished hosts """
+        """ Check if the finished host in the list was alive or dead
+        and update the corresponding alive_count or dead_count. """
         if isinstance(finished_hosts, str):
             finished_hosts = [finished_hosts]
 
-        self.scan_collection.set_host_finished(scan_id, finished_hosts)
+        alive_hosts = []
+        dead_hosts = []
 
-    def set_scan_progress(self, scan_id: str, progress: int) -> None:
-        """ Sets scan_id scan's progress which is a number
-        between 0 and 100. """
-        self.scan_collection.set_progress(scan_id, progress)
+        current_hosts = self.scan_collection.get_current_target_progress(
+            scan_id
+        )
+        for finished_host in finished_hosts:
+            progress = current_hosts.get(finished_host)
+            if progress == 100:
+                alive_hosts.append(finished_host)
+            if progress == -1:
+                dead_hosts.append(finished_host)
+
+        self.scan_collection.set_host_dead(scan_id, dead_hosts)
+
+        self.scan_collection.set_host_finished(scan_id, alive_hosts)
+
+        self.scan_collection.remove_hosts_from_target_progress(
+            scan_id, finished_hosts
+        )
 
     def set_scan_progress_batch(
         self, scan_id: str, host_progress: Dict[str, int]
@@ -597,7 +604,7 @@ class OSPDaemon:
         self.scan_collection.set_host_progress(scan_id, host_progress)
 
         scan_progress = self.calculate_progress(scan_id)
-        self.set_scan_progress(scan_id, scan_progress)
+        self.scan_collection.set_progress(scan_id, scan_progress)
 
     def set_scan_host_progress(
         self, scan_id: str, host: str = None, progress: int = None,
@@ -606,9 +613,6 @@ class OSPDaemon:
         Each time a host progress is updated, the scan progress
         is updated too.
         """
-        if host and progress < 0 or progress > 100:
-            return
-
         host_progress = {host: progress}
         self.set_scan_progress_batch(scan_id, host_progress)
 
