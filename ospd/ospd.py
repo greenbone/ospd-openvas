@@ -56,6 +56,7 @@ from ospd.vts import Vts
 from ospd.xml import (
     elements_as_text,
     get_result_xml,
+    get_progress_xml,
     get_elements_from_dict,
 )
 
@@ -700,6 +701,32 @@ class OSPDaemon:
         logger.debug('Returning %d results', len(results))
         return results
 
+    def get_scan_progress_xml(self, scan_id: str):
+        """ Gets scan_id scan's progress in XML format.
+
+        @return: String of scan progress in xml.
+        """
+        current_progress = dict()
+
+        current_progress[
+            'current_hosts'
+        ] = self.scan_collection.get_current_target_progress(scan_id)
+        current_progress['overall'] = self.scan_collection.get_progress(scan_id)
+        current_progress['count_alive'] = self.scan_collection.get_count_alive(
+            scan_id
+        )
+        current_progress['count_dead'] = self.scan_collection.get_count_dead(
+            scan_id
+        )
+        current_progress[
+            'count_excluded'
+        ] = self.scan_collection.simplify_exclude_host_count(scan_id)
+        current_progress['count_total'] = self.scan_collection.get_host_count(
+            scan_id
+        )
+
+        return get_progress_xml(current_progress)
+
     @deprecated(
         version="20.8",
         reason="Please use ospd.xml.get_elements_from_dict instead.",
@@ -719,6 +746,7 @@ class OSPDaemon:
         detailed: bool = True,
         pop_res: bool = False,
         max_res: int = 0,
+        progress: bool = False,
     ):
         """ Gets scan in XML format.
 
@@ -746,6 +774,9 @@ class OSPDaemon:
             response.append(
                 self.get_scan_results_xml(scan_id, pop_res, max_res)
             )
+        if progress:
+            response.append(self.get_scan_progress_xml(scan_id))
+
         return response
 
     @staticmethod
