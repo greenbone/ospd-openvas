@@ -505,29 +505,15 @@ class OSPDaemon:
 
         return self.scan_collection.calculate_target_progress(scan_id)
 
-    def process_exclude_hosts(self, scan_id: str, exclude_hosts: str) -> None:
-        """ Process the exclude hosts before launching the scans."""
-
-        exc_hosts_list = ''
-        if not exclude_hosts:
-            return
-        exc_hosts_list = target_str_to_list(exclude_hosts)
-        self.remove_scan_hosts_from_target_progress(scan_id, exc_hosts_list)
-
     def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
-        """ Process the finished hosts before launching the scans.
-        Set finished hosts as finished with 100% to calculate
-        the scan progress."""
+        """ Process the finished hosts before launching the scans."""
 
         exc_hosts_list = ''
         if not finished_hosts:
             return
 
-        exc_hosts_list = target_str_to_list(finished_hosts)
-
-        for host in exc_hosts_list:
-            self.set_scan_host_finished(scan_id, finished_hosts=host)
-            self.set_scan_host_progress(scan_id, host=host, progress=100)
+        exc_finished_hosts_list = target_str_to_list(finished_hosts)
+        self.scan_collection.set_host_finished(scan_id, exc_finished_hosts_list)
 
     def start_scan(self, scan_id: str, target: Dict) -> None:
         """ Starts the scan with scan_id. """
@@ -538,7 +524,6 @@ class OSPDaemon:
 
         logger.info("%s: Scan started.", scan_id)
 
-        self.process_exclude_hosts(scan_id, target.get('exclude_hosts'))
         self.process_finished_hosts(scan_id, target.get('finished_hosts'))
 
         try:
@@ -1280,14 +1265,6 @@ class OSPDaemon:
     def get_scan_vts(self, scan_id: str) -> Dict:
         """ Gives a scan's vts. """
         return self.scan_collection.get_vts(scan_id)
-
-    def get_scan_unfinished_hosts(self, scan_id: str) -> List:
-        """ Get a list of unfinished hosts."""
-        return self.scan_collection.get_hosts_unfinished(scan_id)
-
-    def get_scan_finished_hosts(self, scan_id: str) -> List:
-        """ Get a list of unfinished hosts."""
-        return self.scan_collection.get_hosts_finished(scan_id)
 
     def get_scan_start_time(self, scan_id: str) -> str:
         """ Gives a scan's start time. """

@@ -196,50 +196,6 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
-    def remove_single_result(
-        self, scan_id: str, result: Dict[str, str]
-    ) -> None:
-        """Removes a single result from the result list in scan_table.
-
-        Parameters:
-            scan_id (uuid): Scan ID to identify the scan process to be resumed.
-            result (dict): The result to be removed from the results list.
-        """
-        results = self.scans_table[scan_id]['results']
-        results.remove(result)
-        self.scans_table[scan_id]['results'] = results
-
-    def del_results_for_stopped_hosts(self, scan_id: str) -> None:
-        """ Remove results from the result table for those host
-        """
-        unfinished_hosts = self.get_hosts_unfinished(scan_id)
-        for result in self.results_iterator(
-            scan_id, pop_res=False, max_res=None
-        ):
-            if result['host'] in unfinished_hosts:
-                self.remove_single_result(scan_id, result)
-
-    def resume_scan(self, scan_id: str, options: Optional[Dict]) -> str:
-        """ Reset the scan status in the scan_table to INIT.
-        Also, overwrite the options, because a resume task cmd
-        can add some new option. E.g. exclude hosts list.
-        Parameters:
-            scan_id (uuid): Scan ID to identify the scan process to be resumed.
-            options (dict): Options for the scan to be resumed. This options
-                            are not added to the already existent ones.
-                            The old ones are removed
-
-        Return:
-            Scan ID which identifies the current scan.
-        """
-        self.scans_table[scan_id]['status'] = ScanStatus.INIT
-        if options:
-            self.scans_table[scan_id]['options'] = options
-
-        self.del_results_for_stopped_hosts(scan_id)
-
-        return scan_id
-
     def create_scan(
         self,
         scan_id: str = '',
