@@ -809,12 +809,14 @@ class OSPDopenvas(OSPDaemon):
             launched, total = msg.split('/')
         except ValueError:
             return
+
         if float(total) == 0:
             return
         elif float(total) == -1:
-            host_prog = 100
+            host_prog = -1  # Host dead
         else:
             host_prog = (float(launched) / float(total)) * 100
+
         self.set_scan_host_progress(
             scan_id, host=current_host, progress=host_prog
         )
