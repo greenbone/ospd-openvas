@@ -1163,14 +1163,16 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                     if scan_db.host_is_finished(openvas_scan_id):
-                        self.set_scan_host_finished(
-                            scan_id, finished_hosts=current_host
-                        )
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host
                         )
+
                         self.report_openvas_timestamp_scan_host(
                             scan_db, scan_id, current_host
+                        )
+
+                        self.sort_host_finished(
+                            scan_id, finished_hosts=current_host
                         )
 
                         kbdb.remove_scan_database(scan_db)
