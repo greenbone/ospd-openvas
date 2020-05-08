@@ -861,8 +861,7 @@ class OSPDopenvas(OSPDaemon):
 
         res = db.get_result()
         res_list = ResultList()
-        host_progress_batch = dict()
-        finished_host_batch = list()
+        total_dead = 0
         while res:
             msg = res.split('|||')
             roid = msg[3].strip()
@@ -932,26 +931,19 @@ class OSPDopenvas(OSPDaemon):
             # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
             if msg[0] == 'DEADHOST':
-                hosts = msg[3].split(',')
-                for _host in hosts:
-                    if _host:
-                        host_progress_batch[_host] = 100
-                        finished_host_batch.append(_host)
-
+                try:
+                    total_dead = int(msg[4])
+                except TypeError:
+                    logger.debug('Error processing dead host count')
             res = db.get_result()
 
         # Insert result batch into the scan collection table.
         if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
 
-        if host_progress_batch:
-            self.set_scan_progress_batch(
-                scan_id, host_progress=host_progress_batch
-            )
-
-        if finished_host_batch:
-            self.set_scan_host_finished(
-                scan_id, finished_hosts=finished_host_batch
+        if total_dead:
+            self.scan_collection.set_amount_dead_hosts(
+                scan_id, total_dead=total_dead
             )
 
     def report_openvas_timestamp_scan_host(
