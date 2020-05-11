@@ -83,6 +83,9 @@ BASE_SCANNER_PARAMS = {
     },
 }  # type: Dict
 
+PROGRESS_FINISHED = 100
+PROGRESS_DEAD_HOST = -1
+
 
 def _terminate_process_group(process: multiprocessing.Process) -> None:
     os.killpg(os.getpgid(process.pid), 15)
@@ -411,7 +414,7 @@ class OSPDaemon:
 
     def finish_scan(self, scan_id: str) -> None:
         """ Sets a scan as finished. """
-        self.scan_collection.set_progress(scan_id, 100)
+        self.scan_collection.set_progress(scan_id, PROGRESS_FINISHED)
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
@@ -585,9 +588,9 @@ class OSPDaemon:
         )
         for finished_host in finished_hosts:
             progress = current_hosts.get(finished_host)
-            if progress == 100:
+            if progress == PROGRESS_FINISHED:
                 alive_hosts.append(finished_host)
-            if progress == -1:
+            if progress == PROGRESS_DEAD_HOST:
                 dead_hosts.append(finished_host)
 
         self.scan_collection.set_host_dead(scan_id, dead_hosts)
@@ -1251,7 +1254,7 @@ class OSPDaemon:
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
 
-        if progress < 100 and not scan_process.is_alive():
+        if progress < PROGRESS_FINISHED and not scan_process.is_alive():
             if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
@@ -1260,7 +1263,7 @@ class OSPDaemon:
 
                 logger.info("%s: Scan stopped with errors.", scan_id)
 
-        elif progress == 100:
+        elif progress == PROGRESS_FINISHED:
             scan_process.join(0)
 
     def get_scan_progress(self, scan_id: str):
