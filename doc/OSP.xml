@@ -208,7 +208,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     </ele>
     <ele>
       <name>finished_hosts</name>
-      <summary>One or many finished hosts to exclude when resuming a task. The list is comma-separated. Each entry can be an IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6. The listed hosts will be set as finished before starting the scan. Each wrapper must handle the finished hosts.
+      <summary>One or many finished hosts to exclude when the client resumes a task. The list is comma-separated. Each entry can be an IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6. The listed hosts will be set as finished before starting the scan. Each wrapper must handle the finished hosts.
       </summary>
       <type>string</type>
     </ele>
@@ -440,6 +440,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <attributes>
               <scan_id>ID of a specific scan to get</scan_id>
               <details>Whether to return the full scan report</details>
+              <progress>Whether to return a detailed progress information</progress>
               <pop_results>Whether to remove the fetched results</pop_results>
               <max_results>Maximum number of results to fetch. Only considered if pop_results is enabled. Default = None, which means that all available results are returned</max_results>
             </attributes>
@@ -519,6 +520,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <attrib>
         <name>details</name>
         <summary>Whether to get full scan reports</summary>
+        <type>boolean</type>
+      </attrib>
+      <attrib>
+        <name>progress</name>
+        <summary>Whether to return a detailed progress information</summary>
         <type>boolean</type>
       </attrib>
       <attrib>
@@ -621,6 +627,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
                </result>
              </results>
            </scan>
+        </get_scans_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get a scan progress summary</summary>
+      <request>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="0" progress="1"/>
+      </request>
+      <response>
+        <get_scans_response status_text="OK" status="200">
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
+                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
+            <progress>
+              <host name="192.168.0.176">0.0</host>
+              <host name="192.168.0.77">68.00013854253257</host>
+              <host name="192.168.0.148">26.0009697977279</host>
+              <host name="192.168.0.1">0.0</host>
+              <overall>38.800221668052096</overall>
+              <count_alive>1</count_alive>
+              <count_dead>249</count_dead>
+              <count_excluded>0</count_excluded>
+              <count_total>254</count_total>
+            </progress>
+          </scan>
         </get_scans_response>
       </response>
     </example>
