@@ -703,7 +703,7 @@ class OSPDaemon:
         logger.debug('Returning %d results', len(results))
         return results
 
-    def get_scan_progress_xml(self, scan_id: str):
+    def _get_scan_progress_xml(self, scan_id: str):
         """ Gets scan_id scan's progress in XML format.
 
         @return: String of scan progress in xml.
@@ -777,7 +777,7 @@ class OSPDaemon:
                 self.get_scan_results_xml(scan_id, pop_res, max_res)
             )
         if progress:
-            response.append(self.get_scan_progress_xml(scan_id))
+            response.append(self._get_scan_progress_xml(scan_id))
 
         return response
 
