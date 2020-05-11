@@ -792,34 +792,6 @@ class ScanTestCase(unittest.TestCase):
         target_options = daemon.get_scan_target_options(scan_id)
         self.assertEqual(target_options, {'alive_test': '0'})
 
-    def test_scan_get_finished_hosts(self):
-        daemon = DummyWrapper([])
-        fs = FakeStream()
-        daemon.handle_command(
-            '<start_scan>'
-            '<scanner_params /><vts><vt id="1.2.3.4" />'
-            '</vts>'
-            '<targets><target>'
-            '<hosts>192.168.10.20-25</hosts>'
-            '<ports>80,443</ports>'
-            '<finished_hosts>192.168.10.23-24'
-            '</finished_hosts>'
-            '</target>'
-            '<target><hosts>192.168.0.0/24</hosts>'
-            '<ports>22</ports></target>'
-            '</targets>'
-            '</start_scan>',
-            fs,
-        )
-        response = fs.get_response()
-
-        scan_id = response.findtext('id')
-        time.sleep(1)
-        finished = daemon.get_scan_finished_hosts(scan_id)
-        for host in ['192.168.10.23', '192.168.10.24']:
-            self.assertIn(host, finished)
-        self.assertEqual(len(finished), 2)
-
     def test_progress(self):
         daemon = DummyWrapper([])
 
@@ -837,11 +809,84 @@ class ScanTestCase(unittest.TestCase):
         response = fs.get_response()
 
         scan_id = response.findtext('id')
-
         daemon.set_scan_host_progress(scan_id, 'localhost1', 75)
         daemon.set_scan_host_progress(scan_id, 'localhost2', 25)
 
         self.assertEqual(daemon.calculate_progress(scan_id), 50)
+
+    def test_sort_host_finished(self):
+        daemon = DummyWrapper([])
+
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        daemon.set_scan_host_progress(scan_id, 'localhost3', -1)
+        daemon.set_scan_host_progress(scan_id, 'localhost1', 75)
+        daemon.set_scan_host_progress(scan_id, 'localhost4', 100)
+        daemon.set_scan_host_progress(scan_id, 'localhost2', 25)
+
+        daemon.sort_host_finished(scan_id, ['localhost3', 'localhost4'])
+
+        rounded_progress = int(daemon.calculate_progress(scan_id))
+        self.assertEqual(rounded_progress, 66)
+
+    def test_get_scan_progress_xml(self):
+        daemon = DummyWrapper([])
+
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        daemon.set_scan_host_progress(scan_id, 'localhost3', -1)
+        daemon.set_scan_host_progress(scan_id, 'localhost4', 100)
+        daemon.sort_host_finished(scan_id, ['localhost3', 'localhost4'])
+
+        daemon.set_scan_host_progress(scan_id, 'localhost1', 75)
+        daemon.set_scan_host_progress(scan_id, 'localhost2', 25)
+
+        fs = FakeStream()
+        daemon.handle_command(
+            '<get_scans details="0" progress="1"/>', fs,
+        )
+        response = fs.get_response()
+
+        progress = response.find('scan/progress')
+
+        overall = float(progress.findtext('overall'))
+        self.assertEqual(int(overall), 66)
+
+        count_alive = progress.findtext('count_alive')
+        self.assertEqual(count_alive, '1')
+
+        count_dead = progress.findtext('count_dead')
+        self.assertEqual(count_dead, '1')
+
+        current_hosts = progress.findall('host')
+        self.assertEqual(len(current_hosts), 2)
+
+        count_excluded = progress.findtext('count_excluded')
+        self.assertEqual(count_excluded, '0')
 
     def test_set_get_vts_version(self):
         daemon = DummyWrapper([])
@@ -856,17 +901,8 @@ class ScanTestCase(unittest.TestCase):
 
     @patch("ospd.ospd.os")
     @patch("ospd.command.command.create_process")
-    def test_resume_task(self, mock_create_process, _mock_os):
-        daemon = DummyWrapper(
-            [
-                Result(
-                    'host-detail', host='localhost', value='Some Host Detail'
-                ),
-                Result(
-                    'host-detail', host='localhost', value='Some Host Detail2'
-                ),
-            ]
-        )
+    def test_scan_exists(self, mock_create_process, _mock_os):
+        daemon = DummyWrapper([])
 
         fp = FakeStartProcess()
         mock_create_process.side_effect = fp
@@ -888,59 +924,33 @@ class ScanTestCase(unittest.TestCase):
         )
         response = fs.get_response()
         scan_id = response.findtext('id')
-
         self.assertIsNotNone(scan_id)
+
+        status = response.get('status_text')
+        self.assertEqual(status, 'OK')
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
 
-        fs = FakeStream()
         daemon.handle_command('<stop_scan scan_id="%s" />' % scan_id, fs)
 
         fs = FakeStream()
-        daemon.handle_command(
-            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
-        )
-        response = fs.get_response()
-
-        result = response.findall('scan/results/result')
-        self.assertEqual(len(result), 2)
-
-        # Resume the task
         cmd = (
-            '<start_scan scan_id="{}" target="localhost" ports="80, 443">'
+            '<start_scan scan_id="' + scan_id + '">'
             '<scanner_params />'
-            '</start_scan>'.format(scan_id)
-        )
-        fs = FakeStream()
-        daemon.handle_command(cmd, fs)
-        response = fs.get_response()
-
-        # Check unfinished host
-        self.assertEqual(response.findtext('id'), scan_id)
-        self.assertEqual(
-            daemon.get_scan_unfinished_hosts(scan_id), ['localhost']
+            '<targets><target>'
+            '<hosts>localhost</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>'
         )
 
-        # Finished the host and check unfinished again.
-        daemon.set_scan_host_finished(scan_id, "localhost")
-        self.assertEqual(len(daemon.get_scan_unfinished_hosts(scan_id)), 0)
-
-        # Check finished hosts
-        self.assertEqual(
-            daemon.scan_collection.get_hosts_finished(scan_id), ['localhost']
-        )
-
-        # Check if the result was removed.
-        fs = FakeStream()
         daemon.handle_command(
-            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+            cmd, fs,
         )
         response = fs.get_response()
-        result = response.findall('scan/results/result')
-
-        # current the response still contains the results
-        # self.assertEqual(len(result), 0)
+        status = response.get('status_text')
+        self.assertEqual(status, 'Continue')
 
     def test_result_order(self):
         daemon = DummyWrapper([])

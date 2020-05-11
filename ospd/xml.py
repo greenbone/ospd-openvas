@@ -99,6 +99,32 @@ def get_result_xml(result):
     return result_xml
 
 
+def get_progress_xml(progress: Dict[str, int]):
+    """ Formats a scan progress to XML format.
+
+    Arguments:
+        progress (dict): Dictionary with a scan progress.
+
+    Return:
+        Progress as xml element object.
+    """
+
+    progress_xml = Element('progress')
+    for progress_item, value in progress.items():
+        elem = None
+        if progress_item == 'current_hosts':
+            for host, h_progress in value.items():
+                elem = Element('host')
+                elem.set('name', host)
+                elem.text = str(h_progress)
+                progress_xml.append(elem)
+        else:
+            elem = Element(progress_item)
+            elem.text = str(value)
+            progress_xml.append(elem)
+    return progress_xml
+
+
 def simple_response_str(
     command: str,
     status: int,

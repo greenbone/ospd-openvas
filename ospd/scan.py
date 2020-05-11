@@ -148,29 +148,26 @@ class ScanCollection:
         self.scans_table[scan_id]['target_progress'] = host_progresses
 
     def set_host_finished(self, scan_id: str, hosts: List[str]) -> None:
-        """ Add the host in a list of finished hosts """
-        finished_hosts = self.scans_table[scan_id].get('finished_hosts')
-        finished_hosts.extend(hosts)
-        uniq_set_of_hosts = set(finished_hosts)
+        """ Increase the amount of finished hosts which were alive."""
 
-        self.scans_table[scan_id]['finished_hosts'] = list(uniq_set_of_hosts)
+        total_finished = len(hosts)
+        count_alive = (
+            self.scans_table[scan_id].get('count_alive') + total_finished
+        )
+        self.scans_table[scan_id]['count_alive'] = count_alive
 
-    def get_hosts_unfinished(self, scan_id: str) -> List[Any]:
-        """ Get a list of unfinished hosts."""
+    def set_host_dead(self, scan_id: str, hosts: List[str]) -> None:
+        """ Increase the amount of dead hosts. """
 
-        unfinished_hosts = target_str_to_list(self.get_host_list(scan_id))
+        total_dead = len(hosts)
+        count_dead = self.scans_table[scan_id].get('count_dead') + total_dead
+        self.scans_table[scan_id]['count_dead'] = count_dead
 
-        finished_hosts = self.get_hosts_finished(scan_id)
+    def set_amount_dead_hosts(self, scan_id: str, total_dead: int) -> None:
+        """ Increase the amount of dead hosts. """
 
-        for host in finished_hosts:
-            unfinished_hosts.remove(host)
-
-        return unfinished_hosts
-
-    def get_hosts_finished(self, scan_id: str) -> List:
-        """ Get a list of finished hosts."""
-
-        return self.scans_table[scan_id].get('finished_hosts')
+        count_dead = self.scans_table[scan_id].get('count_dead') + total_dead
+        self.scans_table[scan_id]['count_dead'] = count_dead
 
     def results_iterator(
         self, scan_id: str, pop_res: bool = False, max_res: int = None
@@ -199,50 +196,6 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
-    def remove_single_result(
-        self, scan_id: str, result: Dict[str, str]
-    ) -> None:
-        """Removes a single result from the result list in scan_table.
-
-        Parameters:
-            scan_id (uuid): Scan ID to identify the scan process to be resumed.
-            result (dict): The result to be removed from the results list.
-        """
-        results = self.scans_table[scan_id]['results']
-        results.remove(result)
-        self.scans_table[scan_id]['results'] = results
-
-    def del_results_for_stopped_hosts(self, scan_id: str) -> None:
-        """ Remove results from the result table for those host
-        """
-        unfinished_hosts = self.get_hosts_unfinished(scan_id)
-        for result in self.results_iterator(
-            scan_id, pop_res=False, max_res=None
-        ):
-            if result['host'] in unfinished_hosts:
-                self.remove_single_result(scan_id, result)
-
-    def resume_scan(self, scan_id: str, options: Optional[Dict]) -> str:
-        """ Reset the scan status in the scan_table to INIT.
-        Also, overwrite the options, because a resume task cmd
-        can add some new option. E.g. exclude hosts list.
-        Parameters:
-            scan_id (uuid): Scan ID to identify the scan process to be resumed.
-            options (dict): Options for the scan to be resumed. This options
-                            are not added to the already existent ones.
-                            The old ones are removed
-
-        Return:
-            Scan ID which identifies the current scan.
-        """
-        self.scans_table[scan_id]['status'] = ScanStatus.INIT
-        if options:
-            self.scans_table[scan_id]['options'] = options
-
-        self.del_results_for_stopped_hosts(scan_id)
-
-        return scan_id
-
     def create_scan(
         self,
         scan_id: str = '',
@@ -258,25 +211,15 @@ class ScanCollection:
         if self.data_manager is None:
             self.data_manager = multiprocessing.Manager()
 
-        # Check if it is possible to resume task. To avoid to resume, the
-        # scan must be deleted from the scans_table.
-        if (
-            scan_id
-            and self.id_exists(scan_id)
-            and (self.get_status(scan_id) == ScanStatus.STOPPED)
-        ):
-            self.scans_table[scan_id]['end_time'] = 0
-
-            return self.resume_scan(scan_id, options)
-
         if not options:
             options = dict()
 
         scan_info = self.data_manager.dict()  # type: Dict
         scan_info['results'] = list()
-        scan_info['finished_hosts'] = list()
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict()
+        scan_info['count_alive'] = 0
+        scan_info['count_dead'] = 0
         scan_info['target'] = target
         scan_info['vts'] = vts
         scan_info['options'] = options
@@ -318,11 +261,29 @@ class ScanCollection:
 
         return self.scans_table[scan_id]['progress']
 
-    def simplify_exclude_host_list(self, scan_id: str) -> List[Any]:
+    def get_count_dead(self, scan_id: str) -> int:
+        """ Get a scan's current dead host count. """
+
+        return self.scans_table[scan_id]['count_dead']
+
+    def get_count_alive(self, scan_id: str) -> int:
+        """ Get a scan's current dead host count. """
+
+        return self.scans_table[scan_id]['count_alive']
+
+    def get_current_target_progress(self, scan_id: str) -> Dict[str, int]:
+        """ Get a scan's current dead host count. """
+
+        return self.scans_table[scan_id]['target_progress']
+
+    def simplify_exclude_host_count(self, scan_id: str) -> int:
         """ Remove from exclude_hosts the received hosts in the finished_hosts
         list sent by the client.
         The finished hosts are sent also as exclude hosts for backward
         compatibility purposses.
+
+        Return:
+            Count of excluded host.
         """
 
         exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
@@ -336,22 +297,22 @@ class ScanCollection:
                 if finished in exc_hosts_list:
                     exc_hosts_list.remove(finished)
 
-        return exc_hosts_list
+        return len(exc_hosts_list) if exc_hosts_list else 0
 
     def calculate_target_progress(self, scan_id: str) -> float:
         """ Get a target's current progress value.
         The value is calculated with the progress of each single host
         in the target."""
 
-        host = self.get_host_list(scan_id)
-        total_hosts = len(target_str_to_list(host))
-        exc_hosts_list = self.simplify_exclude_host_list(scan_id)
-        exc_hosts = len(exc_hosts_list) if exc_hosts_list else 0
+        total_hosts = self.get_host_count(scan_id)
+        exc_hosts = self.simplify_exclude_host_count(scan_id)
+        count_alive = self.get_count_alive(scan_id)
+        count_dead = self.get_count_dead(scan_id)
         host_progresses = self.scans_table[scan_id].get('target_progress')
 
         try:
-            t_prog = sum(host_progresses.values()) / (
-                total_hosts - exc_hosts
+            t_prog = (sum(host_progresses.values()) + 100 * count_alive) / (
+                total_hosts - exc_hosts - count_dead
             )  # type: float
         except ZeroDivisionError:
             LOGGER.error(
@@ -376,6 +337,13 @@ class ScanCollection:
         """ Get a scan's host list. """
 
         return self.scans_table[scan_id]['target'].get('hosts')
+
+    def get_host_count(self, scan_id: str) -> int:
+        """ Get total host count in the target. """
+        host = self.get_host_list(scan_id)
+        total_hosts = len(target_str_to_list(host))
+
+        return total_hosts
 
     def get_ports(self, scan_id: str):
         """ Get a scan's ports list.

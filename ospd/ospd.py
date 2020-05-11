@@ -56,6 +56,7 @@ from ospd.vts import Vts
 from ospd.xml import (
     elements_as_text,
     get_result_xml,
+    get_progress_xml,
     get_elements_from_dict,
 )
 
@@ -81,6 +82,9 @@ BASE_SCANNER_PARAMS = {
         'description': 'Whether to dry run scan.',
     },
 }  # type: Dict
+
+PROGRESS_FINISHED = 100
+PROGRESS_DEAD_HOST = -1
 
 
 def _terminate_process_group(process: multiprocessing.Process) -> None:
@@ -410,7 +414,7 @@ class OSPDaemon:
 
     def finish_scan(self, scan_id: str) -> None:
         """ Sets a scan as finished. """
-        self.set_scan_progress(scan_id, 100)
+        self.scan_collection.set_progress(scan_id, PROGRESS_FINISHED)
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
@@ -505,29 +509,14 @@ class OSPDaemon:
 
         return self.scan_collection.calculate_target_progress(scan_id)
 
-    def process_exclude_hosts(self, scan_id: str, exclude_hosts: str) -> None:
-        """ Process the exclude hosts before launching the scans."""
-
-        exc_hosts_list = ''
-        if not exclude_hosts:
-            return
-        exc_hosts_list = target_str_to_list(exclude_hosts)
-        self.remove_scan_hosts_from_target_progress(scan_id, exc_hosts_list)
-
     def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
-        """ Process the finished hosts before launching the scans.
-        Set finished hosts as finished with 100% to calculate
-        the scan progress."""
+        """ Process the finished hosts before launching the scans."""
 
-        exc_hosts_list = ''
         if not finished_hosts:
             return
 
-        exc_hosts_list = target_str_to_list(finished_hosts)
-
-        for host in exc_hosts_list:
-            self.set_scan_host_finished(scan_id, finished_hosts=host)
-            self.set_scan_host_progress(scan_id, host=host, progress=100)
+        exc_finished_hosts_list = target_str_to_list(finished_hosts)
+        self.scan_collection.set_host_finished(scan_id, exc_finished_hosts_list)
 
     def start_scan(self, scan_id: str, target: Dict) -> None:
         """ Starts the scan with scan_id. """
@@ -538,7 +527,6 @@ class OSPDaemon:
 
         logger.info("%s: Scan started.", scan_id)
 
-        self.process_exclude_hosts(scan_id, target.get('exclude_hosts'))
         self.process_finished_hosts(scan_id, target.get('finished_hosts'))
 
         try:
@@ -584,27 +572,34 @@ class OSPDaemon:
             value="{0} exec timeout.".format(self.get_scanner_name()),
         )
 
-    def remove_scan_hosts_from_target_progress(
-        self, scan_id: str, exc_hosts_list: List
-    ) -> None:
-        """ Remove a list of hosts from the main scan progress table."""
-        self.scan_collection.remove_hosts_from_target_progress(
-            scan_id, exc_hosts_list
-        )
-
-    def set_scan_host_finished(
+    def sort_host_finished(
         self, scan_id: str, finished_hosts: Union[List[str], str],
     ) -> None:
-        """ Add the host in a list of finished hosts """
+        """ Check if the finished host in the list was alive or dead
+        and update the corresponding alive_count or dead_count. """
         if isinstance(finished_hosts, str):
             finished_hosts = [finished_hosts]
 
-        self.scan_collection.set_host_finished(scan_id, finished_hosts)
+        alive_hosts = []
+        dead_hosts = []
 
-    def set_scan_progress(self, scan_id: str, progress: int) -> None:
-        """ Sets scan_id scan's progress which is a number
-        between 0 and 100. """
-        self.scan_collection.set_progress(scan_id, progress)
+        current_hosts = self.scan_collection.get_current_target_progress(
+            scan_id
+        )
+        for finished_host in finished_hosts:
+            progress = current_hosts.get(finished_host)
+            if progress == PROGRESS_FINISHED:
+                alive_hosts.append(finished_host)
+            if progress == PROGRESS_DEAD_HOST:
+                dead_hosts.append(finished_host)
+
+        self.scan_collection.set_host_dead(scan_id, dead_hosts)
+
+        self.scan_collection.set_host_finished(scan_id, alive_hosts)
+
+        self.scan_collection.remove_hosts_from_target_progress(
+            scan_id, finished_hosts
+        )
 
     def set_scan_progress_batch(
         self, scan_id: str, host_progress: Dict[str, int]
@@ -612,7 +607,7 @@ class OSPDaemon:
         self.scan_collection.set_host_progress(scan_id, host_progress)
 
         scan_progress = self.calculate_progress(scan_id)
-        self.set_scan_progress(scan_id, scan_progress)
+        self.scan_collection.set_progress(scan_id, scan_progress)
 
     def set_scan_host_progress(
         self, scan_id: str, host: str = None, progress: int = None,
@@ -621,9 +616,6 @@ class OSPDaemon:
         Each time a host progress is updated, the scan progress
         is updated too.
         """
-        if host and progress < 0 or progress > 100:
-            return
-
         host_progress = {host: progress}
         self.set_scan_progress_batch(scan_id, host_progress)
 
@@ -711,6 +703,32 @@ class OSPDaemon:
         logger.debug('Returning %d results', len(results))
         return results
 
+    def _get_scan_progress_xml(self, scan_id: str):
+        """ Gets scan_id scan's progress in XML format.
+
+        @return: String of scan progress in xml.
+        """
+        current_progress = dict()
+
+        current_progress[
+            'current_hosts'
+        ] = self.scan_collection.get_current_target_progress(scan_id)
+        current_progress['overall'] = self.scan_collection.get_progress(scan_id)
+        current_progress['count_alive'] = self.scan_collection.get_count_alive(
+            scan_id
+        )
+        current_progress['count_dead'] = self.scan_collection.get_count_dead(
+            scan_id
+        )
+        current_progress[
+            'count_excluded'
+        ] = self.scan_collection.simplify_exclude_host_count(scan_id)
+        current_progress['count_total'] = self.scan_collection.get_host_count(
+            scan_id
+        )
+
+        return get_progress_xml(current_progress)
+
     @deprecated(
         version="20.8",
         reason="Please use ospd.xml.get_elements_from_dict instead.",
@@ -730,6 +748,7 @@ class OSPDaemon:
         detailed: bool = True,
         pop_res: bool = False,
         max_res: int = 0,
+        progress: bool = False,
     ):
         """ Gets scan in XML format.
 
@@ -757,6 +776,9 @@ class OSPDaemon:
             response.append(
                 self.get_scan_results_xml(scan_id, pop_res, max_res)
             )
+        if progress:
+            response.append(self._get_scan_progress_xml(scan_id))
+
         return response
 
     @staticmethod
@@ -1178,23 +1200,17 @@ class OSPDaemon:
         @target: Target to scan.
         @options: Miscellaneous scan options.
 
-        @return: New scan's ID. None if the scan_id already exists and the
-                 scan status is RUNNING or FINISHED.
+        @return: New scan's ID. None if the scan_id already exists.
         """
         status = None
         scan_exists = self.scan_exists(scan_id)
         if scan_id and scan_exists:
             status = self.get_scan_status(scan_id)
-
-        if scan_exists and status == ScanStatus.STOPPED:
-            logger.info("Scan %s exists. Resuming scan.", scan_id)
-        elif scan_exists and (
-            status == ScanStatus.RUNNING or status == ScanStatus.FINISHED
-        ):
             logger.info(
                 "Scan %s exists with status %s.", scan_id, status.name.lower()
             )
             return
+
         return self.scan_collection.create_scan(
             scan_id, targets, options, vt_selection
         )
@@ -1238,7 +1254,7 @@ class OSPDaemon:
         scan_process = self.scan_processes[scan_id]
         progress = self.get_scan_progress(scan_id)
 
-        if progress < 100 and not scan_process.is_alive():
+        if progress < PROGRESS_FINISHED and not scan_process.is_alive():
             if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
@@ -1247,7 +1263,7 @@ class OSPDaemon:
 
                 logger.info("%s: Scan stopped with errors.", scan_id)
 
-        elif progress == 100:
+        elif progress == PROGRESS_FINISHED:
             scan_process.join(0)
 
     def get_scan_progress(self, scan_id: str):
@@ -1280,14 +1296,6 @@ class OSPDaemon:
     def get_scan_vts(self, scan_id: str) -> Dict:
         """ Gives a scan's vts. """
         return self.scan_collection.get_vts(scan_id)
-
-    def get_scan_unfinished_hosts(self, scan_id: str) -> List:
-        """ Get a list of unfinished hosts."""
-        return self.scan_collection.get_hosts_unfinished(scan_id)
-
-    def get_scan_finished_hosts(self, scan_id: str) -> List:
-        """ Get a list of unfinished hosts."""
-        return self.scan_collection.get_hosts_finished(scan_id)
 
     def get_scan_start_time(self, scan_id: str) -> str:
         """ Gives a scan's start time. """

@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add details attribute to get_vts command. [#222](https://github.com/greenbone/ospd/pull/222)
 - Add [pontos](https://github.com/greenbone/pontos) as dev dependency for
   managing the version information in ospd [#254](https://github.com/greenbone/ospd/pull/254)
+- Add more info about scan progress with progress attribute in get_scans cmd. [#266](https://github.com/greenbone/ospd/pull/266)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)
@@ -30,10 +31,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   a bit different then `pipenv install`. It installs dev packages by default and
   also ospd in editable mode. This means after running poetry install ospd will
   directly be importable in the virtual python environment. [#252](https://github.com/greenbone/ospd/pull/252)
+- Progress bar calculation does not take in account the dead hosts. [#266](https://github.com/greenbone/ospd/pull/266)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
 - Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
+
+### Removed
+- Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
 
 ## [2.0.1] (unreleased)
 
