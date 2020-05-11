@@ -1198,23 +1198,17 @@ class OSPDaemon:
         @target: Target to scan.
         @options: Miscellaneous scan options.
 
-        @return: New scan's ID. None if the scan_id already exists and the
-                 scan status is RUNNING or FINISHED.
+        @return: New scan's ID. None if the scan_id already exists.
         """
         status = None
         scan_exists = self.scan_exists(scan_id)
         if scan_id and scan_exists:
             status = self.get_scan_status(scan_id)
-
-        if scan_exists and status == ScanStatus.STOPPED:
-            logger.info("Scan %s exists. Resuming scan.", scan_id)
-        elif scan_exists and (
-            status == ScanStatus.RUNNING or status == ScanStatus.FINISHED
-        ):
             logger.info(
                 "Scan %s exists with status %s.", scan_id, status.name.lower()
             )
             return
+
         return self.scan_collection.create_scan(
             scan_id, targets, options, vt_selection
         )
