@@ -349,48 +349,8 @@ class PreferenceHandlerTestCase(TestCase):
         w = DummyDaemon()
 
         exc = '192.168.0.1'
-        fin = ['192.168.0.2']
 
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
-        w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
-
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_host_options_for_openvas()
-
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['exclude_hosts|||192.168.0.1,192.168.0.2'],
-        )
-
-    @patch('ospd_openvas.db.KbDB')
-    def test_set_host_options_no_exclude(self, mock_kb):
-        w = DummyDaemon()
-
-        exc = ''
-        fin = ['192.168.0.2']
-
-        w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
-        w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
-
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_host_options_for_openvas()
-
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['exclude_hosts|||192.168.0.2'],
-        )
-
-    @patch('ospd_openvas.db.KbDB')
-    def test_set_host_options_no_finished(self, mock_kb):
-        w = DummyDaemon()
-
-        exc = '192.168.0.1'
-        fin = []
-
-        w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
-        w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
@@ -406,10 +366,8 @@ class PreferenceHandlerTestCase(TestCase):
         w = DummyDaemon()
 
         exc = ''
-        fin = []
 
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
-        w.scan_collection.get_hosts_finished = MagicMock(return_value=fin)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
         p._openvas_scan_id = '456-789'
