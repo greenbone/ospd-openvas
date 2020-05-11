@@ -509,7 +509,6 @@ class OSPDaemon:
     def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
         """ Process the finished hosts before launching the scans."""
 
-        exc_hosts_list = ''
         if not finished_hosts:
             return
 
