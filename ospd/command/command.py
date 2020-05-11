@@ -418,17 +418,12 @@ class GetScans(BaseCommand):
             details = False
         else:
             details = True
-            if pop_res and pop_res == '1':
-                pop_res = True
-            else:
-                pop_res = False
+            pop_res = pop_res and pop_res == '1'
+
             if max_res:
                 max_res = int(max_res)
 
-        if progress and progress == '1':
-            progress = True
-        else:
-            progress = False
+        progress = progress and progress == '1'
 
         responses = []
         if scan_id and scan_id in self._daemon.scan_collection.ids_iterator():
