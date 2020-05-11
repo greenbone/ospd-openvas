@@ -34,7 +34,7 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
-from ospd.ospd import OSPDaemon
+from ospd.ospd import OSPDaemon, PROGRESS_DEAD_HOST
 from ospd.server import BaseServer
 from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
@@ -809,12 +809,17 @@ class OSPDopenvas(OSPDaemon):
             launched, total = msg.split('/')
         except ValueError:
             return
-        if float(total) == 0:
+
+        try:
+            if float(total) == 0:
+                return
+            elif float(total) == PROGRESS_DEAD_HOST:
+                host_prog = PROGRESS_DEAD_HOST
+            else:
+                host_prog = (float(launched) / float(total)) * 100
+        except TypeError:
             return
-        elif float(total) == -1:
-            host_prog = 100
-        else:
-            host_prog = (float(launched) / float(total)) * 100
+
         self.set_scan_host_progress(
             scan_id, host=current_host, progress=host_prog
         )
@@ -859,8 +864,7 @@ class OSPDopenvas(OSPDaemon):
 
         res = db.get_result()
         res_list = ResultList()
-        host_progress_batch = dict()
-        finished_host_batch = list()
+        total_dead = 0
         while res:
             msg = res.split('|||')
             roid = msg[3].strip()
@@ -927,45 +931,22 @@ class OSPDopenvas(OSPDaemon):
                     qod=rqod,
                 )
 
-            # To process non scanned dead hosts when
+            # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
             if msg[0] == 'DEADHOST':
-                hosts = msg[3].split(',')
-                for _host in hosts:
-                    if _host:
-                        host_progress_batch[_host] = 100
-                        finished_host_batch.append(_host)
-                        res_list.add_scan_log_to_list(
-                            host=_host,
-                            hostname=rhostname,
-                            name=rname,
-                            value=msg[4],
-                            port=msg[2],
-                            qod=rqod,
-                            test_id='',
-                        )
-                        timestamp = time.ctime(time.time())
-                        res_list.add_scan_log_to_list(
-                            host=_host, name='HOST_START', value=timestamp,
-                        )
-                        res_list.add_scan_log_to_list(
-                            host=_host, name='HOST_END', value=timestamp,
-                        )
-
+                try:
+                    total_dead = int(msg[4])
+                except TypeError:
+                    logger.debug('Error processing dead host count')
             res = db.get_result()
 
         # Insert result batch into the scan collection table.
         if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
 
-        if host_progress_batch:
-            self.set_scan_progress_batch(
-                scan_id, host_progress=host_progress_batch
-            )
-
-        if finished_host_batch:
-            self.set_scan_host_finished(
-                scan_id, finished_hosts=finished_host_batch
+        if total_dead:
+            self.scan_collection.set_amount_dead_hosts(
+                scan_id, total_dead=total_dead
             )
 
     def report_openvas_timestamp_scan_host(
@@ -1185,14 +1166,16 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                     if scan_db.host_is_finished(openvas_scan_id):
-                        self.set_scan_host_finished(
-                            scan_id, finished_hosts=current_host
-                        )
                         self.report_openvas_scan_status(
                             scan_db, scan_id, current_host
                         )
+
                         self.report_openvas_timestamp_scan_host(
                             scan_db, scan_id, current_host
+                        )
+
+                        self.sort_host_finished(
+                            scan_id, finished_hosts=current_host
                         )
 
                         kbdb.remove_scan_database(scan_db)

@@ -615,6 +615,24 @@ class TestOspdOpenvas(TestCase):
             value='Host dead',
         )
 
+    @patch('ospd_openvas.daemon.ScanDB')
+    def test_get_openvas_result_dead_hosts(self, MockDBClass):
+        w = DummyDaemon()
+
+        target_element = w.create_xml_target()
+        targets = OspRequest.process_target_element(target_element)
+        w.create_scan('123-456', targets, None, [])
+
+        results = ["DEADHOST||| ||| ||| |||4", None]
+        mock_db = MockDBClass.return_value
+        mock_db.get_result.side_effect = results
+        w.scan_collection.set_amount_dead_hosts = MagicMock()
+
+        w.report_openvas_results(mock_db, '123-456', 'localhost')
+        w.scan_collection.set_amount_dead_hosts.assert_called_with(
+            '123-456', total_dead=4,
+        )
+
     @patch('ospd_openvas.db.KbDB')
     def test_openvas_is_alive_already_stopped(self, mock_db):
         w = DummyDaemon()
@@ -647,7 +665,7 @@ class TestOspdOpenvas(TestCase):
         w.update_progress('123-456', 'localhost', msg)
 
         mock_set_scan_host_progress.assert_called_with(
-            '123-456', host='localhost', progress=100
+            '123-456', host='localhost', progress=-1
         )
 
 

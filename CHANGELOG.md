@@ -35,6 +35,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   a bit different then `pipenv install`. It installs dev packages by default and
   also ospd in editable mode. This means after running poetry install ospd will
   directly be importable in the virtual python environment. [#235](https://github.com/greenbone/ospd-openvas/pull/235)
+- Don't send host details and log messages to the client when Boreas is enabled. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
+- Progress bar calculation do not takes in accound dead hosts. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
@@ -43,6 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
+- Handling of finished host for resume task. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
 
 ## [1.0.1] (unreleased)
 
