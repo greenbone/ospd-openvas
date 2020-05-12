@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [1.0.1] (unreleased)
+## [1.0.1] (2020-05-12)
 
 ### Added
 - Check the vt's preference value for type 'file'. [#130](https://github.com/greenbone/ospd-openvas/pull/130).
@@ -35,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#185](https://github.com/greenbone/ospd-openvas/pull/185)
 
-[1.0.1]: https://github.com/greenbone/ospd-openvas/commits/v1.0.0...ospd-openvas-1.0
+[1.0.1]: https://github.com/greenbone/ospd-openvas/compare/v1.0.1...v1.0.0
 
 ## [1.0.0] (2019-10-11)
 
