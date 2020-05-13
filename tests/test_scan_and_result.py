@@ -812,7 +812,9 @@ class ScanTestCase(unittest.TestCase):
         daemon.set_scan_host_progress(scan_id, 'localhost1', 75)
         daemon.set_scan_host_progress(scan_id, 'localhost2', 25)
 
-        self.assertEqual(daemon.calculate_progress(scan_id), 50)
+        self.assertEqual(
+            daemon.scan_collection.calculate_target_progress(scan_id), 50
+        )
 
     def test_sort_host_finished(self):
         daemon = DummyWrapper([])
@@ -838,8 +840,42 @@ class ScanTestCase(unittest.TestCase):
 
         daemon.sort_host_finished(scan_id, ['localhost3', 'localhost4'])
 
-        rounded_progress = int(daemon.calculate_progress(scan_id))
+        rounded_progress = daemon.scan_collection.calculate_target_progress(
+            scan_id
+        )
         self.assertEqual(rounded_progress, 66)
+
+    def test_calculate_progress_without_current_hosts(self):
+        daemon = DummyWrapper([])
+
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        daemon.set_scan_host_progress(scan_id)
+        daemon.set_scan_host_progress(scan_id, 'localhost3', -1)
+        daemon.set_scan_host_progress(scan_id, 'localhost4', 100)
+
+        daemon.sort_host_finished(scan_id, ['localhost3', 'localhost4'])
+
+        float_progress = daemon.scan_collection.calculate_target_progress(
+            scan_id
+        )
+        self.assertEqual(int(float_progress), 33)
+
+        daemon.scan_collection.set_progress(scan_id, float_progress)
+        progress = daemon.get_scan_progress(scan_id)
+        self.assertEqual(progress, 33)
 
     def test_get_scan_progress_xml(self):
         daemon = DummyWrapper([])

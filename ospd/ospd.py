@@ -504,11 +504,6 @@ class OSPDaemon:
 
         stream.close()
 
-    def calculate_progress(self, scan_id: str) -> float:
-        """ Calculate the total scan progress. """
-
-        return self.scan_collection.calculate_target_progress(scan_id)
-
     def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
         """ Process the finished hosts before launching the scans."""
 
@@ -606,7 +601,7 @@ class OSPDaemon:
     ):
         self.scan_collection.set_host_progress(scan_id, host_progress)
 
-        scan_progress = self.calculate_progress(scan_id)
+        scan_progress = self.scan_collection.calculate_target_progress(scan_id)
         self.scan_collection.set_progress(scan_id, scan_progress)
 
     def set_scan_host_progress(
@@ -616,6 +611,15 @@ class OSPDaemon:
         Each time a host progress is updated, the scan progress
         is updated too.
         """
+        if host is None or progress is None:
+            return
+
+        if not isinstance(progress, int):
+            try:
+                progress = int(progress)
+            except (TypeError, ValueError):
+                return
+
         host_progress = {host: progress}
         self.set_scan_progress_batch(scan_id, host_progress)
 
@@ -713,7 +717,7 @@ class OSPDaemon:
         current_progress[
             'current_hosts'
         ] = self.scan_collection.get_current_target_progress(scan_id)
-        current_progress['overall'] = self.scan_collection.get_progress(scan_id)
+        current_progress['overall'] = self.get_scan_progress(scan_id)
         current_progress['count_alive'] = self.scan_collection.get_count_alive(
             scan_id
         )
@@ -1266,7 +1270,7 @@ class OSPDaemon:
         elif progress == PROGRESS_FINISHED:
             scan_process.join(0)
 
-    def get_scan_progress(self, scan_id: str):
+    def get_scan_progress(self, scan_id: str) -> int:
         """ Gives a scan's current progress value. """
         return self.scan_collection.get_progress(scan_id)
 

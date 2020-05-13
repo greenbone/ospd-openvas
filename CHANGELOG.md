@@ -32,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   also ospd in editable mode. This means after running poetry install ospd will
   directly be importable in the virtual python environment. [#252](https://github.com/greenbone/ospd/pull/252)
 - Progress bar calculation does not take in account the dead hosts. [#266](https://github.com/greenbone/ospd/pull/266)
+- Show progress as integer for get_scans. [#269](https://github.com/greenbone/ospd/pull/269)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)

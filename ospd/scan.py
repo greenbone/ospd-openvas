@@ -140,6 +140,7 @@ class ScanCollection:
         self, scan_id: str, host_progress_batch: Dict[str, int]
     ) -> None:
         """ Sets scan_id scan's progress. """
+
         host_progresses = self.scans_table[scan_id].get('target_progress')
         host_progresses.update(host_progress_batch)
 
@@ -272,8 +273,7 @@ class ScanCollection:
         return self.scans_table[scan_id]['count_alive']
 
     def get_current_target_progress(self, scan_id: str) -> Dict[str, int]:
-        """ Get a scan's current dead host count. """
-
+        """ Get a scan's current hosts progress """
         return self.scans_table[scan_id]['target_progress']
 
     def simplify_exclude_host_count(self, scan_id: str) -> int:
@@ -299,7 +299,7 @@ class ScanCollection:
 
         return len(exc_hosts_list) if exc_hosts_list else 0
 
-    def calculate_target_progress(self, scan_id: str) -> float:
+    def calculate_target_progress(self, scan_id: str) -> int:
         """ Get a target's current progress value.
         The value is calculated with the progress of each single host
         in the target."""
@@ -308,12 +308,13 @@ class ScanCollection:
         exc_hosts = self.simplify_exclude_host_count(scan_id)
         count_alive = self.get_count_alive(scan_id)
         count_dead = self.get_count_dead(scan_id)
-        host_progresses = self.scans_table[scan_id].get('target_progress')
+        host_progresses = self.get_current_target_progress(scan_id)
 
         try:
-            t_prog = (sum(host_progresses.values()) + 100 * count_alive) / (
-                total_hosts - exc_hosts - count_dead
-            )  # type: float
+            t_prog = int(
+                (sum(host_progresses.values()) + 100 * count_alive)
+                / (total_hosts - exc_hosts - count_dead)
+            )
         except ZeroDivisionError:
             LOGGER.error(
                 "Zero division error in %s",
