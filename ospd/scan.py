@@ -140,6 +140,7 @@ class ScanCollection:
         self, scan_id: str, host_progress_batch: Dict[str, int]
     ) -> None:
         """ Sets scan_id scan's progress. """
+
         host_progresses = self.scans_table[scan_id].get('target_progress')
         host_progresses.update(host_progress_batch)
 
@@ -274,7 +275,12 @@ class ScanCollection:
     def get_current_target_progress(self, scan_id: str) -> Dict[str, int]:
         """ Get a scan's current dead host count. """
 
-        return self.scans_table[scan_id]['target_progress']
+        hosts = self.scans_table[scan_id]['target_progress']
+        if hosts:
+            for host, progress in hosts.items():
+                hosts[host] = int(progress)
+
+        return hosts
 
     def simplify_exclude_host_count(self, scan_id: str) -> int:
         """ Remove from exclude_hosts the received hosts in the finished_hosts
