@@ -597,7 +597,7 @@ class OSPDaemon:
         )
 
     def set_scan_progress_batch(
-        self, scan_id: str, host_progress: Dict[str, Union[float, int]]
+        self, scan_id: str, host_progress: Dict[str, int]
     ):
         self.scan_collection.set_host_progress(scan_id, host_progress)
 
@@ -605,10 +605,7 @@ class OSPDaemon:
         self.scan_collection.set_progress(scan_id, scan_progress)
 
     def set_scan_host_progress(
-        self,
-        scan_id: str,
-        host: str = None,
-        progress: Union[float, int] = None,
+        self, scan_id: str, host: str = None, progress: int = None,
     ) -> None:
         """ Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
@@ -616,6 +613,12 @@ class OSPDaemon:
         """
         if host is None or progress is None:
             return
+
+        if not isinstance(progress, int):
+            try:
+                progress = int(progress)
+            except (TypeError, ValueError):
+                return
 
         host_progress = {host: progress}
         self.set_scan_progress_batch(scan_id, host_progress)
@@ -1269,7 +1272,7 @@ class OSPDaemon:
 
     def get_scan_progress(self, scan_id: str) -> int:
         """ Gives a scan's current progress value. """
-        return int(self.scan_collection.get_progress(scan_id))
+        return self.scan_collection.get_progress(scan_id)
 
     def get_scan_host(self, scan_id: str) -> str:
         """ Gives a scan's target. """
