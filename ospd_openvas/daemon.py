@@ -816,7 +816,7 @@ class OSPDopenvas(OSPDaemon):
             elif float(total) == PROGRESS_DEAD_HOST:
                 host_prog = PROGRESS_DEAD_HOST
             else:
-                host_prog = (float(launched) / float(total)) * 100
+                host_prog = int((float(launched) / float(total)) * 100)
         except TypeError:
             return
 
