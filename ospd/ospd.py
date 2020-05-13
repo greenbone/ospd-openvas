@@ -504,11 +504,6 @@ class OSPDaemon:
 
         stream.close()
 
-    def calculate_progress(self, scan_id: str) -> float:
-        """ Calculate the total scan progress. """
-
-        return self.scan_collection.calculate_target_progress(scan_id)
-
     def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
         """ Process the finished hosts before launching the scans."""
 
@@ -606,7 +601,7 @@ class OSPDaemon:
     ):
         self.scan_collection.set_host_progress(scan_id, host_progress)
 
-        scan_progress = self.calculate_progress(scan_id)
+        scan_progress = self.scan_collection.calculate_target_progress(scan_id)
         self.scan_collection.set_progress(scan_id, scan_progress)
 
     def set_scan_host_progress(
