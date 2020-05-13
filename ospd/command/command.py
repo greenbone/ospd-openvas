@@ -409,6 +409,9 @@ class GetScans(BaseCommand):
         """
 
         scan_id = xml.get('scan_id')
+        if scan_id is None or scan_id == '':
+            raise OspdCommandError('No scan_id attribute', 'get_scans')
+
         details = xml.get('details')
         pop_res = xml.get('pop_results')
         max_res = xml.get('max_results')
@@ -426,22 +429,15 @@ class GetScans(BaseCommand):
         progress = progress and progress == '1'
 
         responses = []
-        if scan_id and scan_id in self._daemon.scan_collection.ids_iterator():
+        if scan_id in self._daemon.scan_collection.ids_iterator():
             self._daemon.check_scan_process(scan_id)
             scan = self._daemon.get_scan_xml(
                 scan_id, details, pop_res, max_res, progress
             )
             responses.append(scan)
-        elif scan_id:
+        else:
             text = "Failed to find scan '{0}'".format(scan_id)
             return simple_response_str('get_scans', 404, text)
-        else:
-            for scan_id in self._daemon.scan_collection.ids_iterator():
-                self._daemon.check_scan_process(scan_id)
-                scan = self._daemon.get_scan_xml(
-                    scan_id, details, pop_res, max_res, progress
-                )
-                responses.append(scan)
 
         return simple_response_str('get_scans', 200, 'OK', responses)
 
