@@ -645,7 +645,9 @@ class ScanTestCase(unittest.TestCase):
         )
 
         fs = FakeStream()
-        daemon.handle_command('<get_scans details="0" pop_results="1"/>', fs)
+        daemon.handle_command(
+            f'<get_scans scan_id="{scan_id}" details="0" pop_results="1"/>', fs
+        )
         response = fs.get_response()
 
         self.assertEqual(response.findtext('scan/results/result'), None)
@@ -877,6 +879,29 @@ class ScanTestCase(unittest.TestCase):
         progress = daemon.get_scan_progress(scan_id)
         self.assertEqual(progress, 33)
 
+    def test_get_scan_without_scanid(self):
+        daemon = DummyWrapper([])
+
+        fs = FakeStream()
+        daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        fs = FakeStream()
+        self.assertRaises(
+            OspdCommandError,
+            daemon.handle_command,
+            '<get_scans details="0" progress="1"/>',
+            fs,
+        )
+
     def test_get_scan_progress_xml(self):
         daemon = DummyWrapper([])
 
@@ -903,7 +928,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         daemon.handle_command(
-            '<get_scans details="0" progress="1"/>', fs,
+            f'<get_scans scan_id="{scan_id}" details="0" progress="1"/>', fs,
         )
         response = fs.get_response()
 
@@ -1012,7 +1037,9 @@ class ScanTestCase(unittest.TestCase):
         hosts = ['a', 'c', 'b']
 
         fs = FakeStream()
-        daemon.handle_command('<get_scans details="1"/>', fs)
+        daemon.handle_command(
+            f'<get_scans scan_id="{scan_id}" details="1"/>', fs
+        )
         response = fs.get_response()
 
         results = response.findall("scan/results/")
@@ -1047,7 +1074,9 @@ class ScanTestCase(unittest.TestCase):
         hosts = ['a', 'c', 'b']
 
         fs = FakeStream()
-        daemon.handle_command('<get_scans details="1"/>', fs)
+        daemon.handle_command(
+            f'<get_scans scan_id="{scan_id}" details="1"/>', fs
+        )
         response = fs.get_response()
 
         results = response.findall("scan/results/")
