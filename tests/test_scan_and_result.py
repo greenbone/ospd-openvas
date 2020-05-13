@@ -646,7 +646,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         daemon.handle_command(
-            f'<get_scans scan_id="{scan_id}" details="0" pop_results="1"/>', fs
+            '<get_scans scan_id="%s" details="0" pop_results="1"/>' % scan_id,
+            fs,
         )
         response = fs.get_response()
 
@@ -928,7 +929,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         daemon.handle_command(
-            f'<get_scans scan_id="{scan_id}" details="0" progress="1"/>', fs,
+            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id, fs,
         )
         response = fs.get_response()
 
@@ -1038,7 +1039,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         daemon.handle_command(
-            f'<get_scans scan_id="{scan_id}" details="1"/>', fs
+            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
         )
         response = fs.get_response()
 
@@ -1075,7 +1076,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         daemon.handle_command(
-            f'<get_scans scan_id="{scan_id}" details="1"/>', fs
+            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
         )
         response = fs.get_response()
 
