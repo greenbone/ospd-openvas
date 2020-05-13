@@ -178,15 +178,13 @@ class SocketServerMixin:
 
 
 class ThreadedUnixSocketServer(
-    SocketServerMixin,
-    socketserver.ThreadingMixIn,
-    socketserver.UnixStreamServer,
+    SocketServerMixin, socketserver.ThreadingUnixStreamServer,
 ):
     pass
 
 
 class ThreadedTlsSocketServer(
-    SocketServerMixin, socketserver.ThreadingMixIn, socketserver.TCPServer
+    SocketServerMixin, socketserver.ThreadingTCPServer,
 ):
     pass
 
