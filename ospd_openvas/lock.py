@@ -19,6 +19,7 @@
 
 import logging
 import time
+import fcntl
 
 from pathlib import Path
 
@@ -29,9 +30,7 @@ class LockFile:
     def __init__(self, path: Path):
         self._lock_file_path = path
         self._has_lock = False
-
-    def is_locked(self) -> bool:
-        return self._lock_file_path.exists()
+        self._fd = None
 
     def has_lock(self) -> bool:
         return self._has_lock
@@ -39,7 +38,7 @@ class LockFile:
     def acquire_lock(self) -> "LockFile":
         """ Acquite a lock by creating a lock file.
         """
-        if self.has_lock() or self.is_locked():
+        if self.has_lock():
             return self
 
         try:
@@ -47,17 +46,25 @@ class LockFile:
             parent_dir = self._lock_file_path.parent
             parent_dir.mkdir(parents=True, exist_ok=True)
 
-            self._lock_file_path.touch(exist_ok=False)
-            self._has_lock = True
-
-            logger.debug("Created lock file %s.", str(self._lock_file_path))
-
-        except FileExistsError as e:
+            self._fd = open(self._lock_file_path, 'w')
+        except PermissionError as e:
             logger.error(
                 "Failed to create lock file %s. %s",
                 str(self._lock_file_path),
                 e,
             )
+            return self
+
+        # Try to adquire the lock.
+        try:
+            fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self._has_lock = True
+            logger.debug("Created lock file %s.", str(self._lock_file_path))
+        except BlockingIOError as e:
+            logger.error(
+                "Failed to lock the file %s. %s", str(self._lock_file_path), e,
+            )
+            self._fd.close()
 
         return self
 
@@ -71,10 +78,13 @@ class LockFile:
     def release_lock(self) -> None:
         """ Release the lock by deleting the lock file
         """
-        if self.has_lock() and self.is_locked():
-            self._lock_file_path.unlink()
+        if self.has_lock() and self._fd:
+            fcntl.flock(self._fd, fcntl.LOCK_UN)
+            self._fd.close()
             self._has_lock = False
-            logger.debug("Removed lock file %s.", str(self._lock_file_path))
+            logger.debug(
+                "Removed lock from file %s.", str(self._lock_file_path)
+            )
 
     def __enter__(self):
         self.acquire_lock()
