@@ -46,7 +46,7 @@ class LockFile:
             parent_dir = self._lock_file_path.parent
             parent_dir.mkdir(parents=True, exist_ok=True)
 
-            self._fd = open(self._lock_file_path, 'w')
+            self._fd = self._lock_file_path.open('w')
         except PermissionError as e:
             logger.error(
                 "Failed to create lock file %s. %s",
