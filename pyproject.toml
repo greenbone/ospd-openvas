@@ -44,7 +44,7 @@ psutil = "^5.7.0"
 lxml = "^4.5.0"
 defusedxml = "^0.6.0"
 paramiko = "^2.7.1"
-deprecated = "^1.2.9"
+deprecated = "^1.2.10"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.5.2"

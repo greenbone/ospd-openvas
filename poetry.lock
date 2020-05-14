@@ -186,7 +186,7 @@ description = "Python @deprecated decorator to deprecate old python classes, fun
 name = "deprecated"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.2.9"
+version = "1.2.10"
 
 [package.dependencies]
 wrapt = ">=1.10,<2"
@@ -410,7 +410,7 @@ python-versions = "*"
 version = "1.11.2"
 
 [metadata]
-content-hash = "71492ff08b0b5189e03075294d96e09d01bb57446552116a2d8dbb32f20868a6"
+content-hash = "423132a05e168310f67d75b7fb74079a205ec3a8890f349e8af0f0e67e2717a6"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -530,8 +530,8 @@ defusedxml = [
     {file = "defusedxml-0.6.0.tar.gz", hash = "sha256:f684034d135af4c6cbb949b8a4d2ed61634515257a67299e5f940fbaa34377f5"},
 ]
 deprecated = [
-    {file = "Deprecated-1.2.9-py2.py3-none-any.whl", hash = "sha256:55b41a15bda04c6a2c0d27dd4c2b7b81ffa6348c9cad8f077ac1978c59927ab9"},
-    {file = "Deprecated-1.2.9.tar.gz", hash = "sha256:0cf37d293a96805c6afd8b5fc525cb40f23a2cac9b2d066ac3bd4b04e72ceccc"},
+    {file = "Deprecated-1.2.10-py2.py3-none-any.whl", hash = "sha256:a766c1dccb30c5f6eb2b203f87edd1d8588847709c78589e1521d769addc8218"},
+    {file = "Deprecated-1.2.10.tar.gz", hash = "sha256:525ba66fb5f90b07169fdd48b6373c18f1ee12728ca277ca44567a367d9d7f74"},
 ]
 isort = [
     {file = "isort-4.3.21-py2.py3-none-any.whl", hash = "sha256:6e811fcb295968434526407adb8796944f1988c5b65e8139058f2014cbe100fd"},
