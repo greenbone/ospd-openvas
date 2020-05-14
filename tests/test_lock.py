@@ -39,32 +39,32 @@ class LockFileTestCase(unittest.TestCase):
         lock_file_path = self.temp_dir / 'test.lock'
 
         lock_file = LockFile(lock_file_path)
-        lock_file.acquire_lock()
+        lock_file._acquire_lock()
 
         self.assertTrue(lock_file.has_lock())
         self.assertTrue(lock_file_path.exists())
-        lock_file.release_lock()
+        lock_file._release_lock()
 
     @patch('ospd_openvas.lock.logger')
     def test_already_locked(self, mock_logger):
         lock_file_path = self.temp_dir / 'test.lock'
 
         lock_file_aux = LockFile(lock_file_path)
-        lock_file_aux.acquire_lock()
+        lock_file_aux._acquire_lock()
         self.assertTrue(lock_file_aux.has_lock())
 
         lock_file = LockFile(lock_file_path)
-        lock_file.acquire_lock()
+        lock_file._acquire_lock()
         self.assertFalse(lock_file.has_lock())
         assert_called_once(mock_logger.error)
 
-        lock_file_aux.release_lock()
+        lock_file_aux._release_lock()
 
     def test_create_parent_dirs(self):
         lock_file_path = self.temp_dir / 'foo' / 'bar' / 'test.lock'
 
         lock_file = LockFile(lock_file_path)
-        lock_file.acquire_lock()
+        lock_file._acquire_lock()
 
         self.assertTrue(lock_file.has_lock())
 
@@ -72,14 +72,14 @@ class LockFileTestCase(unittest.TestCase):
         self.assertTrue(lock_file_path.parent.is_dir())
         self.assertTrue(lock_file_path.parent.parent.is_dir())
 
-        lock_file.release_lock()
+        lock_file._release_lock()
 
     @patch('ospd_openvas.lock.logger')
     def test_create_paren_dirs_fail(self, mock_logger):
         lock_file_path = Path('/root/lock/file/test.lock')
         lock_file = LockFile(lock_file_path)
 
-        lock_file.acquire_lock()
+        lock_file._acquire_lock()
         self.assertFalse(lock_file.has_lock())
 
         assert_called_once(mock_logger.error)
@@ -92,7 +92,7 @@ class LockFileTestCase(unittest.TestCase):
         with lock_file:
             self.assertTrue(lock_file.has_lock())
             self.assertTrue(lock_file_path.is_file())
-            lock_file.release_lock()
+            lock_file._release_lock()
 
         # The file is not removed
         self.assertFalse(lock_file.has_lock())

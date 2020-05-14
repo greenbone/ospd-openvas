@@ -35,7 +35,7 @@ class LockFile:
     def has_lock(self) -> bool:
         return self._has_lock
 
-    def acquire_lock(self) -> "LockFile":
+    def _acquire_lock(self) -> "LockFile":
         """ Acquite a lock by creating a lock file.
         """
         if self.has_lock():
@@ -47,12 +47,17 @@ class LockFile:
             parent_dir.mkdir(parents=True, exist_ok=True)
 
             self._fd = self._lock_file_path.open('w')
-        except PermissionError as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(
                 "Failed to create lock file %s. %s",
                 str(self._lock_file_path),
                 e,
             )
+            try:
+                self._fd.close()
+                self._fd = None
+            except (AttributeError, TypeError):
+                pass
             return self
 
         # Try to adquire the lock.
@@ -64,31 +69,36 @@ class LockFile:
             logger.error(
                 "Failed to lock the file %s. %s", str(self._lock_file_path), e,
             )
-            self._fd.close()
+            try:
+                self._fd.close()
+                self._fd = None
+            except (AttributeError, TypeError):
+                pass
 
         return self
 
     def wait_for_lock(self):
         while not self.has_lock():
-            self.acquire_lock()
+            self._acquire_lock()
             time.sleep(10)
 
         return self
 
-    def release_lock(self) -> None:
+    def _release_lock(self) -> None:
         """ Release the lock by deleting the lock file
         """
         if self.has_lock() and self._fd:
             fcntl.flock(self._fd, fcntl.LOCK_UN)
             self._fd.close()
+            self._fd = None
             self._has_lock = False
             logger.debug(
                 "Removed lock from file %s.", str(self._lock_file_path)
             )
 
     def __enter__(self):
-        self.acquire_lock()
+        self._acquire_lock()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        self.release_lock()
+        self._release_lock()
