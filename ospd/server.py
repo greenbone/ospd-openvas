@@ -158,6 +158,17 @@ class BaseServer(ABC):
 
 
 class SocketServerMixin:
+    # Use daemon mode to circrumvent a memory leak
+    # (reported at https://bugs.python.org/issue37193).
+    #
+    # Daemonic threads are killed immediately by the python interpreter without
+    # waiting for until they are finished.
+    #
+    # Maybe block_on_close = True could work too.
+    # In that case the interpreter waits for the threads to finish but doesn't
+    # track them in the _threads list.
+    daemon_threads = True
+
     def __init__(self, server: BaseServer, address: Union[str, InetAddress]):
         self.server = server
         super().__init__(address, RequestHandler, bind_and_activate=True)
@@ -167,15 +178,13 @@ class SocketServerMixin:
 
 
 class ThreadedUnixSocketServer(
-    SocketServerMixin,
-    socketserver.ThreadingMixIn,
-    socketserver.UnixStreamServer,
+    SocketServerMixin, socketserver.ThreadingUnixStreamServer,
 ):
     pass
 
 
 class ThreadedTlsSocketServer(
-    SocketServerMixin, socketserver.ThreadingMixIn, socketserver.TCPServer
+    SocketServerMixin, socketserver.ThreadingTCPServer,
 ):
     pass
 
