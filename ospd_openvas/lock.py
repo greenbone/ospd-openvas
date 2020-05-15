@@ -56,7 +56,7 @@ class LockFile:
             try:
                 self._fd.close()
                 self._fd = None
-            except (AttributeError, TypeError):
+            except Exception:  # pylint: disable=broad-except
                 pass
             return self
 
@@ -72,7 +72,7 @@ class LockFile:
             try:
                 self._fd.close()
                 self._fd = None
-            except (AttributeError, TypeError):
+            except Exception:  # pylint: disable=broad-except
                 pass
 
         return self
