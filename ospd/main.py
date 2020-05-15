@@ -110,6 +110,7 @@ def exit_cleanup(
     pidfile: str, server: BaseServer, _signum=None, _frame=None
 ) -> None:
     """ Removes the pidfile before ending the daemon. """
+    signal.signal(signal.SIGINT, signal.SIG_IGN)
     pidpath = Path(pidfile)
 
     if not pidpath.is_file():
