@@ -34,10 +34,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Progress bar calculation does not take in account the dead hosts. [#266](https://github.com/greenbone/ospd/pull/266)
 - Show progress as integer for get_scans. [#269](https://github.com/greenbone/ospd/pull/269)
 - Make scan_id attribute mandatory for get_scans. [#270](https://github.com/greenbone/ospd/pull/270)
+- Ignore subsequent SIGINT once inside exit_cleanup(). [#273](https://github.com/greenbone/ospd/pull/273)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
 - Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
+- Fix thread lib leak using daemon mode for python 3.7. [#272](https://github.com/greenbone/ospd/pull/272)
 
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
