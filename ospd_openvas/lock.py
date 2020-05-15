@@ -19,6 +19,7 @@
 
 import logging
 import time
+import fcntl
 
 from pathlib import Path
 
@@ -29,17 +30,15 @@ class LockFile:
     def __init__(self, path: Path):
         self._lock_file_path = path
         self._has_lock = False
-
-    def is_locked(self) -> bool:
-        return self._lock_file_path.exists()
+        self._fd = None
 
     def has_lock(self) -> bool:
         return self._has_lock
 
-    def acquire_lock(self) -> "LockFile":
+    def _acquire_lock(self) -> "LockFile":
         """ Acquite a lock by creating a lock file.
         """
-        if self.has_lock() or self.is_locked():
+        if self.has_lock():
             return self
 
         try:
@@ -47,38 +46,59 @@ class LockFile:
             parent_dir = self._lock_file_path.parent
             parent_dir.mkdir(parents=True, exist_ok=True)
 
-            self._lock_file_path.touch(exist_ok=False)
-            self._has_lock = True
-
-            logger.debug("Created lock file %s.", str(self._lock_file_path))
-
-        except FileExistsError as e:
+            self._fd = self._lock_file_path.open('w')
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(
                 "Failed to create lock file %s. %s",
                 str(self._lock_file_path),
                 e,
             )
+            try:
+                self._fd.close()
+                self._fd = None
+            except Exception:  # pylint: disable=broad-except
+                pass
+            return self
+
+        # Try to adquire the lock.
+        try:
+            fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            self._has_lock = True
+            logger.debug("Created lock file %s.", str(self._lock_file_path))
+        except BlockingIOError as e:
+            logger.error(
+                "Failed to lock the file %s. %s", str(self._lock_file_path), e,
+            )
+            try:
+                self._fd.close()
+                self._fd = None
+            except Exception:  # pylint: disable=broad-except
+                pass
 
         return self
 
     def wait_for_lock(self):
         while not self.has_lock():
-            self.acquire_lock()
+            self._acquire_lock()
             time.sleep(10)
 
         return self
 
-    def release_lock(self) -> None:
+    def _release_lock(self) -> None:
         """ Release the lock by deleting the lock file
         """
-        if self.has_lock() and self.is_locked():
-            self._lock_file_path.unlink()
+        if self.has_lock() and self._fd:
+            fcntl.flock(self._fd, fcntl.LOCK_UN)
+            self._fd.close()
+            self._fd = None
             self._has_lock = False
-            logger.debug("Removed lock file %s.", str(self._lock_file_path))
+            logger.debug(
+                "Removed lock from file %s.", str(self._lock_file_path)
+            )
 
     def __enter__(self):
-        self.acquire_lock()
+        self._acquire_lock()
         return self
 
     def __exit__(self, exc_type, exc_value, exc_tb):
-        self.release_lock()
+        self._release_lock()
