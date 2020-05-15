@@ -46,7 +46,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.5"
-redis = "^3.5.1"
+redis = "^3.5.2"
 psutil = "^5.7.0"
 packaging = "^20.3"
 ospd = {git = "https://github.com/greenbone/ospd.git"}
