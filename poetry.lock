@@ -145,7 +145,6 @@ version = "0.4.3"
 [[package]]
 category = "dev"
 description = "Terminal string styling done right, in Python."
-marker = "python_version >= \"3.6\" and python_version < \"4.0\""
 name = "colorful"
 optional = false
 python-versions = "*"
@@ -258,6 +257,7 @@ psutil = "^5.7.0"
 reference = "aab0be3ffd09ce46b2aa0d25ace773d331d1cbd9"
 type = "git"
 url = "https://github.com/greenbone/ospd.git"
+
 [[package]]
 category = "main"
 description = "Core utilities for Python packages"
@@ -374,7 +374,7 @@ description = "Python client for Redis key-value store"
 name = "redis"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "3.5.1"
+version = "3.5.2"
 
 [package.extras]
 hiredis = ["hiredis (>=0.1.3)"]
@@ -441,7 +441,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "947b260be490cc2794ce4e32c6802e921c8709a3da1c4ce86483fa5658db789e"
+content-hash = "feb68c11856ad905014d9ea1c7ad37c47d71573fb8bcc58cfcbb934c04136e55"
 python-versions = "^3.5"
 
 [metadata.files]
@@ -690,8 +690,8 @@ pyparsing = [
     {file = "pyparsing-2.4.7.tar.gz", hash = "sha256:c203ec8783bf771a155b207279b9bccb8dea02d8f0c9e5f8ead507bc3246ecc1"},
 ]
 redis = [
-    {file = "redis-3.5.1-py2.py3-none-any.whl", hash = "sha256:a5b0e25890d216d8189636742c50ab992e42eea699bcc1b08cc2d6bf3adff52a"},
-    {file = "redis-3.5.1.tar.gz", hash = "sha256:6e9d2722a95d10ddf854596e66516d316d99c6a483e5db3b35c34e1158b2bfa1"},
+    {file = "redis-3.5.2-py2.py3-none-any.whl", hash = "sha256:2ef11f489003f151777c064c5dbc6653dfb9f3eade159bcadc524619fddc2242"},
+    {file = "redis-3.5.2.tar.gz", hash = "sha256:6d65e84bc58091140081ee9d9c187aab0480097750fac44239307a3bdf0b1251"},
 ]
 regex = [
     {file = "regex-2020.5.14-cp27-cp27m-win32.whl", hash = "sha256:e565569fc28e3ba3e475ec344d87ed3cd8ba2d575335359749298a0899fe122e"},
