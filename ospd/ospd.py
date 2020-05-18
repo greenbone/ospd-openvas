@@ -46,7 +46,7 @@ from deprecated import deprecated
 from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
-from ospd.misc import ResultType
+from ospd.misc import ResultType, create_process
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.protocol import OspRequest, OspResponse, RequestParser
 from ospd.scan import ScanCollection, ScanStatus
@@ -1181,9 +1181,24 @@ class OSPDaemon:
                 time.sleep(SCHEDULER_CHECK_PERIOD)
                 self.scheduler()
                 self.clean_forgotten_scans()
+                self.check_pending_scans()
                 self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
+
+    def check_pending_scans(self):
+        for scan_id in list(self.scan_collection.ids_iterator()):
+            if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+                scan_target = self.scan_collection.scans_table[scan_id].get(
+                    'target'
+                )
+                scan_func = self.start_scan
+                scan_process = create_process(
+                    func=scan_func, args=(scan_id, scan_target)
+                )
+                self.scan_processes[scan_id] = scan_process
+                scan_process.start()
+                self.set_scan_status(scan_id, ScanStatus.INIT)
 
     def scheduler(self):
         """ Should be implemented by subclass in case of need
