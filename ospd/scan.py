@@ -377,15 +377,11 @@ class ScanCollection:
 
     def get_vts(self, scan_id: str) -> Dict:
         """ Get a scan's vts. """
+        scan_info = self.scans_table[scan_id]
+        vts = scan_info.pop('vts')
+        self.scans_table[scan_id] = scan_info
 
-        return self.scans_table[scan_id]['vts']
-
-    def release_vts_list(self, scan_id: str) -> None:
-        """ Release the memory used for the vts list. """
-
-        scan_data = self.scans_table.get(scan_id)
-        if scan_data and 'vts' in scan_data:
-            del scan_data['vts']
+        return vts
 
     def id_exists(self, scan_id: str) -> bool:
         """ Check whether a scan exists in the table. """
