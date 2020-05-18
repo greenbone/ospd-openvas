@@ -1174,6 +1174,8 @@ class OSPDaemon:
         """ Starts the Daemon, handling commands until interrupted.
         """
 
+        self.scan_collection.data_manager = multiprocessing.Manager()
+
         try:
             while True:
                 time.sleep(SCHEDULER_CHECK_PERIOD)

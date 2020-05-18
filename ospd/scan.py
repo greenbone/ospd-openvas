@@ -209,9 +209,6 @@ class ScanCollection:
         if not target:
             target = {}
 
-        if self.data_manager is None:
-            self.data_manager = multiprocessing.Manager()
-
         if not options:
             options = dict()
 
