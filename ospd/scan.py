@@ -394,10 +394,8 @@ class ScanCollection:
         if self.get_status(scan_id) == ScanStatus.RUNNING:
             return False
 
-        self.scans_table.pop(scan_id)
-
-        if len(self.scans_table) == 0:
-            del self.data_manager
-            self.data_manager = None
+        scans_table = self.scans_table
+        del scans_table[scan_id]
+        self.scans_table = scans_table
 
         return True
