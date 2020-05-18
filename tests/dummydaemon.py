@@ -24,6 +24,14 @@ from xml.etree import ElementTree as et
 from ospd_openvas.daemon import OSPDopenvas
 
 
+class FakeDataManager:
+    def __init__(self):
+        pass
+
+    def dict(self):
+        return dict()
+
+
 class DummyDaemon(OSPDopenvas):
     VTS = {
         '1.3.6.1.4.1.25623.1.0.100061': {
@@ -146,6 +154,8 @@ class DummyDaemon(OSPDopenvas):
         nvti.get_feed_version.return_value = '123'
 
         super().__init__(niceness=10, lock_file_dir='/tmp')
+
+        self.scan_collection.data_manager = FakeDataManager()
 
     def create_xml_target(self) -> et.Element:
         target = et.fromstring(

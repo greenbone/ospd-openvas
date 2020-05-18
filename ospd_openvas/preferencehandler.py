@@ -247,7 +247,6 @@ class PreferenceHandler:
         and prepare the vts preferences. Store the data in the kb.
         """
         nvts = self.scan_collection.get_vts(self.scan_id)
-        self.scan_collection.release_vts_list(self.scan_id)
         if nvts:
             nvts_list, nvts_params = self._process_vts(nvts)
             # Add nvts list

@@ -618,7 +618,6 @@ class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.ScanDB')
     def test_get_openvas_result_dead_hosts(self, MockDBClass):
         w = DummyDaemon()
-
         target_element = w.create_xml_target()
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
