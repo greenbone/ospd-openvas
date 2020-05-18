@@ -1078,6 +1078,7 @@ class OSPDopenvas(OSPDaemon):
         scan_prefs.prepare_scan_params_for_openvas(OSPD_PARAMS)
         scan_prefs.prepare_reverse_lookup_opt_for_openvas()
         scan_prefs.prepare_alive_test_option_for_openvas()
+        scan_prefs.prepare_boreas_alive_test()
 
         # Release memory used for scan preferences.
         del scan_prefs
