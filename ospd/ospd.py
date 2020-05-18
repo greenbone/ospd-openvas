@@ -1272,8 +1272,11 @@ class OSPDaemon:
 
     def check_scan_process(self, scan_id: str) -> None:
         """ Check the scan's process, and terminate the scan if not alive. """
-        scan_process = self.scan_processes[scan_id]
+        scan_process = self.scan_processes.get(scan_id)
         progress = self.get_scan_progress(scan_id)
+
+        if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+            return
 
         if progress < PROGRESS_FINISHED and not scan_process.is_alive():
             if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
