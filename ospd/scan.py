@@ -347,7 +347,10 @@ class ScanCollection:
     def get_ports(self, scan_id: str):
         """ Get a scan's ports list.
         """
-        return self.scans_table[scan_id]['target'].get('ports')
+        target = self.scans_table[scan_id].get('target')
+        ports = target.pop('ports')
+        self.scans_table[scan_id]['target'] = target
+        return ports
 
     def get_exclude_hosts(self, scan_id: str):
         """ Get an exclude host list for a given target.
