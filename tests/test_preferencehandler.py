@@ -32,7 +32,7 @@ import ospd_openvas.db
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.preferencehandler import (
     AliveTest,
-    BOREAS,
+    BOREAS_SETTING_NAME,
     BOREAS_ALIVE_TEST,
     PreferenceHandler,
 )
@@ -427,7 +427,7 @@ class PreferenceHandlerTestCase(TestCase):
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_boreas_alive_test_with_settings(self, mock_kb):
-        # No BOREAS config setting set
+        # No Boreas config setting (BOREAS_SETTING_NAME) set
         w = DummyDaemon()
         ov_setting = {'not_the_correct_setting': 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
@@ -438,11 +438,11 @@ class PreferenceHandlerTestCase(TestCase):
 
             p.kbdb.add_scan_preferences.assert_not_called()
 
-        # BOREAS set but invalid alive_test.
+        # Boreas config setting set but invalid alive_test.
         w = DummyDaemon()
         t_opt = {'alive_test': "error"}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
-        ov_setting = {BOREAS: 1}
+        ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
             p._openvas_scan_id = '456-789'
@@ -455,7 +455,7 @@ class PreferenceHandlerTestCase(TestCase):
         w = DummyDaemon()
         t_opt = {'alive_test': AliveTest.ALIVE_TEST_TCP_SYN_SERVICE}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
-        ov_setting = {BOREAS: 1}
+        ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
             p._openvas_scan_id = '456-789'
@@ -469,7 +469,7 @@ class PreferenceHandlerTestCase(TestCase):
         w = DummyDaemon()
         t_opt = {'alive_test': AliveTest.ALIVE_TEST_ICMP}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
-        ov_setting = {BOREAS: 1}
+        ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
             p._openvas_scan_id = '456-789'
@@ -483,7 +483,7 @@ class PreferenceHandlerTestCase(TestCase):
         w = DummyDaemon()
         t_opt = {'alive_test': AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
-        ov_setting = {BOREAS: 1}
+        ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
             p._openvas_scan_id = '456-789'

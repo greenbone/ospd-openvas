@@ -48,7 +48,7 @@ OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 OID_PING_HOST = "1.3.6.1.4.1.25623.1.0.100315"
 
 BOREAS_ALIVE_TEST = "ALIVE_TEST"
-BOREAS = "test_alive_hosts_only"
+BOREAS_SETTING_NAME = "test_alive_hosts_only"
 
 
 class AliveTest(IntEnum):
@@ -394,14 +394,14 @@ class PreferenceHandler:
             )
 
     def prepare_boreas_alive_test(self):
-        """ Set alive_test for Boreas if
-        test_alive_hosts_only scanner config was set"""
+        """ Set alive_test for Boreas if boreas scanner config
+        (BOREAS_SETTING_NAME) was set"""
         settings = Openvas.get_settings()
         alive_test = -1
 
         if settings:
-            test_alive_hosts_only = settings.get('test_alive_hosts_only')
-            if not test_alive_hosts_only:
+            boreas = settings.get(BOREAS_SETTING_NAME)
+            if not boreas:
                 return
             alive_test_str = self.target_options.get('alive_test')
             if alive_test_str is not None:
@@ -417,6 +417,8 @@ class PreferenceHandler:
             else:
                 alive_test = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
 
+        # If a valid alive_test was set then the bit mask
+        # has value between 31 (11111) and 1 (10000)
         if 1 <= alive_test <= 31:
             pref = "{pref_key}|||{pref_value}".format(
                 pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
