@@ -224,7 +224,7 @@ class ScanCollection:
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = 0
-        scan_info['status'] = ScanStatus.INIT
+        scan_info['status'] = ScanStatus.PENDING
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
