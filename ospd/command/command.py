@@ -574,11 +574,10 @@ class StartScan(BaseCommand):
                 vt_selection = OspRequest.process_vts_params(scanner_vts)
 
         # Dry run case.
-        if 'dry_run' in params and int(params['dry_run']):
-            scan_func = self._daemon.dry_run_scan
+        dry_run = 'dry_run' in params and int(params['dry_run'])
+        if dry_run:
             scan_params = None
         else:
-            scan_func = self._daemon.start_scan
             scan_params = self._daemon.process_scan_params(params)
 
         scan_id_aux = scan_id
@@ -591,13 +590,13 @@ class StartScan(BaseCommand):
             id_.text = scan_id_aux
             return simple_response_str('start_scan', 100, 'Continue', id_)
 
-        scan_process = create_process(
-            func=scan_func, args=(scan_id, scan_target)
-        )
-
-        self._daemon.scan_processes[scan_id] = scan_process
-
-        scan_process.start()
+        if dry_run:
+            scan_func = self._daemon.dry_run_scan
+            scan_process = create_process(
+                func=scan_func, args=(scan_id, scan_target)
+            )
+            self._daemon.scan_processes[scan_id] = scan_process
+            scan_process.start()
 
         id_ = Element('id')
         id_.text = scan_id
