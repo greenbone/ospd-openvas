@@ -32,10 +32,11 @@ LOGGER = logging.getLogger(__name__)
 class ScanStatus(Enum):
     """Scan status. """
 
-    INIT = 0
-    RUNNING = 1
-    STOPPED = 2
-    FINISHED = 3
+    PENDING = 0
+    INIT = 1
+    RUNNING = 2
+    STOPPED = 3
+    FINISHED = 4
 
 
 class ScanCollection:
