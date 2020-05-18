@@ -22,6 +22,7 @@ import unittest
 
 from ospd import ospd_ssh
 from ospd.ospd_ssh import OSPDaemonSimpleSSH
+from .helper import FakeDataManager
 
 
 class FakeFile(object):
@@ -73,6 +74,7 @@ class fakeparamiko(object):  # pylint: disable=invalid-name
 class DummyWrapper(OSPDaemonSimpleSSH):
     def __init__(self, niceness=10):
         super().__init__(niceness=niceness)
+        self.scan_collection.data_manager = FakeDataManager()
 
     def check(self):
         return True
