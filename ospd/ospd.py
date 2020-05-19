@@ -168,7 +168,7 @@ class OSPDaemon:
 
             Will be called after check.
         """
-        self.scan_collection.init_data_manager()
+        self.scan_collection.init()
         server.start(self.handle_client_stream)
         self.initialized = True
 
