@@ -32,10 +32,11 @@ LOGGER = logging.getLogger(__name__)
 class ScanStatus(Enum):
     """Scan status. """
 
-    INIT = 0
-    RUNNING = 1
-    STOPPED = 2
-    FINISHED = 3
+    PENDING = 0
+    INIT = 1
+    RUNNING = 2
+    STOPPED = 3
+    FINISHED = 4
 
 
 class ScanCollection:
@@ -62,6 +63,9 @@ class ScanCollection:
             None
         )  # type: Optional[multiprocessing.managers.SyncManager]
         self.scans_table = dict()  # type: Dict
+
+    def init(self):
+        self.data_manager = multiprocessing.Manager()
 
     def add_result(
         self,
@@ -209,9 +213,6 @@ class ScanCollection:
         if not target:
             target = {}
 
-        if self.data_manager is None:
-            self.data_manager = multiprocessing.Manager()
-
         if not options:
             options = dict()
 
@@ -226,7 +227,7 @@ class ScanCollection:
         scan_info['options'] = options
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = 0
-        scan_info['status'] = ScanStatus.INIT
+        scan_info['status'] = ScanStatus.PENDING
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
@@ -349,7 +350,10 @@ class ScanCollection:
     def get_ports(self, scan_id: str):
         """ Get a scan's ports list.
         """
-        return self.scans_table[scan_id]['target'].get('ports')
+        target = self.scans_table[scan_id].get('target')
+        ports = target.pop('ports')
+        self.scans_table[scan_id]['target'] = target
+        return ports
 
     def get_exclude_hosts(self, scan_id: str):
         """ Get an exclude host list for a given target.
@@ -376,15 +380,11 @@ class ScanCollection:
 
     def get_vts(self, scan_id: str) -> Dict:
         """ Get a scan's vts. """
+        scan_info = self.scans_table[scan_id]
+        vts = scan_info.pop('vts')
+        self.scans_table[scan_id] = scan_info
 
-        return self.scans_table[scan_id]['vts']
-
-    def release_vts_list(self, scan_id: str) -> None:
-        """ Release the memory used for the vts list. """
-
-        scan_data = self.scans_table.get(scan_id)
-        if scan_data and 'vts' in scan_data:
-            del scan_data['vts']
+        return vts
 
     def id_exists(self, scan_id: str) -> bool:
         """ Check whether a scan exists in the table. """
@@ -397,10 +397,8 @@ class ScanCollection:
         if self.get_status(scan_id) == ScanStatus.RUNNING:
             return False
 
-        self.scans_table.pop(scan_id)
-
-        if len(self.scans_table) == 0:
-            del self.data_manager
-            self.data_manager = None
+        scans_table = self.scans_table
+        del scans_table[scan_id]
+        self.scans_table = scans_table
 
         return True

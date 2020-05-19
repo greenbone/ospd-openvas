@@ -16,6 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import time
+import multiprocessing
 
 from unittest.mock import Mock
 
@@ -48,12 +49,21 @@ class FakeStream:
         return et.fromstring(self.response)
 
 
+class FakeDataManager:
+    def __init__(self):
+        pass
+
+    def dict(self):
+        return dict()
+
+
 class DummyWrapper(OSPDaemon):
     def __init__(self, results, checkresult=True):
         super().__init__()
         self.checkresult = checkresult
         self.results = results
         self.initialized = True
+        self.scan_collection.data_manager = FakeDataManager()
 
     def check(self):
         return self.checkresult

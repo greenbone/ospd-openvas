@@ -31,7 +31,7 @@ from ospd.command.command import (
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import create_process
 
-from ..helper import DummyWrapper, assert_called, FakeStream
+from ..helper import DummyWrapper, assert_called, FakeStream, FakeDataManager
 
 
 class GetPerformanceTestCase(TestCase):
@@ -97,7 +97,7 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdCommandError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     def test_scan_with_vts(self, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -121,12 +121,66 @@ class StartScanTestCase(TestCase):
         response = et.fromstring(cmd.handle_xml(request))
         scan_id = response.findtext('id')
 
-        self.assertEqual(
-            daemon.get_scan_vts(scan_id), {'1.2.3.4': {}, 'vt_groups': []}
-        )
-        self.assertNotEqual(daemon.get_scan_vts(scan_id), {'1.2.3.6': {}})
+        vts_collection = daemon.get_scan_vts(scan_id)
+        self.assertEqual(vts_collection, {'1.2.3.4': {}, 'vt_groups': []})
+        self.assertNotEqual(vts_collection, {'1.2.3.6': {}})
 
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
+
+    def test_scan_pop_vts(self):
+        daemon = DummyWrapper([])
+        cmd = StartScan(daemon)
+
+        request = et.fromstring(
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
+            '<scanner_params />'
+            '<vt_selection>'
+            '<vt_single id="1.2.3.4" />'
+            '</vt_selection>'
+            '</start_scan>'
+        )
+
+        # With one vt, without params
+        response = et.fromstring(cmd.handle_xml(request))
+        scan_id = response.findtext('id')
+
+        vts_collection = daemon.get_scan_vts(scan_id)
+        self.assertEqual(vts_collection, {'1.2.3.4': {}, 'vt_groups': []})
+        self.assertRaises(KeyError, daemon.get_scan_vts, scan_id)
+
+    def test_scan_pop_ports(self):
+        daemon = DummyWrapper([])
+        cmd = StartScan(daemon)
+
+        request = et.fromstring(
+            '<start_scan>'
+            '<targets>'
+            '<target>'
+            '<hosts>localhost</hosts>'
+            '<ports>80, 443</ports>'
+            '</target>'
+            '</targets>'
+            '<scanner_params />'
+            '<vt_selection>'
+            '<vt_single id="1.2.3.4" />'
+            '</vt_selection>'
+            '</start_scan>'
+        )
+
+        # With one vt, without params
+        response = et.fromstring(cmd.handle_xml(request))
+        scan_id = response.findtext('id')
+
+        ports = daemon.scan_collection.get_ports(scan_id)
+        self.assertEqual(ports, '80, 443')
+        self.assertRaises(KeyError, daemon.scan_collection.get_ports, scan_id)
 
     def test_is_new_scan_allowed_false(self):
         daemon = DummyWrapper([])
@@ -152,7 +206,7 @@ class StartScanTestCase(TestCase):
 
         self.assertTrue(cmd.is_new_scan_allowed())
 
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     def test_scan_without_vts(self, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -172,9 +226,9 @@ class StartScanTestCase(TestCase):
         response = et.fromstring(cmd.handle_xml(request))
 
         scan_id = response.findtext('id')
-
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
 
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_param_id(self):
@@ -200,7 +254,7 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     def test_scan_with_vts_and_param(self, mock_create_process):
         daemon = DummyWrapper([])
         cmd = StartScan(daemon)
@@ -229,7 +283,7 @@ class StartScanTestCase(TestCase):
             daemon.get_scan_vts(scan_id),
             {'1234': {'ABC': '200'}, 'vt_groups': []},
         )
-
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_group_filter(self):
@@ -253,7 +307,7 @@ class StartScanTestCase(TestCase):
         with self.assertRaises(OspdError):
             cmd.handle_xml(request)
 
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     def test_scan_with_vts_and_param_with_vt_group_filter(
         self, mock_create_process
     ):
@@ -280,9 +334,10 @@ class StartScanTestCase(TestCase):
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
 
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     @patch("ospd.command.command.logger")
     def test_scan_ignore_multi_target(self, mock_logger, mock_create_process):
         daemon = DummyWrapper([])
@@ -300,16 +355,18 @@ class StartScanTestCase(TestCase):
         )
 
         cmd.handle_xml(request)
-
+        daemon.start_pending_scans()
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)
 
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     @patch("ospd.command.command.logger")
     def test_scan_use_legacy_target_and_port(
         self, mock_logger, mock_create_process
     ):
         daemon = DummyWrapper([])
+        daemon.scan_collection.datamanager = FakeDataManager()
+
         cmd = StartScan(daemon)
         request = et.fromstring(
             '<start_scan target="localhost" ports="22">'
@@ -325,20 +382,22 @@ class StartScanTestCase(TestCase):
         self.assertEqual(daemon.get_scan_host(scan_id), 'localhost')
         self.assertEqual(daemon.get_scan_ports(scan_id), '22')
 
+        daemon.start_pending_scans()
+
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)
 
 
 class StopCommandTestCase(TestCase):
     @patch("ospd.ospd.os")
-    @patch("ospd.command.command.create_process")
+    @patch("ospd.ospd.create_process")
     def test_stop_scan(self, mock_create_process, mock_os):
         mock_process = mock_create_process.return_value
         mock_process.is_alive.return_value = True
         mock_process.pid = "foo"
-
         fs = FakeStream()
         daemon = DummyWrapper([])
+        daemon.scan_collection.datamanager = FakeDataManager()
         request = (
             '<start_scan>'
             '<targets>'
@@ -352,6 +411,8 @@ class StopCommandTestCase(TestCase):
         )
         daemon.handle_command(request, fs)
         response = fs.get_response()
+
+        daemon.start_pending_scans()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
