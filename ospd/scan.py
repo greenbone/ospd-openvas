@@ -378,12 +378,6 @@ class ScanCollection:
         """
         return self.scans_table[scan_id]['target'].get('options')
 
-    def get_target(
-        self, scan_id: str
-    ) -> Dict[str, Union[str, Dict[str, Union[str, Dict[str, str]]]]]:
-        """ Get the complete target info"""
-        return self.scans_table[scan_id].get('target')
-
     def get_vts(self, scan_id: str) -> Dict[str, Union[Dict[str, str], List]]:
         """ Get a scan's vts. """
         scan_info = self.scans_table[scan_id]
