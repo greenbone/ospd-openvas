@@ -168,6 +168,7 @@ class OSPDaemon:
 
             Will be called after check.
         """
+        self.scan_collection.init_data_manager()
         server.start(self.handle_client_stream)
         self.initialized = True
 
@@ -1173,8 +1174,6 @@ class OSPDaemon:
     def run(self) -> None:
         """ Starts the Daemon, handling commands until interrupted.
         """
-
-        self.scan_collection.data_manager = multiprocessing.Manager()
 
         try:
             while True:

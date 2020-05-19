@@ -64,6 +64,9 @@ class ScanCollection:
         )  # type: Optional[multiprocessing.managers.SyncManager]
         self.scans_table = dict()  # type: Dict
 
+    def init_data_manager(self):
+        self.data_manager = multiprocessing.Manager()
+
     def add_result(
         self,
         scan_id: str,
