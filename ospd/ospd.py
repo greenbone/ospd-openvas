@@ -1187,7 +1187,7 @@ class OSPDaemon:
             logger.info("Received Ctrl-C shutting-down ...")
 
     def check_pending_scans(self):
-        for scan_id in list(self.scan_collection.ids_iterator()):
+        for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.PENDING:
                 scan_target = self.scan_collection.scans_table[scan_id].get(
                     'target'
