@@ -331,6 +331,8 @@ class OSPDopenvas(OSPDaemon):
 
     def init(self, server: BaseServer) -> None:
 
+        self.scan_collection.init()
+
         server.start(self.handle_client_stream)
 
         self.scanner_info['version'] = Openvas.get_version()

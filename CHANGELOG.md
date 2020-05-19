@@ -48,6 +48,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
 - Handling of finished host for resume task. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
+- Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 
 ## [1.0.1] (unreleased)
 
