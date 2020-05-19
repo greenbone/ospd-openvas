@@ -18,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add [pontos](https://github.com/greenbone/pontos) as dev dependency for
   managing the version information in ospd [#254](https://github.com/greenbone/ospd/pull/254)
 - Add more info about scan progress with progress attribute in get_scans cmd. [#266](https://github.com/greenbone/ospd/pull/266)
+- Add method to get complete target info [#275](https://github.com/greenbone/ospd/pull/275)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)

@@ -1188,9 +1188,7 @@ class OSPDaemon:
     def start_pending_scans(self):
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.PENDING:
-                scan_target = self.scan_collection.scans_table[scan_id].get(
-                    'target'
-                )
+                scan_target = self.scan_collection.get_target(scan_id)
                 scan_func = self.start_scan
                 scan_process = create_process(
                     func=scan_func, args=(scan_id, scan_target)
