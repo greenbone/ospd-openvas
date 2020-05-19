@@ -547,7 +547,7 @@ class OSPDaemon:
 
         os.setsid()
 
-        host = resolve_hostname(target[0])
+        host = resolve_hostname(target.get('hosts'))
         if host is None:
             logger.info("Couldn't resolve %s.", self.get_scan_host(scan_id))
 
