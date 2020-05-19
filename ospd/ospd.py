@@ -1181,12 +1181,12 @@ class OSPDaemon:
                 time.sleep(SCHEDULER_CHECK_PERIOD)
                 self.scheduler()
                 self.clean_forgotten_scans()
-                self.check_pending_scans()
+                self.start_pending_scans()
                 self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
 
-    def check_pending_scans(self):
+    def start_pending_scans(self):
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.PENDING:
                 scan_target = self.scan_collection.scans_table[scan_id].get(

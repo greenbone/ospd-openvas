@@ -125,7 +125,7 @@ class StartScanTestCase(TestCase):
         self.assertEqual(vts_collection, {'1.2.3.4': {}, 'vt_groups': []})
         self.assertNotEqual(vts_collection, {'1.2.3.6': {}})
 
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     def test_scan_pop_vts(self):
@@ -228,7 +228,7 @@ class StartScanTestCase(TestCase):
         scan_id = response.findtext('id')
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
 
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_param_id(self):
@@ -283,7 +283,7 @@ class StartScanTestCase(TestCase):
             daemon.get_scan_vts(scan_id),
             {'1234': {'ABC': '200'}, 'vt_groups': []},
         )
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_group_filter(self):
@@ -334,7 +334,7 @@ class StartScanTestCase(TestCase):
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
 
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     @patch("ospd.ospd.create_process")
@@ -355,7 +355,7 @@ class StartScanTestCase(TestCase):
         )
 
         cmd.handle_xml(request)
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)
 
@@ -382,7 +382,7 @@ class StartScanTestCase(TestCase):
         self.assertEqual(daemon.get_scan_host(scan_id), 'localhost')
         self.assertEqual(daemon.get_scan_ports(scan_id), '22')
 
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
 
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)
@@ -412,7 +412,7 @@ class StopCommandTestCase(TestCase):
         daemon.handle_command(request, fs)
         response = fs.get_response()
 
-        daemon.check_pending_scans()
+        daemon.start_pending_scans()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)

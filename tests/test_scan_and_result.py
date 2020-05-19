@@ -507,7 +507,7 @@ class ScanTestCase(unittest.TestCase):
 
         finished = False
 
-        self.daemon.check_pending_scans()
+        self.daemon.start_pending_scans()
         while not finished:
             fs = FakeStream()
             self.daemon.handle_command(
@@ -564,7 +564,7 @@ class ScanTestCase(unittest.TestCase):
         response = fs.get_response()
         scan_id = response.findtext('id')
         finished = False
-        self.daemon.check_pending_scans()
+        self.daemon.start_pending_scans()
         self.daemon.add_scan_error(
             scan_id, host='a', value='something went wrong'
         )
@@ -970,7 +970,7 @@ class ScanTestCase(unittest.TestCase):
         status = response.get('status_text')
         self.assertEqual(status, 'OK')
 
-        self.daemon.check_pending_scans()
+        self.daemon.start_pending_scans()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
