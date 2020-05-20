@@ -22,7 +22,7 @@ import uuid
 
 from collections import OrderedDict
 from enum import Enum
-from typing import List, Any, Dict, Iterator, Optional, Iterable
+from typing import List, Any, Dict, Iterator, Optional, Iterable, Union
 
 from ospd.network import target_str_to_list
 
@@ -347,7 +347,7 @@ class ScanCollection:
 
         return total_hosts
 
-    def get_ports(self, scan_id: str):
+    def get_ports(self, scan_id: str) -> str:
         """ Get a scan's ports list.
         """
         target = self.scans_table[scan_id].get('target')
@@ -355,30 +355,30 @@ class ScanCollection:
         self.scans_table[scan_id]['target'] = target
         return ports
 
-    def get_exclude_hosts(self, scan_id: str):
+    def get_exclude_hosts(self, scan_id: str) -> str:
         """ Get an exclude host list for a given target.
         """
         return self.scans_table[scan_id]['target'].get('exclude_hosts')
 
-    def get_finished_hosts(self, scan_id: str):
+    def get_finished_hosts(self, scan_id: str) -> str:
         """ Get the finished host list sent by the client for a given target.
         """
         return self.scans_table[scan_id]['target'].get('finished_hosts')
 
-    def get_credentials(self, scan_id: str):
+    def get_credentials(self, scan_id: str) -> Dict[str, Dict[str, str]]:
         """ Get a scan's credential list. It return dictionary with
         the corresponding credential for a given target.
         """
         return self.scans_table[scan_id]['target'].get('credentials')
 
-    def get_target_options(self, scan_id: str):
+    def get_target_options(self, scan_id: str) -> Dict[str, str]:
         """ Get a scan's target option dictionary.
         It return dictionary with the corresponding options for
         a given target.
         """
         return self.scans_table[scan_id]['target'].get('options')
 
-    def get_vts(self, scan_id: str) -> Dict:
+    def get_vts(self, scan_id: str) -> Dict[str, Union[Dict[str, str], List]]:
         """ Get a scan's vts. """
         scan_info = self.scans_table[scan_id]
         vts = scan_info.pop('vts')

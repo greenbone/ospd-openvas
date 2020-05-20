@@ -47,7 +47,7 @@ class OspRequest:
     @staticmethod
     def process_vts_params(
         scanner_vts: Element,
-    ) -> Dict[str, Union[Dict, List]]:
+    ) -> Dict[str, Union[Dict[str, str], List]]:
         """ Receive an XML object with the Vulnerability Tests an their
         parameters to be use in a scan and return a dictionary.
 

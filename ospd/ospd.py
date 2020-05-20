@@ -505,25 +505,21 @@ class OSPDaemon:
 
         stream.close()
 
-    def process_finished_hosts(self, scan_id: str, finished_hosts: str) -> None:
+    def process_finished_hosts(self, scan_id: str) -> None:
         """ Process the finished hosts before launching the scans."""
 
+        finished_hosts = self.scan_collection.get_finished_hosts(scan_id)
         if not finished_hosts:
             return
 
         exc_finished_hosts_list = target_str_to_list(finished_hosts)
         self.scan_collection.set_host_finished(scan_id, exc_finished_hosts_list)
 
-    def start_scan(self, scan_id: str, target: Dict) -> None:
+    def start_scan(self, scan_id: str) -> None:
         """ Starts the scan with scan_id. """
         os.setsid()
 
-        if target is None or not target:
-            raise OspdCommandError('Erroneous target', 'start_scan')
-
-        logger.info("%s: Scan started.", scan_id)
-
-        self.process_finished_hosts(scan_id, target.get('finished_hosts'))
+        self.process_finished_hosts(scan_id)
 
         try:
             self.set_scan_status(scan_id, ScanStatus.RUNNING)
@@ -1188,13 +1184,8 @@ class OSPDaemon:
     def start_pending_scans(self):
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.PENDING:
-                scan_target = self.scan_collection.scans_table[scan_id].get(
-                    'target'
-                )
                 scan_func = self.start_scan
-                scan_process = create_process(
-                    func=scan_func, args=(scan_id, scan_target)
-                )
+                scan_process = create_process(func=scan_func, args=(scan_id,))
                 self.scan_processes[scan_id] = scan_process
                 scan_process.start()
                 self.set_scan_status(scan_id, ScanStatus.INIT)
