@@ -874,12 +874,13 @@ class OSPDopenvas(OSPDaemon):
             rname = ''
             rhostname = msg[1].strip() if msg[1] else ''
             host_is_dead = "Host dead" in msg[4]
+            host_deny = "Host access denied" in msg[4]
             vt_aux = None
 
-            if roid and not host_is_dead:
+            if roid and not host_is_dead and not host_deny:
                 vt_aux = vthelper.get_single_vt(roid)
 
-            if not vt_aux and not host_is_dead:
+            if not vt_aux and not host_is_dead and not host_deny:
                 logger.warning('Invalid VT oid %s for a result', roid)
 
             if vt_aux:
@@ -892,6 +893,12 @@ class OSPDopenvas(OSPDaemon):
                 rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
+                # Some errors are generated before a host is scanned
+                # use the hostname passed in the message if
+                # no current host is available.
+                if not current_host and rhostname:
+                    current_host = rhostname
+
                 res_list.add_scan_error_to_list(
                     host=current_host,
                     hostname=rhostname,
@@ -1176,10 +1183,10 @@ class OSPDopenvas(OSPDaemon):
                         self.report_openvas_timestamp_scan_host(
                             scan_db, scan_id, current_host
                         )
-
-                        self.sort_host_finished(
-                            scan_id, finished_hosts=current_host
-                        )
+                        if current_host:
+                            self.sort_host_finished(
+                                scan_id, finished_hosts=current_host
+                            )
 
                         kbdb.remove_scan_database(scan_db)
                         self.main_db.release_database(scan_db)
