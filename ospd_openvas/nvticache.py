@@ -197,7 +197,7 @@ class NVTICache(BaseDB):
             oid: OID of VT from which to get the metadata.
 
         Returns:
-            A dictonary with the VT metadata.
+            A dictionary with the VT metadata.
         """
         resp = OpenvasDB.get_list_item(
             self.ctx,
