@@ -616,6 +616,32 @@ class TestOspdOpenvas(TestCase):
         )
 
     @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.ResultList.add_scan_error_to_list')
+    def test_get_openvas_result_host_deny(
+        self, mock_add_scan_error_to_list, MockDBClass
+    ):
+        w = DummyDaemon()
+
+        target_element = w.create_xml_target()
+        targets = OspRequest.process_target_element(target_element)
+        w.create_scan('123-456', targets, None, [])
+
+        results = ["ERRMSG|||127.0.0.1|||||| |||Host access denied.", None]
+        mock_db = MockDBClass.return_value
+        mock_db.get_result.side_effect = results
+        mock_add_scan_error_to_list.return_value = None
+
+        w.report_openvas_results(mock_db, '123-456', '')
+        mock_add_scan_error_to_list.assert_called_with(
+            host='127.0.0.1',
+            hostname='127.0.0.1',
+            name='',
+            port='',
+            test_id='',
+            value='Host access denied.',
+        )
+
+    @patch('ospd_openvas.daemon.ScanDB')
     def test_get_openvas_result_dead_hosts(self, MockDBClass):
         w = DummyDaemon()
         target_element = w.create_xml_target()
