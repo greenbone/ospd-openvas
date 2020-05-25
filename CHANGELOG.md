@@ -44,6 +44,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
 - Fix snmp credentials. [#186](https://github.com/greenbone/ospd-openvas/pull/186)
 - Escape script name before adding the result in an xml entity. [#188](https://github.com/greenbone/ospd-openvas/pull/188)
+- Fix handling of denied hosts. [#263](https://github.com/greenbone/ospd-openvas/pull/263)
 
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
