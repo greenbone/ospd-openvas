@@ -1182,20 +1182,21 @@ class OSPDaemon:
             logger.info("Received Ctrl-C shutting-down ...")
 
     def start_pending_scans(self):
-
-        if self._daemon.check_free_memory and not self.is_enough_free_memory():
-            raise OspdCommandError(
-                'Not possible to run a new scan. Not enough free memory.',
-                'start_scan',
-            )
-
-        if not self.is_new_scan_allowed():
-            raise OspdCommandError(
-                'Not possible to run a new scan. Max scan limit reached.',
-                'start_scan',
-            )
+        """ Starts a pending scan if it is allowed """
 
         for scan_id in self.scan_collection.ids_iterator():
+            if not self.is_new_scan_allowed():
+                logger.debug(
+                    'Not possible to run a new scan. Max scan limit reached.'
+                )
+                return
+
+            if self.check_free_memory and not self.is_enough_free_memory():
+                logger.debug(
+                    'Not possible to run a new scan. Not enough free memory.'
+                )
+                return
+
             if self.get_scan_status(scan_id) == ScanStatus.PENDING:
                 scan_func = self.start_scan
                 scan_process = create_process(func=scan_func, args=(scan_id,))
