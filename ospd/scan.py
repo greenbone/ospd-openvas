@@ -211,24 +211,21 @@ class ScanCollection:
     ) -> str:
         """ Creates a new scan with provided scan information. """
 
-        if not target:
-            target = {}
-
         if not options:
             options = dict()
 
+        credentials = target.pop('credentials')
+
         scan_info = self.data_manager.dict()  # type: Dict
-        scan_info['results'] = list()
-        scan_info['progress'] = 0
-        scan_info['target_progress'] = dict()
-        scan_info['count_alive'] = 0
-        scan_info['count_dead'] = 0
-        scan_info['target'] = target
-        scan_info['vts'] = vts
-        scan_info['options'] = options
-        scan_info['start_time'] = int(time.time())
-        scan_info['end_time'] = 0
         scan_info['status'] = ScanStatus.PENDING
+        scan_info['credentials'] = credentials
+        scan_info['start_time'] = int(time.time())
+
+        scan_info_to_pikle = {
+            'target': target,
+            'options': options,
+            'vts': vts,
+        }
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
@@ -370,7 +367,7 @@ class ScanCollection:
         """ Get a scan's credential list. It return dictionary with
         the corresponding credential for a given target.
         """
-        return self.scans_table[scan_id]['target'].get('credentials')
+        return self.scans_table[scan_id].get('credentials')
 
     def get_target_options(self, scan_id: str) -> Dict[str, str]:
         """ Get a scan's target option dictionary.
