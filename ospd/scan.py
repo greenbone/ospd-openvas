@@ -207,7 +207,7 @@ class ScanCollection:
     def remove_file_pickled_scan_info(self, scan_id):
         """ Remove the file containing a scan_info pickled object """
         storage_file_path = Path(self.file_storage_dir) / scan_id
-        storage_file_path.unlink(missing_ok=True)
+        storage_file_path.unlink()
 
     def pickle_scan_info(self, scan_id, scan_info):
         """ Pickle a scan_info object and stored it in a file named as the scan_id"""
@@ -286,12 +286,12 @@ class ScanCollection:
     def get_status(self, scan_id: str) -> ScanStatus:
         """ Get scan_id scans's status."""
 
-        return self.scans_table[scan_id]['status']
+        return self.scans_table[scan_id].get('status')
 
     def get_options(self, scan_id: str) -> Dict:
         """ Get scan_id scan's options list. """
 
-        return self.scans_table[scan_id]['options']
+        return self.scans_table[scan_id].get('options')
 
     def set_option(self, scan_id, name: str, value: Any) -> None:
         """ Set a scan_id scan's name option to value. """
@@ -301,7 +301,7 @@ class ScanCollection:
     def get_progress(self, scan_id: str) -> int:
         """ Get a scan's current progress value. """
 
-        return self.scans_table[scan_id]['progress']
+        return self.scans_table[scan_id].get('progress', 0)
 
     def get_count_dead(self, scan_id: str) -> int:
         """ Get a scan's current dead host count. """

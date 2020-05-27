@@ -688,7 +688,7 @@ class OSPDaemon:
             self.scan_processes[scan_id].join()
             exitcode = self.scan_processes[scan_id].exitcode
         except KeyError:
-            logger.debug('Scan process for %s not found', scan_id)
+            logger.debug('Scan process for %s never started,', scan_id)
 
         if exitcode or exitcode == 0:
             del self.scan_processes[scan_id]
@@ -765,16 +765,27 @@ class OSPDaemon:
         if not scan_id:
             return Element('scan')
 
-        target = self.get_scan_host(scan_id)
-        progress = self.get_scan_progress(scan_id)
-        status = self.get_scan_status(scan_id)
-        start_time = self.get_scan_start_time(scan_id)
-        end_time = self.get_scan_end_time(scan_id)
-        response = Element('scan')
+        if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+            target = ''
+            scan_progress = 0
+            status = self.get_scan_status(scan_id)
+            start_time = 0
+            end_time = 0
+            response = Element('scan')
+            detailed = False
+            progress = False
+        else:
+            target = self.get_scan_host(scan_id)
+            scan_progress = self.get_scan_progress(scan_id)
+            status = self.get_scan_status(scan_id)
+            start_time = self.get_scan_start_time(scan_id)
+            end_time = self.get_scan_end_time(scan_id)
+            response = Element('scan')
+
         for name, value in [
             ('id', scan_id),
             ('target', target),
-            ('progress', progress),
+            ('progress', scan_progress),
             ('status', status.name.lower()),
             ('start_time', start_time),
             ('end_time', end_time),
@@ -1314,13 +1325,17 @@ class OSPDaemon:
 
     def check_scan_process(self, scan_id: str) -> None:
         """ Check the scan's process, and terminate the scan if not alive. """
-        scan_process = self.scan_processes.get(scan_id)
-        progress = self.get_scan_progress(scan_id)
-
         if self.get_scan_status(scan_id) == ScanStatus.PENDING:
             return
 
-        if progress < PROGRESS_FINISHED and not scan_process.is_alive():
+        scan_process = self.scan_processes.get(scan_id)
+        progress = self.get_scan_progress(scan_id)
+
+        if (
+            progress < PROGRESS_FINISHED
+            and scan_process
+            and not scan_process.is_alive()
+        ):
             if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
