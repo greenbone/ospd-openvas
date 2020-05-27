@@ -1183,7 +1183,7 @@ class OSPDaemon:
 
     def start_pending_scans(self):
 
-         if self._daemon.check_free_memory and not self.is_enough_free_memory():
+        if self._daemon.check_free_memory and not self.is_enough_free_memory():
             raise OspdCommandError(
                 'Not possible to run a new scan. Not enough free memory.',
                 'start_scan',
@@ -1209,9 +1209,7 @@ class OSPDaemon:
         Return:
             True if a new scan can be launch.
         """
-        if (self.max_scans == 0) or (
-            len(self.scan_processes) < self.max_scans
-        ):
+        if (self.max_scans == 0) or (len(self.scan_processes) < self.max_scans):
             return True
 
         return False
