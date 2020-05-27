@@ -19,7 +19,9 @@ import logging
 import multiprocessing
 import time
 import uuid
+import pickle
 
+from pathlib import Path
 from collections import OrderedDict
 from enum import Enum
 from typing import List, Any, Dict, Iterator, Optional, Iterable, Union
@@ -202,6 +204,13 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
+    def pickle_scan_info(self, scan_id, scan_info):
+        """ Pickle a scan_info object and stored it in a file named as the scan_id"""
+
+        storage_file_path = Path(self.file_storage_dir) / scan_id
+        with storage_file_path.open('wb') as scan_info_f:
+            pickle.dump(scan_info, scan_info_f)
+
     def create_scan(
         self,
         scan_id: str = '',
@@ -229,6 +238,8 @@ class ScanCollection:
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
+
+        self.pickle_scan_info(scan_id, scan_info_to_pikle)
 
         scan_info['scan_id'] = scan_id
 
