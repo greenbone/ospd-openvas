@@ -367,6 +367,12 @@ class OSPDaemon:
         return OspRequest.process_target_element(scanner_target)
 
     def stop_scan(self, scan_id: str) -> None:
+
+        if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+            self.scan_collection.remove_file_pickled_scan_info(scan_id)
+            self.set_scan_status(scan_id, ScanStatus.STOPPED)
+            return
+
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
             raise OspdCommandError(

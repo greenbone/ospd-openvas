@@ -204,6 +204,11 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
+    def remove_file_pickled_scan_info(self, scan_id):
+        """ Remove the file containing a scan_info pickled object """
+        storage_file_path = Path(self.file_storage_dir) / scan_id
+        storage_file_path.unlink(missing_ok=True)
+
     def pickle_scan_info(self, scan_id, scan_info):
         """ Pickle a scan_info object and stored it in a file named as the scan_id"""
 
