@@ -56,13 +56,14 @@ class ScanCollection:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, file_storage_dir) -> None:
         """ Initialize the Scan Collection. """
 
         self.data_manager = (
             None
         )  # type: Optional[multiprocessing.managers.SyncManager]
         self.scans_table = dict()  # type: Dict
+        self.file_storage_dir = file_storage_dir
 
     def init(self):
         self.data_manager = multiprocessing.Manager()
