@@ -211,6 +211,32 @@ class ScanCollection:
         with storage_file_path.open('wb') as scan_info_f:
             pickle.dump(scan_info, scan_info_f)
 
+    def unpikle_scan_info(self, scan_id):
+        """ Unpikle the scan_info correspinding to the scan_id and store it in the
+        scan_table """
+
+        storage_file_path = Path(self.file_storage_dir) / scan_id
+        unpikled_scan_info = None
+        with storage_file_path.open('rb') as scan_info_f:
+            unpikled_scan_info = pickle.load(scan_info_f)
+
+        scan_info = self.scans_table.get(scan_id)
+
+        scan_info['results'] = list()
+        scan_info['progress'] = 0
+        scan_info['target_progress'] = dict()
+        scan_info['count_alive'] = 0
+        scan_info['count_dead'] = 0
+        scan_info['target'] = unpikled_scan_info.pop('target')
+        scan_info['vts'] = unpikled_scan_info.pop('vts')
+        scan_info['options'] = unpikled_scan_info.pop('options')
+        scan_info['start_time'] = int(time.time())
+        scan_info['end_time'] = 0
+
+        self.scans_table[scan_id] = scan_info
+
+        storage_file_path.unlink()
+
     def create_scan(
         self,
         scan_id: str = '',
