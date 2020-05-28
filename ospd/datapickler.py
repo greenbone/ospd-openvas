@@ -37,7 +37,10 @@ class DataPickler:
     def remove_file(self, filename):
         """ Remove the file containing a scan_info pickled object """
         storage_file_path = Path(self._storage_path) / filename
-        storage_file_path.unlink()
+        try:
+            storage_file_path.unlink()
+        except Exception as e:  # pylint: disable=broad-except
+            logger.error('Not possible to delete %s. %s', filename, e)
 
     def store_data(self, filename: str, data_object: Dict) -> str:
         """ Pickle a object and store it in a file named"""
@@ -90,6 +93,7 @@ class DataPickler:
             logger.error(
                 'Not possible to read pickled data from %s. %s', filename, e
             )
+            return
 
         unpickled_scan_info = None
         try:
@@ -110,6 +114,6 @@ class DataPickler:
             return
 
         hash_sha256 = sha256()
-        hash_sha256.update(pickle.dumps(pickled_data))
+        hash_sha256.update(pickled_data)
 
         return hash_sha256.hexdigest()
