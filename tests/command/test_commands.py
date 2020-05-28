@@ -119,6 +119,7 @@ class StartScanTestCase(TestCase):
 
         # With one vt, without params
         response = et.fromstring(cmd.handle_xml(request))
+        daemon.start_pending_scans()
         scan_id = response.findtext('id')
 
         vts_collection = daemon.get_scan_vts(scan_id)
@@ -150,7 +151,7 @@ class StartScanTestCase(TestCase):
         # With one vt, without params
         response = et.fromstring(cmd.handle_xml(request))
         scan_id = response.findtext('id')
-
+        daemon.start_pending_scans()
         vts_collection = daemon.get_scan_vts(scan_id)
         self.assertEqual(vts_collection, {'1.2.3.4': {}, 'vt_groups': []})
         self.assertRaises(KeyError, daemon.get_scan_vts, scan_id)
@@ -176,35 +177,12 @@ class StartScanTestCase(TestCase):
 
         # With one vt, without params
         response = et.fromstring(cmd.handle_xml(request))
+        daemon.start_pending_scans()
         scan_id = response.findtext('id')
 
         ports = daemon.scan_collection.get_ports(scan_id)
         self.assertEqual(ports, '80, 443')
         self.assertRaises(KeyError, daemon.scan_collection.get_ports, scan_id)
-
-    def test_is_new_scan_allowed_false(self):
-        daemon = DummyWrapper([])
-        cmd = StartScan(daemon)
-
-        cmd._daemon.scan_processes = {  # pylint: disable=protected-access
-            'a': 1,
-            'b': 2,
-        }
-        daemon.max_scans = 1
-
-        self.assertFalse(cmd.is_new_scan_allowed())
-
-    def test_is_new_scan_allowed_true(self):
-        daemon = DummyWrapper([])
-        cmd = StartScan(daemon)
-
-        cmd._daemon.scan_processes = {  # pylint: disable=protected-access
-            'a': 1,
-            'b': 2,
-        }
-        daemon.max_scans = 3
-
-        self.assertTrue(cmd.is_new_scan_allowed())
 
     @patch("ospd.ospd.create_process")
     def test_scan_without_vts(self, mock_create_process):
@@ -223,12 +201,13 @@ class StartScanTestCase(TestCase):
             '<scanner_params />'
             '</start_scan>'
         )
+
         response = et.fromstring(cmd.handle_xml(request))
+        daemon.start_pending_scans()
 
         scan_id = response.findtext('id')
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
 
-        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_param_id(self):
@@ -277,6 +256,8 @@ class StartScanTestCase(TestCase):
             '</start_scan>'
         )
         response = et.fromstring(cmd.handle_xml(request))
+        daemon.start_pending_scans()
+
         scan_id = response.findtext('id')
 
         self.assertEqual(
@@ -303,6 +284,7 @@ class StartScanTestCase(TestCase):
             '<vt_selection><vt_group/></vt_selection>'
             '</start_scan>'
         )
+        daemon.start_pending_scans()
 
         with self.assertRaises(OspdError):
             cmd.handle_xml(request)
@@ -330,11 +312,11 @@ class StartScanTestCase(TestCase):
             '</start_scan>'
         )
         response = et.fromstring(cmd.handle_xml(request))
+        daemon.start_pending_scans()
         scan_id = response.findtext('id')
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
 
-        daemon.start_pending_scans()
         assert_called(mock_create_process)
 
     @patch("ospd.ospd.create_process")
@@ -375,14 +357,13 @@ class StartScanTestCase(TestCase):
         )
 
         response = et.fromstring(cmd.handle_xml(request))
+        daemon.start_pending_scans()
         scan_id = response.findtext('id')
 
         self.assertIsNotNone(scan_id)
 
         self.assertEqual(daemon.get_scan_host(scan_id), 'localhost')
         self.assertEqual(daemon.get_scan_ports(scan_id), '22')
-
-        daemon.start_pending_scans()
 
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)

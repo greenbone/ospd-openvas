@@ -79,6 +79,7 @@ class ScanTestCase(unittest.TestCase):
     def setUp(self):
         self.daemon = DummyWrapper([])
         self.daemon.scan_collection.datamanager = FakeDataManager()
+        self.daemon.scan_collection.file_storage_dir = '/tmp'
 
     def test_get_default_scanner_params(self):
         fs = FakeStream()
@@ -612,6 +613,7 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /></start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -654,6 +656,7 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /></start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -723,6 +726,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
         response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
@@ -753,6 +757,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
+
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -776,6 +782,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
+
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -796,6 +804,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -819,6 +828,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
+
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -847,6 +858,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -900,6 +912,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_pending_scans()
+
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -991,6 +1005,8 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.handle_command(
             cmd, fs,
         )
+        self.daemon.start_pending_scans()
+
         response = fs.get_response()
         status = response.get('status_text')
         self.assertEqual(status, 'Continue')
@@ -1008,7 +1024,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-
+        self.daemon.start_pending_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -1043,7 +1059,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-
+        self.daemon.start_pending_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -1065,3 +1081,21 @@ class ScanTestCase(unittest.TestCase):
         for idx, res in enumerate(results):
             att_dict = res.attrib
             self.assertEqual(hosts[idx], att_dict['name'])
+
+    def test_is_new_scan_allowed_false(self):
+        self.daemon.scan_processes = {  # pylint: disable=protected-access
+            'a': 1,
+            'b': 2,
+        }
+        self.daemon.max_scans = 1
+
+        self.assertFalse(self.daemon.is_new_scan_allowed())
+
+    def test_is_new_scan_allowed_true(self):
+        self.daemon.scan_processes = {  # pylint: disable=protected-access
+            'a': 1,
+            'b': 2,
+        }
+        self.daemon.max_scans = 3
+
+        self.assertTrue(self.daemon.is_new_scan_allowed())

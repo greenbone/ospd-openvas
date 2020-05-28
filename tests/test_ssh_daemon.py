@@ -75,6 +75,7 @@ class DummyWrapper(OSPDaemonSimpleSSH):
     def __init__(self, niceness=10):
         super().__init__(niceness=niceness)
         self.scan_collection.data_manager = FakeDataManager()
+        self.scan_collection.file_storage_dir = '/tmp'
 
     def check(self):
         return True
@@ -107,7 +108,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15, username_password='dummy:pw'),
             '',
         )
-
+        daemon.start_pending_scans()
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
 
         self.assertIsInstance(res, list)
@@ -130,7 +131,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15, username='dummy', password='pw'),
             '',
         )
-
+        daemon.start_pending_scans()
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
 
         self.assertIsInstance(res, list)
@@ -164,6 +165,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15),
             '',
         )
+        daemon.start_pending_scans()
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
 
         self.assertIsInstance(res, list)
@@ -186,6 +188,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15),
             '',
         )
+        daemon.start_pending_scans()
 
         with self.assertRaises(ValueError):
             daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
