@@ -1218,7 +1218,13 @@ class OSPDaemon:
                 return
 
             if self.get_scan_status(scan_id) == ScanStatus.PENDING:
-                self.scan_collection.unpikle_scan_info(scan_id)
+                try:
+                    self.scan_collection.unpickle_scan_info(scan_id)
+                except OspdCommandError as e:
+                    logger.error("Start scan error %s", e)
+                    self.stop_scan(scan_id)
+                    continue
+
                 scan_func = self.start_scan
                 scan_process = create_process(func=scan_func, args=(scan_id,))
                 self.scan_processes[scan_id] = scan_process

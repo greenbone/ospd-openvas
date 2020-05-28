@@ -27,6 +27,8 @@ from enum import Enum
 from typing import List, Any, Dict, Iterator, Optional, Iterable, Union
 
 from ospd.network import target_str_to_list
+from ospd.datapickler import DataPickler
+from ospd.errors import OspdCommandError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -205,25 +207,20 @@ class ScanCollection:
         return iter(self.scans_table.keys())
 
     def remove_file_pickled_scan_info(self, scan_id):
-        """ Remove the file containing a scan_info pickled object """
-        storage_file_path = Path(self.file_storage_dir) / scan_id
-        storage_file_path.unlink()
+        pickler = DataPickler(self.file_storage_dir)
+        pickler.remove_file(scan_id)
 
-    def pickle_scan_info(self, scan_id, scan_info):
-        """ Pickle a scan_info object and stored it in a file named as the scan_id"""
+    def unpickle_scan_info(self, scan_id):
+        """ Unpickle a stored scan_inf correspinding to the scan_id
+        and store it in the scan_table """
+        pickler = DataPickler(self.file_storage_dir)
+        unpickled_scan_info = pickler.load_data(scan_id)
 
-        storage_file_path = Path(self.file_storage_dir) / scan_id
-        with storage_file_path.open('wb') as scan_info_f:
-            pickle.dump(scan_info, scan_info_f)
-
-    def unpikle_scan_info(self, scan_id):
-        """ Unpikle the scan_info correspinding to the scan_id and store it in the
-        scan_table """
-
-        storage_file_path = Path(self.file_storage_dir) / scan_id
-        unpikled_scan_info = None
-        with storage_file_path.open('rb') as scan_info_f:
-            unpikled_scan_info = pickle.load(scan_info_f)
+        if not unpickled_scan_info:
+            raise OspdCommandError(
+                'Not possible to unpickle stored scan info for %s' % scan_id,
+                'start_scan',
+            )
 
         scan_info = self.scans_table.get(scan_id)
 
@@ -232,15 +229,15 @@ class ScanCollection:
         scan_info['target_progress'] = dict()
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
-        scan_info['target'] = unpikled_scan_info.pop('target')
-        scan_info['vts'] = unpikled_scan_info.pop('vts')
-        scan_info['options'] = unpikled_scan_info.pop('options')
+        scan_info['target'] = unpickled_scan_info.pop('target')
+        scan_info['vts'] = unpickled_scan_info.pop('vts')
+        scan_info['options'] = unpickled_scan_info.pop('options')
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = 0
 
         self.scans_table[scan_id] = scan_info
 
-        storage_file_path.unlink()
+        pickler.remove_file(scan_id)
 
     def create_scan(
         self,
@@ -261,7 +258,7 @@ class ScanCollection:
         scan_info['credentials'] = credentials
         scan_info['start_time'] = int(time.time())
 
-        scan_info_to_pikle = {
+        scan_info_to_pickle = {
             'target': target,
             'options': options,
             'vts': vts,
@@ -270,7 +267,12 @@ class ScanCollection:
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
 
-        self.pickle_scan_info(scan_id, scan_info_to_pikle)
+        pickler = DataPickler(self.file_storage_dir)
+        try:
+            pickler.store_data(scan_id, scan_info_to_pickle)
+        except OspdCommandError as e:
+            logger.error(e)
+            return
 
         scan_info['scan_id'] = scan_id
 
