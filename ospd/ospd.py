@@ -41,6 +41,8 @@ from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
 
+import psutil
+
 from deprecated import deprecated
 
 from ospd import __version__

@@ -86,7 +86,7 @@ class DataPickler:
         try:
             with storage_file_path.open('rb') as scan_info_f:
                 pickled_data = scan_info_f.read()
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-except
             logger.error(
                 'Not possible to read pickled data from %s. %s', filename, e
             )
