@@ -213,16 +213,18 @@ class ScanCollection:
     def unpickle_scan_info(self, scan_id):
         """ Unpickle a stored scan_inf correspinding to the scan_id
         and store it in the scan_table """
+
+        scan_info = self.scans_table.get(scan_id)
+        scan_info_hash = scan_info.pop('scan_info_hash')
+
         pickler = DataPickler(self.file_storage_dir)
-        unpickled_scan_info = pickler.load_data(scan_id)
+        unpickled_scan_info = pickler.load_data(scan_id, scan_info_hash)
 
         if not unpickled_scan_info:
             raise OspdCommandError(
                 'Not possible to unpickle stored scan info for %s' % scan_id,
                 'start_scan',
             )
-
-        scan_info = self.scans_table.get(scan_id)
 
         scan_info['results'] = list()
         scan_info['progress'] = 0
@@ -268,13 +270,15 @@ class ScanCollection:
             scan_id = str(uuid.uuid4())
 
         pickler = DataPickler(self.file_storage_dir)
+        scan_info_hash = None
         try:
-            pickler.store_data(scan_id, scan_info_to_pickle)
+            scan_info_hash = pickler.store_data(scan_id, scan_info_to_pickle)
         except OspdCommandError as e:
-            logger.error(e)
+            LOGGER.error(e)
             return
 
         scan_info['scan_id'] = scan_id
+        scan_info['scan_info_hash'] = scan_info_hash
 
         self.scans_table[scan_id] = scan_info
         return scan_id

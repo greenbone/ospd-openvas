@@ -15,13 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-""" Pikle Handler class
+""" Pickle Handler class
 """
 
 import logging
 import pickle
 
+from hashlib import sha256
 from pathlib import Path
+from typing import Dict
+
 from ospd.errors import OspdCommandError
 
 logger = logging.getLogger(__name__)
@@ -36,7 +39,7 @@ class DataPickler:
         storage_file_path = Path(self._storage_path) / filename
         storage_file_path.unlink()
 
-    def store_data(self, filename, data_object):
+    def store_data(self, filename: str, data_object: Dict) -> str:
         """ Pickle a object and store it in a file named"""
         storage_file_path = Path(self._storage_path) / filename
 
@@ -46,28 +49,67 @@ class DataPickler:
             parent_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:  # pylint: disable=broad-except
             raise OspdCommandError(
-                'Not possible to store scan info for %s. %s' % (filename, e),
+                'Not possible to access dir for %s. %s' % (filename, e),
+                'start_scan',
+            )
+
+        try:
+            pickled_data = pickle.dumps(data_object)
+        except pickle.PicklingError as e:
+            raise OspdCommandError(
+                'Not possible to pickle scan info for %s. %s' % (filename, e),
                 'start_scan',
             )
 
         try:
             with storage_file_path.open('wb') as scan_info_f:
-                pickle.dump(data_object, scan_info_f)
-        except Exception as e:
+                scan_info_f.write(pickled_data)
+        except Exception as e:  # pylint: disable=broad-except
             raise OspdCommandError(
                 'Not possible to store scan info for %s. %s' % (filename, e),
                 'start_scan',
             )
 
-    def load_data(self, filename):
-        """ Unpikle stored data """
+        return self._pickled_data_hash_generator(pickled_data)
+
+    def load_data(self, filename: str, original_data_hash: str) -> Dict:
+        """ Unpickle the stored data in the filename. Perform an
+        intengrity check of the read data with the the hash generated
+        with the original data.
+
+        Return:
+            Dictionary containing the scan info. None otherwise.
+        """
 
         storage_file_path = Path(self._storage_path) / filename
-        unpikled_scan_info = None
+        pickled_data = None
         try:
             with storage_file_path.open('rb') as scan_info_f:
-                unpikled_scan_info = pickle.load(scan_info_f)
+                pickled_data = scan_info_f.read()
         except Exception as e:
-            logger.error('Not possible to load data from %s. %s', filename, e)
+            logger.error(
+                'Not possible to read pickled data from %s. %s', filename, e
+            )
 
-        return unpikled_scan_info
+        unpickled_scan_info = None
+        try:
+            unpickled_scan_info = pickle.loads(pickled_data)
+        except pickle.UnpicklingError as e:
+            logger.error(
+                'Not possible to read pickled data from %s. %s', filename, e
+            )
+
+        pickled_scan_info_hash = self._pickled_data_hash_generator(pickled_data)
+
+        if original_data_hash == pickled_scan_info_hash:
+            return unpickled_scan_info
+
+    def _pickled_data_hash_generator(self, pickled_data):
+        """ Calculate the sha256 hash of a pickled data """
+        if not pickled_data:
+            return
+
+        hash_sha256 = sha256()
+        hash_sha256.update(pickle.dumps(pickled_data))
+
+        return hash_sha256.hexdigest()
