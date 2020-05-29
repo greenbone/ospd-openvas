@@ -20,6 +20,7 @@
 
 import logging
 import pickle
+import os
 
 from hashlib import sha256
 from pathlib import Path
@@ -29,10 +30,26 @@ from ospd.errors import OspdCommandError
 
 logger = logging.getLogger(__name__)
 
+OWNER_ONLY_RW_PERMISSION = 0o600
+
 
 class DataPickler:
     def __init__(self, storage_path):
         self._storage_path = storage_path
+        self._storage_fd = None
+
+    def _fd_opener(self, path, flags):
+        os.umask(0)
+        flags = os.O_CREAT | os.O_WRONLY
+        self._storage_fd = os.open(path, flags, mode=OWNER_ONLY_RW_PERMISSION)
+        return self._storage_fd
+
+    def _fd_close(self):
+        try:
+            self._storage_fd.close()
+            self._storage_fd = None
+        except Exception:  # pylint: disable=broad-except
+            pass
 
     def remove_file(self, filename):
         """ Remove the file containing a scan_info pickled object """
@@ -65,13 +82,17 @@ class DataPickler:
             )
 
         try:
-            with storage_file_path.open('wb') as scan_info_f:
+            with open(
+                str(storage_file_path), 'wb', opener=self._fd_opener
+            ) as scan_info_f:
                 scan_info_f.write(pickled_data)
         except Exception as e:  # pylint: disable=broad-except
+            self._fd_close()
             raise OspdCommandError(
                 'Not possible to store scan info for %s. %s' % (filename, e),
                 'start_scan',
             )
+        self._fd_close()
 
         return self._pickled_data_hash_generator(pickled_data)
 

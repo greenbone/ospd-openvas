@@ -57,6 +57,21 @@ class DataPecklerTestCase(TestCase):
             OspdCommandError, data_pickler.store_data, filename, data
         )
 
+    def test_store_data_check_permission(self):
+        OWNER_ONLY_RW_PERMISSION = '0o100600'
+        data = {'foo', 'bar'}
+        filename = 'scan_info_1'
+
+        data_pickler = DataPickler('/tmp')
+        data_pickler.store_data(filename, data)
+
+        file_path = Path(data_pickler._storage_path) / filename
+        self.assertEqual(
+            oct(file_path.stat().st_mode), OWNER_ONLY_RW_PERMISSION
+        )
+
+        data_pickler.remove_file(filename)
+
     def test_load_data(self):
 
         data_pickler = DataPickler('/tmp')
