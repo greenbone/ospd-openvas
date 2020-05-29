@@ -778,6 +778,7 @@ class OSPDaemon:
             response = Element('scan')
             detailed = False
             progress = False
+            response.append(Element('results'))
         else:
             target = self.get_scan_host(scan_id)
             scan_progress = self.get_scan_progress(scan_id)
