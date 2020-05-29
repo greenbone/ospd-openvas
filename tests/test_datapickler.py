@@ -15,13 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import pickle
 
 from pathlib import Path
 from hashlib import sha256
 from unittest import TestCase
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 
 from ospd.errors import OspdCommandError
 from ospd.datapickler import DataPickler
@@ -34,22 +33,19 @@ class DataPecklerTestCase(TestCase):
         data = {'foo', 'bar'}
         filename = 'scan_info_1'
         pickled_data = pickle.dumps(data)
-        m = sha256()
-        m.update(pickled_data)
+        tmp_hash = sha256()
+        tmp_hash.update(pickled_data)
 
         data_pickler = DataPickler('/tmp')
         ret = data_pickler.store_data(filename, data)
 
-        self.assertEqual(ret, m.hexdigest())
+        self.assertEqual(ret, tmp_hash.hexdigest())
 
         data_pickler.remove_file(filename)
 
     def test_store_data_failed(self):
         data = {'foo', 'bar'}
         filename = 'scan_info_1'
-        pickled_data = pickle.dumps(data)
-        m = sha256()
-        m.update(pickled_data)
 
         data_pickler = DataPickler('/root')
 
@@ -58,14 +54,17 @@ class DataPecklerTestCase(TestCase):
         )
 
     def test_store_data_check_permission(self):
-        OWNER_ONLY_RW_PERMISSION = '0o100600'
+        OWNER_ONLY_RW_PERMISSION = '0o100600'  # pylint: disable=invalid-name
         data = {'foo', 'bar'}
         filename = 'scan_info_1'
 
         data_pickler = DataPickler('/tmp')
         data_pickler.store_data(filename, data)
 
-        file_path = Path(data_pickler._storage_path) / filename
+        file_path = (
+            Path(data_pickler._storage_path)  # pylint: disable=protected-access
+            / filename
+        )
         self.assertEqual(
             oct(file_path.stat().st_mode), OWNER_ONLY_RW_PERMISSION
         )
@@ -80,9 +79,9 @@ class DataPecklerTestCase(TestCase):
         filename = 'scan_info_1'
         pickled_data = pickle.dumps(data)
 
-        m = sha256()
-        m.update(pickled_data)
-        pickled_data_hash = m.hexdigest()
+        tmp_hash = sha256()
+        tmp_hash.update(pickled_data)
+        pickled_data_hash = tmp_hash.hexdigest()
 
         ret = data_pickler.store_data(filename, data)
         self.assertEqual(ret, pickled_data_hash)
@@ -102,7 +101,6 @@ class DataPecklerTestCase(TestCase):
 
     @patch("ospd.datapickler.logger")
     def test_load_data_no_file(self, mock_logger):
-        data = {'foo', 'bar'}
         filename = 'scan_info_1'
         data_pickler = DataPickler('/tmp')
 
@@ -120,15 +118,18 @@ class DataPecklerTestCase(TestCase):
         filename = 'scan_info_1'
         pickled_data = pickle.dumps(data)
 
-        m = sha256()
-        m.update(pickled_data)
-        pickled_data_hash = m.hexdigest()
+        tmp_hash = sha256()
+        tmp_hash.update(pickled_data)
+        pickled_data_hash = tmp_hash.hexdigest()
 
         ret = data_pickler.store_data(filename, data)
         self.assertEqual(ret, pickled_data_hash)
 
         # courrupt data
-        file_to_corrupt = Path(data_pickler._storage_path) / filename
+        file_to_corrupt = (
+            Path(data_pickler._storage_path)  # pylint: disable=protected-access
+            / filename
+        )
         with file_to_corrupt.open('ab') as f:
             f.write(b'bar2')
 
