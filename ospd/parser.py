@@ -18,7 +18,6 @@
 import argparse
 import logging
 from pathlib import Path
-from typing import Union
 
 from ospd.config import Config
 
