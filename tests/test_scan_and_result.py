@@ -508,7 +508,7 @@ class ScanTestCase(unittest.TestCase):
 
         finished = False
 
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         while not finished:
             fs = FakeStream()
             self.daemon.handle_command(
@@ -565,7 +565,7 @@ class ScanTestCase(unittest.TestCase):
         response = fs.get_response()
         scan_id = response.findtext('id')
         finished = False
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         self.daemon.add_scan_error(
             scan_id, host='a', value='something went wrong'
         )
@@ -613,7 +613,7 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /></start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -656,7 +656,7 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /></start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -726,7 +726,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
@@ -757,7 +757,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         response = fs.get_response()
         scan_id = response.findtext('id')
@@ -782,7 +782,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         response = fs.get_response()
 
@@ -804,7 +804,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -828,7 +828,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         response = fs.get_response()
 
@@ -858,7 +858,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -890,6 +890,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
 
         fs = FakeStream()
         self.assertRaises(
@@ -912,7 +913,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         response = fs.get_response()
         scan_id = response.findtext('id')
@@ -984,7 +985,7 @@ class ScanTestCase(unittest.TestCase):
         status = response.get('status_text')
         self.assertEqual(status, 'OK')
 
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
@@ -1005,7 +1006,7 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.handle_command(
             cmd, fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         response = fs.get_response()
         status = response.get('status_text')
@@ -1024,7 +1025,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -1059,7 +1060,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')

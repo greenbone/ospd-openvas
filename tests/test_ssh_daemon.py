@@ -108,7 +108,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15, username_password='dummy:pw'),
             '',
         )
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
 
         self.assertIsInstance(res, list)
@@ -131,7 +131,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15, username='dummy', password='pw'),
             '',
         )
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
 
         self.assertIsInstance(res, list)
@@ -165,7 +165,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15),
             '',
         )
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         res = daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')
 
         self.assertIsInstance(res, list)
@@ -188,7 +188,7 @@ class SSHDaemonTestCase(unittest.TestCase):
             dict(port=5, ssh_timeout=15),
             '',
         )
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
 
         with self.assertRaises(ValueError):
             daemon.run_command(scanid, 'host.example.com', 'cat /etc/passwd')

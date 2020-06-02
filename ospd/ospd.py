@@ -371,7 +371,7 @@ class OSPDaemon:
     def stop_scan(self, scan_id: str) -> None:
         if (
             scan_id in self.scan_collection.ids_iterator()
-            and self.get_scan_status(scan_id) == ScanStatus.PENDING
+            and self.get_scan_status(scan_id) == ScanStatus.QUEUED
         ):
             self.scan_collection.remove_file_pickled_scan_info(scan_id)
             self.set_scan_status(scan_id, ScanStatus.STOPPED)
@@ -769,7 +769,7 @@ class OSPDaemon:
         if not scan_id:
             return Element('scan')
 
-        if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+        if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
             target = ''
             scan_progress = 0
             status = self.get_scan_status(scan_id)
@@ -1199,13 +1199,13 @@ class OSPDaemon:
                 time.sleep(SCHEDULER_CHECK_PERIOD)
                 self.scheduler()
                 self.clean_forgotten_scans()
-                self.start_pending_scans()
+                self.start_queued_scans()
                 self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
 
-    def start_pending_scans(self):
-        """ Starts a pending scan if it is allowed """
+    def start_queued_scans(self):
+        """ Starts a queued scan if it is allowed """
 
         for scan_id in self.scan_collection.ids_iterator():
             if not self.is_new_scan_allowed():
@@ -1220,7 +1220,7 @@ class OSPDaemon:
                 )
                 return
 
-            if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+            if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
                 try:
                     self.scan_collection.unpickle_scan_info(scan_id)
                 except OspdCommandError as e:
@@ -1336,7 +1336,7 @@ class OSPDaemon:
 
     def check_scan_process(self, scan_id: str) -> None:
         """ Check the scan's process, and terminate the scan if not alive. """
-        if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+        if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
             return
 
         scan_process = self.scan_processes.get(scan_id)

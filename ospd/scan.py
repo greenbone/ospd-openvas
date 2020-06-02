@@ -34,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 class ScanStatus(Enum):
     """Scan status. """
 
-    PENDING = 0
+    QUEUED = 0
     INIT = 1
     RUNNING = 2
     STOPPED = 3
@@ -254,7 +254,7 @@ class ScanCollection:
         credentials = target.pop('credentials')
 
         scan_info = self.data_manager.dict()  # type: Dict
-        scan_info['status'] = ScanStatus.PENDING
+        scan_info['status'] = ScanStatus.QUEUED
         scan_info['credentials'] = credentials
         scan_info['start_time'] = int(time.time())
 

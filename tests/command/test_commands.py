@@ -119,14 +119,14 @@ class StartScanTestCase(TestCase):
 
         # With one vt, without params
         response = et.fromstring(cmd.handle_xml(request))
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         scan_id = response.findtext('id')
 
         vts_collection = daemon.get_scan_vts(scan_id)
         self.assertEqual(vts_collection, {'1.2.3.4': {}, 'vt_groups': []})
         self.assertNotEqual(vts_collection, {'1.2.3.6': {}})
 
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         assert_called(mock_create_process)
 
     def test_scan_pop_vts(self):
@@ -151,7 +151,7 @@ class StartScanTestCase(TestCase):
         # With one vt, without params
         response = et.fromstring(cmd.handle_xml(request))
         scan_id = response.findtext('id')
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         vts_collection = daemon.get_scan_vts(scan_id)
         self.assertEqual(vts_collection, {'1.2.3.4': {}, 'vt_groups': []})
         self.assertRaises(KeyError, daemon.get_scan_vts, scan_id)
@@ -177,7 +177,7 @@ class StartScanTestCase(TestCase):
 
         # With one vt, without params
         response = et.fromstring(cmd.handle_xml(request))
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         scan_id = response.findtext('id')
 
         ports = daemon.scan_collection.get_ports(scan_id)
@@ -203,7 +203,7 @@ class StartScanTestCase(TestCase):
         )
 
         response = et.fromstring(cmd.handle_xml(request))
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
 
         scan_id = response.findtext('id')
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
@@ -256,7 +256,7 @@ class StartScanTestCase(TestCase):
             '</start_scan>'
         )
         response = et.fromstring(cmd.handle_xml(request))
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
 
         scan_id = response.findtext('id')
 
@@ -264,7 +264,7 @@ class StartScanTestCase(TestCase):
             daemon.get_scan_vts(scan_id),
             {'1234': {'ABC': '200'}, 'vt_groups': []},
         )
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         assert_called(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_group_filter(self):
@@ -284,7 +284,7 @@ class StartScanTestCase(TestCase):
             '<vt_selection><vt_group/></vt_selection>'
             '</start_scan>'
         )
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
 
         with self.assertRaises(OspdError):
             cmd.handle_xml(request)
@@ -312,7 +312,7 @@ class StartScanTestCase(TestCase):
             '</start_scan>'
         )
         response = et.fromstring(cmd.handle_xml(request))
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         scan_id = response.findtext('id')
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
@@ -337,7 +337,7 @@ class StartScanTestCase(TestCase):
         )
 
         cmd.handle_xml(request)
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)
 
@@ -357,7 +357,7 @@ class StartScanTestCase(TestCase):
         )
 
         response = et.fromstring(cmd.handle_xml(request))
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
         scan_id = response.findtext('id')
 
         self.assertIsNotNone(scan_id)
@@ -393,7 +393,7 @@ class StopCommandTestCase(TestCase):
         daemon.handle_command(request, fs)
         response = fs.get_response()
 
-        daemon.start_pending_scans()
+        daemon.start_queued_scans()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
