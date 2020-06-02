@@ -66,13 +66,6 @@ OSPD_PARAMS_OUT = {
         'mandatory': 1,
         'description': '',
     },
-    'network_scan': {
-        'type': 'boolean',
-        'name': 'network_scan',
-        'default': 0,
-        'mandatory': 1,
-        'description': '',
-    },
     'non_simult_ports': {
         'type': 'string',
         'name': 'non_simult_ports',
