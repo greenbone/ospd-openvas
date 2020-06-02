@@ -38,6 +38,11 @@ def assert_called(mock: Mock):
         raise AssertionError(msg)
 
 
+class FakePsutil:
+    def __init__(self, free=None):
+        self.free = free
+
+
 class FakeStream:
     def __init__(self):
         self.response = b''

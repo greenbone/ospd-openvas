@@ -38,6 +38,7 @@ DEFAULT_LOCKFILE_DIR_PATH = "/var/run/ospd"
 DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
 DEFAULT_MAX_SCAN = 0  # 0 = disable
+DEFAULT_MIN_FREE_MEM_SCAN_QUEUE = 0  # 0 = Disable
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -167,11 +168,11 @@ class CliParser:
             'Default %(default)s, disabled',
         )
         parser.add_argument(
-            '--check-free-memory',
-            default=False,
-            type=self.str2bool,
-            help='Check if there is enough free memory to run the scan. '
-            'This is an experimental feature. '
+            '--min-free-mem-scan-queue',
+            default=DEFAULT_MIN_FREE_MEM_SCAN_QUEUE,
+            type=int,
+            help='Minimum free memory in MB required to run the scan. '
+            'If no enough free memory is available, the scan queued. '
             'Default %(default)s, disabled',
         )
 
@@ -186,14 +187,6 @@ class CliParser:
                 'port must be in ]0,65535] interval'
             )
         return value
-
-    def str2bool(self, value: Union[int, str, bool]) -> bool:
-        """ Check if provided string is a valid bool value. """
-        if isinstance(value, bool):
-            return value
-        if value.lower() in ('yes', 'true', 't', 'y', '1'):
-            return True
-        return False
 
     def log_level(self, string: str) -> int:
         """ Check if provided string is a valid log level. """

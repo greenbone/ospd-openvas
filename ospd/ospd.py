@@ -118,7 +118,7 @@ class OSPDaemon:
         customvtfilter=None,
         storage=None,
         max_scans=0,
-        check_free_memory=False,
+        min_free_mem_scan_queue=0,
         file_storage_dir='/var/run/ospd',
         **kwargs
     ):  # pylint: disable=unused-argument
@@ -141,7 +141,7 @@ class OSPDaemon:
         self.initialized = None  # Set after initialization finished
 
         self.max_scans = max_scans
-        self.check_free_memory = check_free_memory
+        self.min_free_mem_scan_queue = min_free_mem_scan_queue
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
@@ -1214,7 +1214,10 @@ class OSPDaemon:
                 )
                 return
 
-            if self.check_free_memory and not self.is_enough_free_memory():
+            if (
+                self.min_free_mem_scan_queue
+                and not self.is_enough_free_memory()
+            ):
                 logger.debug(
                     'Not possible to run a new scan. Not enough free memory.'
                 )
@@ -1253,13 +1256,9 @@ class OSPDaemon:
         Return:
             True if there is enough memory for a new scan.
         """
-
-        ps_process = psutil.Process()
-        proc_memory = ps_process.memory_info().rss
-
         free_mem = psutil.virtual_memory().free
 
-        if free_mem > (4 * proc_memory):
+        if (free_mem / (1024 * 1024)) > self.min_free_mem_scan_queue:
             return True
 
         return False
