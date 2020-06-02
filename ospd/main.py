@@ -34,6 +34,7 @@ from ospd.ospd import OSPDaemon
 from ospd.parser import create_parser, ParserType
 from ospd.server import TlsServer, UnixSocketServer, BaseServer
 
+
 COPYRIGHT = """Copyright (C) 2014, 2015, 2018, 2019 Greenbone Networks GmbH
 License GPLv2+: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
@@ -107,11 +108,17 @@ def init_logging(
 
 
 def exit_cleanup(
-    pidfile: str, server: BaseServer, _signum=None, _frame=None
+    pidfile: str,
+    server: BaseServer,
+    daemon: OSPDaemon,
+    _signum=None,
+    _frame=None,
 ) -> None:
     """ Removes the pidfile before ending the daemon. """
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     pidpath = Path(pidfile)
+
+    daemon.scan_collection.clean_up_pickled_scan_info()
 
     if not pidpath.is_file():
         return
@@ -174,8 +181,12 @@ def main(
         sys.exit()
 
     # Set signal handler and cleanup
-    atexit.register(exit_cleanup, pidfile=args.pid_file, server=server)
-    signal.signal(signal.SIGTERM, partial(exit_cleanup, args.pid_file, server))
+    atexit.register(
+        exit_cleanup, pidfile=args.pid_file, server=server, daemon=daemon
+    )
+    signal.signal(
+        signal.SIGTERM, partial(exit_cleanup, args.pid_file, server, daemon)
+    )
 
     if not daemon.check():
         return 1

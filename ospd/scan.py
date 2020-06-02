@@ -204,6 +204,12 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
+    def clean_up_pickled_scan_info(self):
+        """ Remove files of pickled scan info """
+        for scan_id in self.ids_iterator():
+            if self.get_status(scan_id) == ScanStatus.QUEUED:
+                self.remove_file_pickled_scan_info(scan_id)
+
     def remove_file_pickled_scan_info(self, scan_id):
         pickler = DataPickler(self.file_storage_dir)
         pickler.remove_file(scan_id)
