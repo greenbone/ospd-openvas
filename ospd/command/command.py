@@ -478,6 +478,15 @@ class StartScan(BaseCommand):
             Response string for <start_scan> command.
         """
 
+        if (
+            self._daemon.max_queued_scans
+            and self._daemon.get_count_queued_scans()
+            >= self._daemon.max_queued_scans
+        ):
+            raise OspdCommandError(
+                'Maximum number of queued scans reached.', 'start_scan'
+            )
+
         target_str = xml.get('target')
         ports_str = xml.get('ports')
 

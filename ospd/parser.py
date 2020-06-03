@@ -38,6 +38,7 @@ DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
 DEFAULT_MAX_SCAN = 0  # 0 = disable
 DEFAULT_MIN_FREE_MEM_SCAN_QUEUE = 0  # 0 = Disable
+DEFAULT_MAX_QUEUED_SCANS = 0  # 0 = Disable
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -172,6 +173,14 @@ class CliParser:
             type=int,
             help='Minimum free memory in MB required to run the scan. '
             'If no enough free memory is available, the scan queued. '
+            'Default %(default)s, disabled',
+        )
+        parser.add_argument(
+            '--max-queued-scans',
+            default=DEFAULT_MAX_QUEUED_SCANS,
+            type=int,
+            help='Maximum number allowed of queued scans before '
+            'starting to reject new scans. '
             'Default %(default)s, disabled',
         )
 

@@ -120,6 +120,7 @@ class OSPDaemon:
         max_scans=0,
         min_free_mem_scan_queue=0,
         file_storage_dir='/var/run/ospd',
+        max_queued_scans=0,
         **kwargs
     ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
@@ -142,6 +143,7 @@ class OSPDaemon:
 
         self.max_scans = max_scans
         self.min_free_mem_scan_queue = min_free_mem_scan_queue
+        self.max_queued_scans = max_queued_scans
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
@@ -1356,6 +1358,14 @@ class OSPDaemon:
 
         elif progress == PROGRESS_FINISHED:
             scan_process.join(0)
+
+    def get_count_queued_scans(self) -> int:
+        """ Get the amount of scans with queued status """
+        count = 0
+        for scan_id in self.scan_collection.ids_iterator():
+            if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+                count += 1
+        return count
 
     def get_scan_progress(self, scan_id: str) -> int:
         """ Gives a scan's current progress value. """
