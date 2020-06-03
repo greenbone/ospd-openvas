@@ -341,6 +341,31 @@ class StartScanTestCase(TestCase):
         assert_called(mock_logger.warning)
         assert_called(mock_create_process)
 
+    def test_max_queued_scans_reached(self):
+        daemon = DummyWrapper([])
+        daemon.max_queued_scans = 1
+        cmd = StartScan(daemon)
+        request = et.fromstring(
+            '<start_scan parallel="100a">'
+            '<targets>'
+            '<target>'
+            '<hosts>localhosts</hosts>'
+            '<ports>22</ports>'
+            '</target>'
+            '</targets>'
+            '<scanner_params />'
+            '</start_scan>'
+        )
+
+        # create first scan
+        response = et.fromstring(cmd.handle_xml(request))
+        scan_id_1 = response.findtext('id')
+
+        with self.assertRaises(OspdCommandError):
+            cmd.handle_xml(request)
+
+        daemon.scan_collection.remove_file_pickled_scan_info(scan_id_1)
+
     @patch("ospd.ospd.create_process")
     @patch("ospd.command.command.logger")
     def test_scan_use_legacy_target_and_port(

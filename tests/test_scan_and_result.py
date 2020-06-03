@@ -1122,3 +1122,21 @@ class ScanTestCase(unittest.TestCase):
         mock_psutil.virtual_memory.return_value = FakePsutil(free=1500000000)
 
         self.assertFalse(self.daemon.is_enough_free_memory())
+
+    def test_count_queued_scans(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts,192.168.0.0/24</hosts>'
+            '<ports>80,443</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        self.assertEqual(self.daemon.get_count_queued_scans(), 1)
+        self.daemon.start_queued_scans()
+        self.assertEqual(self.daemon.get_count_queued_scans(), 0)
