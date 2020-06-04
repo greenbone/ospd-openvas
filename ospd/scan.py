@@ -25,6 +25,8 @@ from enum import Enum
 from typing import List, Any, Dict, Iterator, Optional, Iterable, Union
 
 from ospd.network import target_str_to_list
+from ospd.datapickler import DataPickler
+from ospd.errors import OspdCommandError
 
 LOGGER = logging.getLogger(__name__)
 
@@ -32,7 +34,7 @@ LOGGER = logging.getLogger(__name__)
 class ScanStatus(Enum):
     """Scan status. """
 
-    PENDING = 0
+    QUEUED = 0
     INIT = 1
     RUNNING = 2
     STOPPED = 3
@@ -56,13 +58,14 @@ class ScanCollection:
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, file_storage_dir: str) -> None:
         """ Initialize the Scan Collection. """
 
         self.data_manager = (
             None
         )  # type: Optional[multiprocessing.managers.SyncManager]
         self.scans_table = dict()  # type: Dict
+        self.file_storage_dir = file_storage_dir
 
     def init(self):
         self.data_manager = multiprocessing.Manager()
@@ -201,6 +204,48 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
+    def clean_up_pickled_scan_info(self) -> None:
+        """ Remove files of pickled scan info """
+        for scan_id in self.ids_iterator():
+            if self.get_status(scan_id) == ScanStatus.QUEUED:
+                self.remove_file_pickled_scan_info(scan_id)
+
+    def remove_file_pickled_scan_info(self, scan_id: str) -> None:
+        pickler = DataPickler(self.file_storage_dir)
+        pickler.remove_file(scan_id)
+
+    def unpickle_scan_info(self, scan_id: str) -> None:
+        """ Unpickle a stored scan_inf correspinding to the scan_id
+        and store it in the scan_table """
+
+        scan_info = self.scans_table.get(scan_id)
+        scan_info_hash = scan_info.pop('scan_info_hash')
+
+        pickler = DataPickler(self.file_storage_dir)
+        unpickled_scan_info = pickler.load_data(scan_id, scan_info_hash)
+
+        if not unpickled_scan_info:
+            pickler.remove_file(scan_id)
+            raise OspdCommandError(
+                'Not possible to unpickle stored scan info for %s' % scan_id,
+                'start_scan',
+            )
+
+        scan_info['results'] = list()
+        scan_info['progress'] = 0
+        scan_info['target_progress'] = dict()
+        scan_info['count_alive'] = 0
+        scan_info['count_dead'] = 0
+        scan_info['target'] = unpickled_scan_info.pop('target')
+        scan_info['vts'] = unpickled_scan_info.pop('vts')
+        scan_info['options'] = unpickled_scan_info.pop('options')
+        scan_info['start_time'] = int(time.time())
+        scan_info['end_time'] = 0
+
+        self.scans_table[scan_id] = scan_info
+
+        pickler.remove_file(scan_id)
+
     def create_scan(
         self,
         scan_id: str = '',
@@ -210,29 +255,35 @@ class ScanCollection:
     ) -> str:
         """ Creates a new scan with provided scan information. """
 
-        if not target:
-            target = {}
-
         if not options:
             options = dict()
 
+        credentials = target.pop('credentials')
+
         scan_info = self.data_manager.dict()  # type: Dict
-        scan_info['results'] = list()
-        scan_info['progress'] = 0
-        scan_info['target_progress'] = dict()
-        scan_info['count_alive'] = 0
-        scan_info['count_dead'] = 0
-        scan_info['target'] = target
-        scan_info['vts'] = vts
-        scan_info['options'] = options
+        scan_info['status'] = ScanStatus.QUEUED
+        scan_info['credentials'] = credentials
         scan_info['start_time'] = int(time.time())
-        scan_info['end_time'] = 0
-        scan_info['status'] = ScanStatus.PENDING
+
+        scan_info_to_pickle = {
+            'target': target,
+            'options': options,
+            'vts': vts,
+        }
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
 
+        pickler = DataPickler(self.file_storage_dir)
+        scan_info_hash = None
+        try:
+            scan_info_hash = pickler.store_data(scan_id, scan_info_to_pickle)
+        except OspdCommandError as e:
+            LOGGER.error(e)
+            return
+
         scan_info['scan_id'] = scan_id
+        scan_info['scan_info_hash'] = scan_info_hash
 
         self.scans_table[scan_id] = scan_info
         return scan_id
@@ -246,12 +297,12 @@ class ScanCollection:
     def get_status(self, scan_id: str) -> ScanStatus:
         """ Get scan_id scans's status."""
 
-        return self.scans_table[scan_id]['status']
+        return self.scans_table[scan_id].get('status')
 
     def get_options(self, scan_id: str) -> Dict:
         """ Get scan_id scan's options list. """
 
-        return self.scans_table[scan_id]['options']
+        return self.scans_table[scan_id].get('options')
 
     def set_option(self, scan_id, name: str, value: Any) -> None:
         """ Set a scan_id scan's name option to value. """
@@ -261,7 +312,7 @@ class ScanCollection:
     def get_progress(self, scan_id: str) -> int:
         """ Get a scan's current progress value. """
 
-        return self.scans_table[scan_id]['progress']
+        return self.scans_table[scan_id].get('progress', 0)
 
     def get_count_dead(self, scan_id: str) -> int:
         """ Get a scan's current dead host count. """
@@ -369,7 +420,7 @@ class ScanCollection:
         """ Get a scan's credential list. It return dictionary with
         the corresponding credential for a given target.
         """
-        return self.scans_table[scan_id]['target'].get('credentials')
+        return self.scans_table[scan_id].get('credentials')
 
     def get_target_options(self, scan_id: str) -> Dict[str, str]:
         """ Get a scan's target option dictionary.

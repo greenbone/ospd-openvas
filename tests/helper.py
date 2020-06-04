@@ -38,6 +38,11 @@ def assert_called(mock: Mock):
         raise AssertionError(msg)
 
 
+class FakePsutil:
+    def __init__(self, free=None):
+        self.free = free
+
+
 class FakeStream:
     def __init__(self):
         self.response = b''
@@ -64,6 +69,7 @@ class DummyWrapper(OSPDaemon):
         self.results = results
         self.initialized = True
         self.scan_collection.data_manager = FakeDataManager()
+        self.scan_collection.file_storage_dir = '/tmp'
 
     def check(self):
         return self.checkresult

@@ -41,6 +41,8 @@ from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
 
+import psutil
+
 from deprecated import deprecated
 
 from ospd import __version__
@@ -116,11 +118,13 @@ class OSPDaemon:
         customvtfilter=None,
         storage=None,
         max_scans=0,
-        check_free_memory=False,
+        min_free_mem_scan_queue=0,
+        file_storage_dir='/var/run/ospd',
+        max_queued_scans=0,
         **kwargs
     ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
-        self.scan_collection = ScanCollection()
+        self.scan_collection = ScanCollection(file_storage_dir)
         self.scan_processes = dict()
 
         self.daemon_info = dict()
@@ -138,7 +142,8 @@ class OSPDaemon:
         self.initialized = None  # Set after initialization finished
 
         self.max_scans = max_scans
-        self.check_free_memory = check_free_memory
+        self.min_free_mem_scan_queue = min_free_mem_scan_queue
+        self.max_queued_scans = max_queued_scans
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
@@ -366,6 +371,14 @@ class OSPDaemon:
         return OspRequest.process_target_element(scanner_target)
 
     def stop_scan(self, scan_id: str) -> None:
+        if (
+            scan_id in self.scan_collection.ids_iterator()
+            and self.get_scan_status(scan_id) == ScanStatus.QUEUED
+        ):
+            self.scan_collection.remove_file_pickled_scan_info(scan_id)
+            self.set_scan_status(scan_id, ScanStatus.STOPPED)
+            return
+
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
             raise OspdCommandError(
@@ -418,6 +431,10 @@ class OSPDaemon:
         self.scan_collection.set_progress(scan_id, PROGRESS_FINISHED)
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
+
+    def daemon_exit_cleanup(self) -> None:
+        """ Perform a cleanup before exiting """
+        self.scan_collection.clean_up_pickled_scan_info()
 
     def get_daemon_name(self) -> str:
         """ Gives osp daemon's name. """
@@ -681,7 +698,7 @@ class OSPDaemon:
             self.scan_processes[scan_id].join()
             exitcode = self.scan_processes[scan_id].exitcode
         except KeyError:
-            logger.debug('Scan process for %s not found', scan_id)
+            logger.debug('Scan process for %s never started,', scan_id)
 
         if exitcode or exitcode == 0:
             del self.scan_processes[scan_id]
@@ -758,16 +775,28 @@ class OSPDaemon:
         if not scan_id:
             return Element('scan')
 
-        target = self.get_scan_host(scan_id)
-        progress = self.get_scan_progress(scan_id)
-        status = self.get_scan_status(scan_id)
-        start_time = self.get_scan_start_time(scan_id)
-        end_time = self.get_scan_end_time(scan_id)
-        response = Element('scan')
+        if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+            target = ''
+            scan_progress = 0
+            status = self.get_scan_status(scan_id)
+            start_time = 0
+            end_time = 0
+            response = Element('scan')
+            detailed = False
+            progress = False
+            response.append(Element('results'))
+        else:
+            target = self.get_scan_host(scan_id)
+            scan_progress = self.get_scan_progress(scan_id)
+            status = self.get_scan_status(scan_id)
+            start_time = self.get_scan_start_time(scan_id)
+            end_time = self.get_scan_end_time(scan_id)
+            response = Element('scan')
+
         for name, value in [
             ('id', scan_id),
             ('target', target),
-            ('progress', progress),
+            ('progress', scan_progress),
             ('status', status.name.lower()),
             ('start_time', start_time),
             ('end_time', end_time),
@@ -1176,19 +1205,69 @@ class OSPDaemon:
                 time.sleep(SCHEDULER_CHECK_PERIOD)
                 self.scheduler()
                 self.clean_forgotten_scans()
-                self.start_pending_scans()
+                self.start_queued_scans()
                 self.wait_for_children()
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
 
-    def start_pending_scans(self):
+    def start_queued_scans(self) -> None:
+        """ Starts a queued scan if it is allowed """
+
         for scan_id in self.scan_collection.ids_iterator():
-            if self.get_scan_status(scan_id) == ScanStatus.PENDING:
+            if not self.is_new_scan_allowed():
+                logger.debug(
+                    'Not possible to run a new scan. Max scan limit reached.'
+                )
+                return
+
+            if not self.is_enough_free_memory():
+                logger.debug(
+                    'Not possible to run a new scan. Not enough free memory.'
+                )
+                return
+
+            if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+                try:
+                    self.scan_collection.unpickle_scan_info(scan_id)
+                except OspdCommandError as e:
+                    logger.error("Start scan error %s", e)
+                    self.stop_scan(scan_id)
+                    continue
+
                 scan_func = self.start_scan
                 scan_process = create_process(func=scan_func, args=(scan_id,))
                 self.scan_processes[scan_id] = scan_process
                 scan_process.start()
                 self.set_scan_status(scan_id, ScanStatus.INIT)
+
+    def is_new_scan_allowed(self) -> bool:
+        """ Check if max_scans has been reached.
+
+        Return:
+            True if a new scan can be launch.
+        """
+        if (self.max_scans == 0) or (len(self.scan_processes) < self.max_scans):
+            return True
+
+        return False
+
+    def is_enough_free_memory(self) -> bool:
+        """ Check if there is enough free memory in the system to run
+        a new scan. The necessary memory is a rough calculation and very
+        conservative.
+
+        Return:
+            True if there is enough memory for a new scan.
+        """
+        if not self.min_free_mem_scan_queue:
+            return True
+
+        free_mem = psutil.virtual_memory().free
+
+        if (free_mem / (1024 * 1024)) > self.min_free_mem_scan_queue:
+            return True
+
+        return False
 
     def scheduler(self):
         """ Should be implemented by subclass in case of need
@@ -1262,13 +1341,17 @@ class OSPDaemon:
 
     def check_scan_process(self, scan_id: str) -> None:
         """ Check the scan's process, and terminate the scan if not alive. """
+        if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+            return
+
         scan_process = self.scan_processes.get(scan_id)
         progress = self.get_scan_progress(scan_id)
 
-        if self.get_scan_status(scan_id) == ScanStatus.PENDING:
-            return
-
-        if progress < PROGRESS_FINISHED and not scan_process.is_alive():
+        if (
+            progress < PROGRESS_FINISHED
+            and scan_process
+            and not scan_process.is_alive()
+        ):
             if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
@@ -1279,6 +1362,14 @@ class OSPDaemon:
 
         elif progress == PROGRESS_FINISHED:
             scan_process.join(0)
+
+    def get_count_queued_scans(self) -> int:
+        """ Get the amount of scans with queued status """
+        count = 0
+        for scan_id in self.scan_collection.ids_iterator():
+            if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+                count += 1
+        return count
 
     def get_scan_progress(self, scan_id: str) -> int:
         """ Gives a scan's current progress value. """

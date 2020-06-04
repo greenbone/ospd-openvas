@@ -32,7 +32,13 @@ from defusedxml.common import EntitiesForbidden
 from ospd.resultlist import ResultList
 from ospd.errors import OspdCommandError
 
-from .helper import DummyWrapper, assert_called, FakeStream, FakeDataManager
+from .helper import (
+    DummyWrapper,
+    assert_called,
+    FakeStream,
+    FakeDataManager,
+    FakePsutil,
+)
 
 
 class FakeStartProcess:
@@ -79,6 +85,7 @@ class ScanTestCase(unittest.TestCase):
     def setUp(self):
         self.daemon = DummyWrapper([])
         self.daemon.scan_collection.datamanager = FakeDataManager()
+        self.daemon.scan_collection.file_storage_dir = '/tmp'
 
     def test_get_default_scanner_params(self):
         fs = FakeStream()
@@ -507,7 +514,7 @@ class ScanTestCase(unittest.TestCase):
 
         finished = False
 
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         while not finished:
             fs = FakeStream()
             self.daemon.handle_command(
@@ -564,7 +571,7 @@ class ScanTestCase(unittest.TestCase):
         response = fs.get_response()
         scan_id = response.findtext('id')
         finished = False
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
         self.daemon.add_scan_error(
             scan_id, host='a', value='something went wrong'
         )
@@ -612,6 +619,7 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /></start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -654,6 +662,7 @@ class ScanTestCase(unittest.TestCase):
             '<scanner_params /></start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -723,6 +732,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
@@ -753,6 +763,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
+
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -776,6 +788,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
+
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -796,6 +810,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -819,6 +834,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
+
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -847,6 +864,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -878,6 +896,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
 
         fs = FakeStream()
         self.assertRaises(
@@ -900,6 +919,8 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
+        self.daemon.start_queued_scans()
+
         response = fs.get_response()
         scan_id = response.findtext('id')
 
@@ -970,7 +991,7 @@ class ScanTestCase(unittest.TestCase):
         status = response.get('status_text')
         self.assertEqual(status, 'OK')
 
-        self.daemon.start_pending_scans()
+        self.daemon.start_queued_scans()
 
         assert_called(mock_create_process)
         assert_called(mock_process.start)
@@ -991,6 +1012,8 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.handle_command(
             cmd, fs,
         )
+        self.daemon.start_queued_scans()
+
         response = fs.get_response()
         status = response.get('status_text')
         self.assertEqual(status, 'Continue')
@@ -1008,7 +1031,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -1043,7 +1066,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>',
             fs,
         )
-
+        self.daemon.start_queued_scans()
         response = fs.get_response()
 
         scan_id = response.findtext('id')
@@ -1065,3 +1088,55 @@ class ScanTestCase(unittest.TestCase):
         for idx, res in enumerate(results):
             att_dict = res.attrib
             self.assertEqual(hosts[idx], att_dict['name'])
+
+    def test_is_new_scan_allowed_false(self):
+        self.daemon.scan_processes = {  # pylint: disable=protected-access
+            'a': 1,
+            'b': 2,
+        }
+        self.daemon.max_scans = 1
+
+        self.assertFalse(self.daemon.is_new_scan_allowed())
+
+    def test_is_new_scan_allowed_true(self):
+        self.daemon.scan_processes = {  # pylint: disable=protected-access
+            'a': 1,
+            'b': 2,
+        }
+        self.daemon.max_scans = 3
+
+        self.assertTrue(self.daemon.is_new_scan_allowed())
+
+    @patch("ospd.ospd.psutil")
+    def test_free_memory_true(self, mock_psutil):
+        self.daemon.min_free_mem_scan_queue = 1000
+        # 1.5 GB free
+        mock_psutil.virtual_memory.return_value = FakePsutil(free=1500000000)
+
+        self.assertTrue(self.daemon.is_enough_free_memory())
+
+    @patch("ospd.ospd.psutil")
+    def test_free_memory_false(self, mock_psutil):
+        self.daemon.min_free_mem_scan_queue = 2000
+        # 1.5 GB free
+        mock_psutil.virtual_memory.return_value = FakePsutil(free=1500000000)
+
+        self.assertFalse(self.daemon.is_enough_free_memory())
+
+    def test_count_queued_scans(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts,192.168.0.0/24</hosts>'
+            '<ports>80,443</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        self.assertEqual(self.daemon.get_count_queued_scans(), 1)
+        self.daemon.start_queued_scans()
+        self.assertEqual(self.daemon.get_count_queued_scans(), 0)
