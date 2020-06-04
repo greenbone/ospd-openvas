@@ -24,7 +24,7 @@ import os
 
 from hashlib import sha256
 from pathlib import Path
-from typing import Dict
+from typing import Dict, BinaryIO, Any
 
 from ospd.errors import OspdCommandError
 
@@ -34,24 +34,24 @@ OWNER_ONLY_RW_PERMISSION = 0o600
 
 
 class DataPickler:
-    def __init__(self, storage_path):
+    def __init__(self, storage_path: str):
         self._storage_path = storage_path
         self._storage_fd = None
 
-    def _fd_opener(self, path, flags):
+    def _fd_opener(self, path: str, flags: int) -> BinaryIO:
         os.umask(0)
         flags = os.O_CREAT | os.O_WRONLY
         self._storage_fd = os.open(path, flags, mode=OWNER_ONLY_RW_PERMISSION)
         return self._storage_fd
 
-    def _fd_close(self):
+    def _fd_close(self) -> None:
         try:
             self._storage_fd.close()
             self._storage_fd = None
         except Exception:  # pylint: disable=broad-except
             pass
 
-    def remove_file(self, filename):
+    def remove_file(self, filename: str) -> None:
         """ Remove the file containing a scan_info pickled object """
         storage_file_path = Path(self._storage_path) / filename
         try:
@@ -59,7 +59,7 @@ class DataPickler:
         except Exception as e:  # pylint: disable=broad-except
             logger.error('Not possible to delete %s. %s', filename, e)
 
-    def store_data(self, filename: str, data_object: Dict) -> str:
+    def store_data(self, filename: str, data_object: Any) -> str:
         """ Pickle a object and store it in a file named"""
         storage_file_path = Path(self._storage_path) / filename
 
@@ -96,7 +96,7 @@ class DataPickler:
 
         return self._pickled_data_hash_generator(pickled_data)
 
-    def load_data(self, filename: str, original_data_hash: str) -> Dict:
+    def load_data(self, filename: str, original_data_hash: str) -> Any:
         """ Unpickle the stored data in the filename. Perform an
         intengrity check of the read data with the the hash generated
         with the original data.
@@ -129,7 +129,7 @@ class DataPickler:
         if original_data_hash == pickled_scan_info_hash:
             return unpickled_scan_info
 
-    def _pickled_data_hash_generator(self, pickled_data):
+    def _pickled_data_hash_generator(self, pickled_data: bytes) -> str:
         """ Calculate the sha256 hash of a pickled data """
         if not pickled_data:
             return
