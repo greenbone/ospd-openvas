@@ -301,7 +301,10 @@ class OSPDopenvas(OSPDaemon):
         self.nvti = NVTICache(self.main_db)
 
         super().__init__(
-            customvtfilter=OpenVasVtsFilter(self.nvti), storage=dict, **kwargs
+            customvtfilter=OpenVasVtsFilter(self.nvti),
+            storage=dict,
+            file_storage_dir=lock_file_dir,
+            **kwargs,
         )
 
         self.server_version = __version__
