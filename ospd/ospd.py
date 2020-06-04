@@ -1220,10 +1220,7 @@ class OSPDaemon:
                 )
                 return
 
-            if (
-                self.min_free_mem_scan_queue
-                and not self.is_enough_free_memory()
-            ):
+            if not self.is_enough_free_memory():
                 logger.debug(
                     'Not possible to run a new scan. Not enough free memory.'
                 )
@@ -1262,6 +1259,9 @@ class OSPDaemon:
         Return:
             True if there is enough memory for a new scan.
         """
+        if not self.min_free_mem_scan_queue:
+            return True
+
         free_mem = psutil.virtual_memory().free
 
         if (free_mem / (1024 * 1024)) > self.min_free_mem_scan_queue:
