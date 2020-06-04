@@ -204,17 +204,17 @@ class ScanCollection:
 
         return iter(self.scans_table.keys())
 
-    def clean_up_pickled_scan_info(self):
+    def clean_up_pickled_scan_info(self) -> None:
         """ Remove files of pickled scan info """
         for scan_id in self.ids_iterator():
             if self.get_status(scan_id) == ScanStatus.QUEUED:
                 self.remove_file_pickled_scan_info(scan_id)
 
-    def remove_file_pickled_scan_info(self, scan_id):
+    def remove_file_pickled_scan_info(self, scan_id: str) -> None:
         pickler = DataPickler(self.file_storage_dir)
         pickler.remove_file(scan_id)
 
-    def unpickle_scan_info(self, scan_id):
+    def unpickle_scan_info(self, scan_id: str) -> None:
         """ Unpickle a stored scan_inf correspinding to the scan_id
         and store it in the scan_table """
 

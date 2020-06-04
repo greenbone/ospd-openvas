@@ -432,7 +432,7 @@ class OSPDaemon:
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
-    def daemon_exit_cleanup(self):
+    def daemon_exit_cleanup(self) -> None:
         """ Perform a cleanup before exiting """
         self.scan_collection.clean_up_pickled_scan_info()
 
@@ -1210,7 +1210,7 @@ class OSPDaemon:
         except KeyboardInterrupt:
             logger.info("Received Ctrl-C shutting-down ...")
 
-    def start_queued_scans(self):
+    def start_queued_scans(self) -> None:
         """ Starts a queued scan if it is allowed """
 
         for scan_id in self.scan_collection.ids_iterator():
