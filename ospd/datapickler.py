@@ -123,11 +123,15 @@ class DataPickler:
             logger.error(
                 'Not possible to read pickled data from %s. %s', filename, e
             )
+            return
 
         pickled_scan_info_hash = self._pickled_data_hash_generator(pickled_data)
 
-        if original_data_hash == pickled_scan_info_hash:
-            return unpickled_scan_info
+        if original_data_hash != pickled_scan_info_hash:
+            logger.error('Unpickled data from %s corrupted.', filename)
+            return
+
+        return unpickled_scan_info
 
     def _pickled_data_hash_generator(self, pickled_data: bytes) -> str:
         """ Calculate the sha256 hash of a pickled data """

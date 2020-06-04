@@ -58,7 +58,7 @@ class ScanCollection:
 
     """
 
-    def __init__(self, file_storage_dir) -> None:
+    def __init__(self, file_storage_dir: str) -> None:
         """ Initialize the Scan Collection. """
 
         self.data_manager = (
@@ -225,6 +225,7 @@ class ScanCollection:
         unpickled_scan_info = pickler.load_data(scan_id, scan_info_hash)
 
         if not unpickled_scan_info:
+            pickler.remove_file(scan_id)
             raise OspdCommandError(
                 'Not possible to unpickle stored scan info for %s' % scan_id,
                 'start_scan',
