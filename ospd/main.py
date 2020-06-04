@@ -118,7 +118,7 @@ def exit_cleanup(
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     pidpath = Path(pidfile)
 
-    daemon.scan_collection.clean_up_pickled_scan_info()
+    daemon.daemon_exit_cleanup()
 
     if not pidpath.is_file():
         return

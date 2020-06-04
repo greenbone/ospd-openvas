@@ -432,6 +432,10 @@ class OSPDaemon:
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
+    def daemon_exit_cleanup(self):
+        """ Perform a cleanup before exiting """
+        self.scan_collection.clean_up_pickled_scan_info()
+
     def get_daemon_name(self) -> str:
         """ Gives osp daemon's name. """
         return self.daemon_info['name']
