@@ -191,6 +191,11 @@ def main(
     if not daemon.check():
         return 1
 
+    LOGGER.info(
+        "Starting %s version %s."
+        % (daemon.daemon_info['name'], daemon.daemon_info['version'])
+    )
+
     daemon.init(server)
     daemon.run()
 
