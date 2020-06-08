@@ -484,8 +484,8 @@ class StartScan(BaseCommand):
             and current_queued_scans >= self._daemon.max_queued_scans
         ):
             logger.info(
-                'Maximum number of queued scans set to %d reached.'
-                % self._daemon.max_queued_scans,
+                'Maximum number of queued scans set to %d reached.',
+                self._daemon.max_queued_scans,
             )
             raise OspdCommandError(
                 'Maximum number of queued scans set to %d reached.'
@@ -562,8 +562,9 @@ class StartScan(BaseCommand):
             return simple_response_str('start_scan', 100, 'Continue', id_)
 
         logger.info(
-            'Scan %s added to the queue in position %d.'
-            % (scan_id, current_queued_scans + 1)
+            'Scan %s added to the queue in position %d.',
+            scan_id,
+            current_queued_scans + 1,
         )
 
         if dry_run:

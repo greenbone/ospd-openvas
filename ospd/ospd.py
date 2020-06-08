@@ -375,8 +375,10 @@ class OSPDaemon:
             scan_id in self.scan_collection.ids_iterator()
             and self.get_scan_status(scan_id) == ScanStatus.QUEUED
         ):
+            logger.info('Scan %s has been removed from the queue.', scan_id)
             self.scan_collection.remove_file_pickled_scan_info(scan_id)
             self.set_scan_status(scan_id, ScanStatus.STOPPED)
+
             return
 
         scan_process = self.scan_processes.get(scan_id)
@@ -1217,7 +1219,7 @@ class OSPDaemon:
         if not current_queued_scans:
             return
 
-        logger.info('Currently %d queued scans.' % current_queued_scans)
+        logger.info('Currently %d queued scans.', current_queued_scans)
 
         for scan_id in self.scan_collection.ids_iterator():
             scan_allowed = (
@@ -1240,7 +1242,7 @@ class OSPDaemon:
                 self.set_scan_status(scan_id, ScanStatus.INIT)
 
                 current_queued_scans = current_queued_scans - 1
-                logger.info('Starting scan %s.' % scan_id)
+                logger.info('Starting scan %s.', scan_id)
             elif scan_is_queued and not scan_allowed:
                 return
 
@@ -1254,8 +1256,9 @@ class OSPDaemon:
             len(self.scan_processes) >= self.max_scans
         ):
             logger.info(
-                'Not possible to run a new scan. Max scan limit set to %d reached.'
-                % self.max_scans
+                'Not possible to run a new scan. Max scan limit set '
+                'to %d reached.',
+                self.max_scans,
             )
             return False
 
@@ -1279,8 +1282,9 @@ class OSPDaemon:
 
         logger.info(
             'Not possible to run a new scan. Not enough free memory. '
-            'Only %d MB available but at least %d are required'
-            % (free_mem, self.min_free_mem_scan_queue)
+            'Only %d MB available but at least %d are required',
+            free_mem,
+            self.min_free_mem_scan_queue,
         )
 
         return False

@@ -192,8 +192,9 @@ def main(
         return 1
 
     LOGGER.info(
-        "Starting %s version %s."
-        % (daemon.daemon_info['name'], daemon.daemon_info['version'])
+        "Starting %s version %s.",
+        daemon.daemon_info['name'],
+        daemon.daemon_info['version'],
     )
 
     daemon.init(server)
