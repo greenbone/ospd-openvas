@@ -94,7 +94,7 @@ class ArgumentParserTestCase(unittest.TestCase):
 
         self.assertEqual(args.key_file, DEFAULT_KEY_FILE)
         self.assertEqual(args.niceness, DEFAULT_NICENESS)
-        self.assertEqual(args.log_level, logging.WARNING)
+        self.assertEqual(args.log_level, logging.INFO)
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
         self.assertEqual(args.scaninfo_store_time, DEFAULT_SCANINFO_STORE_TIME)
