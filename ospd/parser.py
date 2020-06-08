@@ -121,7 +121,7 @@ class CliParser:
         parser.add_argument(
             '-L',
             '--log-level',
-            default='WARNING',
+            default='INFO',
             type=self.log_level,
             help='Wished level of logging. Default: %(default)s',
         )
