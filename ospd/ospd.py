@@ -375,8 +375,10 @@ class OSPDaemon:
             scan_id in self.scan_collection.ids_iterator()
             and self.get_scan_status(scan_id) == ScanStatus.QUEUED
         ):
+            logger.info('Scan %s has been removed from the queue.', scan_id)
             self.scan_collection.remove_file_pickled_scan_info(scan_id)
             self.set_scan_status(scan_id, ScanStatus.STOPPED)
+
             return
 
         scan_process = self.scan_processes.get(scan_id)
@@ -1213,20 +1215,19 @@ class OSPDaemon:
     def start_queued_scans(self) -> None:
         """ Starts a queued scan if it is allowed """
 
+        current_queued_scans = self.get_count_queued_scans()
+        if not current_queued_scans:
+            return
+
+        logger.info('Currently %d queued scans.', current_queued_scans)
+
         for scan_id in self.scan_collection.ids_iterator():
-            if not self.is_new_scan_allowed():
-                logger.debug(
-                    'Not possible to run a new scan. Max scan limit reached.'
-                )
-                return
+            scan_allowed = (
+                self.is_new_scan_allowed() and self.is_enough_free_memory()
+            )
+            scan_is_queued = self.get_scan_status(scan_id) == ScanStatus.QUEUED
 
-            if not self.is_enough_free_memory():
-                logger.debug(
-                    'Not possible to run a new scan. Not enough free memory.'
-                )
-                return
-
-            if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+            if scan_is_queued and scan_allowed:
                 try:
                     self.scan_collection.unpickle_scan_info(scan_id)
                 except OspdCommandError as e:
@@ -1240,16 +1241,28 @@ class OSPDaemon:
                 scan_process.start()
                 self.set_scan_status(scan_id, ScanStatus.INIT)
 
+                current_queued_scans = current_queued_scans - 1
+                logger.info('Starting scan %s.', scan_id)
+            elif scan_is_queued and not scan_allowed:
+                return
+
     def is_new_scan_allowed(self) -> bool:
         """ Check if max_scans has been reached.
 
         Return:
             True if a new scan can be launch.
         """
-        if (self.max_scans == 0) or (len(self.scan_processes) < self.max_scans):
-            return True
+        if (self.max_scans != 0) and (
+            len(self.scan_processes) >= self.max_scans
+        ):
+            logger.info(
+                'Not possible to run a new scan. Max scan limit set '
+                'to %d reached.',
+                self.max_scans,
+            )
+            return False
 
-        return False
+        return True
 
     def is_enough_free_memory(self) -> bool:
         """ Check if there is enough free memory in the system to run
@@ -1262,10 +1275,17 @@ class OSPDaemon:
         if not self.min_free_mem_scan_queue:
             return True
 
-        free_mem = psutil.virtual_memory().free
+        free_mem = psutil.virtual_memory().free / (1024 * 1024)
 
-        if (free_mem / (1024 * 1024)) > self.min_free_mem_scan_queue:
+        if free_mem > self.min_free_mem_scan_queue:
             return True
+
+        logger.info(
+            'Not possible to run a new scan. Not enough free memory. '
+            'Only %d MB available but at least %d are required',
+            free_mem,
+            self.min_free_mem_scan_queue,
+        )
 
         return False
 

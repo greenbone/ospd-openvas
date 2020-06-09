@@ -478,13 +478,19 @@ class StartScan(BaseCommand):
             Response string for <start_scan> command.
         """
 
+        current_queued_scans = self._daemon.get_count_queued_scans()
         if (
             self._daemon.max_queued_scans
-            and self._daemon.get_count_queued_scans()
-            >= self._daemon.max_queued_scans
+            and current_queued_scans >= self._daemon.max_queued_scans
         ):
+            logger.info(
+                'Maximum number of queued scans set to %d reached.',
+                self._daemon.max_queued_scans,
+            )
             raise OspdCommandError(
-                'Maximum number of queued scans reached.', 'start_scan'
+                'Maximum number of queued scans set to %d reached.'
+                % self._daemon.max_queued_scans,
+                'start_scan',
             )
 
         target_str = xml.get('target')
@@ -554,6 +560,12 @@ class StartScan(BaseCommand):
             id_ = Element('id')
             id_.text = scan_id_aux
             return simple_response_str('start_scan', 100, 'Continue', id_)
+
+        logger.info(
+            'Scan %s added to the queue in position %d.',
+            scan_id,
+            current_queued_scans + 1,
+        )
 
         if dry_run:
             scan_func = self._daemon.dry_run_scan
