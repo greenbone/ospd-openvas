@@ -1111,7 +1111,9 @@ class ScanTestCase(unittest.TestCase):
     def test_free_memory_true(self, mock_psutil):
         self.daemon.min_free_mem_scan_queue = 1000
         # 1.5 GB free
-        mock_psutil.virtual_memory.return_value = FakePsutil(free=1500000000)
+        mock_psutil.virtual_memory.return_value = FakePsutil(
+            available=1500000000
+        )
 
         self.assertTrue(self.daemon.is_enough_free_memory())
 
@@ -1119,7 +1121,9 @@ class ScanTestCase(unittest.TestCase):
     def test_free_memory_false(self, mock_psutil):
         self.daemon.min_free_mem_scan_queue = 2000
         # 1.5 GB free
-        mock_psutil.virtual_memory.return_value = FakePsutil(free=1500000000)
+        mock_psutil.virtual_memory.return_value = FakePsutil(
+            available=1500000000
+        )
 
         self.assertFalse(self.daemon.is_enough_free_memory())
 

@@ -39,8 +39,8 @@ def assert_called(mock: Mock):
 
 
 class FakePsutil:
-    def __init__(self, free=None):
-        self.free = free
+    def __init__(self, available=None):
+        self.available = available
 
 
 class FakeStream:

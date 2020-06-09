@@ -1275,7 +1275,7 @@ class OSPDaemon:
         if not self.min_free_mem_scan_queue:
             return True
 
-        free_mem = psutil.virtual_memory().free / (1024 * 1024)
+        free_mem = psutil.virtual_memory().available / (1024 * 1024)
 
         if free_mem > self.min_free_mem_scan_queue:
             return True
