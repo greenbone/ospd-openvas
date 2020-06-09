@@ -869,7 +869,7 @@ class OSPDopenvas(OSPDaemon):
             rqod = ''
             rname = ''
             rhostname = msg[1].strip() if msg[1] else ''
-            host_is_dead = "Host dead" in msg[4]
+            host_is_dead = "Host dead" in msg[4] or msg[0] == "DEADHOST"
             host_deny = "Host access denied" in msg[4]
             vt_aux = None
 
