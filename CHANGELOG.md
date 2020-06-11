@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add [pontos](https://github.com/greenbone/pontos) as dev dependency for
   managing the version information in ospd-openvas [#238](https://github.com/greenbone/ospd-openvas/pull/238)
 - Pass store directory to OSPDaemon init [#266](https://github.com/greenbone/ospd-openvas/pull/266)
+- Add URI field to results for file path or webservice URL [#271](https://github.com/greenbone/ospd-openvas/pull/271)
 
 ### Changed
 - Less strict checks for the nvti cache version
