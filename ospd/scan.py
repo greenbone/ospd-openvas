@@ -82,6 +82,7 @@ class ScanCollection:
         test_id: str = '',
         severity: str = '',
         qod: str = '',
+        uri: str = '',
     ) -> None:
         """ Add a result to a scan in the table. """
 
@@ -98,6 +99,7 @@ class ScanCollection:
         result['hostname'] = hostname
         result['port'] = port
         result['qod'] = qod
+        result['uri'] = uri
         results = self.scans_table[scan_id]['results']
         results.append(result)
 

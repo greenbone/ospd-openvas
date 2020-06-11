@@ -40,10 +40,11 @@ class ResultList:
         hostname: str = '',
         name: str = '',
         value: str = '',
+        uri: str = '',
     ) -> None:
         """ Adds a host detail result to result list. """
         self.add_result_to_list(
-            ResultType.HOST_DETAIL, host, hostname, name, value,
+            ResultType.HOST_DETAIL, host, hostname, name, value, uri,
         )
 
     def add_scan_error_to_list(
@@ -54,10 +55,11 @@ class ResultList:
         value: str = '',
         port: str = '',
         test_id='',
+        uri: str = '',
     ) -> None:
         """ Adds an error result to result list. """
         self.add_result_to_list(
-            ResultType.ERROR, host, hostname, name, value, port, test_id,
+            ResultType.ERROR, host, hostname, name, value, port, test_id, uri,
         )
 
     def add_scan_log_to_list(
@@ -69,6 +71,7 @@ class ResultList:
         port: str = '',
         test_id: str = '',
         qod: str = '',
+        uri: str = '',
     ) -> None:
         """ Adds log result to a list of results. """
         self.add_result_to_list(
@@ -81,6 +84,7 @@ class ResultList:
             test_id,
             '0.0',
             qod,
+            uri,
         )
 
     def add_scan_alarm_to_list(
@@ -93,6 +97,7 @@ class ResultList:
         test_id: str = '',
         severity: str = '',
         qod: str = '',
+        uri: str = '',
     ) -> None:
         """ Adds an alarm result to a result list. """
         self.add_result_to_list(
@@ -105,6 +110,7 @@ class ResultList:
             test_id,
             severity,
             qod,
+            uri,
         )
 
     def add_result_to_list(
@@ -118,6 +124,7 @@ class ResultList:
         test_id: str = '',
         severity: str = '',
         qod: str = '',
+        uri: str = '',
     ) -> None:
 
         result = OrderedDict()  # type: Dict
@@ -130,7 +137,7 @@ class ResultList:
         result['hostname'] = hostname
         result['port'] = port
         result['qod'] = qod
-
+        result['uri'] = uri
         self._result_list.append(result)
 
     def __iter__(self):
