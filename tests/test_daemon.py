@@ -605,6 +605,7 @@ class TestOspdOpenvas(TestCase):
             port='general/Host_Details',
             qod='',
             test_id='',
+            uri='',
             value='Host dead',
         )
 
@@ -631,6 +632,7 @@ class TestOspdOpenvas(TestCase):
             name='',
             port='',
             test_id='',
+            uri='',
             value='Host access denied.',
         )
 
@@ -652,9 +654,9 @@ class TestOspdOpenvas(TestCase):
         )
 
     @patch('ospd_openvas.daemon.ScanDB')
-    @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
+    @patch('ospd_openvas.daemon.ResultList.add_scan_alarm_to_list')
     def test_result_without_vt_oid(
-        self, mock_add_scan_log_to_list, MockDBClass
+        self, mock_add_scan_alarm_to_list, MockDBClass
     ):
         w = DummyDaemon()
         logging.Logger.warning = Mock()
@@ -663,10 +665,10 @@ class TestOspdOpenvas(TestCase):
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
         w.scan_collection.scans_table['123-456']['results'] = list()
-        results = ["ALARM||| ||| ||| |||some alarm", None]
+        results = ["ALARM||| ||| ||| |||some alarm|||path", None]
         mock_db = MockDBClass.return_value
         mock_db.get_result.side_effect = results
-        mock_add_scan_log_to_list.return_value = None
+        mock_add_scan_alarm_to_list.return_value = None
 
         w.report_openvas_results(mock_db, '123-456', 'localhost')
 
