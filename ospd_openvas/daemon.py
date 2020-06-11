@@ -860,6 +860,8 @@ class OSPDopenvas(OSPDaemon):
 
         vthelper = VtHelper(self.nvti)
 
+        # Result messages come in the next form, with optional uri field
+        # type ||| hostname ||| port ||| OID ||| value [|||uri]
         res = db.get_result()
         res_list = ResultList()
         total_dead = 0
@@ -872,6 +874,11 @@ class OSPDopenvas(OSPDaemon):
             host_is_dead = "Host dead" in msg[4] or msg[0] == "DEADHOST"
             host_deny = "Host access denied" in msg[4]
             vt_aux = None
+
+            # URI is optional and msg list length must be checked
+            ruri = ''
+            if len(msg) > 5:
+                ruri = msg[5]
 
             if roid and not host_is_dead and not host_deny:
                 vt_aux = vthelper.get_single_vt(roid)
@@ -902,6 +909,7 @@ class OSPDopenvas(OSPDaemon):
                     value=msg[4],
                     port=msg[2],
                     test_id=roid,
+                    uri=ruri,
                 )
 
             if msg[0] == 'LOG':
@@ -913,6 +921,7 @@ class OSPDopenvas(OSPDaemon):
                     port=msg[2],
                     qod=rqod,
                     test_id=roid,
+                    uri=ruri,
                 )
 
             if msg[0] == 'HOST_DETAIL':
@@ -921,6 +930,7 @@ class OSPDopenvas(OSPDaemon):
                     hostname=rhostname,
                     name=rname,
                     value=msg[4],
+                    uri=ruri,
                 )
 
             if msg[0] == 'ALARM':
@@ -934,6 +944,7 @@ class OSPDopenvas(OSPDaemon):
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
+                    uri=ruri,
                 )
 
             # To process non-scanned dead hosts when
