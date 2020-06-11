@@ -1440,6 +1440,7 @@ class OSPDaemon:
         port: str = '',
         test_id: str = '',
         qod: str = '',
+        uri: str = '',
     ) -> None:
         """ Adds a log result to scan_id scan. """
 
@@ -1454,6 +1455,7 @@ class OSPDaemon:
             test_id,
             '0.0',
             qod,
+            uri,
         )
 
     def add_scan_error(
@@ -1465,6 +1467,7 @@ class OSPDaemon:
         value: str = '',
         port: str = '',
         test_id='',
+        uri: str = '',
     ) -> None:
         """ Adds an error result to scan_id scan. """
         self.scan_collection.add_result(
@@ -1476,6 +1479,7 @@ class OSPDaemon:
             value,
             port,
             test_id,
+            uri,
         )
 
     def add_scan_host_detail(
@@ -1485,10 +1489,11 @@ class OSPDaemon:
         hostname: str = '',
         name: str = '',
         value: str = '',
+        uri: str = '',
     ) -> None:
         """ Adds a host detail result to scan_id scan. """
         self.scan_collection.add_result(
-            scan_id, ResultType.HOST_DETAIL, host, hostname, name, value
+            scan_id, ResultType.HOST_DETAIL, host, hostname, name, value, uri
         )
 
     def add_scan_alarm(
@@ -1502,6 +1507,7 @@ class OSPDaemon:
         test_id: str = '',
         severity: str = '',
         qod: str = '',
+        uri: str = '',
     ) -> None:
         """ Adds an alarm result to scan_id scan. """
         self.scan_collection.add_result(
@@ -1515,4 +1521,5 @@ class OSPDaemon:
             test_id,
             severity,
             qod,
+            uri,
         )

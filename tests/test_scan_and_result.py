@@ -77,6 +77,7 @@ class Result(object):
         self.test_id = ''
         self.severity = ''
         self.qod = ''
+        self.uri = ''
         for name, value in kwargs.items():
             setattr(self, name, value)
 

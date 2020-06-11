@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#278](https://github.com/greenbone/ospd/pull/278)
   [#279](https://github.com/greenbone/ospd/pull/279)
   [#281](https://github.com/greenbone/ospd/pull/281)
+- Extend results with optional argument URI [#282](https://github.com/greenbone/ospd/pull/282)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)

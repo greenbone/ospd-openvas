@@ -91,6 +91,7 @@ def get_result_xml(result):
         ('test_id', result['test_id']),
         ('port', result['port']),
         ('qod', result['qod']),
+        ('uri', result['uri']),
     ]:
         result_xml.set(name, escape(str(value)))
     if result['value'] is not None:
