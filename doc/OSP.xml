@@ -636,21 +636,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="0" progress="1"/>
       </request>
       <response>
-        <get_scans_response status_text="OK" status="200">
-          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
-                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
-            <progress>
-              <host name="192.168.0.176">0.0</host>
-              <host name="192.168.0.77">68.00013854253257</host>
-              <host name="192.168.0.148">26.0009697977279</host>
-              <host name="192.168.0.1">0.0</host>
-              <overall>38.800221668052096</overall>
-              <count_alive>1</count_alive>
-              <count_dead>249</count_dead>
-              <count_excluded>0</count_excluded>
-              <count_total>254</count_total>
-            </progress>
-          </scan>
+        <get_scans_response status="200" status_text="OK">
+            <scan end_time="0" id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" progress="17" start_time="1592316467" status="running" target="192.168.56.100, 127.0.0.1">
+                <progress>
+                    <host name="127.0.0.1">2</host>
+                    <host name="192.168.56.100">32</host>
+                    <overall>17</overall>
+                    <count_alive>0</count_alive>
+                    <count_dead>0</count_dead>
+                    <count_excluded>0</count_excluded>
+                    <count_total>2</count_total>
+                </progress>
+            </scan>
         </get_scans_response>
       </response>
     </example>
