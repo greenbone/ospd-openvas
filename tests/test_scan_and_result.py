@@ -23,8 +23,9 @@
 import time
 import unittest
 
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, Mock
 
+import logging
 import xml.etree.ElementTree as ET
 
 from defusedxml.common import EntitiesForbidden
@@ -1107,6 +1108,17 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.max_scans = 3
 
         self.assertTrue(self.daemon.is_new_scan_allowed())
+
+    def test_start_queue_scan_daemon_not_init(self):
+        self.daemon.get_count_queued_scans = MagicMock(return_value=10)
+        self.daemon.initialized = False
+        logging.Logger.info = Mock()
+        self.daemon.start_queued_scans()
+
+        logging.Logger.info.assert_called_with(
+            "New task can not be started because a "
+            "feed update is being performed."
+        )
 
     @patch("ospd.ospd.psutil")
     def test_free_memory_true(self, mock_psutil):
