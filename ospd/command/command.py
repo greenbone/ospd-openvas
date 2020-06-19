@@ -451,7 +451,7 @@ class StartScan(BaseCommand):
         'scan_id': 'Optional UUID value to use as scan ID',
         'parallel': 'Optional nummer of parallel target to scan',
     }
-    must_be_initialized = True
+    must_be_initialized = False
 
     def get_elements(self):
         elements = {}
