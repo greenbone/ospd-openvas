@@ -1219,6 +1219,13 @@ class OSPDaemon:
         if not current_queued_scans:
             return
 
+        if not self.initialized:
+            logger.info(
+                "New task can not be started because a "
+                "feed update is being performed."
+            )
+            return
+
         logger.info('Currently %d queued scans.', current_queued_scans)
 
         for scan_id in self.scan_collection.ids_iterator():
