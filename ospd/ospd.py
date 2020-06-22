@@ -1188,13 +1188,21 @@ class OSPDaemon:
 
         response = command.handle_xml(tree)
 
+        write_success = True
         if isinstance(response, bytes):
-            stream.write(response)
+            write_success = stream.write(response)
         else:
             for data in response:
-                ret_success = stream.write(data)
-                if not ret_success:
+                write_success = stream.write(data)
+                if not write_success:
                     break
+
+        scan_id = tree.get('scan_id')
+        if self.scan_exists(scan_id) and command_name == "get_scans":
+            if write_success:
+                self.scan_collection.clean_temp_result_list(scan_id)
+            else:
+                self.scan_collection.restore_temp_result_list(scan_id)
 
     def check(self):
         """ Asserts to False. Should be implemented by subclass. """

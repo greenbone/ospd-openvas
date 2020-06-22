@@ -179,6 +179,20 @@ class ScanCollection:
         count_dead = self.scans_table[scan_id].get('count_dead') + total_dead
         self.scans_table[scan_id]['count_dead'] = count_dead
 
+    def clean_temp_result_list(self, scan_id):
+        """ Clean the results stored in the temporary list. """
+        self.scans_table[scan_id]['temp_results'] = list()
+
+    def restore_temp_result_list(self, scan_id):
+        """ Add the results stored in the temporary list into the results
+        list again. """
+        result_aux = self.scans_table[scan_id].get('results', list())
+        result_aux.extend(self.scans_table[scan_id].get('temp_results', list()))
+
+        # Propagate results
+        self.scans_table[scan_id]['results'] = result_aux
+        self.scans_table[scan_id]['temp_results'] = list()
+
     def results_iterator(
         self, scan_id: str, pop_res: bool = False, max_res: int = None
     ) -> Iterator[Any]:
@@ -191,13 +205,16 @@ class ScanCollection:
         max_res works only together with pop_results.
         """
         if pop_res and max_res:
-            result_aux = self.scans_table[scan_id]['results']
+            result_aux = self.scans_table[scan_id].get('results', list())
             self.scans_table[scan_id]['results'] = result_aux[max_res:]
-            return iter(result_aux[:max_res])
+            self.scans_table[scan_id]['temp_results'] = result_aux[:max_res]
+            return iter(self.scans_table[scan_id]['temp_results'])
         elif pop_res:
-            result_aux = self.scans_table[scan_id]['results']
+            self.scans_table[scan_id]['temp_results'] = self.scans_table[
+                scan_id
+            ].get('results', list())
             self.scans_table[scan_id]['results'] = list()
-            return iter(result_aux)
+            return iter(self.scans_table[scan_id]['temp_results'])
 
         return iter(self.scans_table[scan_id]['results'])
 
@@ -234,6 +251,7 @@ class ScanCollection:
             )
 
         scan_info['results'] = list()
+        scan_info['temp_results'] = list()
         scan_info['progress'] = 0
         scan_info['target_progress'] = dict()
         scan_info['count_alive'] = 0
