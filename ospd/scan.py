@@ -191,7 +191,7 @@ class ScanCollection:
 
         # Propagate results
         self.scans_table[scan_id]['results'] = result_aux
-        self.scans_table[scan_id]['temp_results'] = list()
+        self.clean_temp_result_list(scan_id)
 
     def results_iterator(
         self, scan_id: str, pop_res: bool = False, max_res: int = None

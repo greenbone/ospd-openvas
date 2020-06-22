@@ -85,8 +85,7 @@ class Stream:
                 b_sent = self.socket.send(data[b_start:b_end])
             except (socket.error, BrokenPipeError) as e:
                 logger.error("Error sending data to the client. %s", e)
-                ret_success = False
-                return ret_success
+                return False
 
             b_start = b_end
             b_end += b_sent
