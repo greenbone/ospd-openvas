@@ -1116,7 +1116,7 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.start_queued_scans()
 
         logging.Logger.info.assert_called_with(  # pylint: disable=no-member
-            "New task can not be started because a "
+            "Queued task can not be started because a "
             "feed update is being performed."
         )
 

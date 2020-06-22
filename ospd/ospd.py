@@ -1221,8 +1221,8 @@ class OSPDaemon:
 
         if not self.initialized:
             logger.info(
-                "New task can not be started because a "
-                "feed update is being performed."
+                "Queued task can not be started because a feed "
+                "update is being performed."
             )
             return
 
