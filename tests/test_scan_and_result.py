@@ -690,6 +690,66 @@ class ScanTestCase(unittest.TestCase):
         response = fs.get_response()
         self.assertEqual(len(response.findall('scan/results/result')), 2)
 
+    def test_get_scan_results_clean(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan target="localhost" ports="80, 443">'
+            '<scanner_params /></start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        self.daemon.add_scan_log(scan_id, host='a', name='a')
+        self.daemon.add_scan_log(scan_id, host='c', name='c')
+        self.daemon.add_scan_log(scan_id, host='b', name='b')
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs,
+        )
+
+        res_len = len(
+            self.daemon.scan_collection.scans_table[scan_id]['results']
+        )
+        self.assertEqual(res_len, 0)
+
+        res_len = len(
+            self.daemon.scan_collection.scans_table[scan_id]['temp_results']
+        )
+        self.assertEqual(res_len, 0)
+
+    def test_get_scan_results_restore(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan target="localhost" ports="80, 443">'
+            '<scanner_params /></start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        self.daemon.add_scan_log(scan_id, host='a', name='a')
+        self.daemon.add_scan_log(scan_id, host='c', name='c')
+        self.daemon.add_scan_log(scan_id, host='b', name='b')
+
+        fs = FakeStream(return_value=False)
+        self.daemon.handle_command(
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs,
+        )
+
+        res_len = len(
+            self.daemon.scan_collection.scans_table[scan_id]['results']
+        )
+        self.assertEqual(res_len, 3)
+
+        res_len = len(
+            self.daemon.scan_collection.scans_table[scan_id]['temp_results']
+        )
+        self.assertEqual(res_len, 0)
+
     def test_billon_laughs(self):
         # pylint: disable=line-too-long
 
