@@ -1192,7 +1192,9 @@ class OSPDaemon:
             stream.write(response)
         else:
             for data in response:
-                stream.write(data)
+                ret_success = stream.write(data)
+                if not ret_success:
+                    break
 
     def check(self):
         """ Asserts to False. Should be implemented by subclass. """
