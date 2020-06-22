@@ -76,6 +76,7 @@ class DummyWrapper(OSPDaemonSimpleSSH):
         super().__init__(niceness=niceness)
         self.scan_collection.data_manager = FakeDataManager()
         self.scan_collection.file_storage_dir = '/tmp'
+        self.initialized = True
 
     def check(self):
         return True
