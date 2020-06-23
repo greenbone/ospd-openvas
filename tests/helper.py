@@ -44,11 +44,13 @@ class FakePsutil:
 
 
 class FakeStream:
-    def __init__(self):
+    def __init__(self, return_value=True):
         self.response = b''
+        self.return_value = return_value
 
     def write(self, data):
         self.response = self.response + data
+        return self.return_value
 
     def get_response(self):
         return et.fromstring(self.response)

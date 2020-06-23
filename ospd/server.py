@@ -64,11 +64,12 @@ class Stream:
 
         return data
 
-    def write(self, data: bytes):
+    def write(self, data: bytes) -> bool:
         """ Send data in chunks of DEFAULT_BUFSIZE to the client
         """
         b_start = 0
         b_end = DEFAULT_BUFSIZE
+        ret_success = True
 
         while True:
             if b_end > len(data):
@@ -76,16 +77,20 @@ class Stream:
                     self.socket.send(data[b_start:])
                 except (socket.error, BrokenPipeError) as e:
                     logger.error("Error sending data to the client. %s", e)
+                    ret_success = False
                 finally:
-                    return  # pylint: disable=lost-exception
+                    return ret_success  # pylint: disable=lost-exception
 
             try:
                 b_sent = self.socket.send(data[b_start:b_end])
             except (socket.error, BrokenPipeError) as e:
                 logger.error("Error sending data to the client. %s", e)
-                return
+                return False
+
             b_start = b_end
             b_end += b_sent
+
+        return ret_success
 
 
 StreamCallbackType = Callable[[Stream], None]
