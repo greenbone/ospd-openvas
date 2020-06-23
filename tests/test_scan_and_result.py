@@ -32,6 +32,7 @@ from defusedxml.common import EntitiesForbidden
 
 from ospd.resultlist import ResultList
 from ospd.errors import OspdCommandError
+from ospd.scan import ScanStatus, ScanProgress
 
 from .helper import (
     DummyWrapper,
@@ -882,6 +883,39 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(
             self.daemon.scan_collection.calculate_target_progress(scan_id), 50
         )
+
+    @patch('ospd.ospd.os')
+    def test_interrupted_scan(self, mock_os):
+        mock_os.setsid.return_value = None
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        self.daemon.exec_scan = Mock(return_value=None)
+        self.daemon.set_scan_host_progress(scan_id, 'localhost1', 5)
+        self.daemon.set_scan_host_progress(scan_id, 'localhost2', 14)
+        while self.daemon.get_scan_status(scan_id) == ScanStatus.INIT:
+            fs = FakeStream()
+            self.daemon.handle_command(
+                '<get_scans scan_id="%s" details="0" progress="0"/>' % scan_id,
+                fs,
+            )
+        response = fs.get_response()
+        progress = response.find('scan').attrib['progress']
+
+        self.assertEqual(int(progress), ScanProgress.INTERRUPTED.value)
 
     def test_sort_host_finished(self):
 
