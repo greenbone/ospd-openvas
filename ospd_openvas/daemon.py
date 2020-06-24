@@ -34,7 +34,8 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
-from ospd.ospd import OSPDaemon, PROGRESS_DEAD_HOST
+from ospd.ospd import OSPDaemon
+from ospd.scan import ScanProgress
 from ospd.server import BaseServer
 from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
@@ -811,8 +812,8 @@ class OSPDopenvas(OSPDaemon):
         try:
             if float(total) == 0:
                 return
-            elif float(total) == PROGRESS_DEAD_HOST:
-                host_prog = PROGRESS_DEAD_HOST
+            elif float(total) == ScanProgress.DEAD_HOST:
+                host_prog = ScanProgress.DEAD_HOST
             else:
                 host_prog = int((float(launched) / float(total)) * 100)
         except TypeError:
