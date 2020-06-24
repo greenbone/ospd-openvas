@@ -39,6 +39,7 @@ class ScanStatus(Enum):
     RUNNING = 2
     STOPPED = 3
     FINISHED = 4
+    INTERRUPTED = 5
 
 
 class ScanProgress(IntEnum):
@@ -148,9 +149,7 @@ class ScanCollection:
     def set_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress. """
 
-        if (
-            progress > ScanProgress.INIT and progress <= ScanProgress.FINISHED
-        ) or progress == ScanProgress.INTERRUPTED:
+        if progress > ScanProgress.INIT and progress <= ScanProgress.FINISHED:
             self.scans_table[scan_id]['progress'] = progress
 
         if progress == ScanProgress.FINISHED:
