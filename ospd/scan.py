@@ -21,7 +21,7 @@ import time
 import uuid
 
 from collections import OrderedDict
-from enum import Enum
+from enum import Enum, IntEnum
 from typing import List, Any, Dict, Iterator, Optional, Iterable, Union
 
 from ospd.network import target_str_to_list
@@ -39,6 +39,15 @@ class ScanStatus(Enum):
     RUNNING = 2
     STOPPED = 3
     FINISHED = 4
+
+
+class ScanProgress(IntEnum):
+    """Scan or host progress. """
+
+    FINISHED = 100
+    INIT = 0
+    DEAD_HOST = -1
+    INTERRUPTED = -2
 
 
 class ScanCollection:
@@ -139,10 +148,12 @@ class ScanCollection:
     def set_progress(self, scan_id: str, progress: int) -> None:
         """ Sets scan_id scan's progress. """
 
-        if progress > 0 and progress <= 100:
+        if (
+            progress > ScanProgress.INIT and progress <= ScanProgress.FINISHED
+        ) or progress == ScanProgress.INTERRUPTED:
             self.scans_table[scan_id]['progress'] = progress
 
-        if progress == 100:
+        if progress == ScanProgress.FINISHED:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def set_host_progress(
@@ -252,7 +263,7 @@ class ScanCollection:
 
         scan_info['results'] = list()
         scan_info['temp_results'] = list()
-        scan_info['progress'] = 0
+        scan_info['progress'] = ScanProgress.INIT.value
         scan_info['target_progress'] = dict()
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
@@ -332,7 +343,7 @@ class ScanCollection:
     def get_progress(self, scan_id: str) -> int:
         """ Get a scan's current progress value. """
 
-        return self.scans_table[scan_id].get('progress', 0)
+        return self.scans_table[scan_id].get('progress', ScanProgress.INIT)
 
     def get_count_dead(self, scan_id: str) -> int:
         """ Get a scan's current dead host count. """

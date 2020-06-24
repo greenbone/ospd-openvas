@@ -51,7 +51,7 @@ from ospd.errors import OspdCommandError
 from ospd.misc import ResultType, create_process
 from ospd.network import resolve_hostname, target_str_to_list
 from ospd.protocol import OspRequest, OspResponse, RequestParser
-from ospd.scan import ScanCollection, ScanStatus
+from ospd.scan import ScanCollection, ScanStatus, ScanProgress
 from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
 from ospd.vts import Vts
@@ -84,9 +84,6 @@ BASE_SCANNER_PARAMS = {
         'description': 'Whether to dry run scan.',
     },
 }  # type: Dict
-
-PROGRESS_FINISHED = 100
-PROGRESS_DEAD_HOST = -1
 
 
 def _terminate_process_group(process: multiprocessing.Process) -> None:
@@ -430,9 +427,17 @@ class OSPDaemon:
 
     def finish_scan(self, scan_id: str) -> None:
         """ Sets a scan as finished. """
-        self.scan_collection.set_progress(scan_id, PROGRESS_FINISHED)
+        self.scan_collection.set_progress(scan_id, ScanProgress.FINISHED.value)
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
+
+    def interrupt_scan(self, scan_id: str) -> None:
+        """ Sets a scan as finished. """
+        self.scan_collection.set_progress(
+            scan_id, ScanProgress.INTERRUPTED.value
+        )
+        self.set_scan_status(scan_id, ScanStatus.FINISHED)
+        logger.info("%s: Scan interrupted.", scan_id)
 
     def daemon_exit_cleanup(self) -> None:
         """ Perform a cleanup before exiting """
@@ -554,8 +559,13 @@ class OSPDaemon:
         else:
             logger.info("%s: Host scan finished.", scan_id)
 
-        if self.get_scan_status(scan_id) != ScanStatus.STOPPED:
+        is_stopped = self.get_scan_status(scan_id) == ScanStatus.STOPPED
+        progress = self.get_scan_progress(scan_id)
+
+        if not is_stopped and progress == ScanProgress.FINISHED:
             self.finish_scan(scan_id)
+        elif not is_stopped:
+            self.interrupt_scan(scan_id)
 
     def dry_run_scan(self, scan_id: str, target: Dict) -> None:
         """ Dry runs a scan. """
@@ -599,9 +609,9 @@ class OSPDaemon:
         )
         for finished_host in finished_hosts:
             progress = current_hosts.get(finished_host)
-            if progress == PROGRESS_FINISHED:
+            if progress == ScanProgress.FINISHED:
                 alive_hosts.append(finished_host)
-            if progress == PROGRESS_DEAD_HOST:
+            if progress == ScanProgress.DEAD_HOST:
                 dead_hosts.append(finished_host)
 
         self.scan_collection.set_host_dead(scan_id, dead_hosts)
@@ -1385,7 +1395,7 @@ class OSPDaemon:
         progress = self.get_scan_progress(scan_id)
 
         if (
-            progress < PROGRESS_FINISHED
+            progress < ScanProgress.FINISHED
             and scan_process
             and not scan_process.is_alive()
         ):
@@ -1396,8 +1406,9 @@ class OSPDaemon:
                 )
 
                 logger.info("%s: Scan stopped with errors.", scan_id)
+                self.interrupt_scan(scan_id)
 
-        elif progress == PROGRESS_FINISHED:
+        elif progress == ScanProgress.FINISHED:
             scan_process.join(0)
 
     def get_count_queued_scans(self) -> int:
