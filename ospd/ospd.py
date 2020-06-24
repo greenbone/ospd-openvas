@@ -432,11 +432,8 @@ class OSPDaemon:
         logger.info("%s: Scan finished.", scan_id)
 
     def interrupt_scan(self, scan_id: str) -> None:
-        """ Sets a scan as finished. """
-        self.scan_collection.set_progress(
-            scan_id, ScanProgress.INTERRUPTED.value
-        )
-        self.set_scan_status(scan_id, ScanStatus.FINISHED)
+        """ Set scan status as interrupted. """
+        self.set_scan_status(scan_id, ScanStatus.INTERRUPTED)
         logger.info("%s: Scan interrupted.", scan_id)
 
     def daemon_exit_cleanup(self) -> None:
@@ -1374,6 +1371,7 @@ class OSPDaemon:
             if (
                 scan_status == ScanStatus.STOPPED
                 or scan_status == ScanStatus.FINISHED
+                or scan_status == ScanStatus.INTERRUPTED
             ) and end_time:
                 stored_time = int(time.time()) - end_time
                 if stored_time > self.scaninfo_store_time * 3600:

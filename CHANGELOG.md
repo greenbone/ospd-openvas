@@ -23,7 +23,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#279](https://github.com/greenbone/ospd/pull/279)
   [#281](https://github.com/greenbone/ospd/pull/281)
 - Extend results with optional argument URI [#282](https://github.com/greenbone/ospd/pull/282)
-- Add progress value for interrupted scans. [#288](https://github.com/greenbone/ospd/pull/288)
+- Add new scan status INTERRUPTED. 
+  [#288](https://github.com/greenbone/ospd/pull/288)
+  [#289](https://github.com/greenbone/ospd/pull/289)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)

@@ -32,7 +32,7 @@ from defusedxml.common import EntitiesForbidden
 
 from ospd.resultlist import ResultList
 from ospd.errors import OspdCommandError
-from ospd.scan import ScanStatus, ScanProgress
+from ospd.scan import ScanStatus
 
 from .helper import (
     DummyWrapper,
@@ -913,9 +913,9 @@ class ScanTestCase(unittest.TestCase):
                 fs,
             )
         response = fs.get_response()
-        progress = response.find('scan').attrib['progress']
+        status = response.find('scan').attrib['status']
 
-        self.assertEqual(int(progress), ScanProgress.INTERRUPTED.value)
+        self.assertEqual(status, ScanStatus.INTERRUPTED.name.lower())
 
     def test_sort_host_finished(self):
 
