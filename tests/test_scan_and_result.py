@@ -153,6 +153,39 @@ class ScanTestCase(unittest.TestCase):
         vt = vts.find('vt')
         self.assertEqual(vt.get('id'), '1.2.3.4')
 
+    def test_get_vts_version(self):
+        fs = FakeStream()
+        self.daemon.add_vt('1.2.3.4', 'A vulnerability test')
+        self.daemon.set_vts_version('today')
+        self.daemon.handle_command('<get_vts />', fs)
+        response = fs.get_response()
+
+        self.assertEqual(response.get('status'), '200')
+
+        vts_version = response.find('vts').attrib['vts_version']
+        self.assertEqual(vts_version, self.daemon.get_vts_version())
+
+        vts = response.find('vts')
+        self.assertIsNotNone(vts.find('vt'))
+
+        vt = vts.find('vt')
+        self.assertEqual(vt.get('id'), '1.2.3.4')
+
+    def test_get_vts_version_only(self):
+        fs = FakeStream()
+        self.daemon.add_vt('1.2.3.4', 'A vulnerability test')
+        self.daemon.set_vts_version('today')
+        self.daemon.handle_command('<get_vts version_only="1"/>', fs)
+        response = fs.get_response()
+
+        self.assertEqual(response.get('status'), '200')
+
+        vts_version = response.find('vts').attrib['vts_version']
+        self.assertEqual(vts_version, self.daemon.get_vts_version())
+
+        vts = response.find('vts')
+        self.assertIsNone(vts.find('vt'))
+
     def test_get_vts_still_not_init(self):
         fs = FakeStream()
         self.daemon.initialized = False
