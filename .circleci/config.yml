@@ -26,10 +26,13 @@ commands:
     steps:
       - checkout
       - run:
+          name: Create venv
+          command: |
+            python3 -m venv .venv
+      - run:
           name: Install dependencies
           command: |
             pipenv install
-
       - run:
           name: Install osp-openvas
           command: |
@@ -38,6 +41,10 @@ commands:
     description: "Download and run tests"
     steps:
       - checkout
+      - run:
+          name: Create venv
+          command: |
+            python3 -m venv .venv
       - run:
           name: Install dependencies
           command: |
@@ -49,6 +56,10 @@ commands:
     description: "Download and run tests with code coverage"
     steps:
       - checkout
+      - run:
+          name: Create venv
+          command: |
+            python3 -m venv .venv
       - run:
           name: Install dependencies
           command: pipenv install
@@ -67,6 +78,10 @@ commands:
     description: "Lint python files"
     steps:
       - checkout
+      - run:
+          name: Create venv
+          command: |
+            python3 -m venv .venv
       - run:
           name: Install dependencies
           command: pipenv install --dev
