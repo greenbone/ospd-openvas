@@ -5,6 +5,8 @@ url = "https://pypi.org/simple"
 
 [packages]
 psutil = "*"
+lxml = "*"
+defusedxml = "*"
 redis = ">=3.0.1"
 ospd = {git = "https://github.com/greenbone/ospd.git",ref = "ospd-2.0"}
 packaging = "*"
