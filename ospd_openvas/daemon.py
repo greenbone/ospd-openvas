@@ -280,6 +280,7 @@ class OSPDopenvas(OSPDaemon):
         self.nvti = NVTICache(self.openvas_db)
 
         self.pending_feed = None
+        self.performing_feed_update = None
 
     def init(self):
         self.openvas_db.db_init()
@@ -450,8 +451,10 @@ class OSPDopenvas(OSPDaemon):
                     'Therefore the feed update will be performed later.'
                 )
         elif _pending_feed and not _running_scan and not self.feed_locked():
+            self.performing_feed_update = True
             self.vts = dict()
             self.load_vts()
+            self.performing_feed_update = False
 
     def scheduler(self):
         """This method is called periodically to run tasks."""
@@ -1452,10 +1455,18 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id, target):
         """ Starts the OpenVAS scanner for scan_id scan. """
+        if self.performing_feed_update:
+            logger.info(
+                '%s: A feed update is being performed. '
+                'The scan can not be started.',
+                scan_id,
+            )
+            return 2
+
         if self.pending_feed:
             logger.info(
                 '%s: There is a pending feed update. '
-                'The scan can not be started.',
+                'The task ran with an outdated feed version.',
                 scan_id,
             )
             self.add_scan_error(
@@ -1463,11 +1474,10 @@ class OSPDopenvas(OSPDaemon):
                 name='',
                 host=target,
                 value=(
-                    'It was not possible to start the scan,'
-                    'because a pending feed update. Please try later'
+                    'There is a pending feed update and the task ran '
+                    ' with an outdated feed version.'
                 ),
             )
-            return 2
 
         ports = self.get_scan_ports(scan_id, target)
         if not ports:

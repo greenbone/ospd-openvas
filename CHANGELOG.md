@@ -22,6 +22,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Return None if the scan finished successfully. [#137](https://github.com/greenbone/ospd-openvas/pull/137)
 - Use a generator to yield the VTs directly from redis and reduce data in cache.[#203](https://github.com/greenbone/ospd-openvas/pull/203)
 - Activate initialized flag during the feed update.[#240](https://github.com/greenbone/ospd-openvas/pull/240)
+- Allow to start a scan with an outdated feed.[#274](https://github.com/greenbone/ospd-openvas/pull/274)
 
 ### Fixed
 - Improve redis clean out when stopping a scan. [#128](https://github.com/greenbone/ospd-openvas/pull/128)
