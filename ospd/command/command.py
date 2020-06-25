@@ -319,6 +319,7 @@ class GetVts(BaseCommand):
         vt_id = xml.get('vt_id')
         vt_filter = xml.get('filter')
         _details = xml.get('details')
+        version_only = xml.get('version_only')
 
         vt_details = False if _details == '0' else True
 
@@ -328,7 +329,7 @@ class GetVts(BaseCommand):
             raise OspdCommandError(text, 'get_vts', 404)
 
         filtered_vts = None
-        if vt_filter:
+        if vt_filter and not version_only:
             try:
                 filtered_vts = self._daemon.vts_filter.get_filtered_vts_list(
                     self._daemon.vts, vt_filter
@@ -337,14 +338,20 @@ class GetVts(BaseCommand):
                 self._daemon.vts.is_cache_available = True
                 raise OspdCommandError(filter_error)
 
-        vts_selection = self._daemon.get_vts_selection_list(vt_id, filtered_vts)
+        if not version_only:
+            vts_selection = self._daemon.get_vts_selection_list(
+                vt_id, filtered_vts
+            )
         # List of xml pieces with the generator to be iterated
         yield xml_helper.create_response('get_vts')
 
         begin_vts_tag = xml_helper.create_element('vts')
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "vts_version", self._daemon.get_vts_version()
+        )
         val = len(self._daemon.vts)
         begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "total", val)
-        if filtered_vts:
+        if filtered_vts and not version_only:
             val = len(filtered_vts)
             begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "sent", val)
 
@@ -354,9 +361,9 @@ class GetVts(BaseCommand):
             )
 
         yield begin_vts_tag
-
-        for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):
-            yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
+        if not version_only:
+            for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):
+                yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
 
         yield xml_helper.create_element('vts', end=True)
         yield xml_helper.create_response('get_vts', end=True)
