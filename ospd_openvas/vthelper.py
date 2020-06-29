@@ -166,7 +166,7 @@ class VtHelper:
         """ Calculate the vts collection sha256 hash. """
         m = sha256()  # pylint: disable=invalid-name
 
-        # for a reproducable hash calculation
+        # for a reproducible hash calculation
         # the vts must already be sorted in the dictionary.
         for vt_id, vt in self.get_vt_iterator(details=False):
             param_chain = ""

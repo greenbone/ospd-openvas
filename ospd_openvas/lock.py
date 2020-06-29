@@ -60,7 +60,7 @@ class LockFile:
                 pass
             return self
 
-        # Try to adquire the lock.
+        # Try to acquire the lock.
         try:
             fcntl.flock(self._fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             self._has_lock = True
