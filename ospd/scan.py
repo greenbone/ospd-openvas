@@ -244,7 +244,7 @@ class ScanCollection:
         pickler.remove_file(scan_id)
 
     def unpickle_scan_info(self, scan_id: str) -> None:
-        """ Unpickle a stored scan_inf correspinding to the scan_id
+        """ Unpickle a stored scan_inf corresponding to the scan_id
         and store it in the scan_table """
 
         scan_info = self.scans_table.get(scan_id)
