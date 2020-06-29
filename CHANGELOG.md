@@ -38,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   also ospd in editable mode. This means after running poetry install ospd will
   directly be importable in the virtual python environment. [#235](https://github.com/greenbone/ospd-openvas/pull/235)
 - Don't send host details and log messages to the client when Boreas is enabled. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
-- Progress bar calculation do not takes in accound dead hosts. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
+- Progress bar calculation do not takes in account dead hosts. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
 - Host progress is stored as integer. [#256](https://github.com/greenbone/ospd-openvas/pull/256)
 - Use flock for the feed lock file. [#257](https://github.com/greenbone/ospd-openvas/pull/257)
 
