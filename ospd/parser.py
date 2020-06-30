@@ -31,7 +31,7 @@ DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 DEFAULT_UNIX_SOCKET_MODE = "0o700"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
-DEFAULT_LOG_CONFIG_PATH = "~/.config/ospd_log.conf"
+DEFAULT_LOG_CONFIG_PATH = "~/.config/ospd-logging.conf"
 DEFAULT_UNIX_SOCKET_PATH = "/var/run/ospd/ospd.sock"
 DEFAULT_PID_PATH = "/var/run/ospd.pid"
 DEFAULT_LOCKFILE_DIR_PATH = "/var/run/ospd"
@@ -202,7 +202,7 @@ class CliParser:
             )
         return value
 
-    def log_level(self, string: str):
+    def log_level(self, string: str) -> str:
         """ Check if provided string is a valid log level. """
 
         if not hasattr(logging, string.upper()):
