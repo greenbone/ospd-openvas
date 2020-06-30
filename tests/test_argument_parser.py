@@ -70,11 +70,11 @@ class ArgumentParserTestCase(unittest.TestCase):
 
     def test_correct_lower_case_log_level(self):
         args = self.parse_args('-L error'.split())
-        self.assertEqual(logging.ERROR, args.log_level)
+        self.assertEqual('ERROR', args.log_level)
 
     def test_correct_upper_case_log_level(self):
         args = self.parse_args('-L INFO'.split())
-        self.assertEqual(logging.INFO, args.log_level)
+        self.assertEqual('INFO', args.log_level)
 
     @patch('sys.stderr', new_callable=StringIO)
     def test_correct_log_level(self, _mock_stderr):
@@ -94,7 +94,7 @@ class ArgumentParserTestCase(unittest.TestCase):
 
         self.assertEqual(args.key_file, DEFAULT_KEY_FILE)
         self.assertEqual(args.niceness, DEFAULT_NICENESS)
-        self.assertEqual(args.log_level, logging.INFO)
+        self.assertEqual(args.log_level, 'INFO')
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
         self.assertEqual(args.scaninfo_store_time, DEFAULT_SCANINFO_STORE_TIME)
