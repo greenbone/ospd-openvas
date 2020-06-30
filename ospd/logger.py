@@ -16,15 +16,13 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-
 import os
 import configparser
 
-from logging.handlers import SysLogHandler, WatchedFileHandler
 from logging.config import fileConfig
-
 from pathlib import Path
 from typing import Optional
+
 
 DEFAULT_HANDLER_CONSOLE = {
     'class': 'logging.StreamHandler',
@@ -70,7 +68,6 @@ DEFAULT_ROOT_LOGGER = {
 
 
 def init_logging(
-    name: str,
     log_level: int,
     *,
     log_file: Optional[str] = None,
@@ -99,4 +96,4 @@ def init_logging(
         config['logger_root'] = DEFAULT_ROOT_LOGGER
 
     fileConfig(config, disable_existing_loggers=False)
-    rootlogger = logging.getLogger()
+    logging.getLogger()

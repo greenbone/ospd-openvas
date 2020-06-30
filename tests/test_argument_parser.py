@@ -18,7 +18,6 @@
 """ Test module for command line arguments.
 """
 
-import logging
 import unittest
 
 from unittest.mock import patch

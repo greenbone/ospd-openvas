@@ -101,7 +101,6 @@ def main(
         args.foreground = True
 
     init_logging(
-        name,
         args.log_level,
         log_file=args.log_file,
         log_config=args.log_config,
