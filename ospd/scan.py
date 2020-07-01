@@ -398,11 +398,8 @@ class ScanCollection:
                 / (total_hosts - exc_hosts - count_dead)
             )
         except ZeroDivisionError:
-            LOGGER.error(
-                "Zero division error in %s",
-                self.calculate_target_progress.__name__,
-            )
-            raise
+            # Consider the case in which all hosts are dead or excluded
+            t_prog = ScanProgress.FINISHED.value
 
         return t_prog
 
@@ -424,7 +421,10 @@ class ScanCollection:
     def get_host_count(self, scan_id: str) -> int:
         """ Get total host count in the target. """
         host = self.get_host_list(scan_id)
-        total_hosts = len(target_str_to_list(host))
+        total_hosts = 0
+
+        if host:
+            total_hosts = len(target_str_to_list(host))
 
         return total_hosts
 

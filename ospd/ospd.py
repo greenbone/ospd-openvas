@@ -557,6 +557,7 @@ class OSPDaemon:
             logger.info("%s: Host scan finished.", scan_id)
 
         is_stopped = self.get_scan_status(scan_id) == ScanStatus.STOPPED
+        self.set_scan_progress(scan_id)
         progress = self.get_scan_progress(scan_id)
 
         if not is_stopped and progress == ScanProgress.FINISHED:
@@ -619,13 +620,17 @@ class OSPDaemon:
             scan_id, finished_hosts
         )
 
+    def set_scan_progress(self, scan_id: str):
+        """ Calculate the target progress with the current host states
+        and stores in the scan table. """
+        scan_progress = self.scan_collection.calculate_target_progress(scan_id)
+        self.scan_collection.set_progress(scan_id, scan_progress)
+
     def set_scan_progress_batch(
         self, scan_id: str, host_progress: Dict[str, int]
     ):
         self.scan_collection.set_host_progress(scan_id, host_progress)
-
-        scan_progress = self.scan_collection.calculate_target_progress(scan_id)
-        self.scan_collection.set_progress(scan_id, scan_progress)
+        self.set_scan_progress(scan_id)
 
     def set_scan_host_progress(
         self, scan_id: str, host: str = None, progress: int = None,
