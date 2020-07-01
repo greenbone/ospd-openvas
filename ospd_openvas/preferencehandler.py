@@ -32,11 +32,11 @@ from typing import Optional, Dict, List, Tuple
 from base64 import b64decode
 
 from ospd.scan import ScanCollection
+from ospd.ospd import BASE_SCANNER_PARAMS
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.db import KbDB
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.vthelper import VtHelper
-
 
 logger = logging.getLogger(__name__)
 
@@ -488,6 +488,14 @@ class PreferenceHandler:
             item_type = ''
             if key in ospd_params:
                 item_type = ospd_params[key].get('type')
+            else:
+                if key not in BASE_SCANNER_PARAMS:
+                    logger.warning(
+                        "%s is a scanner only setting and should not be set "
+                        "by the client. Setting needs to be included in "
+                        "OpenVAS configuration file instead.",
+                        key,
+                    )
             if item_type == 'boolean':
                 val = _from_bool_to_str(value)
             else:
