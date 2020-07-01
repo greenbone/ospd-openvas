@@ -50,6 +50,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
 - Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
 - Fix thread lib leak using daemon mode for python 3.7. [#272](https://github.com/greenbone/ospd/pull/272)
+- Fix scan progress in which all hosts are dead or excluded. [#295](https://github.com/greenbone/ospd/pull/295)
 
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
