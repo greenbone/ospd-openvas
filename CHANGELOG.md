@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add support for alive test settings. [#182](https://github.com/greenbone/ospd-openvas/pull/182)
 - Add missing scan preferences expand_vhosts and test_empty_vhost. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
 - Set reverse lookup options. [#185](https://github.com/greenbone/ospd-openvas/pull/185)
-- Check if the amount of vts in redis is coherent. 
+- Check if the amount of vts in redis is coherent.
   [#195](https://github.com/greenbone/ospd-openvas/pull/195)
   [#197](https://github.com/greenbone/ospd-openvas/pull/197)
 - Add support for test_alive_hosts_only feature of openvas. [#204](https://github.com/greenbone/ospd-openvas/pull/204)
@@ -53,6 +53,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Handling of finished host for resume task. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
 - Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 - Drop handling of network_scan. [#265](https://github.com/greenbone/ospd-openvas/pull/265)
+
+[20.08]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
 
 ## [1.0.1] (unreleased)
 
