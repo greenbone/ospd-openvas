@@ -31,6 +31,7 @@ DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
 DEFAULT_UNIX_SOCKET_MODE = "0o700"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
+DEFAULT_LOG_CONFIG_PATH = "~/.config/ospd-logging.conf"
 DEFAULT_UNIX_SOCKET_PATH = "/var/run/ospd/ospd.sock"
 DEFAULT_PID_PATH = "/var/run/ospd.pid"
 DEFAULT_LOCKFILE_DIR_PATH = "/var/run/ospd"
@@ -63,7 +64,12 @@ class CliParser:
             default=DEFAULT_CONFIG_PATH,
             help='Configuration file path (default: %(default)s)',
         )
-
+        parser.add_argument(
+            '--log-config',
+            nargs='?',
+            default=DEFAULT_LOG_CONFIG_PATH,
+            help='Log configuration file path (default: %(default)s)',
+        )
         parser.add_argument(
             '-p',
             '--port',
@@ -196,15 +202,14 @@ class CliParser:
             )
         return value
 
-    def log_level(self, string: str) -> int:
+    def log_level(self, string: str) -> str:
         """ Check if provided string is a valid log level. """
 
-        value = getattr(logging, string.upper(), None)
-        if not isinstance(value, int):
+        if not hasattr(logging, string.upper()):
             raise argparse.ArgumentTypeError(
                 'log level must be one of {debug,info,warning,error,critical}'
             )
-        return value
+        return string.upper()
 
     def _set_defaults(self, configfilename=None) -> None:
         self._config = self._load_config(configfilename)

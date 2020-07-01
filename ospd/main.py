@@ -17,8 +17,6 @@
 
 import logging
 
-from logging.handlers import SysLogHandler, WatchedFileHandler
-
 import os
 import sys
 import atexit
@@ -33,6 +31,7 @@ from ospd.misc import go_to_background, create_pid
 from ospd.ospd import OSPDaemon
 from ospd.parser import create_parser, ParserType
 from ospd.server import TlsServer, UnixSocketServer, BaseServer
+from ospd.logger import init_logging
 
 
 COPYRIGHT = """Copyright (C) 2014, 2015, 2018, 2019 Greenbone Networks GmbH
@@ -60,51 +59,6 @@ def print_version(daemon: OSPDaemon, file=sys.stdout):
     print("{0}: {1}".format(daemon_name, daemon_version), file=file)
     print(file=file)
     print(COPYRIGHT, file=file)
-
-
-def init_logging(
-    name: str,
-    log_level: int,
-    *,
-    log_file: Optional[str] = None,
-    foreground: Optional[bool] = False
-):
-
-    rootlogger = logging.getLogger()
-    rootlogger.setLevel(log_level)
-
-    if foreground:
-        console = logging.StreamHandler()
-        console.setFormatter(
-            logging.Formatter(
-                '%(asctime)s {}: %(levelname)s: (%(name)s) %(message)s'.format(
-                    name
-                )
-            )
-        )
-        rootlogger.addHandler(console)
-    elif log_file:
-        logfile = WatchedFileHandler(log_file)
-        logfile.setFormatter(
-            logging.Formatter(
-                '%(asctime)s {}: %(levelname)s: (%(name)s) %(message)s'.format(
-                    name
-                )
-            )
-        )
-        rootlogger.addHandler(logfile)
-    else:
-        syslog = SysLogHandler('/dev/log')
-        syslog.setFormatter(
-            logging.Formatter(
-                '{}: %(levelname)s: (%(name)s) %(message)s'.format(name)
-            )
-        )
-        rootlogger.addHandler(syslog)
-        # Duplicate syslog's file descriptor to stout/stderr.
-        syslog_fd = syslog.socket.fileno()
-        os.dup2(syslog_fd, 1)
-        os.dup2(syslog_fd, 2)
 
 
 def exit_cleanup(
@@ -147,7 +101,10 @@ def main(
         args.foreground = True
 
     init_logging(
-        name, args.log_level, log_file=args.log_file, foreground=args.foreground
+        args.log_level,
+        log_file=args.log_file,
+        log_config=args.log_config,
+        foreground=args.foreground,
     )
 
     if args.port == 0:
