@@ -35,7 +35,6 @@ DEFAULT_HANDLER_FILE = {
     'class': 'FileHandler',
     'level': 'INFO',
     'formatter': 'file',
-    'args': "('/home/jnicola/install/var/log/gvm/openvas.log', 'a')",
 }
 
 DEFAULT_HANDLER_SYSLOG = {
@@ -84,6 +83,7 @@ def init_logging(
         config['handler_default_handler'] = DEFAULT_HANDLER_CONSOLE
     elif log_file:
         config['handler_default_handler'] = DEFAULT_HANDLER_FILE
+        config['handler_default_handler']['args'] = "('" + log_file + "', 'a')"
     else:
         config['handler_default_handler'] = DEFAULT_HANDLER_SYSLOG
 
