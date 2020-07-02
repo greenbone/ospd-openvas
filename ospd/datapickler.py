@@ -24,7 +24,7 @@ import os
 
 from hashlib import sha256
 from pathlib import Path
-from typing import Dict, BinaryIO, Any
+from typing import BinaryIO, Any
 
 from ospd.errors import OspdCommandError
 
