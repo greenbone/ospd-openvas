@@ -917,6 +917,31 @@ class ScanTestCase(unittest.TestCase):
             self.daemon.scan_collection.calculate_target_progress(scan_id), 50
         )
 
+    def test_progress_all_host_dead(self):
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        self.daemon.set_scan_host_progress(scan_id, 'localhost1', -1)
+        self.daemon.set_scan_host_progress(scan_id, 'localhost2', -1)
+
+        self.daemon.sort_host_finished(scan_id, ['localhost1', 'localhost2'])
+        self.assertEqual(
+            self.daemon.scan_collection.calculate_target_progress(scan_id), 100
+        )
+
     @patch('ospd.ospd.os')
     def test_interrupted_scan(self, mock_os):
         mock_os.setsid.return_value = None
