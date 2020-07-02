@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [21.4] (unreleased)
+
 ## [20.8] (unreleased)
 
 ### Added
@@ -23,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#279](https://github.com/greenbone/ospd/pull/279)
   [#281](https://github.com/greenbone/ospd/pull/281)
 - Extend results with optional argument URI [#282](https://github.com/greenbone/ospd/pull/282)
-- Add new scan status INTERRUPTED. 
+- Add new scan status INTERRUPTED.
   [#288](https://github.com/greenbone/ospd/pull/288)
   [#289](https://github.com/greenbone/ospd/pull/289)
 - Extend get_vts with attribute version_only and return the version [#291](https://github.com/greenbone/ospd/pull/291)
