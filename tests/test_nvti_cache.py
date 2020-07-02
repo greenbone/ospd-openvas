@@ -293,6 +293,14 @@ class TestNVTICache(TestCase):
     def test_set_nvti_cache_name(self, mock_version, MockOpenvasDB):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
+        mock_version.return_value = '21.04+alpha~git-1234'
+        self.nvti._set_nvti_cache_name()
+
+        self.assertTrue(mock_version.called)
+        self.assertEqual(self.nvti._nvti_cache_name, 'nvticache21.4')
+
+        mock_version.reset_mock()
+
         mock_version.return_value = '20.10'
         self.nvti._set_nvti_cache_name()
 
