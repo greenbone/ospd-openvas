@@ -856,17 +856,18 @@ class OSPDopenvas(OSPDaemon):
 
     def report_openvas_results(
         self, db: BaseDB, scan_id: str, current_host: str
-    ):
+    ) -> int:
         """ Get all result entries from redis kb. """
 
         vthelper = VtHelper(self.nvti)
 
         # Result messages come in the next form, with optional uri field
         # type ||| hostname ||| port ||| OID ||| value [|||uri]
-        res = db.get_result()
+        all_results = db.get_result()
         res_list = ResultList()
         total_dead = 0
-        while res:
+        total_results = len(all_results)
+        for res in all_results:
             msg = res.split('|||')
             roid = msg[3].strip()
             rqod = ''
@@ -955,7 +956,6 @@ class OSPDopenvas(OSPDaemon):
                     total_dead = int(msg[4])
                 except TypeError:
                     logger.debug('Error processing dead host count')
-            res = db.get_result()
 
         # Insert result batch into the scan collection table.
         if len(res_list):
@@ -965,6 +965,8 @@ class OSPDopenvas(OSPDaemon):
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
+
+        return total_results
 
     def report_openvas_timestamp_scan_host(
         self, scan_db: ScanDB, scan_id: str, host: str
