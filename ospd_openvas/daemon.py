@@ -1154,7 +1154,14 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            time.sleep(1)
+            # Wait a second before trying to get result from redis if there
+            # was no results before.
+            # Otherwise, wait 50 msec to give access other process to redis.
+            got_results = False
+            if not got_results:
+                time.sleep(1)
+            time.sleep(0.05)
+
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
                 # clean main_db, but wait for scanner to finish.
@@ -1165,8 +1172,8 @@ class OSPDopenvas(OSPDaemon):
 
             self.report_openvas_results(kbdb, scan_id, "")
 
+            res_count = 0
             for scan_db in kbdb.get_scan_databases():
-
                 id_aux = scan_db.get_scan_id()
                 if not id_aux:
                     continue
@@ -1175,7 +1182,12 @@ class OSPDopenvas(OSPDaemon):
                     no_id_found = False
                     current_host = scan_db.get_host_ip()
 
-                    self.report_openvas_results(scan_db, scan_id, current_host)
+                    res_count += self.report_openvas_results(
+                        scan_db, scan_id, current_host
+                    )
+                    if res_count > 0:
+                        got_results = True
+
                     self.report_openvas_scan_status(
                         scan_db, scan_id, current_host
                     )
