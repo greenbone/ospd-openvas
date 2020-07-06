@@ -42,6 +42,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Host progress is stored as integer. [#256](https://github.com/greenbone/ospd-openvas/pull/256)
 - Use flock for the feed lock file. [#257](https://github.com/greenbone/ospd-openvas/pull/257)
 - Set required version for packaging to 20.0. [#280](https://github.com/greenbone/ospd-openvas/pull/280)
+- Improvements for fetching results from redis. [#282](https://github.com/greenbone/ospd-openvas/pull/282)
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
