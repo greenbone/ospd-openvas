@@ -179,7 +179,7 @@ class OpenvasDB:
         return ctx.rpop(name)
 
     @staticmethod
-    def pop_list_items(ctx: RedisCtx, name: str) -> str:
+    def pop_list_items(ctx: RedisCtx, name: str) -> List[str]:
         if not ctx:
             raise RequiredArgument('pop_list_items', 'ctx')
         if not name:
