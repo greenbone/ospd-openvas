@@ -867,7 +867,10 @@ class OSPDopenvas(OSPDaemon):
         res_list = ResultList()
         total_dead = 0
         total_results = len(all_results)
+
         for res in all_results:
+            if not res:
+                continue
             msg = res.split('|||')
             roid = msg[3].strip()
             rqod = ''
