@@ -970,7 +970,7 @@ class OSPDopenvas(OSPDaemon):
             self.scan_collection.add_result_list(scan_id, res_list)
 
         if total_dead:
-            self.scan_collection.set_amount_dead_hosts(
+            self.scan_collection.set_amount_dead_hosts_alive_detection(
                 scan_id, total_dead=total_dead
             )
 
