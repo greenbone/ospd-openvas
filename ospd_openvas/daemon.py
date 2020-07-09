@@ -917,12 +917,12 @@ class OSPDopenvas(OSPDaemon):
                     uri=ruri,
                 )
 
-            if msg[0] == 'HOST_START' or 'HOST_END':
+            elif msg[0] == 'HOST_START' or msg[0] == 'HOST_END':
                 res_list.add_scan_log_to_list(
                     host=current_host, name=msg[0], value=msg[5],
                 )
 
-            if msg[0] == 'LOG':
+            elif msg[0] == 'LOG':
                 res_list.add_scan_log_to_list(
                     host=current_host,
                     hostname=rhostname,
@@ -934,7 +934,7 @@ class OSPDopenvas(OSPDaemon):
                     uri=ruri,
                 )
 
-            if msg[0] == 'HOST_DETAIL':
+            elif msg[0] == 'HOST_DETAIL':
                 res_list.add_scan_host_detail_to_list(
                     host=current_host,
                     hostname=rhostname,
@@ -943,7 +943,7 @@ class OSPDopenvas(OSPDaemon):
                     uri=ruri,
                 )
 
-            if msg[0] == 'ALARM':
+            elif msg[0] == 'ALARM':
                 rseverity = self.get_severity_score(vt_aux)
                 res_list.add_scan_alarm_to_list(
                     host=current_host,
@@ -959,7 +959,7 @@ class OSPDopenvas(OSPDaemon):
 
             # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
-            if msg[0] == 'DEADHOST':
+            elif msg[0] == 'DEADHOST':
                 try:
                     total_dead = int(msg[5])
                 except TypeError:
