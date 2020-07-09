@@ -873,6 +873,7 @@ class OSPDopenvas(OSPDaemon):
             rhostname = msg[2].strip() if msg[2] else ''
             host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
             host_deny = "Host access denied" in msg[5]
+            start_end_msg = "HOST_START" == msg[0] or "HOST_END" == msg[0]
             vt_aux = None
 
             # URI is optional and msg list length must be checked
@@ -880,10 +881,20 @@ class OSPDopenvas(OSPDaemon):
             if len(msg) > 6:
                 ruri = msg[6]
 
-            if roid and not host_is_dead and not host_deny:
+            if (
+                roid
+                and not host_is_dead
+                and not host_deny
+                and not start_end_msg
+            ):
                 vt_aux = vthelper.get_single_vt(roid)
 
-            if not vt_aux and not host_is_dead and not host_deny:
+            if (
+                not vt_aux
+                and not host_is_dead
+                and not host_deny
+                and not start_end_msg
+            ):
                 logger.warning('Invalid VT oid %s for a result', roid)
 
             if vt_aux:
