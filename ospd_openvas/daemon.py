@@ -871,6 +871,7 @@ class OSPDopenvas(OSPDaemon):
         for res in all_results:
             if not res:
                 continue
+
             msg = res.split('|||')
             roid = msg[3].strip()
             rqod = ''
@@ -1165,7 +1166,8 @@ class OSPDopenvas(OSPDaemon):
             got_results = False
             if not got_results:
                 time.sleep(1)
-            time.sleep(0.05)
+            else:
+                time.sleep(0.05)
 
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
