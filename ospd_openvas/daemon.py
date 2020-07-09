@@ -851,7 +851,7 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def report_openvas_results(self, db: BaseDB, scan_id: str):
+    def report_openvas_results(self, db: BaseDB, scan_id: str) -> bool:
         """ Get all result entries from redis kb. """
 
         vthelper = VtHelper(self.nvti)
@@ -963,6 +963,8 @@ class OSPDopenvas(OSPDaemon):
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
+
+        return total_results > 0
 
     def is_openvas_process_alive(
         self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str
@@ -1151,52 +1153,12 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            self.report_openvas_results(kbdb, scan_id, "")
-
-            res_count = 0
-            for scan_db in kbdb.get_scan_databases():
-                id_aux = scan_db.get_scan_id()
-                if not id_aux:
-                    continue
-
-                if id_aux == openvas_scan_id:
-                    no_id_found = False
-                    current_host = scan_db.get_host_ip()
-
-                    res_count += self.report_openvas_results(
-                        scan_db, scan_id, current_host
-                    )
-                    if res_count > 0:
-                        got_results = True
-
-                    self.report_openvas_scan_status(
-                        scan_db, scan_id, current_host
-                    )
-                    self.report_openvas_timestamp_scan_host(
-                        scan_db, scan_id, current_host
-                    )
-
-                    if scan_db.host_is_finished(openvas_scan_id):
-                        self.report_openvas_scan_status(
-                            scan_db, scan_id, current_host
-                        )
-
-                        self.report_openvas_timestamp_scan_host(
-                            scan_db, scan_id, current_host
-                        )
-                        if current_host:
-                            self.sort_host_finished(
-                                scan_id, finished_hosts=current_host
-                            )
-
-                        kbdb.remove_scan_database(scan_db)
-                        self.main_db.release_database(scan_db)
+            got_results = self.report_openvas_results(kbdb, scan_id)
+            self.report_openvas_scan_status(kbdb, scan_id)
 
             # Scan end. No kb in use for this scan id
-            if no_id_found and kbdb.target_is_finished(scan_id):
+            if kbdb.target_is_finished(scan_id):
                 break
-
-            no_id_found = True
 
         # Delete keys from KB related to this scan task.
         self.main_db.release_database(kbdb)
