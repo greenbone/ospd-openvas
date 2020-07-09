@@ -179,6 +179,20 @@ class OpenvasDB:
         return ctx.rpop(name)
 
     @staticmethod
+    def pop_list_items(ctx: RedisCtx, name: str) -> List[str]:
+        if not ctx:
+            raise RequiredArgument('pop_list_items', 'ctx')
+        if not name:
+            raise RequiredArgument('pop_list_items', 'name')
+
+        pipe = ctx.pipeline()
+        pipe.lrange(name, LIST_FIRST_POS, LIST_LAST_POS)
+        pipe.delete(name)
+        results, redis_return_code = pipe.execute()
+
+        return results if redis_return_code else []
+
+    @staticmethod
     def get_key_count(ctx: RedisCtx, pattern: Optional[str] = None) -> int:
         """ Get the number of keys matching with the pattern.
 
@@ -399,7 +413,7 @@ class BaseKbDB(BaseDB):
 
         Return the oldest scan results
         """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/results")
+        return OpenvasDB.pop_list_items(self.ctx, "internal/results")
 
     def get_status(self, openvas_scan_id: str) -> Optional[str]:
         """ Return the status of the host scan """
