@@ -851,37 +851,35 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def report_openvas_results(
-        self, db: BaseDB, scan_id: str, current_host: str
-    ) -> int:
+    def report_openvas_results(self, db: BaseDB, scan_id: str):
         """ Get all result entries from redis kb. """
 
         vthelper = VtHelper(self.nvti)
 
         # Result messages come in the next form, with optional uri field
-        # type ||| hostname ||| port ||| OID ||| value [|||uri]
+        # type ||| host ip ||| hostname ||| port ||| OID ||| value [|||uri]
         all_results = db.get_result()
         res_list = ResultList()
         total_dead = 0
         total_results = len(all_results)
-
         for res in all_results:
             if not res:
                 continue
 
             msg = res.split('|||')
-            roid = msg[3].strip()
+            roid = msg[4].strip()
             rqod = ''
             rname = ''
-            rhostname = msg[1].strip() if msg[1] else ''
-            host_is_dead = "Host dead" in msg[4] or msg[0] == "DEADHOST"
-            host_deny = "Host access denied" in msg[4]
+            current_host = msg[1].strip() if msg[1] else ''
+            rhostname = msg[2].strip() if msg[2] else ''
+            host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
+            host_deny = "Host access denied" in msg[5]
             vt_aux = None
 
             # URI is optional and msg list length must be checked
             ruri = ''
-            if len(msg) > 5:
-                ruri = msg[5]
+            if len(msg) > 6:
+                ruri = msg[6]
 
             if roid and not host_is_dead and not host_deny:
                 vt_aux = vthelper.get_single_vt(roid)
@@ -899,18 +897,12 @@ class OSPDopenvas(OSPDaemon):
                 rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
-                # Some errors are generated before a host is scanned
-                # use the hostname passed in the message if
-                # no current host is available.
-                if not current_host and rhostname:
-                    current_host = rhostname
-
                 res_list.add_scan_error_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
-                    port=msg[2],
+                    value=msg[5],
+                    port=msg[3],
                     test_id=roid,
                     uri=ruri,
                 )
@@ -920,8 +912,8 @@ class OSPDopenvas(OSPDaemon):
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
-                    port=msg[2],
+                    value=msg[5],
+                    port=msg[3],
                     qod=rqod,
                     test_id=roid,
                     uri=ruri,
@@ -932,7 +924,7 @@ class OSPDopenvas(OSPDaemon):
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
+                    value=msg[5],
                     uri=ruri,
                 )
 
@@ -942,8 +934,8 @@ class OSPDopenvas(OSPDaemon):
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
-                    port=msg[2],
+                    value=msg[5],
+                    port=msg[3],
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
@@ -954,7 +946,7 @@ class OSPDopenvas(OSPDaemon):
             # test_alive_host_only in openvas is enable
             if msg[0] == 'DEADHOST':
                 try:
-                    total_dead = int(msg[4])
+                    total_dead = int(msg[5])
                 except TypeError:
                     logger.debug('Error processing dead host count')
 
