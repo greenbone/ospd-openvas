@@ -796,7 +796,7 @@ class OSPDopenvas(OSPDaemon):
             )
         return has_openvas
 
-    def update_progress(self, scan_id: str, current_host: str, msg: str):
+    def update_progress(self, scan_id: str, msg: str):
         """ Calculate percentage and update the scan status of a host
         for the progress bar.
         Arguments:
@@ -805,7 +805,7 @@ class OSPDopenvas(OSPDaemon):
             msg: String with launched and total plugins.
         """
         try:
-            launched, total = msg.split('/')
+            current_host, launched, total = msg.split('/')
         except ValueError:
             return
 
@@ -823,19 +823,16 @@ class OSPDopenvas(OSPDaemon):
             scan_id, host=current_host, progress=host_prog
         )
 
-    def report_openvas_scan_status(
-        self, scan_db: ScanDB, scan_id: str, current_host: str
-    ):
+    def report_openvas_scan_status(self, kbdb: BaseDB, scan_id: str):
         """ Get all status entries from redis kb.
 
         Arguments:
             scan_id: Scan ID to identify the current scan.
             current_host: Host to be updated.
         """
-        res = scan_db.get_scan_status()
-        while res:
-            self.update_progress(scan_id, current_host, res)
-            res = scan_db.get_scan_status()
+        all_status = kbdb.get_scan_status()
+        for res in all_status:
+            self.update_progress(scan_id, res)
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
         """ Return the severity score for the given oid.

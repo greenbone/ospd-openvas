@@ -399,6 +399,9 @@ class BaseKbDB(BaseDB):
         """
         return OpenvasDB.get_list_item(self.ctx, name)
 
+    def _pop_list_items(self, name: str) -> List:
+        return OpenvasDB.pop_list_items(self.ctx, name)
+
     def _remove_list_item(self, key: str, value: str):
         """ Remove item from the key list.
 
@@ -413,7 +416,7 @@ class BaseKbDB(BaseDB):
 
         Return the oldest scan results
         """
-        return OpenvasDB.pop_list_items(self.ctx, "internal/results")
+        return self._pop_list_items("internal/results")
 
     def get_status(self, openvas_scan_id: str) -> Optional[str]:
         """ Return the status of the host scan """
@@ -438,13 +441,6 @@ class ScanDB(BaseKbDB):
 
     def get_scan_id(self):
         return self._get_single_item('internal/scan_id')
-
-    def get_scan_status(self) -> Optional[str]:
-        """ Get and remove the oldest host scan status from the list.
-
-        Return a string which represents the host scan status.
-        """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/status")
 
     def get_host_ip(self) -> Optional[str]:
         """ Get the ip of host_kb.
@@ -531,6 +527,13 @@ class KbDB(BaseKbDB):
         """
         status = self._get_single_item('internal/%s' % openvas_scan_id)
         return status == 'stop_all'
+
+    def get_scan_status(self) -> List:
+        """ Get and remove the oldest host scan status from the list.
+
+        Return a string which represents the host scan status.
+        """
+        return self._pop_list_items("internal/status")
 
 
 class MainDB(BaseDB):
