@@ -907,6 +907,11 @@ class OSPDopenvas(OSPDaemon):
                     uri=ruri,
                 )
 
+            if msg[0] == 'HOST_START' or 'HOST_END':
+                res_list.add_scan_log_to_list(
+                    host=current_host, name=msg[0], value=msg[5],
+                )
+
             if msg[0] == 'LOG':
                 res_list.add_scan_log_to_list(
                     host=current_host,
@@ -958,26 +963,6 @@ class OSPDopenvas(OSPDaemon):
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
-
-        return total_results
-
-    def report_openvas_timestamp_scan_host(
-        self, scan_db: ScanDB, scan_id: str, host: str
-    ):
-        """ Get start and end timestamp of a host scan from redis kb. """
-        timestamp = scan_db.get_host_scan_end_time()
-        if timestamp:
-            self.add_scan_log(
-                scan_id, host=host, name='HOST_END', value=timestamp
-            )
-            return
-
-        timestamp = scan_db.get_host_scan_start_time()
-        if timestamp:
-            self.add_scan_log(
-                scan_id, host=host, name='HOST_START', value=timestamp
-            )
-            return
 
     def is_openvas_process_alive(
         self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str

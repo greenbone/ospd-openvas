@@ -449,20 +449,6 @@ class ScanDB(BaseKbDB):
         """
         return self._get_single_item("internal/ip")
 
-    def get_host_scan_start_time(self) -> Optional[str]:
-        """ Get the timestamp of the scan start from redis.
-
-        Return a string with the timestamp of the scan start.
-        """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/start_time")
-
-    def get_host_scan_end_time(self) -> Optional[str]:
-        """ Get the timestamp of the scan end from redis.
-
-        Return a string with the timestamp of scan end .
-        """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/end_time")
-
     def host_is_finished(self, openvas_scan_id: str) -> bool:
         """ Returns true if the scan of the host is finished """
         status = self.get_status(openvas_scan_id)
