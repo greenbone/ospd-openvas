@@ -861,7 +861,6 @@ class OSPDopenvas(OSPDaemon):
         all_results = db.get_result()
         res_list = ResultList()
         total_dead = 0
-        total_results = len(all_results)
         for res in all_results:
             if not res:
                 continue
@@ -964,7 +963,7 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, total_dead=total_dead
             )
 
-        return total_results > 0
+        return len(res_list) > 0
 
     def is_openvas_process_alive(
         self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str
