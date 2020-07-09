@@ -190,6 +190,10 @@ class OpenvasDB:
         pipe.delete(name)
         results, redis_return_code = pipe.execute()
 
+        # The results are left-pushed. To preserver the order
+        # the result list must be reversed.
+        results.reverse()
+
         return results if redis_return_code else []
 
     @staticmethod
