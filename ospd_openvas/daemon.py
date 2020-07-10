@@ -796,33 +796,6 @@ class OSPDopenvas(OSPDaemon):
             )
         return has_openvas
 
-    def update_progress(self, scan_id: str, msg: str):
-        """ Calculate percentage and update the scan status of a host
-        for the progress bar.
-        Arguments:
-            scan_id: Scan ID to identify the current scan process.
-            current_host: Host in the target to be updated.
-            msg: String with launched and total plugins.
-        """
-        try:
-            current_host, launched, total = msg.split('/')
-        except ValueError:
-            return
-
-        try:
-            if float(total) == 0:
-                return
-            elif float(total) == ScanProgress.DEAD_HOST:
-                host_prog = ScanProgress.DEAD_HOST
-            else:
-                host_prog = int((float(launched) / float(total)) * 100)
-        except TypeError:
-            return
-
-        self.set_scan_host_progress(
-            scan_id, host=current_host, progress=host_prog
-        )
-
     def report_openvas_scan_status(self, kbdb: BaseDB, scan_id: str):
         """ Get all status entries from redis kb.
 
@@ -831,8 +804,35 @@ class OSPDopenvas(OSPDaemon):
             current_host: Host to be updated.
         """
         all_status = kbdb.get_scan_status()
+        all_hosts = dict()
+        finished_hosts = list()
         for res in all_status:
-            self.update_progress(scan_id, res)
+            try:
+                current_host, launched, total = res.split('/')
+            except ValueError:
+                continue
+
+            try:
+                if float(total) == 0:
+                    continue
+                elif float(total) == ScanProgress.DEAD_HOST:
+                    host_prog = ScanProgress.DEAD_HOST
+                else:
+                    host_prog = int((float(launched) / float(total)) * 100)
+            except TypeError:
+                continue
+
+            all_hosts[current_host] = host_prog
+
+            if (
+                host_prog == ScanProgress.DEAD_HOST
+                or host_prog == ScanProgress.FINISHED
+            ):
+                finished_hosts.append(current_host)
+
+        self.set_scan_progress_batch(scan_id, host_progress=all_hosts)
+
+        self.sort_host_finished(scan_id, finished_hosts)
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
         """ Return the severity score for the given oid.
