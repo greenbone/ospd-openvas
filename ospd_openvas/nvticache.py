@@ -25,7 +25,6 @@ from typing import List, Dict, Optional, Iterator, Tuple
 
 from packaging.specifiers import SpecifierSet
 from packaging.version import parse as parse_version
-from packaging.version import Version
 
 from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
@@ -81,31 +80,25 @@ class NVTICache(BaseDB):
 
     def _set_nvti_cache_name(self):
         """Set nvticache name"""
-        _version_string = Openvas.get_gvm_libs_version()
-        if not _version_string:
+        version_string = Openvas.get_gvm_libs_version()
+        if not version_string:
             raise OspdOpenvasError(
                 "Not possible to get the installed gvm-libs version. "
                 "Outdated openvas version. openvas version needs to be at "
                 "least 7.0.1."
             )
+        # Remove pre-release sufix and git revision if exists
+        # as the gvm-libs version has the  format
+        # e.g "20.8+beta1-git-a41b140d-zero-padding"
+        version_string = version_string.split("+")[0]
 
-        # Get the Major.Minor.Patch value
-        unsupported_symbols = [
-            '~',
-        ]
-        for symb in unsupported_symbols:
-            _version_string = _version_string.replace(symb, "")
-
-        if self._is_compatible_version(_version_string):
-            version = Version(_version_string)
-            self._nvti_cache_name = "nvticache{}.{}".format(
-                version.major, version.minor
-            )
+        if self._is_compatible_version(version_string):
+            self._nvti_cache_name = "nvticache{}".format(version_string)
         else:
             raise OspdOpenvasError(
                 "Error setting nvticache. Incompatible nvticache "
                 "version {}. Supported versions are {}.".format(
-                    _version_string,
+                    version_string,
                     ", ".join(
                         [
                             str(spec)
