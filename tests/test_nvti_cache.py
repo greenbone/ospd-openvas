@@ -308,6 +308,24 @@ class TestNVTICache(TestCase):
         self.assertTrue(mock_version.called)
 
     @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
+    def test_set_nvti_cache_name_pre_release(self, mock_version, MockOpenvasDB):
+        self.assertIsNone(self.nvti._nvti_cache_name)
+
+        mock_version.return_value = '20.8+beta1~git-1234-hosfix'
+        self.nvti._set_nvti_cache_name()
+
+        self.assertTrue(mock_version.called)
+        self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.8')
+
+        mock_version.reset_mock()
+        mock_version.return_value = '10.0.1'
+
+        with self.assertRaises(OspdOpenvasError):
+            self.nvti._set_nvti_cache_name()
+
+        self.assertTrue(mock_version.called)
+
+    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
     def test_set_nvti_cache_name_raise_error(
         self, mock_version: Mock, MockOpenvasDB: Mock
     ):
