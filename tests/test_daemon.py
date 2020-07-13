@@ -593,15 +593,15 @@ class TestOspdOpenvas(TestCase):
         w.create_scan('123-456', targets, None, [])
 
         results = [
-            "LOG||||||general/Host_Details||||||Host dead",
+            "LOG|||192.168.0.1|||localhost|||general/Host_Details||||||Host dead",
         ]
         MockDBClass.get_result.return_value = results
         mock_add_scan_log_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
+        w.report_openvas_results(MockDBClass, '123-456')
         mock_add_scan_log_to_list.assert_called_with(
-            host='localhost',
-            hostname='',
+            host='192.168.0.1',
+            hostname='localhost',
             name='',
             port='general/Host_Details',
             qod='',
@@ -622,15 +622,15 @@ class TestOspdOpenvas(TestCase):
         w.create_scan('123-456', targets, None, [])
 
         results = [
-            "ERRMSG|||127.0.0.1|||||||||Host access denied.",
+            "ERRMSG|||127.0.0.1|||localhost|||||||||Host access denied.",
         ]
         MockDBClass.get_result.return_value = results
         mock_add_scan_error_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456', '')
+        w.report_openvas_results(MockDBClass, '123-456')
         mock_add_scan_error_to_list.assert_called_with(
             host='127.0.0.1',
-            hostname='127.0.0.1',
+            hostname='localhost',
             name='',
             port='',
             test_id='',
@@ -646,14 +646,37 @@ class TestOspdOpenvas(TestCase):
         w.create_scan('123-456', targets, None, [])
 
         results = [
-            "DEADHOST||| ||| ||| |||4",
+            "DEADHOST||| ||| ||| ||| |||4",
         ]
         MockDBClass.get_result.return_value = results
         w.scan_collection.set_amount_dead_hosts = MagicMock()
 
-        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
+        w.report_openvas_results(MockDBClass, '123-456')
         w.scan_collection.set_amount_dead_hosts.assert_called_with(
             '123-456', total_dead=4,
+        )
+
+    @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
+    def test_get_openvas_result_host_start(
+        self, mock_add_scan_log_to_list, MockDBClass
+    ):
+        w = DummyDaemon()
+        target_element = w.create_xml_target()
+        targets = OspRequest.process_target_element(target_element)
+        w.create_scan('123-456', targets, None, [])
+
+        results = [
+            "HOST_START|||192.168.10.124||| ||| ||||||today 1",
+        ]
+
+        MockDBClass.get_result.return_value = results
+        mock_add_scan_log_to_list.return_value = None
+
+        w.report_openvas_results(MockDBClass, '123-456')
+
+        mock_add_scan_log_to_list.assert_called_with(
+            host='192.168.10.124', name='HOST_START', value='today 1',
         )
 
     @patch('ospd_openvas.daemon.ScanDB')
@@ -668,11 +691,11 @@ class TestOspdOpenvas(TestCase):
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
         w.scan_collection.scans_table['123-456']['results'] = list()
-        results = ["ALARM||| ||| ||| |||some alarm|||path", None]
+        results = ["ALARM||| ||| ||| ||| |||some alarm|||path", None]
         MockDBClass.get_result.return_value = results
         mock_add_scan_alarm_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
+        w.report_openvas_results(MockDBClass, '123-456')
 
         assert_called_once(logging.Logger.warning)
 
@@ -694,21 +717,40 @@ class TestOspdOpenvas(TestCase):
 
         self.assertFalse(ret)
 
-    @patch('ospd_openvas.daemon.OSPDaemon.set_scan_host_progress')
-    def test_update_progress(self, mock_set_scan_host_progress):
+    @patch('ospd_openvas.daemon.OSPDaemon.set_scan_progress_batch')
+    @patch('ospd_openvas.daemon.OSPDaemon.sort_host_finished')
+    @patch('ospd_openvas.db.KbDB')
+    def test_report_openvas_scan_status(
+        self, mock_db, mock_sort_host_finished, mock_set_scan_progress_batch
+    ):
         w = DummyDaemon()
 
-        mock_set_scan_host_progress.return_value = None
+        mock_set_scan_progress_batch.return_value = None
+        mock_sort_host_finished.return_value = None
+        mock_db.get_scan_status.return_value = [
+            '192.168.0.1/15/1000',
+            '192.168.0.2/15/0',
+            '192.168.0.3/15/-1',
+            '192.168.0.4/1500/1500',
+        ]
 
-        msg = '0/-1'
         target_element = w.create_xml_target()
         targets = OspRequest.process_target_element(target_element)
 
         w.create_scan('123-456', targets, None, [])
-        w.update_progress('123-456', 'localhost', msg)
+        w.report_openvas_scan_status(mock_db, '123-456')
 
-        mock_set_scan_host_progress.assert_called_with(
-            '123-456', host='localhost', progress=-1
+        mock_set_scan_progress_batch.assert_called_with(
+            '123-456',
+            host_progress={
+                '192.168.0.1': 1,
+                '192.168.0.3': -1,
+                '192.168.0.4': 100,
+            },
+        )
+
+        mock_sort_host_finished.assert_called_with(
+            '123-456', ['192.168.0.3', '192.168.0.4']
         )
 
 
