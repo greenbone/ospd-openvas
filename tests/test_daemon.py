@@ -583,7 +583,7 @@ class TestOspdOpenvas(TestCase):
         self.assertFalse(res)
         w.feed_is_outdated.assert_not_called()
 
-    @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.BaseDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
     def test_get_openvas_result(self, mock_add_scan_log_to_list, MockDBClass):
         w = DummyDaemon()
@@ -610,7 +610,7 @@ class TestOspdOpenvas(TestCase):
             value='Host dead',
         )
 
-    @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.BaseDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_error_to_list')
     def test_get_openvas_result_host_deny(
         self, mock_add_scan_error_to_list, MockDBClass
@@ -638,7 +638,7 @@ class TestOspdOpenvas(TestCase):
             value='Host access denied.',
         )
 
-    @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.BaseDB')
     def test_get_openvas_result_dead_hosts(self, MockDBClass):
         w = DummyDaemon()
         target_element = w.create_xml_target()
@@ -656,7 +656,7 @@ class TestOspdOpenvas(TestCase):
             '123-456', total_dead=4,
         )
 
-    @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.BaseDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
     def test_get_openvas_result_host_start(
         self, mock_add_scan_log_to_list, MockDBClass
@@ -679,7 +679,7 @@ class TestOspdOpenvas(TestCase):
             host='192.168.10.124', name='HOST_START', value='today 1',
         )
 
-    @patch('ospd_openvas.daemon.ScanDB')
+    @patch('ospd_openvas.daemon.BaseDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_alarm_to_list')
     def test_result_without_vt_oid(
         self, mock_add_scan_alarm_to_list, MockDBClass
