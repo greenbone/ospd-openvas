@@ -46,7 +46,7 @@ from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.db import MainDB, BaseDB, ScanDB
+from ospd_openvas.db import MainDB, BaseDB
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
@@ -873,7 +873,7 @@ class OSPDopenvas(OSPDaemon):
             rhostname = msg[2].strip() if msg[2] else ''
             host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
             host_deny = "Host access denied" in msg[5]
-            start_end_msg = "HOST_START" == msg[0] or "HOST_END" == msg[0]
+            start_end_msg = msg[0] == "HOST_START" or msg[0] == "HOST_END"
             vt_aux = None
 
             # URI is optional and msg list length must be checked
@@ -1124,7 +1124,6 @@ class OSPDopenvas(OSPDaemon):
 
             time.sleep(1)
 
-        no_id_found = False
         while True:
             if not kbdb.target_is_finished(
                 scan_id
