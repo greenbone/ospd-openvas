@@ -245,17 +245,17 @@ description = ""
 name = "ospd"
 optional = false
 python-versions = "^3.5"
-version = "20.8a1"
+version = "21.4a1"
 
 [package.dependencies]
 defusedxml = "^0.6.0"
 deprecated = "^1.2.10"
-lxml = "^4.5.1"
+lxml = "^4.5.2"
 paramiko = "^2.7.1"
 psutil = "^5.7.0"
 
 [package.source]
-reference = "f728e29c9f63e33feeba10a341389dddc010d554"
+reference = "ce589e71043410994f0d9c5ceb71e8ad6fec6f7b"
 type = "git"
 url = "https://github.com/greenbone/ospd.git"
 [[package]]
@@ -441,7 +441,7 @@ python-versions = "*"
 version = "1.12.1"
 
 [metadata]
-content-hash = "b9fb459bd6a92a98b9cfa99e1fe824889f09770ec04de08692f86f13a8ebdfa7"
+content-hash = "dde9caa39faf44336add7c38d9e8d0aab2b1ffa18569385517653310a4f0aa60"
 python-versions = "^3.5"
 
 [metadata.files]
