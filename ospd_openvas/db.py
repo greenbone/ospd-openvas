@@ -192,9 +192,12 @@ class OpenvasDB:
 
         # The results are left-pushed. To preserver the order
         # the result list must be reversed.
-        results.reverse()
+        if redis_return_code:
+            results.reverse()
+        else:
+            results = []
 
-        return results if redis_return_code else []
+        return results
 
     @staticmethod
     def get_key_count(ctx: RedisCtx, pattern: Optional[str] = None) -> int:
