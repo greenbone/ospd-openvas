@@ -446,21 +446,6 @@ class ScanDB(BaseKbDB):
         self.index = kbindex
         return self
 
-    def get_scan_id(self):
-        return self._get_single_item('internal/scan_id')
-
-    def get_host_ip(self) -> Optional[str]:
-        """ Get the ip of host_kb.
-
-        Return a string with the ip of the host being scanned.
-        """
-        return self._get_single_item("internal/ip")
-
-    def host_is_finished(self, openvas_scan_id: str) -> bool:
-        """ Returns true if the scan of the host is finished """
-        status = self.get_status(openvas_scan_id)
-        return status == 'finished'
-
 
 class KbDB(BaseKbDB):
     def get_scan_databases(self) -> Iterator[ScanDB]:

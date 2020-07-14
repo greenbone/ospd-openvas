@@ -373,46 +373,6 @@ class ScanDBTestCase(TestCase):
 
         mock_openvas_db.select_database.assert_called_with(self.ctx, 11)
 
-    def test_get_scan_id(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = 'foo'
-
-        ret = self.db.get_scan_id()
-
-        self.assertEqual(ret, 'foo')
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/scan_id'
-        )
-
-    def test_get_host_ip(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = '192.168.0.1'
-
-        ret = self.db.get_host_ip()
-
-        self.assertEqual(ret, '192.168.0.1')
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/ip'
-        )
-
-    def test_host_is_finished_false(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = 'foo'
-
-        ret = self.db.host_is_finished('bar')
-
-        self.assertFalse(ret)
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/bar'
-        )
-
-    def test_host_is_finished_true(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = 'finished'
-
-        ret = self.db.host_is_finished('bar')
-
-        self.assertTrue(ret)
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/bar'
-        )
-
     def test_flush(self, mock_openvas_db):
         self.db.flush()
 
