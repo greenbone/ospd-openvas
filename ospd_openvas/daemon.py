@@ -856,17 +856,22 @@ class OSPDopenvas(OSPDaemon):
 
     def report_openvas_results(
         self, db: BaseDB, scan_id: str, current_host: str
-    ):
+    ) -> int:
         """ Get all result entries from redis kb. """
 
         vthelper = VtHelper(self.nvti)
 
         # Result messages come in the next form, with optional uri field
         # type ||| hostname ||| port ||| OID ||| value [|||uri]
-        res = db.get_result()
+        all_results = db.get_result()
         res_list = ResultList()
         total_dead = 0
-        while res:
+        total_results = len(all_results)
+
+        for res in all_results:
+            if not res:
+                continue
+
             msg = res.split('|||')
             roid = msg[3].strip()
             rqod = ''
@@ -955,7 +960,6 @@ class OSPDopenvas(OSPDaemon):
                     total_dead = int(msg[4])
                 except TypeError:
                     logger.debug('Error processing dead host count')
-            res = db.get_result()
 
         # Insert result batch into the scan collection table.
         if len(res_list):
@@ -965,6 +969,8 @@ class OSPDopenvas(OSPDaemon):
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
+
+        return total_results
 
     def report_openvas_timestamp_scan_host(
         self, scan_db: ScanDB, scan_id: str, host: str
@@ -1154,7 +1160,15 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            time.sleep(1)
+            # Wait a second before trying to get result from redis if there
+            # was no results before.
+            # Otherwise, wait 50 msec to give access other process to redis.
+            got_results = False
+            if not got_results:
+                time.sleep(1)
+            else:
+                time.sleep(0.05)
+
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
                 # clean main_db, but wait for scanner to finish.
@@ -1165,8 +1179,8 @@ class OSPDopenvas(OSPDaemon):
 
             self.report_openvas_results(kbdb, scan_id, "")
 
+            res_count = 0
             for scan_db in kbdb.get_scan_databases():
-
                 id_aux = scan_db.get_scan_id()
                 if not id_aux:
                     continue
@@ -1175,7 +1189,12 @@ class OSPDopenvas(OSPDaemon):
                     no_id_found = False
                     current_host = scan_db.get_host_ip()
 
-                    self.report_openvas_results(scan_db, scan_id, current_host)
+                    res_count += self.report_openvas_results(
+                        scan_db, scan_id, current_host
+                    )
+                    if res_count > 0:
+                        got_results = True
+
                     self.report_openvas_scan_status(
                         scan_db, scan_id, current_host
                     )

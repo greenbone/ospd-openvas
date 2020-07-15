@@ -313,12 +313,14 @@ class ScanDBTestCase(TestCase):
         self.db = ScanDB(10, self.ctx)
 
     def test_get_result(self, mock_openvas_db):
-        mock_openvas_db.get_last_list_item.return_value = 'some result'
+        mock_openvas_db.pop_list_items.return_value = [
+            'some result',
+        ]
 
         ret = self.db.get_result()
 
-        self.assertEqual(ret, 'some result')
-        mock_openvas_db.get_last_list_item.assert_called_with(
+        self.assertEqual(ret, ['some result',])
+        mock_openvas_db.pop_list_items.assert_called_with(
             self.ctx, 'internal/results'
         )
 
@@ -424,12 +426,14 @@ class KbDBTestCase(TestCase):
         self.db = KbDB(10, self.ctx)
 
     def test_get_result(self, mock_openvas_db):
-        mock_openvas_db.get_last_list_item.return_value = 'some result'
+        mock_openvas_db.pop_list_items.return_value = [
+            'some results',
+        ]
 
         ret = self.db.get_result()
 
-        self.assertEqual(ret, 'some result')
-        mock_openvas_db.get_last_list_item.assert_called_with(
+        self.assertEqual(ret, ['some results',])
+        mock_openvas_db.pop_list_items.assert_called_with(
             self.ctx, 'internal/results'
         )
 

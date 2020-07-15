@@ -592,12 +592,13 @@ class TestOspdOpenvas(TestCase):
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
 
-        results = ["LOG||| |||general/Host_Details||| |||Host dead", None]
-        mock_db = MockDBClass.return_value
-        mock_db.get_result.side_effect = results
+        results = [
+            "LOG||||||general/Host_Details||||||Host dead",
+        ]
+        MockDBClass.get_result.return_value = results
         mock_add_scan_log_to_list.return_value = None
 
-        w.report_openvas_results(mock_db, '123-456', 'localhost')
+        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
         mock_add_scan_log_to_list.assert_called_with(
             host='localhost',
             hostname='',
@@ -620,12 +621,13 @@ class TestOspdOpenvas(TestCase):
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
 
-        results = ["ERRMSG|||127.0.0.1|||||| |||Host access denied.", None]
-        mock_db = MockDBClass.return_value
-        mock_db.get_result.side_effect = results
+        results = [
+            "ERRMSG|||127.0.0.1|||||||||Host access denied.",
+        ]
+        MockDBClass.get_result.return_value = results
         mock_add_scan_error_to_list.return_value = None
 
-        w.report_openvas_results(mock_db, '123-456', '')
+        w.report_openvas_results(MockDBClass, '123-456', '')
         mock_add_scan_error_to_list.assert_called_with(
             host='127.0.0.1',
             hostname='127.0.0.1',
@@ -643,12 +645,13 @@ class TestOspdOpenvas(TestCase):
         targets = OspRequest.process_target_element(target_element)
         w.create_scan('123-456', targets, None, [])
 
-        results = ["DEADHOST||| ||| ||| |||4", None]
-        mock_db = MockDBClass.return_value
-        mock_db.get_result.side_effect = results
+        results = [
+            "DEADHOST||| ||| ||| |||4",
+        ]
+        MockDBClass.get_result.return_value = results
         w.scan_collection.set_amount_dead_hosts = MagicMock()
 
-        w.report_openvas_results(mock_db, '123-456', 'localhost')
+        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
         w.scan_collection.set_amount_dead_hosts.assert_called_with(
             '123-456', total_dead=4,
         )
@@ -666,11 +669,10 @@ class TestOspdOpenvas(TestCase):
         w.create_scan('123-456', targets, None, [])
         w.scan_collection.scans_table['123-456']['results'] = list()
         results = ["ALARM||| ||| ||| |||some alarm|||path", None]
-        mock_db = MockDBClass.return_value
-        mock_db.get_result.side_effect = results
+        MockDBClass.get_result.return_value = results
         mock_add_scan_alarm_to_list.return_value = None
 
-        w.report_openvas_results(mock_db, '123-456', 'localhost')
+        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
 
         assert_called_once(logging.Logger.warning)
 
