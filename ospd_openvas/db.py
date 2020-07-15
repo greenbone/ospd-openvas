@@ -190,7 +190,14 @@ class OpenvasDB:
         pipe.delete(name)
         results, redis_return_code = pipe.execute()
 
-        return results if redis_return_code else []
+        # The results are left-pushed. To preserver the order
+        # the result list must be reversed.
+        if redis_return_code:
+            results.reverse()
+        else:
+            results = []
+
+        return results
 
     @staticmethod
     def get_key_count(ctx: RedisCtx, pattern: Optional[str] = None) -> int:
@@ -399,6 +406,9 @@ class BaseKbDB(BaseDB):
         """
         return OpenvasDB.get_list_item(self.ctx, name)
 
+    def _pop_list_items(self, name: str) -> List:
+        return OpenvasDB.pop_list_items(self.ctx, name)
+
     def _remove_list_item(self, key: str, value: str):
         """ Remove item from the key list.
 
@@ -413,7 +423,7 @@ class BaseKbDB(BaseDB):
 
         Return the oldest scan results
         """
-        return OpenvasDB.pop_list_items(self.ctx, "internal/results")
+        return self._pop_list_items("internal/results")
 
     def get_status(self, openvas_scan_id: str) -> Optional[str]:
         """ Return the status of the host scan """
@@ -435,42 +445,6 @@ class ScanDB(BaseKbDB):
         OpenvasDB.select_database(self.ctx, kbindex)
         self.index = kbindex
         return self
-
-    def get_scan_id(self):
-        return self._get_single_item('internal/scan_id')
-
-    def get_scan_status(self) -> Optional[str]:
-        """ Get and remove the oldest host scan status from the list.
-
-        Return a string which represents the host scan status.
-        """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/status")
-
-    def get_host_ip(self) -> Optional[str]:
-        """ Get the ip of host_kb.
-
-        Return a string with the ip of the host being scanned.
-        """
-        return self._get_single_item("internal/ip")
-
-    def get_host_scan_start_time(self) -> Optional[str]:
-        """ Get the timestamp of the scan start from redis.
-
-        Return a string with the timestamp of the scan start.
-        """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/start_time")
-
-    def get_host_scan_end_time(self) -> Optional[str]:
-        """ Get the timestamp of the scan end from redis.
-
-        Return a string with the timestamp of scan end .
-        """
-        return OpenvasDB.get_last_list_item(self.ctx, "internal/end_time")
-
-    def host_is_finished(self, openvas_scan_id: str) -> bool:
-        """ Returns true if the scan of the host is finished """
-        status = self.get_status(openvas_scan_id)
-        return status == 'finished'
 
 
 class KbDB(BaseKbDB):
@@ -531,6 +505,13 @@ class KbDB(BaseKbDB):
         """
         status = self._get_single_item('internal/%s' % openvas_scan_id)
         return status == 'stop_all'
+
+    def get_scan_status(self) -> List:
+        """ Get and remove the oldest host scan status from the list.
+
+        Return a string which represents the host scan status.
+        """
+        return self._pop_list_items("internal/status")
 
 
 class MainDB(BaseDB):

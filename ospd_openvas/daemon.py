@@ -46,7 +46,7 @@ from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.db import MainDB, BaseDB, ScanDB
+from ospd_openvas.db import MainDB, BaseDB
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
@@ -796,46 +796,43 @@ class OSPDopenvas(OSPDaemon):
             )
         return has_openvas
 
-    def update_progress(self, scan_id: str, current_host: str, msg: str):
-        """ Calculate percentage and update the scan status of a host
-        for the progress bar.
-        Arguments:
-            scan_id: Scan ID to identify the current scan process.
-            current_host: Host in the target to be updated.
-            msg: String with launched and total plugins.
-        """
-        try:
-            launched, total = msg.split('/')
-        except ValueError:
-            return
-
-        try:
-            if float(total) == 0:
-                return
-            elif float(total) == ScanProgress.DEAD_HOST:
-                host_prog = ScanProgress.DEAD_HOST
-            else:
-                host_prog = int((float(launched) / float(total)) * 100)
-        except TypeError:
-            return
-
-        self.set_scan_host_progress(
-            scan_id, host=current_host, progress=host_prog
-        )
-
-    def report_openvas_scan_status(
-        self, scan_db: ScanDB, scan_id: str, current_host: str
-    ):
+    def report_openvas_scan_status(self, kbdb: BaseDB, scan_id: str):
         """ Get all status entries from redis kb.
 
         Arguments:
             scan_id: Scan ID to identify the current scan.
             current_host: Host to be updated.
         """
-        res = scan_db.get_scan_status()
-        while res:
-            self.update_progress(scan_id, current_host, res)
-            res = scan_db.get_scan_status()
+        all_status = kbdb.get_scan_status()
+        all_hosts = dict()
+        finished_hosts = list()
+        for res in all_status:
+            try:
+                current_host, launched, total = res.split('/')
+            except ValueError:
+                continue
+
+            try:
+                if float(total) == 0:
+                    continue
+                elif float(total) == ScanProgress.DEAD_HOST:
+                    host_prog = ScanProgress.DEAD_HOST
+                else:
+                    host_prog = int((float(launched) / float(total)) * 100)
+            except TypeError:
+                continue
+
+            all_hosts[current_host] = host_prog
+
+            if (
+                host_prog == ScanProgress.DEAD_HOST
+                or host_prog == ScanProgress.FINISHED
+            ):
+                finished_hosts.append(current_host)
+
+        self.set_scan_progress_batch(scan_id, host_progress=all_hosts)
+
+        self.sort_host_finished(scan_id, finished_hosts)
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
         """ Return the severity score for the given oid.
@@ -854,42 +851,50 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def report_openvas_results(
-        self, db: BaseDB, scan_id: str, current_host: str
-    ) -> int:
+    def report_openvas_results(self, db: BaseDB, scan_id: str) -> bool:
         """ Get all result entries from redis kb. """
 
         vthelper = VtHelper(self.nvti)
 
         # Result messages come in the next form, with optional uri field
-        # type ||| hostname ||| port ||| OID ||| value [|||uri]
+        # type ||| host ip ||| hostname ||| port ||| OID ||| value [|||uri]
         all_results = db.get_result()
         res_list = ResultList()
         total_dead = 0
-        total_results = len(all_results)
-
         for res in all_results:
             if not res:
                 continue
 
             msg = res.split('|||')
-            roid = msg[3].strip()
+            roid = msg[4].strip()
             rqod = ''
             rname = ''
-            rhostname = msg[1].strip() if msg[1] else ''
-            host_is_dead = "Host dead" in msg[4] or msg[0] == "DEADHOST"
-            host_deny = "Host access denied" in msg[4]
+            current_host = msg[1].strip() if msg[1] else ''
+            rhostname = msg[2].strip() if msg[2] else ''
+            host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
+            host_deny = "Host access denied" in msg[5]
+            start_end_msg = msg[0] == "HOST_START" or msg[0] == "HOST_END"
             vt_aux = None
 
             # URI is optional and msg list length must be checked
             ruri = ''
-            if len(msg) > 5:
-                ruri = msg[5]
+            if len(msg) > 6:
+                ruri = msg[6]
 
-            if roid and not host_is_dead and not host_deny:
+            if (
+                roid
+                and not host_is_dead
+                and not host_deny
+                and not start_end_msg
+            ):
                 vt_aux = vthelper.get_single_vt(roid)
 
-            if not vt_aux and not host_is_dead and not host_deny:
+            if (
+                not vt_aux
+                and not host_is_dead
+                and not host_deny
+                and not start_end_msg
+            ):
                 logger.warning('Invalid VT oid %s for a result', roid)
 
             if vt_aux:
@@ -902,51 +907,50 @@ class OSPDopenvas(OSPDaemon):
                 rname = vt_aux.get('name')
 
             if msg[0] == 'ERRMSG':
-                # Some errors are generated before a host is scanned
-                # use the hostname passed in the message if
-                # no current host is available.
-                if not current_host and rhostname:
-                    current_host = rhostname
-
                 res_list.add_scan_error_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
-                    port=msg[2],
+                    value=msg[5],
+                    port=msg[3],
                     test_id=roid,
                     uri=ruri,
                 )
 
-            if msg[0] == 'LOG':
+            elif msg[0] == 'HOST_START' or msg[0] == 'HOST_END':
+                res_list.add_scan_log_to_list(
+                    host=current_host, name=msg[0], value=msg[5],
+                )
+
+            elif msg[0] == 'LOG':
                 res_list.add_scan_log_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
-                    port=msg[2],
+                    value=msg[5],
+                    port=msg[3],
                     qod=rqod,
                     test_id=roid,
                     uri=ruri,
                 )
 
-            if msg[0] == 'HOST_DETAIL':
+            elif msg[0] == 'HOST_DETAIL':
                 res_list.add_scan_host_detail_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
+                    value=msg[5],
                     uri=ruri,
                 )
 
-            if msg[0] == 'ALARM':
+            elif msg[0] == 'ALARM':
                 rseverity = self.get_severity_score(vt_aux)
                 res_list.add_scan_alarm_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[4],
-                    port=msg[2],
+                    value=msg[5],
+                    port=msg[3],
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
@@ -955,9 +959,9 @@ class OSPDopenvas(OSPDaemon):
 
             # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
-            if msg[0] == 'DEADHOST':
+            elif msg[0] == 'DEADHOST':
                 try:
-                    total_dead = int(msg[4])
+                    total_dead = int(msg[5])
                 except TypeError:
                     logger.debug('Error processing dead host count')
 
@@ -970,25 +974,7 @@ class OSPDopenvas(OSPDaemon):
                 scan_id, total_dead=total_dead
             )
 
-        return total_results
-
-    def report_openvas_timestamp_scan_host(
-        self, scan_db: ScanDB, scan_id: str, host: str
-    ):
-        """ Get start and end timestamp of a host scan from redis kb. """
-        timestamp = scan_db.get_host_scan_end_time()
-        if timestamp:
-            self.add_scan_log(
-                scan_id, host=host, name='HOST_END', value=timestamp
-            )
-            return
-
-        timestamp = scan_db.get_host_scan_start_time()
-        if timestamp:
-            self.add_scan_log(
-                scan_id, host=host, name='HOST_START', value=timestamp
-            )
-            return
+        return len(res_list) > 0
 
     def is_openvas_process_alive(
         self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str
@@ -1138,7 +1124,6 @@ class OSPDopenvas(OSPDaemon):
 
             time.sleep(1)
 
-        no_id_found = False
         while True:
             if not kbdb.target_is_finished(
                 scan_id
@@ -1177,52 +1162,12 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            self.report_openvas_results(kbdb, scan_id, "")
-
-            res_count = 0
-            for scan_db in kbdb.get_scan_databases():
-                id_aux = scan_db.get_scan_id()
-                if not id_aux:
-                    continue
-
-                if id_aux == openvas_scan_id:
-                    no_id_found = False
-                    current_host = scan_db.get_host_ip()
-
-                    res_count += self.report_openvas_results(
-                        scan_db, scan_id, current_host
-                    )
-                    if res_count > 0:
-                        got_results = True
-
-                    self.report_openvas_scan_status(
-                        scan_db, scan_id, current_host
-                    )
-                    self.report_openvas_timestamp_scan_host(
-                        scan_db, scan_id, current_host
-                    )
-
-                    if scan_db.host_is_finished(openvas_scan_id):
-                        self.report_openvas_scan_status(
-                            scan_db, scan_id, current_host
-                        )
-
-                        self.report_openvas_timestamp_scan_host(
-                            scan_db, scan_id, current_host
-                        )
-                        if current_host:
-                            self.sort_host_finished(
-                                scan_id, finished_hosts=current_host
-                            )
-
-                        kbdb.remove_scan_database(scan_db)
-                        self.main_db.release_database(scan_db)
+            got_results = self.report_openvas_results(kbdb, scan_id)
+            self.report_openvas_scan_status(kbdb, scan_id)
 
             # Scan end. No kb in use for this scan id
-            if no_id_found and kbdb.target_is_finished(scan_id):
+            if kbdb.target_is_finished(scan_id):
                 break
-
-            no_id_found = True
 
         # Delete keys from KB related to this scan task.
         self.main_db.release_database(kbdb)

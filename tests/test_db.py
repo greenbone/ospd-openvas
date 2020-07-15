@@ -196,6 +196,37 @@ class TestOpenvasDB(TestCase):
         with self.assertRaises(RequiredArgument):
             OpenvasDB.set_single_item(ctx, '1', None)
 
+    def test_pop_list_items_no_results(self, mock_redis):
+        ctx = mock_redis.return_value
+        pipeline = ctx.pipeline.return_value
+        pipeline.lrange.return_value = None
+        pipeline.delete.return_value = None
+        pipeline.execute.return_value = (None, 0)
+
+        ret = OpenvasDB.pop_list_items(ctx, 'foo')
+
+        self.assertEqual(ret, [])
+
+        pipeline.lrange.assert_called_once_with('foo', 0, -1)
+        pipeline.delete.assert_called_once_with('foo')
+        assert_called(pipeline.execute)
+
+    def test_pop_list_items_with_results(self, mock_redis):
+        ctx = mock_redis.return_value
+        pipeline = ctx.pipeline.return_value
+        pipeline.lrange.return_value = None
+        pipeline.delete.return_value = None
+        pipeline.execute.return_value = [['c', 'b', 'a'], 2]
+
+        ret = OpenvasDB.pop_list_items(ctx, 'results')
+
+        # reversed list
+        self.assertEqual(ret, ['a', 'b', 'c'])
+
+        pipeline.lrange.assert_called_once_with('results', 0, -1)
+        pipeline.delete.assert_called_once_with('results')
+        assert_called(pipeline.execute)
+
     def test_set_single_item(self, mock_redis):
         ctx = mock_redis.return_value
         pipeline = ctx.pipeline.return_value
@@ -342,76 +373,6 @@ class ScanDBTestCase(TestCase):
 
         mock_openvas_db.select_database.assert_called_with(self.ctx, 11)
 
-    def test_get_scan_id(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = 'foo'
-
-        ret = self.db.get_scan_id()
-
-        self.assertEqual(ret, 'foo')
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/scan_id'
-        )
-
-    def test_get_scan_status(self, mock_openvas_db):
-        mock_openvas_db.get_last_list_item.return_value = 'foo'
-
-        ret = self.db.get_scan_status()
-
-        self.assertEqual(ret, 'foo')
-        mock_openvas_db.get_last_list_item.assert_called_with(
-            self.ctx, 'internal/status'
-        )
-
-    def test_get_host_scan_start_time(self, mock_openvas_db):
-        mock_openvas_db.get_last_list_item.return_value = 'some start time'
-
-        ret = self.db.get_host_scan_start_time()
-
-        self.assertEqual(ret, 'some start time')
-        mock_openvas_db.get_last_list_item.assert_called_with(
-            self.ctx, 'internal/start_time'
-        )
-
-    def test_get_host_scan_end_time(self, mock_openvas_db):
-        mock_openvas_db.get_last_list_item.return_value = 'some end time'
-
-        ret = self.db.get_host_scan_end_time()
-
-        self.assertEqual(ret, 'some end time')
-        mock_openvas_db.get_last_list_item.assert_called_with(
-            self.ctx, 'internal/end_time'
-        )
-
-    def test_get_host_ip(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = '192.168.0.1'
-
-        ret = self.db.get_host_ip()
-
-        self.assertEqual(ret, '192.168.0.1')
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/ip'
-        )
-
-    def test_host_is_finished_false(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = 'foo'
-
-        ret = self.db.host_is_finished('bar')
-
-        self.assertFalse(ret)
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/bar'
-        )
-
-    def test_host_is_finished_true(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.return_value = 'finished'
-
-        ret = self.db.host_is_finished('bar')
-
-        self.assertTrue(ret)
-        mock_openvas_db.get_single_item.assert_called_with(
-            self.ctx, 'internal/bar'
-        )
-
     def test_flush(self, mock_openvas_db):
         self.db.flush()
 
@@ -445,6 +406,21 @@ class KbDBTestCase(TestCase):
         self.assertEqual(ret, 'some status')
         mock_openvas_db.get_single_item.assert_called_with(
             self.ctx, 'internal/foo'
+        )
+
+    def test_get_scan_status(self, mock_openvas_db):
+        status = [
+            '192.168.0.1/10/120',
+            '192.168.0.2/35/120',
+        ]
+
+        mock_openvas_db.pop_list_items.return_value = status
+
+        ret = self.db.get_scan_status()
+
+        self.assertEqual(ret, status)
+        mock_openvas_db.pop_list_items.assert_called_with(
+            self.ctx, 'internal/status'
         )
 
     def test_flush(self, mock_openvas_db):
