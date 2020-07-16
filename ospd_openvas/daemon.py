@@ -1139,6 +1139,7 @@ class OSPDopenvas(OSPDaemon):
             time.sleep(1)
 
         no_id_found = False
+        got_results = False
         while True:
             if not kbdb.target_is_finished(
                 scan_id
@@ -1163,11 +1164,11 @@ class OSPDopenvas(OSPDaemon):
             # Wait a second before trying to get result from redis if there
             # was no results before.
             # Otherwise, wait 50 msec to give access other process to redis.
-            got_results = False
             if not got_results:
                 time.sleep(1)
             else:
                 time.sleep(0.05)
+            got_results = False
 
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
