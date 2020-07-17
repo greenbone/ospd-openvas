@@ -96,13 +96,6 @@ OSPD_PARAMS = {
             + 'wait for when doing a recv()'
         ),
     },
-    'drop_privileges': {
-        'type': 'boolean',
-        'name': 'drop_privileges',
-        'default': 0,
-        'mandatory': 1,
-        'description': '',
-    },
     'non_simult_ports': {
         'type': 'string',
         'name': 'non_simult_ports',
