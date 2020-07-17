@@ -1167,6 +1167,8 @@ class OSPDopenvas(OSPDaemon):
 
             # Scan end. No kb in use for this scan id
             if kbdb.target_is_finished(scan_id):
+                self.report_openvas_results(kbdb, scan_id)
+                self.report_openvas_scan_status(kbdb, scan_id)
                 break
 
         # Delete keys from KB related to this scan task.
