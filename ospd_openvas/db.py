@@ -517,8 +517,8 @@ class KbDB(BaseKbDB):
     def add_credentials_to_scan_preferences(
         self, openvas_scan_id: str, preferences: Iterable
     ):
-        ''' Force the usage of the utf-8 encoding, since some credentials contains specials
-        chars not supported by latin-1 enconding. '''
+        ''' Force the usage of the utf-8 encoding, since some credentials
+        contains specials chars not supported by latin-1 enconding. '''
         self._add_single_item(
             'internal/{}/scanprefs'.format(openvas_scan_id),
             preferences,
