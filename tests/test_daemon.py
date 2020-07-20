@@ -59,17 +59,21 @@ OSPD_PARAMS_OUT = {
         'default': 5,
         'mandatory': 1,
         'visible_for_client': 1,
-        'description': 'Number  of seconds that the security checks will '
-        'wait for when doing a recv()',
+        'description': (
+            'Number  of seconds that the security checks will '
+            + 'wait for when doing a recv()'
+        ),
     },
     'non_simult_ports': {
         'type': 'string',
         'name': 'non_simult_ports',
-        'default': '22',
+        'default': '139, 445, 3389, Services/irc',
         'mandatory': 1,
         'visible_for_client': 1,
-        'description': 'Prevent to make two connections on the same given '
-        'ports at the same time.',
+        'description': (
+            'Prevent to make two connections on the same given '
+            + 'ports at the same time.'
+        ),
     },
     'open_sock_max_attempts': {
         'type': 'integer',
@@ -77,8 +81,10 @@ OSPD_PARAMS_OUT = {
         'default': 5,
         'mandatory': 0,
         'visible_for_client': 1,
-        'description': 'Number of unsuccessful retries to open the socket '
-        'before to set the port as closed.',
+        'description': (
+            'Number of unsuccessful retries to open the socket '
+            + 'before to set the port as closed.'
+        ),
     },
     'timeout_retry': {
         'type': 'integer',
@@ -86,8 +92,9 @@ OSPD_PARAMS_OUT = {
         'default': 5,
         'mandatory': 0,
         'visible_for_client': 1,
-        'description': 'Number of retries when a socket connection attempt '
-        'timesout.',
+        'description': (
+            'Number of retries when a socket connection attempt ' + 'timesout.'
+        ),
     },
     'optimize_test': {
         'type': 'integer',
@@ -95,8 +102,9 @@ OSPD_PARAMS_OUT = {
         'default': 5,
         'mandatory': 0,
         'visible_for_client': 1,
-        'description': 'By default, openvas does not trust the remote '
-        'host banners.',
+        'description': (
+            'By default, openvas does not trust the remote ' + 'host banners.'
+        ),
     },
     'plugins_timeout': {
         'type': 'integer',
@@ -120,8 +128,10 @@ OSPD_PARAMS_OUT = {
         'default': 1,
         'mandatory': 1,
         'visible_for_client': 1,
-        'description': 'Disable the plugins with potential to crash '
-        'the remote services',
+        'description': (
+            'Disable the plugins with potential to crash '
+            + 'the remote services'
+        ),
     },
     'scanner_plugins_timeout': {
         'type': 'integer',
@@ -137,8 +147,10 @@ OSPD_PARAMS_OUT = {
         'default': 0,
         'mandatory': 0,
         'visible_for_client': 1,
-        'description': 'Allow to set a wait time between two actions '
-        '(open, send, close).',
+        'description': (
+            'Allow to set a wait time between two actions '
+            + '(open, send, close).'
+        ),
     },
     'unscanned_closed': {
         'type': 'boolean',
@@ -184,11 +196,11 @@ OSPD_PARAMS_OUT = {
         'mandatory': 0,
         'visible_for_client': 0,
         'description': (
-            'Is maximum number of hosts to test at the same time which'
-            + 'should be given to the client (which can override it).'
-            + 'This value must be computed given  your bandwidth,'
-            + 'the number of hosts you want to test, your amount of'
-            + 'memory and the horsepower of your processor(s).'
+            'The maximum number of hosts to test at the same time which '
+            + 'should be given to the client (which can override it). '
+            + 'This value must be computed given your bandwidth, '
+            + 'the number of hosts you want to test, your amount of '
+            + 'memory and the performance of your processor(s).'
         ),
     },
     'max_checks': {
@@ -198,14 +210,14 @@ OSPD_PARAMS_OUT = {
         'mandatory': 0,
         'visible_for_client': 0,
         'description': (
-            'is the number of plugins that will run against each host being'
-            + ' tested. Note that the total number of process will be max'
-            + ' checks x max_hosts so you need to find a balance between'
-            + ' these two options. Note that launching too many plugins at'
-            + ' the same time may disable the remote host, either temporarily'
-            + ' (ie: inetd closes its ports) or definitely (the remote host'
-            + ' crash because it is asked to do too many things at the'
-            + ' same time), so be careful.'
+            'The number of plugins that will run against each host being '
+            + 'tested. Note that the total number of process will be max '
+            + 'checks x max_hosts so you need to find a balance between '
+            + 'these two options. Note that launching too many plugins at '
+            + 'the same time may disable the remote host, either temporarily '
+            + '(ie: inetd closes its ports) or definitely (the remote host '
+            + 'crash because it is asked to do too many things at the '
+            + 'same time), so be careful.'
         ),
     },
     'port_range': {
@@ -221,7 +233,7 @@ OSPD_PARAMS_OUT = {
             + 'ranges of ports ("1-1500,32000-33000"). Note that you can '
             + 'specify UDP and TCP ports by prefixing each range by T or U. '
             + 'For instance, the following range will make openvas scan UDP '
-            + ' ports 1 to 1024 and TCP ports 1 to 65535 : '
+            + 'ports 1 to 1024 and TCP ports 1 to 65535 : '
             + '"T:1-65535,U:1-1024".'
         ),
     },
@@ -247,7 +259,7 @@ OSPD_PARAMS_OUT = {
         'visible_for_client': 0,
         'description': (
             'Name of the network interface that will be used as the source '
-            + 'of connections established by OpenVAS. The scan won\'t be '
+            + 'of connections established by openvas. The scan won\'t be '
             + 'launched if the value isn\'t authorized according to '
             + '(sys_)ifaces_allow / (sys_)ifaces_deny if present.'
         ),
@@ -309,7 +321,7 @@ class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.Openvas')
     def test_set_params_from_openvas_settings(self, mock_openvas: Openvas):
         mock_openvas.get_settings.return_value = {
-            'non_simult_ports': '22',
+            'non_simult_ports': '139, 445, 3389, Services/irc',
             'plugins_folder': '/foo/bar',
         }
         w = DummyDaemon()

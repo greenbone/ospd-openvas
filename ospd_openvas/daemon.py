@@ -231,11 +231,11 @@ OSPD_PARAMS = {
         'mandatory': 0,
         'visible_for_client': 0,
         'description': (
-            'Is maximum number of hosts to test at the same time which'
-            + 'should be given to the client (which can override it).'
-            + 'This value must be computed given  your bandwidth,'
-            + 'the number of hosts you want to test, your amount of'
-            + 'memory and the horsepower of your processor(s).'
+            'The maximum number of hosts to test at the same time which '
+            + 'should be given to the client (which can override it). '
+            + 'This value must be computed given your bandwidth, '
+            + 'the number of hosts you want to test, your amount of '
+            + 'memory and the performance of your processor(s).'
         ),
     },
     'max_checks': {
@@ -245,14 +245,14 @@ OSPD_PARAMS = {
         'mandatory': 0,
         'visible_for_client': 0,
         'description': (
-            'is the number of plugins that will run against each host being'
-            + ' tested. Note that the total number of process will be max'
-            + ' checks x max_hosts so you need to find a balance between'
-            + ' these two options. Note that launching too many plugins at'
-            + ' the same time may disable the remote host, either temporarily'
-            + ' (ie: inetd closes its ports) or definitely (the remote host'
-            + ' crash because it is asked to do too many things at the'
-            + ' same time), so be careful.'
+            'The number of plugins that will run against each host being '
+            + 'tested. Note that the total number of process will be max '
+            + 'checks x max_hosts so you need to find a balance between '
+            + 'these two options. Note that launching too many plugins at '
+            + 'the same time may disable the remote host, either temporarily '
+            + '(ie: inetd closes its ports) or definitely (the remote host '
+            + 'crash because it is asked to do too many things at the '
+            + 'same time), so be careful.'
         ),
     },
     'port_range': {
@@ -268,7 +268,7 @@ OSPD_PARAMS = {
             + 'ranges of ports ("1-1500,32000-33000"). Note that you can '
             + 'specify UDP and TCP ports by prefixing each range by T or U. '
             + 'For instance, the following range will make openvas scan UDP '
-            + ' ports 1 to 1024 and TCP ports 1 to 65535 : '
+            + 'ports 1 to 1024 and TCP ports 1 to 65535 : '
             + '"T:1-65535,U:1-1024".'
         ),
     },
@@ -294,7 +294,7 @@ OSPD_PARAMS = {
         'visible_for_client': 0,
         'description': (
             'Name of the network interface that will be used as the source '
-            + 'of connections established by OpenVAS. The scan won\'t be '
+            + 'of connections established by openvas. The scan won\'t be '
             + 'launched if the value isn\'t authorized according to '
             + '(sys_)ifaces_allow / (sys_)ifaces_deny if present.'
         ),
