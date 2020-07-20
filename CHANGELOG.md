@@ -27,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#288](https://github.com/greenbone/ospd/pull/288)
   [#289](https://github.com/greenbone/ospd/pull/289)
 - Extend get_vts with attribute version_only and return the version [#291](https://github.com/greenbone/ospd/pull/291)
+- Allow to set all openvas parameters which are not strict openvas only parameters via osp. [#301](https://github.com/greenbone/ospd/pull/301)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)
