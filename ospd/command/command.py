@@ -253,9 +253,20 @@ class GetScannerDetails(BaseCommand):
 
         @return: Response string for <get_scanner_details> command.
         """
+        list_all = xml.get('list_all')
+        list_all = True if list_all == '1' else False
+
         desc_xml = Element('description')
         desc_xml.text = self._daemon.get_scanner_description()
         scanner_params = self._daemon.get_scanner_params()
+
+        if not list_all:
+            scanner_params = {
+                key: value
+                for (key, value) in scanner_params.items()
+                if value.get('visible_for_client') is 1
+            }
+
         details = [
             desc_xml,
             OspResponse.create_scanner_params_xml(scanner_params),
