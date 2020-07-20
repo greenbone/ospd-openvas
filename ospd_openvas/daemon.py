@@ -373,10 +373,16 @@ class OSPDopenvas(OSPDaemon):
         feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
         if not feed_info_file.exists():
             self.set_params_from_openvas_settings()
-            logger.debug('Plugins feed file %s not found.', feed_info_file)
+            logger.warning('Plugins feed file %s not found.', feed_info_file)
             return None
 
         current_feed = safe_int(current_feed)
+        if current_feed is None:
+            logger.warning(
+                "Wrong PLUGIN_SET format in plugins feed file %s. Format has to"
+                " be yyyymmddhhmm. For example 'PLUGIN_SET = \"201910251033\"'",
+                feed_info_file,
+            )
 
         feed_date = None
         with feed_info_file.open() as fcontent:
