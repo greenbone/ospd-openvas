@@ -86,7 +86,7 @@ class OpenvasDB:
 
         Arguments:
             dbnum: The db number to connect to.
-            encoding: The enconding to be used to read and write.
+            encoding: The encoding to be used to read and write.
 
         Return a new redis context on success.
         """
@@ -374,7 +374,7 @@ class BaseKbDB(BaseDB):
     def _add_single_item(
         self, name: str, values: Iterable, utf8_enc: Optional[bool] = False
     ):
-        ''' Changing the encoding format of an existent redis context
+        ''' Changing the encoding format of an existing redis context
         is not possible. Therefore a new temporary redis context is
         created to store key-values encoded with utf-8.'''
         if utf8_enc:
@@ -518,7 +518,7 @@ class KbDB(BaseKbDB):
         self, openvas_scan_id: str, preferences: Iterable
     ):
         ''' Force the usage of the utf-8 encoding, since some credentials
-        contains specials chars not supported by latin-1 enconding. '''
+        contain special chars not supported by latin-1 encoding. '''
         self._add_single_item(
             'internal/{}/scanprefs'.format(openvas_scan_id),
             preferences,
