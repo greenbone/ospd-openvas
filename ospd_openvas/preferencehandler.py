@@ -500,6 +500,10 @@ class PreferenceHandler:
                 val = _from_bool_to_str(value)
             else:
                 val = str(value)
+            # Do not add options which only have the empty string as value.
+            # We may run into problems on openvas side otherwise.
+            if val == '':
+                continue
             prefs_val.append(key + "|||" + val)
 
         self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
