@@ -484,6 +484,25 @@ class KbDBTestCase(TestCase):
             self.ctx, 'internal/foo/scanprefs', prefs
         )
 
+    @patch('ospd_openvas.db.OpenvasDB')
+    def test_add_credentials_to_scan_preferences(
+        self, mock_redis, mock_openvas_db
+    ):
+        prefs = ['foo', 'bar']
+
+        ctx = mock_redis.return_value
+        mock_openvas_db.create_context.return_value = ctx
+
+        self.db.add_credentials_to_scan_preferences('scan_id', prefs)
+
+        mock_openvas_db.create_context.assert_called_with(
+            self.db.index, encoding='utf-8'
+        )
+
+        mock_openvas_db.add_single_item.assert_called_with(
+            ctx, 'internal/scan_id/scanprefs', prefs
+        )
+
     def test_add_scan_process_id(self, mock_openvas_db):
         self.db.add_scan_process_id(123)
 

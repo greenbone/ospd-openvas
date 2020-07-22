@@ -628,7 +628,7 @@ class PreferenceHandler:
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
-                self.kbdb.add_scan_preferences(
+                self.kbdb.add_credentials_to_scan_preferences(
                     self._openvas_scan_id, cred_prefs
                 )
 
