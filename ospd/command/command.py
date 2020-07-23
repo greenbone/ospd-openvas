@@ -264,7 +264,7 @@ class GetScannerDetails(BaseCommand):
             scanner_params = {
                 key: value
                 for (key, value) in scanner_params.items()
-                if value.get('visible_for_client') is 1
+                if value.get('visible_for_client')
             }
 
         details = [
