@@ -143,7 +143,9 @@ def main(
     signal.signal(
         signal.SIGTERM, partial(exit_cleanup, args.pid_file, server, daemon)
     )
-
+    signal.signal(
+        signal.SIGINT, partial(exit_cleanup, args.pid_file, server, daemon)
+    )
     if not daemon.check():
         return 1
 
