@@ -440,6 +440,25 @@ class OSPDaemon:
         """ Perform a cleanup before exiting """
         self.scan_collection.clean_up_pickled_scan_info()
 
+        for scan_id in self.scan_collection.ids_iterator():
+            self.stop_scan(scan_id)
+
+        while True:
+            all_stopped = True
+            for scan_id in self.scan_collection.ids_iterator():
+                status = self.get_scan_status(scan_id)
+                if (
+                    status != ScanStatus.STOPPED
+                    or status != ScanStatus.FINISHED
+                    or status != ScanStatus.INTERRUPTED
+                ):
+                    all_stopped = False
+
+            if all_stopped:
+                return
+
+            time.sleep(1)
+
     def get_daemon_name(self) -> str:
         """ Gives osp daemon's name. """
         return self.daemon_info['name']

@@ -77,6 +77,7 @@ def exit_cleanup(
 
     with pidpath.open() as f:
         if int(f.read()) == os.getpid():
+            LOGGER.debug("Performing exit clean up")
             daemon.daemon_exit_cleanup()
             LOGGER.info("Shutting-down server ...")
             server.close()
