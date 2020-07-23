@@ -72,13 +72,12 @@ def exit_cleanup(
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     pidpath = Path(pidfile)
 
-    daemon.daemon_exit_cleanup()
-
     if not pidpath.is_file():
         return
 
     with pidpath.open() as f:
         if int(f.read()) == os.getpid():
+            daemon.daemon_exit_cleanup()
             LOGGER.info("Shutting-down server ...")
             server.close()
             LOGGER.debug("Finishing daemon process")
@@ -144,7 +143,9 @@ def main(
     signal.signal(
         signal.SIGTERM, partial(exit_cleanup, args.pid_file, server, daemon)
     )
-
+    signal.signal(
+        signal.SIGINT, partial(exit_cleanup, args.pid_file, server, daemon)
+    )
     if not daemon.check():
         return 1
 
