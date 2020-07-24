@@ -231,7 +231,10 @@ class ScanCollection:
     def ids_iterator(self) -> Iterator[str]:
         """ Returns an iterator over the collection's scan IDS. """
 
-        return iter(self.scans_table.keys())
+        # Do not iterate over the scans_table because it can change
+        # during iteration, since it is accessed by multiple processes.
+        scan_id_list = list(self.scans_table)
+        return iter(scan_id_list)
 
     def clean_up_pickled_scan_info(self) -> None:
         """ Remove files of pickled scan info """
