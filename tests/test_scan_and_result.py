@@ -1309,3 +1309,11 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(self.daemon.get_count_queued_scans(), 1)
         self.daemon.start_queued_scans()
         self.assertEqual(self.daemon.get_count_queued_scans(), 0)
+
+    def test_ids_iterator_dict_modified(self):
+        self.daemon.scan_collection.scans_table = {'a': 1, 'b': 2}
+
+        for _ in self.daemon.scan_collection.ids_iterator():
+            self.daemon.scan_collection.scans_table['c'] = 3
+
+        self.assertEqual(len(self.daemon.scan_collection.scans_table), 3)
