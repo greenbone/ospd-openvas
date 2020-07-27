@@ -55,6 +55,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix scan progress in which all hosts are dead or excluded. [#295](https://github.com/greenbone/ospd/pull/295)
 - Stop all running scans before exiting [#303](https://github.com/greenbone/ospd/pull/303)
 - Fix start of parallel queued task. [#304](https://github.com/greenbone/ospd/pull/304)
+- Strip trailing commas from the target list. [#306](https://github.com/greenbone/ospd/pull/306)
 
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
