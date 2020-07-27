@@ -490,7 +490,7 @@ class PreferenceHandler:
                 item_type = ospd_params[key].get('type')
             else:
                 if key not in BASE_SCANNER_PARAMS:
-                    logger.warning(
+                    logger.debug(
                         "%s is a scanner only setting and should not be set "
                         "by the client. Setting needs to be included in "
                         "OpenVAS configuration file instead.",
