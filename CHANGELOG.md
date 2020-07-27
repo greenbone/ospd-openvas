@@ -53,6 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
 - Fix thread lib leak using daemon mode for python 3.7. [#272](https://github.com/greenbone/ospd/pull/272)
 - Fix scan progress in which all hosts are dead or excluded. [#295](https://github.com/greenbone/ospd/pull/295)
+- Stop all running scans before exiting [#303](https://github.com/greenbone/ospd/pull/303)
 - Fix start of parallel queued task. [#304](https://github.com/greenbone/ospd/pull/304)
 
 ### Removed
