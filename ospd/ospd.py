@@ -440,8 +440,15 @@ class OSPDaemon:
         """ Perform a cleanup before exiting """
         self.scan_collection.clean_up_pickled_scan_info()
 
+        # Stop scans which are not already stopped.
         for scan_id in self.scan_collection.ids_iterator():
-            self.stop_scan(scan_id)
+            status = self.get_scan_status(scan_id)
+            if (
+                status != ScanStatus.STOPPED
+                and status != ScanStatus.FINISHED
+                and status != ScanStatus.INTERRUPTED
+            ):
+                self.stop_scan(scan_id)
 
         while True:
             all_stopped = True
