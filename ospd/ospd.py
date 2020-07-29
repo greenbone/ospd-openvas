@@ -450,14 +450,15 @@ class OSPDaemon:
             ):
                 self.stop_scan(scan_id)
 
+        # Wait for scans to be in some stopped state.
         while True:
             all_stopped = True
             for scan_id in self.scan_collection.ids_iterator():
                 status = self.get_scan_status(scan_id)
                 if (
                     status != ScanStatus.STOPPED
-                    or status != ScanStatus.FINISHED
-                    or status != ScanStatus.INTERRUPTED
+                    and status != ScanStatus.FINISHED
+                    and status != ScanStatus.INTERRUPTED
                 ):
                     all_stopped = False
 
