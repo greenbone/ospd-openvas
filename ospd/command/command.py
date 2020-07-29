@@ -551,6 +551,7 @@ class StartScan(BaseCommand):
         if scanner_params is None:
             raise OspdCommandError('No scanner_params element', 'start_scan')
 
+        # params are the parameters we got from the <scanner_params> XML.
         params = self._daemon.preprocess_scan_params(scanner_params)
 
         # VTS is an optional element. If present should not be empty.
