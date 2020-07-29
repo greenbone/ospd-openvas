@@ -46,7 +46,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make scan_id attribute mandatory for get_scans. [#270](https://github.com/greenbone/ospd/pull/270)
 - Ignore subsequent SIGINT once inside exit_cleanup(). [#273](https://github.com/greenbone/ospd/pull/273)
 - Simplify start_scan() [#275](https://github.com/greenbone/ospd/pull/275)
-- Make ospd-openvas to shut down gracefully  [#302](https://github.com/greenbone/ospd/pull/302)
+- Make ospd-openvas to shut down gracefully
+  [#302](https://github.com/greenbone/ospd/pull/302)
+  [#307](https://github.com/greenbone/ospd/pull/307)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
