@@ -475,8 +475,9 @@ class OSPDopenvas(OSPDaemon):
             current_feed = self.nvti.get_feed_version()
             self.set_vts_version(vts_version=current_feed)
 
-        vthelper = VtHelper(self.nvti)
-        self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
+            logger.debug("Calculating vts integrity check hash...")
+            vthelper = VtHelper(self.nvti)
+            self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
 
         self.initialized = True
 
