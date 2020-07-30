@@ -481,6 +481,7 @@ class PreferenceHandler:
         Arguments:
             ospd_params: Dictionary with the OSPD Params.
         """
+        # Options which were supplied via the <scanner_params> XML element.
         options = self.scan_collection.get_options(self.scan_id)
         prefs_val = []
 
@@ -500,13 +501,10 @@ class PreferenceHandler:
                 val = _from_bool_to_str(value)
             else:
                 val = str(value)
-            # Do not add options which only have the empty string as value.
-            # We may run into problems on openvas side otherwise.
-            if val == '':
-                continue
             prefs_val.append(key + "|||" + val)
 
-        self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
+        if prefs_val:
+            self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
 
     @staticmethod
     def build_credentials_as_prefs(credentials: Dict) -> List[str]:
