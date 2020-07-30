@@ -286,7 +286,14 @@ class ScanCollection:
         options: Optional[Dict] = None,
         vts: Dict = None,
     ) -> str:
-        """ Creates a new scan with provided scan information. """
+        """ Creates a new scan with provided scan information.
+
+        @target: Target to scan.
+        @options: Miscellaneous scan options supplied via <scanner_params>
+                  XML element.
+
+        @return: Scan's ID. None if error occurs.
+        """
 
         if not options:
             options = dict()

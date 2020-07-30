@@ -49,6 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make ospd-openvas to shut down gracefully
   [#302](https://github.com/greenbone/ospd/pull/302)
   [#307](https://github.com/greenbone/ospd/pull/307)
+- Do not add all params which are in the OSPD_PARAMS dict to the params which are set as scan preferences. [#305](https://github.com/greenbone/ospd/pull/305)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)

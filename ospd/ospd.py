@@ -299,13 +299,6 @@ class OSPDaemon:
         for param in xml_params:
             params[param.tag] = param.text or ''
 
-        # Set default values.
-        for key in self.scanner_params:
-            if key not in params:
-                params[key] = self.get_scanner_param_default(key)
-                if self.get_scanner_param_type(key) == 'selection':
-                    params[key] = params[key].split('|')[0]
-
         # Validate values.
         for key in params:
             param_type = self.get_scanner_param_type(key)
@@ -1364,7 +1357,8 @@ class OSPDaemon:
         """ Creates a new scan.
 
         @target: Target to scan.
-        @options: Miscellaneous scan options.
+        @options: Miscellaneous scan options supplied via <scanner_params>
+                  XML element.
 
         @return: New scan's ID. None if the scan_id already exists.
         """
