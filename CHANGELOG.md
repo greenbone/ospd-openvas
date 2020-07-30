@@ -43,7 +43,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Host progress is stored as integer. [#256](https://github.com/greenbone/ospd-openvas/pull/256)
 - Use flock for the feed lock file. [#257](https://github.com/greenbone/ospd-openvas/pull/257)
 - Improvements for fetching results from redis. [#282](https://github.com/greenbone/ospd-openvas/pull/282)
-- Add RW permission to the group on the feed lock file. [#300](https://github.com/greenbone/ospd-openvas/pull/300)
+- Add RW permission to the group on the feed lock file.
+  [#300](https://github.com/greenbone/ospd-openvas/pull/300)
+  [#301](https://github.com/greenbone/ospd-openvas/pull/301)
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
