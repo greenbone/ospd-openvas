@@ -135,12 +135,20 @@ OSPD_PARAMS = {
         ),
     },
     'optimize_test': {
-        'type': 'integer',
+        'type': 'boolean',
         'name': 'optimize_test',
-        'default': 5,
+        'default': 1,
         'mandatory': 0,
         'description': (
-            'By default, openvas does not trust the remote ' + 'host banners.'
+            'By default, optimize_test is enabled which means openvas does '
+            + 'trust the remote host banners and is only launching plugins '
+            + 'against the services they have been designed to check. '
+            + 'For example it will check a web server claiming to be IIS only '
+            + 'for IIS related flaws but will skip plugins testing for Apache '
+            + 'flaws, and so on. This default behavior is used to optimize '
+            + 'the scanning performance and to avoid false positives. '
+            + 'If you are not sure that the banners of the remote host '
+            + 'have been tampered with, you can disable this option.'
         ),
     },
     'plugins_timeout': {
