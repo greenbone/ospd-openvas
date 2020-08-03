@@ -481,6 +481,7 @@ class PreferenceHandler:
         Arguments:
             ospd_params: Dictionary with the OSPD Params.
         """
+        # Options which were supplied via the <scanner_params> XML element.
         options = self.scan_collection.get_options(self.scan_id)
         prefs_val = []
 
@@ -490,7 +491,7 @@ class PreferenceHandler:
                 item_type = ospd_params[key].get('type')
             else:
                 if key not in BASE_SCANNER_PARAMS:
-                    logger.warning(
+                    logger.debug(
                         "%s is a scanner only setting and should not be set "
                         "by the client. Setting needs to be included in "
                         "OpenVAS configuration file instead.",
@@ -502,7 +503,8 @@ class PreferenceHandler:
                 val = str(value)
             prefs_val.append(key + "|||" + val)
 
-        self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
+        if prefs_val:
+            self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
 
     @staticmethod
     def build_credentials_as_prefs(credentials: Dict) -> List[str]:
@@ -628,7 +630,7 @@ class PreferenceHandler:
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
-                self.kbdb.add_scan_preferences(
+                self.kbdb.add_credentials_to_scan_preferences(
                     self._openvas_scan_id, cred_prefs
                 )
 

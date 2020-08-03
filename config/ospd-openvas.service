@@ -1,6 +1,8 @@
 [Unit]
 Description=OSPD OpenVAS
+Documentation=man:ospd-openvas(8) man:openvas(8)
 After=network.target networking.service dnsmasq.service redis-server@openvas.service systemd-tmpfiles.service
+Wants=redis-server@openvas.service
 ConditionKernelCommandLine=!recovery
 
 [Service]
