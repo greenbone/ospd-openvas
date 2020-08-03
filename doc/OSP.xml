@@ -772,7 +772,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <command>
     <name>get_scanner_details</name>
     <summary>Return scanner description and parameters</summary>
-    <pattern/>
+    <pattern>
+      <attrib>
+        <name>list_all</name>
+        <summary>List all available scanner parameters. Not only those visible to the client.</summary>
+        <type>boolean</type>
+      </attrib>
+    </pattern>
     <response>
       <pattern>
         <attrib>

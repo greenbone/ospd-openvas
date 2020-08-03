@@ -253,9 +253,20 @@ class GetScannerDetails(BaseCommand):
 
         @return: Response string for <get_scanner_details> command.
         """
+        list_all = xml.get('list_all')
+        list_all = True if list_all == '1' else False
+
         desc_xml = Element('description')
         desc_xml.text = self._daemon.get_scanner_description()
         scanner_params = self._daemon.get_scanner_params()
+
+        if not list_all:
+            scanner_params = {
+                key: value
+                for (key, value) in scanner_params.items()
+                if value.get('visible_for_client')
+            }
+
         details = [
             desc_xml,
             OspResponse.create_scanner_params_xml(scanner_params),
@@ -540,6 +551,7 @@ class StartScan(BaseCommand):
         if scanner_params is None:
             raise OspdCommandError('No scanner_params element', 'start_scan')
 
+        # params are the parameters we got from the <scanner_params> XML.
         params = self._daemon.preprocess_scan_params(scanner_params)
 
         # VTS is an optional element. If present should not be empty.
