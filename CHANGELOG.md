@@ -28,6 +28,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   managing the version information in ospd-openvas [#238](https://github.com/greenbone/ospd-openvas/pull/238)
 - Pass store directory to OSPDaemon init [#266](https://github.com/greenbone/ospd-openvas/pull/266)
 - Add URI field to results for file path or webservice URL [#271](https://github.com/greenbone/ospd-openvas/pull/271)
+- Add element to OSPD_PARAMS entries to indicate visibility for client. [#293](https://github.com/greenbone/ospd-openvas/pull/293)
 
 ### Changed
 - Less strict checks for the nvti cache version
@@ -48,12 +49,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Host progress is stored as integer. [#256](https://github.com/greenbone/ospd-openvas/pull/256)
 - Use flock for the feed lock file. [#257](https://github.com/greenbone/ospd-openvas/pull/257)
 - Improvements for fetching results from redis. [#282](https://github.com/greenbone/ospd-openvas/pull/282)
+- Add RW permission to the group on the feed lock file.
+  [#300](https://github.com/greenbone/ospd-openvas/pull/300)
+  [#301](https://github.com/greenbone/ospd-openvas/pull/301)
 
 ### Fixed
 - Check vt_aux for None before trying to access it. [#177](https://github.com/greenbone/ospd-openvas/pull/177)
 - Fix snmp credentials. [#186](https://github.com/greenbone/ospd-openvas/pull/186)
 - Escape script name before adding the result in an xml entity. [#188](https://github.com/greenbone/ospd-openvas/pull/188)
 - Fix handling of denied hosts. [#263](https://github.com/greenbone/ospd-openvas/pull/263)
+- Fix handling of special chars in credentials. [#294](https://github.com/greenbone/ospd-openvas/pull/294)
+- Fix type and default value of optimize_test preference. [#302](https://github.com/greenbone/ospd-openvas/pull/302)
 
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#184](https://github.com/greenbone/ospd-openvas/pull/184)

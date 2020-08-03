@@ -46,7 +46,11 @@ class LockFile:
             parent_dir = self._lock_file_path.parent
             parent_dir.mkdir(parents=True, exist_ok=True)
 
-            self._fd = self._lock_file_path.open('w')
+            # Open the fd with append flag to create the file
+            # if not exists and to avoid deleting the content
+            # something else wrote in it.
+            self._fd = self._lock_file_path.open('a')
+            self._lock_file_path.chmod(0o660)
         except Exception as e:  # pylint: disable=broad-except
             logger.error(
                 "Failed to create lock file %s. %s",
