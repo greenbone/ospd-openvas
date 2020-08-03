@@ -42,7 +42,7 @@ OSPD_PARAMS_OUT = {
         'name': 'auto_enable_dependencies',
         'default': 1,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': 'Automatically enable the plugins that are depended on',
     },
     'cgi_path': {
@@ -50,7 +50,7 @@ OSPD_PARAMS_OUT = {
         'name': 'cgi_path',
         'default': '/cgi-bin:/scripts',
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': 'Look for default CGIs in /cgi-bin and /scripts',
     },
     'checks_read_timeout': {
@@ -58,7 +58,7 @@ OSPD_PARAMS_OUT = {
         'name': 'checks_read_timeout',
         'default': 5,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
             'Number  of seconds that the security checks will '
             + 'wait for when doing a recv()'
@@ -69,7 +69,7 @@ OSPD_PARAMS_OUT = {
         'name': 'non_simult_ports',
         'default': '139, 445, 3389, Services/irc',
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
             'Prevent to make two connections on the same given '
             + 'ports at the same time.'
@@ -80,7 +80,7 @@ OSPD_PARAMS_OUT = {
         'name': 'open_sock_max_attempts',
         'default': 5,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
             'Number of unsuccessful retries to open the socket '
             + 'before to set the port as closed.'
@@ -91,19 +91,27 @@ OSPD_PARAMS_OUT = {
         'name': 'timeout_retry',
         'default': 5,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
             'Number of retries when a socket connection attempt ' + 'timesout.'
         ),
     },
     'optimize_test': {
-        'type': 'integer',
+        'type': 'boolean',
         'name': 'optimize_test',
-        'default': 5,
+        'default': 1,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
-            'By default, openvas does not trust the remote ' + 'host banners.'
+            'By default, optimize_test is enabled which means openvas does '
+            + 'trust the remote host banners and is only launching plugins '
+            + 'against the services they have been designed to check. '
+            + 'For example it will check a web server claiming to be IIS only '
+            + 'for IIS related flaws but will skip plugins testing for Apache '
+            + 'flaws, and so on. This default behavior is used to optimize '
+            + 'the scanning performance and to avoid false positives. '
+            + 'If you are not sure that the banners of the remote host '
+            + 'have been tampered with, you can disable this option.'
         ),
     },
     'plugins_timeout': {
@@ -111,7 +119,7 @@ OSPD_PARAMS_OUT = {
         'name': 'plugins_timeout',
         'default': 5,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': 'This is the maximum lifetime, in seconds of a plugin.',
     },
     'report_host_details': {
@@ -119,7 +127,7 @@ OSPD_PARAMS_OUT = {
         'name': 'report_host_details',
         'default': 1,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': '',
     },
     'safe_checks': {
@@ -127,7 +135,7 @@ OSPD_PARAMS_OUT = {
         'name': 'safe_checks',
         'default': 1,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
             'Disable the plugins with potential to crash '
             + 'the remote services'
@@ -138,7 +146,7 @@ OSPD_PARAMS_OUT = {
         'name': 'scanner_plugins_timeout',
         'default': 36000,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': 'Like plugins_timeout, but for ACT_SCANNER plugins.',
     },
     'time_between_request': {
@@ -146,7 +154,7 @@ OSPD_PARAMS_OUT = {
         'name': 'time_between_request',
         'default': 0,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': (
             'Allow to set a wait time between two actions '
             + '(open, send, close).'
@@ -157,7 +165,7 @@ OSPD_PARAMS_OUT = {
         'name': 'unscanned_closed',
         'default': 1,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': '',
     },
     'unscanned_closed_udp': {
@@ -165,7 +173,7 @@ OSPD_PARAMS_OUT = {
         'name': 'unscanned_closed_udp',
         'default': 1,
         'mandatory': 1,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': '',
     },
     'expand_vhosts': {
@@ -173,7 +181,7 @@ OSPD_PARAMS_OUT = {
         'name': 'expand_vhosts',
         'default': 1,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': 'Whether to expand the target hosts '
         + 'list of vhosts with values gathered from sources '
         + 'such as reverse-lookup queries and VT checks '
@@ -184,7 +192,7 @@ OSPD_PARAMS_OUT = {
         'name': 'test_empty_vhost',
         'default': 0,
         'mandatory': 0,
-        'visible_for_client': 1,
+        'visible_for_client': True,
         'description': 'If  set  to  yes, the scanner will '
         + 'also test the target by using empty vhost value '
         + 'in addition to the targets associated vhost values.',
@@ -194,7 +202,7 @@ OSPD_PARAMS_OUT = {
         'name': 'max_hosts',
         'default': 30,
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'The maximum number of hosts to test at the same time which '
             + 'should be given to the client (which can override it). '
@@ -208,7 +216,7 @@ OSPD_PARAMS_OUT = {
         'name': 'max_checks',
         'default': 10,
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'The number of plugins that will run against each host being '
             + 'tested. Note that the total number of process will be max '
@@ -225,7 +233,7 @@ OSPD_PARAMS_OUT = {
         'name': 'port_range',
         'default': '',
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'This is the default range of ports that the scanner plugins will '
             + 'probe. The syntax of this option is flexible, it can be a '
@@ -242,7 +250,7 @@ OSPD_PARAMS_OUT = {
         'name': 'test_alive_hosts_only',
         'default': 0,
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'If this option is set, openvas will scan the target list for '
             + 'alive hosts in a separate process while only testing those '
@@ -256,7 +264,7 @@ OSPD_PARAMS_OUT = {
         'name': 'source_iface',
         'default': '',
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'Name of the network interface that will be used as the source '
             + 'of connections established by openvas. The scan won\'t be '
@@ -269,7 +277,7 @@ OSPD_PARAMS_OUT = {
         'name': 'ifaces_allow',
         'default': '',
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'Comma-separated list of interfaces names that are authorized '
             + 'as source_iface values.'
@@ -280,7 +288,7 @@ OSPD_PARAMS_OUT = {
         'name': 'ifaces_deny',
         'default': '',
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'Comma-separated list of interfaces names that are not '
             + 'authorized as source_iface values.'
@@ -291,7 +299,7 @@ OSPD_PARAMS_OUT = {
         'name': 'hosts_allow',
         'default': '',
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'Comma-separated list of the only targets that are authorized '
             + 'to be scanned. Supports the same syntax as the list targets. '
@@ -305,7 +313,7 @@ OSPD_PARAMS_OUT = {
         'name': 'hosts_deny',
         'default': '',
         'mandatory': 0,
-        'visible_for_client': 0,
+        'visible_for_client': False,
         'description': (
             'Comma-separated list of targets that are not authorized to '
             + 'be scanned. Supports the same syntax as the list targets. '
