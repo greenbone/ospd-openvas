@@ -29,6 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#288](https://github.com/greenbone/ospd/pull/288)
   [#289](https://github.com/greenbone/ospd/pull/289)
 - Extend get_vts with attribute version_only and return the version [#291](https://github.com/greenbone/ospd/pull/291)
+- Allow to set all openvas parameters which are not strict openvas only parameters via osp. [#301](https://github.com/greenbone/ospd/pull/301)
 
 ### Changes
 - Modify __init__() method and use new syntax for super(). [#186](https://github.com/greenbone/ospd/pull/186)
@@ -47,12 +48,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Make scan_id attribute mandatory for get_scans. [#270](https://github.com/greenbone/ospd/pull/270)
 - Ignore subsequent SIGINT once inside exit_cleanup(). [#273](https://github.com/greenbone/ospd/pull/273)
 - Simplify start_scan() [#275](https://github.com/greenbone/ospd/pull/275)
+- Make ospd-openvas to shut down gracefully
+  [#302](https://github.com/greenbone/ospd/pull/302)
+  [#307](https://github.com/greenbone/ospd/pull/307)
+- Do not add all params which are in the OSPD_PARAMS dict to the params which are set as scan preferences. [#305](https://github.com/greenbone/ospd/pull/305)
 
 ### Fixed
 - Fix stop scan. Wait for the scan process to be stopped before delete it from the process table. [#204](https://github.com/greenbone/ospd/pull/204)
 - Fix get_scanner_details(). [#210](https://github.com/greenbone/ospd/pull/210)
 - Fix thread lib leak using daemon mode for python 3.7. [#272](https://github.com/greenbone/ospd/pull/272)
 - Fix scan progress in which all hosts are dead or excluded. [#295](https://github.com/greenbone/ospd/pull/295)
+- Stop all running scans before exiting [#303](https://github.com/greenbone/ospd/pull/303)
+- Fix start of parallel queued task. [#304](https://github.com/greenbone/ospd/pull/304)
+- Strip trailing commas from the target list. [#306](https://github.com/greenbone/ospd/pull/306)
 
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)

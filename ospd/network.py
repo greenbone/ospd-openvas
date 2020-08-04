@@ -279,8 +279,9 @@ def target_str_to_list(target_str: str) -> Optional[List]:
     if not target_str:
         return None
 
-    for target in target_str.split(','):
+    target_str = target_str.strip(',')
 
+    for target in target_str.split(','):
         target = target.strip()
         target_list = target_to_list(target)
 

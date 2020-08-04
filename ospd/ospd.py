@@ -299,13 +299,6 @@ class OSPDaemon:
         for param in xml_params:
             params[param.tag] = param.text or ''
 
-        # Set default values.
-        for key in self.scanner_params:
-            if key not in params:
-                params[key] = self.get_scanner_param_default(key)
-                if self.get_scanner_param_type(key) == 'selection':
-                    params[key] = params[key].split('|')[0]
-
         # Validate values.
         for key in params:
             param_type = self.get_scanner_param_type(key)
@@ -390,7 +383,9 @@ class OSPDaemon:
 
         self.set_scan_status(scan_id, ScanStatus.STOPPED)
 
-        logger.info('%s: Scan stopping %s.', scan_id, scan_process.ident)
+        logger.info(
+            '%s: Stopping Scan with the PID %s.', scan_id, scan_process.ident
+        )
 
         self.stop_scan_cleanup(scan_id)
 
@@ -403,7 +398,9 @@ class OSPDaemon:
             _terminate_process_group(scan_process)
         except ProcessLookupError:
             logger.info(
-                '%s: Scan already stopped %s.', scan_id, scan_process.pid
+                '%s: Scan with the PID %s is already stopped.',
+                scan_id,
+                scan_process.pid,
             )
 
         if scan_process.ident != os.getpid():
@@ -439,6 +436,33 @@ class OSPDaemon:
     def daemon_exit_cleanup(self) -> None:
         """ Perform a cleanup before exiting """
         self.scan_collection.clean_up_pickled_scan_info()
+
+        # Stop scans which are not already stopped.
+        for scan_id in self.scan_collection.ids_iterator():
+            status = self.get_scan_status(scan_id)
+            if (
+                status != ScanStatus.STOPPED
+                and status != ScanStatus.FINISHED
+                and status != ScanStatus.INTERRUPTED
+            ):
+                self.stop_scan(scan_id)
+
+        # Wait for scans to be in some stopped state.
+        while True:
+            all_stopped = True
+            for scan_id in self.scan_collection.ids_iterator():
+                status = self.get_scan_status(scan_id)
+                if (
+                    status != ScanStatus.STOPPED
+                    and status != ScanStatus.FINISHED
+                    and status != ScanStatus.INTERRUPTED
+                ):
+                    all_stopped = False
+
+            if all_stopped:
+                return
+
+            time.sleep(1)
 
     def get_daemon_name(self) -> str:
         """ Gives osp daemon's name. """
@@ -1337,7 +1361,8 @@ class OSPDaemon:
         """ Creates a new scan.
 
         @target: Target to scan.
-        @options: Miscellaneous scan options.
+        @options: Miscellaneous scan options supplied via <scanner_params>
+                  XML element.
 
         @return: New scan's ID. None if the scan_id already exists.
         """

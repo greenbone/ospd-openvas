@@ -49,6 +49,15 @@ class ConvertTargetListsTestCase(unittest.TestCase):
         for i in range(1, 10):
             self.assertIn('195.70.81.%d' % i, addresses)
 
+    def test_target_str_with_trailing_comma(self):
+        addresses = target_str_to_list(',195.70.81.1,195.70.81.2,')
+
+        self.assertIsNotNone(addresses)
+        self.assertEqual(len(addresses), 2)
+
+        for i in range(1, 2):
+            self.assertIn('195.70.81.%d' % i, addresses)
+
     def test_get_hostname_by_address(self):
         with patch.object(socket, "getfqdn", return_value="localhost"):
             hostname = get_hostname_by_address('127.0.0.1')
