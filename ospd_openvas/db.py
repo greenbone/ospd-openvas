@@ -79,11 +79,14 @@ class OpenvasDB:
         return cls._db_address
 
     @classmethod
-    def create_context(cls, dbnum: Optional[int] = 0) -> RedisCtx:
+    def create_context(
+        cls, dbnum: Optional[int] = 0, encoding: Optional[str] = 'latin-1'
+    ) -> RedisCtx:
         """ Connect to redis to the given database or to the default db 0 .
 
         Arguments:
             dbnum: The db number to connect to.
+            encoding: The encoding to be used to read and write.
 
         Return a new redis context on success.
         """
@@ -94,7 +97,7 @@ class OpenvasDB:
                     unix_socket_path=cls.get_database_address(),
                     db=dbnum,
                     socket_timeout=SOCKET_TIMEOUT,
-                    encoding="latin-1",
+                    encoding=encoding,
                     decode_responses=True,
                 )
                 ctx.keys("test")
@@ -375,8 +378,17 @@ class BaseDB:
 
 
 class BaseKbDB(BaseDB):
-    def _add_single_item(self, name: str, values: Iterable):
-        OpenvasDB.add_single_item(self.ctx, name, values)
+    def _add_single_item(
+        self, name: str, values: Iterable, utf8_enc: Optional[bool] = False
+    ):
+        ''' Changing the encoding format of an existing redis context
+        is not possible. Therefore a new temporary redis context is
+        created to store key-values encoded with utf-8.'''
+        if utf8_enc:
+            ctx = OpenvasDB.create_context(self.index, encoding='utf-8')
+            OpenvasDB.add_single_item(ctx, name, values)
+        else:
+            OpenvasDB.add_single_item(self.ctx, name, values)
 
     def _set_single_item(self, name: str, value: Iterable):
         """ Set (replace) a single KB element.
@@ -474,6 +486,17 @@ class KbDB(BaseKbDB):
     def add_scan_preferences(self, openvas_scan_id: str, preferences: Iterable):
         self._add_single_item(
             'internal/{}/scanprefs'.format(openvas_scan_id), preferences
+        )
+
+    def add_credentials_to_scan_preferences(
+        self, openvas_scan_id: str, preferences: Iterable
+    ):
+        ''' Force the usage of the utf-8 encoding, since some credentials
+        contain special chars not supported by latin-1 encoding. '''
+        self._add_single_item(
+            'internal/{}/scanprefs'.format(openvas_scan_id),
+            preferences,
+            utf8_enc=True,
         )
 
     def add_scan_process_id(self, pid: int):

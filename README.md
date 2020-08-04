@@ -31,6 +31,30 @@ Please follow the general installation guide for ospd-based scanners:
 
   <https://github.com/greenbone/ospd/blob/master/doc/INSTALL-ospd-scanner.md>
 
+### Optional configuration
+
+Please note that although you can run `openvas` (launched from an `ospd-openvas`
+process) as a user without elevated privileges, it is recommended that you start
+`openvas` as `root` since a number of Network Vulnerability Tests (NVTs) require
+root privileges to perform certain operations like packet forgery. If you run
+`openvas` as a user without permission to perform these operations, your scan
+results are likely to be incomplete.
+
+As `openvas` will be launched from an `ospd-openvas` process with sudo,
+the next configuration is required in the sudoers file:
+
+    sudo visudo
+
+add this line to allow the user running `ospd-openvas`, to launch `openvas`
+with root permissions
+
+    <user> ALL = NOPASSWD: <install prefix>/sbin/openvas
+
+If you set an install prefix, you have to update the path in the sudoers
+file too:
+
+    Defaults        secure_path=<existing paths...>:<install prefix>/sbin
+
 ## Usage
 
 There are no special usage aspects for this module beyond the generic usage
