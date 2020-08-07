@@ -12,7 +12,7 @@ Environment="PATH=$PATH"
 Environment="PYTHONPATH=$PYTHONPATH"
 User=<username>
 Group=<groupname>
-ExecStart=<install-prefix>/bin/ospd-openvas
+ExecStart=<install-prefix>/bin/ospd-openvas $OSPD_OPENVAS_ARGS
 SuccessExitStatus=SIGKILL
 # This works asynchronously, but does not take the daemon down during the reload so it's ok.
 Restart=always
