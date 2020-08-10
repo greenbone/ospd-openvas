@@ -1,5 +1,5 @@
 [Unit]
-Description=OSPD OpenVAS Wrapper (ospd-openvas)
+Description=OSPd based OpenVAS scanner (ospd-openvas)
 Documentation=man:ospd-openvas(8) man:openvas(8)
 After=network.target networking.service redis-server@openvas.service
 Wants=redis-server@openvas.service
