@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20.8.1] (unreleased)
+
+### Fixed
+- Fix deploy and upload to pypi. [#312](https://github.com/greenbone/ospd/pull/312)
+
+[20.8.1]: https://github.com/greenbone/ospd/compare/v20.8.0...ospd-20.08
+
 ## [20.8.0] (2020-08-11)
 
 ### Added
