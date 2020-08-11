@@ -7,7 +7,7 @@
   <xsl:strip-space elements="*"/>
 
 <!--
-Copyright (C) 2010-2018 Greenbone Networks GmbH
+Copyright (C) 2010-2020 Greenbone Networks GmbH
 
 SPDX-License-Identifier: GPL-2.0-or-later
 

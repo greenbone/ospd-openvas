@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8] (unreleased)
+## [20.8.0] (2020-08-11)
 
 ### Added
 - Add solution method to solution of vt object. [#166](https://github.com/greenbone/ospd/pull/166)
@@ -63,7 +63,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
 
-[20.08]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
+[20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
 
 ## [2.0.1] (unreleased)
 
