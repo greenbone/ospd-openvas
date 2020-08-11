@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8] (unreleased)
+## [20.8.0] (2020-08-11)
 
 ### Added
 - Add solution method to solution of vt object. [#131](https://github.com/greenbone/ospd-openvas/pull/131)
@@ -61,7 +61,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 - Drop handling of network_scan. [#265](https://github.com/greenbone/ospd-openvas/pull/265)
 
-[20.08]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
+[20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
 
 ## [1.0.1] (unreleased)
 
