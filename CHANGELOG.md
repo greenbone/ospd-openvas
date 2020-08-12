@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 - Fix deploy and upload to pypi. [#312](https://github.com/greenbone/ospd/pull/312)
+- Fix metadata for Python wheel distributable [#313](https://github.com/greenbone/ospd/pull/313)
 
 [20.8.1]: https://github.com/greenbone/ospd/compare/v20.8.0...ospd-20.08
 
