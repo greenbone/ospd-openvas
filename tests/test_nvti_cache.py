@@ -311,11 +311,20 @@ class TestNVTICache(TestCase):
     def test_set_nvti_cache_name_pre_release(self, mock_version, MockOpenvasDB):
         self.assertIsNone(self.nvti._nvti_cache_name)
 
+        # Beta version from sources
         mock_version.return_value = '20.8+beta1~git-1234-hosfix'
         self.nvti._set_nvti_cache_name()
 
         self.assertTrue(mock_version.called)
         self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.8')
+
+        # Stable version from sources (no beta)
+        mock_version.reset_mock()
+        mock_version.return_value = '20.8.0~git-1234-hosfix'
+        self.nvti._set_nvti_cache_name()
+
+        self.assertTrue(mock_version.called)
+        self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.8.0')
 
         mock_version.reset_mock()
         mock_version.return_value = '10.0.1'

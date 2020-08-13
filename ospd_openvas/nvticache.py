@@ -88,9 +88,11 @@ class NVTICache(BaseDB):
                 "least 7.0.1."
             )
         # Remove pre-release sufix and git revision if exists
-        # as the gvm-libs version has the  format
-        # e.g "20.8+beta1-git-a41b140d-zero-padding"
+        # as the gvm-libs version has the format
+        # e.g. "20.8+beta1~git-123-somefix" for beta version from sources
+        # or "20.8.0~git-123-hotfix" for a stable version from sources (no beta)
         version_string = version_string.split("+")[0]
+        version_string = version_string.split("~")[0]
 
         if self._is_compatible_version(version_string):
             self._nvti_cache_name = "nvticache{}".format(version_string)
