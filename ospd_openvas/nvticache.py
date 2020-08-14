@@ -30,15 +30,12 @@ from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.openvas import Openvas
 
+NVTI_CACHE_NAME = "nvticache"
 
 logger = logging.getLogger(__name__)
 
 LIST_FIRST_POS = 0
 LIST_LAST_POS = -1
-
-# actually the nvti cache with gvm-libs 10 should fit too but openvas was only
-# introduced with GVM 11 and gvm-libs 11
-SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER = SpecifierSet('>=11.0')
 
 
 class NVTICache(BaseDB):
@@ -66,53 +63,12 @@ class NVTICache(BaseDB):
         self._ctx = None
         self.index = None
         self._main_db = main_db
-        self._nvti_cache_name = None
-
-    def _get_nvti_cache_name(self) -> str:
-        if not self._nvti_cache_name:
-            self._set_nvti_cache_name()
-
-        return self._nvti_cache_name
-
-    def _is_compatible_version(self, version: str) -> bool:
-        installed_version = parse_version(version)
-        return installed_version in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
-
-    def _set_nvti_cache_name(self):
-        """Set nvticache name"""
-        version_string = Openvas.get_gvm_libs_version()
-        if not version_string:
-            raise OspdOpenvasError(
-                "Not possible to get the installed gvm-libs version. "
-                "Outdated openvas version. openvas version needs to be at "
-                "least 7.0.1."
-            )
-        # Remove pre-release sufix and git revision if exists
-        # as the gvm-libs version has the  format
-        # e.g "20.8+beta1-git-a41b140d-zero-padding"
-        version_string = version_string.split("+")[0]
-
-        if self._is_compatible_version(version_string):
-            self._nvti_cache_name = "nvticache{}".format(version_string)
-        else:
-            raise OspdOpenvasError(
-                "Error setting nvticache. Incompatible nvticache "
-                "version {}. Supported versions are {}.".format(
-                    version_string,
-                    ", ".join(
-                        [
-                            str(spec)
-                            for spec in SUPPORTED_NVTICACHE_VERSIONS_SPECIFIER
-                        ]
-                    ),
-                )
-            )
 
     @property
     def ctx(self) -> Optional[RedisCtx]:
         if self._ctx is None:
             self._ctx, self.index = OpenvasDB.find_database_by_pattern(
-                self._get_nvti_cache_name(), self._main_db.max_database_index
+                NVTI_CACHE_NAME, self._main_db.max_database_index
             )
         return self._ctx
 
@@ -125,7 +81,7 @@ class NVTICache(BaseDB):
             # no nvti cache db available yet
             return None
 
-        return OpenvasDB.get_single_item(self.ctx, self._get_nvti_cache_name())
+        return OpenvasDB.get_single_item(self.ctx, NVTI_CACHE_NAME)
 
     def get_oids(self) -> Iterator[Tuple[str, str]]:
         """ Get the list of NVT file names and OIDs.
