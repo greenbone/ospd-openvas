@@ -23,12 +23,7 @@ import logging
 
 from typing import List, Dict, Optional, Iterator, Tuple
 
-from packaging.specifiers import SpecifierSet
-from packaging.version import parse as parse_version
-
 from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
-from ospd_openvas.errors import OspdOpenvasError
-from ospd_openvas.openvas import Openvas
 
 NVTI_CACHE_NAME = "nvticache"
 
