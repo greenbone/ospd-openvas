@@ -58,10 +58,6 @@ class Vts:
         if hasattr(self.vts, '__iter__'):
             return self.vts.__iter__()
 
-        # Use iter because python3.5 has no support for
-        # iteration over DictProxy.
-        return iter(self.vts.keys())
-
     def __getitem__(self, key):
         return self.vts[key]
 

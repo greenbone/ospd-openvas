@@ -44,7 +44,7 @@ and the fingerprint is `8AE4 BE42 9B60 A59B 311C  2E73 9823 FAA6 0ED1 E580`.
 
 ### Requirements
 
-ospd requires Python >= 3.5 along with the following libraries:
+ospd requires Python >= 3.6 along with the following libraries:
 
     - python3-paramiko
 

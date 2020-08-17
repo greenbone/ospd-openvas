@@ -1,10 +1,6 @@
 version: 2.1
 
 executors:
-  python-35:
-    docker:
-      - image: circleci/python:3.5
-    working_directory: ~/repo
   python-36:
     docker:
       - image: circleci/python:3.6
@@ -101,14 +97,6 @@ jobs:
     executor: python-37
     steps:
       - lint
-  build-35:
-    executor: python-35
-    steps:
-      - build
-  test-35:
-    executor: python-35
-    steps:
-      - test
   build-36:
     executor: python-36
     steps:
@@ -143,8 +131,6 @@ workflows:
   build_and_test:
     jobs:
       - lint-python-files
-      - build-35
-      - test-35
       - build-36
       - test-36
       - build-37
