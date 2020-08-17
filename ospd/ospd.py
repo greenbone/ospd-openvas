@@ -115,7 +115,7 @@ class OSPDaemon:
         min_free_mem_scan_queue=0,
         file_storage_dir='/var/run/ospd',
         max_queued_scans=0,
-        **kwargs
+        **kwargs,
     ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
         self.scan_collection = ScanCollection(file_storage_dir)

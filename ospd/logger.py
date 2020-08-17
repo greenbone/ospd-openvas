@@ -71,7 +71,7 @@ def init_logging(
     *,
     log_file: Optional[str] = None,
     log_config: Optional[str] = None,
-    foreground: Optional[bool] = False
+    foreground: Optional[bool] = False,
 ):
     config = configparser.ConfigParser()
     config['handlers'] = DEFAULT_HANDLERS
