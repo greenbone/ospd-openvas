@@ -27,7 +27,7 @@ from unittest import TestCase
 from unittest.mock import patch, Mock, PropertyMock
 
 from ospd_openvas.errors import OspdOpenvasError
-from ospd_openvas.nvticache import NVTICache
+from ospd_openvas.nvticache import NVTICache, NVTI_CACHE_NAME
 
 from tests.helper import assert_called
 
@@ -41,7 +41,6 @@ class TestNVTICache(TestCase):
         self.nvti._ctx = 'foo'
 
     def test_set_index(self, MockOpenvasDB):
-        self.nvti._nvti_cache_name = '20.8'
         self.nvti._ctx = None
 
         MockOpenvasDB.find_database_by_pattern.return_value = ('foo', 22)
@@ -53,19 +52,16 @@ class TestNVTICache(TestCase):
         self.assertEqual(self.nvti.index, 22)
 
     def test_get_feed_version(self, MockOpenvasDB):
-        self.nvti._nvti_cache_name = '20.8'
-
         MockOpenvasDB.get_single_item.return_value = '1234'
 
         resp = self.nvti.get_feed_version()
 
         self.assertEqual(resp, '1234')
-        MockOpenvasDB.get_single_item.assert_called_with('foo', '20.8')
+        MockOpenvasDB.get_single_item.assert_called_with('foo', NVTI_CACHE_NAME)
 
     def test_get_feed_version_not_available(self, MockOpenvasDB):
         pmock = PropertyMock(return_value=123)
         type(self.db).max_database_index = pmock
-        self.nvti._nvti_cache_name = '20.8'
         self.nvti._ctx = None
 
         MockOpenvasDB.find_database_by_pattern.return_value = (None, None)
@@ -73,7 +69,9 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_feed_version()
 
         self.assertIsNone(resp)
-        MockOpenvasDB.find_database_by_pattern.assert_called_with('20.8', 123)
+        MockOpenvasDB.find_database_by_pattern.assert_called_with(
+            NVTI_CACHE_NAME, 123
+        )
 
     def test_get_oids(self, MockOpenvasDB):
         MockOpenvasDB.get_filenames_and_oids.return_value = ['oids']
@@ -288,89 +286,6 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_tags('1.2.3.4')
 
         self.assertEqual(out_dict, resp)
-
-    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_set_nvti_cache_name(self, mock_version, MockOpenvasDB):
-        self.assertIsNone(self.nvti._nvti_cache_name)
-
-        mock_version.return_value = '20.10'
-        self.nvti._set_nvti_cache_name()
-
-        self.assertTrue(mock_version.called)
-        self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.10')
-
-        mock_version.reset_mock()
-        mock_version.return_value = '10.0.1'
-
-        with self.assertRaises(OspdOpenvasError):
-            self.nvti._set_nvti_cache_name()
-
-        self.assertTrue(mock_version.called)
-
-    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_set_nvti_cache_name_pre_release(self, mock_version, MockOpenvasDB):
-        self.assertIsNone(self.nvti._nvti_cache_name)
-
-        mock_version.return_value = '20.8+beta1~git-1234-hosfix'
-        self.nvti._set_nvti_cache_name()
-
-        self.assertTrue(mock_version.called)
-        self.assertEqual(self.nvti._nvti_cache_name, 'nvticache20.8')
-
-        mock_version.reset_mock()
-        mock_version.return_value = '10.0.1'
-
-        with self.assertRaises(OspdOpenvasError):
-            self.nvti._set_nvti_cache_name()
-
-        self.assertTrue(mock_version.called)
-
-    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_set_nvti_cache_name_raise_error(
-        self, mock_version: Mock, MockOpenvasDB: Mock
-    ):
-        mock_version.return_value = None
-
-        with self.assertRaises(OspdOpenvasError):
-            self.nvti._set_nvti_cache_name()
-
-    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_set_nvti_cache_name_old_version(
-        self, mock_version: Mock, MockOpenvasDB: Mock
-    ):
-        mock_version.return_value = '7.0.0'
-
-        with self.assertRaises(OspdOpenvasError):
-            self.nvti._set_nvti_cache_name()
-
-    @patch('ospd_openvas.nvticache.Openvas.get_gvm_libs_version')
-    def test_get_nvti_cache_name(self, mock_version, MockOpenvasDB):
-        self.assertIsNone(self.nvti._nvti_cache_name)
-
-        mock_version.return_value = '20.8'
-
-        self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.8')
-        self.assertTrue(mock_version.called)
-
-        mock_version.reset_mock()
-        mock_version.return_value = '20.10'
-
-        self.assertEqual(self.nvti._get_nvti_cache_name(), 'nvticache20.8')
-        self.assertFalse(mock_version.called)
-
-    def test_is_compatible_version(self, MockOpenvasDB):
-        self.assertFalse(self.nvti._is_compatible_version("1.0.0"))
-        self.assertFalse(self.nvti._is_compatible_version("10.0.0"))
-        self.assertTrue(self.nvti._is_compatible_version("11.0.1"))
-        self.assertTrue(self.nvti._is_compatible_version("20.4"))
-        self.assertTrue(self.nvti._is_compatible_version("20.4.2"))
-        self.assertTrue(self.nvti._is_compatible_version("20.8"))
-        self.assertTrue(self.nvti._is_compatible_version("20.8.2"))
-        self.assertTrue(self.nvti._is_compatible_version("20.08"))
-        self.assertTrue(self.nvti._is_compatible_version("20.04"))
-        self.assertTrue(self.nvti._is_compatible_version("20.10"))
-        self.assertTrue(self.nvti._is_compatible_version("21.04"))
-        self.assertTrue(self.nvti._is_compatible_version("21.10"))
 
     def test_get_nvt_files_count(self, MockOpenvasDB):
         MockOpenvasDB.get_key_count.return_value = 20

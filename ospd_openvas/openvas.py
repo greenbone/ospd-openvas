@@ -183,20 +183,3 @@ class Openvas:
                 'Not possible to stop scan: %s. Reason %s', scan_id, e,
             )
             return False
-
-    @classmethod
-    def get_gvm_libs_version(cls) -> Optional[str]:
-        """ Parse version of gvm-libs
-        """
-        result = cls._get_version_output()
-        if not result:
-            return None
-
-        output = result.rstrip()
-
-        if 'gvm-libs' not in output:
-            return None
-
-        lines = output.splitlines()
-        _, version_string = lines[1].split(' ', 1)
-        return version_string
