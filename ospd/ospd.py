@@ -43,14 +43,12 @@ import defusedxml.ElementTree as secET
 
 import psutil
 
-from deprecated import deprecated
-
 from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
 from ospd.misc import ResultType, create_process
 from ospd.network import resolve_hostname, target_str_to_list
-from ospd.protocol import OspRequest, OspResponse, RequestParser
+from ospd.protocol import RequestParser
 from ospd.scan import ScanCollection, ScanStatus, ScanProgress
 from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
@@ -59,7 +57,6 @@ from ospd.xml import (
     elements_as_text,
     get_result_xml,
     get_progress_xml,
-    get_elements_from_dict,
 )
 
 logger = logging.getLogger(__name__)
