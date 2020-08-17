@@ -43,13 +43,11 @@ setup(
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    python_requires='>=3.5',
-    install_requires=['ospd>=2.0.0', 'redis>=3.0.1', 'psutil', 'packaging'],
+    python_requires='>=3.7',
+    install_requires=['ospd>=21.4.0', 'redis>=3.0.1', 'psutil', 'packaging'],
     entry_points={'console_scripts': ['ospd-openvas=ospd_openvas.daemon:main']},
     test_suite="tests",
 )
