@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [21.4] (unreleased)
 
+### Removed
+- Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
+
 ## [20.8] (unreleased)
 
 ### Added

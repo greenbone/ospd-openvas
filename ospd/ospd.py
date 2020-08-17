@@ -43,14 +43,12 @@ import defusedxml.ElementTree as secET
 
 import psutil
 
-from deprecated import deprecated
-
 from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
 from ospd.misc import ResultType, create_process
 from ospd.network import resolve_hostname, target_str_to_list
-from ospd.protocol import OspRequest, OspResponse, RequestParser
+from ospd.protocol import RequestParser
 from ospd.scan import ScanCollection, ScanStatus, ScanProgress
 from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
@@ -59,7 +57,6 @@ from ospd.xml import (
     elements_as_text,
     get_result_xml,
     get_progress_xml,
-    get_elements_from_dict,
 )
 
 logger = logging.getLogger(__name__)
@@ -118,7 +115,7 @@ class OSPDaemon:
         min_free_mem_scan_queue=0,
         file_storage_dir='/var/run/ospd',
         max_queued_scans=0,
-        **kwargs
+        **kwargs,
     ):  # pylint: disable=unused-argument
         """ Initializes the daemon's internal data. """
         self.scan_collection = ScanCollection(file_storage_dir)
@@ -179,11 +176,6 @@ class OSPDaemon:
         if self.command_exists(name):
             command = self.commands.get(name)
             command.attributes = attributes
-
-    @deprecated(version="20.8", reason="Use set_scanner_param instead")
-    def add_scanner_param(self, name: str, scanner_params: Dict) -> None:
-        """ Set a scanner parameter. """
-        self.set_scanner_param(name, scanner_params)
 
     def set_scanner_param(self, name: str, scanner_params: Dict) -> None:
         """ Set a scanner parameter. """
@@ -336,30 +328,6 @@ class OSPDaemon:
         """
         return params
 
-    @staticmethod
-    @deprecated(
-        version="20.8",
-        reason="Please use OspRequest.process_vt_params instead.",
-    )
-    def process_vts_params(scanner_vts) -> Dict:
-        return OspRequest.process_vts_params(scanner_vts)
-
-    @staticmethod
-    @deprecated(
-        version="20.8",
-        reason="Please use OspRequest.process_credential_elements instead.",
-    )
-    def process_credentials_elements(cred_tree) -> Dict:
-        return OspRequest.process_credentials_elements(cred_tree)
-
-    @staticmethod
-    @deprecated(
-        version="20.8",
-        reason="Please use OspRequest.process_targets_elements instead.",
-    )
-    def process_targets_element(scanner_target) -> List:
-        return OspRequest.process_target_element(scanner_target)
-
     def stop_scan(self, scan_id: str) -> None:
         if (
             scan_id in self.scan_collection.ids_iterator()
@@ -495,14 +463,6 @@ class OSPDaemon:
         if not entry:
             return None
         return entry.get('default')
-
-    @deprecated(
-        version="20.8",
-        reason="Please use OspResponse.create_scanner_params_xml instead.",
-    )
-    def get_scanner_params_xml(self):
-        """ Returns the OSP Daemon's scanner params in xml format. """
-        return OspResponse.create_scanner_params_xml(self.scanner_params)
 
     def handle_client_stream(self, stream: Stream) -> None:
         """ Handles stream of data received from client. """
@@ -717,11 +677,6 @@ class OSPDaemon:
 
         return txt
 
-    @deprecated(version="20.8", reason="Use ospd.xml.elements_as_text instead.")
-    def elements_as_text(self, elems: Dict, indent: int = 2) -> str:
-        """ Returns the elems dictionary as formatted plain text. """
-        return elements_as_text(elems, indent)
-
     def delete_scan(self, scan_id: str) -> int:
         """ Deletes scan_id scan from collection.
 
@@ -784,19 +739,6 @@ class OSPDaemon:
         )
 
         return get_progress_xml(current_progress)
-
-    @deprecated(
-        version="20.8",
-        reason="Please use ospd.xml.get_elements_from_dict instead.",
-    )
-    def get_xml_str(self, data: Dict) -> List:
-        """ Creates a string in XML Format using the provided data structure.
-
-        @param: Dictionary of xml tags and their elements.
-
-        @return: String of data in xml format.
-        """
-        return get_elements_from_dict(data)
 
     def get_scan_xml(
         self,

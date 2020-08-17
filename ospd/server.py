@@ -269,18 +269,7 @@ class TlsServer(BaseServer):
 
         validate_cacert_file(ca_file)
 
-        # Despite the name, ssl.PROTOCOL_SSLv23 selects the highest
-        # protocol version that both the client and server support. In modern
-        # Python versions (>= 3.4) it supports TLS >= 1.0 with SSLv2 and SSLv3
-        # being disabled. For Python > 3.5, PROTOCOL_SSLv23 is an alias for
-        # PROTOCOL_TLS which should be used once compatibility with Python 3.5
-        # is no longer desired.
-
-        if hasattr(ssl, 'PROTOCOL_TLS'):
-            protocol = ssl.PROTOCOL_TLS
-        else:
-            protocol = ssl.PROTOCOL_SSLv23
-
+        protocol = ssl.PROTOCOL_SSLv23
         self.tls_context = ssl.SSLContext(protocol)
         self.tls_context.verify_mode = ssl.CERT_REQUIRED
 

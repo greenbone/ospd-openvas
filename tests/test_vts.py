@@ -88,7 +88,6 @@ class VtsTestCase(TestCase):
         it = iter(vts)
 
         vt_id = next(it)
-        # Python 3.5 doesn't ensure the order of the returned keys
         self.assertIn(vt_id, ['id_1', 'id_2'])
 
         vt_id = next(it)
@@ -103,9 +102,7 @@ class VtsTestCase(TestCase):
         vts.add('id_1', name='foo')
         vts.add('id_2', name='bar')
 
-        # use assertCountEqual for Python 3.5 because dict.keys order is
-        # undefined
-        self.assertCountEqual(vts.keys(), ['id_1', 'id_2'])
+        self.assertEqual(vts.keys(), ['id_1', 'id_2'])
 
     def test_getitem(self):
         vts = Vts()

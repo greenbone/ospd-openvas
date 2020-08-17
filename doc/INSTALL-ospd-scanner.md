@@ -60,7 +60,7 @@ first with the mechanism of your system (for example via `apt` or `rpm`).
 You may need to set the `PYTHONPATH` like this before running
 the install command:
 
-    export PYTHONPATH=<prefix>/lib/python3.5/site-packages/
+    export PYTHONPATH=<prefix>/lib/python3.7/site-packages/
 
 The actual value for `PYTHONPATH` depends on your Python version.
 
