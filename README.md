@@ -15,7 +15,7 @@ you can create scan tasks to use OpenVAS.
 
 ### Requirements
 
-Python 3.5 and later is supported.
+Python 3.7 and later is supported.
 
 Beyond the [ospd base library](https://github.com/greenbone/ospd),
 `ospd-openvas` has dependencies on the following Python packages:

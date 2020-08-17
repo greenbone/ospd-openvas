@@ -16,8 +16,6 @@ classifiers=[
   "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
   "Intended Audience :: Developers",
   "Intended Audience :: System Administrators",
-  "Programming Language :: Python :: 3.5",
-  "Programming Language :: Python :: 3.6",
   "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
 ]
@@ -45,18 +43,18 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.5"
+python = "^3.7"
 redis = "^3.5.3"
 psutil = "^5.7.2"
 packaging = "^20.4"
-ospd = {git = "https://github.com/greenbone/ospd.git"}
+ospd = {git = "https://github.com/greenbone/ospd.git", branch = "master"}
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.5.3"
 rope = "^0.17.0"
 autohooks-plugin-pylint = "^1.2.0"
-autohooks-plugin-black = {version = "^1.2.0", python = "^3.6"}
-black = {version = "19.10b0", python = "^3.6"}
+autohooks-plugin-black = {version = "^1.2.0", python = "^3.7"}
+black = {version = "19.10b0", python = "^3.7"}
 pontos = "^0.2.0"
 
 [tool.poetry.scripts]
@@ -64,7 +62,7 @@ ospd-openvas = "ospd_openvas.daemon:main"
 
 [tool.black]
 line-length = 80
-target-version = ['py35', 'py36', 'py37', 'py38']
+target-version = ['py37', 'py38']
 skip-string-normalization = true
 exclude = '''
 /(
