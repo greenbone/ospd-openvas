@@ -1560,6 +1560,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   <change>
     <command>GET_VTS</command>
+    <summary>Returned object changes and extends severity information</summary>
+    <description>
+      The element SEVERITY inside SEVERITIES of the returned VT moves the origin and the value
+      into explicit elements ORIGIN and VALUE. Furthremore the element DATE is added.
+    </description>
+    <version>21.4</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
     <summary>Returned object extended with solution method</summary>
     <description>
       The element SOLUTION of the returned VT object has a new optional attribute METHOD
@@ -1592,16 +1602,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <description>Target element receive new target options reverse_lookup_only, reverse_lookup_unify and alive_test.
     </description>
     <version>20.08</version>
-  </change>
-
-  <change>
-    <command>GET_VTS</command>
-    <summary>Returned object changes and extends severity information</summary>
-    <description>
-      The element SEVERITY inside SEVERITIES of the returned VT moves the orogin and the value
-      into explicit elements ORIGIN and VALUE. Furthremore the element DATE is added.
-    </description>
-    <version>20.04</version>
   </change>
 
   <change>
