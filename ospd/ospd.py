@@ -303,7 +303,7 @@ class OSPDaemon:
                 except ValueError:
                     raise OspdCommandError(
                         'Invalid %s value' % key, 'start_scan'
-                    )
+                    ) from None
 
             if param_type == 'boolean':
                 if params[key] not in [0, 1]:
@@ -1144,9 +1144,9 @@ class OSPDaemon:
         """
         try:
             tree = secET.fromstring(data)
-        except secET.ParseError:
+        except secET.ParseError as e:
             logger.debug("Erroneous client input: %s", data)
-            raise OspdCommandError('Invalid data')
+            raise OspdCommandError('Invalid data') from e
 
         command_name = tree.tag
 

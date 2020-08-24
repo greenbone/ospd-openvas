@@ -106,7 +106,7 @@ def validate_cacert_file(cacert: str):
         # Python version < 2.7.9
         return
     except IOError:
-        raise OspdError('CA Certificate not found')
+        raise OspdError('CA Certificate not found') from None
 
     try:
         not_after = context.get_ca_certs()[0]['notAfter']
@@ -114,7 +114,7 @@ def validate_cacert_file(cacert: str):
         not_before = context.get_ca_certs()[0]['notBefore']
         not_before = ssl.cert_time_to_seconds(not_before)
     except (KeyError, IndexError):
-        raise OspdError('CA Certificate is erroneous')
+        raise OspdError('CA Certificate is erroneous') from None
 
     now = int(time.time())
     if not_after < now:
@@ -226,7 +226,7 @@ class UnixSocketServer(BaseServer):
                 "Couldn't bind socket on {}. {}".format(
                     str(self.socket_path), e
                 )
-            )
+            ) from e
 
         if self.socket_path.exists():
             self.socket_path.chmod(self.socket_mode)
@@ -289,7 +289,7 @@ class TlsServer(BaseServer):
                 "Couldn't bind socket on {}:{}. {}".format(
                     self.socket[0], str(self.socket[1]), e
                 )
-            )
+            ) from e
 
     def handle_request(self, request, client_address):
         logger.debug("New connection from %s", client_address)
