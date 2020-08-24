@@ -207,7 +207,7 @@ class GetPerformance(BaseCommand):
             except ValueError:
                 raise OspdCommandError(
                     'Start argument must be integer.', 'get_performance'
-                )
+                ) from None
 
             cmd.append(start)
 
@@ -217,7 +217,7 @@ class GetPerformance(BaseCommand):
             except ValueError:
                 raise OspdCommandError(
                     'End argument must be integer.', 'get_performance'
-                )
+                ) from None
 
             cmd.append(end)
 
@@ -236,7 +236,7 @@ class GetPerformance(BaseCommand):
         except (subprocess.CalledProcessError, OSError) as e:
             raise OspdCommandError(
                 'Bogus get_performance format. %s' % e, 'get_performance'
-            )
+            ) from None
 
         return simple_response_str(
             'get_performance', 200, 'OK', output.decode()
@@ -347,7 +347,7 @@ class GetVts(BaseCommand):
                 )
             except OspdCommandError as filter_error:
                 self._daemon.vts.is_cache_available = True
-                raise OspdCommandError(filter_error)
+                raise filter_error
 
         if not version_only:
             vts_selection = self._daemon.get_vts_selection_list(

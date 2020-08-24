@@ -67,11 +67,11 @@ class DataPickler:
             # create parent directories recursively
             parent_dir = storage_file_path.parent
             parent_dir.mkdir(parents=True, exist_ok=True)
-        except Exception as e:  # pylint: disable=broad-except
+        except Exception as e:
             raise OspdCommandError(
                 'Not possible to access dir for %s. %s' % (filename, e),
                 'start_scan',
-            )
+            ) from e
 
         try:
             pickled_data = pickle.dumps(data_object)
@@ -79,7 +79,7 @@ class DataPickler:
             raise OspdCommandError(
                 'Not possible to pickle scan info for %s. %s' % (filename, e),
                 'start_scan',
-            )
+            ) from e
 
         try:
             with open(
@@ -91,7 +91,7 @@ class DataPickler:
             raise OspdCommandError(
                 'Not possible to store scan info for %s. %s' % (filename, e),
                 'start_scan',
-            )
+            ) from e
         self._fd_close()
 
         return self._pickled_data_hash_generator(pickled_data)

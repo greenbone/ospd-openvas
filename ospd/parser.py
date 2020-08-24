@@ -234,7 +234,7 @@ class CliParser:
             raise RuntimeError(
                 'Error while parsing config file {config}. Error was '
                 '{message}'.format(config=configfile, message=e)
-            )
+            ) from None
 
         return config
 
