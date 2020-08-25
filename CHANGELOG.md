@@ -82,11 +82,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 - Drop handling of network_scan. [#265](https://github.com/greenbone/ospd-openvas/pull/265)
 
-<<<<<<< HEAD
-=======
 [20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
 
->>>>>>> upstream/ospd-openvas-20.08
 ## [1.0.1] (unreleased)
 
 ### Added
