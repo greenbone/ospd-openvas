@@ -559,7 +559,7 @@ class MainDB(BaseDB):
             else:
                 raise OspdOpenvasError(
                     'Redis Error: Not possible to get max_dbindex.'
-                )
+                ) from None
 
         return self._max_dbindex
 
@@ -581,7 +581,7 @@ class MainDB(BaseDB):
         except:
             raise OspdOpenvasError(
                 'Redis Error: Not possible to set %s.' % DBINDEX_NAME
-            )
+            ) from None
 
         return resp == 1
 
