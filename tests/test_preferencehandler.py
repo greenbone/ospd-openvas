@@ -237,12 +237,12 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_host_list = MagicMock(return_value='192.168.0.1')
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_target_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['TARGET|||192.168.0.1'],
+            p.scan_id, ['TARGET|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -252,12 +252,12 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_ports = MagicMock(return_value='80,443')
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_ports_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['port_range|||80,443'],
+            p.scan_id, ['port_range|||80,443'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -270,7 +270,7 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_main_kbindex_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['ov_maindbid|||2'],
+            p.scan_id, ['ov_maindbid|||2'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -304,7 +304,7 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
 
@@ -328,7 +328,7 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
 
@@ -343,7 +343,7 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
 
@@ -358,12 +358,12 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['exclude_hosts|||192.168.0.1'],
+            p.scan_id, ['exclude_hosts|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -375,7 +375,7 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_host_options_for_openvas()
 
@@ -400,12 +400,12 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_options = MagicMock(return_value=opt)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_scan_params_for_openvas(OSPD_PARAMS_MOCK)
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['drop_privileges|||yes']
+            p.scan_id, ['drop_privileges|||yes']
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -416,12 +416,12 @@ class PreferenceHandlerTestCase(TestCase):
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
+        p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_reverse_lookup_opt_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+            p.scan_id,
             ['reverse_lookup_only|||yes', 'reverse_lookup_unify|||no',],
         )
 
@@ -432,7 +432,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {'not_the_correct_setting': 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
@@ -445,7 +445,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
@@ -458,11 +458,11 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
-            calls = [call(p._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||16'])]
+            calls = [call(p.scan_id, [BOREAS_ALIVE_TEST + '|||16'])]
             p.kbdb.add_scan_preferences.assert_has_calls(calls)
 
         # ICMP was chosen as alive test.
@@ -472,11 +472,11 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
-            calls = [call(p._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
+            calls = [call(p.scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
             p.kbdb.add_scan_preferences.assert_has_calls(calls)
 
         # "Scan Config Default" as alive_test.
@@ -486,11 +486,11 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
-            calls = [call(p._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
+            calls = [call(p.scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
             p.kbdb.add_scan_preferences.assert_has_calls(calls)
 
     @patch('ospd_openvas.db.KbDB')
@@ -501,7 +501,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
@@ -518,7 +518,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
 
@@ -545,10 +545,10 @@ class PreferenceHandlerTestCase(TestCase):
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
 
-            p._openvas_scan_id = '456-789'
+            p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
 
             p.kbdb.add_scan_preferences.assert_called_with(
-                p._openvas_scan_id, alive_test_out,
+                p.scan_id, alive_test_out,
             )
