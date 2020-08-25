@@ -25,7 +25,7 @@ from pathlib import Path
 
 from unittest.mock import patch, MagicMock
 from ospd_openvas.lock import LockFile
-from .helper import assert_called_once
+from .helper import assert_called_once, assert_called
 
 
 class LockFileTestCase(unittest.TestCase):
@@ -56,7 +56,7 @@ class LockFileTestCase(unittest.TestCase):
         lock_file = LockFile(lock_file_path)
         lock_file._acquire_lock()
         self.assertFalse(lock_file.has_lock())
-        assert_called_once(mock_logger.error)
+        assert_called(mock_logger.debug)
 
         lock_file_aux._release_lock()
 

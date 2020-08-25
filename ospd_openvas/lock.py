@@ -36,7 +36,7 @@ class LockFile:
         return self._has_lock
 
     def _acquire_lock(self) -> "LockFile":
-        """ Acquite a lock by creating a lock file.
+        """ Acquire a lock by creating a lock file.
         """
         if self.has_lock():
             return self
@@ -70,7 +70,7 @@ class LockFile:
             self._has_lock = True
             logger.debug("Created lock file %s.", str(self._lock_file_path))
         except BlockingIOError as e:
-            logger.error(
+            logger.debug(
                 "Failed to lock the file %s. %s", str(self._lock_file_path), e,
             )
             try:

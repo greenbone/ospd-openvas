@@ -4,6 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
 ## [21.4] (unreleased)
 
 ### Changed
@@ -15,8 +16,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [unreleased]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...master
 
+## [20.8.1] (unreleased)
 
-## [20.8] (unreleased)
+### Fixed
+- Fix nvticache name when for stable version from sources. [#317](https://github.com/greenbone/ospd-openvas/pull/317)
+
+[20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...ospd-openvas-20.08
+
+## [20.8.0] (2020-08-12)
 
 ### Added
 - Add solution method to solution of vt object. [#131](https://github.com/greenbone/ospd-openvas/pull/131)
@@ -66,12 +73,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix handling of denied hosts. [#263](https://github.com/greenbone/ospd-openvas/pull/263)
 - Fix handling of special chars in credentials. [#294](https://github.com/greenbone/ospd-openvas/pull/294)
 - Fix type and default value of optimize_test preference. [#302](https://github.com/greenbone/ospd-openvas/pull/302)
+- Fix deploy and upload to pypi. [#315](https://github.com/greenbone/ospd-openvas/pull/315)
+- Fix ospd version dependency. [#316](https://github.com/greenbone/ospd-openvas/pull/316)
 
 ### Removed
 - Remove use_mac_addr, vhost_ip and vhost scan preferences. [#184](https://github.com/greenbone/ospd-openvas/pull/184)
 - Handling of finished host for resume task. [#252](https://github.com/greenbone/ospd-openvas/pull/252)
 - Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 - Drop handling of network_scan. [#265](https://github.com/greenbone/ospd-openvas/pull/265)
+
+[20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
 
 ## [1.0.1] (unreleased)
 

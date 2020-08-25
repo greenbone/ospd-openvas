@@ -88,7 +88,7 @@ commands:
           name: Create and upload distribution to pypi
           command: |
             rm -rf dist build ospd_openvas.egg-info
-            poetry run python setup.py sdist bdist_wheel
+            poetry build
             poetry run twine upload dist/*
 
 jobs:
