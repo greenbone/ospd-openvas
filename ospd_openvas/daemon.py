@@ -1175,7 +1175,7 @@ class OSPDopenvas(OSPDaemon):
             except TypeError:
                 logger.debug(
                     'Scan with ID %s never started and stopped unexpectedly',
-                    openvas_scan_id,
+                    scan_id,
                 )
 
             if parent:

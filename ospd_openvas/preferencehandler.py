@@ -24,7 +24,6 @@ collection and store the data in a redis KB in the right format to be used by
 OpenVAS. """
 
 import logging
-import uuid
 import binascii
 
 from enum import IntEnum
