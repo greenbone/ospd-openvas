@@ -476,12 +476,9 @@ class KbDB(BaseKbDB):
 
             yield scan_db.select(kbindex)
 
-    def add_scan_id(self, scan_id: str, openvas_scan_id: str):
-        self._add_single_item('internal/{}'.format(openvas_scan_id), ['new'])
-        self._add_single_item(
-            'internal/{}/globalscanid'.format(scan_id), [openvas_scan_id]
-        )
-        self._add_single_item('internal/scanid', [openvas_scan_id])
+    def add_scan_id(self, scan_id: str):
+        self._add_single_item('internal/{}'.format(scan_id), ['new'])
+        self._add_single_item('internal/scanid', [scan_id])
 
     def add_scan_preferences(self, openvas_scan_id: str, preferences: Iterable):
         self._add_single_item(
@@ -511,10 +508,7 @@ class KbDB(BaseKbDB):
     def target_is_finished(self, scan_id: str) -> bool:
         """ Check if a target has finished. """
 
-        openvas_scan_id = self._get_single_item(
-            'internal/{}/globalscanid'.format(scan_id)
-        )
-        status = self._get_single_item('internal/{}'.format(openvas_scan_id))
+        status = self._get_single_item('internal/{}'.format(scan_id))
 
         return status == 'finished' or status is None
 
@@ -523,10 +517,10 @@ class KbDB(BaseKbDB):
             'internal/{}'.format(openvas_scan_id), ['stop_all']
         )
 
-    def scan_is_stopped(self, openvas_scan_id: str) -> bool:
+    def scan_is_stopped(self, scan_id: str) -> bool:
         """ Check if the scan should be stopped
         """
-        status = self._get_single_item('internal/%s' % openvas_scan_id)
+        status = self._get_single_item('internal/%s' % scan_id)
         return status == 'stop_all'
 
     def get_scan_status(self) -> List:
@@ -599,17 +593,14 @@ class MainDB(BaseDB):
     def find_kb_database_by_scan_id(
         self, scan_id: str
     ) -> Tuple[Optional[str], Optional["KbDB"]]:
-        """ Find a kb db by via a global scan id
+        """ Find a kb db by via a scan id
         """
         for index in range(1, self.max_database_index):
             ctx = OpenvasDB.create_context(index)
-            openvas_scan_id = OpenvasDB.get_single_item(
-                ctx, 'internal/{}/globalscanid'.format(scan_id)
-            )
-            if openvas_scan_id:
-                return (openvas_scan_id, KbDB(index, ctx))
+            if OpenvasDB.get_key_count(ctx, 'internal/{}'.format(scan_id)):
+                return KbDB(index, ctx)
 
-        return (None, None)
+        return None
 
     def release_database(self, database: BaseDB):
         self.release_database_by_index(database.index)
