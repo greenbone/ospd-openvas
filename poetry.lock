@@ -265,7 +265,7 @@ version = "0.6.1"
 
 [[package]]
 category = "main"
-description = ""
+description = "OSPD is a base for scanner wrappers which share the same communication protocol: OSP (Open Scanner Protocol)"
 name = "ospd"
 optional = false
 python-versions = "^3.7"
@@ -282,6 +282,7 @@ psutil = "^5.7.2"
 reference = "972b39fcc4a76f5f75ff405709bf6f9e20c6c147"
 type = "git"
 url = "https://github.com/greenbone/ospd.git"
+
 [[package]]
 category = "main"
 description = "Core utilities for Python packages"
@@ -681,7 +682,10 @@ mccabe = [
     {file = "mccabe-0.6.1-py2.py3-none-any.whl", hash = "sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42"},
     {file = "mccabe-0.6.1.tar.gz", hash = "sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f"},
 ]
-ospd = []
+ospd = [
+    {file = "ospd-20.8.1-py3-none-any.whl", hash = "sha256:688fb0b3fc777dc6de871d45bbfdd20a3af264a5455e5fd994f920d4092d547f"},
+    {file = "ospd-20.8.1.tar.gz", hash = "sha256:71cff4cc0f54b28737e92e11d9184a1742182ed3114a2dcbfc1dd19200c300a6"},
+]
 packaging = [
     {file = "packaging-20.4-py2.py3-none-any.whl", hash = "sha256:998416ba6962ae7fbd6596850b80e17859a5753ba17c32284f67bfff33784181"},
     {file = "packaging-20.4.tar.gz", hash = "sha256:4357f74f47b9c12db93624a82154e9b120fa8293699949152b22065d556079f8"},

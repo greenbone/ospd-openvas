@@ -1,3 +1,25 @@
+#
 # The installation prefix to find the ospd-openvas binary.
+#
 PATH=<install-prefix>/bin:<install-prefix>/sbin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:$PATH
 PYTHONPATH=<install-prefix>/lib/python3.5/site-packages:$PYTHONPATH
+
+#
+# The user for running the OSPD OpenVAS daemon in the ospd-openvas.service systemd file
+#
+OSPD_OPENVAS_USER="gvm"
+
+#
+# The group for running the OSPD OpenVAS daemon in the ospd-openvas.service systemd file
+#
+OSPD_OPENVAS_GROUP="gvm"
+
+#
+# The location of the OSPD OpenVAS daemon PID file
+#
+OSPD_OPENVAS_PID="<install-prefix>/var/run/ospd/ospd-openvas.pid"
+
+#
+# Additional default parameters
+#
+OSPD_OPENVAS_ARGS="--unix-socket <install-prefix>/var/run/ospd/ospd-openvas.sock --pid-file $OSPD_OPENVAS_PID --log-file <install-prefix>/var/log/gvm/ospd-openvas.log --lock-file-dir <install-prefix>/var/run"
