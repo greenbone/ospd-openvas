@@ -12,7 +12,7 @@
   <xsl:strip-space elements="pretty"/>
 
 <!--
-Copyright (C) 2014-2018 Greenbone Networks GmbH
+Copyright (C) 2014-2020 Greenbone Networks GmbH
 
 SPDX-License-Identifier: GPL-2.0-or-later
 
