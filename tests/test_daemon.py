@@ -23,6 +23,7 @@
 
 import io
 import logging
+import psutil
 
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
@@ -862,12 +863,13 @@ class TestOspdOpenvas(TestCase):
 
         self.assertTrue(ret)
 
+    @patch('psutil.Process')
     @patch('ospd_openvas.db.KbDB')
-    def test_openvas_is_alive_still(self, mock_db):
+    def test_openvas_is_alive_still(self, mock_db, mock_psutil):
         w = DummyDaemon()
-        # mock_psutil = MockPsutil.return_value
+        mock_psutil.side_effect = TypeError
         mock_db.scan_is_stopped.return_value = False
-        ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
+        ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d3')
 
         self.assertFalse(ret)
 

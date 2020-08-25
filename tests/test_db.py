@@ -429,7 +429,7 @@ class KbDBTestCase(TestCase):
         self.ctx.flushdb.assert_called_with()
 
     def test_add_scan_id(self, mock_openvas_db):
-        self.db.add_scan_id('foo', 'bar')
+        self.db.add_scan_id('bar')
 
         calls = mock_openvas_db.add_single_item.call_args_list
 
@@ -440,12 +440,6 @@ class KbDBTestCase(TestCase):
         self.assertEqual(kwargs[2], ['new'])
 
         call = calls[1]
-        kwargs = call[0]
-
-        self.assertEqual(kwargs[1], 'internal/foo/globalscanid')
-        self.assertEqual(kwargs[2], ['bar'])
-
-        call = calls[2]
         kwargs = call[0]
 
         self.assertEqual(kwargs[1], 'internal/scanid')
@@ -507,9 +501,9 @@ class KbDBTestCase(TestCase):
         )
 
     def test_target_is_finished_false(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.side_effect = ['bar', 'new']
+        mock_openvas_db.get_single_item.side_effect = ['new']
 
-        ret = self.db.target_is_finished('foo')
+        ret = self.db.target_is_finished('bar')
 
         self.assertFalse(ret)
 
@@ -518,17 +512,12 @@ class KbDBTestCase(TestCase):
         call = calls[0]
         args = call[0]
 
-        self.assertEqual(args[1], 'internal/foo/globalscanid')
-
-        call = calls[1]
-        args = call[0]
-
         self.assertEqual(args[1], 'internal/bar')
 
     def test_target_is_finished_true(self, mock_openvas_db):
-        mock_openvas_db.get_single_item.side_effect = ['bar', 'finished']
+        mock_openvas_db.get_single_item.side_effect = ['finished']
 
-        ret = self.db.target_is_finished('foo')
+        ret = self.db.target_is_finished('bar')
 
         self.assertTrue(ret)
 
@@ -537,18 +526,7 @@ class KbDBTestCase(TestCase):
         call = calls[0]
         args = call[0]
 
-        self.assertEqual(args[1], 'internal/foo/globalscanid')
-
-        call = calls[1]
-        args = call[0]
-
         self.assertEqual(args[1], 'internal/bar')
-
-        mock_openvas_db.get_single_item.side_effect = ['bar', None]
-
-        ret = self.db.target_is_finished('foo')
-
-        self.assertTrue(ret)
 
     def test_stop_scan(self, mock_openvas_db):
         self.db.stop_scan('foo')
@@ -722,35 +700,34 @@ class MainDBTestCase(TestCase):
 
         new_ctx = 'bar'  # just some object to compare
         mock_openvas_db.create_context.return_value = new_ctx
-        mock_openvas_db.get_single_item.return_value = None
+        mock_openvas_db.get_key_count.return_value = None
 
         maindb = MainDB(ctx)
         maindb._max_dbindex = 2  # pylint: disable=protected-access
 
-        scan_id, kbdb = maindb.find_kb_database_by_scan_id('foo')
+        kbdb = maindb.find_kb_database_by_scan_id('foo')
 
-        mock_openvas_db.get_single_item.assert_called_once_with(
-            new_ctx, 'internal/foo/globalscanid'
+        mock_openvas_db.get_key_count.assert_called_once_with(
+            new_ctx, 'internal/foo'
         )
-        self.assertIsNone(scan_id)
+
         self.assertIsNone(kbdb)
 
     @patch('ospd_openvas.db.OpenvasDB')
     def test_find_kb_database_by_scan_id(self, mock_openvas_db, mock_redis):
         ctx = mock_redis.return_value
 
-        new_ctx = 'bar'  # just some object to compare
+        new_ctx = 'foo'  # just some object to compare
         mock_openvas_db.create_context.return_value = new_ctx
-        mock_openvas_db.get_single_item.side_effect = [None, 'ipsum']
+        mock_openvas_db.get_key_count.side_effect = [0, 1]
 
         maindb = MainDB(ctx)
         maindb._max_dbindex = 3  # pylint: disable=protected-access
 
-        scan_id, kbdb = maindb.find_kb_database_by_scan_id('foo')
+        kbdb = maindb.find_kb_database_by_scan_id('foo')
 
-        mock_openvas_db.get_single_item.assert_called_with(
-            new_ctx, 'internal/foo/globalscanid'
+        mock_openvas_db.get_key_count.assert_called_with(
+            new_ctx, 'internal/foo'
         )
-        self.assertEqual(scan_id, 'ipsum')
         self.assertEqual(kbdb.index, 2)
         self.assertIs(kbdb.ctx, new_ctx)

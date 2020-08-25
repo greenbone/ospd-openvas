@@ -24,7 +24,6 @@ collection and store the data in a redis KB in the right format to be used by
 OpenVAS. """
 
 import logging
-import uuid
 import binascii
 
 from enum import IntEnum
@@ -80,20 +79,15 @@ class PreferenceHandler:
         self.kbdb = kbdb
         self.scan_collection = scan_collection
 
-        self._openvas_scan_id = None
-
         self._target_options = None
 
         self.nvti = nvticache
 
-    def prepare_openvas_scan_id_for_openvas(self):
+    def prepare_scan_id_for_openvas(self):
         """ Create the openvas scan id and store it in the redis kb.
         Return the openvas scan_id.
         """
-        self._openvas_scan_id = str(uuid.uuid4())
-        self.kbdb.add_scan_id(self.scan_id, self._openvas_scan_id)
-
-        return self._openvas_scan_id
+        self.kbdb.add_scan_id(self.scan_id)
 
     @property
     def target_options(self) -> Dict:
@@ -256,12 +250,12 @@ class PreferenceHandler:
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, [plugin_list])
+            self.kbdb.add_scan_preferences(self.scan_id, [plugin_list])
 
             # Add nvts parameters
             for key, val in nvts_params.items():
                 item = '%s|||%s' % (key, val)
-                self.kbdb.add_scan_preferences(self._openvas_scan_id, [item])
+                self.kbdb.add_scan_preferences(self.scan_id, [item])
 
             nvts_params = None
             nvts_list = None
@@ -388,9 +382,7 @@ class PreferenceHandler:
             alive_test_opt = self.build_alive_test_opt_as_prefs(
                 self.target_options
             )
-            self.kbdb.add_scan_preferences(
-                self._openvas_scan_id, alive_test_opt
-            )
+            self.kbdb.add_scan_preferences(self.scan_id, alive_test_opt)
 
     def prepare_boreas_alive_test(self):
         """ Set alive_test for Boreas if boreas scanner config
@@ -422,14 +414,14 @@ class PreferenceHandler:
             pref = "{pref_key}|||{pref_value}".format(
                 pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
             )
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, [pref])
+            self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
         if alive_test == AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT:
             alive_test = AliveTest.ALIVE_TEST_ICMP
             pref = "{pref_key}|||{pref_value}".format(
                 pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
             )
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, [pref])
+            self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
     def prepare_reverse_lookup_opt_for_openvas(self):
         """ Set reverse lookup options in the kb"""
@@ -447,7 +439,7 @@ class PreferenceHandler:
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
             items.append('reverse_lookup_unify|||%s' % rev_lookup_unify)
 
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, items)
+            self.kbdb.add_scan_preferences(self.scan_id, items)
 
     def prepare_target_for_openvas(self):
         """ Get the target from the scan collection and set the target
@@ -455,14 +447,14 @@ class PreferenceHandler:
 
         target = self.scan_collection.get_host_list(self.scan_id)
         target_aux = 'TARGET|||%s' % target
-        self.kbdb.add_scan_preferences(self._openvas_scan_id, [target_aux])
+        self.kbdb.add_scan_preferences(self.scan_id, [target_aux])
 
     def prepare_ports_for_openvas(self) -> str:
         """ Get the port list from the scan collection and store the list
         in the kb. """
         ports = self.scan_collection.get_ports(self.scan_id)
         port_range = 'port_range|||%s' % ports
-        self.kbdb.add_scan_preferences(self._openvas_scan_id, [port_range])
+        self.kbdb.add_scan_preferences(self.scan_id, [port_range])
 
         return ports
 
@@ -473,7 +465,7 @@ class PreferenceHandler:
 
         if exclude_hosts:
             pref_val = "exclude_hosts|||" + exclude_hosts
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, [pref_val])
+            self.kbdb.add_scan_preferences(self.scan_id, [pref_val])
 
     def prepare_scan_params_for_openvas(self, ospd_params: Dict[str, Dict]):
         """ Get the scan parameters from the scan collection and store them
@@ -504,7 +496,7 @@ class PreferenceHandler:
             prefs_val.append(key + "|||" + val)
 
         if prefs_val:
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, prefs_val)
+            self.kbdb.add_scan_preferences(self.scan_id, prefs_val)
 
     @staticmethod
     def build_credentials_as_prefs(credentials: Dict) -> List[str]:
@@ -631,7 +623,7 @@ class PreferenceHandler:
             cred_prefs = self.build_credentials_as_prefs(credentials)
             if cred_prefs:
                 self.kbdb.add_credentials_to_scan_preferences(
-                    self._openvas_scan_id, cred_prefs
+                    self.scan_id, cred_prefs
                 )
 
         if credentials and not cred_prefs:
@@ -643,4 +635,4 @@ class PreferenceHandler:
         """ Store main_kbindex as global preference in the
         kb, used by OpenVAS"""
         ov_maindbid = 'ov_maindbid|||%d' % self.kbdb.index
-        self.kbdb.add_scan_preferences(self._openvas_scan_id, [ov_maindbid])
+        self.kbdb.add_scan_preferences(self.scan_id, [ov_maindbid])

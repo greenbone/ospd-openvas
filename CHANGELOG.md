@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
 - Remove py35 and py36 support. [#319](https://github.com/greenbone/ospd-openvas/pull/319)
+- Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
 
 [unreleased]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...master
 
