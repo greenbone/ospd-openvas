@@ -4,12 +4,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
 ## [21.4] (unreleased)
 
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
 
-## [20.8] (unreleased)
+[21.4]: https://github.com/greenbone/ospd/compare/ospd-20.08...master
+
+## [20.8.1] (2020-08-12)
+
+### Fixed
+- Fix deploy and upload to pypi. [#312](https://github.com/greenbone/ospd/pull/312)
+- Fix metadata for Python wheel distributable [#313](https://github.com/greenbone/ospd/pull/313)
+
+[20.8.1]: https://github.com/greenbone/ospd/compare/v20.8.0...v20.8.1
+
+## [20.8.0] (2020-08-11)
 
 ### Added
 - Add solution method to solution of vt object. [#166](https://github.com/greenbone/ospd/pull/166)
@@ -68,7 +79,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
 
-[20.08]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
+[20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
 
 ## [2.0.1] (unreleased)
 
