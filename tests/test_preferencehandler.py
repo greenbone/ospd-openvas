@@ -34,6 +34,7 @@ from ospd_openvas.preferencehandler import (
     AliveTest,
     BOREAS_SETTING_NAME,
     BOREAS_ALIVE_TEST,
+    BOREAS_ALIVE_TEST_PORTS,
     PreferenceHandler,
 )
 
@@ -491,6 +492,26 @@ class PreferenceHandlerTestCase(TestCase):
             p.prepare_boreas_alive_test()
 
             calls = [call(p.scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
+            p.kbdb.add_scan_preferences.assert_has_calls(calls)
+
+        # TCP-SYN alive test and dedicated port list for alive scan provided.
+        w = DummyDaemon()
+        t_opt = {
+            'alive_test_ports': "80,137",
+            'alive_test': AliveTest.ALIVE_TEST_TCP_SYN_SERVICE,
+        }
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        ov_setting = {BOREAS_SETTING_NAME: 1}
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p.scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_boreas_alive_test()
+
+            calls = [
+                call(p.scan_id, [BOREAS_ALIVE_TEST + '|||16']),
+                call(p.scan_id, [BOREAS_ALIVE_TEST_PORTS + '|||80,137']),
+            ]
             p.kbdb.add_scan_preferences.assert_has_calls(calls)
 
     @patch('ospd_openvas.db.KbDB')
