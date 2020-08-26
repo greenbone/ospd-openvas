@@ -47,6 +47,7 @@ OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 OID_PING_HOST = "1.3.6.1.4.1.25623.1.0.100315"
 
 BOREAS_ALIVE_TEST = "ALIVE_TEST"
+BOREAS_ALIVE_TEST_PORTS = "ALIVE_TEST_PORTS"
 BOREAS_SETTING_NAME = "test_alive_hosts_only"
 
 
@@ -389,11 +390,13 @@ class PreferenceHandler:
         (BOREAS_SETTING_NAME) was set"""
         settings = Openvas.get_settings()
         alive_test = -1
+        alive_test_ports = None
 
         if settings:
             boreas = settings.get(BOREAS_SETTING_NAME)
             if not boreas:
                 return
+            alive_test_ports = self.target_options.get('alive_test_ports')
             alive_test_str = self.target_options.get('alive_test')
             if alive_test_str is not None:
                 try:
@@ -420,6 +423,13 @@ class PreferenceHandler:
             alive_test = AliveTest.ALIVE_TEST_ICMP
             pref = "{pref_key}|||{pref_value}".format(
                 pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
+            )
+            self.kbdb.add_scan_preferences(self.scan_id, [pref])
+
+        # Add portlist if present. Validity is checked on Boreas side.
+        if alive_test_ports is not None:
+            pref = "{pref_key}|||{pref_value}".format(
+                pref_key=BOREAS_ALIVE_TEST_PORTS, pref_value=alive_test_ports
             )
             self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
