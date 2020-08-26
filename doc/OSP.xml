@@ -180,6 +180,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <e>exclude_hosts</e>
       <e>finished_hosts</e>
       <e>alive_test</e>
+      <e>alive_test_ports</e>
       <e>reverse_lookup_unify</e>
       <e>reverse_lookup_only</e>
     </pattern>
@@ -218,6 +219,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <type>string</type>
     </ele>
     <ele>
+      <name>alive_test_ports</name>
+      <summary>Dedicated port list for alive detection. Used for TCP-SYN and TCP-ACK ping when Boreas (scanner preference test_alive_hosts_only) is enabled. If no port list is provided ports 80, 137, 587, 3128, 8081 are used as defaults.</summary>
+      <type>string</type>
+    </ele>
+    <ele>
       <name>reverse_lookup_only</name>
       <summary>Only scan IP addresses that can be resolved into a DNS name.</summary>
       <type>string</type>
@@ -234,6 +240,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <hosts>example.org</hosts>
           <ports>T:22,U:5060</ports>
           <alive_test>0</alive_test>
+          <alive_test_ports>22,80,123</alive_test_ports>
           <reverse_lookup_only>0</reverse_lookup_only>
           <reverse_lookup_unify>0</reverse_lookup_unify>
         </target>
@@ -1470,6 +1477,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
+
+  <change>
+    <command>START_SCAN</command>
+    <summary>Add support for dedicated port list for alive detection</summary>
+    <description>Target element received new target option alive_test_ports.
+    </description>
+    <version>21.4</version>
+  </change>
 
   <change>
     <command>GET_VTS</command>
