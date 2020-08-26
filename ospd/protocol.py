@@ -174,6 +174,7 @@ class OspRequest:
                     </credential>
                 </credentials>
                 <alive_test></alive_test>
+                <alive_test_ports></alive_test_ports>
                 <reverse_lookup_only>1</reverse_lookup_only>
                 <reverse_lookup_unify>0</reverse_lookup_unify>
             </target>
@@ -196,6 +197,7 @@ class OspRequest:
                 'exclude_hosts': '',
                 'finished_hosts': '',
                 'options': {'alive_test': 'ALIVE_TEST_CONSIDER_ALIVE',
+                            'alive_test_ports: '22,80,123',
                             'reverse_lookup_only': '1',
                             'reverse_lookup_unify': '0',
                             },
@@ -222,6 +224,8 @@ class OspRequest:
                     credentials = cls.process_credentials_elements(child)
                 if child.tag == 'alive_test':
                     options['alive_test'] = child.text
+                if child.tag == 'alive_test_ports':
+                    options['alive_test_ports'] = child.text
                 if child.tag == 'reverse_lookup_unify':
                     options['reverse_lookup_unify'] = child.text
                 if child.tag == 'reverse_lookup_only':
