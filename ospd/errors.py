@@ -44,8 +44,8 @@ class RequiredArgument(OspdError):
 
 class OspdCommandError(OspdError):
 
-    """ This is an exception that will result in an error message to the
-    client """
+    """This is an exception that will result in an error message to the
+    client"""
 
     def __init__(
         self, message: str, command: str = 'osp', status: int = 400
