@@ -361,7 +361,7 @@ OSPD_PARAMS = {
 
 
 def safe_int(value: str) -> Optional[int]:
-    """ Convert a string into an integer and return None in case of errors
+    """Convert a string into an integer and return None in case of errors
     during conversion
     """
     try:
@@ -372,8 +372,7 @@ def safe_int(value: str) -> Optional[int]:
 
 class OpenVasVtsFilter(VtsFilter):
 
-    """ Methods to overwrite the ones in the original class.
-    """
+    """Methods to overwrite the ones in the original class."""
 
     def __init__(self, nvticache: NVTICache) -> None:
         super().__init__()
@@ -381,7 +380,7 @@ class OpenVasVtsFilter(VtsFilter):
         self.nvti = nvticache
 
     def format_vt_modification_time(self, value: str) -> str:
-        """ Convert the string seconds since epoch into a 19 character
+        """Convert the string seconds since epoch into a 19 character
         string representing YearMonthDayHourMinuteSecond,
         e.g. 20190319122532. This always refers to UTC.
         """
@@ -389,7 +388,7 @@ class OpenVasVtsFilter(VtsFilter):
         return datetime.utcfromtimestamp(int(value)).strftime("%Y%m%d%H%M%S")
 
     def get_filtered_vts_list(self, vts, vt_filter: str) -> Optional[List[str]]:
-        """ Gets a collection of vulnerability test from the redis cache,
+        """Gets a collection of vulnerability test from the redis cache,
         which match the filter.
 
         Arguments:
@@ -490,8 +489,7 @@ class OSPDopenvas(OSPDaemon):
         self.initialized = True
 
     def set_params_from_openvas_settings(self):
-        """ Set OSPD_PARAMS with the params taken from the openvas executable.
-        """
+        """Set OSPD_PARAMS with the params taken from the openvas executable."""
         param_list = Openvas.get_settings()
 
         for elem in param_list:
@@ -501,7 +499,7 @@ class OSPDopenvas(OSPDaemon):
                 OSPD_PARAMS[elem]['default'] = param_list[elem]
 
     def feed_is_outdated(self, current_feed: str) -> Optional[bool]:
-        """ Compare the current feed with the one in the disk.
+        """Compare the current feed with the one in the disk.
 
         Return:
             False if there is no new feed.
@@ -546,7 +544,7 @@ class OSPDopenvas(OSPDaemon):
         )
 
     def check_feed(self):
-        """ Check if there is a feed update.
+        """Check if there is a feed update.
 
         Wait until all the running scans finished. Set a flag to announce there
         is a pending feed update, which avoids to start a new scan.
@@ -591,7 +589,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id: str, custom: Dict) -> str:
-        """ Return an xml element with custom metadata formatted as string.
+        """Return an xml element with custom metadata formatted as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             custom: Dictionary with the custom metadata.
@@ -612,7 +610,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_severities_vt_as_xml_str(vt_id: str, severities: Dict) -> str:
-        """ Return an xml element with severities as string.
+        """Return an xml element with severities as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             severities: Dictionary with the severities.
@@ -637,7 +635,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_params_vt_as_xml_str(vt_id: str, vt_params: Dict) -> str:
-        """ Return an xml element with params formatted as string.
+        """Return an xml element with params formatted as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             vt_params: Dictionary with the VT parameters.
@@ -672,7 +670,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_refs_vt_as_xml_str(vt_id: str, vt_refs: Dict) -> str:
-        """ Return an xml element with references formatted as string.
+        """Return an xml element with references formatted as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             vt_refs: Dictionary with the VT references.
@@ -709,7 +707,7 @@ class OSPDopenvas(OSPDaemon):
     def get_dependencies_vt_as_xml_str(
         vt_id: str, vt_dependencies: List
     ) -> str:
-        """ Return  an xml element with dependencies as string.
+        """Return  an xml element with dependencies as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             vt_dependencies: List with the VT dependencies.
@@ -734,7 +732,7 @@ class OSPDopenvas(OSPDaemon):
     def get_creation_time_vt_as_xml_str(
         vt_id: str, vt_creation_time: str
     ) -> str:
-        """ Return creation time as string.
+        """Return creation time as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             vt_creation_time: String with the VT creation time.
@@ -754,7 +752,7 @@ class OSPDopenvas(OSPDaemon):
     def get_modification_time_vt_as_xml_str(
         vt_id: str, vt_modification_time: str
     ) -> str:
-        """ Return modification time as string.
+        """Return modification time as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             vt_modification_time: String with the VT modification time.
@@ -774,7 +772,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_summary_vt_as_xml_str(vt_id: str, summary: str) -> str:
-        """ Return summary as string.
+        """Return summary as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             summary: String with a VT summary.
@@ -792,7 +790,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_impact_vt_as_xml_str(vt_id: str, impact) -> str:
-        """ Return impact as string.
+        """Return impact as string.
 
         Arguments:
             vt_id (str): VT OID. Only used for logging in error case.
@@ -811,7 +809,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_affected_vt_as_xml_str(vt_id: str, affected: str) -> str:
-        """ Return affected as string.
+        """Return affected as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             affected: String which explain what is affected.
@@ -829,7 +827,7 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def get_insight_vt_as_xml_str(vt_id: str, insight: str) -> str:
-        """ Return insight as string.
+        """Return insight as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             insight: String giving an insight of the vulnerability.
@@ -852,7 +850,7 @@ class OSPDopenvas(OSPDaemon):
         solution_type: Optional[str] = None,
         solution_method: Optional[str] = None,
     ) -> str:
-        """ Return solution as string.
+        """Return solution as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             solution: String giving a possible solution.
@@ -881,7 +879,7 @@ class OSPDopenvas(OSPDaemon):
         qod_type: Optional[str] = None,
         qod: Optional[str] = None,
     ) -> str:
-        """ Return detection as string.
+        """Return detection as string.
         Arguments:
             vt_id: VT OID. Only used for logging in error case.
             detection: String which explain how the vulnerability
@@ -935,8 +933,8 @@ class OSPDopenvas(OSPDaemon):
         return self._sudo_available
 
     def check(self) -> bool:
-        """ Checks that openvas command line tool is found and
-        is executable. """
+        """Checks that openvas command line tool is found and
+        is executable."""
         has_openvas = Openvas.check()
         if not has_openvas:
             logger.error(
@@ -946,7 +944,7 @@ class OSPDopenvas(OSPDaemon):
         return has_openvas
 
     def report_openvas_scan_status(self, kbdb: BaseDB, scan_id: str):
-        """ Get all status entries from redis kb.
+        """Get all status entries from redis kb.
 
         Arguments:
             scan_id: Scan ID to identify the current scan.
@@ -984,7 +982,7 @@ class OSPDopenvas(OSPDaemon):
         self.sort_host_finished(scan_id, finished_hosts)
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
-        """ Return the severity score for the given oid.
+        """Return the severity score for the given oid.
         Arguments:
             vt_aux: VT element from which to get the severity vector
         Returns:
@@ -1068,7 +1066,9 @@ class OSPDopenvas(OSPDaemon):
 
             elif msg[0] == 'HOST_START' or msg[0] == 'HOST_END':
                 res_list.add_scan_log_to_list(
-                    host=current_host, name=msg[0], value=msg[5],
+                    host=current_host,
+                    name=msg[0],
+                    value=msg[5],
                 )
 
             elif msg[0] == 'LOG':
@@ -1156,7 +1156,7 @@ class OSPDopenvas(OSPDaemon):
     def stop_scan_cleanup(  # pylint: disable=arguments-differ
         self, scan_id: str
     ):
-        """ Set a key in redis to indicate the wrapper is stopped.
+        """Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
         of the grandchild process. Send SIGUSR2 to openvas to stop
@@ -1185,7 +1185,8 @@ class OSPDopenvas(OSPDaemon):
                 )
                 if not can_stop_scan:
                     logger.debug(
-                        'Not possible to stop scan process: %s.', parent,
+                        'Not possible to stop scan process: %s.',
+                        parent,
                     )
                     return False
 
@@ -1277,7 +1278,8 @@ class OSPDopenvas(OSPDaemon):
                 scan_id
             ) and not self.is_openvas_process_alive(kbdb, ovas_pid, scan_id):
                 logger.error(
-                    'Task %s was unexpectedly stopped or killed.', scan_id,
+                    'Task %s was unexpectedly stopped or killed.',
+                    scan_id,
                 )
                 self.add_scan_error(
                     scan_id,

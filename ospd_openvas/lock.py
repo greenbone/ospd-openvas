@@ -36,8 +36,7 @@ class LockFile:
         return self._has_lock
 
     def _acquire_lock(self) -> "LockFile":
-        """ Acquire a lock by creating a lock file.
-        """
+        """Acquire a lock by creating a lock file."""
         if self.has_lock():
             return self
 
@@ -71,7 +70,9 @@ class LockFile:
             logger.debug("Created lock file %s.", str(self._lock_file_path))
         except BlockingIOError as e:
             logger.debug(
-                "Failed to lock the file %s. %s", str(self._lock_file_path), e,
+                "Failed to lock the file %s. %s",
+                str(self._lock_file_path),
+                e,
             )
             try:
                 self._fd.close()
@@ -89,8 +90,7 @@ class LockFile:
         return self
 
     def _release_lock(self) -> None:
-        """ Release the lock by deleting the lock file
-        """
+        """Release the lock by deleting the lock file"""
         if self.has_lock() and self._fd:
             fcntl.flock(self._fd, fcntl.LOCK_UN)
             self._fd.close()

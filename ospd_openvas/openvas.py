@@ -28,8 +28,7 @@ _BOOL_DICT = {'no': 0, 'yes': 1}
 
 
 class Openvas:
-    """ Class for calling the openvas executable
-    """
+    """Class for calling the openvas executable"""
 
     @staticmethod
     def _get_version_output() -> Optional[str]:
@@ -48,7 +47,7 @@ class Openvas:
 
     @staticmethod
     def check() -> bool:
-        """ Checks that openvas command line tool is found and
+        """Checks that openvas command line tool is found and
         is executable.
         """
         try:
@@ -63,8 +62,7 @@ class Openvas:
 
     @staticmethod
     def check_sudo() -> bool:
-        """ Checks if openvas can be run with sudo
-        """
+        """Checks if openvas can be run with sudo"""
         try:
             subprocess.check_call(
                 ['sudo', '-n', 'openvas', '-s'], stdout=subprocess.DEVNULL
@@ -80,8 +78,7 @@ class Openvas:
 
     @classmethod
     def get_version(cls) -> Optional[str]:
-        """ Returns the version string of the openvas executable
-        """
+        """Returns the version string of the openvas executable"""
         result = cls._get_version_output()
 
         if result is None:
@@ -95,8 +92,7 @@ class Openvas:
 
     @staticmethod
     def get_settings() -> Dict[str, Any]:
-        """ Parses the current settings of the openvas executable
-        """
+        """Parses the current settings of the openvas executable"""
         param_list = dict()
 
         try:
@@ -127,8 +123,7 @@ class Openvas:
 
     @staticmethod
     def load_vts_into_redis():
-        """ Loads all VTs into the redis database
-        """
+        """Loads all VTs into the redis database"""
         logger.debug('Loading VTs into Redis DB...')
 
         try:
@@ -143,8 +138,7 @@ class Openvas:
     def start_scan(
         scan_id: str, sudo: bool = False, niceness: int = None
     ) -> Optional[subprocess.Popen]:
-        """ Calls openvas to start a scan process
-        """
+        """Calls openvas to start a scan process"""
         cmd = []
 
         if niceness:
@@ -165,8 +159,7 @@ class Openvas:
 
     @staticmethod
     def stop_scan(scan_id: str, sudo: bool = False) -> bool:
-        """ Calls openvas to stop a scan process
-        """
+        """Calls openvas to stop a scan process"""
         cmd = []
 
         if sudo:
@@ -180,6 +173,8 @@ class Openvas:
         except (subprocess.SubprocessError, OSError) as e:
             # the command is not available
             logger.warning(
-                'Not possible to stop scan: %s. Reason %s', scan_id, e,
+                'Not possible to stop scan: %s. Reason %s',
+                scan_id,
+                e,
             )
             return False
