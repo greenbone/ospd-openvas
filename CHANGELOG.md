@@ -7,6 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [21.4] (unreleased)
 
+### Added
+- Add target option for supplying dedicated port list for alive detection (Boreas only) via OSP. [#323](https://github.com/greenbone/ospd/pull/323)
+
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
 
