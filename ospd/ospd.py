@@ -89,7 +89,7 @@ def _terminate_process_group(process: multiprocessing.Process) -> None:
 
 class OSPDaemon:
 
-    """ Daemon class for OSP traffic handling.
+    """Daemon class for OSP traffic handling.
 
     Every scanner wrapper should subclass it and make necessary additions and
     changes.
@@ -163,9 +163,9 @@ class OSPDaemon:
             self.vts_filter = VtsFilter()
 
     def init(self, server: BaseServer) -> None:
-        """ Should be overridden by a subclass if the initialization is costly.
+        """Should be overridden by a subclass if the initialization is costly.
 
-            Will be called after check.
+        Will be called after check.
         """
         self.scan_collection.init()
         server.start(self.handle_client_stream)
@@ -210,7 +210,7 @@ class OSPDaemon:
         qod_v: str = None,
         severities: str = None,
     ) -> None:
-        """ Add a vulnerability test information.
+        """Add a vulnerability test information.
 
         IMPORTANT: The VT's Data Manager will store the vts collection.
         If the collection is considerably big and it will be consultated
@@ -242,7 +242,7 @@ class OSPDaemon:
         )
 
     def set_vts_version(self, vts_version: str) -> None:
-        """ Add into the vts dictionary an entry to identify the
+        """Add into the vts dictionary an entry to identify the
         vts version.
 
         Parameters:
@@ -255,8 +255,7 @@ class OSPDaemon:
         self.vts_version = vts_version
 
     def get_vts_version(self) -> Optional[str]:
-        """Return the vts version.
-        """
+        """Return the vts version."""
         return self.vts_version
 
     def command_exists(self, name: str) -> bool:
@@ -324,8 +323,7 @@ class OSPDaemon:
         return params
 
     def process_scan_params(self, params: Dict) -> Dict:
-        """ This method is to be overridden by the child classes if necessary
-        """
+        """This method is to be overridden by the child classes if necessary"""
         return params
 
     def stop_scan(self, scan_id: str) -> None:
@@ -378,13 +376,13 @@ class OSPDaemon:
 
     @staticmethod
     def stop_scan_cleanup(scan_id: str):
-        """ Should be implemented by subclass in case of a clean up before
-        terminating is needed. """
+        """Should be implemented by subclass in case of a clean up before
+        terminating is needed."""
 
     @staticmethod
     def target_is_finished(scan_id: str):
-        """ Should be implemented by subclass in case of a check before
-        stopping is needed. """
+        """Should be implemented by subclass in case of a check before
+        stopping is needed."""
 
     def exec_scan(self, scan_id: str):
         """ Asserts to False. Should be implemented by subclass. """
@@ -578,8 +576,8 @@ class OSPDaemon:
     def sort_host_finished(
         self, scan_id: str, finished_hosts: Union[List[str], str],
     ) -> None:
-        """ Check if the finished host in the list was alive or dead
-        and update the corresponding alive_count or dead_count. """
+        """Check if the finished host in the list was alive or dead
+        and update the corresponding alive_count or dead_count."""
         if isinstance(finished_hosts, str):
             finished_hosts = [finished_hosts]
 
@@ -605,8 +603,8 @@ class OSPDaemon:
         )
 
     def set_scan_progress(self, scan_id: str):
-        """ Calculate the target progress with the current host states
-        and stores in the scan table. """
+        """Calculate the target progress with the current host states
+        and stores in the scan table."""
         scan_progress = self.scan_collection.calculate_target_progress(scan_id)
         self.scan_collection.set_progress(scan_id, scan_progress)
 
@@ -619,7 +617,7 @@ class OSPDaemon:
     def set_scan_host_progress(
         self, scan_id: str, host: str = None, progress: int = None,
     ) -> None:
-        """ Sets host's progress which is part of target.
+        """Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
         is updated too.
         """
@@ -644,7 +642,7 @@ class OSPDaemon:
         return self.scan_collection.get_status(scan_id)
 
     def scan_exists(self, scan_id: str) -> bool:
-        """ Checks if a scan with ID scan_id is in collection.
+        """Checks if a scan with ID scan_id is in collection.
 
         @return: 1 if scan exists, 0 otherwise.
         """
@@ -678,7 +676,7 @@ class OSPDaemon:
         return txt
 
     def delete_scan(self, scan_id: str) -> int:
-        """ Deletes scan_id scan from collection.
+        """Deletes scan_id scan from collection.
 
         @return: 1 if scan deleted, 0 otherwise.
         """
@@ -701,7 +699,7 @@ class OSPDaemon:
     def get_scan_results_xml(
         self, scan_id: str, pop_res: bool, max_res: Optional[int]
     ):
-        """ Gets scan_id scan's results in XML format.
+        """Gets scan_id scan's results in XML format.
 
         @return: String of scan results in xml.
         """
@@ -715,7 +713,7 @@ class OSPDaemon:
         return results
 
     def _get_scan_progress_xml(self, scan_id: str):
-        """ Gets scan_id scan's progress in XML format.
+        """Gets scan_id scan's progress in XML format.
 
         @return: String of scan progress in xml.
         """
@@ -748,7 +746,7 @@ class OSPDaemon:
         max_res: int = 0,
         progress: bool = False,
     ):
-        """ Gets scan in XML format.
+        """Gets scan in XML format.
 
         @return: String of scan in XML format.
         """
@@ -795,7 +793,7 @@ class OSPDaemon:
     def get_custom_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, custom: Dict
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         custom data object.
         This needs to be implemented by each ospd wrapper, in case
         custom elements for VTs are used.
@@ -811,7 +809,7 @@ class OSPDaemon:
     def get_params_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_params
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         vt_params data object.
         This needs to be implemented by each ospd wrapper, in case
         vt_params elements for VTs are used.
@@ -827,7 +825,7 @@ class OSPDaemon:
     def get_refs_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_refs
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         refs data object.
         This needs to be implemented by each ospd wrapper, in case
         refs elements for VTs are used.
@@ -843,7 +841,7 @@ class OSPDaemon:
     def get_dependencies_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_dependencies
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         vt_dependencies data object.
         This needs to be implemented by each ospd wrapper, in case
         vt_dependencies elements for VTs are used.
@@ -859,7 +857,7 @@ class OSPDaemon:
     def get_creation_time_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_creation_time
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         vt_creation_time data object.
         This needs to be implemented by each ospd wrapper, in case
         vt_creation_time elements for VTs are used.
@@ -875,7 +873,7 @@ class OSPDaemon:
     def get_modification_time_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, vt_modification_time
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         vt_modification_time data object.
         This needs to be implemented by each ospd wrapper, in case
         vt_modification_time elements for VTs are used.
@@ -891,7 +889,7 @@ class OSPDaemon:
     def get_summary_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, summary
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         summary data object.
         This needs to be implemented by each ospd wrapper, in case
         summary elements for VTs are used.
@@ -907,7 +905,7 @@ class OSPDaemon:
     def get_impact_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, impact
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         impact data object.
         This needs to be implemented by each ospd wrapper, in case
         impact elements for VTs are used.
@@ -923,7 +921,7 @@ class OSPDaemon:
     def get_affected_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, affected
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         affected data object.
         This needs to be implemented by each ospd wrapper, in case
         affected elements for VTs are used.
@@ -939,7 +937,7 @@ class OSPDaemon:
     def get_insight_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, insight
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         insight data object.
         This needs to be implemented by each ospd wrapper, in case
         insight elements for VTs are used.
@@ -955,7 +953,7 @@ class OSPDaemon:
     def get_solution_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, solution, solution_type=None, solution_method=None
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         solution data object.
         This needs to be implemented by each ospd wrapper, in case
         solution elements for VTs are used.
@@ -971,7 +969,7 @@ class OSPDaemon:
     def get_detection_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, detection=None, qod_type=None, qod=None
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         detection data object.
         This needs to be implemented by each ospd wrapper, in case
         detection elements for VTs are used.
@@ -987,7 +985,7 @@ class OSPDaemon:
     def get_severities_vt_as_xml_str(  # pylint: disable=unused-argument
         vt_id: str, severities
     ) -> str:
-        """ Create a string representation of the XML object from the
+        """Create a string representation of the XML object from the
         severities data object.
         This needs to be implemented by each ospd wrapper, in case
         severities elements for VTs are used.
@@ -1002,12 +1000,12 @@ class OSPDaemon:
     def get_vt_iterator(  # pylint: disable=unused-argument
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
-        """ Return iterator object for getting elements
-        from the VTs dictionary. """
+        """Return iterator object for getting elements
+        from the VTs dictionary."""
         return self.vts.items()
 
     def get_vt_xml(self, single_vt: Tuple[str, Dict]) -> Element:
-        """ Gets a single vulnerability test information in XML format.
+        """Gets a single vulnerability test information in XML format.
 
         @return: String of single vulnerability test information in XML format.
         """
@@ -1140,8 +1138,7 @@ class OSPDaemon:
         return vts_list
 
     def handle_command(self, data: bytes, stream: Stream) -> None:
-        """ Handles an osp command in a string.
-        """
+        """Handles an osp command in a string."""
         try:
             tree = secET.fromstring(data)
         except secET.ParseError as e:
@@ -1187,8 +1184,7 @@ class OSPDaemon:
         raise NotImplementedError
 
     def run(self) -> None:
-        """ Starts the Daemon, handling commands until interrupted.
-        """
+        """Starts the Daemon, handling commands until interrupted."""
 
         try:
             while True:
@@ -1242,7 +1238,7 @@ class OSPDaemon:
                 return
 
     def is_new_scan_allowed(self) -> bool:
-        """ Check if max_scans has been reached.
+        """Check if max_scans has been reached.
 
         Return:
             True if a new scan can be launch.
@@ -1260,7 +1256,7 @@ class OSPDaemon:
         return True
 
     def is_enough_free_memory(self) -> bool:
-        """ Check if there is enough free memory in the system to run
+        """Check if there is enough free memory in the system to run
         a new scan. The necessary memory is a rough calculation and very
         conservative.
 
@@ -1285,8 +1281,8 @@ class OSPDaemon:
         return False
 
     def scheduler(self):
-        """ Should be implemented by subclass in case of need
-        to run tasks periodically. """
+        """Should be implemented by subclass in case of need
+        to run tasks periodically."""
 
     def wait_for_children(self):
         """ Join the zombie process to releases resources."""
@@ -1300,7 +1296,7 @@ class OSPDaemon:
         options: Optional[Dict],
         vt_selection: Dict,
     ) -> Optional[str]:
-        """ Creates a new scan.
+        """Creates a new scan.
 
         @target: Target to scan.
         @options: Miscellaneous scan options supplied via <scanner_params>
@@ -1330,7 +1326,7 @@ class OSPDaemon:
         return self.scan_collection.set_option(scan_id, name, value)
 
     def clean_forgotten_scans(self) -> None:
-        """ Check for old stopped or finished scans which have not been
+        """Check for old stopped or finished scans which have not been
         deleted and delete them if the are older than the set value."""
 
         if not self.scaninfo_store_time:
@@ -1402,18 +1398,18 @@ class OSPDaemon:
         return self.scan_collection.get_ports(scan_id)
 
     def get_scan_exclude_hosts(self, scan_id: str):
-        """ Gives a scan's exclude host list. If a target is passed gives
-        the exclude host list for the given target. """
+        """Gives a scan's exclude host list. If a target is passed gives
+        the exclude host list for the given target."""
         return self.scan_collection.get_exclude_hosts(scan_id)
 
     def get_scan_credentials(self, scan_id: str) -> Dict:
-        """ Gives a scan's credential list. If a target is passed gives
-        the credential list for the given target. """
+        """Gives a scan's credential list. If a target is passed gives
+        the credential list for the given target."""
         return self.scan_collection.get_credentials(scan_id)
 
     def get_scan_target_options(self, scan_id: str) -> Dict:
-        """ Gives a scan's target option dict. If a target is passed gives
-        the credential list for the given target. """
+        """Gives a scan's target option dict. If a target is passed gives
+        the credential list for the given target."""
         return self.scan_collection.get_target_options(scan_id)
 
     def get_scan_vts(self, scan_id: str) -> Dict:

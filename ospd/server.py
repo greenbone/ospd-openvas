@@ -43,8 +43,7 @@ class Stream:
         self.socket.settimeout(stream_timeout)
 
     def close(self):
-        """ Close the stream
-        """
+        """Close the stream"""
         try:
             self.socket.shutdown(socket.SHUT_RDWR)
         except OSError as e:
@@ -55,8 +54,7 @@ class Stream:
         self.socket.close()
 
     def read(self, bufsize: Optional[int] = DEFAULT_BUFSIZE) -> bytes:
-        """ Read at maximum bufsize data from the stream
-        """
+        """Read at maximum bufsize data from the stream"""
         data = self.socket.recv(bufsize)
 
         if not data:
@@ -65,8 +63,7 @@ class Stream:
         return data
 
     def write(self, data: bytes) -> bool:
-        """ Send data in chunks of DEFAULT_BUFSIZE to the client
-        """
+        """Send data in chunks of DEFAULT_BUFSIZE to the client"""
         b_start = 0
         b_end = DEFAULT_BUFSIZE
         ret_success = True
@@ -138,7 +135,7 @@ class BaseServer(ABC):
 
     @abstractmethod
     def start(self, stream_callback: StreamCallbackType):
-        """ Starts a server with capabilities to handle multiple client
+        """Starts a server with capabilities to handle multiple client
         connections simultaneously.
         If a new client connects the stream_callback is called with a Stream
 
@@ -195,8 +192,7 @@ class ThreadedTlsSocketServer(
 
 
 class UnixSocketServer(BaseServer):
-    """ Server for accepting connections via a Unix domain socket
-    """
+    """Server for accepting connections via a Unix domain socket"""
 
     def __init__(self, socket_path: str, socket_mode: str, stream_timeout: int):
         super().__init__(stream_timeout)
@@ -243,8 +239,7 @@ class UnixSocketServer(BaseServer):
 
 
 class TlsServer(BaseServer):
-    """ Server for accepting TLS encrypted connections via a TCP socket
-    """
+    """Server for accepting TLS encrypted connections via a TCP socket"""
 
     def __init__(
         self,

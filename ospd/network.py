@@ -364,7 +364,7 @@ def port_range_expand(portrange: str) -> Optional[List]:
 
 
 def port_str_arrange(ports: str) -> str:
-    """ Gives a str in the format (always tcp listed first).
+    """Gives a str in the format (always tcp listed first).
     T:<tcp ports/portrange comma separated>U:<udp ports comma separated>
     """
     b_tcp = ports.find("T")

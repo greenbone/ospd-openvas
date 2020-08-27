@@ -43,7 +43,7 @@ class VtsFilter:
         }
 
     def parse_filters(self, vt_filter: str) -> List:
-        """ Parse a string containing one or more filters
+        """Parse a string containing one or more filters
         and return a list of filters
 
         Arguments:
@@ -78,19 +78,19 @@ class VtsFilter:
         return filters
 
     def format_vt_creation_time(self, value):
-        """ In case the given creationdatetime value must be formatted,
+        """In case the given creationdatetime value must be formatted,
         this function must be implemented by the wrapper
         """
         return value
 
     def format_vt_modification_time(self, value):
-        """ In case the given modification datetime value must be formatted,
+        """In case the given modification datetime value must be formatted,
         this function must be implemented by the wrapper
         """
         return value
 
     def format_filter_value(self, element: str, value: Dict):
-        """ Calls the specific function to format value,
+        """Calls the specific function to format value,
         depending on the given element.
 
         Arguments:
@@ -107,7 +107,7 @@ class VtsFilter:
     def get_filtered_vts_list(
         self, vts: Vts, vt_filter: str
     ) -> Optional[List[str]]:
-        """ Gets a collection of vulnerability test from the vts dictionary,
+        """Gets a collection of vulnerability test from the vts dictionary,
         which match the filter.
 
         Arguments:

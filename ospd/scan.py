@@ -53,7 +53,7 @@ class ScanProgress(IntEnum):
 
 class ScanCollection:
 
-    """ Scans collection, managing scans and results read and write, exposing
+    """Scans collection, managing scans and results read and write, exposing
     only needed information.
 
     Each scan has meta-information such as scan ID, current progress (from 0 to
@@ -194,8 +194,8 @@ class ScanCollection:
         self.scans_table[scan_id]['temp_results'] = list()
 
     def restore_temp_result_list(self, scan_id):
-        """ Add the results stored in the temporary list into the results
-        list again. """
+        """Add the results stored in the temporary list into the results
+        list again."""
         result_aux = self.scans_table[scan_id].get('results', list())
         result_aux.extend(self.scans_table[scan_id].get('temp_results', list()))
 
@@ -206,7 +206,7 @@ class ScanCollection:
     def results_iterator(
         self, scan_id: str, pop_res: bool = False, max_res: int = None
     ) -> Iterator[Any]:
-        """ Returns an iterator over scan_id scan's results. If pop_res is True,
+        """Returns an iterator over scan_id scan's results. If pop_res is True,
         it removed the fetched results from the list.
 
         If max_res is None, return all the results.
@@ -247,8 +247,8 @@ class ScanCollection:
         pickler.remove_file(scan_id)
 
     def unpickle_scan_info(self, scan_id: str) -> None:
-        """ Unpickle a stored scan_inf corresponding to the scan_id
-        and store it in the scan_table """
+        """Unpickle a stored scan_inf corresponding to the scan_id
+        and store it in the scan_table"""
 
         scan_info = self.scans_table.get(scan_id)
         scan_info_hash = scan_info.pop('scan_info_hash')
@@ -286,7 +286,7 @@ class ScanCollection:
         options: Optional[Dict] = None,
         vts: Dict = None,
     ) -> str:
-        """ Creates a new scan with provided scan information.
+        """Creates a new scan with provided scan information.
 
         @target: Target to scan.
         @options: Miscellaneous scan options supplied via <scanner_params>
@@ -369,7 +369,7 @@ class ScanCollection:
         return self.scans_table[scan_id]['target_progress']
 
     def simplify_exclude_host_count(self, scan_id: str) -> int:
-        """ Remove from exclude_hosts the received hosts in the finished_hosts
+        """Remove from exclude_hosts the received hosts in the finished_hosts
         list sent by the client.
         The finished hosts are sent also as exclude hosts for backward
         compatibility purposses.
@@ -392,7 +392,7 @@ class ScanCollection:
         return len(exc_hosts_list) if exc_hosts_list else 0
 
     def calculate_target_progress(self, scan_id: str) -> int:
-        """ Get a target's current progress value.
+        """Get a target's current progress value.
         The value is calculated with the progress of each single host
         in the target."""
 
@@ -439,31 +439,28 @@ class ScanCollection:
         return total_hosts
 
     def get_ports(self, scan_id: str) -> str:
-        """ Get a scan's ports list.
-        """
+        """Get a scan's ports list."""
         target = self.scans_table[scan_id].get('target')
         ports = target.pop('ports')
         self.scans_table[scan_id]['target'] = target
         return ports
 
     def get_exclude_hosts(self, scan_id: str) -> str:
-        """ Get an exclude host list for a given target.
-        """
+        """Get an exclude host list for a given target."""
         return self.scans_table[scan_id]['target'].get('exclude_hosts')
 
     def get_finished_hosts(self, scan_id: str) -> str:
-        """ Get the finished host list sent by the client for a given target.
-        """
+        """Get the finished host list sent by the client for a given target."""
         return self.scans_table[scan_id]['target'].get('finished_hosts')
 
     def get_credentials(self, scan_id: str) -> Dict[str, Dict[str, str]]:
-        """ Get a scan's credential list. It return dictionary with
+        """Get a scan's credential list. It return dictionary with
         the corresponding credential for a given target.
         """
         return self.scans_table[scan_id].get('credentials')
 
     def get_target_options(self, scan_id: str) -> Dict[str, str]:
-        """ Get a scan's target option dictionary.
+        """Get a scan's target option dictionary.
         It return dictionary with the corresponding options for
         a given target.
         """

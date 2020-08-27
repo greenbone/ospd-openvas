@@ -79,8 +79,8 @@ class OSPDaemonSimpleSSH(OSPDaemon):
     """
 
     def __init__(self, **kwargs):
-        """ Initializes the daemon and add parameters needed to remote SSH
-        execution. """
+        """Initializes the daemon and add parameters needed to remote SSH
+        execution."""
         super().__init__(**kwargs)
 
         self._niceness = kwargs.get('niceness', None)

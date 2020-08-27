@@ -48,7 +48,7 @@ class OspRequest:
     def process_vts_params(
         scanner_vts: Element,
     ) -> Dict[str, Union[Dict[str, str], List]]:
-        """ Receive an XML object with the Vulnerability Tests an their
+        """Receive an XML object with the Vulnerability Tests an their
         parameters to be use in a scan and return a dictionary.
 
         @param: XML element with vt subelements. Each vt has an
@@ -103,7 +103,7 @@ class OspRequest:
 
     @staticmethod
     def process_credentials_elements(cred_tree: Element) -> Dict:
-        """ Receive an XML object with the credentials to run
+        """Receive an XML object with the credentials to run
         a scan against a given target.
 
         @param:
@@ -148,7 +148,7 @@ class OspRequest:
 
     @classmethod
     def process_target_element(cls, scanner_target: Element) -> Dict:
-        """ Receive an XML object with the target, ports and credentials to run
+        """Receive an XML object with the target, ports and credentials to run
         a scan against.
 
         Arguments:

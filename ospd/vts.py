@@ -102,7 +102,7 @@ class Vts:
         qod_v: str = None,
         severities: str = None,
     ) -> None:
-        """ Add a vulnerability test information.
+        """Add a vulnerability test information.
 
         IMPORTANT: The VT's Data Manager will store the vts collection.
         If the collection is considerably big and it will be consultated
