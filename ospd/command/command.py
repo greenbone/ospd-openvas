@@ -119,7 +119,7 @@ class GetVersion(BaseCommand):
     must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <get_version> command.
+        """Handles <get_version> command.
 
         Return:
             Response string for <get_version> command.
@@ -192,7 +192,7 @@ class GetPerformance(BaseCommand):
     must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <get_performance> command.
+        """Handles <get_performance> command.
 
         @return: Response string for <get_performance> command.
         """
@@ -249,7 +249,7 @@ class GetScannerDetails(BaseCommand):
     must_be_initialized = True
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <get_scanner_details> command.
+        """Handles <get_scanner_details> command.
 
         @return: Response string for <get_scanner_details> command.
         """
@@ -281,7 +281,7 @@ class DeleteScan(BaseCommand):
     must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <delete_scan> command.
+        """Handles <delete_scan> command.
 
         @return: Response string for <delete_scan> command.
         """
@@ -313,7 +313,7 @@ class GetVts(BaseCommand):
     must_be_initialized = True
 
     def handle_xml(self, xml: Element) -> Iterator[bytes]:
-        """ Handles <get_vts> command.
+        """Handles <get_vts> command.
         Writes the vt collection on the stream.
         The <get_vts> element accept two optional arguments.
         vt_id argument receives a single vt id.
@@ -389,7 +389,7 @@ class StopScan(BaseCommand):
     must_be_initialized = True
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <stop_scan> command.
+        """Handles <stop_scan> command.
 
         @return: Response string for <stop_scan> command.
         """
@@ -421,7 +421,7 @@ class GetScans(BaseCommand):
     must_be_initialized = False
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <get_scans> command.
+        """Handles <get_scans> command.
 
         @return: Response string for <get_scans> command.
         """
@@ -490,7 +490,7 @@ class StartScan(BaseCommand):
         return elements
 
     def handle_xml(self, xml: Element) -> bytes:
-        """ Handles <start_scan> command.
+        """Handles <start_scan> command.
 
         Return:
             Response string for <start_scan> command.

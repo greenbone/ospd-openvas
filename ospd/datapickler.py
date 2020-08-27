@@ -97,7 +97,7 @@ class DataPickler:
         return self._pickled_data_hash_generator(pickled_data)
 
     def load_data(self, filename: str, original_data_hash: str) -> Any:
-        """ Unpickle the stored data in the filename. Perform an
+        """Unpickle the stored data in the filename. Perform an
         intengrity check of the read data with the the hash generated
         with the original data.
 
