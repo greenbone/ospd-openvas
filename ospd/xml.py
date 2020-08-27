@@ -35,7 +35,7 @@ r = re.compile(  # pylint: disable=invalid-name
 
 
 def split_invalid_xml(result_text: str) -> Union[List[Union[str, int]], str]:
-    """ Search for occurrence of non printable chars and replace them
+    """Search for occurrence of non printable chars and replace them
     with the integer representation the Unicode code. The original string
     is splitted where a non printable char is found.
     """
@@ -58,7 +58,7 @@ def split_invalid_xml(result_text: str) -> Union[List[Union[str, int]], str]:
 
 
 def escape_ctrl_chars(result_text):
-    """ Replace non printable chars in result_text with an hexa code
+    """Replace non printable chars in result_text with an hexa code
     in string format.
     """
     escaped_str = ''
@@ -72,7 +72,7 @@ def escape_ctrl_chars(result_text):
 
 
 def get_result_xml(result):
-    """ Formats a scan result to XML format.
+    """Formats a scan result to XML format.
 
     Arguments:
         result (dict): Dictionary with a scan result.
@@ -101,7 +101,7 @@ def get_result_xml(result):
 
 
 def get_progress_xml(progress: Dict[str, int]):
-    """ Formats a scan progress to XML format.
+    """Formats a scan progress to XML format.
 
     Arguments:
         progress (dict): Dictionary with a scan progress.
@@ -132,7 +132,7 @@ def simple_response_str(
     status_text: str,
     content: Union[str, Element, List[str], List[Element]] = "",
 ) -> bytes:
-    """ Creates an OSP response XML string.
+    """Creates an OSP response XML string.
 
     Arguments:
         command (str): OSP Command to respond to.
@@ -161,7 +161,7 @@ def simple_response_str(
 
 
 def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
-    """ Creates a list of etree elements from a dictionary
+    """Creates a list of etree elements from a dictionary
 
     Args:
         Dictionary of tags and their elements.
@@ -211,12 +211,12 @@ def elements_as_text(
 
 
 class XmlStringHelper:
-    """ Class with methods to help the creation of a xml object in
+    """Class with methods to help the creation of a xml object in
     string format.
     """
 
     def create_element(self, elem_name: str, end: bool = False) -> bytes:
-        """ Get a name and create the open element of an entity.
+        """Get a name and create the open element of an entity.
 
         Arguments:
             elem_name (str): The name of the tag element.
@@ -233,7 +233,7 @@ class XmlStringHelper:
         return ret.encode('utf-8')
 
     def create_response(self, command: str, end: bool = False) -> bytes:
-        """ Create or end an xml response.
+        """Create or end an xml response.
 
         Arguments:
             command (str): The name of the command for the response element.
@@ -291,7 +291,7 @@ class XmlStringHelper:
     def add_attr(
         self, tag: bytes, attribute: str, value: Union[str, int] = None
     ) -> bytes:
-        """ Add an attribute to the beginning tag of an xml element.
+        """Add an attribute to the beginning tag of an xml element.
         Arguments:
             tag (bytes): Tag to add the attribute to.
             attribute (str): Attribute name

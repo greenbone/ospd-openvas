@@ -21,18 +21,15 @@ __COMMANDS = []
 
 
 def register_command(command: object) -> None:
-    """ Register a command class
-    """
+    """Register a command class"""
     __COMMANDS.append(command)
 
 
 def remove_command(command: object) -> None:
-    """ Unregister a command class
-    """
+    """Unregister a command class"""
     __COMMANDS.remove(command)
 
 
 def get_commands() -> List[object]:
-    """ Return the list of registered command classes
-    """
+    """Return the list of registered command classes"""
     return __COMMANDS

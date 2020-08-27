@@ -44,7 +44,12 @@ class ResultList:
     ) -> None:
         """ Adds a host detail result to result list. """
         self.add_result_to_list(
-            ResultType.HOST_DETAIL, host, hostname, name, value, uri,
+            ResultType.HOST_DETAIL,
+            host,
+            hostname,
+            name,
+            value,
+            uri,
         )
 
     def add_scan_error_to_list(
@@ -59,7 +64,14 @@ class ResultList:
     ) -> None:
         """ Adds an error result to result list. """
         self.add_result_to_list(
-            ResultType.ERROR, host, hostname, name, value, port, test_id, uri,
+            ResultType.ERROR,
+            host,
+            hostname,
+            name,
+            value,
+            port,
+            test_id,
+            uri,
         )
 
     def add_scan_log_to_list(

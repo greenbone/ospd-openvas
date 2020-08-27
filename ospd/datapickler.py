@@ -71,7 +71,7 @@ class DataPickler:
             raise OspdCommandError(
                 'Not possible to access dir for %s. %s' % (filename, e),
                 'start_scan',
-            )
+            ) from e
 
         try:
             pickled_data = pickle.dumps(data_object)
@@ -79,7 +79,7 @@ class DataPickler:
             raise OspdCommandError(
                 'Not possible to pickle scan info for %s. %s' % (filename, e),
                 'start_scan',
-            )
+            ) from e
 
         try:
             with open(
@@ -91,13 +91,13 @@ class DataPickler:
             raise OspdCommandError(
                 'Not possible to store scan info for %s. %s' % (filename, e),
                 'start_scan',
-            )
+            ) from e
         self._fd_close()
 
         return self._pickled_data_hash_generator(pickled_data)
 
     def load_data(self, filename: str, original_data_hash: str) -> Any:
-        """ Unpickle the stored data in the filename. Perform an
+        """Unpickle the stored data in the filename. Perform an
         intengrity check of the read data with the the hash generated
         with the original data.
 
