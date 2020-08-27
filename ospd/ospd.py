@@ -64,7 +64,7 @@ from ospd.xml import (
 
 logger = logging.getLogger(__name__)
 
-PROTOCOL_VERSION = "1.2"
+PROTOCOL_VERSION = __version__
 
 SCHEDULER_CHECK_PERIOD = 10  # in seconds
 

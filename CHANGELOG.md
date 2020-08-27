@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20.8.2] (unreleased)
+
+### Fixed
+- Fix OSP version. [#326](https://github.com/greenbone/ospd/pull/326)
+
+[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
+
 ## [20.8.1] (2020-08-12)
 
 ### Fixed
