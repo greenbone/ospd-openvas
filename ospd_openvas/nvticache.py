@@ -119,7 +119,7 @@ class NVTICache(BaseDB):
         return self._ctx
 
     def get_feed_version(self) -> Optional[str]:
-        """ Get feed version of the nvti cache db.
+        """Get feed version of the nvti cache db.
 
         Returns the feed version or None if the nvt feed isn't available.
         """
@@ -130,7 +130,7 @@ class NVTICache(BaseDB):
         return OpenvasDB.get_single_item(self.ctx, self._get_nvti_cache_name())
 
     def get_oids(self) -> Iterator[Tuple[str, str]]:
-        """ Get the list of NVT file names and OIDs.
+        """Get the list of NVT file names and OIDs.
 
         Returns:
             A i. Each single list contains the filename
@@ -139,7 +139,7 @@ class NVTICache(BaseDB):
         return OpenvasDB.get_filenames_and_oids(self.ctx)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
-        """ Get NVT's preferences.
+        """Get NVT's preferences.
 
         Arguments:
             oid: OID of VT from which to get the parameters.
@@ -175,7 +175,7 @@ class NVTICache(BaseDB):
 
     @staticmethod
     def _parse_metadata_tags(tags_str: str, oid: str) -> Dict[str, str]:
-        """ Parse a string with multiple tags.
+        """Parse a string with multiple tags.
 
         Arguments:
             tags_str: String with tags separated by `|`.
@@ -197,7 +197,7 @@ class NVTICache(BaseDB):
         return tags_dict
 
     def get_nvt_metadata(self, oid: str) -> Optional[Dict[str, str]]:
-        """ Get a full NVT. Returns an XML tree with the NVT metadata.
+        """Get a full NVT. Returns an XML tree with the NVT metadata.
 
         Arguments:
             oid: OID of VT from which to get the metadata.
@@ -261,7 +261,7 @@ class NVTICache(BaseDB):
         return custom
 
     def get_nvt_refs(self, oid: str) -> Optional[Dict[str, str]]:
-        """ Get a full NVT.
+        """Get a full NVT.
 
         Arguments:
             oid: OID of VT from which to get the VT references.
@@ -288,7 +288,7 @@ class NVTICache(BaseDB):
         return refs
 
     def get_nvt_family(self, oid: str) -> str:
-        """ Get NVT family
+        """Get NVT family
         Arguments:
             oid: OID of VT from which to get the VT family.
 
@@ -302,7 +302,7 @@ class NVTICache(BaseDB):
         )
 
     def get_nvt_prefs(self, oid: str) -> Optional[List[str]]:
-        """ Get NVT preferences.
+        """Get NVT preferences.
 
         Arguments:
             ctx: Redis context to be used.
@@ -315,7 +315,7 @@ class NVTICache(BaseDB):
         return OpenvasDB.get_list_item(self.ctx, key)
 
     def get_nvt_timeout(self, oid: str) -> Optional[str]:
-        """ Get NVT timeout
+        """Get NVT timeout
 
         Arguments:
             ctx: Redis context to be used.
@@ -331,7 +331,7 @@ class NVTICache(BaseDB):
         )
 
     def get_nvt_tags(self, oid: str) -> Optional[Dict[str, str]]:
-        """ Get Tags of the given OID.
+        """Get Tags of the given OID.
 
         Arguments:
             ctx: Redis context to be used.
