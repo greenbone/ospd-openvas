@@ -64,7 +64,7 @@ RedisCtx = NewType('RedisCtx', redis.Redis)
 
 
 class OpenvasDB:
-    """ Class to connect to redis, to perform queries, and to move
+    """Class to connect to redis, to perform queries, and to move
     from a KB to another."""
 
     _db_address = None
@@ -82,7 +82,7 @@ class OpenvasDB:
     def create_context(
         cls, dbnum: Optional[int] = 0, encoding: Optional[str] = 'latin-1'
     ) -> RedisCtx:
-        """ Connect to redis to the given database or to the default db 0 .
+        """Connect to redis to the given database or to the default db 0 .
 
         Arguments:
             dbnum: The db number to connect to.
@@ -120,7 +120,7 @@ class OpenvasDB:
     def find_database_by_pattern(
         cls, pattern: str, max_database_index: int
     ) -> Tuple[Optional[RedisCtx], Optional[int]]:
-        """ Search a pattern inside all kbs up to max_database_index.
+        """Search a pattern inside all kbs up to max_database_index.
 
         Returns the redis context for the db and its index as a tuple or
         None, None if the db with the pattern couldn't be found.
@@ -134,7 +134,7 @@ class OpenvasDB:
 
     @staticmethod
     def select_database(ctx: RedisCtx, kbindex: str):
-        """ Use an existent redis connection and select a redis kb.
+        """Use an existent redis connection and select a redis kb.
 
         Arguments:
             ctx: Redis context to use.
@@ -154,7 +154,7 @@ class OpenvasDB:
         start: Optional[int] = LIST_FIRST_POS,
         end: Optional[int] = LIST_LAST_POS,
     ) -> Optional[list]:
-        """ Returns the specified elements from `start` to `end` of the
+        """Returns the specified elements from `start` to `end` of the
         list stored as `name`.
 
         Arguments:
@@ -204,7 +204,7 @@ class OpenvasDB:
 
     @staticmethod
     def get_key_count(ctx: RedisCtx, pattern: Optional[str] = None) -> int:
-        """ Get the number of keys matching with the pattern.
+        """Get the number of keys matching with the pattern.
 
         Arguments:
             ctx: Redis context to use.
@@ -220,7 +220,7 @@ class OpenvasDB:
 
     @staticmethod
     def remove_list_item(ctx: RedisCtx, key: str, value: str):
-        """ Remove item from the key list.
+        """Remove item from the key list.
 
         Arguments:
             ctx: Redis context to use.
@@ -238,9 +238,11 @@ class OpenvasDB:
 
     @staticmethod
     def get_single_item(
-        ctx: RedisCtx, name: str, index: Optional[int] = LIST_FIRST_POS,
+        ctx: RedisCtx,
+        name: str,
+        index: Optional[int] = LIST_FIRST_POS,
     ) -> Optional[str]:
-        """ Get a single KB element.
+        """Get a single KB element.
 
         Arguments:
             ctx: Redis context to use.
@@ -260,7 +262,7 @@ class OpenvasDB:
 
     @staticmethod
     def add_single_item(ctx: RedisCtx, name: str, values: Iterable):
-        """ Add a single KB element with one or more values.
+        """Add a single KB element with one or more values.
 
         Arguments:
             ctx: Redis context to use.
@@ -278,7 +280,7 @@ class OpenvasDB:
 
     @staticmethod
     def set_single_item(ctx: RedisCtx, name: str, value: Iterable):
-        """ Set (replace) a single KB element.
+        """Set (replace) a single KB element.
 
         Arguments:
             ctx: Redis context to use.
@@ -299,7 +301,7 @@ class OpenvasDB:
 
     @staticmethod
     def get_pattern(ctx: RedisCtx, pattern: str) -> List:
-        """ Get all items stored under a given pattern.
+        """Get all items stored under a given pattern.
 
         Arguments:
             ctx: Redis context to use.
@@ -326,7 +328,7 @@ class OpenvasDB:
 
     @classmethod
     def get_keys_by_pattern(cls, ctx: RedisCtx, pattern: str) -> List[str]:
-        """ Get all items with index 'index', stored under
+        """Get all items with index 'index', stored under
         a given pattern.
 
         Arguments:
@@ -344,9 +346,10 @@ class OpenvasDB:
 
     @classmethod
     def get_filenames_and_oids(
-        cls, ctx: RedisCtx,
+        cls,
+        ctx: RedisCtx,
     ) -> Iterable[Tuple[str, str]]:
-        """ Get all items with index 'index', stored under
+        """Get all items with index 'index', stored under
         a given pattern.
 
         Arguments:
@@ -381,9 +384,9 @@ class BaseKbDB(BaseDB):
     def _add_single_item(
         self, name: str, values: Iterable, utf8_enc: Optional[bool] = False
     ):
-        ''' Changing the encoding format of an existing redis context
+        """Changing the encoding format of an existing redis context
         is not possible. Therefore a new temporary redis context is
-        created to store key-values encoded with utf-8.'''
+        created to store key-values encoded with utf-8."""
         if utf8_enc:
             ctx = OpenvasDB.create_context(self.index, encoding='utf-8')
             OpenvasDB.add_single_item(ctx, name, values)
@@ -391,7 +394,7 @@ class BaseKbDB(BaseDB):
             OpenvasDB.add_single_item(self.ctx, name, values)
 
     def _set_single_item(self, name: str, value: Iterable):
-        """ Set (replace) a single KB element.
+        """Set (replace) a single KB element.
 
         Arguments:
             name: key name of a list.
@@ -400,15 +403,18 @@ class BaseKbDB(BaseDB):
         OpenvasDB.set_single_item(self.ctx, name, value)
 
     def _get_single_item(self, name: str) -> Optional[str]:
-        """ Get a single KB element.
+        """Get a single KB element.
 
         Arguments:
             name: key name of a list.
         """
         return OpenvasDB.get_single_item(self.ctx, name)
 
-    def _get_list_item(self, name: str,) -> Optional[List]:
-        """ Returns the specified elements from `start` to `end` of the
+    def _get_list_item(
+        self,
+        name: str,
+    ) -> Optional[List]:
+        """Returns the specified elements from `start` to `end` of the
         list stored as `name`.
 
         Arguments:
@@ -422,7 +428,7 @@ class BaseKbDB(BaseDB):
         return OpenvasDB.pop_list_items(self.ctx, name)
 
     def _remove_list_item(self, key: str, value: str):
-        """ Remove item from the key list.
+        """Remove item from the key list.
 
         Arguments:
             key: key name of a list.
@@ -431,7 +437,7 @@ class BaseKbDB(BaseDB):
         OpenvasDB.remove_list_item(self.ctx, key, value)
 
     def get_result(self) -> Optional[str]:
-        """ Get and remove the oldest result from the list.
+        """Get and remove the oldest result from the list.
 
         Return the oldest scan results
         """
@@ -449,7 +455,7 @@ class ScanDB(BaseKbDB):
     """ Database for a scanning a single host """
 
     def select(self, kbindex: int) -> "ScanDB":
-        """ Select a redis kb.
+        """Select a redis kb.
 
         Arguments:
             kbindex: The new kb to select
@@ -461,7 +467,7 @@ class ScanDB(BaseKbDB):
 
 class KbDB(BaseKbDB):
     def get_scan_databases(self) -> Iterator[ScanDB]:
-        """ Returns an iterator yielding corresponding ScanDBs
+        """Returns an iterator yielding corresponding ScanDBs
 
         The returned Iterator can't be converted to an Iterable like a List.
         Each yielded ScanDB must be used independently in a for loop. If the
@@ -488,8 +494,8 @@ class KbDB(BaseKbDB):
     def add_credentials_to_scan_preferences(
         self, openvas_scan_id: str, preferences: Iterable
     ):
-        ''' Force the usage of the utf-8 encoding, since some credentials
-        contain special chars not supported by latin-1 encoding. '''
+        """Force the usage of the utf-8 encoding, since some credentials
+        contain special chars not supported by latin-1 encoding."""
         self._add_single_item(
             'internal/{}/scanprefs'.format(openvas_scan_id),
             preferences,
@@ -518,13 +524,12 @@ class KbDB(BaseKbDB):
         )
 
     def scan_is_stopped(self, scan_id: str) -> bool:
-        """ Check if the scan should be stopped
-        """
+        """Check if the scan should be stopped"""
         status = self._get_single_item('internal/%s' % scan_id)
         return status == 'stop_all'
 
     def get_scan_status(self) -> List:
-        """ Get and remove the oldest host scan status from the list.
+        """Get and remove the oldest host scan status from the list.
 
         Return a string which represents the host scan status.
         """
@@ -543,8 +548,7 @@ class MainDB(BaseDB):
 
     @property
     def max_database_index(self):
-        """Set the number of databases have been configured into kbr struct.
-        """
+        """Set the number of databases have been configured into kbr struct."""
         if self._max_dbindex is None:
             resp = self.ctx.config_get('databases')
 
@@ -558,7 +562,7 @@ class MainDB(BaseDB):
         return self._max_dbindex
 
     def try_database(self, index: int) -> bool:
-        """ Check if a redis db is already in use. If not, set it
+        """Check if a redis db is already in use. If not, set it
         as in use and return.
 
         Arguments:
@@ -580,8 +584,7 @@ class MainDB(BaseDB):
         return resp == 1
 
     def get_new_kb_database(self) -> Optional[KbDB]:
-        """ Return a new kb db to an empty kb.
-        """
+        """Return a new kb db to an empty kb."""
         for index in range(1, self.max_database_index):
             if self.try_database(index):
                 kbdb = KbDB(index)
@@ -593,8 +596,7 @@ class MainDB(BaseDB):
     def find_kb_database_by_scan_id(
         self, scan_id: str
     ) -> Tuple[Optional[str], Optional["KbDB"]]:
-        """ Find a kb db by via a scan id
-        """
+        """Find a kb db by via a scan id"""
         for index in range(1, self.max_database_index):
             ctx = OpenvasDB.create_context(index)
             if OpenvasDB.get_key_count(ctx, 'internal/{}'.format(scan_id)):
