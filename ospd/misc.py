@@ -97,8 +97,8 @@ def go_to_background() -> None:
 
 
 def create_pid(pidfile: str) -> bool:
-    """ Check if there is an already running daemon and creates the pid file.
-    Otherwise gives an error. """
+    """Check if there is an already running daemon and creates the pid file.
+    Otherwise gives an error."""
 
     pid = str(os.getpid())
     pidpath = Path(pidfile)

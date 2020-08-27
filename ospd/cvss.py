@@ -64,7 +64,7 @@ class CVSS(object):
 
     @classmethod
     def cvss_base_v2_value(cls, cvss_base_vector: str) -> Optional[float]:
-        """ Calculate the cvss base score from a cvss base vector
+        """Calculate the cvss base score from a cvss base vector
         for cvss version 2.
         Arguments:
             cvss_base_vector (str) Cvss base vector v2.
@@ -100,7 +100,7 @@ class CVSS(object):
 
     @classmethod
     def cvss_base_v3_value(cls, cvss_base_vector: str) -> Optional[float]:
-        """ Calculate the cvss base score from a cvss base vector
+        """Calculate the cvss base score from a cvss base vector
         for cvss version 3.
         Arguments:
             cvss_base_vector (str) Cvss base vector v3.
