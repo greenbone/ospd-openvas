@@ -574,7 +574,9 @@ class OSPDaemon:
         )
 
     def sort_host_finished(
-        self, scan_id: str, finished_hosts: Union[List[str], str],
+        self,
+        scan_id: str,
+        finished_hosts: Union[List[str], str],
     ) -> None:
         """Check if the finished host in the list was alive or dead
         and update the corresponding alive_count or dead_count."""
@@ -615,7 +617,10 @@ class OSPDaemon:
         self.set_scan_progress(scan_id)
 
     def set_scan_host_progress(
-        self, scan_id: str, host: str = None, progress: int = None,
+        self,
+        scan_id: str,
+        host: str = None,
+        progress: int = None,
     ) -> None:
         """Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
@@ -668,7 +673,11 @@ class OSPDaemon:
 
             if elements:
                 command_txt = ''.join(
-                    [command_txt, "\t Elements:\n", elements_as_text(elements),]
+                    [
+                        command_txt,
+                        "\t Elements:\n",
+                        elements_as_text(elements),
+                    ]
                 )
 
             txt += command_txt
