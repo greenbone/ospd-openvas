@@ -146,6 +146,32 @@ class OspRequest:
 
         return credentials
 
+    @staticmethod
+    def process_alive_test_methods(cred_tree: Element, options: Dict) -> None:
+        """ Receive an XML object with the alive test methods to run
+        a scan with. Methods are added to the options Dict.
+
+        @param
+        <alive_test_methods>
+            </icmp></icmp>
+            </tcp_ack></tcp_ack>
+            </tcp_syn></tcp_syn>
+            </arp></arp>
+            </consider_alive>0</consider_alive>
+        </alive_test_methods>
+        """
+        for child in cred_tree:
+            if child.tag == 'icmp':
+                options['icmp'] = child.text
+            if child.tag == 'tcp_ack':
+                options['tcp_ack'] = child.text
+            if child.tag == 'tcp_syn':
+                options['tcp_syn'] = child.text
+            if child.tag == 'arp':
+                options['arp'] = child.text
+            if child.tag == 'consider_alive':
+                options['consider_alive'] = child.text
+
     @classmethod
     def process_target_element(cls, scanner_target: Element) -> Dict:
         """Receive an XML object with the target, ports and credentials to run
@@ -222,6 +248,9 @@ class OspRequest:
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
+                if child.tag == 'alive_test_methods':
+                    options['alive_test_methods'] = '1'
+                    cls.process_alive_test_methods(child, options)
                 if child.tag == 'alive_test':
                     options['alive_test'] = child.text
                 if child.tag == 'alive_test_ports':
