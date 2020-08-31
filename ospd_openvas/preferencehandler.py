@@ -62,6 +62,27 @@ class AliveTest(IntEnum):
     ALIVE_TEST_TCP_SYN_SERVICE = 16
 
 
+def alive_test_methods_to_bit_field(
+    icmp: bool, tcp_syn: bool, tcp_ack: bool, arp: bool, consider_alive: bool
+) -> int:
+    """Internally a bit field is used as alive test. This function creates
+    such a bit field out of the supplied alive test methods.
+    """
+
+    icmp_enum = AliveTest.ALIVE_TEST_ICMP if icmp else 0
+    tcp_syn_enum = AliveTest.ALIVE_TEST_TCP_SYN_SERVICE if tcp_syn else 0
+    tcp_ack_enum = AliveTest.ALIVE_TEST_TCP_ACK_SERVICE if tcp_ack else 0
+    arp_enum = AliveTest.ALIVE_TEST_ARP if arp else 0
+    consider_alive_enum = (
+        AliveTest.ALIVE_TEST_CONSIDER_ALIVE if consider_alive else 0
+    )
+
+    bit_field = (
+        icmp_enum | tcp_syn_enum | tcp_ack_enum | arp_enum | consider_alive_enum
+    )
+    return bit_field
+
+
 def _from_bool_to_str(value: int) -> str:
     """The OpenVAS scanner use yes and no as boolean values, whereas ospd
     uses 1 and 0."""
@@ -282,27 +303,18 @@ class PreferenceHandler:
         """
         target_opt_prefs_list = []
 
+        # Alive test speciefied as bit field.
         alive_test = target_options.get('alive_test')
+        # Alive test speciefied as individual methods.
         alive_test_methods = target_options.get('alive_test_methods')
         if target_options and alive_test is None and alive_test_methods:
-            alive_test_enum = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
-            if target_options.get('icmp') == '1':
-                alive_test_enum = alive_test_enum | AliveTest.ALIVE_TEST_ICMP
-            if target_options.get('tcp_syn') == '1':
-                alive_test_enum = (
-                    alive_test_enum | AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
-                )
-            if target_options.get('tcp_ack') == '1':
-                alive_test_enum = (
-                    alive_test_enum | AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
-                )
-            if target_options.get('arp') == '1':
-                alive_test_enum = alive_test_enum | AliveTest.ALIVE_TEST_ARP
-            if target_options.get('consider_alive') == '1':
-                alive_test_enum = (
-                    alive_test_enum | AliveTest.ALIVE_TEST_CONSIDER_ALIVE
-                )
-            alive_test = alive_test_enum
+            alive_test = alive_test_methods_to_bit_field(
+                icmp=target_options.get('icmp') == '1',
+                tcp_syn=target_options.get('tcp_syn') == '1',
+                tcp_ack=target_options.get('tcp_ack') == '1',
+                arp=target_options.get('arp') == '1',
+                consider_alive=target_options.get('consider_alive') == '1',
+            )
 
         if target_options and alive_test:
             try:
@@ -412,7 +424,7 @@ class PreferenceHandler:
         """Set alive_test for Boreas if boreas scanner config
         (BOREAS_SETTING_NAME) was set"""
         settings = Openvas.get_settings()
-        alive_test = -1
+        alive_test = None
         alive_test_ports = None
 
         if settings:
@@ -420,43 +432,28 @@ class PreferenceHandler:
             if not boreas:
                 return
             alive_test_ports = self.target_options.get('alive_test_ports')
-
-            alive_test_str = self.target_options.get('alive_test')
+            # Alive test speciefied as bit field.
+            alive_test = self.target_options.get('alive_test')
+            # Alive test speciefied as individual methods.
             alive_test_methods = self.target_options.get('alive_test_methods')
-            if alive_test_str is None and alive_test_methods:
-                alive_test_bitmask = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
-                if self.target_options.get('icmp') == '1':
-                    alive_test_bitmask = (
-                        alive_test_bitmask | AliveTest.ALIVE_TEST_ICMP
-                    )
-                if self.target_options.get('tcp_syn') == '1':
-                    alive_test_bitmask = (
-                        alive_test_bitmask
-                        | AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
-                    )
-                if self.target_options.get('tcp_ack') == '1':
-                    alive_test_bitmask = (
-                        alive_test_bitmask
-                        | AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
-                    )
-                if self.target_options.get('arp') == '1':
-                    alive_test_bitmask = (
-                        alive_test_bitmask | AliveTest.ALIVE_TEST_ARP
-                    )
-                if self.target_options.get('consider_alive') == '1':
-                    alive_test_bitmask = (
-                        alive_test_bitmask | AliveTest.ALIVE_TEST_CONSIDER_ALIVE
-                    )
-                alive_test_str = alive_test_bitmask
+            if alive_test is None and alive_test_methods:
+                alive_test = alive_test_methods_to_bit_field(
+                    icmp=self.target_options.get('icmp') == '1',
+                    tcp_syn=self.target_options.get('tcp_syn') == '1',
+                    tcp_ack=self.target_options.get('tcp_ack') == '1',
+                    arp=self.target_options.get('arp') == '1',
+                    consider_alive=self.target_options.get('consider_alive')
+                    == '1',
+                )
 
-            if alive_test_str is not None:
+            if alive_test is not None:
                 try:
-                    alive_test = int(alive_test_str)
+                    alive_test = int(alive_test)
                 except ValueError:
                     logger.debug(
                         'Alive test preference for Boreas not set. '
                         'Invalid alive test value %s.',
-                        alive_test_str,
+                        alive_test,
                     )
             # ALIVE_TEST_SCAN_CONFIG_DEFAULT if no alive_test provided
             else:
