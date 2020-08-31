@@ -101,10 +101,7 @@ class PreferenceHandler:
         )
         return self._target_options
 
-    def _get_vts_in_groups(
-        self,
-        filters: List[str],
-    ) -> List[str]:
+    def _get_vts_in_groups(self, filters: List[str],) -> List[str]:
         """Return a list of vts which match with the given filter.
 
         Arguments:
@@ -154,16 +151,12 @@ class PreferenceHandler:
         """Check if the value of a vt parameter matches with
         the type founded.
         """
-        if (
-            param_type
-            in [
-                'entry',
-                'password',
-                'radio',
-                'sshlogin',
-            ]
-            and isinstance(vt_param_value, str)
-        ):
+        if param_type in [
+            'entry',
+            'password',
+            'radio',
+            'sshlogin',
+        ] and isinstance(vt_param_value, str):
             return None
         elif param_type == 'checkbox' and (
             vt_param_value == '0' or vt_param_value == '1'
@@ -185,8 +178,7 @@ class PreferenceHandler:
         return 1
 
     def _process_vts(
-        self,
-        vts: Dict[str, Dict[str, str]],
+        self, vts: Dict[str, Dict[str, str]],
     ) -> Tuple[List[str], Dict[str, str]]:
         """ Add single VTs and their parameters. """
         vts_list = []
@@ -289,9 +281,32 @@ class PreferenceHandler:
             in string format to be added to the redis KB.
         """
         target_opt_prefs_list = []
-        if target_options and target_options.get('alive_test'):
+
+        alive_test = target_options.get('alive_test')
+        alive_test_methods = target_options.get('alive_test_methods')
+        if target_options and alive_test is None and alive_test_methods:
+            alive_test_enum = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
+            if target_options.get('icmp') == '1':
+                alive_test_enum = alive_test_enum | AliveTest.ALIVE_TEST_ICMP
+            if target_options.get('tcp_syn') == '1':
+                alive_test_enum = (
+                    alive_test_enum | AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+                )
+            if target_options.get('tcp_ack') == '1':
+                alive_test_enum = (
+                    alive_test_enum | AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+                )
+            if target_options.get('arp') == '1':
+                alive_test_enum = alive_test_enum | AliveTest.ALIVE_TEST_ARP
+            if target_options.get('consider_alive') == '1':
+                alive_test_enum = (
+                    alive_test_enum | AliveTest.ALIVE_TEST_CONSIDER_ALIVE
+                )
+            alive_test = alive_test_enum
+
+        if target_options and alive_test:
             try:
-                alive_test = int(target_options.get('alive_test'))
+                alive_test = int(alive_test)
             except ValueError:
                 logger.debug(
                     'Alive test settings not applied. '
@@ -405,7 +420,35 @@ class PreferenceHandler:
             if not boreas:
                 return
             alive_test_ports = self.target_options.get('alive_test_ports')
+
             alive_test_str = self.target_options.get('alive_test')
+            alive_test_methods = self.target_options.get('alive_test_methods')
+            if alive_test_str is None and alive_test_methods:
+                alive_test_bitmask = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
+                if self.target_options.get('icmp') == '1':
+                    alive_test_bitmask = (
+                        alive_test_bitmask | AliveTest.ALIVE_TEST_ICMP
+                    )
+                if self.target_options.get('tcp_syn') == '1':
+                    alive_test_bitmask = (
+                        alive_test_bitmask
+                        | AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+                    )
+                if self.target_options.get('tcp_ack') == '1':
+                    alive_test_bitmask = (
+                        alive_test_bitmask
+                        | AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+                    )
+                if self.target_options.get('arp') == '1':
+                    alive_test_bitmask = (
+                        alive_test_bitmask | AliveTest.ALIVE_TEST_ARP
+                    )
+                if self.target_options.get('consider_alive') == '1':
+                    alive_test_bitmask = (
+                        alive_test_bitmask | AliveTest.ALIVE_TEST_CONSIDER_ALIVE
+                    )
+                alive_test_str = alive_test_bitmask
+
             if alive_test_str is not None:
                 try:
                     alive_test = int(alive_test_str)
