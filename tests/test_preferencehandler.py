@@ -21,6 +21,7 @@ import logging
 
 from unittest import TestCase
 from unittest.mock import call, patch, Mock, MagicMock
+from collections import OrderedDict
 
 from ospd.vts import Vts
 
@@ -545,15 +546,6 @@ class PreferenceHandlerTestCase(TestCase):
             "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
         ]
 
-        alive_test_preferences = {
-            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping": "yes",
-            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)": "yes",
-        }
-
         t_opt = {'alive_test': 2}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
@@ -565,9 +557,29 @@ class PreferenceHandlerTestCase(TestCase):
             p._openvas_scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
-            p.prepare_nvt_preferences()
 
-            p.kbdb.add_scan_preferences.assert_called_with(
-                p._openvas_scan_id,
-                alive_test_out,
-            )
+            for key, value in p._nvts_params.items():
+                self.assertTrue(
+                    "{0}|||{1}".format(key, value) in alive_test_out
+                )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_prepare_nvt_prefs(self, mock_kb):
+        w = DummyDaemon()
+
+        alive_test_out = [
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no"
+        ]
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p._nvts_params = {
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no"
+        }
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.prepare_nvt_preferences()
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id,
+            alive_test_out,
+        )
