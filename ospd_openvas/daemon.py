@@ -1249,6 +1249,11 @@ class OSPDopenvas(OSPDaemon):
         scan_prefs.prepare_scan_params_for_openvas(OSPD_PARAMS)
         scan_prefs.prepare_reverse_lookup_opt_for_openvas()
         scan_prefs.prepare_alive_test_option_for_openvas()
+
+        # VT preferences are stored after all preferences have been processed,
+        # since alive tests preferences have to be able to overwrite default
+        # preferences of ping_host.nasl for the classic method.
+        scan_prefs.prepare_nvt_preferences()
         scan_prefs.prepare_boreas_alive_test()
 
         # Release memory used for scan preferences.
