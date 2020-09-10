@@ -268,7 +268,6 @@ class PreferenceHandler:
             self.kbdb.add_scan_preferences(self._openvas_scan_id, [plugin_list])
 
             nvts_list = None
-            item = None
             plugin_list = None
             nvts = None
 
