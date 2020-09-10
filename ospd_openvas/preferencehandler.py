@@ -276,9 +276,7 @@ class PreferenceHandler:
         return False
 
     def prepare_nvt_preferences(self):
-        """Prepare the vts preferences. Store the data in the kb.
-        Store the data in the kb.
-        """
+        """Prepare the vts preferences. Store the data in the kb."""
 
         items_list = []
         for key, val in self._nvts_params.items():
