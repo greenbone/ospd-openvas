@@ -200,19 +200,20 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
 
-        self.assertEqual(ret, [])
+        self.assertEqual(ret, {})
 
     def test_build_alive_test_opt(self):
         w = DummyDaemon()
 
-        alive_test_out = [
-            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
-            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
-        ]
+        alive_test_out = {
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping": "yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)": "yes",
+        }
+
         target_options_dict = {'alive_test': '2'}
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
@@ -242,7 +243,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_target_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['TARGET|||192.168.0.1'],
+            p._openvas_scan_id,
+            ['TARGET|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -257,7 +259,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_ports_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['port_range|||80,443'],
+            p._openvas_scan_id,
+            ['port_range|||80,443'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -270,7 +273,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_main_kbindex_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['ov_maindbid|||2'],
+            p._openvas_scan_id,
+            ['ov_maindbid|||2'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -363,7 +367,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['exclude_hosts|||192.168.0.1'],
+            p._openvas_scan_id,
+            ['exclude_hosts|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -422,7 +427,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p._openvas_scan_id,
-            ['reverse_lookup_only|||yes', 'reverse_lookup_unify|||no',],
+            [
+                'reverse_lookup_only|||yes',
+                'reverse_lookup_unify|||no',
+            ],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -537,6 +545,15 @@ class PreferenceHandlerTestCase(TestCase):
             "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
         ]
 
+        alive_test_preferences = {
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping": "yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)": "yes",
+        }
+
         t_opt = {'alive_test': 2}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
@@ -544,11 +561,13 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-
+            p._nvts_params = {}
             p._openvas_scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
+            p.prepare_nvt_preferences()
 
             p.kbdb.add_scan_preferences.assert_called_with(
-                p._openvas_scan_id, alive_test_out,
+                p._openvas_scan_id,
+                alive_test_out,
             )
