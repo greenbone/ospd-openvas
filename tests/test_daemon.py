@@ -472,6 +472,21 @@ class TestOspdOpenvas(TestCase):
 
         self.assertEqual(res, out)
 
+    def test_get_dependencies_xml_missing_dep(self):
+        w = DummyDaemon()
+
+        out = (
+            '<dependencies>'
+            '<dependency vt_id="1.3.6.1.4.1.25623.1.2.3.4"/>'
+            '</dependencies>'
+        )
+        dep = ['1.3.6.1.4.1.25623.1.2.3.4', 'file_name.nasl']
+        res = w.get_dependencies_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', dep
+        )
+
+        self.assertEqual(res, out)
+
     def test_get_dependencies_xml_failed(self):
         w = DummyDaemon()
         logging.Logger.error = Mock()
