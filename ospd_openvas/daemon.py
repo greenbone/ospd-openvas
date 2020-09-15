@@ -717,9 +717,9 @@ class OSPDopenvas(OSPDaemon):
         vt_deps_xml = Element('dependencies')
         for dep in vt_dependencies:
             _vt_dep = Element('dependency')
-            try:
+            if "1.3.6.1.4.1.25623." in dep:
                 _vt_dep.set('vt_id', dep)
-            except (ValueError, TypeError):
+            else:
                 logger.error(
                     'Not possible to add dependency %s for VT %s', dep, vt_id
                 )
