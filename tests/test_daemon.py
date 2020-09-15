@@ -461,10 +461,11 @@ class TestOspdOpenvas(TestCase):
 
         out = (
             '<dependencies>'
-            '<dependency vt_id="1.2.3.4"/><dependency vt_id="4.3.2.1"/>'
+            '<dependency vt_id="1.3.6.1.4.1.25623.1.2.3.4"/>'
+            '<dependency vt_id="1.3.6.1.4.1.25623.4.3.2.1"/>'
             '</dependencies>'
         )
-        dep = ['1.2.3.4', '4.3.2.1']
+        dep = ['1.3.6.1.4.1.25623.1.2.3.4', '1.3.6.1.4.1.25623.4.3.2.1']
         res = w.get_dependencies_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', dep
         )
@@ -686,7 +687,9 @@ class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.Path.open')
     def test_feed_is_outdated_true(
-        self, mock_path_open: MagicMock, mock_path_exists: MagicMock,
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
     ):
         read_data = 'PLUGIN_SET = "1235";'
 
@@ -709,7 +712,9 @@ class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.Path.open')
     def test_feed_is_outdated_false(
-        self, mock_path_open: MagicMock, mock_path_exists: MagicMock,
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
     ):
         mock_path_exists.return_value = True
 
@@ -807,7 +812,8 @@ class TestOspdOpenvas(TestCase):
 
         w.report_openvas_results(MockDBClass, '123-456', 'localhost')
         w.scan_collection.set_amount_dead_hosts.assert_called_with(
-            '123-456', total_dead=4,
+            '123-456',
+            total_dead=4,
         )
 
     @patch('ospd_openvas.daemon.ScanDB')
