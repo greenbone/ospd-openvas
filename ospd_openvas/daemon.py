@@ -359,6 +359,8 @@ OSPD_PARAMS = {
     },
 }
 
+VT_BASE_OID = "1.3.6.1.4.1.25623."
+
 
 def safe_int(value: str) -> Optional[int]:
     """Convert a string into an integer and return None in case of errors
@@ -717,7 +719,7 @@ class OSPDopenvas(OSPDaemon):
         vt_deps_xml = Element('dependencies')
         for dep in vt_dependencies:
             _vt_dep = Element('dependency')
-            if "1.3.6.1.4.1.25623." in dep:
+            if VT_BASE_OID in dep:
                 _vt_dep.set('vt_id', dep)
             else:
                 logger.error(
