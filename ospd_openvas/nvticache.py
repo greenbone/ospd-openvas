@@ -23,6 +23,8 @@ import logging
 
 from typing import List, Dict, Optional, Iterator, Tuple
 
+from ospd.errors import RequiredArgument
+from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
 
 NVTI_CACHE_NAME = "nvticache"
@@ -306,3 +308,15 @@ class NVTICache(BaseDB):
 
     def force_reload(self):
         self._main_db.release_database(self)
+
+    def add_vt_to_cache(self, vt_id: str, vt: List[str]):
+        if not vt_id:
+            raise RequiredArgument('add_vt_to_cache', 'vt_id')
+        if not vt:
+            raise RequiredArgument('add_vt_to_cache', 'vt')
+        if not isinstance(vt, list) or len(vt) != 15:
+            raise OspdOpenvasError(
+                'Error trying to load the VT' ' {} in cache'.format(vt)
+            )
+
+        OpenvasDB.add_single_list(self.ctx, vt_id, vt)
