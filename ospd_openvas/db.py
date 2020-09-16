@@ -295,17 +295,18 @@ class OpenvasDB:
             value: Elements to add to the key.
         """
         if not ctx:
-            raise RequiredArgument('add_list_item', 'ctx')
+            raise RequiredArgument('add_single_item', 'ctx')
         if not name:
-            raise RequiredArgument('add_list_item', 'name')
+            raise RequiredArgument('add_single_item', 'name')
         if not values:
-            raise RequiredArgument('add_list_item', 'value')
+            raise RequiredArgument('add_single_item', 'value')
 
         ctx.rpush(name, *set(values))
 
     @staticmethod
     def set_single_item(ctx: RedisCtx, name: str, value: Iterable):
-        """Set (replace) a single KB element.
+        """Set (replace) a single KB element. If the same key exists
+        in the kb, it is completed removed. Values added are unique.
 
         Arguments:
             ctx: Redis context to use.
