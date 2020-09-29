@@ -261,8 +261,10 @@ class OpenvasDB:
         return ctx.lindex(name, index)
 
     @staticmethod
-    def add_single_item(ctx: RedisCtx, name: str, values: Iterable):
+    def add_single_list(ctx: RedisCtx, name: str, values: Iterable):
         """Add a single KB element with one or more values.
+        The values can be repeated. If the key already exists will
+        be removed an completely replaced.
 
         Arguments:
             ctx: Redis context to use.
@@ -270,17 +272,41 @@ class OpenvasDB:
             value: Elements to add to the key.
         """
         if not ctx:
-            raise RequiredArgument('add_list_item', 'ctx')
+            raise RequiredArgument('add_single_list', 'ctx')
         if not name:
-            raise RequiredArgument('add_list_item', 'name')
+            raise RequiredArgument('add_single_list', 'name')
         if not values:
-            raise RequiredArgument('add_list_item', 'value')
+            raise RequiredArgument('add_single_list', 'value')
+
+        pipe = ctx.pipeline()
+        pipe.delete(name)
+        pipe.rpush(name, *values)
+        pipe.execute()
+
+    @staticmethod
+    def add_single_item(ctx: RedisCtx, name: str, values: Iterable):
+        """Add a single KB element with one or more values. Don't add
+        duplicated values during this operation, but if the the same
+        values already exists under the key, this will not be overwritten.
+
+        Arguments:
+            ctx: Redis context to use.
+            name: key name of a list.
+            value: Elements to add to the key.
+        """
+        if not ctx:
+            raise RequiredArgument('add_single_item', 'ctx')
+        if not name:
+            raise RequiredArgument('add_single_item', 'name')
+        if not values:
+            raise RequiredArgument('add_single_item', 'value')
 
         ctx.rpush(name, *set(values))
 
     @staticmethod
     def set_single_item(ctx: RedisCtx, name: str, value: Iterable):
-        """Set (replace) a single KB element.
+        """Set (replace) a single KB element. If the same key exists
+        in the kb, it is completed removed. Values added are unique.
 
         Arguments:
             ctx: Redis context to use.

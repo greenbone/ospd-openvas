@@ -84,8 +84,10 @@ class TestNVTICache(TestCase):
         logging.Logger.error = Mock()
 
         tags = 'tag1'
-        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
-            tags, '1.2.3'
+        ret = (
+            NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+                tags, '1.2.3'
+            )
         )
 
         self.assertEqual(ret, {})
@@ -93,16 +95,20 @@ class TestNVTICache(TestCase):
 
     def test_parse_metadata_tag(self, MockOpenvasDB):
         tags = 'tag1=value1'
-        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
-            tags, '1.2.3'
+        ret = (
+            NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+                tags, '1.2.3'
+            )
         )
 
         self.assertEqual(ret, {'tag1': 'value1'})
 
     def test_parse_metadata_tags(self, MockOpenvasDB):
         tags = 'tag1=value1|foo=bar'
-        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
-            tags, '1.2.3'
+        ret = (
+            NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+                tags, '1.2.3'
+            )
         )
 
         self.assertEqual(ret, {'tag1': 'value1', 'foo': 'bar'})
@@ -310,3 +316,48 @@ class TestNVTICache(TestCase):
         self.nvti.flush()
 
         self.nvti._ctx.flushdb.assert_called_with()
+
+    def test_add_vt(self, MockOpenvasDB):
+        MockOpenvasDB.add_single_list = Mock()
+
+        self.nvti.add_vt_to_cache(
+            '1234',
+            [
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+                'i',
+                'j',
+                'k',
+                'l',
+                'm',
+                'n',
+                'o',
+            ],
+        )
+        MockOpenvasDB.add_single_list.assert_called_with(
+            'foo',
+            '1234',
+            [
+                'a',
+                'b',
+                'c',
+                'd',
+                'e',
+                'f',
+                'g',
+                'h',
+                'i',
+                'j',
+                'k',
+                'l',
+                'm',
+                'n',
+                'o',
+            ],
+        )

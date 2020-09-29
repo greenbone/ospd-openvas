@@ -164,11 +164,23 @@ class TestOpenvasDB(TestCase):
         self.assertEqual(value, 'a')
         ctx.lindex.assert_called_once_with('a', 0)
 
+    def test_add_single_list(self, mock_redis):
+        ctx = mock_redis.return_value
+        pipeline = ctx.pipeline.return_value
+        pipeline.delete.return_value = None
+        pipeline.execute.return_value = (None, 0)
+
+        OpenvasDB.add_single_list(ctx, 'a', ['12', '11', '12'])
+
+        pipeline.delete.assert_called_once_with('a')
+        pipeline.rpush.assert_called_once_with('a', '12', '11', '12')
+        assert_called(pipeline.execute)
+
     def test_add_single_item(self, mock_redis):
         ctx = mock_redis.return_value
         ctx.rpush.return_value = 1
 
-        OpenvasDB.add_single_item(ctx, 'a', ['12'])
+        OpenvasDB.add_single_item(ctx, 'a', ['12', '12'])
 
         ctx.rpush.assert_called_once_with('a', '12')
 
@@ -350,7 +362,12 @@ class ScanDBTestCase(TestCase):
 
         ret = self.db.get_result()
 
-        self.assertEqual(ret, ['some result',])
+        self.assertEqual(
+            ret,
+            [
+                'some result',
+            ],
+        )
         mock_openvas_db.pop_list_items.assert_called_with(
             self.ctx, 'internal/results'
         )
@@ -393,7 +410,12 @@ class KbDBTestCase(TestCase):
 
         ret = self.db.get_result()
 
-        self.assertEqual(ret, ['some results',])
+        self.assertEqual(
+            ret,
+            [
+                'some results',
+            ],
+        )
         mock_openvas_db.pop_list_items.assert_called_with(
             self.ctx, 'internal/results'
         )
