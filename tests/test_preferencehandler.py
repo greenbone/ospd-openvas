@@ -583,3 +583,15 @@ class PreferenceHandlerTestCase(TestCase):
             p._openvas_scan_id,
             alive_test_out,
         )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_prepare_nvt_prefs_no_prefs(self, mock_kb):
+        w = DummyDaemon()
+
+        p = PreferenceHandler('456-789', mock_kb, w.scan_collection, None)
+        p._nvts_params = {}
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.prepare_nvt_preferences()
+
+        p.kbdb.add_scan_preferences.assert_not_called()

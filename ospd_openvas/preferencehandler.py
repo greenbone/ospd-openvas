@@ -281,7 +281,9 @@ class PreferenceHandler:
         items_list = []
         for key, val in self._nvts_params.items():
             items_list.append('%s|||%s' % (key, val))
-        self.kbdb.add_scan_preferences(self._openvas_scan_id, items_list)
+
+        if items_list:
+            self.kbdb.add_scan_preferences(self._openvas_scan_id, items_list)
 
     @staticmethod
     def build_alive_test_opt_as_prefs(
