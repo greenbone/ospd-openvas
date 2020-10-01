@@ -359,6 +359,8 @@ OSPD_PARAMS = {
     },
 }
 
+VT_BASE_OID = "1.3.6.1.4.1.25623."
+
 
 def safe_int(value: str) -> Optional[int]:
     """Convert a string into an integer and return None in case of errors
@@ -717,9 +719,9 @@ class OSPDopenvas(OSPDaemon):
         vt_deps_xml = Element('dependencies')
         for dep in vt_dependencies:
             _vt_dep = Element('dependency')
-            try:
+            if VT_BASE_OID in dep:
                 _vt_dep.set('vt_id', dep)
-            except (ValueError, TypeError):
+            else:
                 logger.error(
                     'Not possible to add dependency %s for VT %s', dep, vt_id
                 )
@@ -1249,6 +1251,11 @@ class OSPDopenvas(OSPDaemon):
         scan_prefs.prepare_scan_params_for_openvas(OSPD_PARAMS)
         scan_prefs.prepare_reverse_lookup_opt_for_openvas()
         scan_prefs.prepare_alive_test_option_for_openvas()
+
+        # VT preferences are stored after all preferences have been processed,
+        # since alive tests preferences have to be able to overwrite default
+        # preferences of ping_host.nasl for the classic method.
+        scan_prefs.prepare_nvt_preferences()
         scan_prefs.prepare_boreas_alive_test()
 
         # Release memory used for scan preferences.
