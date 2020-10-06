@@ -257,7 +257,7 @@ class PreferenceHandler:
 
     def prepare_plugins_for_openvas(self) -> bool:
         """Get the plugin list and it preferences from the Scan Collection.
-        The plugin list is inmediately stored in the kb.
+        The plugin list is immediately stored in the kb.
         """
         nvts = self.scan_collection.get_vts(self.scan_id)
         if nvts:
