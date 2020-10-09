@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.8.2] (unreleased)
 
+### Added
+- Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
+
 ### Fixed
 - Fix OSP version. [#326](https://github.com/greenbone/ospd/pull/326)
 
