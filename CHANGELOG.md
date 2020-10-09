@@ -12,6 +12,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix nvticache name when for stable version from sources. [#317](https://github.com/greenbone/ospd-openvas/pull/317)
 - Fix stop scan during preferences handling, before spawining OpenVAS. [#332](https://github.com/greenbone/ospd-openvas/pull/332)
 - Fix alive test preferences when a non default method is selected. [#334](https://github.com/greenbone/ospd-openvas/pull/334)
+- Check for empty vts preferences list. [#340](https://github.com/greenbone/ospd-openvas/pull/340)
+- Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
 
 [20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...ospd-openvas-20.08
 

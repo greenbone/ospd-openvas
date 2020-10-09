@@ -1027,6 +1027,7 @@ class OSPDopenvas(OSPDaemon):
             rname = ''
             rhostname = msg[1].strip() if msg[1] else ''
             host_is_dead = "Host dead" in msg[4] or msg[0] == "DEADHOST"
+            host_count = msg[0] == "HOSTS_COUNT"
             host_deny = "Host access denied" in msg[4]
             vt_aux = None
 
@@ -1035,10 +1036,15 @@ class OSPDopenvas(OSPDaemon):
             if len(msg) > 5:
                 ruri = msg[5]
 
-            if roid and not host_is_dead and not host_deny:
+            if roid and not host_is_dead and not host_deny and not host_count:
                 vt_aux = vthelper.get_single_vt(roid)
 
-            if not vt_aux and not host_is_dead and not host_deny:
+            if (
+                not vt_aux
+                and not host_is_dead
+                and not host_deny
+                and not host_count
+            ):
                 logger.warning('Invalid VT oid %s for a result', roid)
 
             if vt_aux:
@@ -1109,6 +1115,14 @@ class OSPDopenvas(OSPDaemon):
                     total_dead = int(msg[4])
                 except TypeError:
                     logger.debug('Error processing dead host count')
+
+            # To update total host count
+            if msg[0] == 'HOSTS_COUNT':
+                try:
+                    count_total = int(msg[4])
+                    self.set_scan_total_hosts(scan_id, count_total)
+                except TypeError:
+                    logger.debug('Error processing total host count')
 
         # Insert result batch into the scan collection table.
         if len(res_list):
