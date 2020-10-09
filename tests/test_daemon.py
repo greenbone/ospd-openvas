@@ -832,6 +832,25 @@ class TestOspdOpenvas(TestCase):
         )
 
     @patch('ospd_openvas.daemon.ScanDB')
+    def test_get_openvas_result_hosts_count(self, MockDBClass):
+        w = DummyDaemon()
+        target_element = w.create_xml_target()
+        targets = OspRequest.process_target_element(target_element)
+        w.create_scan('123-456', targets, None, [])
+
+        results = [
+            "HOSTS_COUNT||| ||| ||| |||4",
+        ]
+        MockDBClass.get_result.return_value = results
+        w.set_scan_total_hosts = MagicMock()
+
+        w.report_openvas_results(MockDBClass, '123-456', 'localhost')
+        w.set_scan_total_hosts.assert_called_with(
+            '123-456',
+            4,
+        )
+
+    @patch('ospd_openvas.daemon.ScanDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_alarm_to_list')
     def test_result_without_vt_oid(
         self, mock_add_scan_alarm_to_list, MockDBClass
