@@ -51,7 +51,7 @@ ospd = {git = "https://github.com/greenbone/ospd.git", branch = "master"}
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.5.3"
-rope = "^0.17.0"
+rope = "^0.18.0"
 autohooks-plugin-pylint = "^1.2.0"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.7"}
 black = {version = "20.8b1", python = "^3.7"}
