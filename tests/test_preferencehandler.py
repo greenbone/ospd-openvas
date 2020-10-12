@@ -243,7 +243,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_target_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p.scan_id, ['TARGET|||192.168.0.1'],
+            p.scan_id,
+            ['TARGET|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -258,7 +259,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_ports_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p.scan_id, ['port_range|||80,443'],
+            p.scan_id,
+            ['port_range|||80,443'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -271,7 +273,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_main_kbindex_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p.scan_id, ['ov_maindbid|||2'],
+            p.scan_id,
+            ['ov_maindbid|||2'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -364,7 +367,8 @@ class PreferenceHandlerTestCase(TestCase):
         p.prepare_host_options_for_openvas()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p.scan_id, ['exclude_hosts|||192.168.0.1'],
+            p.scan_id,
+            ['exclude_hosts|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -423,7 +427,10 @@ class PreferenceHandlerTestCase(TestCase):
 
         p.kbdb.add_scan_preferences.assert_called_with(
             p.scan_id,
-            ['reverse_lookup_only|||yes', 'reverse_lookup_unify|||no',],
+            [
+                'reverse_lookup_only|||yes',
+                'reverse_lookup_unify|||no',
+            ],
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -431,6 +438,8 @@ class PreferenceHandlerTestCase(TestCase):
         # No Boreas config setting (BOREAS_SETTING_NAME) set
         w = DummyDaemon()
         ov_setting = {'not_the_correct_setting': 1}
+        t_opt = {}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
             p.scan_id = '456-789'
@@ -450,7 +459,8 @@ class PreferenceHandlerTestCase(TestCase):
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_boreas_alive_test()
 
-            p.kbdb.add_scan_preferences.assert_not_called()
+            calls = [call(p.scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
+            p.kbdb.add_scan_preferences.assert_has_calls(calls)
 
         # ALIVE_TEST_TCP_SYN_SERVICE as alive test.
         w = DummyDaemon()
@@ -571,5 +581,6 @@ class PreferenceHandlerTestCase(TestCase):
             p.prepare_alive_test_option_for_openvas()
 
             p.kbdb.add_scan_preferences.assert_called_with(
-                p.scan_id, alive_test_out,
+                p.scan_id,
+                alive_test_out,
             )
