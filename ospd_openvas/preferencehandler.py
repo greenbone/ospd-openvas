@@ -443,6 +443,8 @@ class PreferenceHandler:
             boreas = settings.get(BOREAS_SETTING_NAME)
             if not boreas:
                 return
+        else:
+            return
 
         if target_options:
             alive_test_ports = target_options.get('alive_test_ports')
@@ -460,41 +462,43 @@ class PreferenceHandler:
                     consider_alive=target_options.get('consider_alive') == '1',
                 )
 
-            if alive_test is not None:
-                try:
-                    alive_test = int(alive_test)
-                except ValueError:
-                    logger.debug(
-                        'Alive test preference for Boreas not set. '
-                        'Invalid alive test value %s.',
-                        alive_test,
-                    )
-            # ALIVE_TEST_SCAN_CONFIG_DEFAULT if no alive_test provided
-            else:
+        if alive_test is not None:
+            try:
+                alive_test = int(alive_test)
+            except ValueError:
+                logger.debug(
+                    'Alive test preference for Boreas not set. '
+                    'Invalid alive test value %s.',
+                    alive_test,
+                )
+                # Use default alive test as fall back
                 alive_test = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
+        # Use default alive test if no valid alive_test was provided
+        else:
+            alive_test = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
 
-            # If a valid alive_test was set then the bit mask
-            # has value between 31 (11111) and 1 (10000)
-            if 1 <= alive_test <= 31:
-                pref = "{pref_key}|||{pref_value}".format(
-                    pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
-                )
-                self.kbdb.add_scan_preferences(self.scan_id, [pref])
+        # If a valid alive_test was set then the bit mask
+        # has value between 31 (11111) and 1 (10000)
+        if 1 <= alive_test <= 31:
+            pref = "{pref_key}|||{pref_value}".format(
+                pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
+            )
+            self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
-            if alive_test == AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT:
-                alive_test = AliveTest.ALIVE_TEST_ICMP
-                pref = "{pref_key}|||{pref_value}".format(
-                    pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
-                )
-                self.kbdb.add_scan_preferences(self.scan_id, [pref])
+        if alive_test == AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT:
+            alive_test = AliveTest.ALIVE_TEST_ICMP
+            pref = "{pref_key}|||{pref_value}".format(
+                pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
+            )
+            self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
-            # Add portlist if present. Validity is checked on Boreas side.
-            if alive_test_ports is not None:
-                pref = "{pref_key}|||{pref_value}".format(
-                    pref_key=BOREAS_ALIVE_TEST_PORTS,
-                    pref_value=alive_test_ports,
-                )
-                self.kbdb.add_scan_preferences(self.scan_id, [pref])
+        # Add portlist if present. Validity is checked on Boreas side.
+        if alive_test_ports is not None:
+            pref = "{pref_key}|||{pref_value}".format(
+                pref_key=BOREAS_ALIVE_TEST_PORTS,
+                pref_value=alive_test_ports,
+            )
+            self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
     def prepare_reverse_lookup_opt_for_openvas(self):
         """ Set reverse lookup options in the kb"""
