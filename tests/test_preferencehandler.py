@@ -36,6 +36,7 @@ from ospd_openvas.preferencehandler import (
     BOREAS_ALIVE_TEST,
     BOREAS_ALIVE_TEST_PORTS,
     PreferenceHandler,
+    alive_test_methods_to_bit_field,
 )
 
 
@@ -584,3 +585,79 @@ class PreferenceHandlerTestCase(TestCase):
                 p.scan_id,
                 alive_test_out,
             )
+
+    def test_alive_test_methods_to_bit_field(self):
+
+        self.assertEqual(
+            AliveTest.ALIVE_TEST_TCP_ACK_SERVICE,
+            alive_test_methods_to_bit_field(
+                icmp=False,
+                tcp_ack=True,
+                tcp_syn=False,
+                arp=False,
+                consider_alive=False,
+            ),
+        )
+
+        self.assertEqual(
+            AliveTest.ALIVE_TEST_ICMP,
+            alive_test_methods_to_bit_field(
+                icmp=True,
+                tcp_ack=False,
+                tcp_syn=False,
+                arp=False,
+                consider_alive=False,
+            ),
+        )
+
+        self.assertEqual(
+            AliveTest.ALIVE_TEST_ARP,
+            alive_test_methods_to_bit_field(
+                icmp=False,
+                tcp_ack=False,
+                tcp_syn=False,
+                arp=True,
+                consider_alive=False,
+            ),
+        )
+
+        self.assertEqual(
+            AliveTest.ALIVE_TEST_CONSIDER_ALIVE,
+            alive_test_methods_to_bit_field(
+                icmp=False,
+                tcp_ack=False,
+                tcp_syn=False,
+                arp=False,
+                consider_alive=True,
+            ),
+        )
+
+        self.assertEqual(
+            AliveTest.ALIVE_TEST_TCP_SYN_SERVICE,
+            alive_test_methods_to_bit_field(
+                icmp=False,
+                tcp_ack=False,
+                tcp_syn=True,
+                arp=False,
+                consider_alive=False,
+            ),
+        )
+
+        all_alive_test_methods = (
+            AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
+            | AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
+            | AliveTest.ALIVE_TEST_ICMP
+            | AliveTest.ALIVE_TEST_ARP
+            | AliveTest.ALIVE_TEST_CONSIDER_ALIVE
+            | AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
+        )
+        self.assertEqual(
+            all_alive_test_methods,
+            alive_test_methods_to_bit_field(
+                icmp=True,
+                tcp_ack=True,
+                tcp_syn=True,
+                arp=True,
+                consider_alive=True,
+            ),
+        )
