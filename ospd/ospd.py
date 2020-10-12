@@ -786,7 +786,7 @@ class OSPDaemon:
         current_progress[
             'count_excluded'
         ] = self.scan_collection.simplify_exclude_host_count(scan_id)
-        current_progress['count_total'] = self.scan_collection.get_host_count(
+        current_progress['count_total'] = self.scan_collection.get_count_total(
             scan_id
         )
 
@@ -1391,6 +1391,11 @@ class OSPDaemon:
     def set_scan_option(self, scan_id: str, name: str, value: Any) -> None:
         """ Sets a scan's option to a provided value. """
         return self.scan_collection.set_option(scan_id, name, value)
+
+    def set_scan_total_hosts(self, scan_id: str, count_total: int) -> None:
+        """Sets a scan's total hosts. Allow the scanner to update
+        the total count of host to be scanned."""
+        self.scan_collection.update_count_total(scan_id, count_total)
 
     def clean_forgotten_scans(self) -> None:
         """Check for old stopped or finished scans which have not been

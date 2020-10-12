@@ -238,7 +238,8 @@ class ScanTestCase(unittest.TestCase):
         )
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_vts filter="modification_time&lt;19000203"></get_vts>', fs,
+            '<get_vts filter="modification_time&lt;19000203"></get_vts>',
+            fs,
         )
         response = fs.get_response()
 
@@ -741,7 +742,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs,
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
+            fs,
         )
 
         res_len = len(
@@ -771,7 +773,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream(return_value=False)
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs,
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
+            fs,
         )
 
         res_len = len(
@@ -1060,6 +1063,31 @@ class ScanTestCase(unittest.TestCase):
             fs,
         )
 
+    def test_set_scan_total_hosts(self):
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        count = self.daemon.scan_collection.get_count_total(scan_id)
+        self.assertEqual(count, 4)
+
+        self.daemon.set_scan_total_hosts(scan_id, 3)
+        count = self.daemon.scan_collection.get_count_total(scan_id)
+        self.assertEqual(count, 3)
+
     def test_get_scan_progress_xml(self):
 
         fs = FakeStream()
@@ -1087,7 +1115,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id, fs,
+            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id,
+            fs,
         )
         response = fs.get_response()
 
@@ -1164,7 +1193,8 @@ class ScanTestCase(unittest.TestCase):
         )
 
         self.daemon.handle_command(
-            cmd, fs,
+            cmd,
+            fs,
         )
         self.daemon.start_queued_scans()
 

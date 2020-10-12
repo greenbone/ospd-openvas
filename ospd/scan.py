@@ -269,6 +269,7 @@ class ScanCollection:
         scan_info['target_progress'] = dict()
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
+        scan_info['count_total'] = 0
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
         scan_info['options'] = unpickled_scan_info.pop('options')
@@ -360,9 +361,24 @@ class ScanCollection:
         return self.scans_table[scan_id]['count_dead']
 
     def get_count_alive(self, scan_id: str) -> int:
-        """ Get a scan's current dead host count. """
+        """ Get a scan's current alive host count. """
 
         return self.scans_table[scan_id]['count_alive']
+
+    def update_count_total(self, scan_id: str, count_total: int) -> int:
+        """ Sets a scan's total hosts."""
+
+        self.scans_table[scan_id]['count_total'] = count_total
+
+    def get_count_total(self, scan_id: str) -> int:
+        """ Get a scan's total host count. """
+
+        count_total = self.scans_table[scan_id]['count_total']
+        if not count_total:
+            count_total = self.get_host_count(scan_id)
+            self.update_count_total(scan_id, count_total)
+
+        return count_total
 
     def get_current_target_progress(self, scan_id: str) -> Dict[str, int]:
         """ Get a scan's current hosts progress """
@@ -396,7 +412,7 @@ class ScanCollection:
         The value is calculated with the progress of each single host
         in the target."""
 
-        total_hosts = self.get_host_count(scan_id)
+        total_hosts = self.get_count_total(scan_id)
         exc_hosts = self.simplify_exclude_host_count(scan_id)
         count_alive = self.get_count_alive(scan_id)
         count_dead = self.get_count_dead(scan_id)
