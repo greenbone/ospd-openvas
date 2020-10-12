@@ -122,7 +122,10 @@ class PreferenceHandler:
         )
         return self._target_options
 
-    def _get_vts_in_groups(self, filters: List[str],) -> List[str]:
+    def _get_vts_in_groups(
+        self,
+        filters: List[str],
+    ) -> List[str]:
         """Return a list of vts which match with the given filter.
 
         Arguments:
@@ -172,12 +175,16 @@ class PreferenceHandler:
         """Check if the value of a vt parameter matches with
         the type founded.
         """
-        if param_type in [
-            'entry',
-            'password',
-            'radio',
-            'sshlogin',
-        ] and isinstance(vt_param_value, str):
+        if (
+            param_type
+            in [
+                'entry',
+                'password',
+                'radio',
+                'sshlogin',
+            ]
+            and isinstance(vt_param_value, str)
+        ):
             return None
         elif param_type == 'checkbox' and (
             vt_param_value == '0' or vt_param_value == '1'
@@ -199,7 +206,8 @@ class PreferenceHandler:
         return 1
 
     def _process_vts(
-        self, vts: Dict[str, Dict[str, str]],
+        self,
+        vts: Dict[str, Dict[str, str]],
     ) -> Tuple[List[str], Dict[str, str]]:
         """ Add single VTs and their parameters. """
         vts_list = []
@@ -302,19 +310,22 @@ class PreferenceHandler:
             in string format to be added to the redis KB.
         """
         target_opt_prefs_list = []
+        alive_test = None
 
-        # Alive test speciefied as bit field.
-        alive_test = target_options.get('alive_test')
-        # Alive test speciefied as individual methods.
-        alive_test_methods = target_options.get('alive_test_methods')
-        if target_options and alive_test is None and alive_test_methods:
-            alive_test = alive_test_methods_to_bit_field(
-                icmp=target_options.get('icmp') == '1',
-                tcp_syn=target_options.get('tcp_syn') == '1',
-                tcp_ack=target_options.get('tcp_ack') == '1',
-                arp=target_options.get('arp') == '1',
-                consider_alive=target_options.get('consider_alive') == '1',
-            )
+        if target_options:
+            # Alive test speciefied as bit field.
+            alive_test = target_options.get('alive_test')
+            # Alive test speciefied as individual methods.
+            alive_test_methods = target_options.get('alive_test_methods')
+            # alive_test takes precedence over alive_test_methods
+            if alive_test is None and alive_test_methods:
+                alive_test = alive_test_methods_to_bit_field(
+                    icmp=target_options.get('icmp') == '1',
+                    tcp_syn=target_options.get('tcp_syn') == '1',
+                    tcp_ack=target_options.get('tcp_ack') == '1',
+                    arp=target_options.get('arp') == '1',
+                    consider_alive=target_options.get('consider_alive') == '1',
+                )
 
         if target_options and alive_test:
             try:
@@ -426,24 +437,27 @@ class PreferenceHandler:
         settings = Openvas.get_settings()
         alive_test = None
         alive_test_ports = None
+        target_options = self.target_options
 
         if settings:
             boreas = settings.get(BOREAS_SETTING_NAME)
             if not boreas:
                 return
-            alive_test_ports = self.target_options.get('alive_test_ports')
-            # Alive test speciefied as bit field.
-            alive_test = self.target_options.get('alive_test')
-            # Alive test speciefied as individual methods.
-            alive_test_methods = self.target_options.get('alive_test_methods')
+
+        if target_options:
+            alive_test_ports = target_options.get('alive_test_ports')
+            # Alive test was speciefied as bit field.
+            alive_test = target_options.get('alive_test')
+            # Alive test was speciefied as individual methods.
+            alive_test_methods = target_options.get('alive_test_methods')
+            # <alive_test> takes precedence over <alive_test_methods>
             if alive_test is None and alive_test_methods:
                 alive_test = alive_test_methods_to_bit_field(
-                    icmp=self.target_options.get('icmp') == '1',
-                    tcp_syn=self.target_options.get('tcp_syn') == '1',
-                    tcp_ack=self.target_options.get('tcp_ack') == '1',
-                    arp=self.target_options.get('arp') == '1',
-                    consider_alive=self.target_options.get('consider_alive')
-                    == '1',
+                    icmp=target_options.get('icmp') == '1',
+                    tcp_syn=target_options.get('tcp_syn') == '1',
+                    tcp_ack=target_options.get('tcp_ack') == '1',
+                    arp=target_options.get('arp') == '1',
+                    consider_alive=target_options.get('consider_alive') == '1',
                 )
 
             if alive_test is not None:
@@ -459,27 +473,28 @@ class PreferenceHandler:
             else:
                 alive_test = AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT
 
-        # If a valid alive_test was set then the bit mask
-        # has value between 31 (11111) and 1 (10000)
-        if 1 <= alive_test <= 31:
-            pref = "{pref_key}|||{pref_value}".format(
-                pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
-            )
-            self.kbdb.add_scan_preferences(self.scan_id, [pref])
+            # If a valid alive_test was set then the bit mask
+            # has value between 31 (11111) and 1 (10000)
+            if 1 <= alive_test <= 31:
+                pref = "{pref_key}|||{pref_value}".format(
+                    pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
+                )
+                self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
-        if alive_test == AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT:
-            alive_test = AliveTest.ALIVE_TEST_ICMP
-            pref = "{pref_key}|||{pref_value}".format(
-                pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
-            )
-            self.kbdb.add_scan_preferences(self.scan_id, [pref])
+            if alive_test == AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT:
+                alive_test = AliveTest.ALIVE_TEST_ICMP
+                pref = "{pref_key}|||{pref_value}".format(
+                    pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
+                )
+                self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
-        # Add portlist if present. Validity is checked on Boreas side.
-        if alive_test_ports is not None:
-            pref = "{pref_key}|||{pref_value}".format(
-                pref_key=BOREAS_ALIVE_TEST_PORTS, pref_value=alive_test_ports
-            )
-            self.kbdb.add_scan_preferences(self.scan_id, [pref])
+            # Add portlist if present. Validity is checked on Boreas side.
+            if alive_test_ports is not None:
+                pref = "{pref_key}|||{pref_value}".format(
+                    pref_key=BOREAS_ALIVE_TEST_PORTS,
+                    pref_value=alive_test_ports,
+                )
+                self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
     def prepare_reverse_lookup_opt_for_openvas(self):
         """ Set reverse lookup options in the kb"""
