@@ -425,11 +425,15 @@ class PreferenceHandler:
     def prepare_alive_test_option_for_openvas(self):
         """ Set alive test option. Overwrite the scan config settings."""
         settings = Openvas.get_settings()
-        if settings and self.target_options.get('alive_test'):
+        if settings and (
+            self.target_options.get('alive_test')
+            or self.target_options.get('alive_test_methods')
+        ):
             alive_test_opt = self.build_alive_test_opt_as_prefs(
                 self.target_options
             )
-            self.kbdb.add_scan_preferences(self.scan_id, alive_test_opt)
+            if alive_test_opt:
+                self.kbdb.add_scan_preferences(self.scan_id, alive_test_opt)
 
     def prepare_boreas_alive_test(self):
         """Set alive_test for Boreas if boreas scanner config
