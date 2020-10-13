@@ -148,7 +148,7 @@ class OspRequest:
 
     @staticmethod
     def process_alive_test_methods(cred_tree: Element, options: Dict) -> None:
-        """ Receive an XML object with the alive test methods to run
+        """Receive an XML object with the alive test methods to run
         a scan with. Methods are added to the options Dict.
 
         @param
