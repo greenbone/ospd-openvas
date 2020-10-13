@@ -740,6 +740,40 @@ class PreferenceHandlerTestCase(TestCase):
             p.kbdb.add_scan_preferences.assert_not_called()
 
     @patch('ospd_openvas.db.KbDB')
+    def test_set_alive_no_invalid_alive_test(self, mock_kb):
+        w = DummyDaemon()
+
+        t_opt = {'alive_test': -1}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {'some_setting': 1}
+
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p.scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
+
+            p.kbdb.add_scan_preferences.assert_not_called()
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_alive_no_invalid_alive_test_no_enum(self, mock_kb):
+        w = DummyDaemon()
+
+        t_opt = {'alive_test_methods': '1', 'icmp': '-1'}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {'some_setting': 1}
+
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p.scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
+
+            p.kbdb.add_scan_preferences.assert_not_called()
+
+    @patch('ospd_openvas.db.KbDB')
     def test_set_alive_pinghost(self, mock_kb):
         w = DummyDaemon()
 
@@ -768,6 +802,54 @@ class PreferenceHandlerTestCase(TestCase):
                 p.scan_id,
                 alive_test_out,
             )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_prepare_alive_test_not_supplied_as_enum(self, mock_kb):
+        w = DummyDaemon()
+
+        alive_test_out = [
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
+        ]
+
+        t_opt = {'alive_test_methods': '1', 'icmp': '1'}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {'some_setting': 1}
+
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+
+            p.scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
+
+            p.kbdb.add_scan_preferences.assert_called_with(
+                p.scan_id,
+                alive_test_out,
+            )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_prepare_alive_test_no_enum_no_alive_test(self, mock_kb):
+        w = DummyDaemon()
+
+        t_opt = {'alive_test_methods': '1', 'icmp': '0'}
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+
+        ov_setting = {'some_setting': 1}
+
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+
+            p.scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_alive_test_option_for_openvas()
+
+            p.kbdb.add_scan_preferences.assert_not_called()
 
     def test_alive_test_methods_to_bit_field(self):
 
