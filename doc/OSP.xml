@@ -1534,6 +1534,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </change>
 
   <change>
+    <command>START_SCAN</command>
+    <summary>Add support for supplying alive test methods via separate elements.</summary>
+    <description>Target element received new optional target option alive_test_methods with subelements imcp, tcp_ack, tcp_syn, arp and consider_alive.
+    </description>
+    <version>21.4</version>
+  </change>
+
+  <change>
     <command>GET_VTS</command>
     <summary>Returned object extended with solution method</summary>
     <description>
