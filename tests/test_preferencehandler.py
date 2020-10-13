@@ -204,6 +204,13 @@ class PreferenceHandlerTestCase(TestCase):
 
         self.assertEqual(ret, [])
 
+        # alive test was supplied via seperate xml element
+        w = DummyDaemon()
+        target_options_dict = {'alive_test_methods': '1', 'icmp': '0'}
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
+        ret = p.build_alive_test_opt_as_prefs(target_options_dict)
+        self.assertEqual(ret, [])
+
     def test_build_alive_test_opt(self):
         w = DummyDaemon()
 
@@ -219,6 +226,21 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
 
+        self.assertEqual(ret, alive_test_out)
+
+        # alive test was supplied via sepertae xml element
+        w = DummyDaemon()
+        alive_test_out = [
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
+        ]
+        target_options_dict = {'alive_test_methods': '1', 'icmp': '1'}
+        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
+        ret = p.build_alive_test_opt_as_prefs(target_options_dict)
         self.assertEqual(ret, alive_test_out)
 
     def test_build_alive_test_opt_fail_1(self):
@@ -664,6 +686,26 @@ class PreferenceHandlerTestCase(TestCase):
                 call(p.scan_id, [BOREAS_ALIVE_TEST + '|||16']),
                 call(p.scan_id, [BOREAS_ALIVE_TEST_PORTS + '|||80,137']),
             ]
+            p.kbdb.add_scan_preferences.assert_has_calls(calls)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_boreas_alive_test_enum_has_precedence(self, mock_kb):
+        w = DummyDaemon()
+        t_opt = {
+            'alive_test_methods': "1",
+            'consider_alive': '1',
+            'alive_test': AliveTest.ALIVE_TEST_ICMP,
+        }
+        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        ov_setting = {BOREAS_SETTING_NAME: 1}
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p.scan_id = '456-789'
+            p.kbdb.add_scan_preferences = MagicMock()
+            p.prepare_boreas_alive_test()
+
+            # has icmp and not consider_alive
+            calls = [call(p.scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
             p.kbdb.add_scan_preferences.assert_has_calls(calls)
 
     @patch('ospd_openvas.db.KbDB')
