@@ -238,7 +238,8 @@ class ScanTestCase(unittest.TestCase):
         )
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_vts filter="modification_time&lt;19000203"></get_vts>', fs,
+            '<get_vts filter="modification_time&lt;19000203"></get_vts>',
+            fs,
         )
         response = fs.get_response()
 
@@ -741,7 +742,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs,
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
+            fs,
         )
 
         res_len = len(
@@ -771,7 +773,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream(return_value=False)
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs,
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
+            fs,
         )
 
         res_len = len(
@@ -892,6 +895,82 @@ class ScanTestCase(unittest.TestCase):
         time.sleep(1)
         target_options = self.daemon.get_scan_target_options(scan_id)
         self.assertEqual(target_options, {'alive_test': '0'})
+
+    def test_scan_get_target_options_alive_test_methods(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets>'
+            '<target><hosts>192.168.0.1</hosts>'
+            '<ports>22</ports>'
+            '<alive_test_methods>'
+            '<icmp>1</icmp>'
+            '<tcp_syn>1</tcp_syn>'
+            '<tcp_ack>1</tcp_ack>'
+            '<arp>1</arp>'
+            '<consider_alive>1</consider_alive>'
+            '</alive_test_methods>'
+            '</target>'
+            '</targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        time.sleep(1)
+        target_options = self.daemon.get_scan_target_options(scan_id)
+        self.assertEqual(
+            target_options,
+            {
+                'alive_test_methods': '1',
+                'icmp': '1',
+                'tcp_syn': '1',
+                'tcp_ack': '1',
+                'arp': '1',
+                'consider_alive': '1',
+            },
+        )
+
+    def test_scan_get_target_options_alive_test_methods_dont_add_empty_or_missing(  # pylint: disable=line-too-long
+        self,
+    ):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets>'
+            '<target><hosts>192.168.0.1</hosts>'
+            '<ports>22</ports>'
+            '<alive_test_methods>'
+            '<icmp>1</icmp>'
+            '<arp></arp>'
+            '<consider_alive></consider_alive>'
+            '</alive_test_methods>'
+            '</target>'
+            '</targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        time.sleep(1)
+        target_options = self.daemon.get_scan_target_options(scan_id)
+        self.assertEqual(
+            target_options,
+            {
+                'alive_test_methods': '1',
+                'icmp': '1',
+            },
+        )
 
     def test_progress(self):
 
@@ -1087,7 +1166,8 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id, fs,
+            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id,
+            fs,
         )
         response = fs.get_response()
 
@@ -1164,7 +1244,8 @@ class ScanTestCase(unittest.TestCase):
         )
 
         self.daemon.handle_command(
-            cmd, fs,
+            cmd,
+            fs,
         )
         self.daemon.start_queued_scans()
 

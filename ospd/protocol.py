@@ -146,6 +146,39 @@ class OspRequest:
 
         return credentials
 
+    @staticmethod
+    def process_alive_test_methods(
+        alive_test_tree: Element, options: Dict
+    ) -> None:
+        """Receive an XML object with the alive test methods to run
+        a scan with. Methods are added to the options Dict.
+
+        @param
+        <alive_test_methods>
+            </icmp>boolean(1 or 0)</icmp>
+            </tcp_ack>boolean(1 or 0)</tcp_ack>
+            </tcp_syn>boolean(1 or 0)</tcp_syn>
+            </arp>boolean(1 or 0)</arp>
+            </consider_alive>boolean(1 or 0)</consider_alive>
+        </alive_test_methods>
+        """
+        for child in alive_test_tree:
+            if child.tag == 'icmp':
+                if child.text is not None:
+                    options['icmp'] = child.text
+            if child.tag == 'tcp_ack':
+                if child.text is not None:
+                    options['tcp_ack'] = child.text
+            if child.tag == 'tcp_syn':
+                if child.text is not None:
+                    options['tcp_syn'] = child.text
+            if child.tag == 'arp':
+                if child.text is not None:
+                    options['arp'] = child.text
+            if child.tag == 'consider_alive':
+                if child.text is not None:
+                    options['consider_alive'] = child.text
+
     @classmethod
     def process_target_element(cls, scanner_target: Element) -> Dict:
         """Receive an XML object with the target, ports and credentials to run
@@ -222,6 +255,9 @@ class OspRequest:
                     ports = child.text
                 if child.tag == 'credentials':
                     credentials = cls.process_credentials_elements(child)
+                if child.tag == 'alive_test_methods':
+                    options['alive_test_methods'] = '1'
+                    cls.process_alive_test_methods(child, options)
                 if child.tag == 'alive_test':
                     options['alive_test'] = child.text
                 if child.tag == 'alive_test_ports':
