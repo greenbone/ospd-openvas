@@ -147,30 +147,37 @@ class OspRequest:
         return credentials
 
     @staticmethod
-    def process_alive_test_methods(cred_tree: Element, options: Dict) -> None:
+    def process_alive_test_methods(
+        alive_test_tree: Element, options: Dict
+    ) -> None:
         """Receive an XML object with the alive test methods to run
         a scan with. Methods are added to the options Dict.
 
         @param
         <alive_test_methods>
-            </icmp></icmp>
-            </tcp_ack></tcp_ack>
-            </tcp_syn></tcp_syn>
-            </arp></arp>
-            </consider_alive>0</consider_alive>
+            </icmp>boolean(1 or 0)</icmp>
+            </tcp_ack>boolean(1 or 0)</tcp_ack>
+            </tcp_syn>boolean(1 or 0)</tcp_syn>
+            </arp>boolean(1 or 0)</arp>
+            </consider_alive>boolean(1 or 0)</consider_alive>
         </alive_test_methods>
         """
-        for child in cred_tree:
+        for child in alive_test_tree:
             if child.tag == 'icmp':
-                options['icmp'] = child.text
+                if child.text is not None:
+                    options['icmp'] = child.text
             if child.tag == 'tcp_ack':
-                options['tcp_ack'] = child.text
+                if child.text is not None:
+                    options['tcp_ack'] = child.text
             if child.tag == 'tcp_syn':
-                options['tcp_syn'] = child.text
+                if child.text is not None:
+                    options['tcp_syn'] = child.text
             if child.tag == 'arp':
-                options['arp'] = child.text
+                if child.text is not None:
+                    options['arp'] = child.text
             if child.tag == 'consider_alive':
-                options['consider_alive'] = child.text
+                if child.text is not None:
+                    options['consider_alive'] = child.text
 
     @classmethod
     def process_target_element(cls, scanner_target: Element) -> Dict:
