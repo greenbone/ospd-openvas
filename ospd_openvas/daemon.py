@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2020 Greenbone Networks GmbH
+# Copyright (C) 2019-2020 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -621,13 +621,18 @@ class OSPDopenvas(OSPDaemon):
         _severity = SubElement(_severities, 'severity')
         if 'severity_base_vector' in severities:
             try:
-                _severity.text = severities.get('severity_base_vector')
+                _value = SubElement(_severity, 'value')
+                _value.text = severities.get('severity_base_vector')
             except ValueError as e:
                 logger.warning(
                     "Not possible to parse severity tag for vt %s: %s", vt_id, e
                 )
         if 'severity_origin' in severities:
-            _severity.set('origin', severities.get('severity_origin'))
+            _origin = SubElement(_severity, 'origin')
+            _origin.text = severities.get('severity_origin')
+        if 'severity_date' in severities:
+            _date = SubElement(_severity, 'date')
+            _date.text = severities.get('severity_date')
         if 'severity_type' in severities:
             _severity.set('type', severities.get('severity_type'))
 

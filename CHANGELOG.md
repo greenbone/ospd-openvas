@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
+- Extend severities with origin and date. [#192](https://github.com/greenbone/ospd-openvas/pull/192)
 
 ### Removed
 - Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
