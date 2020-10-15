@@ -386,7 +386,9 @@ class TestOspdOpenvas(TestCase):
         out = (
             '<severities>'
             '<severity type="cvss_base_v2">'
-            'AV:N/AC:L/Au:N/C:N/I:N/A:N'
+            '<value>AV:N/AC:L/Au:N/C:N/I:N/A:N</value>'
+            '<origin>Greenbone</origin>'
+            '<date>1237458156</date>'
             '</severity>'
             '</severities>'
         )
@@ -687,7 +689,9 @@ class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.Path.open')
     def test_feed_is_outdated_true(
-        self, mock_path_open: MagicMock, mock_path_exists: MagicMock,
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
     ):
         read_data = 'PLUGIN_SET = "1235";'
 
@@ -710,7 +714,9 @@ class TestOspdOpenvas(TestCase):
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.Path.open')
     def test_feed_is_outdated_false(
-        self, mock_path_open: MagicMock, mock_path_exists: MagicMock,
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
     ):
         mock_path_exists.return_value = True
 
@@ -808,7 +814,8 @@ class TestOspdOpenvas(TestCase):
 
         w.report_openvas_results(MockDBClass, '123-456')
         w.scan_collection.set_amount_dead_hosts.assert_called_with(
-            '123-456', total_dead=4,
+            '123-456',
+            total_dead=4,
         )
 
     @patch('ospd_openvas.daemon.BaseDB')
@@ -831,7 +838,9 @@ class TestOspdOpenvas(TestCase):
         w.report_openvas_results(MockDBClass, '123-456')
 
         mock_add_scan_log_to_list.assert_called_with(
-            host='192.168.10.124', name='HOST_START', value='today 1',
+            host='192.168.10.124',
+            name='HOST_START',
+            value='today 1',
         )
 
     @patch('ospd_openvas.daemon.BaseDB')

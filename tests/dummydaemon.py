@@ -51,6 +51,8 @@ class DummyDaemon(OSPDopenvas):
             'severities': {
                 'severity_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
                 'severity_type': 'cvss_base_v2',
+                'severity_date': '1237458156',
+                'severity_origin': 'Greenbone',
             },
             'solution': 'some solution',
             'solution_type': 'WillNotFix',
