@@ -1000,6 +1000,8 @@ class OSPDopenvas(OSPDaemon):
 
             if severity_type == "cvss_base_v2" and severity_vector:
                 return CVSS.cvss_base_v2_value(severity_vector)
+            elif severity_type == "cvss_base_v3" and severity_vector:
+                return CVSS.cvss_base_v3_value(severity_vector)
 
         return None
 

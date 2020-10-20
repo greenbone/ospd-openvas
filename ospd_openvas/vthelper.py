@@ -85,16 +85,23 @@ class VtHelper:
             qod_v = custom.pop('qod')
 
         severity = dict()
-        if 'severity_base_vector' in custom:
-            severity_vector = custom.pop('severity_base_vector')
+        if 'severity_score' in custom:
+            severity_vector = custom.pop('severity_score')
         else:
             severity_vector = custom.pop('cvss_base_vector')
         severity['severity_base_vector'] = severity_vector
-        if 'severity_type' in custom:
-            severity_type = custom.pop('severity_type')
+
+        if "CVSS:3" in severity_vector:
+            severity_type = 'cvss_base_v3'
         else:
             severity_type = 'cvss_base_v2'
         severity['severity_type'] = severity_type
+
+        if 'severity_date' in custom:
+            severity['severity_date'] = custom.pop('severity_date')
+        else:
+            severity['severity_date'] = vt_creation_time
+
         if 'severity_origin' in custom:
             severity['severity_origin'] = custom.pop('severity_origin')
 
