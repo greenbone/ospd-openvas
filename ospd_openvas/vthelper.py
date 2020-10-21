@@ -85,8 +85,8 @@ class VtHelper:
             qod_v = custom.pop('qod')
 
         severity = dict()
-        if 'severity_score' in custom:
-            severity_vector = custom.pop('severity_score')
+        if 'severity_vector' in custom:
+            severity_vector = custom.pop('severity_vector')
         else:
             severity_vector = custom.pop('cvss_base_vector')
         severity['severity_base_vector'] = severity_vector

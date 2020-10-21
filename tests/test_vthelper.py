@@ -100,7 +100,7 @@ class VtHelperTestCase(TestCase):
             'category': '3',
             'creation_date': '1237458156',
             'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
-            'severity_score': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
+            'severity_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
             'severity_date': '1237458156',
             'severity_origin': 'Greenbone',
             'excluded_keys': 'Settings/disable_cgi_scanning',
