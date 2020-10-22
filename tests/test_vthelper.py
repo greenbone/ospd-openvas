@@ -93,3 +93,122 @@ class VtHelperTestCase(TestCase):
 
         for _, values in vthelper.get_vt_iterator(vt_selection=vt):
             self.assertIs(values, None)
+
+    def test_get_single_vt_severity_cvssv3(self):
+        w = DummyDaemon()
+        w.nvti.get_nvt_metadata.return_value = {
+            'category': '3',
+            'creation_date': '1237458156',
+            'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
+            'severity_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
+            'severity_date': '1237458156',
+            'severity_origin': 'Greenbone',
+            'excluded_keys': 'Settings/disable_cgi_scanning',
+            'family': 'Product detection',
+            'filename': 'mantis_detect.nasl',
+            'last_modification': ('1533906565'),
+            'name': 'Mantis Detection',
+            'qod_type': 'remote_banner',
+            'required_ports': 'Services/www, 80',
+            'solution': 'some solution',
+            'solution_type': 'WillNotFix',
+            'solution_method': 'DebianAPTUpgrade',
+            'impact': 'some impact',
+            'insight': 'some insight',
+            'summary': ('some summary'),
+            'affected': 'some affection',
+            'timeout': '0',
+            'vt_params': {
+                '1': {
+                    'id': '1',
+                    'default': '',
+                    'description': 'Description',
+                    'name': 'Data length :',
+                    'type': 'entry',
+                },
+                '2': {
+                    'id': '2',
+                    'default': 'no',
+                    'description': 'Description',
+                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'type': 'checkbox',
+                },
+            },
+            'refs': {
+                'bid': [''],
+                'cve': [''],
+                'xref': ['URL:http://www.mantisbt.org/'],
+            },
+        }
+
+        vthelper = VtHelper(w.nvti)
+
+        res = vthelper.get_single_vt("1.3.6.1.4.1.25623.1.0.100061")
+        assert_called_once(w.nvti.get_nvt_metadata)
+
+        severities = res.get('severities')
+        self.assertEqual(
+            "CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L",
+            severities.get('severity_base_vector'),
+        )
+        self.assertEqual("cvss_base_v3", severities.get('severity_type'))
+        self.assertEqual("Greenbone", severities.get('severity_origin'))
+        self.assertEqual("1237458156", severities.get('severity_date'))
+
+    def test_get_single_vt_severity_cvssv2(self):
+        w = DummyDaemon()
+        w.nvti.get_nvt_metadata.return_value = {
+            'category': '3',
+            'creation_date': '1237458156',
+            'cvss_base_vector': 'AV:N/AC:L/Au:N/C:N/I:N/A:N',
+            'excluded_keys': 'Settings/disable_cgi_scanning',
+            'family': 'Product detection',
+            'filename': 'mantis_detect.nasl',
+            'last_modification': ('1533906565'),
+            'name': 'Mantis Detection',
+            'qod_type': 'remote_banner',
+            'required_ports': 'Services/www, 80',
+            'solution': 'some solution',
+            'solution_type': 'WillNotFix',
+            'solution_method': 'DebianAPTUpgrade',
+            'impact': 'some impact',
+            'insight': 'some insight',
+            'summary': ('some summary'),
+            'affected': 'some affection',
+            'timeout': '0',
+            'vt_params': {
+                '1': {
+                    'id': '1',
+                    'default': '',
+                    'description': 'Description',
+                    'name': 'Data length :',
+                    'type': 'entry',
+                },
+                '2': {
+                    'id': '2',
+                    'default': 'no',
+                    'description': 'Description',
+                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'type': 'checkbox',
+                },
+            },
+            'refs': {
+                'bid': [''],
+                'cve': [''],
+                'xref': ['URL:http://www.mantisbt.org/'],
+            },
+        }
+
+        vthelper = VtHelper(w.nvti)
+
+        res = vthelper.get_single_vt("1.3.6.1.4.1.25623.1.0.100061")
+        assert_called_once(w.nvti.get_nvt_metadata)
+
+        severities = res.get('severities')
+        self.assertEqual(
+            "AV:N/AC:L/Au:N/C:N/I:N/A:N",
+            severities.get('severity_base_vector'),
+        )
+        self.assertEqual("cvss_base_v2", severities.get('severity_type'))
+        self.assertEqual(None, severities.get('severity_origin'))
+        self.assertEqual("1237458156", severities.get('severity_date'))
