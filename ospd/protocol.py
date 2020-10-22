@@ -142,7 +142,9 @@ class OspRequest:
                 credentials[service]['port'] = credential.attrib.get('port')
 
             for param in credential:
-                credentials[service][param.tag] = param.text
+                credentials[service][param.tag] = (
+                    param.text if param.text else ""
+                )
 
         return credentials
 
