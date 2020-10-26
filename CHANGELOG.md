@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add methods for adding VTs to the redis cache.[#337](https://github.com/greenbone/ospd-openvas/pull/337)
 - Add support for supplying alive test methods via seperate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
 - Add support CVSSv3 and accept new tags for severity vector, origin, date. [#346](https://github.com/greenbone/ospd-openvas/pull/346)
+- Add the Notus Metadata Handler for uploading VT metadata into Redis and performing checksum checks. [#348](https://github.com/greenbone/ospd-openvas/pull/348)
 
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
