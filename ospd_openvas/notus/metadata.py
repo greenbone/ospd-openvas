@@ -77,7 +77,8 @@ class NotusMetadataHandler:
 
     def __init__(self, metadata_path: str = None):
 
-        self.openvas_settings_dict = None
+        self._openvas_settings_dict = None
+
         # Figure out the path to the metadata
         if not metadata_path:
             self.__metadata_path = self._get_metadata_path()
@@ -132,10 +133,10 @@ class NotusMetadataHandler:
     @property
     def openvas_setting(self):
         """Set OpenVAS option."""
-        if self.openvas_settings_dict is None:
+        if self._openvas_settings_dict is None:
             openvas_object = Openvas()
-            self.openvas_settings_dict = openvas_object.get_settings()
-        return self.openvas_settings_dict
+            self._openvas_settings_dict = openvas_object.get_settings()
+        return self._openvas_settings_dict
 
     def _get_csv_filepaths(self) -> List[Path]:
         """Get a list of absolute file paths to all detected CSV files
