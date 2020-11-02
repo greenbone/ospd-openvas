@@ -21,13 +21,14 @@
 
 import logging
 
-import csv
 import ast
 import os
 
 from glob import glob
 from hashlib import sha256
 from pathlib import Path
+from csv import DictReader
+from typing import List, Dict
 
 from ospd_openvas import db, nvticache
 from ospd_openvas.errors import OspdOpenvasError
@@ -133,8 +134,8 @@ class NotusMetadataHandler:
 
         return metadata_path
 
-    def _get_csv_filepaths(self) -> Path:
-        """Get the absolute file path to all detected CSV files
+    def _get_csv_filepaths(self) -> List[Path]:
+        """Get a list of absolute file paths to all detected CSV files
         in the relevant directory.
 
         Returns:
