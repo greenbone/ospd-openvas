@@ -88,9 +88,7 @@ class NotusMetadataHandler:
         else:
             self.__metadata_path = metadata_path
 
-        self.__metadata_relative_path_string = "{}/".format(
-            METADATA_DIRECTORY_NAME
-        )
+        self.__metadata_relative_path_string = f'{METADATA_DIRECTORY_NAME}/'
 
         # Get a list of all CSV files in that directory with their absolute path
         self.__csv_abs_filepaths_list = self._get_csv_filepaths()
@@ -116,9 +114,7 @@ class NotusMetadataHandler:
         # Openvas is installed and the plugins folder configured.
         plugins_folder = self.openvas_settings_dict.get("plugins_folder")
         if plugins_folder:
-            metadata_path = "{}/{}/".format(
-                plugins_folder, METADATA_DIRECTORY_NAME
-            )
+            metadata_path = f'{plugins_folder}/{METADATA_DIRECTORY_NAME}/'
             return metadata_path
 
         try:
@@ -129,13 +125,11 @@ class NotusMetadataHandler:
 
         if not install_prefix:
             # Fall back to the path used in production
-            metadata_path = "/opt/greenbone/feed/plugins/{}/".format(
-                METADATA_DIRECTORY_NAME
+            metadata_path = (
+                f'/opt/greenbone/feed/plugins/{METADATA_DIRECTORY_NAME}/'
             )
         else:
-            metadata_path = "{}/var/lib/openvas/plugins/{}/".format(
-                install_prefix, METADATA_DIRECTORY_NAME
-            )
+            metadata_path = f'{install_prefix}/var/lib/openvas/plugins/{METADATA_DIRECTORY_NAME}/'
 
         return metadata_path
 
@@ -148,7 +142,7 @@ class NotusMetadataHandler:
         """
         return [
             Path(csv_file).resolve()
-            for csv_file in glob("{}*.csv".format(self.__metadata_path))
+            for csv_file in glob(f'{self.__metadata_path}*.csv')
         ]
 
     def _check_field_names_lsc(self, field_names_list: list) -> bool:
@@ -210,10 +204,10 @@ class NotusMetadataHandler:
             Example: URL:www.example.com, URL:www.example2.com
         """
         formatted_list = list()
-        advisory_xref_string = "URL:{}".format(advisory_xref_string)
+        advisory_xref_string = f'URL:{advisory_xref_string}'
         formatted_list.append(advisory_xref_string)
         for url_string in xrefs_list:
-            url_string = "URL:{}".format(url_string)
+            url_string = f'URL:{url_string}'
             formatted_list.append(url_string)
         return ", ".join(formatted_list)
 
@@ -242,7 +236,7 @@ class NotusMetadataHandler:
                 # Extract the downloaded checksum for this file
                 # from the Redis KB
                 file_downloaded_checksum_string = db.OpenvasDB.get_single_item(
-                    self.__db_ctx, "sha256sums:{}".format(str(file_abs_path))
+                    self.__db_ctx, f'sha256sums:{file_abs_path}'
                 )
 
                 # Checksum check
@@ -300,11 +294,9 @@ class NotusMetadataHandler:
                     # https://github.com/greenbone/ospd-openvas/blob/232d04e72d2af0199d60324e8820d9e73498a831/ospd_openvas/db.py#L39
                     advisory_metadata_list = list()
                     # File name
+                    _file_name = os.path.basename(csv_file.name)
                     advisory_metadata_list.append(
-                        "{0}{1}".format(
-                            self.__metadata_relative_path_string,
-                            os.path.basename(csv_file.name),
-                        )
+                        f'{self.__metadata_relative_path_string}{_file_name}'
                     )
                     # Required keys
                     advisory_metadata_list.append(REQUIRED_KEYS)
@@ -363,7 +355,8 @@ class NotusMetadataHandler:
 
                     # Write the metadata list to the respective Redis KB key,
                     # overwriting any existing values
-                    kb_key_string = "nvt:{}".format(advisory_dict["OID"])
+                    oid = advisory_dict["OID"]
+                    kb_key_string = f'nvt:{oid}'
                     try:
                         self.__nvti_cache.add_vt_to_cache(
                             vt_id=kb_key_string, vt=advisory_metadata_list
