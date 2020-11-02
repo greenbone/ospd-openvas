@@ -80,10 +80,7 @@ class NotusMetadataHandler:
         self._openvas_settings_dict = None
 
         # Figure out the path to the metadata
-        if not metadata_path:
-            self.__metadata_path = self._get_metadata_path()
-        else:
-            self.__metadata_path = metadata_path
+        self._metadata_path = metadata_path
 
         self.__metadata_relative_path_string = f'{METADATA_DIRECTORY_NAME}/'
 
@@ -99,7 +96,8 @@ class NotusMetadataHandler:
             # Maybe replace this with just a log message
             raise Exception("Could not connect to the Redis KB") from None
 
-    def _get_metadata_path(self) -> str:
+    @property
+    def metadata_path(self) -> str:
         """Find out where the CSV files containing the metadata
         are on the file system, depending on whether this machine
         is a GSM or GVM in a development environment.
@@ -108,27 +106,30 @@ class NotusMetadataHandler:
             A full path to the directory that contains all Notus
             metadata.
         """
-        # Openvas is installed and the plugins folder configured.
-        plugins_folder = self.openvas_setting.get("plugins_folder")
-        if plugins_folder:
-            metadata_path = f'{plugins_folder}/{METADATA_DIRECTORY_NAME}/'
-            return metadata_path
+        if self._metadata_path is None:
+            # Openvas is installed and the plugins folder configured.
+            plugins_folder = self.openvas_setting.get("plugins_folder")
+            if plugins_folder:
+                self._metadata_path = (
+                    f'{plugins_folder}/{METADATA_DIRECTORY_NAME}/'
+                )
+                return self._metadata_path
 
-        try:
-            # From the development environment - Not used in production
-            install_prefix = os.environ["INSTALL_PREFIX"]
-        except KeyError:
-            install_prefix = None
+            try:
+                # From the development environment - Not used in production
+                install_prefix = os.environ["INSTALL_PREFIX"]
+            except KeyError:
+                install_prefix = None
 
-        if not install_prefix:
-            # Fall back to the path used in production
-            metadata_path = (
-                f'/opt/greenbone/feed/plugins/{METADATA_DIRECTORY_NAME}/'
-            )
-        else:
-            metadata_path = f'{install_prefix}/var/lib/openvas/plugins/{METADATA_DIRECTORY_NAME}/'  # pylint: disable=C0301
+            if not install_prefix:
+                # Fall back to the path used in production
+                self._metadata_path = (
+                    f'/opt/greenbone/feed/plugins/{METADATA_DIRECTORY_NAME}/'
+                )
+            else:
+                self._metadata_path = f'{install_prefix}/var/lib/openvas/plugins/{METADATA_DIRECTORY_NAME}/'  # pylint: disable=C0301
 
-        return metadata_path
+        return self._metadata_path
 
     @property
     def openvas_setting(self):
@@ -147,7 +148,7 @@ class NotusMetadataHandler:
         """
         return [
             Path(csv_file).resolve()
-            for csv_file in glob(f'{self.__metadata_path}*.csv')
+            for csv_file in glob(f'{self.metadata_path}*.csv')
         ]
 
     def _check_field_names_lsc(self, field_names_list: list) -> bool:
