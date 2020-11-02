@@ -262,7 +262,7 @@ class NotusMetadataHandler:
             # 2. Check the checksums, unless they have been disabled
             if not self.is_checksum_correct(csv_abs_path):
                 # Skip this file if the checksum does not match
-                logger.debug("Checksum failed")
+                logger.warning('Checksum for %s failed', csv_abs_path)
                 continue
 
             logger.debug("Checksum check for %s successful", csv_abs_path)
