@@ -249,6 +249,111 @@ class NotusMetadataHandler:
         # Checksum check was either successful or it was skipped
         return True
 
+    def upload_lsc_from_csv_reader(
+        self,
+        file_name: str,
+        general_metadata_dict: Dict,
+        csv_reader: DictReader,
+    ):
+        """For each advisory_dict, write its contents to the
+        Redis KB as metadata.
+
+        Argumentes:
+            file_name: CSV file name with metadata to be uploaded
+            general_metadata_dict: General metadata common for all advisories
+                                   in the CSV file.
+            csv_reader: DictReader iterator to access the advisories
+        """
+
+        loaded = 0
+        total = 0
+        for advisory_dict in csv_reader:
+            # Make sure that no element is missing in the advisory_dict,
+            # else skip that advisory
+            is_correct = self._check_advisory_dict(advisory_dict)
+            if not is_correct:
+                continue
+
+            # For each advisory_dict,
+            # write its contents to the Redis KB as metadata.
+            # Create a list with all the metadata. Refer to:
+            # https://github.com/greenbone/ospd-openvas/blob/232d04e72d2af0199d60324e8820d9e73498a831/ospd_openvas/db.py#L39 # pylint: disable=C0321
+            advisory_metadata_list = list()
+            # File name
+            advisory_metadata_list.append(
+                f'{self.__metadata_relative_path_string}{file_name}'
+            )
+            # Required keys
+            advisory_metadata_list.append(REQUIRED_KEYS)
+            # Mandatory keys
+            advisory_metadata_list.append(MANDATORY_KEYS)
+            # Excluded keys
+            advisory_metadata_list.append(EXCLUDED_KEYS)
+            # Required UDP ports
+            advisory_metadata_list.append(REQUIRED_UDP_PORTS)
+            # Required ports
+            advisory_metadata_list.append(REQUIRED_PORTS)
+            # Dependencies
+            advisory_metadata_list.append(DEPENDENCIES)
+            # Tags
+            tags_string = (
+                "cvss_base_vector={}|last_modification={}|"
+                "creation_date={}|summary={}|vuldetect={}|"
+                "insight={}|affected={}|solution={}|"
+                "solution_type={}|qod_type={}"
+            )
+            tags_string = tags_string.format(
+                advisory_dict["CVSS_BASE_VECTOR"],
+                advisory_dict["LAST_MODIFICATION"],
+                advisory_dict["CREATION_DATE"],
+                advisory_dict["DESCRIPTION"],
+                general_metadata_dict["VULDETECT"],
+                advisory_dict["INSIGHT"],
+                advisory_dict["AFFECTED"],
+                general_metadata_dict["SOLUTION"],
+                general_metadata_dict["SOLUTION_TYPE"],
+                general_metadata_dict["QOD_TYPE"],
+            )
+            advisory_metadata_list.append(tags_string)
+            # CVEs
+            advisory_metadata_list.append(
+                ", ".join(ast.literal_eval(advisory_dict["CVE_LIST"]))
+            )
+
+            advisory_metadata_list.append(BIDS)
+            # XREFS
+            advisory_metadata_list.append(
+                self._format_xrefs(
+                    advisory_dict["ADVISORY_XREF"],
+                    ast.literal_eval(advisory_dict["XREFS"]),
+                )
+            )
+
+            # Script category
+            advisory_metadata_list.append(SCRIPT_CATEGORY)
+            # Script timeout
+            advisory_metadata_list.append(SCRIPT_TIMEOUT)
+            # Script family
+            advisory_metadata_list.append(SCRIPT_FAMILY)
+            # Script Name / Title
+            advisory_metadata_list.append(advisory_dict["TITLE"])
+
+            # Write the metadata list to the respective Redis KB key,
+            # overwriting any existing values
+            oid = advisory_dict["OID"]
+            kb_key_string = f'nvt:{oid}'
+            try:
+                self.__nvti_cache.add_vt_to_cache(
+                    vt_id=kb_key_string, vt=advisory_metadata_list
+                )
+            except OspdOpenvasError:
+                logger.warning(
+                    "LSC will not be loaded. The advisory_metadata_"
+                    "list was either not a list or does not include "
+                    "15 entries"
+                )
+                continue
+
     def update_metadata(self) -> None:
         """Parse all CSV files that are present in the
         Notus metadata directory, perform a checksum check,
@@ -275,96 +380,16 @@ class NotusMetadataHandler:
                         general_metadata_dict = ast.literal_eval(line_string)
                         break
                 # Check if the file can be parsed by the CSV module
-                reader = csv.DictReader(csv_file)
+                reader = DictReader(csv_file)
                 # Check if the CSV file has the expected field names,
                 # else skip the file
                 is_correct = self._check_field_names_lsc(reader.fieldnames)
                 if not is_correct:
                     continue
 
-                for advisory_dict in reader:
-                    # Make sure that no element is missing in the advisory_dict,
-                    # else skip that advisory
-                    is_correct = self._check_advisory_dict(advisory_dict)
-                    if not is_correct:
-                        continue
+                file_name = os.path.basename(csv_file.name)
+                self.upload_lsc_from_csv_reader(
+                    file_name, general_metadata_dict, reader
+                )
 
-                    # 3. For each advisory_dict,
-                    # write its contents to the Redis KB as metadata.
-                    # Create a list with all the metadata. Refer to:
-                    # https://github.com/greenbone/ospd-openvas/blob/232d04e72d2af0199d60324e8820d9e73498a831/ospd_openvas/db.py#L39
-                    advisory_metadata_list = list()
-                    # File name
-                    _file_name = os.path.basename(csv_file.name)
-                    advisory_metadata_list.append(
-                        f'{self.__metadata_relative_path_string}{_file_name}'
-                    )
-                    # Required keys
-                    advisory_metadata_list.append(REQUIRED_KEYS)
-                    # Mandatory keys
-                    advisory_metadata_list.append(MANDATORY_KEYS)
-                    # Excluded keys
-                    advisory_metadata_list.append(EXCLUDED_KEYS)
-                    # Required UDP ports
-                    advisory_metadata_list.append(REQUIRED_UDP_PORTS)
-                    # Required ports
-                    advisory_metadata_list.append(REQUIRED_PORTS)
-                    # Dependencies
-                    advisory_metadata_list.append(DEPENDENCIES)
-                    # Tags
-                    tags_string = (
-                        "cvss_base_vector={}|last_modification={}|"
-                        "creation_date={}|summary={}|vuldetect={}|"
-                        "insight={}|affected={}|solution={}|"
-                        "solution_type={}|qod_type={}"
-                    )
-                    tags_string = tags_string.format(
-                        advisory_dict["CVSS_BASE_VECTOR"],
-                        advisory_dict["LAST_MODIFICATION"],
-                        advisory_dict["CREATION_DATE"],
-                        advisory_dict["DESCRIPTION"],
-                        general_metadata_dict["VULDETECT"],
-                        advisory_dict["INSIGHT"],
-                        advisory_dict["AFFECTED"],
-                        general_metadata_dict["SOLUTION"],
-                        general_metadata_dict["SOLUTION_TYPE"],
-                        general_metadata_dict["QOD_TYPE"],
-                    )
-                    advisory_metadata_list.append(tags_string)
-                    # CVEs
-                    advisory_metadata_list.append(
-                        ", ".join(ast.literal_eval(advisory_dict["CVE_LIST"]))
-                    )
-
-                    advisory_metadata_list.append(BIDS)
-                    # XREFS
-                    advisory_metadata_list.append(
-                        self._format_xrefs(
-                            advisory_dict["ADVISORY_XREF"],
-                            ast.literal_eval(advisory_dict["XREFS"]),
-                        )
-                    )
-
-                    # Script category
-                    advisory_metadata_list.append(SCRIPT_CATEGORY)
-                    # Script timeout
-                    advisory_metadata_list.append(SCRIPT_TIMEOUT)
-                    # Script family
-                    advisory_metadata_list.append(SCRIPT_FAMILY)
-                    # Script Name / Title
-                    advisory_metadata_list.append(advisory_dict["TITLE"])
-
-                    # Write the metadata list to the respective Redis KB key,
-                    # overwriting any existing values
-                    oid = advisory_dict["OID"]
-                    kb_key_string = f'nvt:{oid}'
-                    try:
-                        self.__nvti_cache.add_vt_to_cache(
-                            vt_id=kb_key_string, vt=advisory_metadata_list
-                        )
-                    except OspdOpenvasError:
-                        logger.warning(
-                            "LSC will not be loaded. The advisory_metadata_list was "
-                            "either not a list or does not include 15 entries"
-                        )
-                        continue
+        logger.debug("Notus metadata load up finished.")
