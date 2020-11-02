@@ -369,6 +369,8 @@ class NotusMetadataHandler:
                             vt_id=kb_key_string, vt=advisory_metadata_list
                         )
                     except OspdOpenvasError:
-                        # The advisory_metadata_list was either not
-                        # a list or does not include 15 entries
-                        break
+                        logger.warning(
+                            "LSC will not be loaded. The advisory_metadata_list was "
+                            "either not a list or does not include 15 entries"
+                        )
+                        continue
