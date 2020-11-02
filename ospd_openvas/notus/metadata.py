@@ -77,12 +77,7 @@ class NotusMetadataHandler:
 
     def __init__(self, metadata_path: str = None):
 
-        openvas_object = Openvas()
-        self.openvas_settings_dict = openvas_object.get_settings()
-        self.__no_signature_check = self.openvas_settings_dict[
-            "nasl_no_signature_check"
-        ]
-
+        self.openvas_settings_dict = None
         # Figure out the path to the metadata
         if not metadata_path:
             self.__metadata_path = self._get_metadata_path()
@@ -113,7 +108,7 @@ class NotusMetadataHandler:
             metadata.
         """
         # Openvas is installed and the plugins folder configured.
-        plugins_folder = self.openvas_settings_dict.get("plugins_folder")
+        plugins_folder = self.openvas_setting.get("plugins_folder")
         if plugins_folder:
             metadata_path = f'{plugins_folder}/{METADATA_DIRECTORY_NAME}/'
             return metadata_path
@@ -133,6 +128,14 @@ class NotusMetadataHandler:
             metadata_path = f'{install_prefix}/var/lib/openvas/plugins/{METADATA_DIRECTORY_NAME}/'  # pylint: disable=C0301
 
         return metadata_path
+
+    @property
+    def openvas_setting(self):
+        """Set OpenVAS option."""
+        if self.openvas_settings_dict is None:
+            openvas_object = Openvas()
+            self.openvas_settings_dict = openvas_object.get_settings()
+        return self.openvas_settings_dict
 
     def _get_csv_filepaths(self) -> List[Path]:
         """Get a list of absolute file paths to all detected CSV files
@@ -224,7 +227,9 @@ class NotusMetadataHandler:
             Whether the checksum check was successful or not.
             Also returns true if the checksum check is disabled.
         """
-        if not self.__no_signature_check:
+
+        no_signature_check = self.openvas_setting.get("nasl_no_signature_check")
+        if not no_signature_check:
             with file_abs_path.open("rb") as file_file_bytes:
                 sha256_object = sha256()
                 # Read chunks of 4096 bytes sequentially to avoid
