@@ -254,15 +254,17 @@ class NotusMetadataHandler:
         file_name: str,
         general_metadata_dict: Dict,
         csv_reader: DictReader,
-    ):
+    ) -> bool:
         """For each advisory_dict, write its contents to the
         Redis KB as metadata.
 
-        Argumentes:
+        Arguments:
             file_name: CSV file name with metadata to be uploaded
             general_metadata_dict: General metadata common for all advisories
                                    in the CSV file.
             csv_reader: DictReader iterator to access the advisories
+
+        Return True if success, False otherwise.
         """
 
         loaded = 0
@@ -270,10 +272,10 @@ class NotusMetadataHandler:
         for advisory_dict in csv_reader:
             # Make sure that no element is missing in the advisory_dict,
             # else skip that advisory
+            print(total)
             is_correct = self._check_advisory_dict(advisory_dict)
             if not is_correct:
                 continue
-
             # For each advisory_dict,
             # write its contents to the Redis KB as metadata.
             # Create a list with all the metadata. Refer to:
@@ -353,6 +355,12 @@ class NotusMetadataHandler:
                     "15 entries"
                 )
                 continue
+            loaded += 1
+
+        logger.debug(
+            "Loaded %d/%d advisories from %s", loaded, total, file_name
+        )
+        return loaded == total
 
     def update_metadata(self) -> None:
         """Parse all CSV files that are present in the
@@ -388,8 +396,11 @@ class NotusMetadataHandler:
                     continue
 
                 file_name = PurePath(csv_file.name).name
-                self.upload_lsc_from_csv_reader(
+                if not self.upload_lsc_from_csv_reader(
                     file_name, general_metadata_dict, reader
-                )
+                ):
+                    logger.debug(
+                        "Some advaisory was not loaded from %s", file_name
+                    )
 
         logger.debug("Notus metadata load up finished.")
