@@ -130,7 +130,7 @@ class NotusMetadataHandler:
                 f'/opt/greenbone/feed/plugins/{METADATA_DIRECTORY_NAME}/'
             )
         else:
-            metadata_path = f'{install_prefix}/var/lib/openvas/plugins/{METADATA_DIRECTORY_NAME}/'
+            metadata_path = f'{install_prefix}/var/lib/openvas/plugins/{METADATA_DIRECTORY_NAME}/'  # pylint: disable=C0301
 
         return metadata_path
 
