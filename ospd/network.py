@@ -78,7 +78,19 @@ def target_to_ipv4_short(target: str) -> Optional[List]:
     except (socket.error, ValueError):
         return None
 
-    start_value = int(binascii.hexlify(bytes(start_packed[3])), 16)
+    # For subnet with mask lower than /24, ip addresses ending in .0 are
+    # allowed.
+    # The next code checks for a range starting with a A.B.C.0.
+    # For the octet equal to 0, bytes() returns an empty binary b'',
+    # wich must be handle in a special way.
+    _start_value = bytes(start_packed[3])
+    if _start_value:
+        start_value = int(binascii.hexlify(_start_value), 16)
+    elif _start_value == b'':
+        start_value = 0
+    else:
+        return None
+
     if end_value < 0 or end_value > 255 or end_value < start_value:
         return None
 
