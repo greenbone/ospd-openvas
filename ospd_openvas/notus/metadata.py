@@ -307,17 +307,17 @@ class NotusMetadataHandler:
                         )
                     )
                     # Required keys
-                    advisory_metadata_list.append("")
+                    advisory_metadata_list.append(REQUIRED_KEYS)
                     # Mandatory keys
-                    advisory_metadata_list.append("")
+                    advisory_metadata_list.append(MANDATORY_KEYS)
                     # Excluded keys
-                    advisory_metadata_list.append("")
+                    advisory_metadata_list.append(EXCLUDED_KEYS)
                     # Required UDP ports
-                    advisory_metadata_list.append("")
+                    advisory_metadata_list.append(REQUIRED_UDP_PORTS)
                     # Required ports
-                    advisory_metadata_list.append("")
+                    advisory_metadata_list.append(REQUIRED_PORTS)
                     # Dependencies
-                    advisory_metadata_list.append("")
+                    advisory_metadata_list.append(DEPENDENCIES)
                     # Tags
                     tags_string = (
                         "cvss_base_vector={}|last_modification={}|"
