@@ -269,7 +269,7 @@ class NotusMetadataHandler:
                                    in the CSV file.
             csv_reader: DictReader iterator to access the advisories
 
-        Return True if success, False otherwise.
+        Return True if success, False otherwise
         """
 
         loaded = 0
@@ -277,7 +277,7 @@ class NotusMetadataHandler:
         for advisory_dict in csv_reader:
             # Make sure that no element is missing in the advisory_dict,
             # else skip that advisory
-            print(total)
+            total += 1
             is_correct = self._check_advisory_dict(advisory_dict)
             if not is_correct:
                 continue
