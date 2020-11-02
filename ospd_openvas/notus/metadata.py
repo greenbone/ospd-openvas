@@ -82,11 +82,6 @@ class NotusMetadataHandler:
         # Figure out the path to the metadata
         self._metadata_path = metadata_path
 
-        self.__metadata_relative_path_string = f'{METADATA_DIRECTORY_NAME}/'
-
-        # Get a list of all CSV files in that directory with their absolute path
-        self.__csv_abs_filepaths_list = self._get_csv_filepaths()
-
         # Connect to the Redis KB
         try:
             self.__db_ctx = db.OpenvasDB.create_context(1)
@@ -290,7 +285,7 @@ class NotusMetadataHandler:
             advisory_metadata_list = list()
             # File name
             advisory_metadata_list.append(
-                f'{self.__metadata_relative_path_string}{file_name}'
+                f'{METADATA_DIRECTORY_NAME}/{file_name}'
             )
             # Required keys
             advisory_metadata_list.append(REQUIRED_KEYS)
@@ -377,9 +372,12 @@ class NotusMetadataHandler:
         """
 
         logger.debug("Starting the Notus metadata load up")
-        # 1. Read each CSV file
-        for csv_abs_path in self.__csv_abs_filepaths_list:
-            # 2. Check the checksums, unless they have been disabled
+        # Get a list of all CSV files in that directory with their absolute path
+        csv_abs_filepaths_list = self._get_csv_filepaths()
+
+        # Read each CSV file
+        for csv_abs_path in csv_abs_filepaths_list:
+            # Check the checksums, unless they have been disabled
             if not self.is_checksum_correct(csv_abs_path):
                 # Skip this file if the checksum does not match
                 logger.warning('Checksum for %s failed', csv_abs_path)
