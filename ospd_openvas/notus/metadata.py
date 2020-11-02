@@ -26,7 +26,7 @@ import os
 
 from glob import glob
 from hashlib import sha256
-from pathlib import Path
+from pathlib import Path, PurePath
 from csv import DictReader
 from typing import List, Dict
 
@@ -387,7 +387,7 @@ class NotusMetadataHandler:
                 if not is_correct:
                     continue
 
-                file_name = os.path.basename(csv_file.name)
+                file_name = PurePath(csv_file.name).name
                 self.upload_lsc_from_csv_reader(
                     file_name, general_metadata_dict, reader
                 )
