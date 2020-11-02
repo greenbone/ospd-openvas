@@ -57,6 +57,18 @@ EXPECTED_FIELD_NAMES_LIST = [
 
 METADATA_DIRECTORY_NAME = "notus_metadata"
 
+# Metadata constant field definitions
+SCRIPT_CATEGORY = "3"  # ACT_GATHER_INFO
+SCRIPT_TIMEOUT = "0"
+SCRIPT_FAMILY = "Notus_LSC_Metadata"
+BIDS = ""
+REQUIRED_KEYS = ""
+MANDATORY_KEYS = ""
+EXCLUDED_KEYS = ""
+REQUIRED_UDP_PORTS = ""
+REQUIRED_PORTS = ""
+DEPENDENCIES = ""
+
 
 class NotusMetadataHandler:
     """Class to perform checksum checks and upload metadata for
@@ -330,8 +342,8 @@ class NotusMetadataHandler:
                     advisory_metadata_list.append(
                         ", ".join(ast.literal_eval(advisory_dict["CVE_LIST"]))
                     )
-                    # BIDs
-                    advisory_metadata_list.append("")
+
+                    advisory_metadata_list.append(BIDS)
                     # XREFS
                     advisory_metadata_list.append(
                         self._format_xrefs(
@@ -339,12 +351,13 @@ class NotusMetadataHandler:
                             ast.literal_eval(advisory_dict["XREFS"]),
                         )
                     )
-                    # Script Category
-                    advisory_metadata_list.append("3")
-                    # Timeout
-                    advisory_metadata_list.append("0")
-                    # Script Family
-                    advisory_metadata_list.append("Notus_LSC_Metadata")
+
+                    # Script category
+                    advisory_metadata_list.append(SCRIPT_CATEGORY)
+                    # Script timeout
+                    advisory_metadata_list.append(SCRIPT_TIMEOUT)
+                    # Script family
+                    advisory_metadata_list.append(SCRIPT_FAMILY)
                     # Script Name / Title
                     advisory_metadata_list.append(advisory_dict["TITLE"])
 
