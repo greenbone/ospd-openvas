@@ -385,7 +385,6 @@ class NotusMetadataHandler:
                 # Skip this file if the checksum does not match
                 logger.warning('Checksum for %s failed', csv_abs_path)
                 continue
-
             logger.debug("Checksum check for %s successful", csv_abs_path)
             with csv_abs_path.open("r") as csv_file:
                 # Skip the license header, so the actual content
@@ -401,6 +400,9 @@ class NotusMetadataHandler:
                 # else skip the file
                 is_correct = self._check_field_names_lsc(reader.fieldnames)
                 if not is_correct:
+                    logger.warning(
+                        'Field names check for %s failed', csv_abs_path
+                    )
                     continue
 
                 file_name = PurePath(csv_file.name).name
