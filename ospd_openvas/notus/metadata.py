@@ -30,7 +30,8 @@ from pathlib import Path, PurePath
 from csv import DictReader
 from typing import List, Dict
 
-from ospd_openvas import db, nvticache
+from ospd_openvas.db import MainDB
+from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.openvas import Openvas
 
@@ -75,21 +76,18 @@ class NotusMetadataHandler:
     """Class to perform checksum checks and upload metadata for
     CSV files that were created by the Notus Generator."""
 
-    def __init__(self, metadata_path: str = None, nvti: NVTICache = None):
-
+    def __init__(self, nvti: NVTICache = None, metadata_path: str = None):
+        self._nvti = nvti
+        self._metadata_path = metadata_path
         self._openvas_settings_dict = None
 
-        # Figure out the path to the metadata
-        self._metadata_path = metadata_path
+    @property
+    def nvti(self) -> NVTICache:
+        if self._nvti is None:
+            maindb = db.MainDB()
+            self._nvti = NVTICache(maindb)
 
-        # Connect to the Redis KB
-        try:
-            self.__db_ctx = db.OpenvasDB.create_context(1)
-            main_db = db.MainDB()
-            self.__nvti_cache = nvticache.NVTICache(main_db)
-        except SystemExit:
-            # Maybe replace this with just a log message
-            raise Exception("Could not connect to the Redis KB") from None
+        return self._nvti
 
     @property
     def metadata_path(self) -> str:
@@ -238,8 +236,8 @@ class NotusMetadataHandler:
                 file_calculated_checksum_string = sha256_object.hexdigest()
                 # Extract the downloaded checksum for this file
                 # from the Redis KB
-                file_downloaded_checksum_string = db.OpenvasDB.get_single_item(
-                    self.__db_ctx, f'sha256sums:{file_abs_path}'
+                file_downloaded_checksum_string = self.nvti.get_file_checksum(
+                    file_abs_path
                 )
 
                 # Checksum check
@@ -347,7 +345,7 @@ class NotusMetadataHandler:
             oid = advisory_dict["OID"]
             kb_key_string = f'nvt:{oid}'
             try:
-                self.__nvti_cache.add_vt_to_cache(
+                self.nvti.add_vt_to_cache(
                     vt_id=kb_key_string, vt=advisory_metadata_list
                 )
             except OspdOpenvasError:
