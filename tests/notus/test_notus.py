@@ -19,7 +19,8 @@
 import logging
 import unittest
 
-from pathlib import Path
+from csv import DictReader
+from pathlib import Path, PurePath
 from collections import OrderedDict
 from unittest.mock import patch, MagicMock
 
@@ -28,7 +29,7 @@ from ospd_openvas.notus.metadata import (
     EXPECTED_FIELD_NAMES_LIST,
     METADATA_DIRECTORY_NAME,
 )
-
+from ospd_openvas.errors import OspdOpenvasError
 from tests.helper import assert_called_once, assert_called
 
 
@@ -305,7 +306,7 @@ class LockFileTestCase(unittest.TestCase):
             f'Checksum for %s failed', path
         )
 
-    def test_update_metadata_field_name_fail(self):
+    def test_update_metadata_field_name_failed(self):
         notus = NotusMetadataHandler(metadata_path="./tests/notus")
         logging.Logger.warning = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
@@ -318,4 +319,96 @@ class LockFileTestCase(unittest.TestCase):
 
         logging.Logger.warning.assert_called_with(
             f'Field names check for %s failed', path
+        )
+
+    def test_update_metadata_failed(self):
+        notus = NotusMetadataHandler(metadata_path="./tests/notus")
+        logging.Logger.warning = MagicMock()
+        path = Path("./tests/notus/example.csv").resolve()
+        purepath = PurePath(path).name
+
+        notus._get_csv_filepaths = MagicMock(return_value=[path])
+        notus.is_checksum_correct = MagicMock(return_value=True)
+        notus._check_field_names_lsc = MagicMock(return_value=True)
+        notus.upload_lsc_from_csv_reader = MagicMock(return_value=False)
+
+        notus.update_metadata()
+
+        logging.Logger.warning.assert_called_with(
+            "Some advaisory was not loaded from %s", purepath
+        )
+
+    def test_update_metadata_success(self):
+        notus = NotusMetadataHandler(metadata_path="./tests/notus")
+        logging.Logger.warning = MagicMock()
+        path = Path("./tests/notus/example.csv").resolve()
+        purepath = PurePath(path).name
+
+        notus._get_csv_filepaths = MagicMock(return_value=[path])
+        notus.is_checksum_correct = MagicMock(return_value=True)
+        notus._check_field_names_lsc = MagicMock(return_value=True)
+        notus.upload_lsc_from_csv_reader = MagicMock(return_value=True)
+
+        notus.update_metadata()
+
+        logging.Logger.warning.assert_not_called()
+
+    def test_upload_lsc_from_csv_reader_failed(self):
+        general_metadata_dict = {
+            'VULDETECT': 'Checks if a vulnerable package version is present on the target host.',
+            'SOLUTION': 'Please install the updated package(s).',
+            'SOLUTION_TYPE': 'VendorFix',
+            'QOD_TYPE': 'package',
+        }
+
+        notus = NotusMetadataHandler(
+            nvti=self.nvti, metadata_path="./tests/notus"
+        )
+        notus.nvti.add_vt_to_cache.side_effect = OspdOpenvasError
+        logging.Logger.debug = MagicMock()
+        path = Path("./tests/notus/example.csv").resolve()
+        purepath = PurePath(path).name
+        with path.open("r") as openfile:
+            for line_string in openfile:
+                if line_string.startswith("{"):
+                    break
+            reader = DictReader(openfile)
+
+            ret = notus.upload_lsc_from_csv_reader(
+                purepath, general_metadata_dict, reader
+            )
+
+        self.assertFalse(ret)
+        logging.Logger.debug.assert_called_with(
+            "Loaded %d/%d advisories from %s", 0, 1, purepath
+        )
+
+    def test_upload_lsc_from_csv_reader_sucess(self):
+        general_metadata_dict = {
+            'VULDETECT': 'Checks if a vulnerable package version is present on the target host.',
+            'SOLUTION': 'Please install the updated package(s).',
+            'SOLUTION_TYPE': 'VendorFix',
+            'QOD_TYPE': 'package',
+        }
+
+        notus = NotusMetadataHandler(
+            nvti=self.nvti, metadata_path="./tests/notus"
+        )
+        notus.nvti.add_vt_to_cache.return_value = None
+        logging.Logger.debug = MagicMock()
+        path = Path("./tests/notus/example.csv").resolve()
+        purepath = PurePath(path).name
+        with path.open("r") as openfile:
+            for line_string in openfile:
+                if line_string.startswith("{"):
+                    break
+            reader = DictReader(openfile)
+
+            ret = notus.upload_lsc_from_csv_reader(
+                purepath, general_metadata_dict, reader
+            )
+
+        self.assertTrue(ret)
+        logging.Logger.debug.assert_called_with(
+            "Loaded %d/%d advisories from %s", 1, 1, purepath
         )
