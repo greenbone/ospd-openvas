@@ -75,7 +75,7 @@ class NotusMetadataHandler:
     """Class to perform checksum checks and upload metadata for
     CSV files that were created by the Notus Generator."""
 
-    def __init__(self, metadata_path: str = None):
+    def __init__(self, metadata_path: str = None, nvti: NVTICache = None):
 
         self._openvas_settings_dict = None
 
