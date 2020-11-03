@@ -1,0 +1,4 @@
+# General metadata:
+{'VULDETECT': 'Checks if a vulnerable package version is present on the target host.', 'SOLUTION': 'Please install the updated package(s).', 'SOLUTION_TYPE': 'VendorFix', 'QOD_TYPE': 'package'}
+OID,TITLE,CREATION_DATE,LAST_MODIFICATION,SOURCE_PKGS,ADVISORY_ID,CVSS_BASE_VECTOR,CVSS_BASE,ADVISORY_XREF,DESCRIPTION,INSIGHT,AFFECTED,CVE_LIST,BINARY_PACKAGES_FOR_RELEASES,XREFS
+1.3.6.1.4.1.25623.1.1.2.2020.1234,VendorOS: Security Advisory for git (VendorOS-2020-1234),1600269468,1601380531,['git'],VendorOS-2020-1234,AV:N/AC:L/Au:N/C:C/I:C/A:C,10.0,https://example.com,The remote host is missing an update.,"buffer overflow",'p1' package(s) on VendorOS V2.0SP1,"['CVE-2020-1234']","{'VendorOS V2.0SP1': ['p1-1.1']}",[]
