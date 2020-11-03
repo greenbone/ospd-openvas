@@ -84,8 +84,13 @@ class NotusMetadataHandler:
     @property
     def nvti(self) -> NVTICache:
         if self._nvti is None:
-            maindb = db.MainDB()
-            self._nvti = NVTICache(maindb)
+            try:
+                maindb = db.MainDB()
+                self._nvti = NVTICache(maindb)
+            except SystemExit:
+                raise OspdOpenvasError(
+                    "Could not connect to the Redis KB"
+                ) from None
 
         return self._nvti
 
