@@ -409,7 +409,7 @@ class NotusMetadataHandler:
                 if not self.upload_lsc_from_csv_reader(
                     file_name, general_metadata_dict, reader
                 ):
-                    logger.debug(
+                    logger.warning(
                         "Some advaisory was not loaded from %s", file_name
                     )
 
