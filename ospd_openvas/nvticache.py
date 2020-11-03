@@ -22,6 +22,7 @@
 import logging
 
 from typing import List, Dict, Optional, Iterator, Tuple
+from pathlib import Path
 
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
@@ -320,3 +321,28 @@ class NVTICache(BaseDB):
             )
 
         OpenvasDB.add_single_list(self.ctx, vt_id, vt)
+
+    def get_file_checksum(self, file_abs_path: Path) -> str:
+        """Get file sha256 checksum or md5 checksum
+
+        Arguments:
+            file_abs_path: File to get the checksum
+
+        Returns:
+            The checksum
+        """
+        # Try to get first sha256 checksum
+        sha256sum = OpenvasDB.get_single_item(
+            self.ctx,
+            f'sha256sums:{file_abs_path}',
+        )
+        if sha256sum:
+            return sha256sum
+
+        # Search for md5 checksum
+        md5sum = OpenvasDB.get_single_item(
+            self.ctx,
+            f'md5sums:{file_abs_path}',
+        )
+        if md5sum:
+            return md5sum
