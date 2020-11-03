@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import unittest
 
 from pathlib import Path
@@ -290,3 +291,31 @@ class LockFileTestCase(unittest.TestCase):
         ret = notus._get_csv_filepaths()
 
         self.assertEqual(ret, [path])
+
+    def test_update_metadata_warning(self):
+        notus = NotusMetadataHandler()
+        logging.Logger.warning = MagicMock()
+        path = Path("./tests/notus/example.csv").resolve()
+
+        notus._get_csv_filepaths = MagicMock(return_value=[path])
+        notus.is_checksum_correct = MagicMock(return_value=False)
+
+        notus.update_metadata()
+        logging.Logger.warning.assert_called_with(
+            f'Checksum for %s failed', path
+        )
+
+    def test_update_metadata_field_name_fail(self):
+        notus = NotusMetadataHandler(metadata_path="./tests/notus")
+        logging.Logger.warning = MagicMock()
+        path = Path("./tests/notus/example.csv").resolve()
+
+        notus._get_csv_filepaths = MagicMock(return_value=[path])
+        notus.is_checksum_correct = MagicMock(return_value=True)
+        notus._check_field_names_lsc = MagicMock(return_value=False)
+
+        notus.update_metadata()
+
+        logging.Logger.warning.assert_called_with(
+            f'Field names check for %s failed', path
+        )
