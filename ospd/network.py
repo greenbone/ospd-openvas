@@ -82,7 +82,7 @@ def target_to_ipv4_short(target: str) -> Optional[List]:
     # allowed.
     # The next code checks for a range starting with a A.B.C.0.
     # For the octet equal to 0, bytes() returns an empty binary b'',
-    # wich must be handle in a special way.
+    # which must be handle in a special way.
     _start_value = bytes(start_packed[3])
     if _start_value:
         start_value = int(binascii.hexlify(_start_value), 16)
