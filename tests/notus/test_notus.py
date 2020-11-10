@@ -30,7 +30,6 @@ from ospd_openvas.notus.metadata import (
     METADATA_DIRECTORY_NAME,
 )
 from ospd_openvas.errors import OspdOpenvasError
-from tests.helper import assert_called_once, assert_called
 
 
 class LockFileTestCase(unittest.TestCase):
@@ -325,7 +324,6 @@ class LockFileTestCase(unittest.TestCase):
         notus = NotusMetadataHandler(metadata_path="./tests/notus")
         logging.Logger.warning = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
-        purepath = PurePath(path).name
 
         notus._get_csv_filepaths = MagicMock(return_value=[path])
         notus.is_checksum_correct = MagicMock(return_value=True)
@@ -335,7 +333,7 @@ class LockFileTestCase(unittest.TestCase):
         notus.update_metadata()
 
         logging.Logger.warning.assert_called_with(
-            "Some advaisory was not loaded from %s", purepath
+            "Some advaisory was not loaded from %s", path.name
         )
 
     def test_update_metadata_success(self):
