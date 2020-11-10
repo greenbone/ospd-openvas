@@ -480,7 +480,7 @@ class OSPDopenvas(OSPDaemon):
 
         with self.feed_lock.wait_for_lock():
             Openvas.load_vts_into_redis()
-            notushandler = NotusMetadataHandler()
+            notushandler = NotusMetadataHandler(nvti=self.nvti)
             notushandler.update_metadata()
             current_feed = self.nvti.get_feed_version()
             self.set_vts_version(vts_version=current_feed)
@@ -564,7 +564,7 @@ class OSPDopenvas(OSPDaemon):
                 if fl.has_lock():
                     self.initialized = False
                     Openvas.load_vts_into_redis()
-                    notushandler = NotusMetadataHandler()
+                    notushandler = NotusMetadataHandler(nvti=self.nvti)
                     notushandler.update_metadata()
                     current_feed = self.nvti.get_feed_version()
                     self.set_vts_version(vts_version=current_feed)

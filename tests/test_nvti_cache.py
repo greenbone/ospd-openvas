@@ -25,6 +25,7 @@ import logging
 
 from unittest import TestCase
 from unittest.mock import patch, Mock, PropertyMock
+from pathlib import Path
 
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache, NVTI_CACHE_NAME
@@ -360,4 +361,15 @@ class TestNVTICache(TestCase):
                 'n',
                 'o',
             ],
+        )
+
+    def test_get_file_checksum(self, MockOpenvasDB):
+        MockOpenvasDB.get_single_item.return_value = '123456'
+        path = Path("/tmp/foo.csv")
+
+        resp = self.nvti.get_file_checksum(path)
+
+        self.assertEqual(resp, '123456')
+        MockOpenvasDB.get_single_item.assert_called_with(
+            'foo', "sha256sums:/tmp/foo.csv"
         )
