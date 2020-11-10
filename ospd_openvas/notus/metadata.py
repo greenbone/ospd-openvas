@@ -85,7 +85,7 @@ class NotusMetadataHandler:
     def nvti(self) -> NVTICache:
         if self._nvti is None:
             try:
-                maindb = db.MainDB()
+                maindb = MainDB()
                 self._nvti = NVTICache(maindb)
             except SystemExit:
                 raise OspdOpenvasError(
