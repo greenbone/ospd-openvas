@@ -104,7 +104,11 @@ def create_pid(pidfile: str) -> bool:
     pidpath = Path(pidfile)
 
     if pidpath.is_file():
-        LOGGER.error("There is an already running process.")
+        LOGGER.error(
+            "There is an already running process. If no process is running, "
+            "please remove the pid file '%s' manually",
+            str(pidpath.absolute()),
+        )
         return False
 
     try:
