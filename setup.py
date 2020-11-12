@@ -17,14 +17,14 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 from ospd_openvas import __version__
 
 setup(
     name='ospd-openvas',
     version=__version__,
-    packages=['ospd_openvas'],
+    packages=find_packages(exclude=['tests*']),
     url='https://github.com/greenbone/ospd-openvas',
     author='Greenbone Networks GmbH',
     author_email='info@greenbone.net',
