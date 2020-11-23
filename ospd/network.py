@@ -286,8 +286,8 @@ def target_to_list(target: str) -> Optional[List]:
 
 def target_str_to_list(target_str: str) -> Optional[List]:
     """Parses a targets string into a list of individual targets.
-    Return a list of host or None.
-    Return an empty list in case of malformed target
+    Return a list of hosts, None if supplied target_str is None or
+    empty, or an empty list in case of malformed target.
     """
     new_list = list()
 
