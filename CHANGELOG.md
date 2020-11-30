@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add support CVSSv3 and accept new tags for severity vector, origin, date. [#346](https://github.com/greenbone/ospd-openvas/pull/346)
 - Add the Notus Metadata Handler for uploading VT metadata into Redis and performing checksum checks. [#348](https://github.com/greenbone/ospd-openvas/pull/348)
 - Add test and code improvements related to Notus Metadata Handler. [#352](https://github.com/greenbone/ospd-openvas/pull/352)
+- Add support for new severity tags to Notus. [#357](https://github.com/greenbone/ospd-openvas/pull/357)
 
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
