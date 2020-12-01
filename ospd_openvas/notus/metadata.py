@@ -46,8 +46,9 @@ EXPECTED_FIELD_NAMES_LIST = [
     "LAST_MODIFICATION",
     "SOURCE_PKGS",
     "ADVISORY_ID",
-    "CVSS_BASE_VECTOR",
-    "CVSS_BASE",
+    "SEVERITY_ORIGIN",
+    "SEVERITY_DATE",
+    "SEVERITY_VECTOR",
     "ADVISORY_XREF",
     "DESCRIPTION",
     "INSIGHT",
@@ -304,13 +305,16 @@ class NotusMetadataHandler:
             advisory_metadata_list.append(DEPENDENCIES)
             # Tags
             tags_string = (
-                "cvss_base_vector={}|last_modification={}|"
+                "severity_origin={}|severity_date={}|"
+                "severity_vector={}|last_modification={}|"
                 "creation_date={}|summary={}|vuldetect={}|"
                 "insight={}|affected={}|solution={}|"
                 "solution_type={}|qod_type={}"
             )
             tags_string = tags_string.format(
-                advisory_dict["CVSS_BASE_VECTOR"],
+                advisory_dict["SEVERITY_ORIGIN"],
+                advisory_dict["SEVERITY_DATE"],
+                advisory_dict["SEVERITY_VECTOR"],
                 advisory_dict["LAST_MODIFICATION"],
                 advisory_dict["CREATION_DATE"],
                 advisory_dict["DESCRIPTION"],

@@ -81,7 +81,7 @@ class LockFileTestCase(unittest.TestCase):
     def test_is_checksum_correct_enabled_true(self):
         notus = NotusMetadataHandler(nvti=self.nvti)
         notus.nvti.get_file_checksum.return_value = (
-            "aafbaf3fac1c64a4006a02ed4657b975f47b07cd2915c8186ff1739ac6216e72"
+            "2f561b9be5d1a1194f49cd5a6a024dee15a0c0bc7d94287266d0e6358e737f4e"
         )
         notus._openvas_settings_dict = {'nasl_no_signature_check': 0}
 
@@ -228,8 +228,9 @@ class LockFileTestCase(unittest.TestCase):
             "LAST_MODIFICATION",
             "SOURCE_PKGS",
             "ADVISORY_ID",
-            "CVSS_BASE_VECTOR",
-            "CVSS_BASE",
+            "SEVERITY_ORIGIN",
+            "SEVERITY_DATE",
+            "SEVERITY_VECTOR",
             "ADVISORY_XREF",
             "DESCRIPTION",
             "INSIGHT",
@@ -238,7 +239,6 @@ class LockFileTestCase(unittest.TestCase):
             "BINARY_PACKAGES_FOR_RELEASES",
             "XREFS",
         ]
-
         self.assertTrue(notus._check_field_names_lsc(field_names_list))
 
     def test_check_field_names_lsc_unordered(self):
@@ -250,8 +250,9 @@ class LockFileTestCase(unittest.TestCase):
             "LAST_MODIFICATION",
             "SOURCE_PKGS",
             "ADVISORY_ID",
-            "CVSS_BASE_VECTOR",
-            "CVSS_BASE",
+            "SEVERITY_ORIGIN",
+            "SEVERITY_DATE",
+            "SEVERITY_VECTOR",
             "ADVISORY_XREF",
             "DESCRIPTION",
             "INSIGHT",
