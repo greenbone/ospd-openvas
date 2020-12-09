@@ -1187,8 +1187,10 @@ class OSPDopenvas(OSPDaemon):
         """Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
-        of the grandchild process. Send SIGUSR2 to openvas to stop
-        each running scan."""
+        of the grandchild process.
+        Indirectly sends SIGUSR1 to the running openvas scan process
+        via an invocation of openvas with the --scan-stop option to
+        stop it."""
 
         openvas_scan_id, kbdb = self.main_db.find_kb_database_by_scan_id(
             global_scan_id
