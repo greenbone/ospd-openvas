@@ -1225,9 +1225,9 @@ class OSPDopenvas(OSPDaemon):
                 logger.debug('Stopping process: %s', parent)
 
                 while parent:
-                    try:
-                        parent = psutil.Process(int(ovas_pid))
-                    except psutil.NoSuchProcess:
+                    if parent.is_running():
+                        time.sleep(0.1)
+                    else:
                         parent = None
 
             for scan_db in kbdb.get_scan_databases():
