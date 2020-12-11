@@ -411,12 +411,13 @@ class StopScan(BaseCommand):
 
 class GetScans(BaseCommand):
     name = 'get_scans'
-    description = 'List the scans in buffer.'
+    description = 'Get information about a scan in buffer.'
     attributes = {
-        'scan_id': 'ID of a specific scan to get.',
+        'scan_id': 'Mandatory ID of a specific scan to get.',
         'details': 'Whether to return the full scan report.',
         'pop_results': 'Whether to remove the fetched results.',
         'max_results': 'Maximum number of results to fetch.',
+        'progress': 'Whether to return a detailed scan progress',
     }
     must_be_initialized = False
 
