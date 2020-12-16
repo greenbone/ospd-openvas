@@ -287,9 +287,14 @@ class NotusMetadataHandler:
             # Create a list with all the metadata. Refer to:
             # https://github.com/greenbone/ospd-openvas/blob/232d04e72d2af0199d60324e8820d9e73498a831/ospd_openvas/db.py#L39 # pylint: disable=C0321
             advisory_metadata_list = list()
-            # File name
+
+            oid = advisory_dict["OID"]
+            # Common file name appends the [OID_OS_PREFIX][ADVISORY_ID]
+            # to create a virtual location for the advisory to avoid
+            # sharing the common filename with other advisories.
+            os_and_advisory = oid.split("1.3.6.1.4.1.25623.1.1")[1]
             advisory_metadata_list.append(
-                f'{METADATA_DIRECTORY_NAME}/{file_name}'
+                f'{METADATA_DIRECTORY_NAME}/{file_name}{os_and_advisory}'
             )
             # Required keys
             advisory_metadata_list.append(REQUIRED_KEYS)
@@ -351,7 +356,6 @@ class NotusMetadataHandler:
 
             # Write the metadata list to the respective Redis KB key,
             # overwriting any existing values
-            oid = advisory_dict["OID"]
             kb_key_string = f'nvt:{oid}'
             try:
                 self.nvti.add_vt_to_cache(
