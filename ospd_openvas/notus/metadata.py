@@ -378,6 +378,10 @@ class NotusMetadataHandler:
         and write this information to the Redis KB.
         """
 
+        # Check if Notus is enabled
+        if not self.openvas_setting.get("table_driven_lsc"):
+            return
+
         logger.debug("Starting the Notus metadata load up")
         # Get a list of all CSV files in that directory with their absolute path
         csv_abs_filepaths_list = self._get_csv_filepaths()
