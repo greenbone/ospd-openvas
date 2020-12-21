@@ -81,7 +81,7 @@ class NotusTestCase(unittest.TestCase):
     def test_is_checksum_correct_enabled_true(self):
         notus = NotusMetadataHandler(nvti=self.nvti)
         notus.nvti.get_file_checksum.return_value = (
-            "2f561b9be5d1a1194f49cd5a6a024dee15a0c0bc7d94287266d0e6358e737f4e"
+            "ca8274e1d8e6a61985d457799644b49ef3c46753fb3ee5910beb2c3fc674da0a"
         )
         notus._openvas_settings_dict = {'nasl_no_signature_check': 0}
 
@@ -238,6 +238,7 @@ class NotusTestCase(unittest.TestCase):
             "CVE_LIST",
             "BINARY_PACKAGES_FOR_RELEASES",
             "XREFS",
+            "FILENAME",
         ]
         self.assertTrue(notus._check_field_names_lsc(field_names_list))
 
