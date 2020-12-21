@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add the Notus Metadata Handler for uploading VT metadata into Redis and performing checksum checks. [#348](https://github.com/greenbone/ospd-openvas/pull/348)
 - Add test and code improvements related to Notus Metadata Handler. [#352](https://github.com/greenbone/ospd-openvas/pull/352)
 - Add support for new severity tags to Notus. [#357](https://github.com/greenbone/ospd-openvas/pull/357)
+- Add key with virtual location into redis cache for Notus metadata. [#363](https://github.com/greenbone/ospd-openvas/pull/363)
 
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
