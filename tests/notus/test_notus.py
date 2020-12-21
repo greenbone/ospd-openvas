@@ -32,7 +32,7 @@ from ospd_openvas.notus.metadata import (
 from ospd_openvas.errors import OspdOpenvasError
 
 
-class LockFileTestCase(unittest.TestCase):
+class NotusTestCase(unittest.TestCase):
     @patch('ospd_openvas.nvticache.NVTICache')
     def setUp(self, MockNvti):
         self.nvti = MockNvti()
@@ -293,10 +293,13 @@ class LockFileTestCase(unittest.TestCase):
 
         self.assertEqual(ret, [path])
 
-    def test_update_metadata_warning(self):
+    @patch('ospd_openvas.notus.metadata.Openvas')
+    def test_update_metadata_warning(self, MockOpenvas):
         notus = NotusMetadataHandler()
         logging.Logger.warning = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
+        openvas = MockOpenvas()
+        openvas.get_settings.return_value = {'table_driven_lsc': 1}
 
         notus._get_csv_filepaths = MagicMock(return_value=[path])
         notus.is_checksum_correct = MagicMock(return_value=False)
@@ -306,10 +309,13 @@ class LockFileTestCase(unittest.TestCase):
             f'Checksum for %s failed', path
         )
 
-    def test_update_metadata_field_name_failed(self):
+    @patch('ospd_openvas.notus.metadata.Openvas')
+    def test_update_metadata_field_name_failed(self, MockOpenvas):
         notus = NotusMetadataHandler(metadata_path="./tests/notus")
         logging.Logger.warning = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
+        openvas = MockOpenvas()
+        openvas.get_settings.return_value = {'table_driven_lsc': 1}
 
         notus._get_csv_filepaths = MagicMock(return_value=[path])
         notus.is_checksum_correct = MagicMock(return_value=True)
@@ -321,10 +327,13 @@ class LockFileTestCase(unittest.TestCase):
             f'Field names check for %s failed', path
         )
 
-    def test_update_metadata_failed(self):
+    @patch('ospd_openvas.notus.metadata.Openvas')
+    def test_update_metadata_failed(self, MockOpenvas):
         notus = NotusMetadataHandler(metadata_path="./tests/notus")
         logging.Logger.warning = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
+        openvas = MockOpenvas()
+        openvas.get_settings.return_value = {'table_driven_lsc': 1}
 
         notus._get_csv_filepaths = MagicMock(return_value=[path])
         notus.is_checksum_correct = MagicMock(return_value=True)
@@ -337,11 +346,19 @@ class LockFileTestCase(unittest.TestCase):
             "Some advaisory was not loaded from %s", path.name
         )
 
-    def test_update_metadata_success(self):
+    def test_update_metadata_disabled(self):
+        notus = NotusMetadataHandler(metadata_path="./tests/notus")
+        ret = notus.update_metadata()
+        self.assertIsNone(ret)
+
+    @patch('ospd_openvas.notus.metadata.Openvas')
+    def test_update_metadata_success(self, MockOpenvas):
         notus = NotusMetadataHandler(metadata_path="./tests/notus")
         logging.Logger.warning = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
         purepath = PurePath(path).name
+        openvas = MockOpenvas()
+        openvas.get_settings.return_value = {'table_driven_lsc': 1}
 
         notus._get_csv_filepaths = MagicMock(return_value=[path])
         notus.is_checksum_correct = MagicMock(return_value=True)
