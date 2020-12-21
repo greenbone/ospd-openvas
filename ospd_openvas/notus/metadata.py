@@ -56,6 +56,7 @@ EXPECTED_FIELD_NAMES_LIST = [
     "CVE_LIST",
     "BINARY_PACKAGES_FOR_RELEASES",
     "XREFS",
+    "FILENAME",
 ]
 
 METADATA_DIRECTORY_NAME = "notus_metadata"
@@ -289,13 +290,14 @@ class NotusMetadataHandler:
             advisory_metadata_list = list()
 
             oid = advisory_dict["OID"]
-            # Common file name appends the [OID_OS_PREFIX][ADVISORY_ID]
-            # to create a virtual location for the advisory to avoid
-            # sharing the common filename with other advisories.
-            os_and_advisory = oid.split("1.3.6.1.4.1.25623.1.1")[1]
+            # Use virtual created with the common file name and appending
+            # the [OID_OS_PREFIX][ADVISORY_ID] to avoid sharing the common
+            # filename with other advisories.
+            filename = advisory_dict["FILENAME"]
             advisory_metadata_list.append(
-                f'{METADATA_DIRECTORY_NAME}/{file_name}{os_and_advisory}'
+                f'{METADATA_DIRECTORY_NAME}/{filename}'
             )
+
             # Required keys
             advisory_metadata_list.append(REQUIRED_KEYS)
             # Mandatory keys
