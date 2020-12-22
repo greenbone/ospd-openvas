@@ -36,9 +36,9 @@ from ospd_openvas.openvas import Openvas
 from ospd_openvas.db import KbDB
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.vthelper import VtHelper
+from ospd_openvas.notus.translationtable import LSC_FAMILIES_AND_DRIVERS
 
 logger = logging.getLogger(__name__)
-
 
 OID_SSH_AUTH = "1.3.6.1.4.1.25623.1.0.103591"
 OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
@@ -135,6 +135,9 @@ class PreferenceHandler:
 
         Returns a list of vt oids which match with the given filter.
         """
+        settings = Openvas.get_settings()
+        notus_enabled = settings.get("table_driven_lsc")
+
         vts_list = list()
         families = dict()
 
@@ -149,7 +152,17 @@ class PreferenceHandler:
 
         for elem in filters:
             key, value = elem.split('=')
-            if key == 'family' and value in families:
+            # If the family is supported by Notus LSC and Notus
+            # is enabled
+            if (
+                key == 'family'
+                and notus_enabled
+                and value in LSC_FAMILIES_AND_DRIVERS
+            ):
+                driver_oid = LSC_FAMILIES_AND_DRIVERS.get(value)
+                vts_list.append(driver_oid)
+            # If Notus disable or family not supported by notus.
+            elif key == 'family' and value in families:
                 vts_list.extend(families[value])
 
         return vts_list
