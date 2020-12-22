@@ -290,9 +290,8 @@ class NotusMetadataHandler:
             advisory_metadata_list = list()
 
             oid = advisory_dict["OID"]
-            # Use virtual created with the common file name and appending
-            # the [OID_OS_PREFIX][ADVISORY_ID] to avoid sharing the common
-            # filename with other advisories.
+
+            # Advisory virtual location
             filename = advisory_dict["FILENAME"]
             advisory_metadata_list.append(
                 f'{METADATA_DIRECTORY_NAME}/{filename}'
