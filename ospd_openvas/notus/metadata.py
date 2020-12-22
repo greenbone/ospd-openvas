@@ -56,6 +56,7 @@ EXPECTED_FIELD_NAMES_LIST = [
     "CVE_LIST",
     "BINARY_PACKAGES_FOR_RELEASES",
     "XREFS",
+    "FILENAME",
 ]
 
 METADATA_DIRECTORY_NAME = "notus_metadata"
@@ -287,10 +288,15 @@ class NotusMetadataHandler:
             # Create a list with all the metadata. Refer to:
             # https://github.com/greenbone/ospd-openvas/blob/232d04e72d2af0199d60324e8820d9e73498a831/ospd_openvas/db.py#L39 # pylint: disable=C0321
             advisory_metadata_list = list()
-            # File name
+
+            oid = advisory_dict["OID"]
+
+            # Advisory virtual location
+            filename = advisory_dict["FILENAME"]
             advisory_metadata_list.append(
-                f'{METADATA_DIRECTORY_NAME}/{file_name}'
+                f'{METADATA_DIRECTORY_NAME}/{filename}'
             )
+
             # Required keys
             advisory_metadata_list.append(REQUIRED_KEYS)
             # Mandatory keys
@@ -351,7 +357,6 @@ class NotusMetadataHandler:
 
             # Write the metadata list to the respective Redis KB key,
             # overwriting any existing values
-            oid = advisory_dict["OID"]
             kb_key_string = f'nvt:{oid}'
             try:
                 self.nvti.add_vt_to_cache(

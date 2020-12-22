@@ -323,6 +323,19 @@ OSPD_PARAMS_OUT = {
             + 'resolved however.'
         ),
     },
+    'table_driven_lsc': {
+        'type': 'boolean',
+        'name': 'table_driven_lsc',
+        'default': 1,
+        'mandatory': 0,
+        'visible_for_client': False,
+        'description': (
+            'If this options is set to "yes", openvas enables the local '
+            + 'security checks via the table-driven Notus scanner, perfoming '
+            + 'the Notus metadata checksum check which allows the metadata '
+            + 'upload into redis.'
+        ),
+    },
 }
 
 
