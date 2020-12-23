@@ -53,9 +53,11 @@ class PreferenceHandlerTestCase(TestCase):
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
         w.nvti.get_nvt_metadata.return_value = None
-        p._process_vts(vts)
 
-        assert_called_once(logging.Logger.warning)
+        ov_setting = {'table_driven_lsc': 0}
+        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
+            p._process_vts(vts)
+            assert_called_once(logging.Logger.warning)
 
     def test_process_vts_bad_param_id(self):
         w = DummyDaemon()

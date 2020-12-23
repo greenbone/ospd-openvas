@@ -81,7 +81,7 @@ class NotusTestCase(unittest.TestCase):
     def test_is_checksum_correct_enabled_true(self):
         notus = NotusMetadataHandler(nvti=self.nvti)
         notus.nvti.get_file_checksum.return_value = (
-            "ca8274e1d8e6a61985d457799644b49ef3c46753fb3ee5910beb2c3fc674da0a"
+            "76b112033d3badbe1331454fb08652bda08e6d6c1f3bca5b4b533ab00d55388e"
         )
         notus._openvas_settings_dict = {'nasl_no_signature_check': 0}
 
@@ -385,6 +385,7 @@ class NotusTestCase(unittest.TestCase):
         logging.Logger.debug = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
         purepath = PurePath(path).name
+        family = "Some family"
         with path.open("r") as openfile:
             for line_string in openfile:
                 if line_string.startswith("{"):
@@ -392,7 +393,7 @@ class NotusTestCase(unittest.TestCase):
             reader = DictReader(openfile)
 
             ret = notus.upload_lsc_from_csv_reader(
-                purepath, general_metadata_dict, reader
+                purepath, family, general_metadata_dict, reader
             )
 
         self.assertFalse(ret)
@@ -415,6 +416,7 @@ class NotusTestCase(unittest.TestCase):
         logging.Logger.debug = MagicMock()
         path = Path("./tests/notus/example.csv").resolve()
         purepath = PurePath(path).name
+        family = "Some family"
         with path.open("r") as openfile:
             for line_string in openfile:
                 if line_string.startswith("{"):
@@ -422,10 +424,27 @@ class NotusTestCase(unittest.TestCase):
             reader = DictReader(openfile)
 
             ret = notus.upload_lsc_from_csv_reader(
-                purepath, general_metadata_dict, reader
+                purepath, family, general_metadata_dict, reader
             )
 
         self.assertTrue(ret)
         logging.Logger.debug.assert_called_with(
             "Loaded %d/%d advisories from %s", 1, 1, purepath
         )
+
+    @patch('ospd_openvas.notus.metadata.Openvas')
+    def test_get_family_driver_linkers(self, MockOpenvas):
+        notus = NotusMetadataHandler(metadata_path="./tests/notus")
+
+        path = Path("./tests/notus/example.csv").resolve()
+        notus._get_csv_filepaths = MagicMock(return_value=[path])
+        notus.is_checksum_correct = MagicMock(return_value=True)
+
+        openvas = MockOpenvas()
+        openvas.get_settings.return_value = {'table_driven_lsc': 1}
+
+        family_and_driver = {
+            'Local Security Checks': '1.3.6.1.4.1.25623.1.2.3.4'
+        }
+        ret = notus.get_family_driver_linkers()
+        self.assertEqual(ret, family_and_driver)
