@@ -28,7 +28,7 @@ from glob import glob
 from hashlib import sha256
 from pathlib import Path
 from csv import DictReader
-from typing import List, Dict
+from typing import List, Dict, Optional, IO
 
 from ospd_openvas.db import MainDB
 from ospd_openvas.nvticache import NVTICache
@@ -64,7 +64,6 @@ METADATA_DIRECTORY_NAME = "notus_metadata"
 # Metadata constant field definitions
 SCRIPT_CATEGORY = "3"  # ACT_GATHER_INFO
 SCRIPT_TIMEOUT = "0"
-SCRIPT_FAMILY = "Notus_LSC_Metadata"
 BIDS = ""
 REQUIRED_KEYS = ""
 MANDATORY_KEYS = ""
@@ -259,6 +258,7 @@ class NotusMetadataHandler:
     def upload_lsc_from_csv_reader(
         self,
         file_name: str,
+        family: str,
         general_metadata_dict: Dict,
         csv_reader: DictReader,
     ) -> bool:
@@ -351,7 +351,7 @@ class NotusMetadataHandler:
             # Script timeout
             advisory_metadata_list.append(SCRIPT_TIMEOUT)
             # Script family
-            advisory_metadata_list.append(SCRIPT_FAMILY)
+            advisory_metadata_list.append(family)
             # Script Name / Title
             advisory_metadata_list.append(advisory_dict["TITLE"])
 
@@ -402,11 +402,17 @@ class NotusMetadataHandler:
             with csv_abs_path.open("r") as csv_file:
                 # Skip the license header, so the actual content
                 # can be parsed by the DictReader
+
+                # Get the family from the Notus metadata csv file.
+                family_and_driver_dict = self.parse_family_driver_link(csv_file)
+                family, _ = family_and_driver_dict.popitem()
+
                 general_metadata_dict = dict()
                 for line_string in csv_file:
                     if line_string.startswith("{"):
                         general_metadata_dict = ast.literal_eval(line_string)
                         break
+
                 # Check if the file can be parsed by the CSV module
                 reader = DictReader(csv_file)
                 # Check if the CSV file has the expected field names,
@@ -420,7 +426,7 @@ class NotusMetadataHandler:
 
                 file_name = csv_abs_path.name
                 if not self.upload_lsc_from_csv_reader(
-                    file_name, general_metadata_dict, reader
+                    file_name, family, general_metadata_dict, reader
                 ):
                     logger.warning(
                         "Some advaisory was not loaded from %s", file_name
