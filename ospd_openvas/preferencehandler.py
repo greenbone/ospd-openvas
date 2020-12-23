@@ -36,7 +36,7 @@ from ospd_openvas.openvas import Openvas
 from ospd_openvas.db import KbDB
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.vthelper import VtHelper
-from ospd_openvas.notus.translationtable import LSC_FAMILIES_AND_DRIVERS
+from ospd_openvas.notus.metadata import NotusMetadataHandler
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +140,9 @@ class PreferenceHandler:
 
         vts_list = list()
         families = dict()
+
+        notus = NotusMetadataHandler()
+        LSC_FAMILIES_AND_DRIVERS = notus.get_family_driver_linkers()
 
         oids = self.nvti.get_oids()
 
