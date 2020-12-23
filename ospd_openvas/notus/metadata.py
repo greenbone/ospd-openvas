@@ -448,9 +448,10 @@ class NotusMetadataHandler:
         csv_file.seek(0)
         for line_string in csv_file:
             if line_string.startswith("link = "):
+                link = line_string
                 break
-        if line_string:
-            return ast.literal_eval(line_string.strip("link = "))
+        if link:
+            return ast.literal_eval(link.strip("link = "))
 
     def get_family_driver_linkers(self) -> Optional[Dict]:
         """Get the a collection of advisory families supported

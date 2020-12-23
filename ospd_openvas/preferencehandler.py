@@ -142,7 +142,7 @@ class PreferenceHandler:
         families = dict()
 
         notus = NotusMetadataHandler()
-        LSC_FAMILIES_AND_DRIVERS = notus.get_family_driver_linkers()
+        lsc_families_and_drivers = notus.get_family_driver_linkers()
 
         oids = self.nvti.get_oids()
 
@@ -160,9 +160,9 @@ class PreferenceHandler:
             if (
                 key == 'family'
                 and notus_enabled
-                and value in LSC_FAMILIES_AND_DRIVERS
+                and value in lsc_families_and_drivers
             ):
-                driver_oid = LSC_FAMILIES_AND_DRIVERS.get(value)
+                driver_oid = lsc_families_and_drivers.get(value)
                 vts_list.append(driver_oid)
             # If Notus disable or family not supported by notus.
             elif key == 'family' and value in families:
