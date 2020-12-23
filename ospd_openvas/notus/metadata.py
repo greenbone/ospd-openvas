@@ -427,3 +427,52 @@ class NotusMetadataHandler:
                     )
 
         logger.debug("Notus metadata load up finished.")
+
+    def parse_family_driver_link(self, csv_file: IO) -> Optional[Dict]:
+        """Return the a single item dictionary get from the Notus metadata
+        csv file as dictionary:
+        E.g. {'LSC family name': 'Driver script OID'}
+
+        Arguments:
+            csv_file: Opened file descriptor to Notus metadata csv file.
+
+        Return: the dictionary if success. None otherwise.
+        """
+        # Find the family name - driver script linker
+        csv_file.seek(0)
+        for line_string in csv_file:
+            if line_string.startswith("link = "):
+                break
+        if line_string:
+            return ast.literal_eval(line_string.strip("link = "))
+
+    def get_family_driver_linkers(self) -> Optional[Dict]:
+        """Get the a collection of advisory families supported
+        by Notus and the linked OID of the driver script to run
+        the Notus scanner for the given family"""
+
+        # Check if Notus is enabled
+        if not self.openvas_setting.get("table_driven_lsc"):
+            return
+
+        # Get a list of all CSV files in that directory with their absolute path
+        csv_abs_filepaths_list = self._get_csv_filepaths()
+
+        # Read each CSV file
+        family_driver_linkers = {}
+        for csv_abs_path in csv_abs_filepaths_list:
+            # Check the checksums, unless they have been disabled
+            if not self.is_checksum_correct(csv_abs_path):
+                # Skip this file if the checksum does not match
+                logger.warning('Checksum for %s failed', csv_abs_path)
+                continue
+            logger.debug("Checksum check for %s successful", csv_abs_path)
+
+            dict_entry = None
+            with csv_abs_path.open("r") as csv_file:
+                dict_entry = self.parse_family_driver_link(csv_file)
+
+            if dict_entry:
+                family_driver_linkers.update(dict_entry)
+
+        return family_driver_linkers
