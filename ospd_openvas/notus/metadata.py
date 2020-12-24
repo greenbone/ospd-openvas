@@ -457,17 +457,17 @@ class NotusMetadataHandler:
     def get_family_driver_linkers(self) -> Optional[Dict]:
         """Get the a collection of advisory families supported
         by Notus and the linked OID of the driver script to run
-        the Notus scanner for the given family"""
+        the Notus scanner for the given family
 
-        # Check if Notus is enabled
-        if not self.openvas_setting.get("table_driven_lsc"):
-            return
+        This method always returns a dict with the supported families,
+        even if Notus Scanner is disabled.
+        """
 
         # Get a list of all CSV files in that directory with their absolute path
         csv_abs_filepaths_list = self._get_csv_filepaths()
 
-        # Read each CSV file
         family_driver_linkers = {}
+        # Read each CSV file
         for csv_abs_path in csv_abs_filepaths_list:
             # Check the checksums, unless they have been disabled
             if not self.is_checksum_correct(csv_abs_path):
