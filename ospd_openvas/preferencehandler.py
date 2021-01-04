@@ -164,9 +164,11 @@ class PreferenceHandler:
             ):
                 driver_oid = lsc_families_and_drivers.get(value)
                 vts_list.append(driver_oid)
+                logger.debug('Add Notus driver for family "%s"', value)
             # If Notus disable or family not supported by notus.
             elif key == 'family' and value in families:
                 vts_list.extend(families[value])
+                logger.debug('Add VTs collection for family "%s"', value)
 
         return vts_list
 
