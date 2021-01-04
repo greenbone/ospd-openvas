@@ -435,9 +435,10 @@ class NotusMetadataHandler:
         logger.debug("Notus metadata load up finished.")
 
     def parse_family_driver_link(self, csv_file: IO) -> Optional[Dict]:
-        """Return the a single item dictionary get from the Notus metadata
-        csv file as dictionary:
-        E.g. {'LSC family name': 'Driver script OID'}
+        """Return the dictionary from the Notus metadata csv file which
+        holds the driver script OID for the corresponding LSC family.
+        This dictionary has one entry:
+            E.g. {'LSC family name': 'Driver script OID'}
 
         Arguments:
             csv_file: Opened file descriptor to Notus metadata csv file.
