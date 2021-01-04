@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [tool.poetry]
 name = "ospd"
-version = "21.4a1"
+version = "21.4.0.dev1"
 description = "OSPD is a base for scanner wrappers which share the same communication protocol: OSP (Open Scanner Protocol)"
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 license = "AGPL-3.0-or-later"
@@ -44,8 +44,9 @@ paramiko = "^2.7.1"
 deprecated = "^1.2.10"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.5.3"
+pylint = "^2.6.0"
 autohooks-plugin-pylint = "^1.2.0"
+
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.7"}
 black = {version = "20.8b1", python = "^3.7"}
 rope = "^0.18.0"

@@ -492,7 +492,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           </stop_scan>
           <get_scans>
             <attributes>
-              <scan_id>ID of a specific scan to get</scan_id>
+              <scan_id>Mandatory ID of a specific scan to get</scan_id>
               <details>Whether to return the full scan report</details>
               <progress>Whether to return a detailed progress information</progress>
               <pop_results>Whether to remove the fetched results</pop_results>
@@ -564,7 +564,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   </command>
   <command>
     <name>get_scans</name>
-    <summary>Get the stored scans</summary>
+    <summary>Get a stored scan in buffer</summary>
     <pattern>
       <attrib>
         <name>scan_id</name>
