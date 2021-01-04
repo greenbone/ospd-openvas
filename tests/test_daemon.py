@@ -326,7 +326,7 @@ OSPD_PARAMS_OUT = {
     'table_driven_lsc': {
         'type': 'boolean',
         'name': 'table_driven_lsc',
-        'default': 1,
+        'default': 0,
         'mandatory': 0,
         'visible_for_client': False,
         'description': (
