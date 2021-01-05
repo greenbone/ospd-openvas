@@ -954,12 +954,11 @@ class PreferenceHandlerTestCase(TestCase):
         p._nvts_params = {
             "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no"
         }
-        p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_nvt_preferences()
 
         p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+            p.scan_id,
             alive_test_out,
         )
 
@@ -969,7 +968,6 @@ class PreferenceHandlerTestCase(TestCase):
 
         p = PreferenceHandler('456-789', mock_kb, w.scan_collection, None)
         p._nvts_params = {}
-        p._openvas_scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         p.prepare_nvt_preferences()
 
