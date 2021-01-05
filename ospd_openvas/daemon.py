@@ -1285,7 +1285,7 @@ class OSPDopenvas(OSPDaemon):
         # Release memory used for scan preferences.
         del scan_prefs
 
-        if do_not_launch or kbdb.scan_is_stopped(openvas_scan_id):
+        if do_not_launch or kbdb.scan_is_stopped(scan_id):
             self.main_db.release_database(kbdb)
             return
 
