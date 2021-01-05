@@ -849,6 +849,34 @@ class ScanTestCase(unittest.TestCase):
         response = self.daemon.get_scan_credentials(scan_id)
         self.assertEqual(response, cred_dict)
 
+    def test_target_with_credential_empty_community(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>192.168.0.0/24</hosts><ports>22'
+            '</ports><credentials>'
+            '<credential type="up" service="snmp">'
+            '<community></community></credential>'
+            '</credentials>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+
+        self.assertEqual(response.get('status'), '200')
+
+        cred_dict = {
+            'snmp': {'type': 'up', 'community': ''},
+        }
+        scan_id = response.findtext('id')
+        response = self.daemon.get_scan_credentials(scan_id)
+        self.assertEqual(response, cred_dict)
+
     def test_scan_get_target(self):
         fs = FakeStream()
         self.daemon.handle_command(
@@ -1138,6 +1166,31 @@ class ScanTestCase(unittest.TestCase):
             '<get_scans details="0" progress="1"/>',
             fs,
         )
+
+    def test_set_scan_total_hosts(self):
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        count = self.daemon.scan_collection.get_count_total(scan_id)
+        self.assertEqual(count, 4)
+
+        self.daemon.set_scan_total_hosts(scan_id, 3)
+        count = self.daemon.scan_collection.get_count_total(scan_id)
+        self.assertEqual(count, 3)
 
     def test_get_scan_progress_xml(self):
 

@@ -40,13 +40,27 @@ class ConvertTargetListsTestCase(unittest.TestCase):
         for i in range(1, 255):
             self.assertIn('195.70.81.%d' % i, addresses)
 
+    def test_bad_ipv4_cidr(self):
+        addresses = target_str_to_list('195.70.81.0/32')
+        self.assertIsNotNone(addresses)
+        self.assertEqual(len(addresses), 0)
+
+        addresses = target_str_to_list('195.70.81.0/31')
+        self.assertIsNotNone(addresses)
+        self.assertEqual(len(addresses), 0)
+
+    def test_good_ipv4_cidr(self):
+        addresses = target_str_to_list('195.70.81.0/30')
+        self.assertIsNotNone(addresses)
+        self.assertEqual(len(addresses), 2)
+
     def test_range(self):
-        addresses = target_str_to_list('195.70.81.1-10')
+        addresses = target_str_to_list('195.70.81.0-10')
 
         self.assertIsNotNone(addresses)
-        self.assertEqual(len(addresses), 10)
+        self.assertEqual(len(addresses), 11)
 
-        for i in range(1, 10):
+        for i in range(0, 10):
             self.assertIn('195.70.81.%d' % i, addresses)
 
     def test_target_str_with_trailing_comma(self):

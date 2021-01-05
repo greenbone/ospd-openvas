@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 
-## [21.4] (unreleased)
+## [21.4.0] (unreleased)
 
 ### Added
 - Add target option for supplying dedicated port list for alive detection (Boreas only) via OSP. [#323](https://github.com/greenbone/ospd/pull/323)
@@ -14,7 +14,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
 
-[21.4]: https://github.com/greenbone/ospd/compare/ospd-20.08...master
+[21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...master
+
+## [20.8.2] (unreleased)
+
+### Added
+- Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
+
+### Fixed
+- Fix OSP version. [#326](https://github.com/greenbone/ospd/pull/326)
+- Use empty string instead of None for credential. [#335](https://github.com/greenbone/ospd/pull/335)
+- Fix target_to_ipv4_short(). [#338](https://github.com/greenbone/ospd/pull/338)
+- Fix malformed target. [#341](https://github.com/greenbone/ospd/pull/341)
+
+[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
 
 ## [20.8.1] (2020-08-12)
 
