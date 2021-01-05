@@ -317,7 +317,7 @@ class PreferenceHandler:
             items_list.append('%s|||%s' % (key, val))
 
         if items_list:
-            self.kbdb.add_scan_preferences(self._openvas_scan_id, items_list)
+            self.kbdb.add_scan_preferences(self.scan_id, items_list)
 
     @staticmethod
     def build_alive_test_opt_as_prefs(
