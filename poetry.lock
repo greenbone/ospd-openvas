@@ -149,7 +149,6 @@ version = "0.4.4"
 [[package]]
 category = "dev"
 description = "Terminal string styling done right, in Python."
-marker = "python_version >= \"3.7\" and python_version < \"4.0\""
 name = "colorful"
 optional = false
 python-versions = "*"
