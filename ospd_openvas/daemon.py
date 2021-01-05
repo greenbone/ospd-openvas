@@ -1049,7 +1049,6 @@ class OSPDopenvas(OSPDaemon):
             host_deny = "Host access denied" in msg[5]
             start_end_msg = msg[0] == "HOST_START" or msg[0] == "HOST_END"
             host_count = msg[0] == "HOSTS_COUNT"
-            host_deny = "Host access denied" in msg[4]
             vt_aux = None
 
             # URI is optional and msg list length must be checked
