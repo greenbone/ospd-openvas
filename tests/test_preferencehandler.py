@@ -21,6 +21,7 @@ import logging
 
 from unittest import TestCase
 from unittest.mock import call, patch, Mock, MagicMock
+from collections import OrderedDict
 
 from ospd.vts import Vts
 
@@ -224,26 +225,27 @@ class PreferenceHandlerTestCase(TestCase):
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
 
-        self.assertEqual(ret, [])
+        self.assertEqual(ret, {})
 
         # alive test was supplied via seperate xml element
         w = DummyDaemon()
         target_options_dict = {'alive_test_methods': '1', 'icmp': '0'}
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
-        self.assertEqual(ret, [])
+        self.assertEqual(ret, {})
 
     def test_build_alive_test_opt(self):
         w = DummyDaemon()
 
-        alive_test_out = [
-            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
-            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
-        ]
+        alive_test_out = {
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping": "yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)": "yes",
+        }
+
         target_options_dict = {'alive_test': '2'}
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
@@ -252,14 +254,6 @@ class PreferenceHandlerTestCase(TestCase):
 
         # alive test was supplied via sepertae xml element
         w = DummyDaemon()
-        alive_test_out = [
-            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
-            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
-        ]
         target_options_dict = {'alive_test_methods': '1', 'icmp': '1'}
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
         ret = p.build_alive_test_opt_as_prefs(target_options_dict)
@@ -772,6 +766,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p._nvts_params = {}
             p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
@@ -789,6 +784,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+            p._nvts_params = {}
             p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
@@ -815,28 +811,28 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-
+            p._nvts_params = {}
             p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
 
-            p.kbdb.add_scan_preferences.assert_called_with(
-                p.scan_id,
-                alive_test_out,
-            )
+            for key, value in p._nvts_params.items():
+                self.assertTrue(
+                    "{0}|||{1}".format(key, value) in alive_test_out
+                )
 
     @patch('ospd_openvas.db.KbDB')
     def test_prepare_alive_test_not_supplied_as_enum(self, mock_kb):
         w = DummyDaemon()
 
-        alive_test_out = [
-            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
-            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
-        ]
+        alive_test_out = {
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping": "yes",
+            "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)": "yes",
+        }
 
         t_opt = {'alive_test_methods': '1', 'icmp': '1'}
         w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
@@ -845,15 +841,12 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-
+            p._nvts_params = {}
             p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
 
-            p.kbdb.add_scan_preferences.assert_called_with(
-                p.scan_id,
-                alive_test_out,
-            )
+            self.assertEqual(p._nvts_params, alive_test_out)
 
     @patch('ospd_openvas.db.KbDB')
     def test_prepare_alive_test_no_enum_no_alive_test(self, mock_kb):
@@ -866,7 +859,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-
+            p._nvts_params = {}
             p.scan_id = '456-789'
             p.kbdb.add_scan_preferences = MagicMock()
             p.prepare_alive_test_option_for_openvas()
@@ -948,3 +941,36 @@ class PreferenceHandlerTestCase(TestCase):
                 consider_alive=True,
             ),
         )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_prepare_nvt_prefs(self, mock_kb):
+        w = DummyDaemon()
+
+        alive_test_out = [
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no"
+        ]
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p._nvts_params = {
+            "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no"
+        }
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.prepare_nvt_preferences()
+
+        p.kbdb.add_scan_preferences.assert_called_with(
+            p._openvas_scan_id,
+            alive_test_out,
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_prepare_nvt_prefs_no_prefs(self, mock_kb):
+        w = DummyDaemon()
+
+        p = PreferenceHandler('456-789', mock_kb, w.scan_collection, None)
+        p._nvts_params = {}
+        p._openvas_scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        p.prepare_nvt_preferences()
+
+        p.kbdb.add_scan_preferences.assert_not_called()

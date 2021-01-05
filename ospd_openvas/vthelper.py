@@ -46,8 +46,12 @@ class VtHelper:
             if 'dependencies' in custom:
                 deps = custom.pop('dependencies')
                 deps_list = deps.split(', ')
-                for dep in deps_list:
-                    vt_dependencies.append(oids.get(dep))
+                for dep_name in deps_list:
+                    dep_oid = oids.get(dep_name)
+                    if dep_oid:
+                        vt_dependencies.append(dep_oid)
+                    else:
+                        vt_dependencies.append(dep_name)
         else:
             vt_dependencies = None
 
