@@ -102,6 +102,7 @@ class PreferenceHandler:
         self.scan_collection = scan_collection
 
         self._target_options = None
+        self._nvts_params = None
 
         self.nvti = nvticache
 
@@ -289,25 +290,18 @@ class PreferenceHandler:
         return vts_list, vts_params
 
     def prepare_plugins_for_openvas(self) -> bool:
-        """Get the plugin list to be launched from the Scan Collection
-        and prepare the vts preferences. Store the data in the kb.
+        """Get the plugin list and it preferences from the Scan Collection.
+        The plugin list is immediately stored in the kb.
         """
         nvts = self.scan_collection.get_vts(self.scan_id)
         if nvts:
-            nvts_list, nvts_params = self._process_vts(nvts)
+            nvts_list, self._nvts_params = self._process_vts(nvts)
             # Add nvts list
             separ = ';'
             plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
             self.kbdb.add_scan_preferences(self.scan_id, [plugin_list])
 
-            # Add nvts parameters
-            for key, val in nvts_params.items():
-                item = '%s|||%s' % (key, val)
-                self.kbdb.add_scan_preferences(self.scan_id, [item])
-
-            nvts_params = None
             nvts_list = None
-            item = None
             plugin_list = None
             nvts = None
 
@@ -315,19 +309,29 @@ class PreferenceHandler:
 
         return False
 
+    def prepare_nvt_preferences(self):
+        """Prepare the vts preferences. Store the data in the kb."""
+
+        items_list = []
+        for key, val in self._nvts_params.items():
+            items_list.append('%s|||%s' % (key, val))
+
+        if items_list:
+            self.kbdb.add_scan_preferences(self.scan_id, items_list)
+
     @staticmethod
     def build_alive_test_opt_as_prefs(
         target_options: Dict[str, str]
-    ) -> List[str]:
+    ) -> Dict[str, str]:
         """Parse the target options dictionary.
         Arguments:
             target_options: Dictionary with the target options.
 
         Return:
-            A list with the target options related to alive test method
+            A dict with the target options related to alive test method
             in string format to be added to the redis KB.
         """
-        target_opt_prefs_list = []
+        target_opt_prefs_list = {}
         alive_test = None
 
         if target_options:
@@ -356,6 +360,8 @@ class PreferenceHandler:
                 )
                 return target_opt_prefs_list
 
+            # No alive test or wrong value, uses the default
+            # preferences sent by the client.
             if alive_test < 1 or alive_test > 31:
                 return target_opt_prefs_list
 
@@ -366,12 +372,9 @@ class PreferenceHandler:
                 value = "yes"
             else:
                 value = "no"
-            target_opt_prefs_list.append(
-                OID_PING_HOST
-                + ':1:checkbox:'
-                + 'Do a TCP ping|||'
-                + '{0}'.format(value)
-            )
+            target_opt_prefs_list[
+                OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping'
+            ] = value
 
             if (
                 alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE
@@ -380,12 +383,11 @@ class PreferenceHandler:
                 value = "yes"
             else:
                 value = "no"
-            target_opt_prefs_list.append(
+            target_opt_prefs_list[
                 OID_PING_HOST
                 + ':2:checkbox:'
-                + 'TCP ping tries also TCP-SYN ping|||'
-                + '{0}'.format(value)
-            )
+                + 'TCP ping tries also TCP-SYN ping'
+            ] = value
 
             if (alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE) and not (
                 alive_test & AliveTest.ALIVE_TEST_TCP_ACK_SERVICE
@@ -393,51 +395,44 @@ class PreferenceHandler:
                 value = "yes"
             else:
                 value = "no"
-            target_opt_prefs_list.append(
+            target_opt_prefs_list[
                 OID_PING_HOST
                 + ':7:checkbox:'
-                + 'TCP ping tries only TCP-SYN ping|||'
-                + '{0}'.format(value)
-            )
+                + 'TCP ping tries only TCP-SYN ping'
+            ] = value
 
             if alive_test & AliveTest.ALIVE_TEST_ICMP:
                 value = "yes"
             else:
                 value = "no"
-            target_opt_prefs_list.append(
-                OID_PING_HOST
-                + ':3:checkbox:'
-                + 'Do an ICMP ping|||'
-                + '{0}'.format(value)
-            )
+            target_opt_prefs_list[
+                OID_PING_HOST + ':3:checkbox:' + 'Do an ICMP ping'
+            ] = value
 
             if alive_test & AliveTest.ALIVE_TEST_ARP:
                 value = "yes"
             else:
                 value = "no"
-            target_opt_prefs_list.append(
-                OID_PING_HOST
-                + ':4:checkbox:'
-                + 'Use ARP|||'
-                + '{0}'.format(value)
-            )
+            target_opt_prefs_list[
+                OID_PING_HOST + ':4:checkbox:' + 'Use ARP'
+            ] = value
 
             if alive_test & AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
                 value = "no"
             else:
                 value = "yes"
-            target_opt_prefs_list.append(
+            target_opt_prefs_list[
                 OID_PING_HOST
                 + ':5:checkbox:'
-                + 'Mark unrechable Hosts as dead (not scanning)|||'
-                + '{0}'.format(value)
-            )
+                + 'Mark unrechable Hosts as dead (not scanning)'
+            ] = value
 
             # Also select a method, otherwise Ping Host logs a warning.
             if alive_test == AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
-                target_opt_prefs_list.append(
-                    OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping|||yes'
-                )
+                target_opt_prefs_list[
+                    OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping'
+                ] = 'yes'
+
         return target_opt_prefs_list
 
     def prepare_alive_test_option_for_openvas(self):
@@ -450,8 +445,7 @@ class PreferenceHandler:
             alive_test_opt = self.build_alive_test_opt_as_prefs(
                 self.target_options
             )
-            if alive_test_opt:
-                self.kbdb.add_scan_preferences(self.scan_id, alive_test_opt)
+            self._nvts_params.update(alive_test_opt)
 
     def prepare_boreas_alive_test(self):
         """Set alive_test for Boreas if boreas scanner config

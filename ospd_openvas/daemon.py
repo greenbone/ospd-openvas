@@ -373,6 +373,8 @@ OSPD_PARAMS = {
     },
 }
 
+VT_BASE_OID = "1.3.6.1.4.1.25623."
+
 
 def safe_int(value: str) -> Optional[int]:
     """Convert a string into an integer and return None in case of errors
@@ -740,9 +742,9 @@ class OSPDopenvas(OSPDaemon):
         vt_deps_xml = Element('dependencies')
         for dep in vt_dependencies:
             _vt_dep = Element('dependency')
-            try:
+            if VT_BASE_OID in dep:
                 _vt_dep.set('vt_id', dep)
-            except (ValueError, TypeError):
+            else:
                 logger.error(
                     'Not possible to add dependency %s for VT %s', dep, vt_id
                 )
@@ -970,8 +972,8 @@ class OSPDopenvas(OSPDaemon):
         """Get all status entries from redis kb.
 
         Arguments:
+            kbdb: KB context where to get the status from.
             scan_id: Scan ID to identify the current scan.
-            current_host: Host to be updated.
         """
         all_status = kbdb.get_scan_status()
         all_hosts = dict()
@@ -1046,6 +1048,7 @@ class OSPDopenvas(OSPDaemon):
             host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
             host_deny = "Host access denied" in msg[5]
             start_end_msg = msg[0] == "HOST_START" or msg[0] == "HOST_END"
+            host_count = msg[0] == "HOSTS_COUNT"
             vt_aux = None
 
             # URI is optional and msg list length must be checked
@@ -1058,6 +1061,7 @@ class OSPDopenvas(OSPDaemon):
                 and not host_is_dead
                 and not host_deny
                 and not start_end_msg
+                and not host_count
             ):
                 vt_aux = vthelper.get_single_vt(roid)
 
@@ -1066,6 +1070,7 @@ class OSPDopenvas(OSPDaemon):
                 and not host_is_dead
                 and not host_deny
                 and not start_end_msg
+                and not host_count
             ):
                 logger.warning('Invalid VT oid %s for a result', roid)
 
@@ -1139,6 +1144,14 @@ class OSPDopenvas(OSPDaemon):
                 except TypeError:
                     logger.debug('Error processing dead host count')
 
+            # To update total host count
+            if msg[0] == 'HOSTS_COUNT':
+                try:
+                    count_total = int(msg[5])
+                    self.set_scan_total_hosts(scan_id, count_total)
+                except TypeError:
+                    logger.debug('Error processing total host count')
+
         # Insert result batch into the scan collection table.
         if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
@@ -1184,8 +1197,10 @@ class OSPDopenvas(OSPDaemon):
         """Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
         instance and it is not possible to reach the variables
-        of the grandchild process. Send SIGUSR2 to openvas to stop
-        each running scan."""
+        of the grandchild process.
+        Indirectly sends SIGUSR1 to the running openvas scan process
+        via an invocation of openvas with the --scan-stop option to
+        stop it."""
 
         kbdb = self.main_db.find_kb_database_by_scan_id(scan_id)
         if kbdb:
@@ -1218,9 +1233,9 @@ class OSPDopenvas(OSPDaemon):
                 logger.debug('Stopping process: %s', parent)
 
                 while parent:
-                    try:
-                        parent = psutil.Process(int(ovas_pid))
-                    except psutil.NoSuchProcess:
+                    if parent.is_running():
+                        time.sleep(0.1)
+                    else:
                         parent = None
 
             for scan_db in kbdb.get_scan_databases():
@@ -1260,12 +1275,17 @@ class OSPDopenvas(OSPDaemon):
         scan_prefs.prepare_scan_params_for_openvas(OSPD_PARAMS)
         scan_prefs.prepare_reverse_lookup_opt_for_openvas()
         scan_prefs.prepare_alive_test_option_for_openvas()
+
+        # VT preferences are stored after all preferences have been processed,
+        # since alive tests preferences have to be able to overwrite default
+        # preferences of ping_host.nasl for the classic method.
+        scan_prefs.prepare_nvt_preferences()
         scan_prefs.prepare_boreas_alive_test()
 
         # Release memory used for scan preferences.
         del scan_prefs
 
-        if do_not_launch:
+        if do_not_launch or kbdb.scan_is_stopped(scan_id):
             self.main_db.release_database(kbdb)
             return
 

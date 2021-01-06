@@ -477,10 +477,26 @@ class TestOspdOpenvas(TestCase):
 
         out = (
             '<dependencies>'
-            '<dependency vt_id="1.2.3.4"/><dependency vt_id="4.3.2.1"/>'
+            '<dependency vt_id="1.3.6.1.4.1.25623.1.2.3.4"/>'
+            '<dependency vt_id="1.3.6.1.4.1.25623.4.3.2.1"/>'
             '</dependencies>'
         )
-        dep = ['1.2.3.4', '4.3.2.1']
+        dep = ['1.3.6.1.4.1.25623.1.2.3.4', '1.3.6.1.4.1.25623.4.3.2.1']
+        res = w.get_dependencies_vt_as_xml_str(
+            '1.3.6.1.4.1.25623.1.0.100061', dep
+        )
+
+        self.assertEqual(res, out)
+
+    def test_get_dependencies_xml_missing_dep(self):
+        w = DummyDaemon()
+
+        out = (
+            '<dependencies>'
+            '<dependency vt_id="1.3.6.1.4.1.25623.1.2.3.4"/>'
+            '</dependencies>'
+        )
+        dep = ['1.3.6.1.4.1.25623.1.2.3.4', 'file_name.nasl']
         res = w.get_dependencies_vt_as_xml_str(
             '1.3.6.1.4.1.25623.1.0.100061', dep
         )
@@ -854,6 +870,25 @@ class TestOspdOpenvas(TestCase):
             host='192.168.10.124',
             name='HOST_START',
             value='today 1',
+        )
+
+    @patch('ospd_openvas.daemon.BaseDB')
+    def test_get_openvas_result_hosts_count(self, MockDBClass):
+        w = DummyDaemon()
+        target_element = w.create_xml_target()
+        targets = OspRequest.process_target_element(target_element)
+        w.create_scan('123-456', targets, None, [])
+
+        results = [
+            "HOSTS_COUNT||| ||| ||| ||| |||4",
+        ]
+        MockDBClass.get_result.return_value = results
+        w.set_scan_total_hosts = MagicMock()
+
+        w.report_openvas_results(MockDBClass, '123-456')
+        w.set_scan_total_hosts.assert_called_with(
+            '123-456',
+            4,
         )
 
     @patch('ospd_openvas.daemon.BaseDB')
