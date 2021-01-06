@@ -23,6 +23,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Rename the Notus Metadata Handler file to just "Metadata" [#351](https://github.com/greenbone/ospd-openvas/pull/351)
 - Check if Notus is enabled before loading metadata. [#364](https://github.com/greenbone/ospd-openvas/pull/364)
 - Launch NVTs or Notus driver, depending on availability. [#366](https://github.com/greenbone/ospd-openvas/pull/366)
+- Don't expose Notus driver VTs to clients. [#367](https://github.com/greenbone/ospd-openvas/pull/367)
 
 ### Removed
 - Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
