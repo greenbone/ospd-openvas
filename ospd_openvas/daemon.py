@@ -51,7 +51,6 @@ from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.vthelper import VtHelper
-from ospd_openvas.notus.metadata import NotusMetadataHandler
 
 logger = logging.getLogger(__name__)
 
@@ -358,19 +357,6 @@ OSPD_PARAMS = {
             + 'resolved however.'
         ),
     },
-    'table_driven_lsc': {
-        'type': 'boolean',
-        'name': 'table_driven_lsc',
-        'default': 0,
-        'mandatory': 0,
-        'visible_for_client': False,
-        'description': (
-            'If this options is set to "yes", openvas enables the local '
-            + 'security checks via the table-driven Notus scanner, perfoming '
-            + 'the Notus metadata checksum check which allows the metadata '
-            + 'upload into redis.'
-        ),
-    },
 }
 
 VT_BASE_OID = "1.3.6.1.4.1.25623."
@@ -495,8 +481,6 @@ class OSPDopenvas(OSPDaemon):
 
         with self.feed_lock.wait_for_lock():
             Openvas.load_vts_into_redis()
-            notushandler = NotusMetadataHandler(nvti=self.nvti)
-            notushandler.update_metadata()
             current_feed = self.nvti.get_feed_version()
             self.set_vts_version(vts_version=current_feed)
 
@@ -579,8 +563,6 @@ class OSPDopenvas(OSPDaemon):
                 if fl.has_lock():
                     self.initialized = False
                     Openvas.load_vts_into_redis()
-                    notushandler = NotusMetadataHandler(nvti=self.nvti)
-                    notushandler.update_metadata()
                     current_feed = self.nvti.get_feed_version()
                     self.set_vts_version(vts_version=current_feed)
 
