@@ -23,7 +23,6 @@ from hashlib import sha256
 from typing import Optional, Dict, List, Tuple, Iterator
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.notus.metadata import NotusMetadataHandler
 
 
 class VtHelper:
@@ -155,15 +154,6 @@ class VtHelper:
 
         return vt
 
-    def get_notus_driver_oids(self) -> List[str]:
-        """Return a list of oid corresponding to notus driver which
-        are considered backend entities and must not be exposed to
-        the OSP client."""
-        notus = NotusMetadataHandler()
-        lsc_families_and_drivers = notus.get_family_driver_linkers()
-
-        return lsc_families_and_drivers.values()
-
     def get_vt_iterator(
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
@@ -179,11 +169,7 @@ class VtHelper:
             if details:
                 oids = vt_collection
 
-        # Notus driver oid list which are not sent.
-        drivers = self.get_notus_driver_oids()
         for vt_id in vt_selection:
-            if vt_id in drivers:
-                continue
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
 
@@ -191,14 +177,9 @@ class VtHelper:
         """ Calculate the vts collection sha256 hash. """
         m = sha256()  # pylint: disable=invalid-name
 
-        # Notus driver oid list which are not sent.
-        drivers = self.get_notus_driver_oids()
-
         # for a reproducible hash calculation
         # the vts must already be sorted in the dictionary.
         for vt_id, vt in self.get_vt_iterator(details=False):
-            if vt_id in drivers:
-                continue
             param_chain = ""
             vt_params = vt.get('vt_params')
             if vt_params:
