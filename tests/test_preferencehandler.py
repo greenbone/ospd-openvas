@@ -54,10 +54,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
         w.nvti.get_nvt_metadata.return_value = None
-
-        ov_setting = {'table_driven_lsc': 0}
-        with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p._process_vts(vts)
+        p._process_vts(vts)
 
         assert_called_once(logging.Logger.warning)
 
@@ -89,25 +86,6 @@ class PreferenceHandlerTestCase(TestCase):
 
         p = PreferenceHandler('1234-1234', None, w.scan_collection, w.nvti)
         ret = p._process_vts(vts)
-
-        self.assertEqual(ret, vt_out)
-
-    @patch('ospd_openvas.preferencehandler.Openvas')
-    @patch('ospd_openvas.preferencehandler.NotusMetadataHandler')
-    def test_get_vts_in_groups(self, MockNotus, MockOpenvas):
-        w = DummyDaemon()
-        openvas = MockOpenvas()
-        openvas.get_settings.return_value = {'table_driven_lsc': 1}
-        notus = MockNotus()
-        notus.get_family_driver_linkers.return_value = {
-            'some_family': '1.3.6.1.4.1.25623.1.0.1234'
-        }
-
-        filters = ['family=some_family']
-        vt_out = ['1.3.6.1.4.1.25623.1.0.1234']
-
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, w.nvti)
-        ret = p._get_vts_in_groups(filters)
 
         self.assertEqual(ret, vt_out)
 
