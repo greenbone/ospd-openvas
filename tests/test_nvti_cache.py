@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2020 Greenbone Networks GmbH
+# Copyright (C) 2014-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -86,8 +86,10 @@ class TestNVTICache(TestCase):
         logging.Logger.error = Mock()
 
         tags = 'tag1'
-        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
-            tags, '1.2.3'
+        ret = (
+            NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+                tags, '1.2.3'
+            )
         )
 
         self.assertEqual(ret, {})
@@ -95,16 +97,20 @@ class TestNVTICache(TestCase):
 
     def test_parse_metadata_tag(self, MockOpenvasDB):
         tags = 'tag1=value1'
-        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
-            tags, '1.2.3'
+        ret = (
+            NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+                tags, '1.2.3'
+            )
         )
 
         self.assertEqual(ret, {'tag1': 'value1'})
 
     def test_parse_metadata_tags(self, MockOpenvasDB):
         tags = 'tag1=value1|foo=bar'
-        ret = NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
-            tags, '1.2.3'
+        ret = (
+            NVTICache._parse_metadata_tags(  # pylint: disable=protected-access
+                tags, '1.2.3'
+            )
         )
 
         self.assertEqual(ret, {'tag1': 'value1', 'foo': 'bar'})
