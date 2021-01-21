@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2020 Greenbone Networks GmbH
+# Copyright (C) 2014-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -67,7 +67,7 @@ setup(
         'Intended Audience :: Developers',
         'Topic :: Software Development :: Build Tools',
         # Pick your license as you wish (should match "license" above)
-        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
+        'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',  # pylint: disable=line-too-long
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3.5',
