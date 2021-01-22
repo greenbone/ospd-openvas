@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2020 Greenbone Networks GmbH
+# Copyright (C) 2014-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -201,7 +201,11 @@ class DummyWrapper(OSPDaemon):
                 )
             elif res.result_type == 'host-detail':
                 self.add_scan_host_detail(
-                    scan_id, res.host, res.hostname, res.name, res.value,
+                    scan_id,
+                    res.host,
+                    res.hostname,
+                    res.name,
+                    res.value,
                 )
             elif res.result_type == 'alarm':
                 self.add_scan_alarm(
