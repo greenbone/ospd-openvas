@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2020 Greenbone Networks GmbH
+# Copyright (C) 2014-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -34,8 +34,7 @@ def assert_called_once(mock: Mock):
 
 
 def assert_called(mock: Mock):
-    """assert that the mock was called at least once
-    """
+    """assert that the mock was called at least once"""
     if mock.call_count == 0:
         msg = "Expected '%s' to have been called." % (mock._mock_name or 'mock')
         raise AssertionError(msg)
