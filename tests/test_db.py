@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2020 Greenbone Networks GmbH
+# Copyright (C) 2014-2021 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -319,7 +319,12 @@ class ScanDBTestCase(TestCase):
 
         ret = self.db.get_result()
 
-        self.assertEqual(ret, ['some result',])
+        self.assertEqual(
+            ret,
+            [
+                'some result',
+            ],
+        )
         mock_openvas_db.pop_list_items.assert_called_with(
             self.ctx, 'internal/results'
         )
@@ -432,7 +437,12 @@ class KbDBTestCase(TestCase):
 
         ret = self.db.get_result()
 
-        self.assertEqual(ret, ['some results',])
+        self.assertEqual(
+            ret,
+            [
+                'some results',
+            ],
+        )
         mock_openvas_db.pop_list_items.assert_called_with(
             self.ctx, 'internal/results'
         )
