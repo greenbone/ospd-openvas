@@ -687,11 +687,12 @@ class OSPDopenvas(OSPDaemon):
                     for xref in value.split(', '):
                         try:
                             _type, _id = xref.split(':', 1)
-                        except ValueError:
+                        except ValueError as e:
                             logger.error(
-                                'Not possible to parse xref %s for VT %s',
+                                'Not possible to parse xref "%s" for VT %s: %s',
                                 xref,
                                 vt_id,
+                                e,
                             )
                             continue
                         vt_ref.set('type', _type.lower())
