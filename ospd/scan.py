@@ -350,7 +350,7 @@ class ScanCollection:
     def set_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Sets scan_id scan's status. """
         self.scans_table[scan_id]['status'] = status
-        if status == ScanStatus.STOPPED:
+        if status == ScanStatus.STOPPED or status == ScanStatus.INTERRUPTED:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def get_status(self, scan_id: str) -> ScanStatus:
