@@ -972,6 +972,9 @@ class OSPDopenvas(OSPDaemon):
         self.set_scan_host_progress(
             scan_id, host=current_host, progress=host_prog
         )
+        logger.debug(
+            '%s: Host %s has progress: %d', scan_id, current_host, host_prog
+        )
 
     def report_openvas_scan_status(
         self, scan_db: ScanDB, scan_id: str, current_host: str
@@ -1121,6 +1124,11 @@ class OSPDopenvas(OSPDaemon):
             if msg[0] == 'HOSTS_COUNT':
                 try:
                     count_total = int(msg[4])
+                    logger.debug(
+                        '%s: Set total hosts counted by OpenVAS: %d',
+                        scan_id,
+                        count_total,
+                    )
                     self.set_scan_total_hosts(scan_id, count_total)
                 except TypeError:
                     logger.debug('Error processing total host count')
@@ -1128,12 +1136,20 @@ class OSPDopenvas(OSPDaemon):
         # Insert result batch into the scan collection table.
         if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
-
+            logger.debug(
+                '%s: Inserting %d results into scan scan collection table',
+                scan_id,
+                len(res_list),
+            )
         if total_dead:
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
-
+            logger.debug(
+                '%s: Set %d hosts as dead counted by OpenVAS',
+                scan_id,
+                total_dead,
+            )
         return total_results
 
     def report_openvas_timestamp_scan_host(
@@ -1145,6 +1161,7 @@ class OSPDopenvas(OSPDaemon):
             self.add_scan_log(
                 scan_id, host=host, name='HOST_END', value=timestamp
             )
+            logger.debug('%s: Host %s set HOST_END', scan_id, host)
             return
 
         timestamp = scan_db.get_host_scan_start_time()
@@ -1152,6 +1169,7 @@ class OSPDopenvas(OSPDaemon):
             self.add_scan_log(
                 scan_id, host=host, name='HOST_START', value=timestamp
             )
+            logger.debug('%s: Host %s set HOST_START', scan_id, host)
             return
 
     def is_openvas_process_alive(
@@ -1166,13 +1184,17 @@ class OSPDopenvas(OSPDaemon):
             parent_exists = False
         except TypeError:
             logger.debug(
-                'Scan with ID %s never started and stopped unexpectedly',
+                'Scan with ID %s never started or stopped unexpectedly',
                 openvas_scan_id,
             )
             parent_exists = False
 
         is_zombie = False
         if parent and parent.status() == psutil.STATUS_ZOMBIE:
+            logger.debug(
+                ' %s: OpenVAS process is a zombie process',
+                openvas_scan_id,
+            )
             is_zombie = True
 
         if (not parent_exists or is_zombie) and kbdb:
@@ -1345,8 +1367,10 @@ class OSPDopenvas(OSPDaemon):
 
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
+                logger.debug('%s: Scan stopped by the client', scan_id)
                 # clean main_db, but wait for scanner to finish.
                 while not kbdb.target_is_finished(scan_id):
+                    logger.debug('%s: Waiting the scan to finish', scan_id)
                     time.sleep(1)
                 self.main_db.release_database(kbdb)
                 return
@@ -1394,11 +1418,13 @@ class OSPDopenvas(OSPDaemon):
 
             # Scan end. No kb in use for this scan id
             if no_id_found and kbdb.target_is_finished(scan_id):
+                logger.debug('%s: Target is finished', scan_id)
                 break
 
             no_id_found = True
 
         # Delete keys from KB related to this scan task.
+        logger.debug('%s: End Target. Release main database', scan_id)
         self.main_db.release_database(kbdb)
 
 
