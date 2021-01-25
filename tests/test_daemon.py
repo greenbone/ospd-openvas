@@ -359,7 +359,7 @@ class TestOspdOpenvas(TestCase):
 
         w = DummyDaemon()
         w._sudo_available = None  # pylint: disable=protected-access
-        w.sudo_available  # pylint: disable=pointless-statement
+        w._is_running_as_root = False  # pylint: disable=protected-access
 
         self.assertTrue(w.sudo_available)
 
