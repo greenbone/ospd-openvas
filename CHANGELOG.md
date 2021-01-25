@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20.8.1] (unreleased)
 
+### Added
+- Add debug level log messages. [#373](https://github.com/greenbone/ospd-openvas/pull/373)
+
 ### Changed
 - Improve logging for unsatisfied vts dependencies. [#336](https://github.com/greenbone/ospd-openvas/pull/336)
 - Do not use busy wait when waiting for the openvas scan process to finish. [#360](https://github.com/greenbone/ospd-openvas/pull/360)
