@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
+- Add more debug logging. [#352](https://github.com/greenbone/ospd/pull/352)
+- Set end_time for interrupted scans. [#352](https://github.com/greenbone/ospd/pull/352)
+
 
 ### Fixed
 - Fix OSP version. [#326](https://github.com/greenbone/ospd/pull/326)
