@@ -1137,7 +1137,7 @@ class OSPDopenvas(OSPDaemon):
         if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
             logger.debug(
-                '%s: Inserting %d results into scan scan collection table',
+                '%s: Inserting %d results into scan collection table',
                 scan_id,
                 len(res_list),
             )
