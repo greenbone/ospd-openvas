@@ -1036,6 +1036,52 @@ class ScanTestCase(unittest.TestCase):
         )
         self.assertEqual(rounded_progress, 66)
 
+    def test_set_status_interrupted(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        end_time = self.daemon.scan_collection.get_end_time(scan_id)
+        self.assertEqual(end_time, 0)
+
+        self.daemon.interrupt_scan(scan_id)
+        end_time = self.daemon.scan_collection.get_end_time(scan_id)
+        self.assertNotEqual(end_time, 0)
+
+    def test_set_status_stopped(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        end_time = self.daemon.scan_collection.get_end_time(scan_id)
+        self.assertEqual(end_time, 0)
+
+        self.daemon.set_scan_status(scan_id, ScanStatus.STOPPED)
+        end_time = self.daemon.scan_collection.get_end_time(scan_id)
+        self.assertNotEqual(end_time, 0)
+
     def test_calculate_progress_without_current_hosts(self):
 
         fs = FakeStream()
