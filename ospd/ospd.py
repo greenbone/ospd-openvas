@@ -595,7 +595,7 @@ class OSPDaemon:
             self.finish_scan(scan_id)
         elif not is_stopped:
             logger.info(
-                "%s: Host scan finished. Progress: %d, " "Status: %s",
+                "%s: Host scan finished. Progress: %d, Status: %s",
                 scan_id,
                 progress,
                 status.name,
@@ -710,7 +710,8 @@ class OSPDaemon:
     def scan_exists(self, scan_id: str) -> bool:
         """Checks if a scan with ID scan_id is in collection.
 
-        @return: 1 if scan exists, 0 otherwise.
+        Returns:
+            1 if scan exists, 0 otherwise.
         """
         return self.scan_collection.id_exists(scan_id)
 
@@ -753,7 +754,8 @@ class OSPDaemon:
     def delete_scan(self, scan_id: str) -> int:
         """Deletes scan_id scan from collection.
 
-        @return: 1 if scan deleted, 0 otherwise.
+        Returns:
+            1 if scan deleted, 0 otherwise.
         """
         if self.get_scan_status(scan_id) == ScanStatus.RUNNING:
             return 0
@@ -776,7 +778,8 @@ class OSPDaemon:
     ):
         """Gets scan_id scan's results in XML format.
 
-        @return: String of scan results in xml.
+        Returns:
+            String of scan results in xml.
         """
         results = Element('results')
         for result in self.scan_collection.results_iterator(
@@ -818,7 +821,8 @@ class OSPDaemon:
     def _get_scan_progress_xml(self, scan_id: str):
         """Gets scan_id scan's progress in XML format.
 
-        @return: String of scan progress in xml.
+        Returns:
+            String of scan progress in xml.
         """
         current_progress = self._get_scan_progress_raw(scan_id)
         return get_progress_xml(current_progress)
@@ -830,9 +834,11 @@ class OSPDaemon:
     def get_xml_str(self, data: Dict) -> List:
         """Creates a string in XML Format using the provided data structure.
 
-        @param: Dictionary of xml tags and their elements.
+        Arguments:
+            data: Dictionary of xml tags and their elements.
 
-        @return: String of data in xml format.
+        Returns:
+            String of data in xml format.
         """
         return get_elements_from_dict(data)
 
@@ -846,7 +852,8 @@ class OSPDaemon:
     ):
         """Gets scan in XML format.
 
-        @return: String of scan in XML format.
+        Returns:
+            String of scan in XML format.
         """
         if not scan_id:
             return Element('scan')
@@ -899,7 +906,8 @@ class OSPDaemon:
         The custom XML object which is returned will be embedded
         into a <custom></custom> element.
 
-        @return: XML object as string for custom data.
+        Returns:
+            XML object as string for custom data.
         """
         return ''
 
@@ -915,7 +923,8 @@ class OSPDaemon:
         The params XML object which is returned will be embedded
         into a <params></params> element.
 
-        @return: XML object as string for vt parameters data.
+        Returns:
+            XML object as string for vt parameters data.
         """
         return ''
 
@@ -931,7 +940,8 @@ class OSPDaemon:
         The refs XML object which is returned will be embedded
         into a <refs></refs> element.
 
-        @return: XML object as string for vt references data.
+        Returns:
+            XML object as string for vt references data.
         """
         return ''
 
@@ -947,7 +957,8 @@ class OSPDaemon:
         The vt_dependencies XML object which is returned will be embedded
         into a <dependencies></dependencies> element.
 
-        @return: XML object as string for vt dependencies data.
+        Returns:
+            XML object as string for vt dependencies data.
         """
         return ''
 
@@ -963,7 +974,8 @@ class OSPDaemon:
         The vt_creation_time XML object which is returned will be embedded
         into a <vt_creation_time></vt_creation_time> element.
 
-        @return: XML object as string for vt creation time data.
+        Returns:
+            XML object as string for vt creation time data.
         """
         return ''
 
@@ -979,7 +991,8 @@ class OSPDaemon:
         The vt_modification_time XML object which is returned will be embedded
         into a <vt_modification_time></vt_modification_time> element.
 
-        @return: XML object as string for vt references data.
+        Returns:
+            XML object as string for vt references data.
         """
         return ''
 
@@ -995,7 +1008,8 @@ class OSPDaemon:
         The summary XML object which is returned will be embedded
         into a <summary></summary> element.
 
-        @return: XML object as string for summary data.
+        Returns:
+            XML object as string for summary data.
         """
         return ''
 
@@ -1011,7 +1025,8 @@ class OSPDaemon:
         The impact XML object which is returned will be embedded
         into a <impact></impact> element.
 
-        @return: XML object as string for impact data.
+        Returns:
+            XML object as string for impact data.
         """
         return ''
 
@@ -1027,7 +1042,8 @@ class OSPDaemon:
         The affected XML object which is returned will be embedded
         into a <affected></affected> element.
 
-        @return: XML object as string for affected data.
+        Returns:
+            XML object as string for affected data.
         """
         return ''
 
@@ -1043,7 +1059,8 @@ class OSPDaemon:
         The insight XML object which is returned will be embedded
         into a <insight></insight> element.
 
-        @return: XML object as string for insight data.
+        Returns:
+            XML object as string for insight data.
         """
         return ''
 
@@ -1059,7 +1076,8 @@ class OSPDaemon:
         The solution XML object which is returned will be embedded
         into a <solution></solution> element.
 
-        @return: XML object as string for solution data.
+        Returns:
+            XML object as string for solution data.
         """
         return ''
 
@@ -1075,7 +1093,8 @@ class OSPDaemon:
         The detection XML object which is returned is an element with
         tag <detection></detection> element
 
-        @return: XML object as string for detection data.
+        Returns:
+            XML object as string for detection data.
         """
         return ''
 
@@ -1091,7 +1110,8 @@ class OSPDaemon:
         The severities XML objects which are returned will be embedded
         into a <severities></severities> element.
 
-        @return: XML object as string for severities data.
+        Returns:
+            XML object as string for severities data.
         """
         return ''
 
@@ -1105,7 +1125,8 @@ class OSPDaemon:
     def get_vt_xml(self, single_vt: Tuple[str, Dict]) -> Element:
         """Gets a single vulnerability test information in XML format.
 
-        @return: String of single vulnerability test information in XML format.
+        Returns:
+            String of single vulnerability test information in XML format.
         """
         if not single_vt or single_vt[1] is None:
             return Element('vt')
@@ -1217,7 +1238,7 @@ class OSPDaemon:
             vt_id (vt_id, optional): ID of the vt to get.
             filtered_vts (list, optional): Filtered VTs collection.
 
-        Return:
+        Returns:
             List of selected VT's OID.
         """
         vts_xml = []
@@ -1348,7 +1369,7 @@ class OSPDaemon:
     def is_new_scan_allowed(self) -> bool:
         """Check if max_scans has been reached.
 
-        Return:
+        Returns:
             True if a new scan can be launch.
         """
         if (self.max_scans != 0) and (
@@ -1368,7 +1389,7 @@ class OSPDaemon:
         a new scan. The necessary memory is a rough calculation and very
         conservative.
 
-        Return:
+        Returns:
             True if there is enough memory for a new scan.
         """
         if not self.min_free_mem_scan_queue:
@@ -1406,11 +1427,13 @@ class OSPDaemon:
     ) -> Optional[str]:
         """Creates a new scan.
 
-        @target: Target to scan.
-        @options: Miscellaneous scan options supplied via <scanner_params>
+        Arguments:
+            target: Target to scan.
+            options: Miscellaneous scan options supplied via <scanner_params>
                   XML element.
 
-        @return: New scan's ID. None if the scan_id already exists.
+        Returns:
+            New scan's ID. None if the scan_id already exists.
         """
         status = None
         scan_exists = self.scan_exists(scan_id)
