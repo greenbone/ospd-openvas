@@ -323,6 +323,7 @@ class ScanCollection:
         scan_info['status'] = ScanStatus.QUEUED
         scan_info['credentials'] = credentials
         scan_info['start_time'] = int(time.time())
+        scan_info['end_time'] = 0
 
         scan_info_to_pickle = {
             'target': target,
