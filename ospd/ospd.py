@@ -1503,7 +1503,6 @@ class OSPDaemon:
             and not scan_process.is_alive()
         ):
             if not status == ScanStatus.STOPPED:
-                self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
                     scan_id, name="", host="", value="Scan process Failure"
                 )
