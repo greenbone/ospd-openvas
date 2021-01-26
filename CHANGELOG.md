@@ -12,18 +12,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add methods for adding VTs to the redis cache.[#337](https://github.com/greenbone/ospd-openvas/pull/337)
 - Add support for supplying alive test methods via seperate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
 - Add support CVSSv3 and accept new tags for severity vector, origin, date. [#346](https://github.com/greenbone/ospd-openvas/pull/346)
-- Add the Notus Metadata Handler for uploading VT metadata into Redis and performing checksum checks. [#348](https://github.com/greenbone/ospd-openvas/pull/348)
-- Add test and code improvements related to Notus Metadata Handler. [#352](https://github.com/greenbone/ospd-openvas/pull/352)
-- Add support for new severity tags to Notus. [#357](https://github.com/greenbone/ospd-openvas/pull/357)
-- Add key with virtual location into redis cache for Notus metadata. [#363](https://github.com/greenbone/ospd-openvas/pull/363)
 
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
 - Extend severities with origin and date. [#192](https://github.com/greenbone/ospd-openvas/pull/192)
-- Rename the Notus Metadata Handler file to just "Metadata" [#351](https://github.com/greenbone/ospd-openvas/pull/351)
-- Check if Notus is enabled before loading metadata. [#364](https://github.com/greenbone/ospd-openvas/pull/364)
-- Launch NVTs or Notus driver, depending on availability. [#366](https://github.com/greenbone/ospd-openvas/pull/366)
-- Don't expose Notus driver VTs to clients. [#367](https://github.com/greenbone/ospd-openvas/pull/367)
 
 ### Removed
 - Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
