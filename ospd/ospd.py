@@ -27,6 +27,7 @@ import multiprocessing
 import time
 import os
 
+from pprint import pformat
 from typing import (
     List,
     Any,
@@ -393,6 +394,9 @@ class OSPDaemon:
             logger.debug('%s: The scanner task stopped unexpectedly.', scan_id)
 
         try:
+            logger.debug(
+                '%s: Terminating process group after stopping.', scan_id
+            )
             _terminate_process_group(scan_process)
         except ProcessLookupError:
             logger.info(
@@ -443,6 +447,7 @@ class OSPDaemon:
                 and status != ScanStatus.FINISHED
                 and status != ScanStatus.INTERRUPTED
             ):
+                logger.debug("%s: Stopping scan before daemon exit.", scan_id)
                 self.stop_scan(scan_id)
 
         # Wait for scans to be in some stopped state.
@@ -458,8 +463,12 @@ class OSPDaemon:
                     all_stopped = False
 
             if all_stopped:
+                logger.debug(
+                    "All scans stopped and daemon clean and ready to exit"
+                )
                 return
 
+            logger.debug("Waiting for running scans before daemon exit. ")
             time.sleep(1)
 
     def get_daemon_name(self) -> str:
@@ -574,18 +583,27 @@ class OSPDaemon:
                 host=self.get_scan_host(scan_id),
                 value='Host process failure (%s).' % e,
             )
-            logger.exception('While scanning: %s', scan_id)
+            logger.exception('%s: Exception %s while scanning', scan_id, e)
         else:
             logger.info("%s: Host scan finished.", scan_id)
 
-        is_stopped = self.get_scan_status(scan_id) == ScanStatus.STOPPED
+        status = self.get_scan_status(scan_id)
+        is_stopped = status == ScanStatus.STOPPED
         self.set_scan_progress(scan_id)
         progress = self.get_scan_progress(scan_id)
-
         if not is_stopped and progress == ScanProgress.FINISHED:
             self.finish_scan(scan_id)
         elif not is_stopped:
+            logger.info(
+                "%s: Host scan finished. Progress: %d, Status: %s",
+                scan_id,
+                progress,
+                status.name,
+            )
             self.interrupt_scan(scan_id)
+
+        # For debug purposes
+        self._get_scan_progress_raw(scan_id)
 
     def dry_run_scan(self, scan_id: str, target: Dict) -> None:
         """ Dry runs a scan. """
@@ -680,16 +698,20 @@ class OSPDaemon:
 
     def set_scan_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Set the scan's status."""
+        logger.debug('%s: Set scan status %s,', scan_id, status.name)
         self.scan_collection.set_status(scan_id, status)
 
     def get_scan_status(self, scan_id: str) -> ScanStatus:
         """ Get scan_id scans's status."""
-        return self.scan_collection.get_status(scan_id)
+        status = self.scan_collection.get_status(scan_id)
+        logger.debug('%s: Current scan status: %s,', scan_id, status.name)
+        return status
 
     def scan_exists(self, scan_id: str) -> bool:
         """Checks if a scan with ID scan_id is in collection.
 
-        @return: 1 if scan exists, 0 otherwise.
+        Returns:
+            1 if scan exists, 0 otherwise.
         """
         return self.scan_collection.id_exists(scan_id)
 
@@ -732,7 +754,8 @@ class OSPDaemon:
     def delete_scan(self, scan_id: str) -> int:
         """Deletes scan_id scan from collection.
 
-        @return: 1 if scan deleted, 0 otherwise.
+        Returns:
+            1 if scan deleted, 0 otherwise.
         """
         if self.get_scan_status(scan_id) == ScanStatus.RUNNING:
             return 0
@@ -755,7 +778,8 @@ class OSPDaemon:
     ):
         """Gets scan_id scan's results in XML format.
 
-        @return: String of scan results in xml.
+        Returns:
+            String of scan results in xml.
         """
         results = Element('results')
         for result in self.scan_collection.results_iterator(
@@ -766,11 +790,8 @@ class OSPDaemon:
         logger.debug('Returning %d results', len(results))
         return results
 
-    def _get_scan_progress_xml(self, scan_id: str):
-        """Gets scan_id scan's progress in XML format.
-
-        @return: String of scan progress in xml.
-        """
+    def _get_scan_progress_raw(self, scan_id: str) -> Dict:
+        """Returns a dictionary with scan_id scan's progress information."""
         current_progress = dict()
 
         current_progress[
@@ -790,6 +811,20 @@ class OSPDaemon:
             scan_id
         )
 
+        logging.debug(
+            "%s: Current progress: \n%s",
+            scan_id,
+            pformat(current_progress),
+        )
+        return current_progress
+
+    def _get_scan_progress_xml(self, scan_id: str):
+        """Gets scan_id scan's progress in XML format.
+
+        Returns:
+            String of scan progress in xml.
+        """
+        current_progress = self._get_scan_progress_raw(scan_id)
         return get_progress_xml(current_progress)
 
     @deprecated(
@@ -799,9 +834,11 @@ class OSPDaemon:
     def get_xml_str(self, data: Dict) -> List:
         """Creates a string in XML Format using the provided data structure.
 
-        @param: Dictionary of xml tags and their elements.
+        Arguments:
+            data: Dictionary of xml tags and their elements.
 
-        @return: String of data in xml format.
+        Returns:
+            String of data in xml format.
         """
         return get_elements_from_dict(data)
 
@@ -815,7 +852,8 @@ class OSPDaemon:
     ):
         """Gets scan in XML format.
 
-        @return: String of scan in XML format.
+        Returns:
+            String of scan in XML format.
         """
         if not scan_id:
             return Element('scan')
@@ -868,7 +906,8 @@ class OSPDaemon:
         The custom XML object which is returned will be embedded
         into a <custom></custom> element.
 
-        @return: XML object as string for custom data.
+        Returns:
+            XML object as string for custom data.
         """
         return ''
 
@@ -884,7 +923,8 @@ class OSPDaemon:
         The params XML object which is returned will be embedded
         into a <params></params> element.
 
-        @return: XML object as string for vt parameters data.
+        Returns:
+            XML object as string for vt parameters data.
         """
         return ''
 
@@ -900,7 +940,8 @@ class OSPDaemon:
         The refs XML object which is returned will be embedded
         into a <refs></refs> element.
 
-        @return: XML object as string for vt references data.
+        Returns:
+            XML object as string for vt references data.
         """
         return ''
 
@@ -916,7 +957,8 @@ class OSPDaemon:
         The vt_dependencies XML object which is returned will be embedded
         into a <dependencies></dependencies> element.
 
-        @return: XML object as string for vt dependencies data.
+        Returns:
+            XML object as string for vt dependencies data.
         """
         return ''
 
@@ -932,7 +974,8 @@ class OSPDaemon:
         The vt_creation_time XML object which is returned will be embedded
         into a <vt_creation_time></vt_creation_time> element.
 
-        @return: XML object as string for vt creation time data.
+        Returns:
+            XML object as string for vt creation time data.
         """
         return ''
 
@@ -948,7 +991,8 @@ class OSPDaemon:
         The vt_modification_time XML object which is returned will be embedded
         into a <vt_modification_time></vt_modification_time> element.
 
-        @return: XML object as string for vt references data.
+        Returns:
+            XML object as string for vt references data.
         """
         return ''
 
@@ -964,7 +1008,8 @@ class OSPDaemon:
         The summary XML object which is returned will be embedded
         into a <summary></summary> element.
 
-        @return: XML object as string for summary data.
+        Returns:
+            XML object as string for summary data.
         """
         return ''
 
@@ -980,7 +1025,8 @@ class OSPDaemon:
         The impact XML object which is returned will be embedded
         into a <impact></impact> element.
 
-        @return: XML object as string for impact data.
+        Returns:
+            XML object as string for impact data.
         """
         return ''
 
@@ -996,7 +1042,8 @@ class OSPDaemon:
         The affected XML object which is returned will be embedded
         into a <affected></affected> element.
 
-        @return: XML object as string for affected data.
+        Returns:
+            XML object as string for affected data.
         """
         return ''
 
@@ -1012,7 +1059,8 @@ class OSPDaemon:
         The insight XML object which is returned will be embedded
         into a <insight></insight> element.
 
-        @return: XML object as string for insight data.
+        Returns:
+            XML object as string for insight data.
         """
         return ''
 
@@ -1028,7 +1076,8 @@ class OSPDaemon:
         The solution XML object which is returned will be embedded
         into a <solution></solution> element.
 
-        @return: XML object as string for solution data.
+        Returns:
+            XML object as string for solution data.
         """
         return ''
 
@@ -1044,7 +1093,8 @@ class OSPDaemon:
         The detection XML object which is returned is an element with
         tag <detection></detection> element
 
-        @return: XML object as string for detection data.
+        Returns:
+            XML object as string for detection data.
         """
         return ''
 
@@ -1060,7 +1110,8 @@ class OSPDaemon:
         The severities XML objects which are returned will be embedded
         into a <severities></severities> element.
 
-        @return: XML object as string for severities data.
+        Returns:
+            XML object as string for severities data.
         """
         return ''
 
@@ -1074,7 +1125,8 @@ class OSPDaemon:
     def get_vt_xml(self, single_vt: Tuple[str, Dict]) -> Element:
         """Gets a single vulnerability test information in XML format.
 
-        @return: String of single vulnerability test information in XML format.
+        Returns:
+            String of single vulnerability test information in XML format.
         """
         if not single_vt or single_vt[1] is None:
             return Element('vt')
@@ -1186,7 +1238,7 @@ class OSPDaemon:
             vt_id (vt_id, optional): ID of the vt to get.
             filtered_vts (list, optional): Filtered VTs collection.
 
-        Return:
+        Returns:
             List of selected VT's OID.
         """
         vts_xml = []
@@ -1242,8 +1294,18 @@ class OSPDaemon:
         scan_id = tree.get('scan_id')
         if self.scan_exists(scan_id) and command_name == "get_scans":
             if write_success:
+                logger.debug(
+                    '%s: Results sent succesfully to the client. Cleaning '
+                    'temporary result list.',
+                    scan_id,
+                )
                 self.scan_collection.clean_temp_result_list(scan_id)
             else:
+                logger.debug(
+                    '%s: Failed sending results to the client. Restoring '
+                    'result list into the cache.',
+                    scan_id,
+                )
                 self.scan_collection.restore_temp_result_list(scan_id)
 
     def check(self):
@@ -1307,7 +1369,7 @@ class OSPDaemon:
     def is_new_scan_allowed(self) -> bool:
         """Check if max_scans has been reached.
 
-        Return:
+        Returns:
             True if a new scan can be launch.
         """
         if (self.max_scans != 0) and (
@@ -1327,7 +1389,7 @@ class OSPDaemon:
         a new scan. The necessary memory is a rough calculation and very
         conservative.
 
-        Return:
+        Returns:
             True if there is enough memory for a new scan.
         """
         if not self.min_free_mem_scan_queue:
@@ -1365,11 +1427,13 @@ class OSPDaemon:
     ) -> Optional[str]:
         """Creates a new scan.
 
-        @target: Target to scan.
-        @options: Miscellaneous scan options supplied via <scanner_params>
+        Arguments:
+            target: Target to scan.
+            options: Miscellaneous scan options supplied via <scanner_params>
                   XML element.
 
-        @return: New scan's ID. None if the scan_id already exists.
+        Returns:
+            New scan's ID. None if the scan_id already exists.
         """
         status = None
         scan_exists = self.scan_exists(scan_id)
@@ -1426,7 +1490,8 @@ class OSPDaemon:
 
     def check_scan_process(self, scan_id: str) -> None:
         """ Check the scan's process, and terminate the scan if not alive. """
-        if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+        status = self.get_scan_status(scan_id)
+        if status == ScanStatus.QUEUED:
             return
 
         scan_process = self.scan_processes.get(scan_id)
@@ -1437,17 +1502,28 @@ class OSPDaemon:
             and scan_process
             and not scan_process.is_alive()
         ):
-            if not self.get_scan_status(scan_id) == ScanStatus.STOPPED:
+            if not status == ScanStatus.STOPPED:
                 self.set_scan_status(scan_id, ScanStatus.STOPPED)
                 self.add_scan_error(
-                    scan_id, name="", host="", value="Scan process failure."
+                    scan_id, name="", host="", value="Scan process Failure"
                 )
 
-                logger.info("%s: Scan stopped with errors.", scan_id)
+                logger.info(
+                    "%s: Scan process is dead and its progress is %d",
+                    scan_id,
+                    progress,
+                )
                 self.interrupt_scan(scan_id)
 
         elif progress == ScanProgress.FINISHED:
             scan_process.join(0)
+
+        logger.debug(
+            "%s: Check scan process: \n\tProgress %d\n\t Status: %s",
+            scan_id,
+            progress,
+            status.name,
+        )
 
     def get_count_queued_scans(self) -> int:
         """ Get the amount of scans with queued status """
@@ -1459,7 +1535,9 @@ class OSPDaemon:
 
     def get_scan_progress(self, scan_id: str) -> int:
         """ Gives a scan's current progress value. """
-        return self.scan_collection.get_progress(scan_id)
+        progress = self.scan_collection.get_progress(scan_id)
+        logger.debug('%s: Current scan progress: %s,', scan_id, progress)
+        return progress
 
     def get_scan_host(self, scan_id: str) -> str:
         """ Gives a scan's target. """
