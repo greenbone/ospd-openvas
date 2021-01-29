@@ -393,7 +393,18 @@ class ScanCollection:
         """ Get a scan's total host count. """
 
         count_total = self.scans_table[scan_id]['count_total']
-        if not count_total:
+
+        # The value set by the server has priority over the value
+        # calculated from the original target list by ospd.
+        # As ospd is not intelligent enough to check the amount of valid
+        # hosts, check for duplicated or invalid hosts, consider a negative
+        # value set for the server, in case it detects an invalid target string
+        # or a different amount than the orignal amount in the target list.
+        if count_total == -1:
+            count_total = 0
+        # If the server does not set the total host count
+        # ospd set the amount of host from the original host list.
+        elif not count_total:
             count_total = self.get_host_count(scan_id)
             self.update_count_total(scan_id, count_total)
 
@@ -458,7 +469,7 @@ class ScanCollection:
             )
         except ZeroDivisionError:
             # Consider the case in which all hosts are dead or excluded
-            LOGGER.debug('%s: All hosts dead or excluded.')
+            LOGGER.debug('%s: All hosts dead or excluded.', scan_id)
             t_prog = ScanProgress.FINISHED.value
 
         return t_prog
