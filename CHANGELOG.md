@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix target_to_ipv4_short(). [#338](https://github.com/greenbone/ospd/pull/338)
 - Fix malformed target. [#341](https://github.com/greenbone/ospd/pull/341)
 - Initialize end_time with create_scan. [#354](https://github.com/greenbone/ospd/pull/354)
+- Fix get_count_total(). Accept -1 value set by the server. [#355](https://github.com/greenbone/ospd/pull/355)
 
 [20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
 
