@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8.2] (unreleased)
+## (20.8.2) - 2021-02-01
 
 ### Added
 - Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
@@ -90,7 +90,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
 
-## [2.0.1] (unreleased)
+## [2.0.1]
 
 ### Added
 - Add clean_forgotten_scans(). [#171](https://github.com/greenbone/ospd/pull/171)
