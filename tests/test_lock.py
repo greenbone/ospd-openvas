@@ -21,7 +21,7 @@ import shutil
 import tempfile
 import fcntl
 
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 from unittest.mock import patch, MagicMock
 from ospd_openvas.lock import LockFile
@@ -36,7 +36,7 @@ class LockFileTestCase(unittest.TestCase):
         shutil.rmtree(str(self.temp_dir))
 
     def test_acquire_lock(self):
-        lock_file_path = self.temp_dir / 'test.lock'
+        lock_file_path = self.temp_dir / "test.lock"
 
         lock_file = LockFile(lock_file_path)
         lock_file._acquire_lock()
@@ -45,9 +45,9 @@ class LockFileTestCase(unittest.TestCase):
         self.assertTrue(lock_file_path.exists())
         lock_file._release_lock()
 
-    @patch('ospd_openvas.lock.logger')
+    @patch("ospd_openvas.lock.logger")
     def test_already_locked(self, mock_logger):
-        lock_file_path = self.temp_dir / 'test.lock'
+        lock_file_path = self.temp_dir / "test.lock"
 
         lock_file_aux = LockFile(lock_file_path)
         lock_file_aux._acquire_lock()
@@ -61,7 +61,7 @@ class LockFileTestCase(unittest.TestCase):
         lock_file_aux._release_lock()
 
     def test_create_parent_dirs(self):
-        lock_file_path = self.temp_dir / 'foo' / 'bar' / 'test.lock'
+        lock_file_path = self.temp_dir / "foo" / "bar" / "test.lock"
 
         lock_file = LockFile(lock_file_path)
         lock_file._acquire_lock()
@@ -74,9 +74,13 @@ class LockFileTestCase(unittest.TestCase):
 
         lock_file._release_lock()
 
-    @patch('ospd_openvas.lock.logger')
+    @patch("ospd_openvas.lock.logger")
     def test_create_paren_dirs_fail(self, mock_logger):
-        lock_file_path = Path('/root/lock/file/test.lock')
+        lock_file_path = MagicMock(spec=Path).return_value
+        parent = MagicMock(spec=PosixPath)
+        lock_file_path.parent = parent
+        parent.mkdir.side_effect = PermissionError
+
         lock_file = LockFile(lock_file_path)
 
         lock_file._acquire_lock()
@@ -85,7 +89,7 @@ class LockFileTestCase(unittest.TestCase):
         assert_called_once(mock_logger.error)
 
     def test_context_manager(self):
-        lock_file_path = self.temp_dir / 'test.lock'
+        lock_file_path = self.temp_dir / "test.lock"
 
         lock_file = LockFile(lock_file_path)
 
