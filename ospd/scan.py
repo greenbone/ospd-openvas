@@ -399,7 +399,7 @@ class ScanCollection:
         # As ospd is not intelligent enough to check the amount of valid
         # hosts, check for duplicated or invalid hosts, consider a negative
         # value set for the server, in case it detects an invalid target string
-        # or a different amount than the orignal amount in the target list.
+        # or a different amount than the original amount in the target list.
         if count_total == -1:
             count_total = 0
         # If the server does not set the total host count
