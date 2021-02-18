@@ -1295,7 +1295,7 @@ class OSPDaemon:
         if self.scan_exists(scan_id) and command_name == "get_scans":
             if write_success:
                 logger.debug(
-                    '%s: Results sent succesfully to the client. Cleaning '
+                    '%s: Results sent successfully to the client. Cleaning '
                     'temporary result list.',
                     scan_id,
                 )
