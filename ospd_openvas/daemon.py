@@ -692,11 +692,12 @@ class OSPDopenvas(OSPDaemon):
                     for xref in value.split(', '):
                         try:
                             _type, _id = xref.split(':', 1)
-                        except ValueError:
+                        except ValueError as e:
                             logger.error(
-                                'Not possible to parse xref %s for VT %s',
+                                'Not possible to parse xref "%s" for VT %s: %s',
                                 xref,
                                 vt_id,
+                                e,
                             )
                             continue
                         vt_ref.set('type', _type.lower())
@@ -984,6 +985,10 @@ class OSPDopenvas(OSPDaemon):
             ):
                 finished_hosts.append(current_host)
 
+            logger.debug(
+                '%s: Host %s has progress: %d', scan_id, current_host, host_prog
+            )
+
         self.set_scan_progress_batch(scan_id, host_progress=all_hosts)
 
         self.sort_host_finished(scan_id, finished_hosts)
@@ -1130,6 +1135,11 @@ class OSPDopenvas(OSPDaemon):
             if msg[0] == 'HOSTS_COUNT':
                 try:
                     count_total = int(msg[5])
+                    logger.debug(
+                        '%s: Set total hosts counted by OpenVAS: %d',
+                        scan_id,
+                        count_total,
+                    )
                     self.set_scan_total_hosts(scan_id, count_total)
                 except TypeError:
                     logger.debug('Error processing total host count')
@@ -1137,8 +1147,17 @@ class OSPDopenvas(OSPDaemon):
         # Insert result batch into the scan collection table.
         if len(res_list):
             self.scan_collection.add_result_list(scan_id, res_list)
-
+            logger.debug(
+                '%s: Inserting %d results into scan collection table',
+                scan_id,
+                len(res_list),
+            )
         if total_dead:
+            logger.debug(
+                '%s: Set dead hosts counted by OpenVAS: %d',
+                scan_id,
+                total_dead,
+            )
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
@@ -1164,6 +1183,10 @@ class OSPDopenvas(OSPDaemon):
 
         is_zombie = False
         if parent and parent.status() == psutil.STATUS_ZOMBIE:
+            logger.debug(
+                ' %s: OpenVAS process is a zombie process',
+                scan_id,
+            )
             is_zombie = True
 
         if (not parent_exists or is_zombie) and kbdb:
@@ -1301,9 +1324,11 @@ class OSPDopenvas(OSPDaemon):
 
         got_results = False
         while True:
-            if not kbdb.target_is_finished(
-                scan_id
-            ) and not self.is_openvas_process_alive(kbdb, ovas_pid, scan_id):
+            target_is_finished = kbdb.target_is_finished(scan_id)
+            openvas_process_is_alive = self.is_openvas_process_alive(
+                kbdb, ovas_pid, scan_id
+            )
+            if not target_is_finished and not openvas_process_is_alive:
                 logger.error(
                     'Task %s was unexpectedly stopped or killed.',
                     scan_id,
@@ -1331,8 +1356,11 @@ class OSPDopenvas(OSPDaemon):
 
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(scan_id):
+                logger.debug('%s: Scan stopped by the client', scan_id)
+
                 # clean main_db, but wait for scanner to finish.
                 while not kbdb.target_is_finished(scan_id):
+                    logger.debug('%s: Waiting the scan to finish', scan_id)
                     time.sleep(1)
                 self.main_db.release_database(kbdb)
                 return
@@ -1342,9 +1370,11 @@ class OSPDopenvas(OSPDaemon):
 
             # Scan end. No kb in use for this scan id
             if kbdb.target_is_finished(scan_id):
+                logger.debug('%s: Target is finished', scan_id)
                 break
 
         # Delete keys from KB related to this scan task.
+        logger.debug('%s: End Target. Release main database', scan_id)
         self.main_db.release_database(kbdb)
 
 
