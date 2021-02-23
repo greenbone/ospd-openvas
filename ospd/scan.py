@@ -20,6 +20,7 @@ import multiprocessing
 import time
 import uuid
 
+from pprint import pformat
 from collections import OrderedDict
 from enum import Enum, IntEnum
 from typing import List, Any, Dict, Iterator, Optional, Iterable, Union
@@ -137,6 +138,13 @@ class ScanCollection:
         if not hosts:
             return
 
+        LOGGER.debug(
+            '%s: Remove the following hosts from the target list, '
+            'as they are already finished or are dead: %s',
+            scan_id,
+            pformat(hosts),
+        )
+
         target = self.scans_table[scan_id].get('target_progress')
         for host in hosts:
             if host in target:
@@ -170,6 +178,11 @@ class ScanCollection:
     def set_host_finished(self, scan_id: str, hosts: List[str]) -> None:
         """ Increase the amount of finished hosts which were alive."""
 
+        LOGGER.debug(
+            '%s: Setting the following hosts as finished: %s',
+            scan_id,
+            pformat(hosts),
+        )
         total_finished = len(hosts)
         count_alive = (
             self.scans_table[scan_id].get('count_alive') + total_finished
@@ -179,6 +192,11 @@ class ScanCollection:
     def set_host_dead(self, scan_id: str, hosts: List[str]) -> None:
         """ Increase the amount of dead hosts. """
 
+        LOGGER.debug(
+            '%s: Setting the following hosts as dead: %s',
+            scan_id,
+            pformat(hosts),
+        )
         total_dead = len(hosts)
         count_dead = self.scans_table[scan_id].get('count_dead') + total_dead
         self.scans_table[scan_id]['count_dead'] = count_dead
@@ -305,6 +323,7 @@ class ScanCollection:
         scan_info['status'] = ScanStatus.QUEUED
         scan_info['credentials'] = credentials
         scan_info['start_time'] = int(time.time())
+        scan_info['end_time'] = 0
 
         scan_info_to_pickle = {
             'target': target,
@@ -332,7 +351,7 @@ class ScanCollection:
     def set_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Sets scan_id scan's status. """
         self.scans_table[scan_id]['status'] = status
-        if status == ScanStatus.STOPPED:
+        if status == ScanStatus.STOPPED or status == ScanStatus.INTERRUPTED:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def get_status(self, scan_id: str) -> ScanStatus:
@@ -374,7 +393,18 @@ class ScanCollection:
         """ Get a scan's total host count. """
 
         count_total = self.scans_table[scan_id]['count_total']
-        if not count_total:
+
+        # The value set by the server has priority over the value
+        # calculated from the original target list by ospd.
+        # As ospd is not intelligent enough to check the amount of valid
+        # hosts, check for duplicated or invalid hosts, consider a negative
+        # value set for the server, in case it detects an invalid target string
+        # or a different amount than the original amount in the target list.
+        if count_total == -1:
+            count_total = 0
+        # If the server does not set the total host count
+        # ospd set the amount of host from the original host list.
+        elif not count_total:
             count_total = self.get_host_count(scan_id)
             self.update_count_total(scan_id, count_total)
 
@@ -418,6 +448,20 @@ class ScanCollection:
         count_dead = self.get_count_dead(scan_id)
         host_progresses = self.get_current_target_progress(scan_id)
 
+        LOGGER.debug(
+            "Calculating scan progress with the following data:\n"
+            "\ttotal_hosts: %d\n\t"
+            "\texc_hosts: %d\n\t"
+            "\tcount_alive: %d\n\t"
+            "\tcount_dead: %d\n\t"
+            "\thost_prgresses: %d\n\t",
+            total_hosts,
+            exc_hosts,
+            count_alive,
+            count_dead,
+            sum(host_progresses.values()),
+        )
+
         try:
             t_prog = int(
                 (sum(host_progresses.values()) + 100 * count_alive)
@@ -425,6 +469,7 @@ class ScanCollection:
             )
         except ZeroDivisionError:
             # Consider the case in which all hosts are dead or excluded
+            LOGGER.debug('%s: All hosts dead or excluded.', scan_id)
             t_prog = ScanProgress.FINISHED.value
 
         return t_prog
