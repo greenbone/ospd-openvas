@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-
 ## [21.4] (unreleased)
 
 ### Added
@@ -24,18 +23,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [unreleased]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...master
 
-## [20.8.1] (unreleased)
+## (20.8.1) - 2021-02-01
+
+### Added
+- Add debug level log messages. [#373](https://github.com/greenbone/ospd-openvas/pull/373)
 
 ### Changed
 - Improve logging for unsatisfied vts dependencies. [#336](https://github.com/greenbone/ospd-openvas/pull/336)
 - Do not use busy wait when waiting for the openvas scan process to finish. [#360](https://github.com/greenbone/ospd-openvas/pull/360)
+- The description field of the systemd ospd-openvas.service file was updated. [#372](https://github.com/greenbone/ospd-openvas/pull/372)
+- Improve logging for unexpected data in script_xref tags. [#374](https://github.com/greenbone/ospd-openvas/pull/374)
 
 ### Fixed
-- Fix nvticache name when for stable version from sources. [#317](https://github.com/greenbone/ospd-openvas/pull/317)
-- Fix stop scan during preferences handling, before spawining OpenVAS. [#332](https://github.com/greenbone/ospd-openvas/pull/332)
+- Fix nvticache name for stable version from sources. [#317](https://github.com/greenbone/ospd-openvas/pull/317)
+- Fix stop scan during preferences handling, before spawning OpenVAS. [#332](https://github.com/greenbone/ospd-openvas/pull/332)
 - Fix alive test preferences when a non default method is selected. [#334](https://github.com/greenbone/ospd-openvas/pull/334)
 - Check for empty vts preferences list. [#340](https://github.com/greenbone/ospd-openvas/pull/340)
 - Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
+- Don't crash with non-ascii chars in openvas.conf. [#391](https://github.com/greenbone/ospd-openvas/pull/381)
 
 [20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...ospd-openvas-20.08
 
@@ -100,7 +105,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
 
-## [1.0.1] (unreleased)
+## [1.0.1]
 
 ### Added
 - Check the vt's preference value for type 'file'. [#130](https://github.com/greenbone/ospd-openvas/pull/130).

@@ -183,6 +183,19 @@ class OpenvasCommandTestCase(TestCase):
 
         self.assertFalse(settings)  # settings dict is empty
 
+        mock_check_output.reset_mock()
+
+        # from https://gehrcke.de/2015/12/how-to-raise-unicodedecodeerror-in-python-3/
+        mock_check_output.side_effect = UnicodeDecodeError(
+            'funnycodec', b'\x00\x00', 1, 2, 'This is just a fake reason!'
+        )
+
+        settings = Openvas.get_settings()
+
+        mock_check_output.assert_called_with(['openvas', '-s'])
+
+        self.assertFalse(settings)  # settings dict is empty
+
     @patch('ospd_openvas.openvas.subprocess.Popen')
     def test_start_scan(self, mock_popen: MagicMock):
         proc = Openvas.start_scan('scan_1')

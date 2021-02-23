@@ -98,7 +98,7 @@ class Openvas:
         try:
             result = subprocess.check_output(['openvas', '-s'])
             result = result.decode('ascii')
-        except (subprocess.SubprocessError, OSError) as e:
+        except (subprocess.SubprocessError, OSError, UnicodeDecodeError) as e:
             logger.warning('Could not gather openvas settings. Reason %s', e)
             return param_list
 
