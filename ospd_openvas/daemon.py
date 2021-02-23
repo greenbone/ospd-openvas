@@ -1185,7 +1185,7 @@ class OSPDopenvas(OSPDaemon):
         if parent and parent.status() == psutil.STATUS_ZOMBIE:
             logger.debug(
                 ' %s: OpenVAS process is a zombie process',
-                openvas_scan_id,
+                scan_id,
             )
             is_zombie = True
 
