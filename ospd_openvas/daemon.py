@@ -978,15 +978,16 @@ class OSPDopenvas(OSPDaemon):
                 continue
 
             all_hosts[current_host] = host_prog
-            logger.debug(
-                '%s: Host %s has progress: %d', scan_id, current_host, host_prog
-            )
 
             if (
                 host_prog == ScanProgress.DEAD_HOST
                 or host_prog == ScanProgress.FINISHED
             ):
                 finished_hosts.append(current_host)
+
+            logger.debug(
+                '%s: Host %s has progress: %d', scan_id, current_host, host_prog
+            )
 
         self.set_scan_progress_batch(scan_id, host_progress=all_hosts)
 
@@ -1152,6 +1153,11 @@ class OSPDopenvas(OSPDaemon):
                 len(res_list),
             )
         if total_dead:
+            logger.debug(
+                '%s: Set dead hosts counted by OpenVAS: %d',
+                scan_id,
+                total_dead,
+            )
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
             )
@@ -1318,9 +1324,11 @@ class OSPDopenvas(OSPDaemon):
 
         got_results = False
         while True:
-            if not kbdb.target_is_finished(
-                scan_id
-            ) and not self.is_openvas_process_alive(kbdb, ovas_pid, scan_id):
+            target_is_finished = kbdb.target_is_finished(scan_id)
+            openvas_process_is_alive = self.is_openvas_process_alive(
+                kbdb, ovas_pid, scan_id
+            )
+            if not target_is_finished and not openvas_process_is_alive:
                 logger.error(
                     'Task %s was unexpectedly stopped or killed.',
                     scan_id,
@@ -1349,6 +1357,7 @@ class OSPDopenvas(OSPDaemon):
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(scan_id):
                 logger.debug('%s: Scan stopped by the client', scan_id)
+
                 # clean main_db, but wait for scanner to finish.
                 while not kbdb.target_is_finished(scan_id):
                     logger.debug('%s: Waiting the scan to finish', scan_id)
