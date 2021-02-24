@@ -8,8 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 - Add dedicated port list for alive detection (Boreas only) as scanner preference if supplied via OSP. [#327](https://github.com/greenbone/ospd-openvas/pull/327)
-- Add methods for adding VTs to the redis cache.[#337](https://github.com/greenbone/ospd-openvas/pull/337)
-- Add support for supplying alive test methods via seperate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
+- Add methods for adding VTs to the redis cache. [#337](https://github.com/greenbone/ospd-openvas/pull/337)
+- Add support for supplying alive test methods via separate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
 - Add support CVSSv3 and accept new tags for severity vector, origin, date. [#346](https://github.com/greenbone/ospd-openvas/pull/346)
 
 ### Changed

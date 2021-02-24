@@ -205,7 +205,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         self.assertEqual(ret, {})
 
-        # alive test was supplied via seperate xml element
+        # alive test was supplied via separate xml element
         w = DummyDaemon()
         target_options_dict = {'alive_test_methods': '1', 'icmp': '0'}
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
