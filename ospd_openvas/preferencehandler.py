@@ -317,9 +317,9 @@ class PreferenceHandler:
         alive_test = None
 
         if target_options:
-            # Alive test speciefied as bit field.
+            # Alive test specified as bit field.
             alive_test = target_options.get('alive_test')
-            # Alive test speciefied as individual methods.
+            # Alive test specified as individual methods.
             alive_test_methods = target_options.get('alive_test_methods')
             # alive_test takes precedence over alive_test_methods
             if alive_test is None and alive_test_methods:
@@ -446,9 +446,9 @@ class PreferenceHandler:
 
         if target_options:
             alive_test_ports = target_options.get('alive_test_ports')
-            # Alive test was speciefied as bit field.
+            # Alive test was specified as bit field.
             alive_test = target_options.get('alive_test')
-            # Alive test was speciefied as individual methods.
+            # Alive test was specified as individual methods.
             alive_test_methods = target_options.get('alive_test_methods')
             # <alive_test> takes precedence over <alive_test_methods>
             if alive_test is None and alive_test_methods:
