@@ -1114,6 +1114,27 @@ class ScanTestCase(unittest.TestCase):
         progress = self.daemon.get_scan_progress(scan_id)
         self.assertEqual(progress, 33)
 
+    def test_get_scan_host_progress(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        self.daemon.set_scan_host_progress(scan_id, 'localhost', 45)
+        self.assertEqual(
+            self.daemon.get_scan_host_progress(scan_id, 'localhost'), 45
+        )
+
     def test_get_scan_without_scanid(self):
 
         fs = FakeStream()
