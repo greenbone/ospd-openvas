@@ -651,8 +651,16 @@ class OSPDaemon:
             progress = current_hosts.get(finished_host)
             if progress == ScanProgress.FINISHED:
                 alive_hosts.append(finished_host)
-            if progress == ScanProgress.DEAD_HOST:
+            elif progress == ScanProgress.DEAD_HOST:
                 dead_hosts.append(finished_host)
+            else:
+                logger.warning(
+                    'The host %s is considered dead or finished, but '
+                    'its progress is still %d. This can lead to '
+                    'interrupted scan.',
+                    finished_host,
+                    progress,
+                )
 
         self.scan_collection.set_host_dead(scan_id, dead_hosts)
 
@@ -665,6 +673,10 @@ class OSPDaemon:
     def set_scan_progress(self, scan_id: str):
         """Calculate the target progress with the current host states
         and stores in the scan table."""
+        # Get current scan progress for debugging purposes
+        logger.debug("Calculating scan progress with the following data:")
+        self._get_scan_progress_raw(scan_id)
+
         scan_progress = self.scan_collection.calculate_target_progress(scan_id)
         self.scan_collection.set_progress(scan_id, scan_progress)
 
@@ -695,6 +707,17 @@ class OSPDaemon:
 
         host_progress = {host: progress}
         self.set_scan_progress_batch(scan_id, host_progress)
+
+    def get_scan_host_progress(
+        self,
+        scan_id: str,
+        host: str = None,
+    ) -> int:
+        """ Get host's progress which is part of target."""
+        current_progress = self.scan_collection.get_current_target_progress(
+            scan_id
+        )
+        return current_progress.get(host)
 
     def set_scan_status(self, scan_id: str, status: ScanStatus) -> None:
         """ Set the scan's status."""
