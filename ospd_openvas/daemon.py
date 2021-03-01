@@ -1401,13 +1401,30 @@ class OSPDopenvas(OSPDaemon):
                     )
 
                     if scan_db.host_is_finished(openvas_scan_id):
-                        self.report_openvas_scan_status(
-                            scan_db, scan_id, current_host
+                        # Check that the host status is updated. As it has
+                        # finished, its stauts should be DEAD or FINISHED.
+                        # Otherwise it is considered an error. It tries 3
+                        # times until considered it an error
+                        retry = 3
+                        host_progress = self.get_scan_host_progress(
+                            scan_id, current_host
                         )
-
+                        while (
+                            host_progress > -1 and host_progress < 100
+                        ) and retry > 0:
+                            self.report_openvas_scan_status(
+                                scan_db, scan_id, current_host
+                            )
+                            time.sleep(1)
+                            retry -= 1
+                            host_progress = self.get_scan_host_progress(
+                                scan_id, current_host
+                            )
+                        # Set HOST_END timestamp
                         self.report_openvas_timestamp_scan_host(
                             scan_db, scan_id, current_host
                         )
+
                         if current_host:
                             self.sort_host_finished(
                                 scan_id, finished_hosts=current_host
@@ -1415,6 +1432,9 @@ class OSPDopenvas(OSPDaemon):
 
                         kbdb.remove_scan_database(scan_db)
                         self.main_db.release_database(scan_db)
+                        logger.debug(
+                            '%s: Release host KB of %s', scan_id, current_host
+                        )
 
             # Scan end. No kb in use for this scan id
             if no_id_found and kbdb.target_is_finished(scan_id):
