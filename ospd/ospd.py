@@ -654,7 +654,7 @@ class OSPDaemon:
             elif progress == ScanProgress.DEAD_HOST:
                 dead_hosts.append(finished_host)
             else:
-                logger.warning(
+                logger.debug(
                     'The host %s is considered dead or finished, but '
                     'its progress is still %d. This can lead to '
                     'interrupted scan.',
