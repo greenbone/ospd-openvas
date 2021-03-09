@@ -287,7 +287,7 @@ class ScanCollection:
         scan_info['target_progress'] = dict()
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
-        scan_info['count_total'] = 0
+        scan_info['count_total'] = None
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
         scan_info['options'] = unpickled_scan_info.pop('options')
@@ -404,7 +404,7 @@ class ScanCollection:
             count_total = 0
         # If the server does not set the total host count
         # ospd set the amount of host from the original host list.
-        elif not count_total:
+        elif count_total is None:
             count_total = self.get_host_count(scan_id)
             self.update_count_total(scan_id, count_total)
 
