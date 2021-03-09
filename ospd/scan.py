@@ -448,20 +448,6 @@ class ScanCollection:
         count_dead = self.get_count_dead(scan_id)
         host_progresses = self.get_current_target_progress(scan_id)
 
-        LOGGER.debug(
-            "Calculating scan progress with the following data:\n"
-            "\ttotal_hosts: %d\n\t"
-            "\texc_hosts: %d\n\t"
-            "\tcount_alive: %d\n\t"
-            "\tcount_dead: %d\n\t"
-            "\thost_prgresses: %d\n\t",
-            total_hosts,
-            exc_hosts,
-            count_alive,
-            count_dead,
-            sum(host_progresses.values()),
-        )
-
         try:
             t_prog = int(
                 (sum(host_progresses.values()) + 100 * count_alive)
