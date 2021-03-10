@@ -1429,7 +1429,9 @@ class OSPDopenvas(OSPDaemon):
                                 scan_id, current_host
                             )
 
-                        if retry == 0:
+                        if (
+                            host_progress > -1 and host_progress < 100
+                        ) and retry == 0:
                             self.add_scan_error(
                                 scan_id,
                                 name='',
