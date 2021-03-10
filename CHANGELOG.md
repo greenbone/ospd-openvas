@@ -33,6 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix alive test preferences when a non default method is selected. [#334](https://github.com/greenbone/ospd-openvas/pull/334)
 - Check for empty vts preferences list. [#340](https://github.com/greenbone/ospd-openvas/pull/340)
 - Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
+- Retry host progress update if the progress is still below 100 percent. [#390](https://github.com/greenbone/ospd-openvas/pull/390)
 
 [20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...ospd-openvas-20.08
 
