@@ -1190,6 +1190,27 @@ class ScanTestCase(unittest.TestCase):
         progress = self.daemon.get_scan_progress(scan_id)
         self.assertEqual(progress, 33)
 
+    def test_get_scan_host_progress(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+        response = fs.get_response()
+
+        scan_id = response.findtext('id')
+        self.daemon.set_scan_host_progress(scan_id, 'localhost', 45)
+        self.assertEqual(
+            self.daemon.get_scan_host_progress(scan_id, 'localhost'), 45
+        )
+
     def test_get_scan_without_scanid(self):
 
         fs = FakeStream()
@@ -1237,6 +1258,35 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.set_scan_total_hosts(scan_id, 3)
         count = self.daemon.scan_collection.get_count_total(scan_id)
         self.assertEqual(count, 3)
+
+    def test_set_scan_total_hosts_zero(self):
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>localhost1, localhost2, localhost3, localhost4</hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        # Default calculated by ospd with the hosts in the target
+        count = self.daemon.scan_collection.get_count_total(scan_id)
+        self.assertEqual(count, 4)
+
+        # Set to 0 (all hosts unresolved, dead, invalid target) via
+        # the server. This one has priority and must be still 0 and
+        # never overwritten with the calculation from host list
+        self.daemon.set_scan_total_hosts(scan_id, 0)
+        count = self.daemon.scan_collection.get_count_total(scan_id)
+        self.assertEqual(count, 0)
 
     def test_set_scan_total_hosts_invalid_target(self):
 
