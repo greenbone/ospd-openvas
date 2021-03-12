@@ -287,7 +287,7 @@ class ScanCollection:
         scan_info['target_progress'] = dict()
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
-        scan_info['count_total'] = 0
+        scan_info['count_total'] = None
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
         scan_info['options'] = unpickled_scan_info.pop('options')
@@ -404,7 +404,7 @@ class ScanCollection:
             count_total = 0
         # If the server does not set the total host count
         # ospd set the amount of host from the original host list.
-        elif not count_total:
+        elif count_total is None:
             count_total = self.get_host_count(scan_id)
             self.update_count_total(scan_id, count_total)
 
@@ -447,20 +447,6 @@ class ScanCollection:
         count_alive = self.get_count_alive(scan_id)
         count_dead = self.get_count_dead(scan_id)
         host_progresses = self.get_current_target_progress(scan_id)
-
-        LOGGER.debug(
-            "Calculating scan progress with the following data:\n"
-            "\ttotal_hosts: %d\n\t"
-            "\texc_hosts: %d\n\t"
-            "\tcount_alive: %d\n\t"
-            "\tcount_dead: %d\n\t"
-            "\thost_prgresses: %d\n\t",
-            total_hosts,
-            exc_hosts,
-            count_alive,
-            count_dead,
-            sum(host_progresses.values()),
-        )
 
         try:
             t_prog = int(

@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
 - Add more debug logging. [#352](https://github.com/greenbone/ospd/pull/352)
 - Set end_time for interrupted scans. [#353](https://github.com/greenbone/ospd/pull/353)
+- Add method to get a single host scan progress. [#363](https://github.com/greenbone/ospd/pull/363)
 
 ### Fixed
 - Fix OSP version. [#326](https://github.com/greenbone/ospd/pull/326)
@@ -29,6 +30,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix malformed target. [#341](https://github.com/greenbone/ospd/pull/341)
 - Initialize end_time with create_scan. [#354](https://github.com/greenbone/ospd/pull/354)
 - Fix get_count_total(). Accept -1 value set by the server. [#355](https://github.com/greenbone/ospd/pull/355)
+- Fix get_count_total(). Consider 0 value set by the server. [#366](https://github.com/greenbone/ospd/pull/366)
 
 [20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
 
