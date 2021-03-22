@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <name>Open Scanner Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
-  <version>20.08</version>
+  <version>21.04</version>
 
   <!-- Types. -->
 
@@ -1222,7 +1222,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               </solution>
               <detection qod_type="package">Get the installed version with the help of detect NVT and check if the version is vulnerable or not.</detection>
               <severities>
-                <severity type="cvss_base_v2" origin="CVE-2014-9116">AV:N/AC:L/Au:N/C:N/I:N/A:P</severity>
+                <severity type="cvss_base_v2">
+                  <origin>CVE-2014-9116</origin>
+                  <date>1200603949</date>
+                  <value>AV:N/AC:L/Au:N/C:N/I:N/A:P</value>
+                </severity>
               </severities>
             </vt>
           </vts>
@@ -1547,7 +1551,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Add support for dedicated port list for alive detection</summary>
     <description>Target element received new target option alive_test_ports.
     </description>
-    <version>21.4</version>
+    <version>21.04</version>
   </change>
 
   <change>
@@ -1555,7 +1559,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Add support for supplying alive test methods via separate elements.</summary>
     <description>Target element received new optional target option alive_test_methods with subelements imcp, tcp_ack, tcp_syn, arp and consider_alive.
     </description>
-    <version>21.4</version>
+    <version>21.04</version>
   </change>
 
   <change>
@@ -1565,7 +1569,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       The element SEVERITY inside SEVERITIES of the returned VT moves the origin and the value
       into explicit elements ORIGIN and VALUE. Furthremore the element DATE is added.
     </description>
-    <version>21.4</version>
+    <version>21.04</version>
   </change>
 
   <change>
