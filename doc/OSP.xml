@@ -1600,10 +1600,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <version>20.08</version>
   </change>
 
+    <change>
+    <command>GET_VTS</command>
+    <summary>Add attribute SHA256_HASH</summary>
+    <description>
+      The new attribute SHA256_HASH is calculated from the vulnerability test OID, modification time and VT preferences, sorted by OID. The new attribute is helpful for feed integrity check.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Add attribute VTS_VERSION</summary>
+    <description>
+      The feed version is included in the get_vts command response.
+    </description>
+    <version>20.08</version>
+  </change>
+
   <change>
     <command>START_SCAN</command>
     <summary>Add support for target options</summary>
     <description>Target element receive new target options reverse_lookup_only, reverse_lookup_unify and alive_test.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_SCANS</command>
+    <summary>Add scan progress details</summary>
+    <description>New attribute PROGRESS to specify whether to return a detailed progress information.
     </description>
     <version>20.08</version>
   </change>
