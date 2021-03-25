@@ -288,6 +288,7 @@ class ScanCollection:
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
         scan_info['count_total'] = None
+        scan_info['excluded_simplified'] = None
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
         scan_info['options'] = unpickled_scan_info.pop('options')
