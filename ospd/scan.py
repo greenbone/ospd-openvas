@@ -424,7 +424,6 @@ class ScanCollection:
         Return:
             Count of excluded host.
         """
-
         exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
 
         finished_hosts_list = target_str_to_list(
@@ -436,7 +435,12 @@ class ScanCollection:
                 if finished in exc_hosts_list:
                     exc_hosts_list.remove(finished)
 
-        return len(exc_hosts_list) if exc_hosts_list else 0
+        # Set scan_info's excluded simplified to propagate excluded count
+        # to parent process.
+        excluded_simplified = len(exc_hosts_list) if exc_hosts_list else 0
+        self.scans_table[scan_id]['excluded_simplified'] = excluded_simplified
+
+        return excluded_simplified
 
     def calculate_target_progress(self, scan_id: str) -> int:
         """Get a target's current progress value.
