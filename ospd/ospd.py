@@ -784,7 +784,7 @@ class OSPDaemon:
         )
         current_progress[
             'count_excluded'
-        ] = self.scan_collection.simplify_exclude_host_count(scan_id)
+        ] = self.scan_collection.get_simplified_exclude_host_count(scan_id)
         current_progress['count_total'] = self.scan_collection.get_count_total(
             scan_id
         )

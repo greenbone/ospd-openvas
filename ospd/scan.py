@@ -458,7 +458,7 @@ class ScanCollection:
         in the target."""
 
         total_hosts = self.get_count_total(scan_id)
-        exc_hosts = self.simplify_exclude_host_count(scan_id)
+        exc_hosts = self.get_simplified_exclude_host_count(scan_id)
         count_alive = self.get_count_alive(scan_id)
         count_dead = self.get_count_dead(scan_id)
         host_progresses = self.get_current_target_progress(scan_id)
