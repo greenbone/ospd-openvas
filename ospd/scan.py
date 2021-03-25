@@ -442,6 +442,16 @@ class ScanCollection:
 
         return excluded_simplified
 
+    def get_simplified_exclude_host_count(self, scan_id: str) -> int:
+        """ Get a scan's excluded host count. """
+        excluded_simplified = self.scans_table[scan_id]['excluded_simplified']
+        # Check for None because it is the init value, as excluded can be 0
+        # as well
+        if excluded_simplified is not None:
+            return excluded_simplified
+
+        return self.simplify_exclude_host_count(scan_id)
+
     def calculate_target_progress(self, scan_id: str) -> int:
         """Get a target's current progress value.
         The value is calculated with the progress of each single host
