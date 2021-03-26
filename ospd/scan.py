@@ -438,11 +438,13 @@ class ScanCollection:
 
         # Remove excluded hosts which don't belong to the target list
         host_list = target_str_to_list(self.get_host_list(scan_id))
+        excluded_simplified = 0
         invalid_exc_hosts = 0
         if exc_hosts_list:
             for exc_host in exc_hosts_list:
-                if exc_host not in host_list:
-                    exc_hosts_list.remove(exc_host)
+                if exc_host in host_list:
+                    excluded_simplified += 1
+                else:
                     invalid_exc_hosts += 1
 
         if invalid_exc_hosts > 0:
@@ -455,7 +457,6 @@ class ScanCollection:
 
         # Set scan_info's excluded simplified to propagate excluded count
         # to parent process.
-        excluded_simplified = len(exc_hosts_list) if exc_hosts_list else 0
         self.scans_table[scan_id]['excluded_simplified'] = excluded_simplified
 
         return excluded_simplified
