@@ -430,10 +430,28 @@ class ScanCollection:
             self.get_finished_hosts(scan_id)
         )
 
+        # Remove finished hosts from excluded host list
         if finished_hosts_list and exc_hosts_list:
             for finished in finished_hosts_list:
                 if finished in exc_hosts_list:
                     exc_hosts_list.remove(finished)
+
+        # Remove excluded hosts which don't belong to the target list
+        host_list = target_str_to_list(self.get_host_list(scan_id))
+        invalid_exc_hosts = 0
+        if exc_hosts_list:
+            for exc_host in exc_hosts_list:
+                if exc_host not in host_list:
+                    exc_hosts_list.remove(exc_host)
+                    invalid_exc_hosts += 1
+
+        if invalid_exc_hosts > 0:
+            LOGGER.debug(
+                "Please check the excluded host list. It contains invalid "
+                "hosts which do not belongs to the target. %d hosts were "
+                "removed from the excluded host list",
+                invalid_exc_hosts,
+            )
 
         # Set scan_info's excluded simplified to propagate excluded count
         # to parent process.
