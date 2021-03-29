@@ -448,10 +448,11 @@ class ScanCollection:
                     invalid_exc_hosts += 1
 
         if invalid_exc_hosts > 0:
-            LOGGER.debug(
-                "Please check the excluded host list. It contains invalid "
-                "hosts which do not belongs to the target. %d hosts were "
-                "removed from the excluded host list",
+            LOGGER.warning(
+                "Please check the excluded host list. It contains "
+                "hosts which do not belong to the target. %d hosts were "
+                "removed from the excluded host list. This warning can be "
+                "ignored if this was done on purpose.",
                 invalid_exc_hosts,
             )
 
