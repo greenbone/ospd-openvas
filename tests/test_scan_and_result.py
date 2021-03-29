@@ -1314,6 +1314,41 @@ class ScanTestCase(unittest.TestCase):
         count = self.daemon.scan_collection.get_count_total(scan_id)
         self.assertEqual(count, 0)
 
+    def test_scan_invalid_excluded_hosts(self):
+
+        logging.Logger.warning = Mock()
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan parallel="2">'
+            '<scanner_params />'
+            '<targets><target>'
+            '<hosts>192.168.0.0/24</hosts>'
+            '<exclude_hosts>192.168.0.1-192.168.0.200,10.0.0.0/24'
+            '</exclude_hosts>'
+            '<ports>22</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+        self.daemon.start_queued_scans()
+
+        response = fs.get_response()
+        scan_id = response.findtext('id')
+
+        # Count only the excluded hosts present in the original target.
+        count = self.daemon.scan_collection.get_simplified_exclude_host_count(
+            scan_id
+        )
+        self.assertEqual(count, 200)
+
+        logging.Logger.warning.assert_called_with(  # pylint: disable=no-member
+            "Please check the excluded host list. It contains hosts "
+            "which do not belong to the target. %d hosts were removed from "
+            "the excluded host list. This warning can be ignored if this "
+            "was done on purpose.",
+            254,
+        )
+
     def test_get_scan_progress_xml(self):
 
         fs = FakeStream()

@@ -288,6 +288,7 @@ class ScanCollection:
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
         scan_info['count_total'] = None
+        scan_info['excluded_simplified'] = None
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
         scan_info['options'] = unpickled_scan_info.pop('options')
@@ -423,19 +424,53 @@ class ScanCollection:
         Return:
             Count of excluded host.
         """
-
         exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
 
         finished_hosts_list = target_str_to_list(
             self.get_finished_hosts(scan_id)
         )
 
+        # Remove finished hosts from excluded host list
         if finished_hosts_list and exc_hosts_list:
             for finished in finished_hosts_list:
                 if finished in exc_hosts_list:
                     exc_hosts_list.remove(finished)
 
-        return len(exc_hosts_list) if exc_hosts_list else 0
+        # Remove excluded hosts which don't belong to the target list
+        host_list = target_str_to_list(self.get_host_list(scan_id))
+        excluded_simplified = 0
+        invalid_exc_hosts = 0
+        if exc_hosts_list:
+            for exc_host in exc_hosts_list:
+                if exc_host in host_list:
+                    excluded_simplified += 1
+                else:
+                    invalid_exc_hosts += 1
+
+        if invalid_exc_hosts > 0:
+            LOGGER.warning(
+                "Please check the excluded host list. It contains "
+                "hosts which do not belong to the target. %d hosts were "
+                "removed from the excluded host list. This warning can be "
+                "ignored if this was done on purpose.",
+                invalid_exc_hosts,
+            )
+
+        # Set scan_info's excluded simplified to propagate excluded count
+        # to parent process.
+        self.scans_table[scan_id]['excluded_simplified'] = excluded_simplified
+
+        return excluded_simplified
+
+    def get_simplified_exclude_host_count(self, scan_id: str) -> int:
+        """ Get a scan's excluded host count. """
+        excluded_simplified = self.scans_table[scan_id]['excluded_simplified']
+        # Check for None because it is the init value, as excluded can be 0
+        # as well
+        if excluded_simplified is not None:
+            return excluded_simplified
+
+        return self.simplify_exclude_host_count(scan_id)
 
     def calculate_target_progress(self, scan_id: str) -> int:
         """Get a target's current progress value.
@@ -443,7 +478,7 @@ class ScanCollection:
         in the target."""
 
         total_hosts = self.get_count_total(scan_id)
-        exc_hosts = self.simplify_exclude_host_count(scan_id)
+        exc_hosts = self.get_simplified_exclude_host_count(scan_id)
         count_alive = self.get_count_alive(scan_id)
         count_dead = self.get_count_dead(scan_id)
         host_progresses = self.get_current_target_progress(scan_id)
