@@ -1316,7 +1316,7 @@ class ScanTestCase(unittest.TestCase):
 
     def test_scan_invalid_excluded_hosts(self):
 
-        logging.Logger.debug = Mock()
+        logging.Logger.warning = Mock()
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1341,10 +1341,11 @@ class ScanTestCase(unittest.TestCase):
         )
         self.assertEqual(count, 200)
 
-        logging.Logger.debug.assert_called_with(  # pylint: disable=no-member
-            "Please check the excluded host list. It contains invalid hosts "
-            "which do not belongs to the target. %d hosts were removed from "
-            "the excluded host list",
+        logging.Logger.warning.assert_called_with(  # pylint: disable=no-member
+            "Please check the excluded host list. It contains hosts "
+            "which do not belong to the target. %d hosts were removed from "
+            "the excluded host list. This warning can be ignored if this "
+            "was done on purpose.",
             254,
         )
 
