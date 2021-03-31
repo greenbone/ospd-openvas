@@ -41,7 +41,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Initialize end_time with create_scan. [#354](https://github.com/greenbone/ospd/pull/354)
 - Fix get_count_total(). Accept -1 value set by the server. [#355](https://github.com/greenbone/ospd/pull/355)
 - Fix get_count_total(). Consider 0 value set by the server. [#366](https://github.com/greenbone/ospd/pull/366)
-- Remove exclude hosts which do not belong to the target for the scan progress calculation. [#377](https://github.com/greenbone/ospd/pull/377)
+- Remove exclude hosts which do not belong to the target for the scan progress calculation.
+  [#377](https://github.com/greenbone/ospd/pull/377)
+  [#380](https://github.com/greenbone/ospd/pull/380)
 
 [20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
 

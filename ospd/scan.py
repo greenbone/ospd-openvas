@@ -449,11 +449,9 @@ class ScanCollection:
 
         if invalid_exc_hosts > 0:
             LOGGER.warning(
-                "Please check the excluded host list. It contains "
-                "hosts which do not belong to the target. %d hosts were "
-                "removed from the excluded host list. This warning can be "
-                "ignored if this was done on purpose.",
-                invalid_exc_hosts,
+                "Please check the excluded host list. It contains hosts which "
+                "do not belong to the target. This warning can be ignored if "
+                "this was done on purpose (e.g. to exclude specific hostname)."
             )
 
         # Set scan_info's excluded simplified to propagate excluded count
