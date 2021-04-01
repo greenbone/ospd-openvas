@@ -1267,10 +1267,8 @@ class ScanTestCase(unittest.TestCase):
 
         logging.Logger.warning.assert_called_with(  # pylint: disable=no-member
             "Please check the excluded host list. It contains hosts "
-            "which do not belong to the target. %d hosts were removed from "
-            "the excluded host list. This warning can be ignored if this "
-            "was done on purpose.",
-            254,
+            "which do not belong to the target. This warning can be ignored if "
+            "this was done on purpose (e.g. to exclude specific hostname)."
         )
 
     def test_get_scan_progress_xml(self):
