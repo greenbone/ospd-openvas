@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.4] (unreleased)
 
 ### Added
+<<<<<<< HEAD
 - Add dedicated port list for alive detection (Boreas only) as scanner preference if supplied via OSP. [#327](https://github.com/greenbone/ospd-openvas/pull/327)
 - Add methods for adding VTs to the redis cache. [#337](https://github.com/greenbone/ospd-openvas/pull/337)
 - Add support for supplying alive test methods via separate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
@@ -15,6 +16,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
 - Extend severities with origin and date. [#192](https://github.com/greenbone/ospd-openvas/pull/192)
+=======
+- Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
+
+### Changed
+### Deprecated
+### Removed
+
+### Fixed
+- Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
+>>>>>>> 5a6ae66... Check for scanner error messages before leaving
 
 ### Removed
 - Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
