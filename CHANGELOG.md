@@ -7,9 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.10] (unreleased)
 
 ### Added
+- Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
+
 ### Changed
 ### Removed
 ### Fixed
+<<<<<<< HEAD
+=======
+- Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
+>>>>>>> 5a6ae66... Check for scanner error messages before leaving
 
 [21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
 
