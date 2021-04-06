@@ -7,15 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.10] (unreleased)
 
 ### Added
-- Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
-
 ### Changed
 ### Removed
 ### Fixed
-<<<<<<< HEAD
-=======
-- Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
->>>>>>> 5a6ae66... Check for scanner error messages before leaving
 
 [21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
 
@@ -31,12 +25,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
 - Extend severities with origin and date. [#192](https://github.com/greenbone/ospd-openvas/pull/192)
 
+### Deprecated
+### Removed
+
+[21.4]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...ospd-openvas-21.04
+
+## [20.8]
+
+### Added
+- Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
+
+### Changed
+### Fixed
+
 ### Removed
 - Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
 - Remove py35 and py36 support. [#319](https://github.com/greenbone/ospd-openvas/pull/319)
 - Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
 
-[unreleased]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...master
+[20.8]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
 
 ## (20.8.1) - 2021-02-01
 
