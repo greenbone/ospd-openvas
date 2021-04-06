@@ -1339,15 +1339,12 @@ class OSPDopenvas(OSPDaemon):
                     host='',
                     value='Task was unexpectedly stopped or killed.',
                 )
-<<<<<<< HEAD
-                kbdb.stop_scan(scan_id)
-=======
 
                 # check for scanner error messages before leaving.
-                self.report_openvas_results(kbdb, scan_id, "")
+                self.report_openvas_results(kbdb, scan_id)
 
-                kbdb.stop_scan(openvas_scan_id)
->>>>>>> 5a6ae66... Check for scanner error messages before leaving
+                kbdb.stop_scan(scan_id)
+
                 for scan_db in kbdb.get_scan_databases():
                     self.main_db.release_database(scan_db)
                 self.main_db.release_database(kbdb)
