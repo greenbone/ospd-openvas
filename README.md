@@ -72,8 +72,7 @@ See the file [doc/INSTALL-ospd-scanner.md](doc/INSTALL-ospd-scanner.md) about ho
 the Greenbone Vulnerability Manager which will automatically establish a full
 GUI integration for the Greenbone Security Assistant (GSA).
 
-There are some online resources about this topic:
-<https://docs.greenbone.net/GSM-Manual/gos-3.1/en/osp.html#how-to-write-your-own-osp-wrapper>
+For an example implementation see [ospd-example-scanner](https://github.com/greenbone/ospd-example-scanner).
 
 ## Support
 
