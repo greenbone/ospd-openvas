@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [21.4.1] (unreleased)
+
+### Added
+### Changed
+### Fixed
+### Removed
+
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
+
 ## [21.4.0] (2021-04-16)
 
 ### Added
