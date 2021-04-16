@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.4] (unreleased)
+## [21.4.0] (2021-04-16)
 
 ### Added
 - Add dedicated port list for alive detection (Boreas only) as scanner preference if supplied via OSP. [#327](https://github.com/greenbone/ospd-openvas/pull/327)
@@ -19,9 +19,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 
-[21.4]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...ospd-openvas-21.04
+[21.4.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...v21.4.0
 
-## [20.8]
+## [20.8.2] (unreleased)
 
 ### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
@@ -35,7 +35,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove py35 and py36 support. [#319](https://github.com/greenbone/ospd-openvas/pull/319)
 - Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
 
-[20.8]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
+[20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
 
 ## (20.8.1) - 2021-02-01
 
