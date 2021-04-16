@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.4.0] (unreleased)
+## [21.4.0] (2021-04-16)
 
 ### Added
 - Add target option for supplying dedicated port list for alive detection (Boreas only) via OSP. [#323](https://github.com/greenbone/ospd/pull/323)
@@ -13,7 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
 
-[21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...master
+[21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...v21.4.0
 
 ## (20.8.2) - 2021-02-01
 
