@@ -507,3 +507,15 @@ def port_list_compress(port_list: List) -> str:
             compressed_list.append(str(group[0][1]) + '-' + str(group[-1][1]))
 
     return ','.join(compressed_list)
+
+def valid_port_list(port_list: str):
+    """ Validate a port list string.
+    Parameters:
+        port_list: string containing UDP and/or TCP 
+                   port list as ranges or single comma
+                   separated ports "
+    Return True if it is a valid port list, False otherwise.
+    """
+
+    if not port_list:
+        return False

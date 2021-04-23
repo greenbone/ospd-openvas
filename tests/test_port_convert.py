@@ -25,8 +25,18 @@ from ospd.network import (
     get_udp_port_list,
     get_tcp_port_list,
     port_list_compress,
+    valid_port_list,
 )
 
+class ValidatePortList(unittest.TestCase):
+    def test_valid_port_list_no_range(self):
+        """ Test no port list provided """
+        ret_eq_none = valid_port_list(None)
+        self.assertFalse(ret_eq_none)
+
+        ret_eq_empty = valid_port_list("")
+        self.assertFalse(ret_eq_empty)
+        
 
 class ConvertPortTestCase(unittest.TestCase):
     def test_tcp_ports(self):
