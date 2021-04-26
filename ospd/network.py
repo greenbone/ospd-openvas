@@ -370,8 +370,8 @@ def port_range_expand(portrange: str) -> Optional[List]:
     try:
         port_range_min = int(portrange[: portrange.index('-')])
         port_range_max = int(portrange[portrange.index('-') + 1 :]) + 1
-    except:
-        __LOGGER.info("Invalid port range format")
+    except (IndexError, ValueError) as e:
+        __LOGGER.info("Invalid port range format %s", e)
         return None
 
     port_list = list()
@@ -403,7 +403,6 @@ def ports_str_check_failed(port_str: str) -> bool:
     Check if the port string is well formed.
     Return True if fail, False other case.
     """
-    ret = False
     pattern = r'[^TU:0-9, \-\n]'
     if (
         re.search(pattern, port_str)

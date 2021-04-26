@@ -104,19 +104,33 @@ class ValidatePortList(unittest.TestCase):
         self.assertTrue(valid_port_list("T:1-5,7,9,\nU:1-3,5\n,7,9"))
 
     def test_valid_port_allow_white_spaces(self):
-        self.assertTrue(valid_port_list("   T: 1 -5,  7   ,9, \nU   :1-  3,5  \n,7,9"))
+        self.assertTrue(valid_port_list(
+            "   T: 1 -5,  7   ,9, \nU   :1-  3,5  \n,7,9")
+        )
 
     def test_valid_port_some_standard_port_lists(self):
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_IANA_ASSIGNED_TCP_2020_02_12"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_PRIVILEGED_TCP"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_PRIVILEGED_TCP_AND_UDP"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_TCP"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["OPENVAS_DEFAULT"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_IANA_ASSIGNED_TCP_AND_UDP_2020_02_12"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_100_UDP"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_1000_UDP"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["NMAP_5_51_TOP_2000_TCP_AND_TOP_100_UDP"]))
-        self.assertTrue(valid_port_list(PORT_LISTS["WEB_SERVICES"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["ALL_IANA_ASSIGNED_TCP_2020_02_12"])
+        )
+        self.assertTrue(
+            valid_port_list(PORT_LISTS["ALL_PRIVILEGED_TCP"])
+        )
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["ALL_PRIVILEGED_TCP_AND_UDP"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["ALL_TCP"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["OPENVAS_DEFAULT"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["ALL_IANA_ASSIGNED_TCP_AND_UDP_2020_02_12"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_100_UDP"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_1000_UDP"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["NMAP_5_51_TOP_2000_TCP_AND_TOP_100_UDP"]))
+        self.assertTrue(valid_port_list(
+            PORT_LISTS["WEB_SERVICES"]))
 
 
 class ConvertPortTestCase(unittest.TestCase):
