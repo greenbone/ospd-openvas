@@ -157,7 +157,7 @@ class VtHelper:
     def get_vt_iterator(
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
-        """ Yield the vts from the Redis NVTicache. """
+        """Yield the vts from the Redis NVTicache."""
 
         oids = None
         if not vt_selection or details:
@@ -174,7 +174,7 @@ class VtHelper:
             yield (vt_id, vt)
 
     def calculate_vts_collection_hash(self) -> str:
-        """ Calculate the vts collection sha256 hash. """
+        """Calculate the vts collection sha256 hash."""
         m = sha256()  # pylint: disable=invalid-name
 
         # for a reproducible hash calculation
