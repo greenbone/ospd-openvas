@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 ### Changed
+- Set Log Timestamp to UTC. [#412](https://github.com/greenbone/ospd-openvas/pull/412)
+
 ### Removed
 ### Fixed
 
