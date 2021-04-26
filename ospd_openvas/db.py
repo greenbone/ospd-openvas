@@ -402,7 +402,7 @@ class BaseDB:
         self.index = kbindex
 
     def flush(self):
-        """ Flush the database """
+        """Flush the database"""
         self.ctx.flushdb()
 
 
@@ -470,7 +470,7 @@ class BaseKbDB(BaseDB):
         return self._pop_list_items("internal/results")
 
     def get_status(self, openvas_scan_id: str) -> Optional[str]:
-        """ Return the status of the host scan """
+        """Return the status of the host scan"""
         return self._get_single_item('internal/{}'.format(openvas_scan_id))
 
     def __repr__(self):
@@ -478,7 +478,7 @@ class BaseKbDB(BaseDB):
 
 
 class ScanDB(BaseKbDB):
-    """ Database for a scanning a single host """
+    """Database for a scanning a single host"""
 
     def select(self, kbindex: int) -> "ScanDB":
         """Select a redis kb.
@@ -538,7 +538,7 @@ class KbDB(BaseKbDB):
         self._remove_list_item('internal/dbindex', scan_db.index)
 
     def target_is_finished(self, scan_id: str) -> bool:
-        """ Check if a target has finished. """
+        """Check if a target has finished."""
 
         status = self._get_single_item('internal/{}'.format(scan_id))
 
@@ -563,7 +563,7 @@ class KbDB(BaseKbDB):
 
 
 class MainDB(BaseDB):
-    """ Main Database """
+    """Main Database"""
 
     DEFAULT_INDEX = 0
 
