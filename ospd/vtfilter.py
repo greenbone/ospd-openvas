@@ -27,10 +27,10 @@ from .vts import Vts
 
 
 class VtsFilter:
-    """ Helper class to filter Vulnerability Tests """
+    """Helper class to filter Vulnerability Tests"""
 
     def __init__(self) -> None:
-        """ Initialize filter operator and allowed filters. """
+        """Initialize filter operator and allowed filters."""
         self.filter_operator = {
             '<': operator.lt,
             '>': operator.gt,

@@ -96,7 +96,7 @@ InetAddress = Tuple[str, int]
 
 
 def validate_cacert_file(cacert: str):
-    """ Check if provided file is a valid CA Certificate """
+    """Check if provided file is a valid CA Certificate"""
     try:
         context = ssl.create_default_context(cafile=cacert)
     except AttributeError:
@@ -122,7 +122,7 @@ def validate_cacert_file(cacert: str):
 
 
 class RequestHandler(socketserver.BaseRequestHandler):
-    """ Class to handle the request."""
+    """Class to handle the request."""
 
     def handle(self):
         self.server.handle_request(self.request, self.client_address)
@@ -145,13 +145,13 @@ class BaseServer(ABC):
         """
 
     def close(self):
-        """ Shutdown the server"""
+        """Shutdown the server"""
         self.server.shutdown()
         self.server.server_close()
 
     @abstractmethod
     def handle_request(self, request, client_address):
-        """ Handle an incoming client request"""
+        """Handle an incoming client request"""
 
     def _start_threading_server(self):
         server_thread = threading.Thread(target=self.server.serve_forever)
