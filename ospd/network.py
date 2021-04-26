@@ -542,7 +542,7 @@ def port_list_compress(port_list: List) -> str:
 
     return ','.join(compressed_list)
 
-def valid_port_list(port_list: str):
+def valid_port_list(port_list: str) -> bool:
     """ Validate a port list string.
     Parameters:
         port_list: string containing UDP and/or TCP 
@@ -556,8 +556,8 @@ def valid_port_list(port_list: str):
         return False
 
     #Remove white spaces
-
     port_list = port_list.replace(' ', '')
+
     # Special case is ignored.
     if port_list == 'U:,T:':
         return True
