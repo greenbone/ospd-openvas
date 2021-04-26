@@ -52,7 +52,7 @@ BOREAS_SETTING_NAME = "test_alive_hosts_only"
 
 
 class AliveTest(IntEnum):
-    """ Alive Tests. """
+    """Alive Tests."""
 
     ALIVE_TEST_SCAN_CONFIG_DEFAULT = 0
     ALIVE_TEST_TCP_ACK_SERVICE = 1
@@ -114,7 +114,7 @@ class PreferenceHandler:
 
     @property
     def target_options(self) -> Dict:
-        """ Return target options from Scan collection """
+        """Return target options from Scan collection"""
         if self._target_options is not None:
             return self._target_options
 
@@ -156,7 +156,7 @@ class PreferenceHandler:
         return vts_list
 
     def _get_vt_param_type(self, vt: Dict, vt_param_id: str) -> Optional[str]:
-        """ Return the type of the vt parameter from the vts dictionary. """
+        """Return the type of the vt parameter from the vts dictionary."""
 
         vt_params_list = vt.get("vt_params")
         if vt_params_list.get(vt_param_id):
@@ -164,7 +164,7 @@ class PreferenceHandler:
         return None
 
     def _get_vt_param_name(self, vt: Dict, vt_param_id: str) -> Optional[str]:
-        """ Return the type of the vt parameter from the vts dictionary. """
+        """Return the type of the vt parameter from the vts dictionary."""
 
         vt_params_list = vt.get("vt_params")
         if vt_params_list.get(vt_param_id):
@@ -210,7 +210,7 @@ class PreferenceHandler:
         self,
         vts: Dict[str, Dict[str, str]],
     ) -> Tuple[List[str], Dict[str, str]]:
-        """ Add single VTs and their parameters. """
+        """Add single VTs and their parameters."""
         vts_list = []
         vts_params = {}
         vtgroups = vts.pop('vt_groups')
@@ -418,7 +418,7 @@ class PreferenceHandler:
         return target_opt_prefs_list
 
     def prepare_alive_test_option_for_openvas(self):
-        """ Set alive test option. Overwrite the scan config settings."""
+        """Set alive test option. Overwrite the scan config settings."""
         settings = Openvas.get_settings()
         if settings and (
             self.target_options.get('alive_test')
@@ -499,7 +499,7 @@ class PreferenceHandler:
             self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
     def prepare_reverse_lookup_opt_for_openvas(self):
-        """ Set reverse lookup options in the kb"""
+        """Set reverse lookup options in the kb"""
         if self.target_options:
             items = []
             _rev_lookup_only = int(
