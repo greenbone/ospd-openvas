@@ -1258,7 +1258,7 @@ class OSPDopenvas(OSPDaemon):
 
         if not scan_prefs.prepare_ports_for_openvas():
             self.add_scan_error(
-                scan_id, name='', host='', value='No port list defined.'
+                scan_id, name='', host='', value='Invalid port list.'
             )
             do_not_launch = True
 

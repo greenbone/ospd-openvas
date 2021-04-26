@@ -32,6 +32,7 @@ from base64 import b64decode
 
 from ospd.scan import ScanCollection
 from ospd.ospd import BASE_SCANNER_PARAMS
+from ospd.network import valid_port_list
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.db import KbDB
 from ospd_openvas.nvticache import NVTICache
@@ -528,6 +529,9 @@ class PreferenceHandler:
         """Get the port list from the scan collection and store the list
         in the kb."""
         ports = self.scan_collection.get_ports(self.scan_id)
+        if not valid_port_list(ports):
+            return False
+
         port_range = 'port_range|||%s' % ports
         self.kbdb.add_scan_preferences(self.scan_id, [port_range])
 
