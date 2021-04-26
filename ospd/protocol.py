@@ -285,7 +285,7 @@ class OspRequest:
 class OspResponse:
     @staticmethod
     def create_scanner_params_xml(scanner_params: Dict[str, Any]) -> Element:
-        """ Returns the OSP Daemon's scanner params in xml format. """
+        """Returns the OSP Daemon's scanner params in xml format."""
         scanner_params_xml = Element('scanner_params')
 
         for param_id, param in scanner_params.items():

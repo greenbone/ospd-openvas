@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 class TimerError(OspdError):
-    """ Timer errors """
+    """Timer errors"""
 
 
 class Timer:

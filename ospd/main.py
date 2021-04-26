@@ -43,7 +43,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 def print_version(daemon: OSPDaemon, file=sys.stdout):
-    """ Prints the server version and license information."""
+    """Prints the server version and license information."""
 
     scanner_name = daemon.get_scanner_name()
     server_version = daemon.get_server_version()
@@ -68,7 +68,7 @@ def exit_cleanup(
     _signum=None,
     _frame=None,
 ) -> None:
-    """ Removes the pidfile before ending the daemon. """
+    """Removes the pidfile before ending the daemon."""
     signal.signal(signal.SIGINT, signal.SIG_IGN)
     pidpath = Path(pidfile)
 
@@ -91,7 +91,7 @@ def main(
     daemon_class: Type[OSPDaemon],
     parser: Optional[ParserType] = None,
 ):
-    """ OSPD Main function. """
+    """OSPD Main function."""
 
     if not parser:
         parser = create_parser(name)
