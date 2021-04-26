@@ -367,11 +367,18 @@ def port_range_expand(portrange: str) -> Optional[List]:
         __LOGGER.info("Invalid port range format")
         return None
 
+    try:
+        port_range_min = int(portrange[: portrange.index('-')])
+        port_range_max = int(portrange[portrange.index('-') + 1 :]) + 1
+    except:
+        __LOGGER.info("Invalid port range format")
+        return None
+
     port_list = list()
 
     for single_port in range(
-        int(portrange[: portrange.index('-')]),
-        int(portrange[portrange.index('-') + 1 :]) + 1,
+            port_range_min,
+            port_range_max,
     ):
         port_list.append(single_port)
 
@@ -396,15 +403,31 @@ def ports_str_check_failed(port_str: str) -> bool:
     Check if the port string is well formed.
     Return True if fail, False other case.
     """
-
-    pattern = r'[^TU:0-9, \-]'
+    ret = False
+    pattern = r'[^TU:0-9, \-\n]'
     if (
         re.search(pattern, port_str)
         or port_str.count('T') > 1
         or port_str.count('U') > 1
+        or '-\n' in port_str
+        or '\n-' in port_str
+        or port_str[0] == '-'
+        or port_str[len(port_str) - 1] == '-'
         or port_str.count(':') < (port_str.count('T') + port_str.count('U'))
     ):
+        __LOGGER.error("Invalid port range format")
         return True
+
+    index = 0
+    while index <= len(port_str) - 1:
+        if port_str[index] == '-':
+            try:
+                int(port_str[index - 1])
+                int(port_str[index + 1])
+            except (TypeError, ValueError) as e:
+                __LOGGER.error("Invalid port range format: %s", e)
+                return True
+        index+=1
 
     return False
 
@@ -430,18 +453,23 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
     udp_list = list()
 
     ports = port_str.replace(' ', '')
-
+    ports = ports.replace('\n', '')
+    
     b_tcp = ports.find("T")
     b_udp = ports.find("U")
 
-    if ports[b_tcp - 1] == ',':
+    if b_tcp != -1 and "T:" not in ports:
+        return [None, None]
+    if b_udp != -1 and "U:" not in ports:
+        return [None, None]
+
+    if len(ports) > 1 and ports[b_tcp - 1] == ',':
         ports = ports[: b_tcp - 1] + ports[b_tcp:]
-
-    if ports[b_udp - 1] == ',':
+    if len(ports) > 1 and ports[b_udp - 1] == ',':
         ports = ports[: b_udp - 1] + ports[b_udp:]
-
+    
     ports = port_str_arrange(ports)
-
+    
     tports = ''
     uports = ''
     # TCP ports listed first, then UDP ports
@@ -459,20 +487,26 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
 
     if tports:
         for port in tports.split(','):
-            if '-' in port:
-                tcp_list.extend(port_range_expand(port))
-            else:
+            port_range_expanded = port_range_expand(port)
+            if '-' in port and port_range_expanded:
+                tcp_list.extend(port_range_expanded)
+            elif port != '' and '-' not in port:
                 tcp_list.append(int(port))
+            
         tcp_list.sort()
 
     if uports:
         for port in uports.split(','):
-            if '-' in port:
-                udp_list.extend(port_range_expand(port))
-            else:
+            port_range_expanded = port_range_expand(port)
+            if '-' in port and port_range_expanded:
+                udp_list.extend(port_range_expanded)
+            elif port and '-' not in port:
                 udp_list.append(int(port))
         udp_list.sort()
 
+    if (len(tcp_list) == 0 and len(udp_list) == 0):
+        return [None, None]
+        
     return (tcp_list, udp_list)
 
 
@@ -517,5 +551,33 @@ def valid_port_list(port_list: str):
     Return True if it is a valid port list, False otherwise.
     """
 
+    # No port list provided
     if not port_list:
         return False
+
+    #Remove white spaces
+
+    port_list = port_list.replace(' ', '')
+    # Special case is ignored.
+    if port_list == 'U:,T:':
+        return True
+    
+    # Invalid chars in the port list, like \0 or \n
+    if ports_str_check_failed(port_list):
+        return False    
+    
+    tcp, udp = ports_as_list(port_list)
+    # There is a port list but no tcp and no udp.
+    if not tcp and not udp:
+        return False
+    
+    if tcp:
+        for port in tcp:
+            if port < 1 or port > 65535:
+                return False
+    if udp:
+        for port in udp:
+            if port < 1 or port > 65535:
+                return False
+    
+    return True

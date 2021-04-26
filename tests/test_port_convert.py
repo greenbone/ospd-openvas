@@ -31,13 +31,64 @@ from ospd.network import (
 class ValidatePortList(unittest.TestCase):
     def test_valid_port_list_no_range(self):
         """ Test no port list provided """
-        ret_eq_none = valid_port_list(None)
-        self.assertFalse(ret_eq_none)
+        self.assertFalse(valid_port_list(None))
+        self.assertFalse(valid_port_list(""))
 
-        ret_eq_empty = valid_port_list("")
-        self.assertFalse(ret_eq_empty)
-        
+    def test_valid_port_list_0_end(self):
+        self.assertFalse(valid_port_list("\0"))
+        self.assertFalse(valid_port_list("T:1-5,7,9,U:1-3,5,7,9,\\0"))
 
+    def test_valid_port_list_newline_between_range(self):
+        self.assertFalse(valid_port_list("\nT:1-\n5,7,9,\nU:1-3,5\n,7,9\n"))
+
+    def test_valid_port_out_of_range(self):
+        self.assertFalse(valid_port_list("0"))
+        self.assertFalse(valid_port_list("-9"))
+        self.assertFalse(valid_port_list("1,0,6,7"))
+        self.assertFalse(valid_port_list("2,-9,4"))
+        self.assertFalse(valid_port_list("90000"))
+
+    def test_valid_port_illegal_ranges(self):
+        self.assertFalse(valid_port_list ("T:-"))
+        self.assertFalse(valid_port_list ("T:-9"))
+        self.assertFalse(valid_port_list ("T:0-"))
+        self.assertFalse(valid_port_list ("T:0-9"))
+        self.assertFalse(valid_port_list ("T:90000-"))
+        self.assertFalse(valid_port_list ("T:90000-90010"))
+        self.assertFalse(valid_port_list ("T:9-\\0"))
+        self.assertFalse(valid_port_list ("T:9-0"))
+        self.assertFalse(valid_port_list ("T:9-90000"))
+        self.assertFalse(valid_port_list ("T:100-9"))
+        self.assertFalse(valid_port_list ("0-"))
+        self.assertFalse(valid_port_list ("0-9"))
+        self.assertFalse(valid_port_list ("9-"))
+        self.assertFalse(valid_port_list ("9-\\0"))
+        self.assertFalse(valid_port_list ("9-8"))
+        self.assertFalse(valid_port_list ("90000-90010"))
+        self.assertFalse(valid_port_list ("100-9"))
+        self.assertFalse(valid_port_list ("T,U"))
+        self.assertFalse(valid_port_list ("T  :\n: 1-2,U"))
+        self.assertFalse(valid_port_list ("T  :: 1-2,U"))
+        self.assertFalse(valid_port_list ("T:2=2"))
+        self.assertFalse(valid_port_list ("T:1.2-5,4.5"))
+
+    def test_valid_port_legal_ports(self):
+        self.assertTrue(valid_port_list("6,6,6,6,10,20"))
+        self.assertTrue(valid_port_list("T:7, U:7"))
+        self.assertTrue(valid_port_list("T:7, U:9"))
+        self.assertTrue(valid_port_list("9"))
+        self.assertTrue(valid_port_list("U:,T:"))
+        self.assertTrue(valid_port_list("1,2,,,,,,,\n\n\n\n\n\n,,,5"))
+        self.assertTrue(valid_port_list("T:1-5,7,9,U:1-3,5,7,9"))
+        self.assertTrue(valid_port_list("6-9,7,7,10-20,20"))
+
+    def test_valid_port_new_lines_as_commas(self):
+        self.assertTrue(valid_port_list("1,2,\n,\n4,6"))
+        self.assertTrue(valid_port_list("T:1-5,7,9,\nU:1-3,5\n,7,9"))
+
+    def test_valid_port_allow_white_spaces(self):
+        self.assertTrue(valid_port_list("   T: 1 -5,  7   ,9, \nU   :1-  3,5  \n,7,9"))
+    
 class ConvertPortTestCase(unittest.TestCase):
     def test_tcp_ports(self):
         """ Test only tcp ports."""
