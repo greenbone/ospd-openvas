@@ -50,13 +50,12 @@ packaging = "^20.4"
 ospd = {git = "https://github.com/greenbone/ospd.git", branch = "master"}
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.7.4"
+pylint = "^2.8.1"
 rope = "^0.19.0"
 autohooks-plugin-pylint = "^1.2.0"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.7"}
-black = {version = "20.8b1", python = "^3.7"}
 pontos = "^21.4.0"
-
+black = {version = "21.4b0", python = "^3.7"}
 
 [tool.poetry.scripts]
 ospd-openvas = "ospd_openvas.daemon:main"
