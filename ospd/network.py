@@ -377,8 +377,8 @@ def port_range_expand(portrange: str) -> Optional[List]:
     port_list = list()
 
     for single_port in range(
-            port_range_min,
-            port_range_max,
+        port_range_min,
+        port_range_max,
     ):
         port_list.append(single_port)
 
@@ -427,7 +427,7 @@ def ports_str_check_failed(port_str: str) -> bool:
             except (TypeError, ValueError) as e:
                 __LOGGER.error("Invalid port range format: %s", e)
                 return True
-        index+=1
+        index += 1
 
     return False
 
@@ -454,7 +454,7 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
 
     ports = port_str.replace(' ', '')
     ports = ports.replace('\n', '')
-    
+
     b_tcp = ports.find("T")
     b_udp = ports.find("U")
 
@@ -467,9 +467,9 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
         ports = ports[: b_tcp - 1] + ports[b_tcp:]
     if len(ports) > 1 and ports[b_udp - 1] == ',':
         ports = ports[: b_udp - 1] + ports[b_udp:]
-    
+
     ports = port_str_arrange(ports)
-    
+
     tports = ''
     uports = ''
     # TCP ports listed first, then UDP ports
@@ -492,7 +492,7 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
                 tcp_list.extend(port_range_expanded)
             elif port != '' and '-' not in port:
                 tcp_list.append(int(port))
-            
+
         tcp_list.sort()
 
     if uports:
@@ -504,9 +504,9 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
                 udp_list.append(int(port))
         udp_list.sort()
 
-    if (len(tcp_list) == 0 and len(udp_list) == 0):
+    if len(tcp_list) == 0 and len(udp_list) == 0:
         return [None, None]
-        
+
     return (tcp_list, udp_list)
 
 
@@ -542,10 +542,11 @@ def port_list_compress(port_list: List) -> str:
 
     return ','.join(compressed_list)
 
+
 def valid_port_list(port_list: str) -> bool:
-    """ Validate a port list string.
+    """Validate a port list string.
     Parameters:
-        port_list: string containing UDP and/or TCP 
+        port_list: string containing UDP and/or TCP
                    port list as ranges or single comma
                    separated ports "
     Return True if it is a valid port list, False otherwise.
@@ -555,22 +556,22 @@ def valid_port_list(port_list: str) -> bool:
     if not port_list:
         return False
 
-    #Remove white spaces
+    # Remove white spaces
     port_list = port_list.replace(' ', '')
 
     # Special case is ignored.
     if port_list == 'U:,T:':
         return True
-    
+
     # Invalid chars in the port list, like \0 or \n
     if ports_str_check_failed(port_list):
-        return False    
-    
+        return False
+
     tcp, udp = ports_as_list(port_list)
     # There is a port list but no tcp and no udp.
     if not tcp and not udp:
         return False
-    
+
     if tcp:
         for port in tcp:
             if port < 1 or port > 65535:
@@ -579,5 +580,5 @@ def valid_port_list(port_list: str) -> bool:
         for port in udp:
             if port < 1 or port > 65535:
                 return False
-    
+
     return True
