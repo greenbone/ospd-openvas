@@ -7,6 +7,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.10] (unreleased)
 
 ### Added
+- Validate port list to be sent to openvas. [#411](https://github.com/greenbone/ospd-openvas/pull/411)
+
 ### Changed
 ### Removed
 ### Fixed

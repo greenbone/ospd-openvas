@@ -281,6 +281,17 @@ class PreferenceHandlerTestCase(TestCase):
         )
 
     @patch('ospd_openvas.db.KbDB')
+    def test_set_ports_invalid(self, mock_kb):
+        w = DummyDaemon()
+
+        w.scan_collection.get_ports = MagicMock(return_value='2,-9,4')
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        self.assertFalse(p.prepare_ports_for_openvas())
+
+    @patch('ospd_openvas.db.KbDB')
     def test_set_main_kbindex(self, mock_kb):
         w = DummyDaemon()
 
