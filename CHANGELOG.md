@@ -10,10 +10,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Validate port list to be sent to openvas. [#411](https://github.com/greenbone/ospd-openvas/pull/411)
 
 ### Changed
+<<<<<<< HEAD
+=======
+### Fixed
+
+>>>>>>> d1f17ce... Add changelog entry
 ### Removed
 ### Fixed
 
+<<<<<<< HEAD
 [21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
+=======
+- Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
+
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
+>>>>>>> d1f17ce... Add changelog entry
 
 ## [21.4] (unreleased)
 
