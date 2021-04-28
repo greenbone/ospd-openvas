@@ -18,6 +18,7 @@
 import logging
 import os
 import configparser
+import time
 
 from logging.config import fileConfig
 from pathlib import Path
@@ -96,4 +97,5 @@ def init_logging(
         config['logger_root'] = DEFAULT_ROOT_LOGGER
 
     fileConfig(config, disable_existing_loggers=False)
+    logging.Formatter.converter = time.gmtime
     logging.getLogger()
