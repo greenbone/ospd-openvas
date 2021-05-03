@@ -364,7 +364,6 @@ def port_range_expand(portrange: str) -> Optional[List]:
     e.g. [4, 5, 6, 7, 8]
     """
     if not portrange or '-' not in portrange:
-        __LOGGER.info("Invalid port range format")
         return None
 
     try:
