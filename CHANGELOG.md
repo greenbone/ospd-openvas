@@ -7,7 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [21.10.0] (unreleased)
 
 ### Added
-- Add method to validate port lists. [#393](https://github.com/greenbone/ospd/pull/393)
+- Add method to validate port lists. 
+  [#393](https://github.com/greenbone/ospd/pull/393)
+  [#395](https://github.com/greenbone/ospd/pull/395)
 
 ### Changed
 - Set Log Timestamp to UTC. [#394](https://github.com/greenbone/ospd-openvas/pull/394)
