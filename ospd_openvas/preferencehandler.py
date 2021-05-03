@@ -409,12 +409,6 @@ class PreferenceHandler:
                 + 'Mark unrechable Hosts as dead (not scanning)'
             ] = value
 
-            # Also select a method, otherwise Ping Host logs a warning.
-            if alive_test == AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
-                target_opt_prefs_list[
-                    OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping'
-                ] = 'yes'
-
         return target_opt_prefs_list
 
     def prepare_alive_test_option_for_openvas(self):
