@@ -15,7 +15,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
 
-## [21.4] (unreleased)
+## [21.4.1] (unreleased)
+
+### Added
+### Changed
+### Fixed
+
+### Removed
+
+- Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
+
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
+
+## [21.4.0] (2021-04-16)
 
 ### Added
 - Add dedicated port list for alive detection (Boreas only) as scanner preference if supplied via OSP. [#327](https://github.com/greenbone/ospd-openvas/pull/327)
@@ -47,7 +59,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [20.8]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
 
-## (20.8.1) - 2021-02-01
+## [20.8.1] (2021-02-01)
 
 ### Added
 - Add debug level log messages. [#373](https://github.com/greenbone/ospd-openvas/pull/373)
