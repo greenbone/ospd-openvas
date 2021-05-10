@@ -11,6 +11,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 ### Removed
+
+- Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
+
 ### Fixed
 
 [21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
