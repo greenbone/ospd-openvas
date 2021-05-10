@@ -260,41 +260,6 @@ OSPD_PARAMS_OUT = {
             + 'significantly.'
         ),
     },
-    'source_iface': {
-        'type': 'string',
-        'name': 'source_iface',
-        'default': '',
-        'mandatory': 0,
-        'visible_for_client': False,
-        'description': (
-            'Name of the network interface that will be used as the source '
-            + 'of connections established by openvas. The scan won\'t be '
-            + 'launched if the value isn\'t authorized according to '
-            + '(sys_)ifaces_allow / (sys_)ifaces_deny if present.'
-        ),
-    },
-    'ifaces_allow': {
-        'type': 'string',
-        'name': 'ifaces_allow',
-        'default': '',
-        'mandatory': 0,
-        'visible_for_client': False,
-        'description': (
-            'Comma-separated list of interfaces names that are authorized '
-            + 'as source_iface values.'
-        ),
-    },
-    'ifaces_deny': {
-        'type': 'string',
-        'name': 'ifaces_deny',
-        'default': '',
-        'mandatory': 0,
-        'visible_for_client': False,
-        'description': (
-            'Comma-separated list of interfaces names that are not '
-            + 'authorized as source_iface values.'
-        ),
-    },
     'hosts_allow': {
         'type': 'string',
         'name': 'hosts_allow',
