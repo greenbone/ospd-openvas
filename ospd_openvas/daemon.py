@@ -1266,7 +1266,7 @@ class OSPDopenvas(OSPDaemon):
         if not scan_prefs.prepare_credentials_for_openvas():
             error = (
                 'All authentifications contain errors.'
-                + 'Scan will get interrupted.'
+                + 'Starting unauthenticated scan instead.'
             )
             self.add_scan_error(
                 scan_id,
@@ -1275,8 +1275,8 @@ class OSPDopenvas(OSPDaemon):
                 value=error,
             )
             logger.error(error)
-            do_not_launch = True
-        for e in scan_prefs.errors:
+        errors = scan_prefs.get_error_messages()
+        for e in errors:
             error = 'Malformed credential. ' + e
             self.add_scan_error(
                 scan_id,

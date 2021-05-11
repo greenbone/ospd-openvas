@@ -364,9 +364,10 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
-        self.assertIn("Unknown service type for credential: shh", p.errors)
+        self.assertIn("Unknown service type for credential: shh", e)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_bad_ssh_port_credentials(self, mock_kb):
@@ -387,9 +388,10 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
-        self.assertIn("Port for SSH 'ab' is not a valid number.", p.errors)
+        self.assertIn("Port for SSH 'ab' is not a valid number.", e)
 
     @patch('ospd_openvas.db.KbDB')
     def test_missing_ssh_port_credentials(self, mock_kb):
@@ -410,8 +412,7 @@ class PreferenceHandlerTestCase(TestCase):
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
 
-        self.assertFalse(r)
-        self.assertIn("Port for SSH is missing.", p.errors)
+        self.assertTrue(r)
 
     @patch('ospd_openvas.db.KbDB')
     def test_ssh_port_out_of_range_credentials(self, mock_kb):
@@ -432,9 +433,10 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
-        self.assertIn("Port for SSH is out of range (0-65535): 65536", p.errors)
+        self.assertIn("Port for SSH is out of range (1-65535): 65536", e)
 
     @patch('ospd_openvas.db.KbDB')
     def test_bad_type_for_ssh_credentials(self, mock_kb):
@@ -455,6 +457,7 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
         self.assertIn(
@@ -462,7 +465,7 @@ class PreferenceHandlerTestCase(TestCase):
             + "ups"
             + ". Use 'up' for Username + Password"
             + " or 'usk' for Username + SSH Key.",
-            p.errors,
+            e,
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -483,13 +486,14 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
         self.assertIn(
             "Missing Credential Type for SSH."
             + " Use 'up' for Username + Password"
             + " or 'usk' for Username + SSH Key.",
-            p.errors,
+            e,
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -513,12 +517,13 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
         self.assertIn(
             "When no privacy algorithm is used, the privacy"
             + " password also has to be empty.",
-            p.errors,
+            e,
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -543,13 +548,14 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
         self.assertIn(
             "Unknows privacy algorithm used: "
             + "das"
             + ". Use 'aes', 'des' or '' (none).",
-            p.errors,
+            e,
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -571,12 +577,13 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
         self.assertIn(
             "Missing authentification algorithm for SNMP."
             + " Use 'md5' or 'sha1'.",
-            p.errors,
+            e,
         )
 
     @patch('ospd_openvas.db.KbDB')
@@ -599,13 +606,14 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
         self.assertIn(
             "Unknown authentification algorithm: "
             + "sha2"
             + ". Use 'md5' or 'sha1'.",
-            p.errors,
+            e,
         )
 
     @patch('ospd_openvas.db.KbDB')

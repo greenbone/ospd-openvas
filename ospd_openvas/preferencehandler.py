@@ -115,6 +115,12 @@ class PreferenceHandler:
         """
         self.kbdb.add_scan_id(self.scan_id)
 
+    def get_error_messages(self) -> List:
+        """Returns the Error List and reset it"""
+        ret = self.errors
+        self.errors = []
+        return ret
+
     @property
     def target_options(self) -> Dict:
         """Return target options from Scan collection"""
@@ -599,18 +605,22 @@ class PreferenceHandler:
             # Check service ssh
             if service == 'ssh':
                 # For ssh check the Port
-                port = cred_params.get('port', '')
+                port = cred_params.get('port', '22')
                 if not port:
-                    self.errors.append("Port for SSH is missing.")
-                    continue
+                    port = '22'
+                    warning = (
+                        "Missing port number for ssh credentials."
+                        + " Using default port 22."
+                    )
+                    logger.warning(warning)
                 elif not port.isnumeric():
                     self.errors.append(
                         "Port for SSH '" + port + "' is not a valid number."
                     )
                     continue
-                elif int(port) > 65535:
+                elif int(port) > 65535 or int(port) < 1:
                     self.errors.append(
-                        "Port for SSH is out of range (0-65535): " + port
+                        "Port for SSH is out of range (1-65535): " + port
                     )
                     continue
                 # For ssh check the credential type
