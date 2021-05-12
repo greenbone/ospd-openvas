@@ -140,7 +140,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         ret = p.build_credentials_as_prefs(cred_dict)
 
-        self.assertEqual(ret, cred_out)
+        self.assertCountEqual(ret, cred_out)
 
     def test_build_credentials(self):
         w = DummyDaemon()
@@ -163,14 +163,15 @@ class PreferenceHandlerTestCase(TestCase):
         ]
         cred_dict = {
             'ssh': {
-                'type': 'ssh',
+                'type': 'usk',
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
+                'private': 'some key',
             },
-            'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
+            'smb': {'type': 'up', 'username': 'username', 'password': 'pass'},
             'esxi': {
-                'type': 'esxi',
+                'type': 'up',
                 'username': 'username',
                 'password': 'pass',
             },
@@ -179,9 +180,9 @@ class PreferenceHandlerTestCase(TestCase):
                 'username': 'username',
                 'password': 'pass',
                 'community': 'some comunity',
-                'auth_algorithm': 'some auth algo',
+                'auth_algorithm': 'md5',
                 'privacy_password': 'privacy pass',
-                'privacy_algorithm': 'privacy algo',
+                'privacy_algorithm': 'aes',
             },
         }
 
@@ -311,14 +312,14 @@ class PreferenceHandlerTestCase(TestCase):
 
         creds = {
             'ssh': {
-                'type': 'ssh',
+                'type': 'up',
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
             },
-            'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
+            'smb': {'type': 'up', 'username': 'username', 'password': 'pass'},
             'esxi': {
-                'type': 'esxi',
+                'type': 'up',
                 'username': 'username',
                 'password': 'pass',
             },
@@ -327,9 +328,80 @@ class PreferenceHandlerTestCase(TestCase):
                 'username': 'username',
                 'password': 'pass',
                 'community': 'some comunity',
-                'auth_algorithm': 'some auth algo',
+                'auth_algorithm': 'md5',
                 'privacy_password': 'privacy pass',
-                'privacy_algorithm': 'privacy algo',
+                'privacy_algorithm': 'aes',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_credentials_to_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+
+        self.assertTrue(r)
+        assert_called_once(p.kbdb.add_credentials_to_scan_preferences)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_bad_service_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        # bad cred type shh instead of ssh
+        creds = {
+            'shh': {
+                'type': 'up',
+                'port': '22',
+                'username': 'username',
+                'password': 'pass',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn("Unknown service type for credential: shh", e)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_set_bad_ssh_port_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'ssh': {
+                'type': 'up',
+                'port': 'ab',
+                'username': 'username',
+                'password': 'pass',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn("Port for SSH 'ab' is not a valid number.", e)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_missing_ssh_port_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'ssh': {
+                'type': 'up',
+                'username': 'username',
+                'password': 'pass',
             },
         }
 
@@ -341,16 +413,38 @@ class PreferenceHandlerTestCase(TestCase):
         r = p.prepare_credentials_for_openvas()
 
         self.assertTrue(r)
-        assert_called_once(p.kbdb.add_scan_preferences)
 
     @patch('ospd_openvas.db.KbDB')
-    def test_set_credentials(self, mock_kb):
+    def test_ssh_port_out_of_range_credentials(self, mock_kb):
         w = DummyDaemon()
 
-        # bad cred type shh instead of ssh
         creds = {
-            'shh': {
-                'type': 'ssh',
+            'ssh': {
+                'type': 'up',
+                'port': '65536',
+                'username': 'username',
+                'password': 'pass',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn("Port for SSH is out of range (1-65535): 65536", e)
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_bad_type_for_ssh_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'ssh': {
+                'type': 'ups',
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
@@ -363,8 +457,164 @@ class PreferenceHandlerTestCase(TestCase):
         p.scan_id = '456-789'
         p.kbdb.add_scan_preferences = MagicMock()
         r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
 
         self.assertFalse(r)
+        self.assertIn(
+            "Unknown Credential Type for SSH: "
+            + "ups"
+            + ". Use 'up' for Username + Password"
+            + " or 'usk' for Username + SSH Key.",
+            e,
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_missing_type_for_ssh_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'ssh': {
+                'port': '22',
+                'username': 'username',
+                'password': 'pass',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn(
+            "Missing Credential Type for SSH."
+            + " Use 'up' for Username + Password"
+            + " or 'usk' for Username + SSH Key.",
+            e,
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_snmp_no_priv_alg_but_pw_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'snmp': {
+                'type': 'snmp',
+                'username': 'username',
+                'password': 'pass',
+                'community': 'some comunity',
+                'auth_algorithm': 'sha1',
+                'privacy_password': 'privacy pass',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn(
+            "When no privacy algorithm is used, the privacy"
+            + " password also has to be empty.",
+            e,
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_snmp_unknown_priv_alg_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'snmp': {
+                'type': 'snmp',
+                'username': 'username',
+                'password': 'pass',
+                'community': 'some comunity',
+                'auth_algorithm': 'sha1',
+                'privacy_password': 'privacy pass',
+                'privacy_algorithm': 'das',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn(
+            "Unknows privacy algorithm used: "
+            + "das"
+            + ". Use 'aes', 'des' or '' (none).",
+            e,
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_snmp_missing_auth_alg_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'snmp': {
+                'type': 'snmp',
+                'username': 'username',
+                'password': 'pass',
+                'community': 'some comunity',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn(
+            "Missing authentification algorithm for SNMP."
+            + " Use 'md5' or 'sha1'.",
+            e,
+        )
+
+    @patch('ospd_openvas.db.KbDB')
+    def test_snmp_unknown_auth_alg_credentials(self, mock_kb):
+        w = DummyDaemon()
+
+        creds = {
+            'snmp': {
+                'type': 'snmp',
+                'username': 'username',
+                'password': 'pass',
+                'community': 'some comunity',
+                'auth_algorithm': 'sha2',
+            },
+        }
+
+        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+
+        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
+        p.scan_id = '456-789'
+        p.kbdb.add_scan_preferences = MagicMock()
+        r = p.prepare_credentials_for_openvas()
+        e = p.get_error_messages()
+
+        self.assertFalse(r)
+        self.assertIn(
+            "Unknown authentification algorithm: "
+            + "sha2"
+            + ". Use 'md5' or 'sha1'.",
+            e,
+        )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_credentials_empty(self, mock_kb):

@@ -107,11 +107,19 @@ class PreferenceHandler:
 
         self.nvti = nvticache
 
+        self.errors = []
+
     def prepare_scan_id_for_openvas(self):
         """Create the openvas scan id and store it in the redis kb.
         Return the openvas scan_id.
         """
         self.kbdb.add_scan_id(self.scan_id)
+
+    def get_error_messages(self) -> List:
+        """Returns the Error List and reset it"""
+        ret = self.errors
+        self.errors = []
+        return ret
 
     @property
     def target_options(self) -> Dict:
@@ -571,8 +579,7 @@ class PreferenceHandler:
         if prefs_val:
             self.kbdb.add_scan_preferences(self.scan_id, prefs_val)
 
-    @staticmethod
-    def build_credentials_as_prefs(credentials: Dict) -> List[str]:
+    def build_credentials_as_prefs(self, credentials: Dict) -> List[str]:
         """Parse the credential dictionary.
         Arguments:
             credentials: Dictionary with the credentials.
@@ -589,15 +596,28 @@ class PreferenceHandler:
             username = cred_params.get('username', '')
             password = cred_params.get('password', '')
 
+            # Check service ssh
             if service == 'ssh':
-                port = cred_params.get('port', '')
-                cred_prefs_list.append('auth_port_ssh|||' + '{0}'.format(port))
-                cred_prefs_list.append(
-                    OID_SSH_AUTH
-                    + ':1:'
-                    + 'entry:SSH login '
-                    + 'name:|||{0}'.format(username)
-                )
+                # For ssh check the Port
+                port = cred_params.get('port', '22')
+                if not port:
+                    port = '22'
+                    warning = (
+                        "Missing port number for ssh credentials."
+                        + " Using default port 22."
+                    )
+                    logger.warning(warning)
+                elif not port.isnumeric():
+                    self.errors.append(
+                        "Port for SSH '" + port + "' is not a valid number."
+                    )
+                    continue
+                elif int(port) > 65535 or int(port) < 1:
+                    self.errors.append(
+                        "Port for SSH is out of range (1-65535): " + port
+                    )
+                    continue
+                # For ssh check the credential type
                 if cred_type == 'up':
                     cred_prefs_list.append(
                         OID_SSH_AUTH
@@ -605,7 +625,7 @@ class PreferenceHandler:
                         + 'password:SSH password '
                         + '(unsafe!):|||{0}'.format(password)
                     )
-                else:
+                elif cred_type == 'usk':
                     private = cred_params.get('private', '')
                     cred_prefs_list.append(
                         OID_SSH_AUTH
@@ -619,7 +639,30 @@ class PreferenceHandler:
                         + 'file:SSH private key:|||'
                         + '{0}'.format(private)
                     )
-            if service == 'smb':
+                elif cred_type:
+                    self.errors.append(
+                        "Unknown Credential Type for SSH: "
+                        + cred_type
+                        + ". Use 'up' for Username + Password"
+                        + " or 'usk' for Username + SSH Key."
+                    )
+                    continue
+                else:
+                    self.errors.append(
+                        "Missing Credential Type for SSH."
+                        + " Use 'up' for Username + Password"
+                        + " or 'usk' for Username + SSH Key."
+                    )
+                    continue
+                cred_prefs_list.append('auth_port_ssh|||' + '{0}'.format(port))
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':1:'
+                    + 'entry:SSH login '
+                    + 'name:|||{0}'.format(username)
+                )
+            # Check servic smb
+            elif service == 'smb':
                 cred_prefs_list.append(
                     OID_SMB_AUTH
                     + ':1:entry'
@@ -631,7 +674,8 @@ class PreferenceHandler:
                     + 'password:SMB password:|||'
                     + '{0}'.format(password)
                 )
-            if service == 'esxi':
+            # Check service esxi
+            elif service == 'esxi':
                 cred_prefs_list.append(
                     OID_ESXI_AUTH
                     + ':1:entry:'
@@ -644,12 +688,46 @@ class PreferenceHandler:
                     + 'password:ESXi login password:|||'
                     + '{0}'.format(password)
                 )
-
-            if service == 'snmp':
+            # Check service snmp
+            elif service == 'snmp':
                 community = cred_params.get('community', '')
                 auth_algorithm = cred_params.get('auth_algorithm', '')
                 privacy_password = cred_params.get('privacy_password', '')
                 privacy_algorithm = cred_params.get('privacy_algorithm', '')
+
+                if not privacy_algorithm:
+                    if privacy_password:
+                        self.errors.append(
+                            "When no privacy algorithm is used, the privacy"
+                            + " password also has to be empty."
+                        )
+                        continue
+                elif (
+                    not privacy_algorithm == "aes"
+                    and not privacy_algorithm == "des"
+                ):
+                    self.errors.append(
+                        "Unknows privacy algorithm used: "
+                        + privacy_algorithm
+                        + ". Use 'aes', 'des' or '' (none)."
+                    )
+                    continue
+
+                if not auth_algorithm:
+                    self.errors.append(
+                        "Missing authentification algorithm for SNMP."
+                        + " Use 'md5' or 'sha1'."
+                    )
+                    continue
+                elif (
+                    not auth_algorithm == "md5" and not auth_algorithm == "sha1"
+                ):
+                    self.errors.append(
+                        "Unknown authentification algorithm: "
+                        + auth_algorithm
+                        + ". Use 'md5' or 'sha1'."
+                    )
+                    continue
 
                 cred_prefs_list.append(
                     OID_SNMP_AUTH
@@ -685,12 +763,19 @@ class PreferenceHandler:
                     + 'radio:SNMPv3 Privacy Algorithm:|||'
                     + '{0}'.format(privacy_algorithm)
                 )
+            elif service:
+                self.errors.append(
+                    "Unknown service type for credential: " + service
+                )
+            else:
+                self.errors.append("Missing service type for credential.")
 
         return cred_prefs_list
 
     def prepare_credentials_for_openvas(self) -> bool:
         """Get the credentials from the scan collection and store them
         in the kb."""
+        logger.debug("Looking for given Credentials...")
         credentials = self.scan_collection.get_credentials(self.scan_id)
         if credentials:
             cred_prefs = self.build_credentials_as_prefs(credentials)
@@ -698,7 +783,9 @@ class PreferenceHandler:
                 self.kbdb.add_credentials_to_scan_preferences(
                     self.scan_id, cred_prefs
                 )
-
+                logger.debug("Credentials added to the kb.")
+        else:
+            logger.debug("No credentials found.")
         if credentials and not cred_prefs:
             return False
 
