@@ -127,6 +127,8 @@ class PreferenceHandlerTestCase(TestCase):
             'auth_port_ssh|||22',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
             '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass',
+            '1.3.6.1.4.1.25623.1.0.103591:7:entry:SSH privilege login name:|||',
+            '1.3.6.1.4.1.25623.1.0.103591:8:password:SSH privilege password:|||',
         ]
         cred_dict = {
             'ssh': {
@@ -152,6 +154,8 @@ class PreferenceHandlerTestCase(TestCase):
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
             '1.3.6.1.4.1.25623.1.0.103591:2:password:SSH key passphrase:|||pass',
             '1.3.6.1.4.1.25623.1.0.103591:4:file:SSH private key:|||',
+            '1.3.6.1.4.1.25623.1.0.103591:7:entry:SSH privilege login name:|||',
+            '1.3.6.1.4.1.25623.1.0.103591:8:password:SSH privilege password:|||',
             '1.3.6.1.4.1.25623.1.0.90023:1:entry:SMB login:|||username',
             '1.3.6.1.4.1.25623.1.0.90023:2:password]:SMB password :|||pass',
             '1.3.6.1.4.1.25623.1.0.105076:1:password:SNMP Community:some comunity',
@@ -167,6 +171,12 @@ class PreferenceHandlerTestCase(TestCase):
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
+<<<<<<< HEAD
+=======
+                'private': 'some key',
+                'priv_username': 'su_user',
+                'priv_password': 'su_pass',
+>>>>>>> 276a912 (New Credentials for SSH to get su privileges)
             },
             'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
             'esxi': {
@@ -189,10 +199,14 @@ class PreferenceHandlerTestCase(TestCase):
         ret = p.build_credentials_as_prefs(cred_dict)
 
         self.assertEqual(len(ret), len(cred_out))
-        self.assertIn('auth_port_ssh|||22', cred_out)
+        self.assertIn('auth_port_ssh|||22', ret)
         self.assertIn(
             '1.3.6.1.4.1.25623.1.0.90023:1:entry:SMB login:|||username',
-            cred_out,
+            ret,
+        )
+        self.assertIn(
+            '1.3.6.1.4.1.25623.1.0.103591:8:password:SSH privilege password:|||su_pass',
+            ret,
         )
 
     def test_build_alive_test_opt_empty(self):
@@ -304,6 +318,8 @@ class PreferenceHandlerTestCase(TestCase):
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
+                'priv_username': "privuser",
+                'priv_password': "privpass",
             },
             'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
             'esxi': {

@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
+=======
+## [21.10] (unreleased)
+
+### Added
+- Validate port list to be sent to openvas. [#411](https://github.com/greenbone/ospd-openvas/pull/411)
+- Validate credentials to be sent to openvas. [#416](https://github.com/greenbone/ospd-openvas/pull/416)
+- New Credentials for SSH to get su privileges. [#419](https://github.com/greenbone/ospd-openvas/pull/419)
+
+### Changed
+### Removed
+### Fixed
+
+[21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
+
+>>>>>>> 276a912 (New Credentials for SSH to get su privileges)
 ## [21.4.1] (unreleased)
 
 ### Added

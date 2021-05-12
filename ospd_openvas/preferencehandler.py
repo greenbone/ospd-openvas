@@ -586,6 +586,7 @@ class PreferenceHandler:
             password = cred_params.get('password', '')
 
             if service == 'ssh':
+<<<<<<< HEAD
                 port = cred_params.get('port', '')
                 cred_prefs_list.append('auth_port_ssh|||' + '{0}'.format(port))
                 cred_prefs_list.append(
@@ -594,6 +595,30 @@ class PreferenceHandler:
                     + 'entry:SSH login '
                     + 'name:|||{0}'.format(username)
                 )
+=======
+                # For ssh check the Port
+                port = cred_params.get('port', '22')
+                priv_username = cred_params.get('priv_username', '')
+                priv_password = cred_params.get('priv_password', '')
+                if not port:
+                    port = '22'
+                    warning = (
+                        "Missing port number for ssh credentials."
+                        + " Using default port 22."
+                    )
+                    logger.warning(warning)
+                elif not port.isnumeric():
+                    self.errors.append(
+                        "Port for SSH '" + port + "' is not a valid number."
+                    )
+                    continue
+                elif int(port) > 65535 or int(port) < 1:
+                    self.errors.append(
+                        "Port for SSH is out of range (1-65535): " + port
+                    )
+                    continue
+                # For ssh check the credential type
+>>>>>>> 276a912 (New Credentials for SSH to get su privileges)
                 if cred_type == 'up':
                     cred_prefs_list.append(
                         OID_SSH_AUTH
@@ -615,7 +640,48 @@ class PreferenceHandler:
                         + 'file:SSH private key:|||'
                         + '{0}'.format(private)
                     )
+<<<<<<< HEAD
             if service == 'smb':
+=======
+                elif cred_type:
+                    self.errors.append(
+                        "Unknown Credential Type for SSH: "
+                        + cred_type
+                        + ". Use 'up' for Username + Password"
+                        + " or 'usk' for Username + SSH Key."
+                    )
+                    continue
+                else:
+                    self.errors.append(
+                        "Missing Credential Type for SSH."
+                        + " Use 'up' for Username + Password"
+                        + " or 'usk' for Username + SSH Key."
+                    )
+                    continue
+                cred_prefs_list.append('auth_port_ssh|||' + '{0}'.format(port))
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':1:'
+                    + 'entry:SSH login '
+                    + 'name:|||{0}'.format(username)
+                )
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':7:'
+                    + 'entry:SSH privilege login name:|||{0}'.format(
+                        priv_username
+                    )
+                )
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':8:'
+                    + 'password:SSH privilege password:|||{0}'.format(
+                        priv_password
+                    )
+                )
+            # Check servic smb
+            elif service == 'smb':
+>>>>>>> 276a912 (New Credentials for SSH to get su privileges)
                 cred_prefs_list.append(
                     OID_SMB_AUTH
                     + ':1:entry'
