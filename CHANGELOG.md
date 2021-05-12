@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Validate port list to be sent to openvas. [#411](https://github.com/greenbone/ospd-openvas/pull/411)
 - Validate credentials to be sent to openvas. [#416](https://github.com/greenbone/ospd-openvas/pull/416)
+- New Credentials for SSH to get su privileges. [#419](https://github.com/greenbone/ospd-openvas/pull/419)
 
 ### Changed
 ### Removed

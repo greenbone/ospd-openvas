@@ -600,6 +600,8 @@ class PreferenceHandler:
             if service == 'ssh':
                 # For ssh check the Port
                 port = cred_params.get('port', '22')
+                priv_username = cred_params.get('priv_username', '')
+                priv_password = cred_params.get('priv_password', '')
                 if not port:
                     port = '22'
                     warning = (
@@ -660,6 +662,20 @@ class PreferenceHandler:
                     + ':1:'
                     + 'entry:SSH login '
                     + 'name:|||{0}'.format(username)
+                )
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':7:'
+                    + 'entry:SSH privilege login name:|||{0}'.format(
+                        priv_username
+                    )
+                )
+                cred_prefs_list.append(
+                    OID_SSH_AUTH
+                    + ':8:'
+                    + 'password:SSH privilege password:|||{0}'.format(
+                        priv_password
+                    )
                 )
             # Check servic smb
             elif service == 'smb':
