@@ -358,7 +358,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Elements that represent Vulnerability Tests</summary>
     <pattern>
       <attrib>
-        <name>vt_id</name>
+        <name>id</name>
         <summary>Identifier for a vulnerability test</summary>
         <type>vt_id</type>
         <required>1</required>
