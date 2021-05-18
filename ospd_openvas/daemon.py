@@ -29,7 +29,7 @@ from typing import Optional, Dict, List, Tuple, Iterator
 from datetime import datetime
 
 from pathlib import Path
-from os import geteuid
+from os import geteuid, environ
 from lxml.etree import tostring, SubElement, Element
 
 import psutil
@@ -51,6 +51,17 @@ from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.vthelper import VtHelper
+
+SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
+if SENTRY_DSN_OSPD_OPENVAS:
+    import sentry_sdk
+
+    sentry_sdk.init(
+        SENTRY_DSN_OSPD_OPENVAS,
+        traces_sample_rate=1.0,
+        server_name=environ.get('SENTRY_SERVER_NAME'),
+        environment=environ.get('SENTRY_ENVIRONMENT'),
+    )
 
 logger = logging.getLogger(__name__)
 
