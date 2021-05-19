@@ -46,7 +46,7 @@ from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.db import MainDB, BaseDB
+from ospd_openvas.db import MainDB, BaseDB, MQTTDB
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
@@ -425,6 +425,8 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['name'] = 'openvas'
         self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
+
+        self.mqtt = kwargs.get("mqtt")
 
         for name, param in OSPD_PARAMS.items():
             self.set_scanner_param(name, param)
@@ -1215,6 +1217,18 @@ class OSPDopenvas(OSPDaemon):
         """Starts the OpenVAS scanner for scan_id scan."""
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
+
+        if self.mqtt:
+            try:
+                resultdb = MQTTDB(self.mqtt)
+            except ConnectionRefusedError:
+                logger.error(
+                    "%s: Connection to MQTT broker refused.", self.mqtt
+                )
+                do_not_launch = True
+        else:
+            resultdb = kbdb
+
         scan_prefs = PreferenceHandler(
             scan_id, kbdb, self.scan_collection, self.nvti
         )
@@ -1323,7 +1337,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
                 # check for scanner error messages before leaving.
-                self.report_openvas_results(kbdb, scan_id)
+                self.report_openvas_results(resultdb, scan_id)
 
                 kbdb.stop_scan(scan_id)
 
@@ -1352,7 +1366,7 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            got_results = self.report_openvas_results(kbdb, scan_id)
+            got_results = self.report_openvas_results(resultdb, scan_id)
             self.report_openvas_scan_status(kbdb, scan_id)
 
             # Scan end. No kb in use for this scan id
