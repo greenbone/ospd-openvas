@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
 ## [21.10.0] (unreleased)
 
+=======
+## [20.8.3] (Unreleased)
+>>>>>>> c2fb9e4 (Update changelog)
 ### Added
 - Add method to validate port lists. 
   [#393](https://github.com/greenbone/ospd/pull/393)
@@ -15,10 +19,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Set Log Timestamp to UTC. [#394](https://github.com/greenbone/ospd-openvas/pull/394)
 
 ### Fixed
+<<<<<<< HEAD
 ### Removed
 - Remove dry run from ospd. [#402](https://github.com/greenbone/ospd-openvas/pull/402)
 
 [21.10.0]: https://github.com/greenbone/ospd/compare/ospd-21.04...master
+=======
+Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
+>>>>>>> c2fb9e4 (Update changelog)
 
 
 ## [21.4.0] (unreleased)
@@ -32,7 +40,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...master
 
-## (20.8.2) - 2021-02-01
+## [20.8.2] (2021-02-01)
 
 ### Added
 - Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
