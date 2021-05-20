@@ -1363,9 +1363,13 @@ class OSPDaemon:
             return True
 
         # If min_free_mem_scan_queue option is set, also wait some time
-        # between scans.
+        # between scans. Consider the case in which the last scan
+        # finished in a few seconds and there is no need to wait.
         time_between_start_scan = time.time() - self.last_scan_start_time
-        if time_between_start_scan < MIN_TIME_BETWEEN_START_SCAN:
+        if (
+            time_between_start_scan < MIN_TIME_BETWEEN_START_SCAN
+            and self.get_count_running_scans()
+        ):
             logger.debug(
                 'Not possible to run a new scan right now, a scan have been '
                 'just started.'
@@ -1506,6 +1510,14 @@ class OSPDaemon:
         count = 0
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+                count += 1
+        return count
+
+    def get_count_running_scans(self) -> int:
+        """ Get the amount of scans with RUNNING status """
+        count = 0
+        for scan_id in self.scan_collection.ids_iterator():
+            if self.get_scan_status(scan_id) == ScanStatus.RUNNING:
                 count += 1
         return count
 
