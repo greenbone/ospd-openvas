@@ -139,6 +139,7 @@ class OSPDaemon:
         self.max_scans = max_scans
         self.min_free_mem_scan_queue = min_free_mem_scan_queue
         self.max_queued_scans = max_queued_scans
+        self.last_scan_start_time = 0
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
@@ -1325,6 +1326,7 @@ class OSPDaemon:
                 self.set_scan_status(scan_id, ScanStatus.INIT)
 
                 current_queued_scans = current_queued_scans - 1
+                self.last_scan_start_time = time.time()
                 logger.info('Starting scan %s.', scan_id)
             elif scan_is_queued and not scan_allowed:
                 return
@@ -1342,6 +1344,14 @@ class OSPDaemon:
                 'Not possible to run a new scan. Max scan limit set '
                 'to %d reached.',
                 self.max_scans,
+            )
+            return False
+
+        time_between_start_scan = time.time() - self.last_scan_start_time
+        if time_between_start_scan < 60:
+            logger.debug(
+                'Not possible to run a new scan right now, a scan have been '
+                'just started.'
             )
             return False
 
