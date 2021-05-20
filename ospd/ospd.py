@@ -66,6 +66,8 @@ PROTOCOL_VERSION = __version__
 
 SCHEDULER_CHECK_PERIOD = 10  # in seconds
 
+MIN_TIME_BETWEEN_START_SCAN = 60  # in seconds
+
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
         'type': 'boolean',
@@ -1347,14 +1349,6 @@ class OSPDaemon:
             )
             return False
 
-        time_between_start_scan = time.time() - self.last_scan_start_time
-        if time_between_start_scan < 60:
-            logger.debug(
-                'Not possible to run a new scan right now, a scan have been '
-                'just started.'
-            )
-            return False
-
         return True
 
     def is_enough_free_memory(self) -> bool:
@@ -1367,6 +1361,16 @@ class OSPDaemon:
         """
         if not self.min_free_mem_scan_queue:
             return True
+
+        # If min_free_mem_scan_queue option is set, also wait some time
+        # between scans.
+        time_between_start_scan = time.time() - self.last_scan_start_time
+        if time_between_start_scan < MIN_TIME_BETWEEN_START_SCAN:
+            logger.debug(
+                'Not possible to run a new scan right now, a scan have been '
+                'just started.'
+            )
+            return False
 
         free_mem = psutil.virtual_memory().available / (1024 * 1024)
 
