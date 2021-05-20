@@ -4,12 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
 ## [21.4.1] (unreleased)
 
+=======
+## [20.8.3] (Unreleased)
+>>>>>>> c2fb9e4 (Update changelog)
 ### Added
 ### Changed
 ### Removed
 ### Fixed
+Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
 
 [21.4.1]: https://github.com/greenbone/ospd/compare/v21.4.0...ospd-21.04
 
@@ -24,7 +29,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...v21.4.0
 
-## (20.8.2) - 2021-02-01
+## [20.8.2] (2021-02-01)
 
 ### Added
 - Allow the scanner to update total count of hosts. [#332](https://github.com/greenbone/ospd/pull/332)
