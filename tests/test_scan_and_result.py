@@ -1572,6 +1572,79 @@ class ScanTestCase(unittest.TestCase):
         self.assertTrue(self.daemon.is_enough_free_memory())
 
     @patch("ospd.ospd.psutil")
+    def test_wait_between_scan_no_scans(self, mock_psutil):
+        # Enable option
+        self.daemon.min_free_mem_scan_queue = 1000
+        # 1.5 GB free
+        mock_psutil.virtual_memory.return_value = FakePsutil(
+            available=1500000000
+        )
+        # Not enough time between scans, but no running scan
+        self.daemon.last_scan_start_time = time.time() - 20
+
+        self.assertTrue(self.daemon.is_enough_free_memory())
+
+    @patch("ospd.ospd.psutil")
+    def test_wait_between_scan_run_scans_not_allow(self, mock_psutil):
+        # Enable option
+        self.daemon.min_free_mem_scan_queue = 1000
+        # 1.5 GB free
+        mock_psutil.virtual_memory.return_value = FakePsutil(
+            available=1500000000
+        )
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts,192.168.0.0/24</hosts>'
+            '<ports>80,443</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        # There is a running scan
+        self.daemon.start_queued_scans()
+
+        # Not enough time between scans
+        self.daemon.last_scan_start_time = time.time() - 20
+
+        self.assertFalse(self.daemon.is_enough_free_memory())
+
+    @patch("ospd.ospd.psutil")
+    def test_wait_between_scan_allow(self, mock_psutil):
+        # Enable option
+        self.daemon.min_free_mem_scan_queue = 1000
+        # 1.5 GB free
+        mock_psutil.virtual_memory.return_value = FakePsutil(
+            available=1500000000
+        )
+
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts,192.168.0.0/24</hosts>'
+            '<ports>80,443</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        # There is a running scan, enough memory and enough time
+        # in between
+        self.daemon.start_queued_scans()
+
+        self.daemon.last_scan_start_time = time.time() - 65
+
+        self.assertTrue(self.daemon.is_enough_free_memory())
+
+    @patch("ospd.ospd.psutil")
     def test_free_memory_false(self, mock_psutil):
         self.daemon.min_free_mem_scan_queue = 2000
         # 1.5 GB free
@@ -1598,6 +1671,24 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(self.daemon.get_count_queued_scans(), 1)
         self.daemon.start_queued_scans()
         self.assertEqual(self.daemon.get_count_queued_scans(), 0)
+
+    def test_count_running_scans(self):
+        fs = FakeStream()
+        self.daemon.handle_command(
+            '<start_scan>'
+            '<scanner_params /><vts><vt id="1.2.3.4" />'
+            '</vts>'
+            '<targets><target>'
+            '<hosts>localhosts,192.168.0.0/24</hosts>'
+            '<ports>80,443</ports>'
+            '</target></targets>'
+            '</start_scan>',
+            fs,
+        )
+
+        self.assertEqual(self.daemon.get_count_running_scans(), 0)
+        self.daemon.start_queued_scans()
+        self.assertEqual(self.daemon.get_count_running_scans(), 1)
 
     def test_ids_iterator_dict_modified(self):
         self.daemon.scan_collection.scans_table = {'a': 1, 'b': 2}
