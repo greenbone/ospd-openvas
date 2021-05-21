@@ -23,10 +23,8 @@ import sys
 import time
 
 from typing import List, NewType, Optional, Iterable, Iterator, Tuple
-from queue import Queue
 
 import redis
-import paho.mqtt.client as mqtt
 
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
@@ -406,32 +404,6 @@ class BaseDB:
     def flush(self):
         """Flush the database"""
         self.ctx.flushdb()
-
-
-class MQTTDB:
-    def __init__(self, host):
-        self.results = Queue()
-        self.client = mqtt.Client(
-            client_id="result_handler",
-            protocol=mqtt.MQTTv5,
-            userdata=self.results,
-        )
-        self.client.connect(host)
-        self.client.on_message = self.on_message
-        self.client.subscribe("scanner/results")
-        self.client.loop_start()
-
-    @staticmethod
-    def on_message(client, userdata, msg):
-        if msg.topic == "scanner/results":
-            userdata.put(str(msg.payload.decode("utf-8")), False)
-
-    def get_result(self):
-        """Get all result from the result Queue"""
-        ret = []
-        while not self.results.empty():
-            ret.append(self.results.get(False))
-        return ret
 
 
 class BaseKbDB(BaseDB):

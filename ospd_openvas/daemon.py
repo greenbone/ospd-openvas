@@ -46,7 +46,8 @@ from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
 from ospd_openvas.nvticache import NVTICache
-from ospd_openvas.db import MainDB, BaseDB, MQTTDB
+from ospd_openvas.db import MainDB, BaseDB
+from ospd_openvas.mqtt import OpenvasMQTTHandler
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
@@ -454,6 +455,17 @@ class OSPDopenvas(OSPDaemon):
             logger.debug("Calculating vts integrity check hash...")
             vthelper = VtHelper(self.nvti)
             self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
+
+        if self.mqtt:
+            try:
+                OpenvasMQTTHandler(self.mqtt, self.report_openvas_results)
+                logger.debug("MQTT Client running...")
+            except ConnectionRefusedError:
+                logger.error(
+                    "%s: Connection to MQTT broker refused. MQTT disabled.",
+                    self.mqtt,
+                )
+                self.mqtt = None
 
         self.initialized = True
 
@@ -979,36 +991,68 @@ class OSPDopenvas(OSPDaemon):
 
         return None
 
-    def report_openvas_results(self, db: BaseDB, scan_id: str) -> bool:
+    def report_openvas_results_redis(self, db: BaseDB, scan_id: str) -> bool:
+        all_results = db.get_result()
+
+        return self.report_openvas_results_redis_format_to_json(
+            scan_id, all_results
+        )
+
+    def report_openvas_results_redis_format_to_json(
+        self, scan_id: str, all_results: list
+    ) -> bool:
+        results = []
+        for res in all_results:
+            result = {}
+            msg = res.split('|||')
+            result["type"] = msg[0]
+            result["host_ip"] = msg[1]
+            result["hostname"] = msg[2]
+            result["port"] = msg[3]
+            result["OID"] = msg[4]
+            result["value"] = msg[5]
+            if len(msg) > 6:
+                result["uri"] = msg[6]
+
+            results.append(result)
+
+        return self.report_openvas_results(results, scan_id)
+
+    def report_openvas_results(
+        self,
+        results: list,
+        scan_id: str,
+    ) -> bool:
         """Get all result entries from redis kb."""
 
         vthelper = VtHelper(self.nvti)
 
         # Result messages come in the next form, with optional uri field
         # type ||| host ip ||| hostname ||| port ||| OID ||| value [|||uri]
-        all_results = db.get_result()
+
         res_list = ResultList()
         total_dead = 0
-        for res in all_results:
+        for res in results:
             if not res:
                 continue
 
-            msg = res.split('|||')
-            roid = msg[4].strip()
+            roid = res["OID"].strip()
             rqod = ''
             rname = ''
-            current_host = msg[1].strip() if msg[1] else ''
-            rhostname = msg[2].strip() if msg[2] else ''
-            host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
-            host_deny = "Host access denied" in msg[5]
-            start_end_msg = msg[0] == "HOST_START" or msg[0] == "HOST_END"
-            host_count = msg[0] == "HOSTS_COUNT"
+            current_host = res["host_ip"].strip() if res["host_ip"] else ''
+            rhostname = res["hostname"].strip() if res["hostname"] else ''
+            host_is_dead = (
+                "Host dead" in res["value"] or res["type"] == "DEADHOST"
+            )
+            host_deny = "Host access denied" in res["value"]
+            start_end_msg = (
+                res["type"] == "HOST_START" or res["type"] == "HOST_END"
+            )
+            host_count = res["type"] == "HOSTS_COUNT"
             vt_aux = None
 
-            # URI is optional and msg list length must be checked
-            ruri = ''
-            if len(msg) > 6:
-                ruri = msg[6]
+            # URI is optional and containing must be checked
+            ruri = res["uri"] if "uri" in res else ""
 
             if (
                 roid
@@ -1037,53 +1081,53 @@ class OSPDopenvas(OSPDaemon):
 
                 rname = vt_aux.get('name')
 
-            if msg[0] == 'ERRMSG':
+            if res["type"] == 'ERRMSG':
                 res_list.add_scan_error_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
-                    port=msg[3],
+                    value=res["value"],
+                    port=res["port"],
                     test_id=roid,
                     uri=ruri,
                 )
 
-            elif msg[0] == 'HOST_START' or msg[0] == 'HOST_END':
+            elif res["type"] == 'HOST_START' or res["type"] == 'HOST_END':
                 res_list.add_scan_log_to_list(
                     host=current_host,
-                    name=msg[0],
-                    value=msg[5],
+                    name=res["type"],
+                    value=res["value"],
                 )
 
-            elif msg[0] == 'LOG':
+            elif res["type"] == 'LOG':
                 res_list.add_scan_log_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
-                    port=msg[3],
+                    value=res["value"],
+                    port=res["port"],
                     qod=rqod,
                     test_id=roid,
                     uri=ruri,
                 )
 
-            elif msg[0] == 'HOST_DETAIL':
+            elif res["type"] == 'HOST_DETAIL':
                 res_list.add_scan_host_detail_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
+                    value=res["value"],
                     uri=ruri,
                 )
 
-            elif msg[0] == 'ALARM':
+            elif res["type"] == 'ALARM':
                 rseverity = self.get_severity_score(vt_aux)
                 res_list.add_scan_alarm_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
-                    port=msg[3],
+                    value=res["value"],
+                    port=res["port"],
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
@@ -1092,16 +1136,16 @@ class OSPDopenvas(OSPDaemon):
 
             # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
-            elif msg[0] == 'DEADHOST':
+            elif res["type"] == 'DEADHOST':
                 try:
-                    total_dead = int(msg[5])
+                    total_dead = int(res["value"])
                 except TypeError:
                     logger.debug('Error processing dead host count')
 
             # To update total host count
-            if msg[0] == 'HOSTS_COUNT':
+            if res["type"] == 'HOSTS_COUNT':
                 try:
-                    count_total = int(msg[5])
+                    count_total = int(res["value"])
                     logger.debug(
                         '%s: Set total hosts counted by OpenVAS: %d',
                         scan_id,
@@ -1218,17 +1262,6 @@ class OSPDopenvas(OSPDaemon):
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
 
-        if self.mqtt:
-            try:
-                resultdb = MQTTDB(self.mqtt)
-            except ConnectionRefusedError:
-                logger.error(
-                    "%s: Connection to MQTT broker refused.", self.mqtt
-                )
-                do_not_launch = True
-        else:
-            resultdb = kbdb
-
         scan_prefs = PreferenceHandler(
             scan_id, kbdb, self.scan_collection, self.nvti
         )
@@ -1337,7 +1370,8 @@ class OSPDopenvas(OSPDaemon):
                 )
 
                 # check for scanner error messages before leaving.
-                self.report_openvas_results(resultdb, scan_id)
+                if not self.mqtt:
+                    self.report_openvas_results_redis(kbdb, scan_id)
 
                 kbdb.stop_scan(scan_id)
 
@@ -1366,7 +1400,8 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            got_results = self.report_openvas_results(resultdb, scan_id)
+            if not self.mqtt:
+                got_results = self.report_openvas_results_redis(kbdb, scan_id)
             self.report_openvas_scan_status(kbdb, scan_id)
 
             # Scan end. No kb in use for this scan id
