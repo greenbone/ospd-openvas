@@ -723,7 +723,7 @@ class PreferenceHandler:
                     and not privacy_algorithm == "des"
                 ):
                     self.errors.append(
-                        "Unknows privacy algorithm used: "
+                        "Unknown privacy algorithm used: "
                         + privacy_algorithm
                         + ". Use 'aes', 'des' or '' (none)."
                     )
@@ -731,7 +731,7 @@ class PreferenceHandler:
 
                 if not auth_algorithm:
                     self.errors.append(
-                        "Missing authentification algorithm for SNMP."
+                        "Missing authentication algorithm for SNMP."
                         + " Use 'md5' or 'sha1'."
                     )
                     continue
@@ -739,7 +739,7 @@ class PreferenceHandler:
                     not auth_algorithm == "md5" and not auth_algorithm == "sha1"
                 ):
                     self.errors.append(
-                        "Unknown authentification algorithm: "
+                        "Unknown authentication algorithm: "
                         + auth_algorithm
                         + ". Use 'md5' or 'sha1'."
                     )
