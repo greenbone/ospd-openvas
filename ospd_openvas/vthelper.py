@@ -22,6 +22,7 @@
 from hashlib import sha256
 from typing import Optional, Dict, List, Tuple, Iterator
 
+from ospd.cvss import CVSS
 from ospd_openvas.nvticache import NVTICache
 
 
@@ -196,3 +197,22 @@ class VtHelper:
             )
 
         return m.hexdigest()
+
+    def get_severity_score(self, vt_aux: dict) -> Optional[float]:
+        """Return the severity score for the given oid.
+        Arguments:
+            vt_aux: VT element from which to get the severity vector
+        Returns:
+            The calculated cvss base value. None if there is no severity
+            vector or severity type is not cvss base version 2.
+        """
+        if vt_aux:
+            severity_type = vt_aux['severities'].get('severity_type')
+            severity_vector = vt_aux['severities'].get('severity_base_vector')
+
+            if severity_type == "cvss_base_v2" and severity_vector:
+                return CVSS.cvss_base_v2_value(severity_vector)
+            elif severity_type == "cvss_base_v3" and severity_vector:
+                return CVSS.cvss_base_v3_value(severity_vector)
+
+        return None
