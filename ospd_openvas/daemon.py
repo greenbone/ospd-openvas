@@ -44,6 +44,7 @@ from ospd.resultlist import ResultList
 from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
+from ospd_openvas.dryrun import DryRun
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB
 from ospd_openvas.lock import LockFile
@@ -1204,6 +1205,12 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id: str):
         """Starts the OpenVAS scanner for scan_id scan."""
+        params = self.get_scanner_params()
+        if params.get("dry_run"):
+            dryrun = DryRun(self)
+            dryrun.exec_dry_run_scan(scan_id, self.nvti)
+            return
+
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
