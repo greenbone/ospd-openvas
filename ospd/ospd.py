@@ -48,7 +48,7 @@ from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
 from ospd.misc import ResultType, create_process
-from ospd.network import resolve_hostname, target_str_to_list
+from ospd.network import target_str_to_list
 from ospd.protocol import RequestParser
 from ospd.scan import ScanCollection, ScanStatus, ScanProgress
 from ospd.server import BaseServer, Stream
@@ -564,23 +564,6 @@ class OSPDaemon:
 
         # For debug purposes
         self._get_scan_progress_raw(scan_id)
-
-    def dry_run_scan(self, scan_id: str, target: Dict) -> None:
-        """Dry runs a scan."""
-
-        os.setsid()
-
-        host = resolve_hostname(target.get('hosts'))
-        if host is None:
-            logger.info("Couldn't resolve %s.", self.get_scan_host(scan_id))
-
-        port = self.get_scan_ports(scan_id)
-
-        logger.info("%s:%s: Dry run mode.", host, port)
-
-        self.add_scan_log(scan_id, name='', host=host, value='Dry run result')
-
-        self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id: str, host: str) -> None:
         """Handles scanner reaching timeout error."""

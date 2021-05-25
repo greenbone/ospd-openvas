@@ -16,6 +16,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 ### Removed
+- Remove dry run from ospd. [#402](https://github.com/greenbone/ospd-openvas/pull/402)
 
 [21.10.0]: https://github.com/greenbone/ospd/compare/ospd-21.04...master
 

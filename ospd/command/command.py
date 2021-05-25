@@ -28,7 +28,7 @@ from xml.etree.ElementTree import Element, SubElement
 import psutil
 
 from ospd.errors import OspdCommandError
-from ospd.misc import valid_uuid, create_process
+from ospd.misc import valid_uuid
 from ospd.protocol import OspRequest, OspResponse
 from ospd.xml import (
     simple_response_str,
@@ -564,13 +564,7 @@ class StartScan(BaseCommand):
             else:
                 vt_selection = OspRequest.process_vts_params(scanner_vts)
 
-        # Dry run case.
-        dry_run = 'dry_run' in params and int(params['dry_run'])
-        if dry_run:
-            scan_params = None
-        else:
-            scan_params = self._daemon.process_scan_params(params)
-
+        scan_params = self._daemon.process_scan_params(params)
         scan_id_aux = scan_id
         scan_id = self._daemon.create_scan(
             scan_id, scan_target, scan_params, vt_selection
@@ -586,14 +580,6 @@ class StartScan(BaseCommand):
             scan_id,
             current_queued_scans + 1,
         )
-
-        if dry_run:
-            scan_func = self._daemon.dry_run_scan
-            scan_process = create_process(
-                func=scan_func, args=(scan_id, scan_target)
-            )
-            self._daemon.scan_processes[scan_id] = scan_process
-            scan_process.start()
 
         id_ = Element('id')
         id_.text = scan_id
