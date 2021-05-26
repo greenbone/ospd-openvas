@@ -288,6 +288,17 @@ OSPD_PARAMS_OUT = {
             + 'resolved however.'
         ),
     },
+    'results_per_host': {
+        'type': 'integer',
+        'name': 'results_per_host',
+        'default': 10,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'Amount of fake results generated per each host in the target '
+            + 'list for a dry run scan.'
+        ),
+    },
 }
 
 
