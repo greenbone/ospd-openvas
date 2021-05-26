@@ -48,6 +48,7 @@ redis = "^3.5.3"
 psutil = "^5.7.2"
 packaging = "^20.4"
 ospd = {git = "https://github.com/greenbone/ospd.git", branch = "master"}
+sentry-sdk = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.8.1"
