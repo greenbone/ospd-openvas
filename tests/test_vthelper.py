@@ -212,3 +212,27 @@ class VtHelperTestCase(TestCase):
         self.assertEqual("cvss_base_v2", severities.get('severity_type'))
         self.assertEqual(None, severities.get('severity_origin'))
         self.assertEqual("1237458156", severities.get('severity_date'))
+
+    def test_get_severity_score_v2(self):
+        w = DummyDaemon()
+        vthelper = VtHelper(w.nvti)
+        vtaux = {
+            'severities': {
+                'severity_type': 'cvss_base_v2',
+                'severity_base_vector': 'AV:N/AC:L/Au:N/C:P/I:N/A:N',
+            }
+        }
+
+        self.assertEqual(vthelper.get_severity_score(vtaux), 5.0)
+
+    def test_get_severity_score_v3(self):
+        w = DummyDaemon()
+        vthelper = VtHelper(w.nvti)
+        vtaux = {
+            'severities': {
+                'severity_type': 'cvss_base_v3',
+                'severity_base_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
+            }
+        }
+
+        self.assertEqual(vthelper.get_severity_score(vtaux), 2.9)
