@@ -50,7 +50,7 @@ class DryRun:
         # Get the port list
         ports = self._daemon.scan_collection.get_ports(scan_id)
         logger.info("The port list %s", ports)
-        tcp, udp = ports_as_list(ports)
+        tcp, _ = ports_as_list(ports)
         # Get exclude hosts list. It must not be scanned
         exclude_hosts = self._daemon.scan_collection.get_exclude_hosts(scan_id)
         logger.info("The exclude hosts list %s", exclude_hosts)
@@ -94,7 +94,9 @@ class DryRun:
             )
 
             # Generate N results per host. Default 10 results
-            for res in range(0, results_per_host):
+            res_count = 0
+            while res_count < results_per_host:
+                res_count += 1
                 oid = choice(vts)
                 port = choice(tcp)
                 vt = vthelper.get_single_vt(oid)
