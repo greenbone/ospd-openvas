@@ -333,6 +333,17 @@ OSPD_PARAMS = {
             + 'resolved however.'
         ),
     },
+    'results_per_host': {
+        'type': 'integer',
+        'name': 'results_per_host',
+        'default': 10,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'Amount of fake results generated per each host in the target '
+            + 'list for a dry run scan.'
+        ),
+    },
 }
 
 VT_BASE_OID = "1.3.6.1.4.1.25623."
@@ -1205,10 +1216,10 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id: str):
         """Starts the OpenVAS scanner for scan_id scan."""
-        params = self.get_scanner_params()
+        params = self.scan_collection.get_options(scan_id)
         if params.get("dry_run"):
             dryrun = DryRun(self)
-            dryrun.exec_dry_run_scan(scan_id, self.nvti)
+            dryrun.exec_dry_run_scan(scan_id, self.nvti, OSPD_PARAMS)
             return
 
         do_not_launch = False
