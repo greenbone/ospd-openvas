@@ -38,9 +38,15 @@ class DryRun:
     def __init__(self, daemon):
         self._daemon = daemon
 
-    def exec_dry_run_scan(self, scan_id, nvti):
-        params = self._daemon.get_scanner_params()
-        results_per_host = params.get("results_per_host", 10)
+    def exec_dry_run_scan(self, scan_id, nvti, ospd_params):
+        options = self._daemon.scan_collection.get_options(scan_id)
+        results_per_host = None
+        if "results_per_host" in options:
+            results_per_host = options.get("results_per_host")
+
+        if not results_per_host or not isinstance(results_per_host, int):
+            logger.debug("Using default value for results_per_host options")
+            results_per_host = ospd_params["results_per_host"].get("default")
 
         # Get the host list
         target = self._daemon.scan_collection.get_host_list(scan_id)
