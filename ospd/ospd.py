@@ -69,6 +69,8 @@ PROTOCOL_VERSION = __version__
 
 SCHEDULER_CHECK_PERIOD = 10  # in seconds
 
+MIN_TIME_BETWEEN_START_SCAN = 60  # in seconds
+
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
         'type': 'boolean',
@@ -142,6 +144,7 @@ class OSPDaemon:
         self.max_scans = max_scans
         self.min_free_mem_scan_queue = min_free_mem_scan_queue
         self.max_queued_scans = max_queued_scans
+        self.last_scan_start_time = 0
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
@@ -1385,6 +1388,7 @@ class OSPDaemon:
                 self.set_scan_status(scan_id, ScanStatus.INIT)
 
                 current_queued_scans = current_queued_scans - 1
+                self.last_scan_start_time = time.time()
                 logger.info('Starting scan %s.', scan_id)
             elif scan_is_queued and not scan_allowed:
                 return
@@ -1417,6 +1421,20 @@ class OSPDaemon:
         """
         if not self.min_free_mem_scan_queue:
             return True
+
+        # If min_free_mem_scan_queue option is set, also wait some time
+        # between scans. Consider the case in which the last scan
+        # finished in a few seconds and there is no need to wait.
+        time_between_start_scan = time.time() - self.last_scan_start_time
+        if (
+            time_between_start_scan < MIN_TIME_BETWEEN_START_SCAN
+            and self.get_count_running_scans()
+        ):
+            logger.debug(
+                'Not possible to run a new scan right now, a scan have been '
+                'just started.'
+            )
+            return False
 
         free_mem = psutil.virtual_memory().available / (1024 * 1024)
 
@@ -1552,6 +1570,15 @@ class OSPDaemon:
         count = 0
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+                count += 1
+        return count
+
+    def get_count_running_scans(self) -> int:
+        """ Get the amount of scans with INIT/RUNNING status """
+        count = 0
+        for scan_id in self.scan_collection.ids_iterator():
+            status = self.get_scan_status(scan_id)
+            if status == ScanStatus.RUNNING or status == ScanStatus.INIT:
                 count += 1
         return count
 
