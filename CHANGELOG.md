@@ -37,7 +37,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
-Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
+- Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
+- Remove the pid file if there is no process for the pid or the process name does not match. [#405](https://github.com/greenbone/ospd/pull/405)
 
 [Unreleased]: https://github.com/greenbone/ospd/compare/v20.8.2...HEAD
 
