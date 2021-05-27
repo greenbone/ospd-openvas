@@ -288,6 +288,17 @@ OSPD_PARAMS_OUT = {
             + 'resolved however.'
         ),
     },
+    'results_per_host': {
+        'type': 'integer',
+        'name': 'results_per_host',
+        'default': 10,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'Amount of fake results generated per each host in the target '
+            + 'list for a dry run scan.'
+        ),
+    },
 }
 
 
@@ -945,26 +956,3 @@ class TestFilters(TestCase):
             vts_collection, "modification_time>10"
         )
         self.assertIn('1.3.6.1.4.1.25623.1.0.100061', res)
-
-    def test_get_severity_score_v2(self):
-        w = DummyDaemon()
-        vtaux = {
-            'severities': {
-                'severity_type': 'cvss_base_v2',
-                'severity_base_vector': 'AV:N/AC:L/Au:N/C:P/I:N/A:N',
-            }
-        }
-
-        a = w.get_severity_score(vtaux)
-        self.assertEqual(w.get_severity_score(vtaux), 5.0)
-
-    def test_get_severity_score_v3(self):
-        w = DummyDaemon()
-        vtaux = {
-            'severities': {
-                'severity_type': 'cvss_base_v3',
-                'severity_base_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
-            }
-        }
-
-        self.assertEqual(w.get_severity_score(vtaux), 2.9)

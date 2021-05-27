@@ -38,13 +38,13 @@ from ospd.ospd import OSPDaemon
 from ospd.scan import ScanProgress
 from ospd.server import BaseServer
 from ospd.main import main as daemon_main
-from ospd.cvss import CVSS
 from ospd.vtfilter import VtsFilter
 from ospd.resultlist import ResultList
 
 from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
+from ospd_openvas.dryrun import DryRun
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB
 from ospd_openvas.lock import LockFile
@@ -331,6 +331,17 @@ OSPD_PARAMS = {
             + 'Both target hostnames and the address to which they resolve '
             + 'are checked. Hostnames in hosts_deny list are not '
             + 'resolved however.'
+        ),
+    },
+    'results_per_host': {
+        'type': 'integer',
+        'name': 'results_per_host',
+        'default': 10,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'Amount of fake results generated per each host in the target '
+            + 'list for a dry run scan.'
         ),
     },
 }
@@ -969,25 +980,6 @@ class OSPDopenvas(OSPDaemon):
 
         self.sort_host_finished(scan_id, finished_hosts)
 
-    def get_severity_score(self, vt_aux: dict) -> Optional[float]:
-        """Return the severity score for the given oid.
-        Arguments:
-            vt_aux: VT element from which to get the severity vector
-        Returns:
-            The calculated cvss base value. None if there is no severity
-            vector or severity type is not cvss base version 2.
-        """
-        if vt_aux:
-            severity_type = vt_aux['severities'].get('severity_type')
-            severity_vector = vt_aux['severities'].get('severity_base_vector')
-
-            if severity_type == "cvss_base_v2" and severity_vector:
-                return CVSS.cvss_base_v2_value(severity_vector)
-            elif severity_type == "cvss_base_v3" and severity_vector:
-                return CVSS.cvss_base_v3_value(severity_vector)
-
-        return None
-
     def report_openvas_results(self, db: BaseDB, scan_id: str) -> bool:
         """Get all result entries from redis kb."""
 
@@ -1086,7 +1078,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             elif msg[0] == 'ALARM':
-                rseverity = self.get_severity_score(vt_aux)
+                rseverity = vthelper.get_severity_score(vt_aux)
                 res_list.add_scan_alarm_to_list(
                     host=current_host,
                     hostname=rhostname,
@@ -1224,6 +1216,12 @@ class OSPDopenvas(OSPDaemon):
 
     def exec_scan(self, scan_id: str):
         """Starts the OpenVAS scanner for scan_id scan."""
+        params = self.scan_collection.get_options(scan_id)
+        if params.get("dry_run"):
+            dryrun = DryRun(self)
+            dryrun.exec_dry_run_scan(scan_id, self.nvti, OSPD_PARAMS)
+            return
+
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
