@@ -29,6 +29,8 @@ import multiprocessing
 from typing import Any, Callable, Iterable
 from pathlib import Path
 
+import psutil
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -101,15 +103,37 @@ def create_pid(pidfile: str) -> bool:
     Otherwise gives an error."""
 
     pid = str(os.getpid())
+    new_process = psutil.Process(int(pid))
+    new_process_name = new_process.name()
+
     pidpath = Path(pidfile)
 
     if pidpath.is_file():
-        LOGGER.error(
-            "There is an already running process. If no process is running, "
-            "please remove the pid file '%s' manually",
-            str(pidpath.absolute()),
-        )
-        return False
+        process_name = None
+        with pidpath.open('r') as pidfile:
+            current_pid = pidfile.read()
+            try:
+                process = psutil.Process(int(current_pid))
+                process_name = process.name()
+            except psutil.NoSuchProcess:
+                pass
+
+        if process_name == new_process_name:
+            LOGGER.error(
+                "There is an already running process. See %s.",
+                str(pidpath.absolute()),
+            )
+            return False
+        else:
+            LOGGER.debug(
+                "There is an existing pid file '%s', but the PID %s belongs to "
+                "the process %s. It seems that %s was abruptly stopped. "
+                "Removing the pid file.",
+                str(pidpath.absolute()),
+                current_pid,
+                process_name,
+                new_process_name,
+            )
 
     try:
         with pidpath.open(mode='w') as f:
