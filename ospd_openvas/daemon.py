@@ -404,7 +404,12 @@ class OSPDopenvas(OSPDaemon):
     """Class for ospd-openvas daemon."""
 
     def __init__(
-        self, *, niceness=None, lock_file_dir='/var/run/ospd', **kwargs
+        self,
+        *,
+        niceness=None,
+        mqtt=None,
+        lock_file_dir='/var/run/ospd',
+        **kwargs,
     ):
         """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
@@ -427,7 +432,7 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
 
-        self.mqtt = kwargs.get("mqtt")
+        self._mqtt = str(mqtt)
 
         for name, param in OSPD_PARAMS.items():
             self.set_scanner_param(name, param)
@@ -456,16 +461,16 @@ class OSPDopenvas(OSPDaemon):
             vthelper = VtHelper(self.nvti)
             self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
 
-        if self.mqtt:
+        if self._mqtt:
             try:
-                OpenvasMQTTHandler(self.mqtt, self.report_openvas_results)
+                OpenvasMQTTHandler(self._mqtt, self.report_openvas_results)
                 logger.debug("MQTT Client running...")
             except ConnectionRefusedError:
                 logger.error(
                     "%s: Connection to MQTT broker refused. MQTT disabled.",
-                    self.mqtt,
+                    self._mqtt,
                 )
-                self.mqtt = None
+                self._mqtt = None
 
         self.initialized = True
 
@@ -1370,7 +1375,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
                 # check for scanner error messages before leaving.
-                if not self.mqtt:
+                if not self._mqtt:
                     self.report_openvas_results_redis(kbdb, scan_id)
 
                 kbdb.stop_scan(scan_id)
@@ -1400,7 +1405,7 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(kbdb)
                 return
 
-            if not self.mqtt:
+            if not self._mqtt:
                 got_results = self.report_openvas_results_redis(kbdb, scan_id)
             self.report_openvas_scan_status(kbdb, scan_id)
 
