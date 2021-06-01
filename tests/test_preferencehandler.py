@@ -125,6 +125,8 @@ class PreferenceHandlerTestCase(TestCase):
 
         cred_out = [
             'auth_port_ssh|||22',
+            '1.3.6.1.4.1.25623.1.0.103591:7:entry:SSH privilege login name:|||test',
+            '1.3.6.1.4.1.25623.1.0.103591:8:password:SSH privilege password:|||1234',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
             '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass',
         ]
@@ -134,6 +136,8 @@ class PreferenceHandlerTestCase(TestCase):
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
+                'priv_username': 'test',
+                'priv_password': '1234',
             }
         }
         p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
@@ -160,6 +164,8 @@ class PreferenceHandlerTestCase(TestCase):
             '1.3.6.1.4.1.25623.1.0.105076:4:radio:SNMPv3 Authentication Algorithm:some auth algo',
             '1.3.6.1.4.1.25623.1.0.105076:5:password:SNMPv3 Privacy Password:privacy pass',
             '1.3.6.1.4.1.25623.1.0.105076:6:radio:SNMPv3 Privacy Algorithm:privacy algo',
+            '1.3.6.1.4.1.25623.1.0.105076:7:entry:SSH privilege login name:|||test',
+            '1.3.6.1.4.1.25623.1.0.105076:8:password:SSH privilege password:|||1234',
         ]
         cred_dict = {
             'ssh': {
@@ -167,6 +173,8 @@ class PreferenceHandlerTestCase(TestCase):
                 'port': '22',
                 'username': 'username',
                 'password': 'pass',
+                'priv_username': 'test',
+                'priv_password': '1234',
             },
             'smb': {'type': 'smb', 'username': 'username', 'password': 'pass'},
             'esxi': {
