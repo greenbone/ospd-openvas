@@ -564,7 +564,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         self.assertFalse(r)
         self.assertIn(
-            "Unknows privacy algorithm used: "
+            "Unknown privacy algorithm used: "
             + "das"
             + ". Use 'aes', 'des' or '' (none).",
             e,
@@ -593,7 +593,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         self.assertFalse(r)
         self.assertIn(
-            "Missing authentification algorithm for SNMP."
+            "Missing authentication algorithm for SNMP."
             + " Use 'md5' or 'sha1'.",
             e,
         )
@@ -622,7 +622,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         self.assertFalse(r)
         self.assertIn(
-            "Unknown authentification algorithm: "
+            "Unknown authentication algorithm: "
             + "sha2"
             + ". Use 'md5' or 'sha1'.",
             e,
