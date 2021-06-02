@@ -136,7 +136,10 @@ class Openvas:
 
     @staticmethod
     def start_scan(
-        scan_id: str, sudo: bool = False, niceness: int = None
+        scan_id: str,
+        sudo: bool = False,
+        niceness: int = None,
+        mqtt: str = None,
     ) -> Optional[subprocess.Popen]:
         """Calls openvas to start a scan process"""
         cmd = []
@@ -144,6 +147,10 @@ class Openvas:
         if niceness:
             cmd += ['nice', '-n', niceness]
             logger.debug("Starting scan with niceness %s", niceness)
+
+        if mqtt:
+            cmd += ['mqtt', '-n', mqtt]
+            logger.debug("Starting scan with MQTT communication enabled")
 
         if sudo:
             cmd += ['sudo', '-n']
