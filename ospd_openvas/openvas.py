@@ -148,10 +148,6 @@ class Openvas:
             cmd += ['nice', '-n', niceness]
             logger.debug("Starting scan with niceness %s", niceness)
 
-        if mqtt:
-            cmd += ['mqtt', '-n', mqtt]
-            logger.debug("Starting scan with MQTT communication enabled")
-
         if sudo:
             cmd += ['sudo', '-n']
 

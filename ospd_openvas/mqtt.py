@@ -64,22 +64,14 @@ class OpenvasMQTTHandler(MQTTHandler):
 
         if scan_id in self.result_timer_min:
             self.result_timer_min[scan_id].cancel()
+        else:
+            self.result_timer_min[scan_id] = None
 
         if not scan_id in self.result_dict:
             self.result_dict[scan_id] = SimpleQueue()
 
         self.result_dict[scan_id].put(result)
 
-        self.result_timer_min[scan_id] = Timer(
-            0.5,
-            self.report_results,
-            [
-                self.res_fun,
-                self.result_dict[scan_id],
-                scan_id,
-                self.result_timer_max[scan_id],
-            ],
-        )
         if (
             not scan_id in self.result_timer_max
             or scan_id in self.result_timer_max
@@ -96,21 +88,33 @@ class OpenvasMQTTHandler(MQTTHandler):
                 ],
             )
             self.result_timer_max[scan_id].start()
+        self.result_timer_min[scan_id] = Timer(
+            0.5,
+            self.report_results,
+            [
+                self.res_fun,
+                self.result_dict[scan_id],
+                scan_id,
+                self.result_timer_max[scan_id],
+            ],
+        )
         self.result_timer_min[scan_id].start()
 
-    @staticmethod
     def report_results(
+        self,
         res_fun,
         result_queue: SimpleQueue,
         scan_id: str,
-        timer_to_reset: Timer,
+        timer_to_reset: Timer = None,
     ):
-        timer_to_reset.cancel()
+        if timer_to_reset:
+            timer_to_reset.cancel()
         results_list = []
         while not result_queue.empty():
             results_list.append(result_queue.get())
         res_fun(results_list, scan_id)
-        timer_to_reset.join()
+        if timer_to_reset:
+            timer_to_reset.join()
 
     def set_status(self, status: dict) -> None:
         # Get Scan ID
@@ -124,10 +128,10 @@ class OpenvasMQTTHandler(MQTTHandler):
         try:
             # Load msg as dictionary
             json_data = json.loads(msg.payload)
-            print(msg.topic)
 
             # Test for different plugins
             if msg.topic == "scanner/results":
                 userdata.insert_result(json_data)
         except json.JSONDecodeError:
             logger.error("Got MQTT message in non-json format.")
+            logger.debug("Got: %s", msg.payload)
