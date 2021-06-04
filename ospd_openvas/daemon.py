@@ -1015,6 +1015,8 @@ class OSPDopenvas(OSPDaemon):
         """
         results = []
         for res in all_results:
+            if not res:
+                continue
             result = {}
             msg = res.split('|||')
             result["type"] = msg[0]
