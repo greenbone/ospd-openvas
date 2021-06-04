@@ -36,8 +36,7 @@ class OpenvasMQTTHandler(MQTTHandler):
     def __init__(
         self,
         host: str,
-        report_result_function: Optional[FunctionType] = None,
-        report_stat_function: Optional[FunctionType] = None,
+        report_result_function: FunctionType,
     ):
         super().__init__(client_id="ospd-openvas", host=host)
 
@@ -52,26 +51,27 @@ class OpenvasMQTTHandler(MQTTHandler):
             self.client.subscribe("scanner/results")
             self.result_dict = {}
 
-        # Enable status handling when function is given
-        if report_stat_function:
-            self.stat_fun = report_stat_function
-            self.client.subscribe("scanner/status")
-
     def insert_result(self, result: dict) -> None:
-        """Insert given results into a list corresponding to the scan_id"""
+        """Insert given results into a list corresponding to the scan_id and
+        reports them after 0.5 seconds without new incoming results or after
+        a maximum of 10 seconds."""
 
+        # Get scan ID
         scan_id = result.pop("scan_id")
 
+        # Reset min timer
         if scan_id in self.result_timer_min:
             self.result_timer_min[scan_id].cancel()
         else:
             self.result_timer_min[scan_id] = None
 
+        # Init result queue
         if not scan_id in self.result_dict:
             self.result_dict[scan_id] = SimpleQueue()
 
         self.result_dict[scan_id].put(result)
 
+        # Start max timer if it is not running
         if (
             not scan_id in self.result_timer_max
             or scan_id in self.result_timer_max
@@ -88,6 +88,8 @@ class OpenvasMQTTHandler(MQTTHandler):
                 ],
             )
             self.result_timer_max[scan_id].start()
+
+        # Start min timer
         self.result_timer_min[scan_id] = Timer(
             0.5,
             self.report_results,
@@ -107,6 +109,7 @@ class OpenvasMQTTHandler(MQTTHandler):
         scan_id: str,
         timer_to_reset: Timer = None,
     ):
+        """Report results with given res_fun."""
         if timer_to_reset:
             timer_to_reset.cancel()
         results_list = []
@@ -115,11 +118,6 @@ class OpenvasMQTTHandler(MQTTHandler):
         res_fun(results_list, scan_id)
         if timer_to_reset:
             timer_to_reset.join()
-
-    def set_status(self, status: dict) -> None:
-        # Get Scan ID
-        scan_id = status.pop("scan_id")
-        logger.debug("Got status update from: %s", scan_id)
 
     @staticmethod
     def on_message(client, userdata, msg):

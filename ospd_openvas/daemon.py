@@ -1000,15 +1000,19 @@ class OSPDopenvas(OSPDaemon):
         self.sort_host_finished(scan_id, finished_hosts)
 
     def report_openvas_results_redis(self, db: BaseDB, scan_id: str) -> bool:
+        """Get all results from redis kb and add them into the scan table"""
         all_results = db.get_result()
 
-        return self.report_openvas_results_redis_format_to_json(
+        return self.report_openvas_results_redis_format_to_dict(
             scan_id, all_results
         )
 
-    def report_openvas_results_redis_format_to_json(
+    def report_openvas_results_redis_format_to_dict(
         self, scan_id: str, all_results: list
     ) -> bool:
+        """Transforms all Results from redis format into a dictionary format
+        and add them into the scan table
+        """
         results = []
         for res in all_results:
             result = {}
@@ -1031,12 +1035,9 @@ class OSPDopenvas(OSPDaemon):
         results: list,
         scan_id: str,
     ) -> bool:
-        """Get all result entries from redis kb."""
+        """Add results given as dictionaries into the scan table."""
 
         vthelper = VtHelper(self.nvti)
-
-        # Result messages come in the next form, with optional uri field
-        # type ||| host ip ||| hostname ||| port ||| OID ||| value [|||uri]
 
         res_list = ResultList()
         total_dead = 0
