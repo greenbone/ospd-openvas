@@ -139,7 +139,6 @@ class Openvas:
         scan_id: str,
         sudo: bool = False,
         niceness: int = None,
-        mqtt: str = None,
     ) -> Optional[subprocess.Popen]:
         """Calls openvas to start a scan process"""
         cmd = []
