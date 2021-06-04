@@ -1,10 +1,10 @@
+from abc import abstractstaticmethod
 import json
 import logging
 
 from threading import Timer
 from queue import SimpleQueue
 from types import FunctionType
-from typing import Optional
 
 import paho.mqtt.client as mqtt
 
@@ -25,9 +25,9 @@ class MQTTHandler:
 
         self.client.publish(topic, msg)
 
-    @staticmethod
+    @abstractstaticmethod
     def on_message(client, userdata, msg):
-        return
+        raise NotImplementedError()
 
 
 class OpenvasMQTTHandler(MQTTHandler):
