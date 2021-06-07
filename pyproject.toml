@@ -52,12 +52,12 @@ sentry-sdk = "^1.1.0"
 paho-mqtt = "^1.5.1"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.8.1"
+pylint = "^2.8.3"
 rope = "^0.19.0"
 autohooks-plugin-pylint = "^1.2.0"
 autohooks-plugin-black = {version = "^1.2.0", python = "^3.7"}
 pontos = "^21.4.0"
-black = {version = "21.5b1", python = "^3.7"}
+black = {version = "21.5b2", python = "^3.7"}
 
 [tool.poetry.scripts]
 ospd-openvas = "ospd_openvas.daemon:main"
