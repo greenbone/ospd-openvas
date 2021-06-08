@@ -1,5 +1,5 @@
 import logging
-import time
+import threading
 
 from unittest.case import TestCase
 from unittest.mock import MagicMock, patch
@@ -29,6 +29,8 @@ class TestMQTT(TestCase):
         )
 
     def test_insert_results(self, mock_client: MagicMock):
+        def start(self):
+            self.function(*self.args, **self.kwargs)
 
         results_dict = {}
         expct_dict = {
@@ -53,16 +55,15 @@ class TestMQTT(TestCase):
                 results_dict[scan_id] = []
             results_dict[scan_id] += results
 
-        mqtt = OpenvasMQTTHandler("foo", add_results)
-        mqtt.on_message(
-            None,
-            mqtt,
-            msg,
-        )
+        with patch.object(threading.Timer, 'start', start):
+            mqtt = OpenvasMQTTHandler("foo", add_results)
+            mqtt.on_message(
+                None,
+                mqtt,
+                msg,
+            )
 
-        self.assertDictEqual(results_dict, {})
-        time.sleep(0.3)
-        self.assertDictEqual(results_dict, expct_dict)
+            self.assertDictEqual(results_dict, expct_dict)
 
     def test_json_format(self, mock_client: MagicMock):
 

@@ -52,9 +52,8 @@ class OpenvasMQTTHandler(MQTTHandler):
             self.result_dict = {}
 
     def insert_result(self, result: dict) -> None:
-        """Insert given results into a list corresponding to the scan_id and
-        reports them after 0.5 seconds without new incoming results or after
-        a maximum of 10 seconds."""
+        """Inserts result into a queue. Queue gets emptied after 0.25 seconds
+        after first result is inserted"""
 
         # Get scan ID
         scan_id = result.pop("scan_id")
@@ -63,15 +62,19 @@ class OpenvasMQTTHandler(MQTTHandler):
         if not scan_id in self.result_dict:
             self.result_dict[scan_id] = SimpleQueue()
 
-        # Start Timer when result queue is empty
+        timer = None
+        # Setup Timer when result queue is empty
         if self.result_dict[scan_id].empty():
-            Timer(
+            timer = Timer(
                 0.25,
                 self.report_results,
                 [self.res_fun, self.result_dict[scan_id], scan_id],
-            ).start()
+            )
 
         self.result_dict[scan_id].put(result)
+
+        if timer:
+            timer.start()
 
     @staticmethod
     def report_results(
