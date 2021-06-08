@@ -1423,6 +1423,8 @@ class OSPDopenvas(OSPDaemon):
 
             # Scan end. No kb in use for this scan id
             if kbdb.target_is_finished(scan_id):
+                if self._mqtt:
+                    time.sleep(0.3)
                 logger.debug('%s: Target is finished', scan_id)
                 break
 

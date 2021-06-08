@@ -15,15 +15,17 @@ class MQTTHandler:
     """Simple Handler for MQTT traffic."""
 
     def __init__(self, client_id: str, host: str):
-        self.client = mqtt.Client(client_id, userdata=self)
+        self.client = mqtt.Client(
+            client_id, userdata=self, protocol=mqtt.MQTTv5
+        )
         self.client.connect(host)
         self.client.on_message = self.on_message
         self.client.loop_start()
 
     def publish(self, topic, msg):
         """Publish Messages via MQTT"""
-
         self.client.publish(topic, msg)
+        logger.debug("Published message on topic %s.", topic)
 
     @abstractstaticmethod
     def on_message(client, userdata, msg):
@@ -46,8 +48,6 @@ class OpenvasMQTTHandler(MQTTHandler):
         # Enable result handling when function is given
         if report_result_function:
             self.res_fun = report_result_function
-            self.result_timer_min = {}
-            self.result_timer_max = {}
             self.client.subscribe("scanner/results")
             self.result_dict = {}
 
@@ -59,70 +59,39 @@ class OpenvasMQTTHandler(MQTTHandler):
         # Get scan ID
         scan_id = result.pop("scan_id")
 
-        # Reset min timer
-        if scan_id in self.result_timer_min:
-            self.result_timer_min[scan_id].cancel()
-        else:
-            self.result_timer_min[scan_id] = None
-
         # Init result queue
         if not scan_id in self.result_dict:
             self.result_dict[scan_id] = SimpleQueue()
 
+        # Start Timer when result queue is empty
+        if self.result_dict[scan_id].empty():
+            Timer(
+                0.25,
+                self.report_results,
+                [self.res_fun, self.result_dict[scan_id], scan_id],
+            ).start()
+
         self.result_dict[scan_id].put(result)
 
-        # Start max timer if it is not running
-        if (
-            not scan_id in self.result_timer_max
-            or scan_id in self.result_timer_max
-            and not self.result_timer_max[scan_id].is_alive()
-        ):
-            self.result_timer_max[scan_id] = Timer(
-                10,
-                self.report_results,
-                [
-                    self.res_fun,
-                    self.result_dict[scan_id],
-                    scan_id,
-                    self.result_timer_min[scan_id],
-                ],
-            )
-            self.result_timer_max[scan_id].start()
-
-        # Start min timer
-        self.result_timer_min[scan_id] = Timer(
-            0.5,
-            self.report_results,
-            [
-                self.res_fun,
-                self.result_dict[scan_id],
-                scan_id,
-                self.result_timer_max[scan_id],
-            ],
-        )
-        self.result_timer_min[scan_id].start()
-
+    @staticmethod
     def report_results(
-        self,
-        res_fun,
+        res_fun: FunctionType,
         result_queue: SimpleQueue,
         scan_id: str,
-        timer_to_reset: Timer = None,
     ):
         """Report results with given res_fun."""
-        if timer_to_reset:
-            timer_to_reset.cancel()
+
+        # Create and fill result list
         results_list = []
         while not result_queue.empty():
             results_list.append(result_queue.get())
+
+        # Insert results into scan table
         res_fun(results_list, scan_id)
-        if timer_to_reset:
-            timer_to_reset.join()
 
     @staticmethod
     def on_message(client, userdata, msg):
         """Insert results"""
-        logger.debug("Got MQTT message in topic %s", msg.topic)
         try:
             # Load msg as dictionary
             json_data = json.loads(msg.payload)
