@@ -162,21 +162,21 @@ class GetVersion(BaseCommand):
 
 
 GVMCG_TITLES = [
-    'cpu-*',
+    'cpu-.*',
     'proc',
     'mem',
     'swap',
     'load',
-    'df-*',
+    'df-.*',
     'disk-sd[a-z][0-9]-rw',
     'disk-sd[a-z][0-9]-load',
     'disk-sd[a-z][0-9]-io-load',
-    'interface-eth*-traffic',
-    'interface-eth*-err-rate',
-    'interface-eth*-err',
-    'sensors-*_temperature-*',
-    'sensors-*_fanspeed-*',
-    'sensors-*_voltage-*',
+    'interface-eth.*-traffic',
+    'interface-eth.*-err-rate',
+    'interface-eth.*-err',
+    'sensors-.*_temperature-.*',
+    'sensors-.*_fanspeed-.*',
+    'sensors-.*_voltage-.*',
     'titles',
 ]  # type: List[str]
 
