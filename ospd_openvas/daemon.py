@@ -454,7 +454,10 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['version'] = ''  # achieved during self.init()
         self.scanner_info['description'] = OSPD_DESC
 
-        self._mqtt = str(mqtt)
+        if mqtt:
+            self._mqtt = str(mqtt)
+        else:
+            self._mqtt = None
 
         for name, param in OSPD_PARAMS.items():
             self.set_scanner_param(name, param)
