@@ -550,7 +550,8 @@ class KbDB(BaseKbDB):
 
         if status is None:
             logger.info(
-                "%s: Target set as finished, but the status is None.", scan_id
+                "%s: Target set as finished because redis returned None as scanner status.",
+                scan_id,
             )
 
         return status == 'finished' or status is None
