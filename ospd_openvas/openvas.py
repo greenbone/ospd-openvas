@@ -136,7 +136,9 @@ class Openvas:
 
     @staticmethod
     def start_scan(
-        scan_id: str, sudo: bool = False, niceness: int = None
+        scan_id: str,
+        sudo: bool = False,
+        niceness: int = None,
     ) -> Optional[subprocess.Popen]:
         """Calls openvas to start a scan process"""
         cmd = []
