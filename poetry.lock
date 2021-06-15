@@ -21,7 +21,7 @@ wrapt = ">=1.11,<1.13"
 
 [[package]]
 name = "autohooks"
-version = "21.3.0"
+version = "21.6.0"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
@@ -46,15 +46,15 @@ black = "*"
 
 [[package]]
 name = "autohooks-plugin-pylint"
-version = "1.2.0"
-description = "Autohooks plugin for code linting via pylint"
+version = "21.6.0"
+description = "An autohooks plugin for python code linting via pylint"
 category = "dev"
 optional = false
-python-versions = ">=3.5"
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-autohooks = ">=1.1"
-pylint = "*"
+autohooks = ">=2.2.0"
+pylint = ">=2.8.3,<3.0.0"
 
 [[package]]
 name = "bcrypt"
@@ -74,7 +74,7 @@ typecheck = ["mypy"]
 
 [[package]]
 name = "black"
-version = "21.5b2"
+version = "21.6b0"
 description = "The uncompromising code formatter."
 category = "dev"
 optional = false
@@ -290,7 +290,7 @@ psutil = "^5.7.2"
 type = "git"
 url = "https://github.com/greenbone/ospd.git"
 reference = "master"
-resolved_reference = "ccc8b2e8d061acbfeba6a92abbcf70e3b5e47224"
+resolved_reference = "cd60fb475178bdc5c915649fdf7552aa5a04f317"
 
 [[package]]
 name = "packaging"
@@ -343,13 +343,14 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "pontos"
-version = "21.4.0"
+version = "21.6.3"
 description = "Common utilities and tools maintained by Greenbone Networks"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
+colorful = ">=0.5.4,<0.6.0"
 packaging = ">=20.3,<21.0"
 requests = ">=2.24.0,<3.0.0"
 tomlkit = ">=0.5.11"
@@ -564,7 +565,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "24482b97ded7f9d446a3b9a165093f5fe0ec7e67023216a56b2c21149739d000"
+content-hash = "5ac9bfe454cf689c0ab1e35edad65f791324eb9b13ceba6150ce42f2f6e4cded"
 
 [metadata.files]
 appdirs = [
@@ -576,16 +577,16 @@ astroid = [
     {file = "astroid-2.5.6.tar.gz", hash = "sha256:8a398dfce302c13f14bab13e2b14fe385d32b73f4e4853b9bdfb64598baa1975"},
 ]
 autohooks = [
-    {file = "autohooks-21.3.0-py3-none-any.whl", hash = "sha256:7674ff73741825de83a5b3a5fb701528571810e8d67d3800f4d9167be43f1550"},
-    {file = "autohooks-21.3.0.tar.gz", hash = "sha256:9759b446f4f14712f87b1ce30f9d3cb37a78168e75235b381772cc2356296c6d"},
+    {file = "autohooks-21.6.0-py3-none-any.whl", hash = "sha256:756c42f05ea24228d94c3ea3af9ab755547a3bd972edc0cebb8bb11ad6c28169"},
+    {file = "autohooks-21.6.0.tar.gz", hash = "sha256:237d558eb57b599401a68def3a2e1217d16ea3dc1e520ce0f9947bb4a9cb656b"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-1.2.0.tar.gz", hash = "sha256:e69a18209f3fd584da903e87faf0e3685caa4d51a9e870ddb3c2b1aef93387b8"},
     {file = "autohooks_plugin_black-1.2.0-py3-none-any.whl", hash = "sha256:5099f620e01d3fcfd70195e63f101d003528b40475e921829a9ebde000f2c5ee"},
 ]
 autohooks-plugin-pylint = [
-    {file = "autohooks-plugin-pylint-1.2.0.tar.gz", hash = "sha256:b1acc77b7845622d969ea2bfe5d8a95ae16a80c2282ca43888f522c9be479d10"},
-    {file = "autohooks_plugin_pylint-1.2.0-py3-none-any.whl", hash = "sha256:f08cef7ce4374661a2087e621e8fda411f3b2c19ebb7c92c7ac47b57892f7a3d"},
+    {file = "autohooks-plugin-pylint-21.6.0.tar.gz", hash = "sha256:6f1a486f19c8012618fecd9eaa985f5da3ef5c954b32d823323439547b947302"},
+    {file = "autohooks_plugin_pylint-21.6.0-py3-none-any.whl", hash = "sha256:0d6ab34739d4c494012aa1647c02e6a4fb9474e4050432ee82f378fcd05c70e4"},
 ]
 bcrypt = [
     {file = "bcrypt-3.2.0-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:c95d4cbebffafcdd28bd28bb4e25b31c50f6da605c81ffd9ad8a3d1b2ab7b1b6"},
@@ -597,8 +598,8 @@ bcrypt = [
     {file = "bcrypt-3.2.0.tar.gz", hash = "sha256:5b93c1726e50a93a033c36e5ca7fdcd29a5c7395af50a6892f5d9e7c6cfbfb29"},
 ]
 black = [
-    {file = "black-21.5b2-py3-none-any.whl", hash = "sha256:e5cf21ebdffc7a9b29d73912b6a6a9a4df4ce70220d523c21647da2eae0751ef"},
-    {file = "black-21.5b2.tar.gz", hash = "sha256:1fc0e0a2c8ae7d269dfcf0c60a89afa299664f3e811395d40b1922dff8f854b5"},
+    {file = "black-21.6b0-py3-none-any.whl", hash = "sha256:dfb8c5a069012b2ab1e972e7b908f5fb42b6bbabcba0a788b86dc05067c7d9c7"},
+    {file = "black-21.6b0.tar.gz", hash = "sha256:dc132348a88d103016726fe360cb9ede02cecf99b76e3660ce6c596be132ce04"},
 ]
 certifi = [
     {file = "certifi-2021.5.30-py2.py3-none-any.whl", hash = "sha256:50b1e4f8446b06f41be7dd6338db18e0990601dce795c2b1686458aa7e8fa7d8"},
@@ -780,8 +781,8 @@ pathspec = [
     {file = "pathspec-0.8.1.tar.gz", hash = "sha256:86379d6b86d75816baba717e64b1a3a3469deb93bb76d613c9ce79edc5cb68fd"},
 ]
 pontos = [
-    {file = "pontos-21.4.0-py3-none-any.whl", hash = "sha256:bc98903e164c6442e680700343251aa962f721cfb9802717bcffd372eb2b7b8d"},
-    {file = "pontos-21.4.0.tar.gz", hash = "sha256:83390bf5b7f0cd13f84043a64dbbcb3ac8a2c3d7723e84d8e7fc66316e8cd1f1"},
+    {file = "pontos-21.6.3-py3-none-any.whl", hash = "sha256:6600377ab6fc2bed41e439d21146dae25dbef6800834f7f764ed97dfe0ab0db2"},
+    {file = "pontos-21.6.3.tar.gz", hash = "sha256:484b981de10bc6fc90f9f2085eff0826dd4911ba077b53257faf2d765e738b5f"},
 ]
 psutil = [
     {file = "psutil-5.8.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:0066a82f7b1b37d334e68697faba68e5ad5e858279fd6351c8ca6024e8d6ba64"},
