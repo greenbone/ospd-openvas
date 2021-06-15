@@ -542,6 +542,13 @@ class KbDB(BaseKbDB):
 
         status = self._get_single_item('internal/{}'.format(scan_id))
 
+        if status is None:
+            logger.info(
+                "%s: Target set as finished because redis returned None as "
+                "scanner status.",
+                scan_id,
+            )
+
         return status == 'finished' or status is None
 
     def stop_scan(self, openvas_scan_id: str):
