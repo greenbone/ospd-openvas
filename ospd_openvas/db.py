@@ -544,7 +544,8 @@ class KbDB(BaseKbDB):
 
         if status is None:
             logger.info(
-                "%s: Target set as finished because redis returned None as scanner status.",
+                "%s: Target set as finished because redis returned None as "
+                "scanner status.",
                 scan_id,
             )
 
