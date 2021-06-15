@@ -549,7 +549,9 @@ class KbDB(BaseKbDB):
         status = self._get_single_item('internal/{}'.format(openvas_scan_id))
 
         if status is None:
-            logger.info("Target set as finished, but the status is None.")
+            logger.info(
+                "%s: Target set as finished, but the status is None.", scan_id
+            )
 
         return status == 'finished' or status is None
 
