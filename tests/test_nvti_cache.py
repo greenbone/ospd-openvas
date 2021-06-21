@@ -26,8 +26,12 @@ import logging
 from unittest import TestCase
 from unittest.mock import patch, Mock, PropertyMock
 
+<<<<<<< HEAD
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache
+=======
+from ospd_openvas.nvticache import NVTICache, NVTI_CACHE_NAME
+>>>>>>> 19ead0a (Pylint nvt_cache test)
 
 from tests.helper import assert_called
 
