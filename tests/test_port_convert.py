@@ -30,7 +30,7 @@ from ospd.network import (
 
 class ConvertPortTestCase(unittest.TestCase):
     def test_tcp_ports(self):
-        """ Test only tcp ports."""
+        """Test only tcp ports."""
         tports, uports = ports_as_list('T:1-10,30,31')
 
         self.assertIsNotNone(tports)
@@ -44,7 +44,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertIn(31, tports)
 
     def test_udp_ports(self):
-        """ Test only udp ports."""
+        """Test only udp ports."""
         tports, uports = ports_as_list('U:1-10')
 
         self.assertIsNotNone(uports)
@@ -55,7 +55,7 @@ class ConvertPortTestCase(unittest.TestCase):
             self.assertIn(i, uports)
 
     def test_both_ports(self):
-        """ Test tcp und udp ports."""
+        """Test tcp und udp ports."""
         tports, uports = ports_as_list('T:1-10, U:1-10')
 
         self.assertIsNotNone(tports)
@@ -71,7 +71,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertNotIn(0, uports)
 
     def test_both_ports_udp_first(self):
-        """ Test tcp und udp ports, but udp listed first."""
+        """Test tcp und udp ports, but udp listed first."""
         tports, uports = ports_as_list('U:20-30, T:1-10')
 
         self.assertIsNotNone(tports)
@@ -87,7 +87,7 @@ class ConvertPortTestCase(unittest.TestCase):
             self.assertIn(i, uports)
 
     def test_not_spec_type_ports(self):
-        """ Test port list without specific type. """
+        """Test port list without specific type."""
         tports, uports = ports_as_list('51-60')
 
         self.assertIsNotNone(tports)
@@ -98,21 +98,21 @@ class ConvertPortTestCase(unittest.TestCase):
             self.assertIn(i, tports)
 
     def test_invalid_char_port(self):
-        """ Test list with a false char. """
+        """Test list with a false char."""
         tports, uports = ports_as_list('R:51-60')
 
         self.assertIsNone(tports)
         self.assertIsNone(uports)
 
     def test_empty_port(self):
-        """ Test an empty port list. """
+        """Test an empty port list."""
         tports, uports = ports_as_list('')
 
         self.assertIsNone(tports)
         self.assertIsNone(uports)
 
     def test_get_spec_type_ports(self):
-        """ Test get specific type ports."""
+        """Test get specific type ports."""
         uports = get_udp_port_list('U:9392,9393T:22')
 
         self.assertEqual(len(uports), 2)
@@ -126,7 +126,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertIn(443, tports)
 
     def test_malformed_port_string(self):
-        """ Test different malformed port list. """
+        """Test different malformed port list."""
         tports, uports = ports_as_list('TU:1-2')
 
         self.assertIsNone(tports)
@@ -149,7 +149,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertIsNone(uports)
 
     def test_compress_list(self):
-        """ Test different malformed port list. """
+        """Test different malformed port list."""
         port_list = [1, 2, 3, 4, 5, 8, 9, 10, 22, 24, 29, 30]
         string = port_list_compress(port_list)
 
