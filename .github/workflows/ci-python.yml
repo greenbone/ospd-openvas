@@ -47,7 +47,7 @@ jobs:
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v1
       - name: Run unit tests
-        run: poetry run python -m pytest
+        run: poetry run python -m unittest
 
   codecov:
     name: Upload coverage to codecov.io
@@ -64,4 +64,4 @@ jobs:
       - name: Calculate and upload coverage to codecov.io
         uses: greenbone/actions/coverage-python@v1
         with:
-          test-command: -m pytest
+          test-command: -m unittest
