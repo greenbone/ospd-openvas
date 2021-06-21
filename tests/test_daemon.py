@@ -35,7 +35,6 @@ from tests.helper import assert_called_once
 from ospd_openvas.daemon import (
     OSPD_PARAMS,
     OpenVasVtsFilter,
-    is_openvas_process_alive,
 )
 from ospd_openvas.openvas import Openvas
 
@@ -878,7 +877,7 @@ class TestOspdOpenvas(TestCase):
 
     @patch('ospd_openvas.db.KbDB')
     def test_openvas_is_alive_already_stopped(self, mock_db):
-        DummyDaemon()
+        w = DummyDaemon()
         # mock_psutil = MockPsutil.return_value
         mock_db.scan_is_stopped.return_value = True
         ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
@@ -888,6 +887,7 @@ class TestOspdOpenvas(TestCase):
     @patch('psutil.Process')
     @patch('ospd_openvas.db.KbDB')
     def test_openvas_is_alive_still(self, mock_db, mock_psutil):
+        w = DummyDaemon()
         mock_psutil.side_effect = TypeError
         mock_db.scan_is_stopped.return_value = False
         ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d3')
