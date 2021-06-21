@@ -27,13 +27,16 @@ import logging
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
-from ospd.vts import Vts
 from ospd.protocol import OspRequest
 
 from tests.dummydaemon import DummyDaemon
 from tests.helper import assert_called_once
 
-from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter
+from ospd_openvas.daemon import (
+    OSPD_PARAMS,
+    OpenVasVtsFilter,
+    is_openvas_process_alive,
+)
 from ospd_openvas.openvas import Openvas
 
 OSPD_PARAMS_OUT = {
@@ -872,7 +875,7 @@ class TestOspdOpenvas(TestCase):
 
     @patch('ospd_openvas.db.KbDB')
     def test_openvas_is_alive_already_stopped(self, mock_db):
-        w = DummyDaemon()
+        DummyDaemon()
         # mock_psutil = MockPsutil.return_value
         mock_db.scan_is_stopped.return_value = True
         ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
@@ -880,9 +883,14 @@ class TestOspdOpenvas(TestCase):
         self.assertTrue(ret)
 
     @patch('ospd_openvas.db.KbDB')
+<<<<<<< HEAD
     def test_openvas_is_alive_still(self, mock_db):
         w = DummyDaemon()
         # mock_psutil = MockPsutil.return_value
+=======
+    def test_openvas_is_alive_still(self, mock_db, mock_psutil):
+        mock_psutil.side_effect = TypeError
+>>>>>>> 8c15e87 (Pylint preference handler tests)
         mock_db.scan_is_stopped.return_value = False
         ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
 
