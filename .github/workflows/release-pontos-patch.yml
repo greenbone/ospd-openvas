@@ -1,4 +1,4 @@
-name: Release Python package with pontos
+name: Release Python package patch version with pontos
 
 on:
   pull_request:
@@ -23,13 +23,8 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-    - name: Install pontos
-      run: |
-        apt-get update && apt-get --assume-yes install python3-venv
-        python3 -m venv venv
-        . venv/bin/activate
-        python -m pip install --upgrade pip
-        python -m pip install --upgrade pontos
+    - name: Install poetry and dependencies
+      uses: greenbone/actions/poetry@v1
     - name: Tell git who I am
       run: |
         git config --global user.name "${{ env.GITHUB_USER }}"
@@ -40,10 +35,6 @@ jobs:
       # we always should've checked out the correct branch'
       run: echo "Current Branch is $GITHUB_BASE_REF"
     - name: Prepare patch release with pontos
-      run: |
-        . venv/bin/activate
-        pontos-release prepare --patch
+      run: poetry run pontos-release prepare --patch
     - name: Release with pontos
-      run: |
-        . venv/bin/activate
-        pontos-release release
+      run: poetry run pontos-release release
