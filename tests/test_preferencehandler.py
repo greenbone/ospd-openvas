@@ -397,13 +397,13 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, w.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
         ret = p_handler.prepare_credentials_for_openvas()
 
-        self.assertFalse(r)
+        self.assertFalse(ret)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_credentials_empty(self, mock_kb):
