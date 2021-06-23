@@ -35,6 +35,6 @@ jobs:
       # we always should've checked out the correct branch'
       run: echo "Current Branch is $GITHUB_BASE_REF"
     - name: Prepare patch release with pontos
-      run: pontos-release prepare --patch
+      run: poetry run pontos-release prepare --patch
     - name: Release with pontos
-      run: pontos-release release
+      run: poetry run pontos-release release
