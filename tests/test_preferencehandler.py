@@ -1237,8 +1237,8 @@ class PreferenceHandlerTestCase(TestCase):
             p_handler.prepare_alive_test_option_for_openvas()
 
             self.assertEqual(
-                p_handler._nvts_params,
-                alive_test_out,  # pylint: disable = protected-access
+                p_handler._nvts_params,  # pylint: disable = protected-access
+                alive_test_out,
             )
 
     @patch('ospd_openvas.db.KbDB')
