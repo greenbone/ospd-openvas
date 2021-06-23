@@ -95,7 +95,7 @@ class VtHelperTestCase(TestCase):
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
-            'last_modification': ('1533906565'),
+            'last_modification': '1533906565',
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
@@ -104,7 +104,7 @@ class VtHelperTestCase(TestCase):
             'solution_method': 'DebianAPTUpgrade',
             'impact': 'some impact',
             'insight': 'some insight',
-            'summary': ('some summary'),
+            'summary': 'some summary',
             'affected': 'some affection',
             'timeout': '0',
             'vt_params': {
@@ -119,7 +119,10 @@ class VtHelperTestCase(TestCase):
                     'id': '2',
                     'default': 'no',
                     'description': 'Description',
-                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'name': (  # pylint: disable=line-too-long
+                        'Do not randomize the  order  in  which ports are'
+                        ' scanned'
+                    ),
                     'type': 'checkbox',
                 },
             },
@@ -153,7 +156,7 @@ class VtHelperTestCase(TestCase):
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
-            'last_modification': ('1533906565'),
+            'last_modification': '1533906565',
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
@@ -162,7 +165,7 @@ class VtHelperTestCase(TestCase):
             'solution_method': 'DebianAPTUpgrade',
             'impact': 'some impact',
             'insight': 'some insight',
-            'summary': ('some summary'),
+            'summary': 'some summary',
             'affected': 'some affection',
             'timeout': '0',
             'vt_params': {
@@ -177,7 +180,10 @@ class VtHelperTestCase(TestCase):
                     'id': '2',
                     'default': 'no',
                     'description': 'Description',
-                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'name': (  # pylint: disable=line-too-long
+                        'Do not randomize the  order  in  which ports are'
+                        ' scanned'
+                    ),
                     'type': 'checkbox',
                 },
             },
@@ -220,7 +226,9 @@ class VtHelperTestCase(TestCase):
         vtaux = {
             'severities': {
                 'severity_type': 'cvss_base_v3',
-                'severity_base_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
+                'severity_base_vector': (
+                    'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L'
+                ),
             }
         }
 
