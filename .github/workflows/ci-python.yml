@@ -13,7 +13,10 @@ jobs:
     strategy:
         matrix:
           python-version:
+            - 3.5
+            - 3.6
             - 3.7
+            - 3.8
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -33,7 +36,10 @@ jobs:
     strategy:
         matrix:
           python-version:
+            - 3.5
+            - 3.6
             - 3.7
+            - 3.8
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ matrix.python-version }}
@@ -54,10 +60,8 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.8
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v1
       - name: Calculate and upload coverage to codecov.io
         uses: greenbone/actions/coverage-python@v1
-        with:
-          test-command: -m unittest
