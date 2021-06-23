@@ -56,7 +56,7 @@ SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
     import sentry_sdk
 
-    sentry_sdk.init(
+    sentry_sdk.init(  # pylint: disable=abstract-class-instantiated
         SENTRY_DSN_OSPD_OPENVAS,
         traces_sample_rate=1.0,
         server_name=environ.get('SENTRY_SERVER_NAME'),
