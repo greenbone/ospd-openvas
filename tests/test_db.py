@@ -228,8 +228,6 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_pattern(ctx, None)
 
     def test_get_filenames_and_oids_error(self, mock_redis):
-        ctx = mock_redis.return_value
-
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_filenames_and_oids(None)
 

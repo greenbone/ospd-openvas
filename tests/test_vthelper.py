@@ -17,8 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import logging
-
 from hashlib import sha256
 from unittest import TestCase
 
@@ -30,16 +28,16 @@ from ospd_openvas.vthelper import VtHelper
 
 class VtHelperTestCase(TestCase):
     def test_get_single_vt(self):
-        w = DummyDaemon()
-        vthelper = VtHelper(w.nvti)
+        dummy = DummyDaemon()
+        vthelper = VtHelper(dummy.nvti)
         res = vthelper.get_single_vt("1.3.6.1.4.1.25623.1.0.100061")
 
-        assert_called_once(w.nvti.get_nvt_metadata)
+        assert_called_once(dummy.nvti.get_nvt_metadata)
         self.assertEqual("Mantis Detection", res.get('name'))
 
     def test_calculate_vts_collection_hash_no_params(self):
-        w = DummyDaemon()
-        vthelper = VtHelper(w.nvti)
+        dummy = DummyDaemon()
+        vthelper = VtHelper(dummy.nvti)
         hash_out = vthelper.calculate_vts_collection_hash()
 
         vt_hash_str = (
@@ -55,8 +53,8 @@ class VtHelperTestCase(TestCase):
         self.assertEqual(hash_test, hash_out)
 
     def test_get_vt_iterator(self):
-        w = DummyDaemon()
-        vthelper = VtHelper(w.nvti)
+        dummy = DummyDaemon()
+        vthelper = VtHelper(dummy.nvti)
 
         vt = ["1.3.6.1.4.1.25623.1.0.100061"]
 
@@ -64,31 +62,22 @@ class VtHelperTestCase(TestCase):
             self.assertIn(key, vt)
 
     def test_get_vt_iterator_with_filter(self):
-        w = DummyDaemon()
-        vthelper = VtHelper(w.nvti)
+        dummy = DummyDaemon()
+        vthelper = VtHelper(dummy.nvti)
 
         vt = ["1.3.6.1.4.1.25623.1.0.100061"]
 
-        vtout = w.VTS["1.3.6.1.4.1.25623.1.0.100061"]
+        vtout = dummy.VTS["1.3.6.1.4.1.25623.1.0.100061"]
 
         for key, vt_dict in vthelper.get_vt_iterator(vt_selection=vt):
             self.assertIn(key, vt)
-            for key in vtout:
-                self.assertIn(key, vt_dict)
+            for key2 in vtout:
+                self.assertIn(key2, vt_dict)
 
     def test_get_vt_iterator_with_filter_no_vt(self):
-        w = DummyDaemon()
-        vthelper = VtHelper(w.nvti)
-        w.nvti.get_nvt_metadata.return_value = None
-        vt = ["1.3.6.1.4.1.25623.1.0.100065"]
-
-        for _, values in vthelper.get_vt_iterator(vt_selection=vt):
-            self.assertIs(values, None)
-
-    def test_get_vt_iterator_with_filter_no_vt(self):
-        w = DummyDaemon()
-        vthelper = VtHelper(w.nvti)
-        w.nvti.get_nvt_metadata.return_value = None
+        dummy = DummyDaemon()
+        vthelper = VtHelper(dummy.nvti)
+        dummy.nvti.get_nvt_metadata.return_value = None
         vt = ["1.3.6.1.4.1.25623.1.0.100065"]
 
         for _, values in vthelper.get_vt_iterator(vt_selection=vt):

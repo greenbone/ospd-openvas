@@ -16,19 +16,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable = too-many-lines, protected-access
 
 import logging
 
 from unittest import TestCase
 from unittest.mock import call, patch, Mock, MagicMock
-from collections import OrderedDict
-
-from ospd.vts import Vts
 
 from tests.dummydaemon import DummyDaemon
 from tests.helper import assert_called_once
-
-import ospd_openvas.db
 
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.preferencehandler import (
@@ -42,7 +38,7 @@ from ospd_openvas.preferencehandler import (
 class PreferenceHandlerTestCase(TestCase):
     @patch('ospd_openvas.db.KbDB')
     def test_process_vts_not_found(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         logging.Logger.warning = Mock()
 
         vts = {
@@ -50,28 +46,32 @@ class PreferenceHandlerTestCase(TestCase):
             'vt_groups': ['family=debian', 'family=general'],
         }
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
-        w.nvti.get_nvt_metadata.return_value = None
-        p._process_vts(vts)
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti
+        )
+        dummy.nvti.get_nvt_metadata.return_value = None
+        p_handler._process_vts(vts)  # pylint: disable = protected-access
 
         assert_called_once(logging.Logger.warning)
 
     def test_process_vts_bad_param_id(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         vts = {
             '1.3.6.1.4.1.25623.1.0.100061': {'3': 'new value'},
             'vt_groups': ['family=debian', 'family=general'],
         }
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, w.nvti)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, dummy.nvti
+        )
 
-        ret = p._process_vts(vts)
+        ret = p_handler._process_vts(vts)  # pylint: disable = protected-access
 
         self.assertFalse(ret[1])
 
     def test_process_vts(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         vts = {
             '1.3.6.1.4.1.25623.1.0.100061': {'1': 'new value'},
@@ -82,49 +82,56 @@ class PreferenceHandlerTestCase(TestCase):
             {'1.3.6.1.4.1.25623.1.0.100061:1:entry:Data length :': 'new value'},
         )
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, w.nvti)
-        ret = p._process_vts(vts)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, dummy.nvti
+        )
+        ret = p_handler._process_vts(vts)  # pylint: disable = protected-access
 
         self.assertEqual(ret, vt_out)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_plugins_false(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
-        w.scan_collection.get_vts = Mock()
-        w.scan_collection.get_vts.return_value = {}
+        dummy.scan_collection.get_vts = Mock()
+        dummy.scan_collection.get_vts.return_value = {}
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
-        p.kbdb.add_scan_preferences = Mock()
-        r = p.prepare_plugins_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti
+        )
+        p_handler.kbdb.add_scan_preferences = Mock()
+        ret = p_handler.prepare_plugins_for_openvas()
 
-        self.assertFalse(r)
+        self.assertFalse(ret)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_plugins_true(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         vts = {
             '1.3.6.1.4.1.25623.1.0.100061': {'3': 'new value'},
             'vt_groups': ['family=debian', 'family=general'],
         }
 
-        w.scan_collection.get_vts = Mock()
-        w.scan_collection.get_vts.return_value = vts
+        dummy.scan_collection.get_vts = Mock()
+        dummy.scan_collection.get_vts.return_value = vts
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, w.nvti)
-        p.kbdb.add_scan_preferences = Mock()
-        r = p.prepare_plugins_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti
+        )
+        p_handler.kbdb.add_scan_preferences = Mock()
+        ret = p_handler.prepare_plugins_for_openvas()
 
-        self.assertTrue(r)
+        self.assertTrue(ret)
 
     def test_build_credentials_ssh_up(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         cred_out = [
             'auth_port_ssh|||22',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
-            '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass',
+            '1.3.6.1.4.1.25623.1.0.103591:3:'
+            'password:SSH password (unsafe!):|||pass',
         ]
         cred_dict = {
             'ssh': {
@@ -134,30 +141,38 @@ class PreferenceHandlerTestCase(TestCase):
                 'password': 'pass',
             }
         }
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, None
+        )
 
-        ret = p.build_credentials_as_prefs(cred_dict)
+        ret = p_handler.build_credentials_as_prefs(cred_dict)
 
         self.assertEqual(ret, cred_out)
 
     def test_build_credentials(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         cred_out = [
             '1.3.6.1.4.1.25623.1.0.105058:1:entry:ESXi login name:|||username',
-            '1.3.6.1.4.1.25623.1.0.105058:2:password:ESXi login password:|||pass',
+            '1.3.6.1.4.1.25623.1.0.105058:2:password:'
+            'ESXi login password:|||pass',
             'auth_port_ssh|||22',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
-            '1.3.6.1.4.1.25623.1.0.103591:2:password:SSH key passphrase:|||pass',
+            '1.3.6.1.4.1.25623.1.0.103591:2:'
+            'password:SSH key passphrase:|||pass',
             '1.3.6.1.4.1.25623.1.0.103591:4:file:SSH private key:|||',
             '1.3.6.1.4.1.25623.1.0.90023:1:entry:SMB login:|||username',
             '1.3.6.1.4.1.25623.1.0.90023:2:password]:SMB password :|||pass',
-            '1.3.6.1.4.1.25623.1.0.105076:1:password:SNMP Community:some comunity',
+            '1.3.6.1.4.1.25623.1.0.105076:1:'
+            'password:SNMP Community:some comunity',
             '1.3.6.1.4.1.25623.1.0.105076:2:entry:SNMPv3 Username:username',
             '1.3.6.1.4.1.25623.1.0.105076:3:password:SNMPv3 Password:pass',
-            '1.3.6.1.4.1.25623.1.0.105076:4:radio:SNMPv3 Authentication Algorithm:some auth algo',
-            '1.3.6.1.4.1.25623.1.0.105076:5:password:SNMPv3 Privacy Password:privacy pass',
-            '1.3.6.1.4.1.25623.1.0.105076:6:radio:SNMPv3 Privacy Algorithm:privacy algo',
+            '1.3.6.1.4.1.25623.1.0.105076:4:radio:SNMPv3'
+            ' Authentication Algorithm:some auth algo',
+            '1.3.6.1.4.1.25623.1.0.105076:5:password:'
+            'SNMPv3 Privacy Password:privacy pass',
+            '1.3.6.1.4.1.25623.1.0.105076:6:radio:'
+            'SNMPv3 Privacy Algorithm:privacy algo',
         ]
         cred_dict = {
             'ssh': {
@@ -183,8 +198,10 @@ class PreferenceHandlerTestCase(TestCase):
             },
         }
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
-        ret = p.build_credentials_as_prefs(cred_dict)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, None
+        )
+        ret = p_handler.build_credentials_as_prefs(cred_dict)
 
         self.assertEqual(len(ret), len(cred_out))
         self.assertIn('auth_port_ssh|||22', cred_out)
@@ -194,93 +211,114 @@ class PreferenceHandlerTestCase(TestCase):
         )
 
     def test_build_alive_test_opt_empty(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         target_options_dict = {'alive_test': '0'}
 
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
-        ret = p.build_alive_test_opt_as_prefs(target_options_dict)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, None
+        )
+        ret = p_handler.build_alive_test_opt_as_prefs(target_options_dict)
 
         self.assertEqual(ret, {})
 
     def test_build_alive_test_opt(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         alive_test_out = {
             "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:"
+            "TCP ping tries also TCP-SYN ping": "no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:"
+            "TCP ping tries only TCP-SYN ping": "no",
             "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping": "yes",
             "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP": "no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)": "yes",
+            (
+                "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:"
+                "Mark unrechable Hosts as dead (not scanning)"
+            ): "yes",
         }
 
         target_options_dict = {'alive_test': '2'}
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
-        ret = p.build_alive_test_opt_as_prefs(target_options_dict)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, None
+        )
+        ret = p_handler.build_alive_test_opt_as_prefs(target_options_dict)
 
         self.assertEqual(ret, alive_test_out)
 
     def test_build_alive_test_opt_fail_1(self):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         logging.Logger.debug = Mock()
 
         target_options_dict = {'alive_test': 'a'}
-        p = PreferenceHandler('1234-1234', None, w.scan_collection, None)
-        target_options = p.build_alive_test_opt_as_prefs(target_options_dict)
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, None
+        )
+        target_options = p_handler.build_alive_test_opt_as_prefs(
+            target_options_dict
+        )
 
         assert_called_once(logging.Logger.debug)
         self.assertEqual(len(target_options), 0)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_target(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
-        w.scan_collection.get_host_list = MagicMock(return_value='192.168.0.1')
+        dummy.scan_collection.get_host_list = MagicMock(
+            return_value='192.168.0.1'
+        )
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_target_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_target_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id,
             ['TARGET|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_ports(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
-        w.scan_collection.get_ports = MagicMock(return_value='80,443')
+        dummy.scan_collection.get_ports = MagicMock(return_value='80,443')
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_ports_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_ports_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id,
             ['port_range|||80,443'],
         )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_main_kbindex(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p.kbdb.add_scan_preferences = Mock()
-        p.kbdb.index = 2
-        p.prepare_main_kbindex_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler.kbdb.add_scan_preferences = Mock()
+        p_handler.kbdb.index = 2
+        p_handler.prepare_main_kbindex_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id,
             ['ov_maindbid|||2'],
         )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_credentials(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         creds = {
             'ssh': {
@@ -306,19 +344,21 @@ class PreferenceHandlerTestCase(TestCase):
             },
         }
 
-        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+        dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        r = p.prepare_credentials_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_credentials_to_scan_preferences = MagicMock()
+        ret = p_handler.prepare_credentials_for_openvas()
 
-        self.assertTrue(r)
-        assert_called_once(p.kbdb.add_scan_preferences)
+        self.assertTrue(ret)
+        assert_called_once(p_handler.kbdb.add_credentials_to_scan_preferences)
 
     @patch('ospd_openvas.db.KbDB')
-    def test_set_credentials(self, mock_kb):
-        w = DummyDaemon()
+    def test_set_bad_service_credentials(self, mock_kb):
+        dummy = DummyDaemon()
 
         # bad cred type shh instead of ssh
         creds = {
@@ -330,68 +370,76 @@ class PreferenceHandlerTestCase(TestCase):
             },
         }
 
-        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+        dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        r = p.prepare_credentials_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        ret = p_handler.prepare_credentials_for_openvas()
 
-        self.assertFalse(r)
+        self.assertFalse(ret)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_credentials_empty(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         creds = {}
 
-        w.scan_collection.get_credentials = MagicMock(return_value=creds)
+        dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        r = p.prepare_credentials_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        ret = p_handler.prepare_credentials_for_openvas()
 
-        self.assertTrue(r)
+        self.assertTrue(ret)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_host_options(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         exc = '192.168.0.1'
 
-        w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
+        dummy.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_host_options_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_host_options_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id,
             ['exclude_hosts|||192.168.0.1'],
         )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_host_options_none(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         exc = ''
 
-        w.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
+        dummy.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_host_options_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_host_options_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_not_called()
+        p_handler.kbdb.add_scan_preferences.assert_not_called()
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_scan_params(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
-        OSPD_PARAMS_MOCK = {
+        ospd_param_dict = {
             'drop_privileges': {
                 'type': 'boolean',
                 'name': 'drop_privileges',
@@ -403,31 +451,35 @@ class PreferenceHandlerTestCase(TestCase):
 
         opt = {'drop_privileges': 1}
 
-        w.scan_collection.get_options = MagicMock(return_value=opt)
+        dummy.scan_collection.get_options = MagicMock(return_value=opt)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_scan_params_for_openvas(OSPD_PARAMS_MOCK)
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_scan_params_for_openvas(ospd_param_dict)
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id, ['drop_privileges|||yes']
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id, ['drop_privileges|||yes']
         )
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_reverse_lookup_opt(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         t_opt = {'reverse_lookup_only': 1}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_reverse_lookup_opt_for_openvas()
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._openvas_scan_id = '456-789'
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_reverse_lookup_opt_for_openvas()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id,
             [
                 'reverse_lookup_only|||yes',
                 'reverse_lookup_unify|||no',
@@ -437,161 +489,198 @@ class PreferenceHandlerTestCase(TestCase):
     @patch('ospd_openvas.db.KbDB')
     def test_set_boreas_alive_test_with_settings(self, mock_kb):
         # No Boreas config setting (BOREAS_SETTING_NAME) set
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         ov_setting = {'not_the_correct_setting': 1}
+        t_opt = {}
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_boreas_alive_test()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_boreas_alive_test()
 
-            p.kbdb.add_scan_preferences.assert_not_called()
+            p_handler.kbdb.add_scan_preferences.assert_not_called()
 
         # Boreas config setting set but invalid alive_test.
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         t_opt = {'alive_test': "error"}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_boreas_alive_test()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_boreas_alive_test()
 
-            p.kbdb.add_scan_preferences.assert_not_called()
+            calls = [
+                call(p_handler._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])
+            ]
+            p_handler.kbdb.add_scan_preferences.assert_not_called()
 
         # ALIVE_TEST_TCP_SYN_SERVICE as alive test.
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         t_opt = {'alive_test': AliveTest.ALIVE_TEST_TCP_SYN_SERVICE}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_boreas_alive_test()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_boreas_alive_test()
 
-            calls = [call(p._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||16'])]
-            p.kbdb.add_scan_preferences.assert_has_calls(calls)
+            calls = [
+                call(p_handler._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||16'])
+            ]
+            p_handler.kbdb.add_scan_preferences.assert_has_calls(calls)
 
         # ICMP was chosen as alive test.
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         t_opt = {'alive_test': AliveTest.ALIVE_TEST_ICMP}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_boreas_alive_test()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_boreas_alive_test()
 
-            calls = [call(p._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
-            p.kbdb.add_scan_preferences.assert_has_calls(calls)
+            calls = [
+                call(p_handler._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])
+            ]
+            p_handler.kbdb.add_scan_preferences.assert_has_calls(calls)
 
         # "Scan Config Default" as alive_test.
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         t_opt = {'alive_test': AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_boreas_alive_test()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_boreas_alive_test()
 
-            calls = [call(p._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])]
-            p.kbdb.add_scan_preferences.assert_has_calls(calls)
+            calls = [
+                call(p_handler._openvas_scan_id, [BOREAS_ALIVE_TEST + '|||2'])
+            ]
+            p_handler.kbdb.add_scan_preferences.assert_has_calls(calls)
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_boreas_alive_test_without_settings(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
         t_opt = {'alive_test': 16}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         ov_setting = {}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_boreas_alive_test()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_boreas_alive_test()
 
-            p.kbdb.add_scan_preferences.assert_not_called()
+            p_handler.kbdb.add_scan_preferences.assert_not_called()
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_alive_no_setting(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         t_opt = {}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
         ov_setting = {}
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_alive_test_option_for_openvas()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_alive_test_option_for_openvas()
 
-            p.kbdb.add_scan_preferences.assert_not_called()
+            p_handler.kbdb.add_scan_preferences.assert_not_called()
 
     @patch('ospd_openvas.db.KbDB')
     def test_set_alive_pinghost(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         alive_test_out = [
             "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:TCP ping tries also TCP-SYN ping|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:TCP ping tries only TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:2:checkbox:"
+            "TCP ping tries also TCP-SYN ping|||no",
+            "1.3.6.1.4.1.25623.1.0.100315:7:checkbox:"
+            "TCP ping tries only TCP-SYN ping|||no",
             "1.3.6.1.4.1.25623.1.0.100315:3:checkbox:Do an ICMP ping|||yes",
             "1.3.6.1.4.1.25623.1.0.100315:4:checkbox:Use ARP|||no",
-            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:Mark unrechable Hosts as dead (not scanning)|||yes",
+            "1.3.6.1.4.1.25623.1.0.100315:5:checkbox:"
+            "Mark unrechable Hosts as dead (not scanning)|||yes",
         ]
 
         t_opt = {'alive_test': 2}
-        w.scan_collection.get_target_options = MagicMock(return_value=t_opt)
+        dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
         ov_setting = {'some_setting': 1}
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
-            p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-            p._nvts_params = {}
-            p._openvas_scan_id = '456-789'
-            p.kbdb.add_scan_preferences = MagicMock()
-            p.prepare_alive_test_option_for_openvas()
+            p_handler = PreferenceHandler(
+                '1234-1234', mock_kb, dummy.scan_collection, None
+            )
+            p_handler._nvts_params = {}  # pylint: disable = protected-access
+            p_handler._openvas_scan_id = '456-789'
+            p_handler.kbdb.add_scan_preferences = MagicMock()
+            p_handler.prepare_alive_test_option_for_openvas()
 
-            for key, value in p._nvts_params.items():
+            for (
+                key,
+                value,
+            ) in (
+                p_handler._nvts_params.items()  # pylint: disable = protected-access
+            ):
                 self.assertTrue(
                     "{0}|||{1}".format(key, value) in alive_test_out
                 )
 
     @patch('ospd_openvas.db.KbDB')
     def test_prepare_nvt_prefs(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
         alive_test_out = [
             "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping|||no"
         ]
 
-        p = PreferenceHandler('1234-1234', mock_kb, w.scan_collection, None)
-        p._nvts_params = {
+        p_handler = PreferenceHandler(
+            '1234-1234', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._nvts_params = {  # pylint: disable = protected-access
             "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no"
         }
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_nvt_preferences()
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_nvt_preferences()
 
-        p.kbdb.add_scan_preferences.assert_called_with(
-            p._openvas_scan_id,
+        p_handler.kbdb.add_scan_preferences.assert_called_with(
+            p_handler._openvas_scan_id,
             alive_test_out,
         )
 
     @patch('ospd_openvas.db.KbDB')
     def test_prepare_nvt_prefs_no_prefs(self, mock_kb):
-        w = DummyDaemon()
+        dummy = DummyDaemon()
 
-        p = PreferenceHandler('456-789', mock_kb, w.scan_collection, None)
-        p._nvts_params = {}
-        p._openvas_scan_id = '456-789'
-        p.kbdb.add_scan_preferences = MagicMock()
-        p.prepare_nvt_preferences()
+        p_handler = PreferenceHandler(
+            '456-789', mock_kb, dummy.scan_collection, None
+        )
+        p_handler._nvts_params = {}  # pylint: disable = protected-access
+        p_handler.kbdb.add_scan_preferences = MagicMock()
+        p_handler.prepare_nvt_preferences()
 
-        p.kbdb.add_scan_preferences.assert_not_called()
+        p_handler.kbdb.add_scan_preferences.assert_not_called()
