@@ -185,7 +185,7 @@ class OpenvasCommandTestCase(TestCase):
 
         mock_check_output.reset_mock()
 
-        # from https://gehrcke.de/2015/12/how-to-raise-unicodedecodeerror-in-python-3/
+        # https://gehrcke.de/2015/12/how-to-raise-unicodedecodeerror-in-python-3/
         mock_check_output.side_effect = UnicodeDecodeError(
             'funnycodec', b'\x00\x00', 1, 2, 'This is just a fake reason!'
         )
