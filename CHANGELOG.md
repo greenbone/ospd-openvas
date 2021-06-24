@@ -4,11 +4,7 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.4.1] (unreleased)
-
-### Added
-### Changed
-### Fixed
+## [21.4.1] - 2021-06-24
 
 ### Removed
 - Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
