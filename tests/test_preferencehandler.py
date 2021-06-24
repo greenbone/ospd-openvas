@@ -131,10 +131,13 @@ class PreferenceHandlerTestCase(TestCase):
 
         cred_out = [
             'auth_port_ssh|||22',
-            '1.3.6.1.4.1.25623.1.0.103591:7:entry:SSH privilege login name:|||test',
-            '1.3.6.1.4.1.25623.1.0.103591:8:password:SSH privilege password:|||1234',
+            '1.3.6.1.4.1.25623.1.0.103591:7:'
+            'entry:SSH privilege login name:|||test',
+            '1.3.6.1.4.1.25623.1.0.103591:8:'
+            'password:SSH privilege password:|||1234',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
-            '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass',
+            '1.3.6.1.4.1.25623.1.0.103591:3:'
+            'password:SSH password (unsafe!):|||pass',
         ]
         cred_dict = {
             'ssh': {
@@ -172,11 +175,16 @@ class PreferenceHandlerTestCase(TestCase):
             'password:SNMP Community:some comunity',
             '1.3.6.1.4.1.25623.1.0.105076:2:entry:SNMPv3 Username:username',
             '1.3.6.1.4.1.25623.1.0.105076:3:password:SNMPv3 Password:pass',
-            '1.3.6.1.4.1.25623.1.0.105076:4:radio:SNMPv3 Authentication Algorithm:some auth algo',
-            '1.3.6.1.4.1.25623.1.0.105076:5:password:SNMPv3 Privacy Password:privacy pass',
-            '1.3.6.1.4.1.25623.1.0.105076:6:radio:SNMPv3 Privacy Algorithm:privacy algo',
-            '1.3.6.1.4.1.25623.1.0.105076:7:entry:SSH privilege login name:|||test',
-            '1.3.6.1.4.1.25623.1.0.105076:8:password:SSH privilege password:|||1234',
+            '1.3.6.1.4.1.25623.1.0.105076:4:'
+            'radio:SNMPv3 Authentication Algorithm:some auth algo',
+            '1.3.6.1.4.1.25623.1.0.105076:5:'
+            'password:SNMPv3 Privacy Password:privacy pass',
+            '1.3.6.1.4.1.25623.1.0.105076:6:'
+            'radio:SNMPv3 Privacy Algorithm:privacy algo',
+            '1.3.6.1.4.1.25623.1.0.105076:7:'
+            'entry:SSH privilege login name:|||test',
+            '1.3.6.1.4.1.25623.1.0.105076:8:'
+            'password:SSH privilege password:|||1234',
         ]
         cred_dict = {
             'ssh': {
@@ -943,8 +951,8 @@ class PreferenceHandlerTestCase(TestCase):
             p_handler.prepare_alive_test_option_for_openvas()
 
             self.assertEqual(
-                p_handler._nvts_params,
-                alive_test_out,  # pylint: disable = protected-access
+                p_handler._nvts_params,  # pylint: disable = protected-access
+                alive_test_out,
             )
 
     @patch('ospd_openvas.db.KbDB')
