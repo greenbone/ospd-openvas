@@ -377,11 +377,10 @@ class PreferenceHandlerTestCase(TestCase):
         p_handler.kbdb.add_credentials_to_scan_preferences = MagicMock()
         ret = p_handler.prepare_credentials_for_openvas()
 
-        self.assertTrue(r)
-        assert_called_once(p.kbdb.add_scan_preferences)
+        self.assertTrue(ret)
 
     @patch('ospd_openvas.db.KbDB')
-    def test_set_credentials(self, mock_kb):
+    def test_set_bad_credentials(self, mock_kb):
         dummy = DummyDaemon()
 
         # bad cred type shh instead of ssh
