@@ -4,19 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [20.8.2] (unreleased)
+## [20.8.2] - 2021-06-24
 ### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
-
-### Changed
-### Deprecated
-### Removed
 
 ### Fixed
 - Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
 
 [20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.8.1...ospd-openvas-20.08
-
 
 ## (20.8.1) - 2021-02-01
 
