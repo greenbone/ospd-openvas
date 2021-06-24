@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# pylint: disable = too-many-lines
+# pylint: disable = too-many-lines, protected-access
 
 import logging
 
@@ -130,7 +130,8 @@ class PreferenceHandlerTestCase(TestCase):
         cred_out = [
             'auth_port_ssh|||22',
             '1.3.6.1.4.1.25623.1.0.103591:1:entry:SSH login name:|||username',
-            '1.3.6.1.4.1.25623.1.0.103591:3:password:SSH password (unsafe!):|||pass',
+            '1.3.6.1.4.1.25623.1.0.103591:3:'
+            'password:SSH password (unsafe!):|||pass',
         ]
         cred_dict = {
             'ssh': {
