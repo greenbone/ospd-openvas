@@ -87,7 +87,11 @@ class DummyDaemon(OSPDopenvas):
 
     @patch('ospd_openvas.daemon.NVTICache')
     @patch('ospd_openvas.daemon.MainDB')
-    def __init__(self, _MainDBClass: MagicMock, NvtiClass: MagicMock):
+    def __init__(
+        self, _MainDBClass: MagicMock = None, NvtiClass: MagicMock = None
+    ):
+        assert _MainDBClass
+        assert NvtiClass
         nvti = NvtiClass.return_value
         oids = [['mantis_detect.nasl', '1.3.6.1.4.1.25623.1.0.100061']]
         nvti.get_oids.return_value = oids
