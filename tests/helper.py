@@ -36,7 +36,9 @@ def assert_called_once(mock: Mock):
 def assert_called(mock: Mock):
     """assert that the mock was called at least once"""
     if mock.call_count == 0:
-        msg = f"Expected '{mock._mock_name or 'mock'}' to have been called."  # pylint: disable=protected-access
+        msg = "Expected '{}' to have been called.".format(
+            mock._mock_name or 'mock'
+        )  # pylint: disable=protected-access
         raise AssertionError(msg)
 
 
