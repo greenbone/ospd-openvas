@@ -11,7 +11,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 ### Removed
-
 - Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
 
 [21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
