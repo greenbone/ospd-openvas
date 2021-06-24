@@ -882,15 +882,9 @@ class TestOspdOpenvas(TestCase):
         self.assertTrue(ret)
 
     @patch('ospd_openvas.db.KbDB')
-<<<<<<< HEAD
     def test_openvas_is_alive_still(self, mock_db):
         w = DummyDaemon()
         # mock_psutil = MockPsutil.return_value
-=======
-    def test_openvas_is_alive_still(self, mock_db, mock_psutil):
-        w = DummyDaemon()
-        mock_psutil.side_effect = TypeError
->>>>>>> 8c15e87 (Pylint preference handler tests)
         mock_db.scan_is_stopped.return_value = False
         ret = w.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
 
