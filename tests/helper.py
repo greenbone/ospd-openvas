@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-
+# pylint: disable=protected-access
 
 from unittest.mock import Mock
 
@@ -26,9 +26,9 @@ def assert_called_once(mock: Mock):
 
     if not mock.call_count == 1:
         msg = "Expected '%s' to have been called once. Called %s times.%s" % (
-            mock._mock_name or 'mock',  # pylint: disable=protected-access
+            mock._mock_name or 'mock',
             mock.call_count,
-            mock._calls_repr(),  # pylint: disable=protected-access
+            mock._calls_repr(),
         )
         raise AssertionError(msg)
 
@@ -36,10 +36,7 @@ def assert_called_once(mock: Mock):
 def assert_called(mock: Mock):
     """assert that the mock was called at least once"""
     if mock.call_count == 0:
-        msg = (
-            "Expected "  # pylint: disable=protected-access
-            f"{mock._mock_name or 'mock'} to have been called."
-        )
+        msg = f"Expected {mock._mock_name or 'mock'} to have been called."
         raise AssertionError(msg)
 
 
