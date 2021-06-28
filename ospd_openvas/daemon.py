@@ -1402,7 +1402,7 @@ class OSPDopenvas(OSPDaemon):
             scan_stopped = self.get_scan_status(scan_id) == ScanStatus.STOPPED
 
             # Report new Results and update status
-            got_results = self.report_openvas_results_redis(kbdb, scan_id)
+            got_results = self.report_openvas_results(kbdb, scan_id)
             self.report_openvas_scan_status(kbdb, scan_id)
 
             # Check if the client stopped the whole scan
