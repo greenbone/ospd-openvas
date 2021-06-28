@@ -27,7 +27,6 @@ from unittest import TestCase
 from unittest.mock import patch, Mock, PropertyMock
 from pathlib import Path
 
-from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.nvticache import NVTICache, NVTI_CACHE_NAME
 
 from tests.helper import assert_called

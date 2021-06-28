@@ -9,15 +9,16 @@ from paho.mqtt.client import MQTTMessage
 from ospd_openvas.mqtt import MQTTHandler, OpenvasMQTTHandler
 
 
-@patch('paho.mqtt.client.Client', autospec=True)
 class TestMQTT(TestCase):
-    def test_on_message_not_implemented(self, mock_client: MagicMock):
+    @patch('paho.mqtt.client.Client', autospec=True)
+    def test_on_message_not_implemented(self, _mock_client: MagicMock):
         mqtt = MQTTHandler("foo", "bar")
 
         with self.assertRaises(NotImplementedError):
             mqtt.on_message(None, None, None)
 
-    def test_publish_message(self, mock_client: MagicMock):
+    @patch('paho.mqtt.client.Client', autospec=True)
+    def test_publish_message(self, _mock_client: MagicMock):
         mqtt = MQTTHandler("foo", "bar")
 
         logging.Logger.debug = MagicMock()
@@ -28,7 +29,8 @@ class TestMQTT(TestCase):
             'Published message on topic %s.', "foo/bar"
         )
 
-    def test_insert_results(self, mock_client: MagicMock):
+    @patch('paho.mqtt.client.Client', autospec=True)
+    def test_insert_results(self, _mock_client: MagicMock):
         def start(self):
             self.function(*self.args, **self.kwargs)
 
@@ -48,7 +50,10 @@ class TestMQTT(TestCase):
 
         msg = MQTTMessage()
         msg.topic = b"scanner/results"
-        msg.payload = b'{"scan_id":"1","type":"foo","host_ip":"127.0.0.1","hostname":"","port":"80","OID":"","value":"bar"}'
+        msg.payload = (
+            b'{"scan_id":"1","type":"foo","host_ip":'
+            b'"127.0.0.1","hostname":"","port":"80","OID":"","value":"bar"}'
+        )
 
         def add_results(results, scan_id):
             if not scan_id in results_dict:
@@ -65,13 +70,17 @@ class TestMQTT(TestCase):
 
             self.assertDictEqual(results_dict, expct_dict)
 
-    def test_json_format(self, mock_client: MagicMock):
+    @patch('paho.mqtt.client.Client', autospec=True)
+    def test_json_format(self, _mock_client: MagicMock):
 
         msg = MQTTMessage()
         msg.topic = b"scanner/results"
-        msg.payload = b'{"scan_id":"1","type":"foo","host_ip":"127.0.0.1","hostname":"","port":"80","OID":"","value""bar"}'
+        msg.payload = (
+            b'{"scan_id":"1","type":"foo","host_ip":'
+            b'"127.0.0.1","hostname":"","port":"80","OID":"","value""bar"}'
+        )
 
-        def do_nothing(results, scan_id):
+        def do_nothing(_results, _scan_id):
             return
 
         logging.Logger.error = MagicMock()

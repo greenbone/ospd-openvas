@@ -23,18 +23,19 @@
 
 import io
 import logging
-import psutil
 
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
-from ospd.vts import Vts
 from ospd.protocol import OspRequest
 
 from tests.dummydaemon import DummyDaemon
 from tests.helper import assert_called_once
 
-from ospd_openvas.daemon import OSPD_PARAMS, OpenVasVtsFilter
+from ospd_openvas.daemon import (
+    OSPD_PARAMS,
+    OpenVasVtsFilter,
+)
 from ospd_openvas.openvas import Openvas
 
 OSPD_PARAMS_OUT = {
