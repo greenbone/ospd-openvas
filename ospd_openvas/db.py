@@ -549,7 +549,7 @@ class KbDB(BaseKbDB):
         status = self._get_single_item('internal/{}'.format(openvas_scan_id))
 
         if status is None:
-            logger.info(
+            logger.error(
                 "%s: Target set as finished because redis returned None as "
                 "scanner status.",
                 scan_id,

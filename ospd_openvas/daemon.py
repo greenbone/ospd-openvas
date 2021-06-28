@@ -35,7 +35,7 @@ from lxml.etree import tostring, SubElement, Element
 import psutil
 
 from ospd.ospd import OSPDaemon
-from ospd.scan import ScanProgress
+from ospd.scan import ScanProgress, ScanStatus
 from ospd.server import BaseServer
 from ospd.main import main as daemon_main
 from ospd.cvss import CVSS
@@ -468,6 +468,8 @@ class OSPDopenvas(OSPDaemon):
         self._is_running_as_root = None
 
         self.scan_only_params = dict()
+
+        self.openvas_processes = {}
 
     def init(self, server: BaseServer) -> None:
 
@@ -1172,6 +1174,7 @@ class OSPDopenvas(OSPDaemon):
             logger.debug('%s: Host %s set HOST_START', scan_id, host)
             return
 
+<<<<<<< HEAD
     def is_openvas_process_alive(
         self, kbdb: BaseDB, ovas_pid: str, openvas_scan_id: str
     ) -> bool:
@@ -1206,6 +1209,21 @@ class OSPDopenvas(OSPDaemon):
 
     def stop_scan_cleanup(  # pylint: disable=arguments-differ
         self, global_scan_id: str
+=======
+    @staticmethod
+    def is_openvas_process_alive(openvas_process: psutil.Popen) -> bool:
+
+        if openvas_process.status() == psutil.STATUS_ZOMBIE:
+            logger.debug("Process is a Zombie, waiting for it to clean up")
+            openvas_process.wait()
+        return openvas_process.is_running()
+
+    def stop_scan_cleanup(
+        self,
+        kbdb: BaseDB,
+        scan_id: str,
+        ovas_process: psutil.Popen,  # pylint: disable=arguments-differ
+>>>>>>> 72357f4 (solving merge conflicts)
     ):
         """Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
@@ -1215,20 +1233,53 @@ class OSPDopenvas(OSPDaemon):
         via an invocation of openvas with the --scan-stop option to
         stop it."""
 
+<<<<<<< HEAD
         openvas_scan_id, kbdb = self.main_db.find_kb_database_by_scan_id(
             global_scan_id
         )
         if kbdb:
             kbdb.stop_scan(openvas_scan_id)
             ovas_pid = kbdb.get_scan_process_id()
+=======
+        if kbdb:
+            # Set stop flag in redis
+            kbdb.stop_scan(scan_id)
+>>>>>>> 72357f4 (solving merge conflicts)
 
-            parent = None
-            try:
-                parent = psutil.Process(int(ovas_pid))
-            except psutil.NoSuchProcess:
-                logger.debug('Process with pid %s already stopped', ovas_pid)
-            except TypeError:
+            # Check if openvas is running
+            if ovas_process.is_running():
+                # Cleaning in case of Zombie Process
+                if ovas_process.status() == psutil.STATUS_ZOMBIE:
+                    logger.debug(
+                        '%s: Process with PID %s is a Zombie process.'
+                        ' Cleaning up...',
+                        scan_id,
+                        ovas_process.pid,
+                    )
+                    ovas_process.wait()
+                # Stop openvas process and wait until it stopped
+                else:
+                    can_stop_scan = Openvas.stop_scan(
+                        scan_id,
+                        not self.is_running_as_root and self.sudo_available,
+                    )
+                    if not can_stop_scan:
+                        logger.debug(
+                            'Not possible to stop scan process: %s.',
+                            ovas_process,
+                        )
+                        return
+
+                    logger.debug('Stopping process: %s', ovas_process)
+
+                    while ovas_process.is_running():
+                        if ovas_process.status() == psutil.STATUS_ZOMBIE:
+                            ovas_process.wait()
+                        else:
+                            time.sleep(0.1)
+            else:
                 logger.debug(
+<<<<<<< HEAD
                     'Scan with ID %s never started and stopped unexpectedly',
                     openvas_scan_id,
                 )
@@ -1237,22 +1288,14 @@ class OSPDopenvas(OSPDaemon):
                 can_stop_scan = Openvas.stop_scan(
                     openvas_scan_id,
                     not self.is_running_as_root and self.sudo_available,
+=======
+                    "%s: Process with PID %s already stopped",
+                    scan_id,
+                    ovas_process.pid,
+>>>>>>> 72357f4 (solving merge conflicts)
                 )
-                if not can_stop_scan:
-                    logger.debug(
-                        'Not possible to stop scan process: %s.',
-                        parent,
-                    )
-                    return False
 
-                logger.debug('Stopping process: %s', parent)
-
-                while parent:
-                    if parent.is_running():
-                        time.sleep(0.1)
-                    else:
-                        parent = None
-
+            # Clean redis db
             for scan_db in kbdb.get_scan_databases():
                 self.main_db.release_database(scan_db)
 
@@ -1304,25 +1347,34 @@ class OSPDopenvas(OSPDaemon):
             self.main_db.release_database(kbdb)
             return
 
+<<<<<<< HEAD
         result = Openvas.start_scan(
             openvas_scan_id,
+=======
+        openvas_process = Openvas.start_scan(
+            scan_id,
+>>>>>>> 72357f4 (solving merge conflicts)
             not self.is_running_as_root and self.sudo_available,
             self._niceness,
         )
 
-        if result is None:
+        if openvas_process is None:
             self.main_db.release_database(kbdb)
             return
 
-        ovas_pid = result.pid
-        kbdb.add_scan_process_id(ovas_pid)
-        logger.debug('pid = %s', ovas_pid)
+        kbdb.add_scan_process_id(openvas_process.pid)
+        logger.debug('pid = %s', openvas_process.pid)
 
         # Wait until the scanner starts and loads all the preferences.
+<<<<<<< HEAD
         while kbdb.get_status(openvas_scan_id) == 'new':
             res = result.poll()
+=======
+        while kbdb.get_status(scan_id) == 'new':
+            res = openvas_process.poll()
+>>>>>>> 72357f4 (solving merge conflicts)
             if res and res < 0:
-                self.stop_scan_cleanup(scan_id)
+                self.stop_scan_cleanup(kbdb, scan_id, openvas_process)
                 logger.error(
                     'It was not possible run the task %s, since openvas ended '
                     'unexpectedly with errors during launching.',
@@ -1335,11 +1387,44 @@ class OSPDopenvas(OSPDaemon):
         no_id_found = False
         got_results = False
         while True:
+<<<<<<< HEAD
             if not kbdb.target_is_finished(
                 scan_id
             ) and not self.is_openvas_process_alive(
                 kbdb, ovas_pid, openvas_scan_id
             ):
+=======
+
+            openvas_process_is_alive = self.is_openvas_process_alive(
+                openvas_process
+            )
+            target_is_finished = kbdb.target_is_finished(scan_id)
+            scan_stopped = self.get_scan_status(scan_id) == ScanStatus.STOPPED
+
+            # Report new Results and update status
+            got_results = self.report_openvas_results_redis(kbdb, scan_id)
+            self.report_openvas_scan_status(kbdb, scan_id)
+
+            # Check if the client stopped the whole scan
+            if scan_stopped:
+                logger.debug('%s: Scan stopped by the client', scan_id)
+
+                self.stop_scan_cleanup(kbdb, scan_id, openvas_process)
+
+                # clean main_db, but wait for scanner to finish.
+                while not kbdb.target_is_finished(scan_id):
+                    logger.debug('%s: Waiting for openvas to finish', scan_id)
+                    time.sleep(1)
+                self.main_db.release_database(kbdb)
+                return
+
+            # Scan end. No kb in use for this scan id
+            if target_is_finished:
+                logger.debug('%s: Target is finished', scan_id)
+                break
+
+            if not openvas_process_is_alive:
+>>>>>>> 72357f4 (solving merge conflicts)
                 logger.error(
                     'Task %s was unexpectedly stopped or killed.',
                     scan_id,
@@ -1369,6 +1454,7 @@ class OSPDopenvas(OSPDaemon):
                 time.sleep(0.05)
             got_results = False
 
+<<<<<<< HEAD
             # Check if the client stopped the whole scan
             if kbdb.scan_is_stopped(openvas_scan_id):
                 logger.debug('%s: Scan stopped by the client', scan_id)
@@ -1475,6 +1561,8 @@ class OSPDopenvas(OSPDaemon):
 
             no_id_found = True
 
+=======
+>>>>>>> 72357f4 (solving merge conflicts)
         # Delete keys from KB related to this scan task.
         logger.debug('%s: End Target. Release main database', scan_id)
         self.main_db.release_database(kbdb)
