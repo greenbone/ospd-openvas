@@ -752,7 +752,7 @@ class TestOspdOpenvas(TestCase):
         MockDBClass.get_result.return_value = results
         mock_add_scan_log_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456')
+        w.report_openvas_results_redis(MockDBClass, '123-456')
         mock_add_scan_log_to_list.assert_called_with(
             host='192.168.0.1',
             hostname='localhost',
@@ -781,7 +781,7 @@ class TestOspdOpenvas(TestCase):
         MockDBClass.get_result.return_value = results
         mock_add_scan_error_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456')
+        w.report_openvas_results_redis(MockDBClass, '123-456')
         mock_add_scan_error_to_list.assert_called_with(
             host='127.0.0.1',
             hostname='localhost',
@@ -805,7 +805,7 @@ class TestOspdOpenvas(TestCase):
         MockDBClass.get_result.return_value = results
         w.scan_collection.set_amount_dead_hosts = MagicMock()
 
-        w.report_openvas_results(MockDBClass, '123-456')
+        w.report_openvas_results_redis(MockDBClass, '123-456')
         w.scan_collection.set_amount_dead_hosts.assert_called_with(
             '123-456',
             total_dead=4,
@@ -828,7 +828,7 @@ class TestOspdOpenvas(TestCase):
         MockDBClass.get_result.return_value = results
         mock_add_scan_log_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456')
+        w.report_openvas_results_redis(MockDBClass, '123-456')
 
         mock_add_scan_log_to_list.assert_called_with(
             host='192.168.10.124',
@@ -849,7 +849,7 @@ class TestOspdOpenvas(TestCase):
         MockDBClass.get_result.return_value = results
         w.set_scan_total_hosts = MagicMock()
 
-        w.report_openvas_results(MockDBClass, '123-456')
+        w.report_openvas_results_redis(MockDBClass, '123-456')
         w.set_scan_total_hosts.assert_called_with(
             '123-456',
             4,
@@ -871,7 +871,7 @@ class TestOspdOpenvas(TestCase):
         MockDBClass.get_result.return_value = results
         mock_add_scan_alarm_to_list.return_value = None
 
-        w.report_openvas_results(MockDBClass, '123-456')
+        w.report_openvas_results_redis(MockDBClass, '123-456')
 
         assert_called_once(logging.Logger.warning)
 
