@@ -1006,16 +1006,6 @@ class OSPDopenvas(OSPDaemon):
         """Get all results from redis kb and add them into the scan table"""
         all_results = db.get_result()
 
-        return self.report_openvas_results_redis_format_to_dict(
-            scan_id, all_results
-        )
-
-    def report_openvas_results_redis_format_to_dict(
-        self, scan_id: str, all_results: list
-    ) -> bool:
-        """Transforms all Results from redis format into a dictionary format
-        and add them into the scan table
-        """
         results = []
         for res in all_results:
             if not res:
