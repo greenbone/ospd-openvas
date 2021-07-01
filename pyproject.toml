@@ -30,9 +30,8 @@ keywords = [
 packages = [
   { include = "ospd_openvas"},
   { include = "docs/ospd-openvas.8", format = "sdist"},
-  { include = "config/ospd-openvas.default", format = "sdist"},
   { include = "config/ospd-openvas.service", format = "sdist"},
-  { include = "config/ospd.conf", format = "sdist"},
+  { include = "config/ospd-openvas.conf", format = "sdist"},
   { include = "tests", format = "sdist" },
   { include = "CHANGELOG.md", format = "sdist"},
   { include = "COPYING", format = "sdist"},
