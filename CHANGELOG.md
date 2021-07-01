@@ -12,8 +12,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#395](https://github.com/greenbone/ospd/pull/395)
 
 ### Changed
+<<<<<<< HEAD
 - Set Log Timestamp to UTC. [#394](https://github.com/greenbone/ospd-openvas/pull/394)
 
+=======
+- Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
+
+### Deprecated
+### Removed
+>>>>>>> 352d01e (Add changelog entry)
 ### Fixed
 ### Removed
 - Remove dry run from ospd. [#402](https://github.com/greenbone/ospd-openvas/pull/402)
