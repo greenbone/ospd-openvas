@@ -51,20 +51,46 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...ospd-openvas-21.04
 
-## [20.8]
+## [20.8.3]
+### Added
+### Changed
+- Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
 
+### Deprecated
+### Removed
+### Fixed
+
+[20.8.3]: https://github.com/greenbone/ospd-openvas/compare/v20.8.2...ospd-openvas-20.08
+
+## [20.8.2] - 2021-06-24
 ### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
 
-### Changed
 ### Fixed
+- Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
 
-### Removed
-- Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
-- Remove py35 and py36 support. [#319](https://github.com/greenbone/ospd-openvas/pull/319)
-- Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
+[20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.8.1...v20.8.2
 
-[20.8]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
+## [20.8.1] - 2021-02-01
+
+### Added
+- Add debug level log messages. [#373](https://github.com/greenbone/ospd-openvas/pull/373)
+
+### Changed
+- Improve logging for unsatisfied vts dependencies. [#336](https://github.com/greenbone/ospd-openvas/pull/336)
+- Do not use busy wait when waiting for the openvas scan process to finish. [#360](https://github.com/greenbone/ospd-openvas/pull/360)
+- The description field of the systemd ospd-openvas.service file was updated. [#372](https://github.com/greenbone/ospd-openvas/pull/372)
+- Improve logging for unexpected data in script_xref tags. [#374](https://github.com/greenbone/ospd-openvas/pull/374)
+
+### Fixed
+- Fix nvticache name for stable version from sources. [#317](https://github.com/greenbone/ospd-openvas/pull/317)
+- Fix stop scan during preferences handling, before spawning OpenVAS. [#332](https://github.com/greenbone/ospd-openvas/pull/332)
+- Fix alive test preferences when a non default method is selected. [#334](https://github.com/greenbone/ospd-openvas/pull/334)
+- Check for empty vts preferences list. [#340](https://github.com/greenbone/ospd-openvas/pull/340)
+- Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
+- Retry host progress update if the progress is still below 100 percent. [#390](https://github.com/greenbone/ospd-openvas/pull/390)
+
+[20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...v20.8.1
 
 ## [20.8.1] (2021-02-01)
 
