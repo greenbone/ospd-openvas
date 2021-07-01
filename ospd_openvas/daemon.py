@@ -438,7 +438,7 @@ class OSPDopenvas(OSPDaemon):
     """ Class for ospd-openvas daemon. """
 
     def __init__(
-        self, *, niceness=None, lock_file_dir='/var/run/ospd', **kwargs
+        self, *, niceness=None, lock_file_dir='/var/lib/openvas', **kwargs
     ):
         """ Initializes the ospd-openvas daemon's internal data. """
         self.main_db = MainDB()
