@@ -732,9 +732,7 @@ class TestOspdOpenvas(TestCase):
         w = DummyDaemon()
         w.vts.is_cache_available = False
         w.feed_is_outdated = Mock()
-        res = w.check_feed()
 
-        self.assertFalse(res)
         w.feed_is_outdated.assert_not_called()
 
     @patch('ospd_openvas.daemon.BaseDB')

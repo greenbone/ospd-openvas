@@ -483,7 +483,7 @@ class OSPDopenvas(OSPDaemon):
         """Set OSPD_PARAMS with the params taken from the openvas executable."""
         param_list = Openvas.get_settings()
 
-        for elem in param_list:
+        for elem in param_list:  # pylint: disable=consider-using-dict-items
             if elem not in OSPD_PARAMS:
                 self.scan_only_params[elem] = param_list[elem]
             else:
