@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Set Log Timestamp to UTC. [#394](https://github.com/greenbone/ospd-openvas/pull/394)
+- Stopping scan. [#432](https://github.com/greenbone/ospd/pull/432)
 
 ### Fixed
 ### Removed
