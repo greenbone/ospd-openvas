@@ -40,19 +40,27 @@ class LockFile:
         if self.has_lock():
             return self
 
+        parent_dir = self._lock_file_path.parent
+
         try:
             # create parent directories recursively
-            parent_dir = self._lock_file_path.parent
-            parent_dir.mkdir(parents=True, exist_ok=True)
+            parent_dir.mkdir(parents=True, mode=0o770, exist_ok=True)
+        except OSError as e:
+            logger.error(
+                "Could not create parent dir %s for lock file. %s",
+                str(parent_dir),
+                e,
+            )
+            return self
 
+        try:
             # Open the fd with append flag to create the file
             # if not exists and to avoid deleting the content
             # something else wrote in it.
             self._fd = self._lock_file_path.open('a')
-            self._lock_file_path.chmod(0o660)
         except Exception as e:  # pylint: disable=broad-except
             logger.error(
-                "Failed to create lock file %s. %s",
+                "Failed to open lock file %s. %s",
                 str(self._lock_file_path),
                 e,
             )
@@ -62,6 +70,16 @@ class LockFile:
             except Exception:  # pylint: disable=broad-except
                 pass
             return self
+
+        try:
+            self._lock_file_path.chmod(0o660)
+        except OSError as e:
+            # ignore error because it is very likely that the file exists, has
+            # the correct permissions but we are not the owner
+            logger.debug(
+                "Could not change permissions of lock file %s",
+                str(self._lock_file_path),
+            )
 
         # Try to acquire the lock.
         try:
