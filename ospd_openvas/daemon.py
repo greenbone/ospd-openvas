@@ -469,8 +469,6 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
 
-        self.openvas_processes = {}
-
     def init(self, server: BaseServer) -> None:
 
         self.scan_collection.init()
