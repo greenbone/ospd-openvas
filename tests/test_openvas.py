@@ -22,6 +22,8 @@ import subprocess
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
+import psutil
+
 from ospd_openvas.openvas import Openvas
 
 
@@ -196,7 +198,7 @@ class OpenvasCommandTestCase(TestCase):
 
         self.assertFalse(settings)  # settings dict is empty
 
-    @patch('ospd_openvas.openvas.subprocess.Popen')
+    @patch('ospd_openvas.openvas.psutil.Popen')
     def test_start_scan(self, mock_popen: MagicMock):
         proc = Openvas.start_scan('scan_1')
 
@@ -206,7 +208,7 @@ class OpenvasCommandTestCase(TestCase):
 
         self.assertIsNotNone(proc)
 
-    @patch('ospd_openvas.openvas.subprocess.Popen')
+    @patch('ospd_openvas.openvas.psutil.Popen')
     def test_start_scan_with_sudo(self, mock_popen: MagicMock):
         proc = Openvas.start_scan('scan_1', sudo=True)
 
@@ -216,7 +218,7 @@ class OpenvasCommandTestCase(TestCase):
 
         self.assertIsNotNone(proc)
 
-    @patch('ospd_openvas.openvas.subprocess.Popen')
+    @patch('ospd_openvas.openvas.psutil.Popen')
     def test_start_scan_with_niceness(self, mock_popen: MagicMock):
         proc = Openvas.start_scan('scan_1', niceness=4)
 
@@ -226,7 +228,7 @@ class OpenvasCommandTestCase(TestCase):
 
         self.assertIsNotNone(proc)
 
-    @patch('ospd_openvas.openvas.subprocess.Popen')
+    @patch('ospd_openvas.openvas.psutil.Popen')
     def test_start_scan_with_niceness_and_sudo(self, mock_popen: MagicMock):
         proc = Openvas.start_scan('scan_1', niceness=4, sudo=True)
 
@@ -247,11 +249,11 @@ class OpenvasCommandTestCase(TestCase):
         self.assertIsNotNone(proc)
 
     @patch('ospd_openvas.openvas.logger')
-    @patch('ospd_openvas.openvas.subprocess.Popen')
+    @patch('ospd_openvas.openvas.psutil.Popen')
     def test_start_scan_error(
         self, mock_popen: MagicMock, mock_logger: MagicMock
     ):
-        mock_popen.side_effect = subprocess.SubprocessError('foo')
+        mock_popen.side_effect = psutil.Error('foo')
 
         proc = Openvas.start_scan('scan_1')
 

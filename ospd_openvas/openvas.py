@@ -173,7 +173,7 @@ class Openvas:
         try:
             subprocess.check_call(cmd)
             return True
-        except (subprocess.CalledProcessError, OSError) as e:
+        except (subprocess.SubprocessError, OSError) as e:
             # the command is not available
             logger.warning(
                 'Not possible to stop scan: %s. Reason %s',
