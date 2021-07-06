@@ -7,8 +7,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 ### Changed
+<<<<<<< HEAD
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
 - Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
+=======
+- Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
+### Removed
+
+- Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
+>>>>>>> 0c519cb (add changelog entry)
 
 ### Deprecated
 ### Removed
