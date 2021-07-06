@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add dry run support. Generate 10 fake results per host. [#424](https://github.com/greenbone/ospd-openvas/pull/424)
 
 ### Changed
+- Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
 ### Removed
 
 - Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
