@@ -477,21 +477,11 @@ class TestOspdOpenvas(TestCase):
         self.assertEqual(mock_path_open.call_count, 1)
 
     def test_check_feed_cache_unavailable(self):
-<<<<<<< HEAD
         dummy = DummyDaemon()
         dummy.vts.is_cache_available = False
         dummy.feed_is_outdated = Mock()
-        res = dummy.check_feed()
 
-        self.assertFalse(res)
         dummy.feed_is_outdated.assert_not_called()
-=======
-        w = DummyDaemon()
-        w.vts.is_cache_available = False
-        w.feed_is_outdated = Mock()
-
-        w.feed_is_outdated.assert_not_called()
->>>>>>> cf46955 (satisfy linter)
 
     @patch('ospd_openvas.daemon.BaseDB')
     @patch('ospd_openvas.daemon.ResultList.add_scan_log_to_list')
@@ -632,39 +622,20 @@ class TestOspdOpenvas(TestCase):
 
         assert_called_once(logging.Logger.warning)
 
-<<<<<<< HEAD
-    @patch('ospd_openvas.db.KbDB')
-    def test_openvas_is_alive_already_stopped(self, mock_db):
-        dummy = DummyDaemon()
-        # mock_psutil = MockPsutil.return_value
-        mock_db.scan_is_stopped.return_value = True
-        ret = dummy.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
-=======
     @patch('psutil.Popen')
     def test_openvas_is_alive_already_stopped(self, mock_process):
-        w = DummyDaemon()
->>>>>>> 0f9fc2a (adjust unittests)
+        dummy = DummyDaemon()
 
         mock_process.is_running.return_value = True
-        ret = w.is_openvas_process_alive(mock_process)
+        ret = dummy.is_openvas_process_alive(mock_process)
         self.assertTrue(ret)
 
-<<<<<<< HEAD
-    @patch('psutil.Process')
-    @patch('ospd_openvas.db.KbDB')
-    def test_openvas_is_alive_still(self, mock_db, mock_psutil):
-        dummy = DummyDaemon()
-        mock_psutil.side_effect = TypeError
-        mock_db.scan_is_stopped.return_value = False
-        ret = dummy.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d3')
-=======
     @patch('psutil.Popen')
     def test_openvas_is_alive_still(self, mock_process):
-        w = DummyDaemon()
->>>>>>> 0f9fc2a (adjust unittests)
+        dummy = DummyDaemon()
 
         mock_process.is_running.return_value = False
-        ret = w.is_openvas_process_alive(mock_process)
+        ret = dummy.is_openvas_process_alive(mock_process)
         self.assertFalse(ret)
 
     @patch('ospd_openvas.daemon.OSPDaemon.set_scan_progress_batch')
@@ -748,7 +719,9 @@ class TestFilters(TestCase):
         vtaux = {
             'severities': {
                 'severity_type': 'cvss_base_v3',
-                'severity_base_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
+                'severity_base_vector': (
+                    'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L'
+                ),
             }
         }
 

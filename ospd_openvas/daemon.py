@@ -435,12 +435,12 @@ class OpenVasVtsFilter(VtsFilter):
 
 class OSPDopenvas(OSPDaemon):
 
-    """ Class for ospd-openvas daemon. """
+    """Class for ospd-openvas daemon."""
 
     def __init__(
         self, *, niceness=None, lock_file_dir='/var/lib/openvas', **kwargs
     ):
-        """ Initializes the ospd-openvas daemon's internal data. """
+        """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
         self.nvti = NVTICache(self.main_db)
 
@@ -918,7 +918,7 @@ class OSPDopenvas(OSPDaemon):
 
     @property
     def is_running_as_root(self) -> bool:
-        """ Check if it is running as root user."""
+        """Check if it is running as root user."""
         if self._is_running_as_root is not None:
             return self._is_running_as_root
 
@@ -930,7 +930,7 @@ class OSPDopenvas(OSPDaemon):
 
     @property
     def sudo_available(self) -> bool:
-        """ Checks that sudo is available """
+        """Checks that sudo is available"""
         if self._sudo_available is not None:
             return self._sudo_available
 
@@ -1015,7 +1015,7 @@ class OSPDopenvas(OSPDaemon):
         return None
 
     def report_openvas_results(self, db: BaseDB, scan_id: str) -> bool:
-        """ Get all result entries from redis kb. """
+        """Get all result entries from redis kb."""
 
         vthelper = VtHelper(self.nvti)
 
@@ -1235,7 +1235,7 @@ class OSPDopenvas(OSPDaemon):
                 self.main_db.release_database(scan_db)
 
     def exec_scan(self, scan_id: str):
-        """ Starts the OpenVAS scanner for scan_id scan. """
+        """Starts the OpenVAS scanner for scan_id scan."""
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
@@ -1377,7 +1377,7 @@ class OSPDopenvas(OSPDaemon):
 
 
 def main():
-    """ OSP openvas main function. """
+    """OSP openvas main function."""
     daemon_main('OSPD - openvas', OSPDopenvas)
 
 
