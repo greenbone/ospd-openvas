@@ -4,7 +4,59 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+<<<<<<< HEAD
 ## [Unreleased]
+=======
+## [21.10] (unreleased)
+
+### Added
+- Validate port list to be sent to openvas. [#411](https://github.com/greenbone/ospd-openvas/pull/411)
+- Validate credentials to be sent to openvas. [#416](https://github.com/greenbone/ospd-openvas/pull/416)
+- New Credentials for SSH to get su privileges. [#419](https://github.com/greenbone/ospd-openvas/pull/419)
+- Integrate Sentry. [#421](https://github.com/greenbone/ospd-openvas/pull/421)
+- Add dry run support. Generate 10 fake results per host. [#424](https://github.com/greenbone/ospd-openvas/pull/424)
+
+### Changed
+- Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
+### Removed
+
+- Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
+
+### Fixed
+
+[21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
+
+## [21.4.1] (unreleased)
+
+### Added
+### Changed
+### Fixed
+
+### Removed
+
+- Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
+
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
+
+## [21.4.0] (2021-04-16)
+
+### Added
+- Add dedicated port list for alive detection (Boreas only) as scanner preference if supplied via OSP. [#327](https://github.com/greenbone/ospd-openvas/pull/327)
+- Add methods for adding VTs to the redis cache. [#337](https://github.com/greenbone/ospd-openvas/pull/337)
+- Add support for supplying alive test methods via separate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
+- Add support CVSSv3 and accept new tags for severity vector, origin, date. [#346](https://github.com/greenbone/ospd-openvas/pull/346)
+
+### Changed
+- Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
+- Extend severities with origin and date. [#192](https://github.com/greenbone/ospd-openvas/pull/192)
+
+### Deprecated
+### Removed
+
+[21.4]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...ospd-openvas-21.04
+
+## [20.8.3]
+>>>>>>> 0c519cb (add changelog entry)
 ### Added
 ### Changed
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
