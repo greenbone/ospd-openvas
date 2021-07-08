@@ -16,11 +16,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional, Dict, Any
 
 import logging
 import subprocess
+import psutil
 
-from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
@@ -136,8 +137,10 @@ class Openvas:
 
     @staticmethod
     def start_scan(
-        scan_id: str, sudo: bool = False, niceness: int = None
-    ) -> Optional[subprocess.Popen]:
+        scan_id: str,
+        sudo: bool = False,
+        niceness: int = None,
+    ) -> Optional[psutil.Popen]:
         """Calls openvas to start a scan process"""
         cmd = []
 
@@ -151,8 +154,8 @@ class Openvas:
         cmd += ['openvas', '--scan-start', scan_id]
 
         try:
-            return subprocess.Popen(cmd, shell=False)
-        except (subprocess.SubprocessError, OSError) as e:
+            return psutil.Popen(cmd, shell=False)
+        except (psutil.Error, OSError, FileNotFoundError) as e:
             # the command is not available
             logger.warning("Could not start scan process. Reason %s", e)
             return None
