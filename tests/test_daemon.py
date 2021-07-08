@@ -480,9 +480,7 @@ class TestOspdOpenvas(TestCase):
         dummy = DummyDaemon()
         dummy.vts.is_cache_available = False
         dummy.feed_is_outdated = Mock()
-        res = dummy.check_feed()
 
-        self.assertFalse(res)
         dummy.feed_is_outdated.assert_not_called()
 
     @patch('ospd_openvas.daemon.BaseDB')
@@ -495,7 +493,8 @@ class TestOspdOpenvas(TestCase):
         dummy.create_scan('123-456', targets, None, [])
 
         results = [
-            "LOG|||192.168.0.1|||localhost|||general/Host_Details||||||Host dead",
+            "LOG|||192.168.0.1|||localhost|||general/Host_Details||||||Host"
+            " dead",
         ]
         db_class_mock.get_result.return_value = results
         mock_add_scan_log_to_list.return_value = None
@@ -623,23 +622,20 @@ class TestOspdOpenvas(TestCase):
 
         assert_called_once(logging.Logger.warning)
 
-    @patch('ospd_openvas.db.KbDB')
-    def test_openvas_is_alive_already_stopped(self, mock_db):
+    @patch('psutil.Popen')
+    def test_openvas_is_alive_already_stopped(self, mock_process):
         dummy = DummyDaemon()
-        # mock_psutil = MockPsutil.return_value
-        mock_db.scan_is_stopped.return_value = True
-        ret = dummy.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d4')
 
+        mock_process.is_running.return_value = True
+        ret = dummy.is_openvas_process_alive(mock_process)
         self.assertTrue(ret)
 
-    @patch('psutil.Process')
-    @patch('ospd_openvas.db.KbDB')
-    def test_openvas_is_alive_still(self, mock_db, mock_psutil):
+    @patch('psutil.Popen')
+    def test_openvas_is_alive_still(self, mock_process):
         dummy = DummyDaemon()
-        mock_psutil.side_effect = TypeError
-        mock_db.scan_is_stopped.return_value = False
-        ret = dummy.is_openvas_process_alive(mock_db, '1234', 'a1-b2-c3-d3')
 
+        mock_process.is_running.return_value = False
+        ret = dummy.is_openvas_process_alive(mock_process)
         self.assertFalse(ret)
 
     @patch('ospd_openvas.daemon.OSPDaemon.set_scan_progress_batch')
@@ -723,7 +719,9 @@ class TestFilters(TestCase):
         vtaux = {
             'severities': {
                 'severity_type': 'cvss_base_v3',
-                'severity_base_vector': 'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L',
+                'severity_base_vector': (
+                    'CVSS:3.0/AV:L/AC:H/PR:H/UI:R/S:U/C:N/I:L/A:L'
+                ),
             }
         }
 
