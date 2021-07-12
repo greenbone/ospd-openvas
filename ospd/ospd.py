@@ -1367,8 +1367,8 @@ class OSPDaemon:
 
     def wait_for_children(self):
         """Join the zombie process to releases resources."""
-        for scan_id in self.scan_processes:
-            self.scan_processes[scan_id].join(0)
+        for _, process in self.scan_processes.items():
+            process.join(0)
 
     def create_scan(
         self,
