@@ -16,7 +16,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import time
-import multiprocessing
 
 from unittest.mock import Mock
 
@@ -162,18 +161,18 @@ class DummyWrapper(OSPDaemon):
 
     @staticmethod
     def get_creation_time_vt_as_xml_str(
-        vt_id, creation_time
+        vt_id, vt_creation_time
     ):  # pylint: disable=arguments-differ
-        response = '<creation_time>%s</creation_time>' % creation_time
+        response = '<creation_time>%s</creation_time>' % vt_creation_time
 
         return response
 
     @staticmethod
     def get_modification_time_vt_as_xml_str(
-        vt_id, modification_time
+        vt_id, vt_modification_time
     ):  # pylint: disable=arguments-differ
         response = (
-            '<modification_time>%s</modification_time>' % modification_time
+            '<modification_time>%s</modification_time>' % vt_modification_time
         )
 
         return response
