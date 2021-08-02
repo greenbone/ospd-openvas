@@ -44,7 +44,7 @@ paramiko = "^2.7.1"
 deprecated = "^1.2.10"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.9.5"
+pylint = "^2.9.6"
 autohooks-plugin-pylint = "^21.6.0"
 
 autohooks-plugin-black = {version = "^21.7.0", python = "^3.7"}
