@@ -37,7 +37,6 @@ def assert_called(mock: Mock):
         )
         raise AssertionError(msg)
 
-
 class FakePsutil:
     def __init__(self, available=None):
         self.available = available
@@ -163,7 +162,7 @@ class DummyWrapper(OSPDaemon):
     @staticmethod
     def get_creation_time_vt_as_xml_str(
         vt_id, creation_time
-    ):  # pylint: disable=arguments-differ
+    ):  # pylint: disable=arguments-differ, arguments-renamed
         response = '<creation_time>%s</creation_time>' % creation_time
 
         return response
@@ -171,7 +170,7 @@ class DummyWrapper(OSPDaemon):
     @staticmethod
     def get_modification_time_vt_as_xml_str(
         vt_id, modification_time
-    ):  # pylint: disable=arguments-differ
+    ):  # pylint: disable=arguments-differ, arguments-renamed
         response = (
             '<modification_time>%s</modification_time>' % modification_time
         )
