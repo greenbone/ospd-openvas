@@ -37,6 +37,7 @@ def assert_called(mock: Mock):
         )
         raise AssertionError(msg)
 
+
 class FakePsutil:
     def __init__(self, available=None):
         self.available = available
@@ -200,11 +201,7 @@ class DummyWrapper(OSPDaemon):
                 )
             elif res.result_type == 'host-detail':
                 self.add_scan_host_detail(
-                    scan_id,
-                    res.host,
-                    res.hostname,
-                    res.name,
-                    res.value,
+                    scan_id, res.host, res.hostname, res.name, res.value
                 )
             elif res.result_type == 'alarm':
                 self.add_scan_alarm(
