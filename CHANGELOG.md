@@ -4,17 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-### Added
+## [20.8.4] - 2021-08-03
 ### Changed
 - Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
 
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd/compare/v20.8.3...HEAD
-
+[20.8.4]: https://github.com/greenbone/ospd/compare/v20.8.3...v20.8.4
 
 ## [20.8.3] - 2021-06-24
 ### Fixed
