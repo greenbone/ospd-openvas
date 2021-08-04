@@ -4,7 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [21.4.4] (Unreleased)
+
 ### Added
 ### Changed
 ### Deprecated
@@ -13,8 +14,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
 
-
 ## [21.4.3] - 2021-08-04
+
 ### Changed
 - Stopping scan. [#437](https://github.com/greenbone/ospd/pull/437)
 
@@ -37,38 +38,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...v21.4.0
 
-## [Unreleased]
+## [20.8.4] (Unreleased)
+
 ### Added
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 
-[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
+[Unreleased]: https://github.com/greenbone/ospd/compare/v20.8.3...v21.4.0
 
+## [20.8.3] - 2021-08-04
 
-## [21.4.3] - 2021-08-04
-### Changed
-- Stopping scan. [#437](https://github.com/greenbone/ospd/pull/437)
-
-## [Unreleased]
-### Added
-### Changed
-### Deprecated
-### Removed
 ### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
-
-
-## [21.4.3] - 2021-08-04### Fixed
 - Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
 - Remove the pid file if there is no process for the pid or the process name does not match. [#405](https://github.com/greenbone/ospd/pull/405)
 - Fix regex of gvmcg titles for get_performance command. [#413](https://github.com/greenbone/ospd/pull/413)
 
-[21.4.3]: https://github.com/greenbone/ospd/compare/v21.4.1...v21.4.3
-
-[21.4.3]: https://github.com/greenbone/ospd/compare/v20.8.2...v21.4.3
+[21.4.3]: https://github.com/greenbone/ospd/compare/v20.8.2...v20.8.3
 
 ## [20.8.2] (2021-02-01)
 
