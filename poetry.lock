@@ -276,25 +276,18 @@ python-versions = "*"
 
 [[package]]
 name = "ospd"
-version = "21.4.2"
+version = "21.4.3"
 description = "OSPD is a base for scanner wrappers which share the same communication protocol: OSP (Open Scanner Protocol)"
 category = "main"
 optional = false
-python-versions = "^3.7"
-develop = false
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 defusedxml = ">=0.6,<0.8"
-deprecated = "^1.2.10"
-lxml = "^4.5.2"
-paramiko = "^2.7.1"
-psutil = "^5.7.2"
-
-[package.source]
-type = "git"
-url = "https://github.com/greenbone/ospd.git"
-reference = "ospd-21.04"
-resolved_reference = "f7c9f8e8aa70d8f977754bed3a8714e778142da7"
+deprecated = ">=1.2.10,<2.0.0"
+lxml = ">=4.5.2,<5.0.0"
+paramiko = ">=2.7.1,<3.0.0"
+psutil = ">=5.7.2,<6.0.0"
 
 [[package]]
 name = "packaging"
@@ -530,7 +523,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "df83675f23da020eae397f3f93bdc33b3b9be03ff7bbd21272bf2ce40577d087"
+content-hash = "9faa31d9c808626ee689f55d48f28fa2bac7f448a5a70d688c029555d7fad056"
 
 [metadata.files]
 appdirs = [
@@ -737,7 +730,10 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3-py2.py3-none-any.whl", hash = "sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d"},
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
-ospd = []
+ospd = [
+    {file = "ospd-21.4.3-py3-none-any.whl", hash = "sha256:8ff13ac0ad2caef529c407ce0480c4482c243e8ea14f5a5fc6dce52232a604f6"},
+    {file = "ospd-21.4.3.tar.gz", hash = "sha256:54f81cb618662b4c0bb8e2d1552b5e770206777c4bd1bfa05004f2cb05999789"},
+]
 packaging = [
     {file = "packaging-20.9-py2.py3-none-any.whl", hash = "sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a"},
     {file = "packaging-20.9.tar.gz", hash = "sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5"},
