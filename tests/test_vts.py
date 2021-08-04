@@ -145,16 +145,8 @@ class VtsTestCase(TestCase):
             name='foo',
             vt_modification_time='01234',
             vt_params={
-                '0': {
-                    'id': '0',
-                    'name': 'timeout',
-                    'default': '20',
-                },
-                '1': {
-                    'id': '1',
-                    'name': 'foo_pref:',
-                    'default': 'bar_value',
-                },
+                '0': {'id': '0', 'name': 'timeout', 'default': '20'},
+                '1': {'id': '1', 'name': 'foo_pref:', 'default': 'bar_value'},
             },
         )
         vts.add('id_2', name='bar', vt_modification_time='56789')
@@ -177,16 +169,8 @@ class VtsTestCase(TestCase):
             name='foo',
             vt_modification_time='01234',
             vt_params={
-                '0': {
-                    'id': '0',
-                    'name': 'timeout',
-                    'default': '20',
-                },
-                '1': {
-                    'id': '1',
-                    'name': 'foo_pref:',
-                    'default': 'bar_value',
-                },
+                '0': {'id': '0', 'name': 'timeout', 'default': '20'},
+                '1': {'id': '1', 'name': 'foo_pref:', 'default': 'bar_value'},
             },
         )
         vts.add('id_2', name='bar', vt_modification_time='56789')
