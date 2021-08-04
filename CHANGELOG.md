@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
+
+
 ## [21.4.3] - 2021-08-04
 ### Changed
 - Stopping scan. [#437](https://github.com/greenbone/ospd/pull/437)
@@ -27,9 +37,29 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...v21.4.0
 
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
+
+
 ## [21.4.3] - 2021-08-04
 ### Changed
 - Stopping scan. [#437](https://github.com/greenbone/ospd/pull/437)
+
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
+
 
 ## [21.4.3] - 2021-08-04### Fixed
 - Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
