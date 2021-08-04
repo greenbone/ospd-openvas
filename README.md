@@ -2,7 +2,11 @@
 
 # ospd-openvas
 
+[![GitHub releases](https://img.shields.io/github/release/greenbone/ospd-openvas.svg)](https://github.com/greenbone/ospd-openvas/releases)
+[![PyPI](https://img.shields.io/pypi/v/ospd-openvas.svg)](https://pypi.org/project/ospd-openvas/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/?branch=master)
+[![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/master/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd-openvas)
+[![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=master)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%3Amaster++)
 
 This is an OSP server implementation to allow GVM to remotely control
 OpenVAS, see <https://github.com/greenbone/openvas>.
