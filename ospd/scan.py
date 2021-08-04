@@ -326,11 +326,7 @@ class ScanCollection:
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = 0
 
-        scan_info_to_pickle = {
-            'target': target,
-            'options': options,
-            'vts': vts,
-        }
+        scan_info_to_pickle = {'target': target, 'options': options, 'vts': vts}
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())

@@ -238,8 +238,7 @@ class ScanTestCase(unittest.TestCase):
         )
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_vts filter="modification_time&lt;19000203"></get_vts>',
-            fs,
+            '<get_vts filter="modification_time&lt;19000203"></get_vts>', fs
         )
         response = fs.get_response()
 
@@ -742,8 +741,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
-            fs,
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs
         )
 
         res_len = len(
@@ -773,8 +771,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream(return_value=False)
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
-            fs,
+            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs
         )
 
         res_len = len(
@@ -870,9 +867,7 @@ class ScanTestCase(unittest.TestCase):
 
         self.assertEqual(response.get('status'), '200')
 
-        cred_dict = {
-            'snmp': {'type': 'up', 'community': ''},
-        }
+        cred_dict = {'snmp': {'type': 'up', 'community': ''}}
         scan_id = response.findtext('id')
         response = self.daemon.get_scan_credentials(scan_id)
         self.assertEqual(response, cred_dict)
@@ -993,11 +988,7 @@ class ScanTestCase(unittest.TestCase):
         time.sleep(1)
         target_options = self.daemon.get_scan_target_options(scan_id)
         self.assertEqual(
-            target_options,
-            {
-                'alive_test_methods': '1',
-                'icmp': '1',
-            },
+            target_options, {'alive_test_methods': '1', 'icmp': '1'}
         )
 
     def test_progress(self):
@@ -1374,8 +1365,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id,
-            fs,
+            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id, fs
         )
         response = fs.get_response()
 
@@ -1451,10 +1441,7 @@ class ScanTestCase(unittest.TestCase):
             '</start_scan>'
         )
 
-        self.daemon.handle_command(
-            cmd,
-            fs,
-        )
+        self.daemon.handle_command(cmd, fs)
         self.daemon.start_queued_scans()
 
         response = fs.get_response()
