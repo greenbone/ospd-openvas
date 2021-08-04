@@ -33,7 +33,7 @@ jobs:
         git config --global user.name "${{ env.GITHUB_USER }}"
         git config --global user.email "${{ env.GITHUB_MAIL }}"
         git remote set-url origin https://${{ env.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-      run: echo "Current Branch is $GITHUB_BASE_REF"
+    - run: echo "Current Branch is $GITHUB_BASE_REF"
     - name: Prepare patch release with pontos
       run: |
         poetry run pontos-release prepare --patch
