@@ -20,10 +20,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [21.4.1] - 2021-06-24
 
+### Added
+- Add new Credentials for SSH to get su privileges. Backport of [#419](https://github.com/greenbone/ospd-openvas/pull/419). [#426](https://github.com/greenbone/ospd-openvas/pull/426)
+
 ### Removed
 - Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
 
-[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...v21.4.1
 
 ## [21.4.0] (2021-04-16)
 
@@ -32,7 +35,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add methods for adding VTs to the redis cache. [#337](https://github.com/greenbone/ospd-openvas/pull/337)
 - Add support for supplying alive test methods via separate elements. [#331](https://github.com/greenbone/ospd-openvas/pull/331)
 - Add support CVSSv3 and accept new tags for severity vector, origin, date. [#346](https://github.com/greenbone/ospd-openvas/pull/346)
-- Add new Credentials for SSH to get su privileges. Backport of [#419](https://github.com/greenbone/ospd-openvas/pull/419). [#426](https://github.com/greenbone/ospd-openvas/pull/426)
 
 ### Changed
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
