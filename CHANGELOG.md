@@ -4,19 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-### Added
+## [21.4.2] - 2021-08-04
 ### Changed
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
 - Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
 - Stopping and interrupting scans. [#465](https://github.com/greenbone/ospd-openvas/pull/465)
 
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.1...HEAD
-
+[21.4.2]: https://github.com/greenbone/ospd-openvas/compare/v21.4.1...v21.4.2
 
 ## [21.4.1] - 2021-06-24
 
@@ -45,12 +39,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...v21.4.0
 
-## [20.8.2] (unreleased)
+## [21.4.2] - 2021-08-04
+### Changed
+- Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
+- Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
+- Stopping and interrupting scans. [#465](https://github.com/greenbone/ospd-openvas/pull/465)
 
-### Added
+## [21.4.2] - 2021-08-04### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
 
-### Changed
 ### Fixed
 - Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
 
@@ -60,6 +57,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
 
 [20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
+
+[21.4.2]: https://github.com/greenbone/ospd-openvas/compare/v21.4.1...v21.4.2
 
 ## (20.8.1) - 2021-02-01
 
