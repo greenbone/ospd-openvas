@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
+
+
 ## [21.4.2] - 2021-08-04
 ### Changed
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
@@ -39,11 +49,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...v21.4.0
 
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
+
+
 ## [21.4.2] - 2021-08-04
 ### Changed
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
 - Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
 - Stopping and interrupting scans. [#465](https://github.com/greenbone/ospd-openvas/pull/465)
+
+## [Unreleased]
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
+
 
 ## [21.4.2] - 2021-08-04### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
