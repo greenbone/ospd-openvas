@@ -46,7 +46,7 @@ python = "^3.7"
 redis = "^3.5.3"
 psutil = "^5.7.2"
 packaging = "^20.4"
-ospd = {git = "https://github.com/greenbone/ospd.git", branch = "ospd-21.04"}
+ospd = "^21.4"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.8.2"
