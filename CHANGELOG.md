@@ -16,6 +16,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
 ### Removed
+<<<<<<< HEAD
+=======
+### Fixed
+- Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
+
+[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
+>>>>>>> 1e90dfa (Fix timeout preference handling)
 
 - Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
 
@@ -55,16 +62,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [20.8.3]
 ### Added
 ### Changed
+<<<<<<< HEAD
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
 - Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
 
+=======
+>>>>>>> 1e90dfa (Fix timeout preference handling)
 ### Deprecated
 ### Removed
 ### Fixed
 
+<<<<<<< HEAD
 [20.8.3]: https://github.com/greenbone/ospd-openvas/compare/v20.8.2...ospd-openvas-20.08
 
 ## [20.8.2] - 2021-06-24
+=======
+[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
+
+## [20.8.2] ()
+>>>>>>> 1e90dfa (Fix timeout preference handling)
 ### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
 
@@ -92,9 +108,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
 - Retry host progress update if the progress is still below 100 percent. [#390](https://github.com/greenbone/ospd-openvas/pull/390)
 
+<<<<<<< HEAD
 [20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...v20.8.1
 
 ## [20.8.1] (2021-02-01)
+=======
+## (20.8.1) - 2021-02-01
+>>>>>>> 1e90dfa (Fix timeout preference handling)
 
 ### Added
 - Add debug level log messages. [#373](https://github.com/greenbone/ospd-openvas/pull/373)
