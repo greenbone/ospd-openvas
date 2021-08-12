@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Set Log Timestamp to UTC. [#394](https://github.com/greenbone/ospd-openvas/pull/394)
 - Stopping scan. [#432](https://github.com/greenbone/ospd/pull/432)
 
+### Deprecated
 ### Fixed
 ### Removed
 - Remove dry run from ospd. [#402](https://github.com/greenbone/ospd-openvas/pull/402)
@@ -26,6 +27,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - Add target option for supplying dedicated port list for alive detection (Boreas only) via OSP. [#323](https://github.com/greenbone/ospd/pull/323)
 - Add target option for supplying alive test methods via separate elements. [#329](https://github.com/greenbone/ospd/pull/329)
+
+### Changed
+- Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
 
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)

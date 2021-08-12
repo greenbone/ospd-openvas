@@ -22,19 +22,19 @@ from pathlib import Path
 from ospd.config import Config
 
 # Default file locations as used by a OpenVAS default installation
-DEFAULT_KEY_FILE = "/usr/var/lib/gvm/private/CA/serverkey.pem"
-DEFAULT_CERT_FILE = "/usr/var/lib/gvm/CA/servercert.pem"
-DEFAULT_CA_FILE = "/usr/var/lib/gvm/CA/cacert.pem"
+DEFAULT_KEY_FILE = "/var/lib/gvm/private/CA/serverkey.pem"
+DEFAULT_CERT_FILE = "/var/lib/gvm/CA/servercert.pem"
+DEFAULT_CA_FILE = "/var/lib/gvm/CA/cacert.pem"
 
 DEFAULT_PORT = 0
 DEFAULT_ADDRESS = "0.0.0.0"
 DEFAULT_NICENESS = 10
-DEFAULT_UNIX_SOCKET_MODE = "0o700"
+DEFAULT_UNIX_SOCKET_MODE = "0o770"
 DEFAULT_CONFIG_PATH = "~/.config/ospd.conf"
 DEFAULT_LOG_CONFIG_PATH = "~/.config/ospd-logging.conf"
-DEFAULT_UNIX_SOCKET_PATH = "/var/run/ospd/ospd.sock"
-DEFAULT_PID_PATH = "/var/run/ospd.pid"
-DEFAULT_LOCKFILE_DIR_PATH = "/var/run/ospd"
+DEFAULT_UNIX_SOCKET_PATH = "/run/ospd/ospd.sock"
+DEFAULT_PID_PATH = "/run/ospd/ospd.pid"
+DEFAULT_LOCKFILE_DIR_PATH = "/run/ospd"
 DEFAULT_STREAM_TIMEOUT = 10  # ten seconds
 DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
 DEFAULT_MAX_SCAN = 0  # 0 = disable
