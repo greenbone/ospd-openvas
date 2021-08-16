@@ -235,7 +235,7 @@ class PreferenceHandler:
                 param_type = self._get_vt_param_type(vt, vt_param_id)
                 param_name = self._get_vt_param_name(vt, vt_param_id)
 
-                if not param_type or not param_name:
+                if vt_param_id > '0' and (not param_type or not param_name):
                     logger.debug(
                         'Missing type or name for VT parameter %s of %s. '
                         'This VT parameter will not be set.',
@@ -263,11 +263,14 @@ class PreferenceHandler:
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
 
-                vts_params[
-                    "{0}:{1}:{2}:{3}".format(
-                        vtid, vt_param_id, param_type, param_name
-                    )
-                ] = str(vt_param_value)
+                if vt_param_id == '0':
+                    vts_params["timeout.{0}".format(vtid)] = str(vt_param_value)
+                else:
+                    vts_params[
+                        "{0}:{1}:{2}:{3}".format(
+                            vtid, vt_param_id, param_type, param_name
+                        )
+                    ] = str(vt_param_value)
 
         return vts_list, vts_params
 

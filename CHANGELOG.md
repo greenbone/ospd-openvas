@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
 
 [Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
 
@@ -58,24 +59,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
 
-
-## [21.4.2] - 2021-08-04
-### Changed
-- Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
-- Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
-- Stopping and interrupting scans. [#465](https://github.com/greenbone/ospd-openvas/pull/465)
-
-## [Unreleased]
+## [20.8.2] ()
 ### Added
-### Changed
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
-
-
-## [21.4.2] - 2021-08-04### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
 
 ### Fixed
@@ -87,8 +72,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
 
 [20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
-
-[21.4.2]: https://github.com/greenbone/ospd-openvas/compare/v21.4.1...v21.4.2
 
 ## (20.8.1) - 2021-02-01
 
