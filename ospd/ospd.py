@@ -48,7 +48,7 @@ from ospd import __version__
 from ospd.command import get_commands
 from ospd.errors import OspdCommandError
 from ospd.misc import ResultType, create_process
-from ospd.network import resolve_hostname, target_str_to_list
+from ospd.network import target_str_to_list
 from ospd.protocol import RequestParser
 from ospd.scan import ScanCollection, ScanStatus, ScanProgress
 from ospd.server import BaseServer, Stream
@@ -65,6 +65,8 @@ logger = logging.getLogger(__name__)
 PROTOCOL_VERSION = __version__
 
 SCHEDULER_CHECK_PERIOD = 10  # in seconds
+
+MIN_TIME_BETWEEN_START_SCAN = 60  # in seconds
 
 BASE_SCANNER_PARAMS = {
     'debug_mode': {
@@ -139,6 +141,7 @@ class OSPDaemon:
         self.max_scans = max_scans
         self.min_free_mem_scan_queue = min_free_mem_scan_queue
         self.max_queued_scans = max_queued_scans
+        self.last_scan_start_time = 0
 
         self.scaninfo_store_time = kwargs.get('scaninfo_store_time')
 
@@ -354,8 +357,6 @@ class OSPDaemon:
             '%s: Stopping Scan with the PID %s.', scan_id, scan_process.ident
         )
 
-        self.stop_scan_cleanup(scan_id)
-
         try:
             scan_process.terminate()
         except AttributeError:
@@ -377,16 +378,6 @@ class OSPDaemon:
             scan_process.join(0)
 
         logger.info('%s: Scan stopped.', scan_id)
-
-    @staticmethod
-    def stop_scan_cleanup(scan_id: str):
-        """Should be implemented by subclass in case of a clean up before
-        terminating is needed."""
-
-    @staticmethod
-    def target_is_finished(scan_id: str):
-        """Should be implemented by subclass in case of a check before
-        stopping is needed."""
 
     def exec_scan(self, scan_id: str):
         """Asserts to False. Should be implemented by subclass."""
@@ -555,7 +546,7 @@ class OSPDaemon:
             self.finish_scan(scan_id)
         elif not is_stopped:
             logger.info(
-                "%s: Host scan finished. Progress: %d, Status: %s",
+                "%s: Host scan got interrupted. Progress: %d, Status: %s",
                 scan_id,
                 progress,
                 status.name,
@@ -564,23 +555,6 @@ class OSPDaemon:
 
         # For debug purposes
         self._get_scan_progress_raw(scan_id)
-
-    def dry_run_scan(self, scan_id: str, target: Dict) -> None:
-        """Dry runs a scan."""
-
-        os.setsid()
-
-        host = resolve_hostname(target.get('hosts'))
-        if host is None:
-            logger.info("Couldn't resolve %s.", self.get_scan_host(scan_id))
-
-        port = self.get_scan_ports(scan_id)
-
-        logger.info("%s:%s: Dry run mode.", host, port)
-
-        self.add_scan_log(scan_id, name='', host=host, value='Dry run result')
-
-        self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id: str, host: str) -> None:
         """Handles scanner reaching timeout error."""
@@ -1325,6 +1299,7 @@ class OSPDaemon:
                 self.set_scan_status(scan_id, ScanStatus.INIT)
 
                 current_queued_scans = current_queued_scans - 1
+                self.last_scan_start_time = time.time()
                 logger.info('Starting scan %s.', scan_id)
             elif scan_is_queued and not scan_allowed:
                 return
@@ -1358,6 +1333,20 @@ class OSPDaemon:
         if not self.min_free_mem_scan_queue:
             return True
 
+        # If min_free_mem_scan_queue option is set, also wait some time
+        # between scans. Consider the case in which the last scan
+        # finished in a few seconds and there is no need to wait.
+        time_between_start_scan = time.time() - self.last_scan_start_time
+        if (
+            time_between_start_scan < MIN_TIME_BETWEEN_START_SCAN
+            and self.get_count_running_scans()
+        ):
+            logger.debug(
+                'Not possible to run a new scan right now, a scan have been '
+                'just started.'
+            )
+            return False
+
         free_mem = psutil.virtual_memory().available / (1024 * 1024)
 
         if free_mem > self.min_free_mem_scan_queue:
@@ -1378,8 +1367,8 @@ class OSPDaemon:
 
     def wait_for_children(self):
         """Join the zombie process to releases resources."""
-        for scan_id in self.scan_processes:
-            self.scan_processes[scan_id].join(0)
+        for _, process in self.scan_processes.items():
+            process.join(0)
 
     def create_scan(
         self,
@@ -1492,6 +1481,15 @@ class OSPDaemon:
         count = 0
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
+                count += 1
+        return count
+
+    def get_count_running_scans(self) -> int:
+        """Get the amount of scans with INIT/RUNNING status"""
+        count = 0
+        for scan_id in self.scan_collection.ids_iterator():
+            status = self.get_scan_status(scan_id)
+            if status == ScanStatus.RUNNING or status == ScanStatus.INIT:
                 count += 1
         return count
 

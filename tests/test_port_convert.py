@@ -45,9 +45,10 @@ PORT_LISTS = {
 
 logging.disable()
 
+
 class ValidatePortList(unittest.TestCase):
     def test_valid_port_list_no_range(self):
-        """ Test no port list provided """
+        """Test no port list provided"""
         self.assertFalse(valid_port_list(None))
         self.assertFalse(valid_port_list(""))
 
@@ -66,28 +67,28 @@ class ValidatePortList(unittest.TestCase):
         self.assertFalse(valid_port_list("90000"))
 
     def test_valid_port_illegal_ranges(self):
-        self.assertFalse(valid_port_list ("T:-"))
-        self.assertFalse(valid_port_list ("T:-9"))
-        self.assertFalse(valid_port_list ("T:0-"))
-        self.assertFalse(valid_port_list ("T:0-9"))
-        self.assertFalse(valid_port_list ("T:90000-"))
-        self.assertFalse(valid_port_list ("T:90000-90010"))
-        self.assertFalse(valid_port_list ("T:9-\\0"))
-        self.assertFalse(valid_port_list ("T:9-0"))
-        self.assertFalse(valid_port_list ("T:9-90000"))
-        self.assertFalse(valid_port_list ("T:100-9"))
-        self.assertFalse(valid_port_list ("0-"))
-        self.assertFalse(valid_port_list ("0-9"))
-        self.assertFalse(valid_port_list ("9-"))
-        self.assertFalse(valid_port_list ("9-\\0"))
-        self.assertFalse(valid_port_list ("9-8"))
-        self.assertFalse(valid_port_list ("90000-90010"))
-        self.assertFalse(valid_port_list ("100-9"))
-        self.assertFalse(valid_port_list ("T,U"))
-        self.assertFalse(valid_port_list ("T  :\n: 1-2,U"))
-        self.assertFalse(valid_port_list ("T  :: 1-2,U"))
-        self.assertFalse(valid_port_list ("T:2=2"))
-        self.assertFalse(valid_port_list ("T:1.2-5,4.5"))
+        self.assertFalse(valid_port_list("T:-"))
+        self.assertFalse(valid_port_list("T:-9"))
+        self.assertFalse(valid_port_list("T:0-"))
+        self.assertFalse(valid_port_list("T:0-9"))
+        self.assertFalse(valid_port_list("T:90000-"))
+        self.assertFalse(valid_port_list("T:90000-90010"))
+        self.assertFalse(valid_port_list("T:9-\\0"))
+        self.assertFalse(valid_port_list("T:9-0"))
+        self.assertFalse(valid_port_list("T:9-90000"))
+        self.assertFalse(valid_port_list("T:100-9"))
+        self.assertFalse(valid_port_list("0-"))
+        self.assertFalse(valid_port_list("0-9"))
+        self.assertFalse(valid_port_list("9-"))
+        self.assertFalse(valid_port_list("9-\\0"))
+        self.assertFalse(valid_port_list("9-8"))
+        self.assertFalse(valid_port_list("90000-90010"))
+        self.assertFalse(valid_port_list("100-9"))
+        self.assertFalse(valid_port_list("T,U"))
+        self.assertFalse(valid_port_list("T  :\n: 1-2,U"))
+        self.assertFalse(valid_port_list("T  :: 1-2,U"))
+        self.assertFalse(valid_port_list("T:2=2"))
+        self.assertFalse(valid_port_list("T:1.2-5,4.5"))
 
     def test_valid_port_legal_ports(self):
         self.assertTrue(valid_port_list("6,6,6,6,10,20"))
@@ -104,38 +105,42 @@ class ValidatePortList(unittest.TestCase):
         self.assertTrue(valid_port_list("T:1-5,7,9,\nU:1-3,5\n,7,9"))
 
     def test_valid_port_allow_white_spaces(self):
-        self.assertTrue(valid_port_list(
-            "   T: 1 -5,  7   ,9, \nU   :1-  3,5  \n,7,9")
+        self.assertTrue(
+            valid_port_list("   T: 1 -5,  7   ,9, \nU   :1-  3,5  \n,7,9")
         )
 
     def test_valid_port_some_standard_port_lists(self):
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["ALL_IANA_ASSIGNED_TCP_2020_02_12"])
+        self.assertTrue(
+            valid_port_list(PORT_LISTS["ALL_IANA_ASSIGNED_TCP_2020_02_12"])
+        )
+        self.assertTrue(valid_port_list(PORT_LISTS["ALL_PRIVILEGED_TCP"]))
+        self.assertTrue(
+            valid_port_list(PORT_LISTS["ALL_PRIVILEGED_TCP_AND_UDP"])
+        )
+        self.assertTrue(valid_port_list(PORT_LISTS["ALL_TCP"]))
+        self.assertTrue(valid_port_list(PORT_LISTS["OPENVAS_DEFAULT"]))
+        self.assertTrue(
+            valid_port_list(
+                PORT_LISTS["ALL_IANA_ASSIGNED_TCP_AND_UDP_2020_02_12"]
+            )
         )
         self.assertTrue(
-            valid_port_list(PORT_LISTS["ALL_PRIVILEGED_TCP"])
+            valid_port_list(PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_100_UDP"])
         )
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["ALL_PRIVILEGED_TCP_AND_UDP"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["ALL_TCP"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["OPENVAS_DEFAULT"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["ALL_IANA_ASSIGNED_TCP_AND_UDP_2020_02_12"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_100_UDP"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_1000_UDP"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["NMAP_5_51_TOP_2000_TCP_AND_TOP_100_UDP"]))
-        self.assertTrue(valid_port_list(
-            PORT_LISTS["WEB_SERVICES"]))
+        self.assertTrue(
+            valid_port_list(PORT_LISTS["ALL_TCP_AND_NMAP_5_51_TOP_1000_UDP"])
+        )
+        self.assertTrue(
+            valid_port_list(
+                PORT_LISTS["NMAP_5_51_TOP_2000_TCP_AND_TOP_100_UDP"]
+            )
+        )
+        self.assertTrue(valid_port_list(PORT_LISTS["WEB_SERVICES"]))
 
 
 class ConvertPortTestCase(unittest.TestCase):
     def test_tcp_ports(self):
-        """ Test only tcp ports."""
+        """Test only tcp ports."""
         tports, uports = ports_as_list('T:1-10,30,31')
 
         self.assertIsNotNone(tports)
@@ -149,7 +154,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertIn(31, tports)
 
     def test_udp_ports(self):
-        """ Test only udp ports."""
+        """Test only udp ports."""
         tports, uports = ports_as_list('U:1-10')
 
         self.assertIsNotNone(uports)
@@ -160,7 +165,7 @@ class ConvertPortTestCase(unittest.TestCase):
             self.assertIn(i, uports)
 
     def test_both_ports(self):
-        """ Test tcp und udp ports."""
+        """Test tcp und udp ports."""
         tports, uports = ports_as_list('T:1-10, U:1-10')
 
         self.assertIsNotNone(tports)
@@ -176,7 +181,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertNotIn(0, uports)
 
     def test_both_ports_udp_first(self):
-        """ Test tcp und udp ports, but udp listed first."""
+        """Test tcp und udp ports, but udp listed first."""
         tports, uports = ports_as_list('U:20-30, T:1-10')
 
         self.assertIsNotNone(tports)
@@ -192,7 +197,7 @@ class ConvertPortTestCase(unittest.TestCase):
             self.assertIn(i, uports)
 
     def test_not_spec_type_ports(self):
-        """ Test port list without specific type. """
+        """Test port list without specific type."""
         tports, uports = ports_as_list('51-60')
 
         self.assertIsNotNone(tports)
@@ -203,21 +208,21 @@ class ConvertPortTestCase(unittest.TestCase):
             self.assertIn(i, tports)
 
     def test_invalid_char_port(self):
-        """ Test list with a false char. """
+        """Test list with a false char."""
         tports, uports = ports_as_list('R:51-60')
 
         self.assertIsNone(tports)
         self.assertIsNone(uports)
 
     def test_empty_port(self):
-        """ Test an empty port list. """
+        """Test an empty port list."""
         tports, uports = ports_as_list('')
 
         self.assertIsNone(tports)
         self.assertIsNone(uports)
 
     def test_get_spec_type_ports(self):
-        """ Test get specific type ports."""
+        """Test get specific type ports."""
         uports = get_udp_port_list('U:9392,9393T:22')
 
         self.assertEqual(len(uports), 2)
@@ -231,7 +236,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertIn(443, tports)
 
     def test_malformed_port_string(self):
-        """ Test different malformed port list. """
+        """Test different malformed port list."""
         tports, uports = ports_as_list('TU:1-2')
 
         self.assertIsNone(tports)
@@ -254,7 +259,7 @@ class ConvertPortTestCase(unittest.TestCase):
         self.assertIsNone(uports)
 
     def test_compress_list(self):
-        """ Test different malformed port list. """
+        """Test different malformed port list."""
         port_list = [1, 2, 3, 4, 5, 8, 9, 10, 22, 24, 29, 30]
         string = port_list_compress(port_list)
 
