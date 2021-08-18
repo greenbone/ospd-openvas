@@ -44,7 +44,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 redis = "^3.5.3"
-psutil = "^5.7.2"
+psutil = "^5.5.1"
 packaging = "^20.4"
 ospd = {git = "https://github.com/greenbone/ospd.git", branch = "master"}
 sentry-sdk = "^1.1.0"

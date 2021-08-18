@@ -14,7 +14,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add dry run support. Generate 10 fake results per host. [#424](https://github.com/greenbone/ospd-openvas/pull/424)
 
 ### Changed
+<<<<<<< HEAD
 - Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
+=======
+- Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
+
+### Deprecated
+>>>>>>> 2f3932b (Downgrade required version for psutil to 5.5.1)
 ### Removed
 - Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
 
