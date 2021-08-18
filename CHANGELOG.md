@@ -16,7 +16,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Changed
 - Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
 ### Removed
-
 - Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
 
 ### Fixed
@@ -28,6 +27,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 ### Fixed
+- Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
 
 ### Removed
 
