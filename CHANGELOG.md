@@ -7,12 +7,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 ### Added
 ### Changed
-<<<<<<< HEAD
-=======
 - Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
 - Downgrade required version for psutil to 5.5.1 [#453](https://github.com/greenbone/ospd/pull/453)
 
->>>>>>> 4f13f89 (Downgrade required version for psutil to 5.5.1)
 ### Deprecated
 ### Removed
 ### Fixed
