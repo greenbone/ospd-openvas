@@ -38,10 +38,17 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
+<<<<<<< HEAD
 python = "^3.5"
 psutil = "^5.7.0"
 lxml = "^4.5.1"
 defusedxml = "^0.6.0"
+=======
+python = "^3.7"
+psutil = "^5.5.1"
+lxml = "^4.5.2"
+defusedxml = ">=0.6,<0.8"
+>>>>>>> 4f13f89 (Downgrade required version for psutil to 5.5.1)
 paramiko = "^2.7.1"
 deprecated = "^1.2.10"
 
