@@ -50,7 +50,7 @@ setup(
     install_requires=[
         'ospd>=21.10.0.dev1',
         'redis>=3.0.1',
-        'psutil',
+        'psutil>=5.7.2,<6.0.0',
         'packaging',
     ],
     entry_points={'console_scripts': ['ospd-openvas=ospd_openvas.daemon:main']},
