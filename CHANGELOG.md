@@ -10,6 +10,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Add method to validate port lists. 
   [#393](https://github.com/greenbone/ospd/pull/393)
   [#395](https://github.com/greenbone/ospd/pull/395)
+### Changed
+- Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
+- Downgrade required version for psutil to 5.5.1 [#453](https://github.com/greenbone/ospd/pull/453)
+
+### Deprecated
+### Removed
+### Fixed
+
+[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
+
+## [21.4.3] - 2021-08-04
 
 ### Changed
 - Set Log Timestamp to UTC. [#394](https://github.com/greenbone/ospd-openvas/pull/394)
