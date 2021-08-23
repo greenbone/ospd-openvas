@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 ### Fixed
+- Fix pylint warnings. Remove u prefix for strings, no longer necessary. [#495](https://github.com/greenbone/ospd-openvas/pull/495)
 
 [Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.3...HEAD
 
