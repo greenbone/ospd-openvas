@@ -46,11 +46,11 @@ and the fingerprint is `8AE4 BE42 9B60 A59B 311C  2E73 9823 FAA6 0ED1 E580`.
 
 ospd requires Python >= 3.7 along with the following libraries:
 
-    - python3-paramiko
-
-    - python3-lxml
-
-    - python3-defusedxml
+- paramiko
+- lxml
+- defusedxml
+- deprecated
+- psutil
 
 ### Install using pip
 
