@@ -49,6 +49,8 @@ ospd requires Python >= 3.7 along with the following libraries:
 - paramiko
 - lxml
 - defusedxml
+- deprecated
+- psutil
 
 ### Install using pip
 
