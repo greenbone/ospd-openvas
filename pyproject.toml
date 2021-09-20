@@ -51,7 +51,7 @@ sentry-sdk = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.10.2"
-rope = "^0.19.0"
+rope = "^0.20.1"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = {version = "^21.7.1", python = "^3.7"}
 pontos = "^21.7.4"
