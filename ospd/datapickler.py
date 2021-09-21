@@ -69,7 +69,7 @@ class DataPickler:
             parent_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
             raise OspdCommandError(
-                'Not possible to access dir for %s. %s' % (filename, e),
+                f'Not possible to access dir for {filename}. {e}',
                 'start_scan',
             ) from e
 
@@ -77,7 +77,7 @@ class DataPickler:
             pickled_data = pickle.dumps(data_object)
         except pickle.PicklingError as e:
             raise OspdCommandError(
-                'Not possible to pickle scan info for %s. %s' % (filename, e),
+                f'Not possible to pickle scan info for {filename}. {e}',
                 'start_scan',
             ) from e
 
@@ -89,7 +89,7 @@ class DataPickler:
         except Exception as e:  # pylint: disable=broad-except
             self._fd_close()
             raise OspdCommandError(
-                'Not possible to store scan info for %s. %s' % (filename, e),
+                f'Not possible to store scan info for {filename}. {e}',
                 'start_scan',
             ) from e
         self._fd_close()

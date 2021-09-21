@@ -305,23 +305,19 @@ class OSPDaemon:
                     params[key] = int(params[key])
                 except ValueError:
                     raise OspdCommandError(
-                        'Invalid %s value' % key, 'start_scan'
+                        f'Invalid {key} value', 'start_scan'
                     ) from None
 
             if param_type == 'boolean':
                 if params[key] not in [0, 1]:
-                    raise OspdCommandError(
-                        'Invalid %s value' % key, 'start_scan'
-                    )
+                    raise OspdCommandError(f'Invalid {key} value', 'start_scan')
             elif param_type == 'selection':
                 selection = self.get_scanner_param_default(key).split('|')
                 if params[key] not in selection:
-                    raise OspdCommandError(
-                        'Invalid %s value' % key, 'start_scan'
-                    )
+                    raise OspdCommandError(f'Invalid {key} value', 'start_scan')
             if self.get_scanner_param_mandatory(key) and params[key] == '':
                 raise OspdCommandError(
-                    'Mandatory %s value is missing' % key, 'start_scan'
+                    f'Mandatory {key} value is missing', 'start_scan'
                 )
 
         return params
@@ -343,9 +339,7 @@ class OSPDaemon:
 
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
-            raise OspdCommandError(
-                'Scan not found {0}.'.format(scan_id), 'stop_scan'
-            )
+            raise OspdCommandError(f'Scan not found {scan_id}.', 'stop_scan')
         if not scan_process.is_alive():
             raise OspdCommandError(
                 'Scan already stopped or finished.', 'stop_scan'
@@ -532,7 +526,7 @@ class OSPDaemon:
                 scan_id,
                 name='',
                 host=self.get_scan_host(scan_id),
-                value='Host process failure (%s).' % e,
+                value=f'Host process failure ({e}).',
             )
             logger.exception('%s: Exception %s while scanning', scan_id, e)
         else:
@@ -562,7 +556,7 @@ class OSPDaemon:
             scan_id,
             host=host,
             name="Timeout",
-            value="{0} exec timeout.".format(self.get_scanner_name()),
+            value=f"{self.get_scanner_name()} exec timeout.",
         )
 
     def sort_host_finished(
@@ -681,13 +675,13 @@ class OSPDaemon:
             attributes = info.get_attributes()
             elements = info.get_elements()
 
-            command_txt = "\t{0: <22} {1}\n".format(name, description)
+            command_txt = f"\t{name: <22} {description}\n"
 
             if attributes:
                 command_txt = ''.join([command_txt, "\t Attributes:\n"])
 
                 for attrname, attrdesc in attributes.items():
-                    attr_txt = "\t  {0: <22} {1}\n".format(attrname, attrdesc)
+                    attr_txt = f"\t  {attrname: <22} {attrdesc}\n"
                     command_txt = ''.join([command_txt, attr_txt])
 
             if elements:
@@ -1211,7 +1205,7 @@ class OSPDaemon:
 
         if not self.initialized and command.must_be_initialized:
             exception = OspdCommandError(
-                '%s is still starting' % self.daemon_info['name'], 'error'
+                f'{self.daemon_info["name"]} is still starting', 'error'
             )
             response = exception.as_xml()
             stream.write(response)

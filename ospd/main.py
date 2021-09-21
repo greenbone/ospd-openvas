@@ -39,7 +39,7 @@ License GPLv2+: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."""
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def print_version(daemon: OSPDaemon, file=sys.stdout):
@@ -52,11 +52,11 @@ def print_version(daemon: OSPDaemon, file=sys.stdout):
     daemon_version = daemon.get_daemon_version()
 
     print(
-        "OSP Server for {0}: {1}".format(scanner_name, server_version),
+        f"OSP Server for {scanner_name}: {server_version}",
         file=file,
     )
-    print("OSP: {0}".format(protocol_version), file=file)
-    print("{0}: {1}".format(daemon_name, daemon_version), file=file)
+    print(f"OSP: {protocol_version}", file=file)
+    print(f"{daemon_name}: {daemon_version}", file=file)
     print(file=file)
     print(COPYRIGHT, file=file)
 
@@ -75,13 +75,13 @@ def exit_cleanup(
     if not pidpath.is_file():
         return
 
-    with pidpath.open() as f:
+    with pidpath.open(encoding='utf-8') as f:
         if int(f.read()) == os.getpid():
-            LOGGER.debug("Performing exit clean up")
+            logger.debug("Performing exit clean up")
             daemon.daemon_exit_cleanup()
-            LOGGER.info("Shutting-down server ...")
+            logger.info("Shutting-down server ...")
             server.close()
-            LOGGER.debug("Finishing daemon process")
+            logger.debug("Finishing daemon process")
             pidpath.unlink()
             sys.exit()
 
@@ -152,7 +152,7 @@ def main(
     if not daemon.check():
         return 1
 
-    LOGGER.info(
+    logger.info(
         "Starting %s version %s.",
         daemon.daemon_info['name'],
         daemon.daemon_info['version'],

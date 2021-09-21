@@ -63,8 +63,9 @@ class FakeStartProcess:
         return self.run_mock
 
     def __repr__(self):
-        return "<FakeProcess func={} args={} kwargs={}>".format(
-            self.func, self.args, self.kwargs
+        return (
+            f"<FakeProcess func={self.func} "
+            f"args={self.args} kwargs={self.kwargs}>"
         )
 
 
@@ -555,7 +556,7 @@ class ScanTestCase(unittest.TestCase):
         while not finished:
             fs = FakeStream()
             self.daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+                f'<get_scans scan_id="{scan_id}" details="1"/>', fs
             )
             response = fs.get_response()
 
@@ -571,7 +572,7 @@ class ScanTestCase(unittest.TestCase):
 
             fs = FakeStream()
             self.daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+                f'<get_scans scan_id="{scan_id}" details="1"/>', fs
             )
             response = fs.get_response()
 
@@ -616,7 +617,7 @@ class ScanTestCase(unittest.TestCase):
         while not finished:
             fs = FakeStream()
             self.daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+                f'<get_scans scan_id="{scan_id}" details="1"/>', fs
             )
             response = fs.get_response()
 
@@ -635,7 +636,7 @@ class ScanTestCase(unittest.TestCase):
             fs = FakeStream()
 
             self.daemon.handle_command(
-                '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+                f'<get_scans scan_id="{scan_id}" details="1"/>', fs
             )
             response = fs.get_response()
 
@@ -643,7 +644,7 @@ class ScanTestCase(unittest.TestCase):
             response.findtext('scan/results/result'), 'something went wrong'
         )
         fs = FakeStream()
-        self.daemon.handle_command('<delete_scan scan_id="%s" />' % scan_id, fs)
+        self.daemon.handle_command(f'<delete_scan scan_id="{scan_id}" />', fs)
         response = fs.get_response()
 
         self.assertEqual(response.get('status'), '200')
@@ -667,7 +668,7 @@ class ScanTestCase(unittest.TestCase):
         time.sleep(1)
 
         fs = FakeStream()
-        self.daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id, fs)
+        self.daemon.handle_command(f'<get_scans scan_id="{scan_id}"/>', fs)
         response = fs.get_response()
 
         self.assertEqual(
@@ -675,7 +676,7 @@ class ScanTestCase(unittest.TestCase):
         )
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs
+            f'<get_scans scan_id="{scan_id}" pop_results="1"/>', fs
         )
         response = fs.get_response()
 
@@ -685,7 +686,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="0" pop_results="1"/>' % scan_id,
+            f'<get_scans scan_id="{scan_id}" details="0" pop_results="1"/>',
             fs,
         )
         response = fs.get_response()
@@ -709,8 +710,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1" max_results="1"/>'
-            % scan_id,
+            f'<get_scans scan_id="{scan_id}" pop_results="1" max_results="1"/>',
             fs,
         )
 
@@ -720,7 +720,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id, fs
+            f'<get_scans scan_id="{scan_id}" pop_results="1"/>', fs
         )
         response = fs.get_response()
         self.assertEqual(len(response.findall('scan/results/result')), 2)
@@ -742,7 +742,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
+            f'<get_scans scan_id="{scan_id}" pop_results="1"/>',
             fs,
         )
 
@@ -773,7 +773,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream(return_value=False)
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" pop_results="1"/>' % scan_id,
+            f'<get_scans scan_id="{scan_id}" pop_results="1"/>',
             fs,
         )
 
@@ -896,7 +896,7 @@ class ScanTestCase(unittest.TestCase):
         scan_id = response.findtext('id')
 
         fs = FakeStream()
-        self.daemon.handle_command('<get_scans scan_id="%s"/>' % scan_id, fs)
+        self.daemon.handle_command(f'<get_scans scan_id="{scan_id}"/>', fs)
         response = fs.get_response()
 
         scan_res = response.find('scan')
@@ -1074,7 +1074,7 @@ class ScanTestCase(unittest.TestCase):
         while self.daemon.get_scan_status(scan_id) == ScanStatus.INIT:
             fs = FakeStream()
             self.daemon.handle_command(
-                '<get_scans scan_id="%s" details="0" progress="0"/>' % scan_id,
+                f'<get_scans scan_id="{scan_id}" details="0" progress="0"/>',
                 fs,
             )
         response = fs.get_response()
@@ -1374,7 +1374,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="0" progress="1"/>' % scan_id,
+            f'<get_scans scan_id="{scan_id}" details="0" progress="1"/>',
             fs,
         )
         response = fs.get_response()
@@ -1438,7 +1438,7 @@ class ScanTestCase(unittest.TestCase):
         assert_called(mock_create_process)
         assert_called(mock_process.start)
 
-        self.daemon.handle_command('<stop_scan scan_id="%s" />' % scan_id, fs)
+        self.daemon.handle_command(f'<stop_scan scan_id="{scan_id}" />', fs)
 
         fs = FakeStream()
         cmd = (
@@ -1486,7 +1486,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+            f'<get_scans scan_id="{scan_id}" details="1"/>', fs
         )
         response = fs.get_response()
 
@@ -1522,7 +1522,7 @@ class ScanTestCase(unittest.TestCase):
 
         fs = FakeStream()
         self.daemon.handle_command(
-            '<get_scans scan_id="%s" details="1"/>' % scan_id, fs
+            f'<get_scans scan_id="{scan_id}" details="1"/>', fs
         )
         response = fs.get_response()
 

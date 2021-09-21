@@ -221,9 +221,7 @@ class UnixSocketServer(BaseServer):
         except OSError as e:
             logger.error("Couldn't bind socket on %s", str(self.socket_path))
             raise OspdError(
-                "Couldn't bind socket on {}. {}".format(
-                    str(self.socket_path), e
-                )
+                f"Couldn't bind socket on {str(self.socket_path)}. {e}"
             ) from e
 
         if self.socket_path.exists():
@@ -256,13 +254,13 @@ class TlsServer(BaseServer):
         self.socket = (address, port)
 
         if not Path(cert_file).exists():
-            raise OspdError('cert file {} not found'.format(cert_file))
+            raise OspdError(f'cert file {cert_file} not found')
 
         if not Path(key_file).exists():
-            raise OspdError('key file {} not found'.format(key_file))
+            raise OspdError(f'key file {key_file} not found')
 
         if not Path(ca_file).exists():
-            raise OspdError('CA file {} not found'.format(ca_file))
+            raise OspdError(f'CA file {ca_file} not found')
 
         validate_cacert_file(ca_file)
 
@@ -283,9 +281,8 @@ class TlsServer(BaseServer):
                 "Couldn't bind socket on %s:%s", self.socket[0], self.socket[1]
             )
             raise OspdError(
-                "Couldn't bind socket on {}:{}. {}".format(
-                    self.socket[0], str(self.socket[1]), e
-                )
+                f"Couldn't bind socket on {self.socket[0]}:{self.socket[1]}. "
+                f"{e}"
             ) from e
 
     def handle_request(self, request, client_address):

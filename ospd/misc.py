@@ -31,7 +31,7 @@ from pathlib import Path
 
 import psutil
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def create_process(
@@ -61,7 +61,7 @@ class ResultType(object):
         elif result_type == cls.HOST_DETAIL:
             return "Host Detail"
         else:
-            assert False, "Erroneous result type {0}.".format(result_type)
+            assert False, f"Erroneous result type {result_type}."
 
     @classmethod
     def get_type(cls, result_name: str) -> int:
@@ -75,7 +75,7 @@ class ResultType(object):
         elif result_name == "Host Detail":
             return cls.HOST_DETAIL
         else:
-            assert False, "Erroneous result name {0}.".format(result_name)
+            assert False, f"Erroneous result name {result_name}."
 
 
 def valid_uuid(value) -> bool:
@@ -94,7 +94,7 @@ def go_to_background() -> None:
         if os.fork():
             sys.exit()
     except OSError as errmsg:
-        LOGGER.error('Fork failed: %s', errmsg)
+        logger.error('Fork failed: %s', errmsg)
         sys.exit(1)
 
 
@@ -110,7 +110,7 @@ def create_pid(pidfile: str) -> bool:
 
     if pidpath.is_file():
         process_name = None
-        with pidpath.open('r') as pidfile:
+        with pidpath.open('r', encoding='utf-8') as pidfile:
             current_pid = pidfile.read()
             try:
                 process = psutil.Process(int(current_pid))
@@ -119,13 +119,13 @@ def create_pid(pidfile: str) -> bool:
                 pass
 
         if process_name == new_process_name:
-            LOGGER.error(
+            logger.error(
                 "There is an already running process. See %s.",
                 str(pidpath.absolute()),
             )
             return False
         else:
-            LOGGER.debug(
+            logger.debug(
                 "There is an existing pid file '%s', but the PID %s belongs to "
                 "the process %s. It seems that %s was abruptly stopped. "
                 "Removing the pid file.",
@@ -136,10 +136,10 @@ def create_pid(pidfile: str) -> bool:
             )
 
     try:
-        with pidpath.open(mode='w') as f:
+        with pidpath.open(mode='w', encoding='utf-8') as f:
             f.write(pid)
     except (FileNotFoundError, PermissionError) as e:
-        LOGGER.error(
+        logger.error(
             "Failed to create pid file %s. %s", str(pidpath.absolute()), e
         )
         return False
