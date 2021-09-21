@@ -317,9 +317,7 @@ class NVTICache(BaseDB):
         if not vt:
             raise RequiredArgument('add_vt_to_cache', 'vt')
         if not isinstance(vt, list) or len(vt) != 15:
-            raise OspdOpenvasError(
-                'Error trying to load the VT' ' {} in cache'.format(vt)
-            )
+            raise OspdOpenvasError(f'Error trying to load the VT {vt} in cache')
 
         OpenvasDB.add_single_list(self.ctx, vt_id, vt)
 
