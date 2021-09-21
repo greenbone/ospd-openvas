@@ -305,23 +305,19 @@ class OSPDaemon:
                     params[key] = int(params[key])
                 except ValueError:
                     raise OspdCommandError(
-                        'Invalid %s value' % key, 'start_scan'
+                        f'Invalid {key} value', 'start_scan'
                     ) from None
 
             if param_type == 'boolean':
                 if params[key] not in [0, 1]:
-                    raise OspdCommandError(
-                        'Invalid %s value' % key, 'start_scan'
-                    )
+                    raise OspdCommandError(f'Invalid {key} value', 'start_scan')
             elif param_type == 'selection':
                 selection = self.get_scanner_param_default(key).split('|')
                 if params[key] not in selection:
-                    raise OspdCommandError(
-                        'Invalid %s value' % key, 'start_scan'
-                    )
+                    raise OspdCommandError(f'Invalid {key} value', 'start_scan')
             if self.get_scanner_param_mandatory(key) and params[key] == '':
                 raise OspdCommandError(
-                    'Mandatory %s value is missing' % key, 'start_scan'
+                    f'Mandatory {key} value is missing', 'start_scan'
                 )
 
         return params
@@ -530,7 +526,7 @@ class OSPDaemon:
                 scan_id,
                 name='',
                 host=self.get_scan_host(scan_id),
-                value='Host process failure (%s).' % e,
+                value=f'Host process failure ({e}).',
             )
             logger.exception('%s: Exception %s while scanning', scan_id, e)
         else:
@@ -1209,7 +1205,7 @@ class OSPDaemon:
 
         if not self.initialized and command.must_be_initialized:
             exception = OspdCommandError(
-                '%s is still starting' % self.daemon_info['name'], 'error'
+                f'{self.daemon_info["name"]} is still starting', 'error'
             )
             response = exception.as_xml()
             stream.write(response)

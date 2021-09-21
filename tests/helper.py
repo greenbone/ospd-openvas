@@ -29,10 +29,10 @@ def assert_called(mock: Mock):
         return mock.assert_called()
 
     if not mock.call_count == 1:
-        msg = "Expected '%s' to have been called once. Called %s times.%s" % (
-            mock._mock_name or 'mock',  # pylint: disable=protected-access
-            mock.call_count,
-            mock._calls_repr(),  # pylint: disable=protected-access
+        # pylint: disable=protected-access
+        msg = (
+            f"Expected {mock._mock_name or 'mock'}' to have been "
+            f"called once. Called {mock.call_count} times.{mock._calls_repr()}"
         )
         raise AssertionError(msg)
 
@@ -163,7 +163,7 @@ class DummyWrapper(OSPDaemon):
     def get_creation_time_vt_as_xml_str(
         vt_id, vt_creation_time
     ):  # pylint: disable=arguments-differ
-        response = '<creation_time>%s</creation_time>' % vt_creation_time
+        response = f'<creation_time>{vt_creation_time}</creation_time>'
 
         return response
 
@@ -172,7 +172,7 @@ class DummyWrapper(OSPDaemon):
         vt_id, vt_modification_time
     ):  # pylint: disable=arguments-differ
         response = (
-            '<modification_time>%s</modification_time>' % vt_modification_time
+            f'<modification_time>{vt_modification_time}</modification_time>'
         )
 
         return response

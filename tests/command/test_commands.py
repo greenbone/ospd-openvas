@@ -425,7 +425,7 @@ class StopCommandTestCase(TestCase):
 
         scan_id = response.findtext('id')
 
-        request = et.fromstring('<stop_scan scan_id="%s" />' % scan_id)
+        request = et.fromstring(f'<stop_scan scan_id="{scan_id}" />')
         cmd = StopScan(daemon)
         cmd.handle_xml(request)
 

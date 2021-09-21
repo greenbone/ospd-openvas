@@ -64,7 +64,7 @@ def escape_ctrl_chars(result_text):
     escaped_str = ''
     for fragment in split_invalid_xml(result_text):
         if isinstance(fragment, int):
-            escaped_str += '\\x%04X' % fragment
+            escaped_str += f'\\x{fragment:00004X}'
         else:
             escaped_str += fragment
 
@@ -143,7 +143,7 @@ def simple_response_str(
     Return:
         String of response in xml format.
     """
-    response = Element('%s_response' % command)
+    response = Element(f'{command}_response')
 
     for name, value in [('status', str(status)), ('status_text', status_text)]:
         response.set(name, escape(str(value)))
@@ -226,9 +226,9 @@ class XmlStringHelper:
             Encoded string representing a part of an xml element.
         """
         if end:
-            ret = "</%s>" % elem_name
+            ret = f"</{elem_name}>"
         else:
-            ret = "<%s>" % elem_name
+            ret = f"<{elem_name}>"
 
         return ret.encode('utf-8')
 
@@ -246,9 +246,9 @@ class XmlStringHelper:
             return
 
         if end:
-            return ('</%s_response>' % command).encode('utf-8')
+            return (f'</{command}_response>').encode('utf-8')
 
-        return ('<%s_response status="200" status_text="OK">' % command).encode(
+        return (f'<{command}_response status="200" status_text="OK">').encode(
             'utf-8'
         )
 
@@ -308,6 +308,6 @@ class XmlStringHelper:
         if not value:
             value = ''
 
-        return tag[:-1] + (
-            " %s=%s>" % (attribute, quoteattr(str(value)))
-        ).encode('utf-8')
+        return tag[:-1] + (f" {attribute}={quoteattr(str(value))}>").encode(
+            'utf-8'
+        )

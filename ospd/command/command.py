@@ -236,7 +236,7 @@ class GetPerformance(BaseCommand):
             output = subprocess.check_output(cmd)
         except (subprocess.CalledProcessError, OSError) as e:
             raise OspdCommandError(
-                'Bogus get_performance format. %s' % e, 'get_performance'
+                f'Bogus get_performance format. {e}', 'get_performance'
             ) from None
 
         return simple_response_str(
@@ -508,8 +508,8 @@ class StartScan(BaseCommand):
                 self._daemon.max_queued_scans,
             )
             raise OspdCommandError(
-                'Maximum number of queued scans set to %d reached.'
-                % self._daemon.max_queued_scans,
+                'Maximum number of queued scans set to '
+                f'{str(self._daemon.max_queued_scans)} reached.',
                 'start_scan',
             )
 

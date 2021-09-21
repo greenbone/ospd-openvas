@@ -38,7 +38,7 @@ class ConvertTargetListsTestCase(unittest.TestCase):
         self.assertEqual(len(addresses), 254)
 
         for i in range(1, 255):
-            self.assertIn('195.70.81.%d' % i, addresses)
+            self.assertIn(f'195.70.81.{str(i)}', addresses)
 
     def test_bad_ipv4_cidr(self):
         addresses = target_str_to_list('195.70.81.0/32')
@@ -61,7 +61,7 @@ class ConvertTargetListsTestCase(unittest.TestCase):
         self.assertEqual(len(addresses), 11)
 
         for i in range(0, 10):
-            self.assertIn('195.70.81.%d' % i, addresses)
+            self.assertIn(f'195.70.81.{str(i)}', addresses)
 
     def test_target_str_with_trailing_comma(self):
         addresses = target_str_to_list(',195.70.81.1,195.70.81.2,')
@@ -70,7 +70,7 @@ class ConvertTargetListsTestCase(unittest.TestCase):
         self.assertEqual(len(addresses), 2)
 
         for i in range(1, 2):
-            self.assertIn('195.70.81.%d' % i, addresses)
+            self.assertIn(f'195.70.81.{str(i)}', addresses)
 
     def test_get_hostname_by_address(self):
         with patch.object(socket, "getfqdn", return_value="localhost"):

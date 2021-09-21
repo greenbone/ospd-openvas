@@ -88,7 +88,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
         if paramiko is None:
             raise ImportError(
                 'paramiko needs to be installed in order to use'
-                ' the %s class.' % self.__class__.__name__
+                f' the {self.__class__.__name__} class.'
             )
 
         for name, param in SSH_SCANNER_PARAMS.items():
@@ -154,7 +154,7 @@ class OSPDaemonSimpleSSH(OSPDaemon):
             return None
 
         if self._niceness is not None:
-            cmd = "nice -n %s %s" % (self._niceness, cmd)
+            cmd = f"nice -n {self._niceness} {cmd}"
         _, stdout, _ = ssh.exec_command(cmd)
         result = stdout.readlines()
         ssh.close()

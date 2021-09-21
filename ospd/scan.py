@@ -277,7 +277,7 @@ class ScanCollection:
         if not unpickled_scan_info:
             pickler.remove_file(scan_id)
             raise OspdCommandError(
-                'Not possible to unpickle stored scan info for %s' % scan_id,
+                f'Not possible to unpickle stored scan info for {scan_id}',
                 'start_scan',
             )
 
