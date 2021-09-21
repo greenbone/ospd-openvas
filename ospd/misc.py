@@ -110,7 +110,7 @@ def create_pid(pidfile: str) -> bool:
 
     if pidpath.is_file():
         process_name = None
-        with pidpath.open('r') as pidfile:
+        with pidpath.open('r', encoding='utf-8') as pidfile:
             current_pid = pidfile.read()
             try:
                 process = psutil.Process(int(current_pid))
@@ -136,7 +136,7 @@ def create_pid(pidfile: str) -> bool:
             )
 
     try:
-        with pidpath.open(mode='w') as f:
+        with pidpath.open(mode='w', encoding='utf-8') as f:
             f.write(pid)
     except (FileNotFoundError, PermissionError) as e:
         logger.error(
