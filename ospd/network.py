@@ -28,7 +28,7 @@ import struct
 
 from typing import List, Optional, Tuple
 
-__LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def target_to_ipv4(target: str) -> Optional[List]:
@@ -303,7 +303,7 @@ def target_str_to_list(target_str: str) -> Optional[List]:
         if target_list:
             new_list.extend(target_list)
         else:
-            __LOGGER.info("%s: Invalid target value", target)
+            logger.info("%s: Invalid target value", target)
             return []
 
     return list(collections.OrderedDict.fromkeys(new_list))
@@ -370,7 +370,7 @@ def port_range_expand(portrange: str) -> Optional[List]:
         port_range_min = int(portrange[: portrange.index('-')])
         port_range_max = int(portrange[portrange.index('-') + 1 :]) + 1
     except (IndexError, ValueError) as e:
-        __LOGGER.info("Invalid port range format %s", e)
+        logger.info("Invalid port range format %s", e)
         return None
 
     port_list = list()
@@ -413,7 +413,7 @@ def ports_str_check_failed(port_str: str) -> bool:
         or port_str[len(port_str) - 1] == '-'
         or port_str.count(':') < (port_str.count('T') + port_str.count('U'))
     ):
-        __LOGGER.error("Invalid port range format")
+        logger.error("Invalid port range format")
         return True
 
     index = 0
@@ -423,7 +423,7 @@ def ports_str_check_failed(port_str: str) -> bool:
                 int(port_str[index - 1])
                 int(port_str[index + 1])
             except (TypeError, ValueError) as e:
-                __LOGGER.error("Invalid port range format: %s", e)
+                logger.error("Invalid port range format: %s", e)
                 return True
         index += 1
 
@@ -440,11 +440,11 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
     @return two list of sorted integers, for tcp and udp ports respectively.
     """
     if not port_str:
-        __LOGGER.info("Invalid port value")
+        logger.info("Invalid port value")
         return [None, None]
 
     if ports_str_check_failed(port_str):
-        __LOGGER.info("{0}: Port list malformed.")
+        logger.info("{0}: Port list malformed.")
         return [None, None]
 
     tcp_list = list()
@@ -522,7 +522,7 @@ def port_list_compress(port_list: List) -> str:
     """Compress a port list and return a string."""
 
     if not port_list or len(port_list) == 0:
-        __LOGGER.info("Invalid or empty port list.")
+        logger.info("Invalid or empty port list.")
         return ''
 
     port_list = sorted(set(port_list))

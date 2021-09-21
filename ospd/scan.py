@@ -29,7 +29,7 @@ from ospd.network import target_str_to_list
 from ospd.datapickler import DataPickler
 from ospd.errors import OspdCommandError
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ScanStatus(Enum):
@@ -138,7 +138,7 @@ class ScanCollection:
         if not hosts:
             return
 
-        LOGGER.debug(
+        logger.debug(
             '%s: Remove the following hosts from the target list, '
             'as they are already finished or are dead: %s',
             scan_id,
@@ -178,7 +178,7 @@ class ScanCollection:
     def set_host_finished(self, scan_id: str, hosts: List[str]) -> None:
         """Increase the amount of finished hosts which were alive."""
 
-        LOGGER.debug(
+        logger.debug(
             '%s: Setting the following hosts as finished: %s',
             scan_id,
             pformat(hosts),
@@ -192,7 +192,7 @@ class ScanCollection:
     def set_host_dead(self, scan_id: str, hosts: List[str]) -> None:
         """Increase the amount of dead hosts."""
 
-        LOGGER.debug(
+        logger.debug(
             '%s: Setting the following hosts as dead: %s',
             scan_id,
             pformat(hosts),
@@ -340,7 +340,7 @@ class ScanCollection:
         try:
             scan_info_hash = pickler.store_data(scan_id, scan_info_to_pickle)
         except OspdCommandError as e:
-            LOGGER.error(e)
+            logger.error(e)
             return
 
         scan_info['scan_id'] = scan_id
@@ -448,7 +448,7 @@ class ScanCollection:
                     invalid_exc_hosts += 1
 
         if invalid_exc_hosts > 0:
-            LOGGER.warning(
+            logger.warning(
                 "Please check the excluded host list. It contains hosts which "
                 "do not belong to the target. This warning can be ignored if "
                 "this was done on purpose (e.g. to exclude specific hostname)."
@@ -488,7 +488,7 @@ class ScanCollection:
             )
         except ZeroDivisionError:
             # Consider the case in which all hosts are dead or excluded
-            LOGGER.debug('%s: All hosts dead or excluded.', scan_id)
+            logger.debug('%s: All hosts dead or excluded.', scan_id)
             t_prog = ScanProgress.FINISHED.value
 
         return t_prog

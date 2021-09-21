@@ -39,7 +39,7 @@ License GPLv2+: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."""
 
-LOGGER = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 def print_version(daemon: OSPDaemon, file=sys.stdout):
@@ -77,11 +77,11 @@ def exit_cleanup(
 
     with pidpath.open() as f:
         if int(f.read()) == os.getpid():
-            LOGGER.debug("Performing exit clean up")
+            logger.debug("Performing exit clean up")
             daemon.daemon_exit_cleanup()
-            LOGGER.info("Shutting-down server ...")
+            logger.info("Shutting-down server ...")
             server.close()
-            LOGGER.debug("Finishing daemon process")
+            logger.debug("Finishing daemon process")
             pidpath.unlink()
             sys.exit()
 
@@ -152,7 +152,7 @@ def main(
     if not daemon.check():
         return 1
 
-    LOGGER.info(
+    logger.info(
         "Starting %s version %s.",
         daemon.daemon_info['name'],
         daemon.daemon_info['version'],
