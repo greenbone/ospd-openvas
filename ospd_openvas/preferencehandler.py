@@ -297,7 +297,7 @@ class PreferenceHandler:
 
         items_list = []
         for key, val in self._nvts_params.items():
-            items_list.append('%s|||%s' % (key, val))
+            items_list.append(f'{key}|||{val}')
 
         if items_list:
             self.kbdb.add_scan_preferences(self.scan_id, items_list)
@@ -487,13 +487,13 @@ class PreferenceHandler:
                 self.target_options.get('reverse_lookup_only', '0')
             )
             rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
-            items.append('reverse_lookup_only|||%s' % (rev_lookup_only))
+            items.append(f'reverse_lookup_only|||{rev_lookup_only}')
 
             _rev_lookup_unify = int(
                 self.target_options.get('reverse_lookup_unify', '0')
             )
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
-            items.append('reverse_lookup_unify|||%s' % rev_lookup_unify)
+            items.append(f'reverse_lookup_unify|||{rev_lookup_unify}')
 
             self.kbdb.add_scan_preferences(self.scan_id, items)
 
@@ -502,14 +502,14 @@ class PreferenceHandler:
         in the kb"""
 
         target = self.scan_collection.get_host_list(self.scan_id)
-        target_aux = 'TARGET|||%s' % target
+        target_aux = f'TARGET|||{target}'
         self.kbdb.add_scan_preferences(self.scan_id, [target_aux])
 
     def prepare_ports_for_openvas(self) -> str:
         """Get the port list from the scan collection and store the list
         in the kb."""
         ports = self.scan_collection.get_ports(self.scan_id)
-        port_range = 'port_range|||%s' % ports
+        port_range = f'port_range|||{ports}'
         self.kbdb.add_scan_preferences(self.scan_id, [port_range])
 
         return ports
@@ -671,5 +671,5 @@ class PreferenceHandler:
     def prepare_main_kbindex_for_openvas(self):
         """Store main_kbindex as global preference in the
         kb, used by OpenVAS"""
-        ov_maindbid = 'ov_maindbid|||%d' % self.kbdb.index
+        ov_maindbid = f'ov_maindbid|||{self.kbdb.index}'
         self.kbdb.add_scan_preferences(self.scan_id, [ov_maindbid])
