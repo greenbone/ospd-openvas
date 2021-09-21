@@ -63,8 +63,9 @@ class FakeStartProcess:
         return self.run_mock
 
     def __repr__(self):
-        return "<FakeProcess func={} args={} kwargs={}>".format(
-            self.func, self.args, self.kwargs
+        return (
+            f"<FakeProcess func={self.func} "
+            f"args={self.args} kwargs={self.kwargs}>"
         )
 
 

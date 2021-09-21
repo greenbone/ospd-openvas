@@ -114,13 +114,13 @@ class Vts:
         and deleted.
         """
         if not vt_id:
-            raise OspdError('Invalid vt_id {}'.format(vt_id))
+            raise OspdError(f'Invalid vt_id {vt_id}')
 
         if self.vt_id_pattern.fullmatch(vt_id) is None:
-            raise OspdError('Invalid vt_id {}'.format(vt_id))
+            raise OspdError(f'Invalid vt_id {vt_id}')
 
         if vt_id in self.vts:
-            raise OspdError('vt_id {} already exists'.format(vt_id))
+            raise OspdError(f'vt_id {vt_id} already exists')
 
         if name is None:
             name = ''

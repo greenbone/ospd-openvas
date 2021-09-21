@@ -52,11 +52,11 @@ def print_version(daemon: OSPDaemon, file=sys.stdout):
     daemon_version = daemon.get_daemon_version()
 
     print(
-        "OSP Server for {0}: {1}".format(scanner_name, server_version),
+        f"OSP Server for {scanner_name}: {server_version}",
         file=file,
     )
-    print("OSP: {0}".format(protocol_version), file=file)
-    print("{0}: {1}".format(daemon_name, daemon_version), file=file)
+    print(f"OSP: {protocol_version}", file=file)
+    print(f"{daemon_name}: {daemon_version}", file=file)
     print(file=file)
     print(COPYRIGHT, file=file)
 

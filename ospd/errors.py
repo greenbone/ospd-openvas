@@ -37,9 +37,7 @@ class RequiredArgument(OspdError):
         self.argument = argument
 
     def __str__(self) -> str:
-        return "{}: Argument {} is required".format(
-            self.function, self.argument
-        )
+        return f"{self.function}: Argument {self.argument} is required"
 
 
 class OspdCommandError(OspdError):

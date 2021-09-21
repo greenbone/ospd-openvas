@@ -61,7 +61,7 @@ class ResultType(object):
         elif result_type == cls.HOST_DETAIL:
             return "Host Detail"
         else:
-            assert False, "Erroneous result type {0}.".format(result_type)
+            assert False, f"Erroneous result type {result_type}."
 
     @classmethod
     def get_type(cls, result_name: str) -> int:
@@ -75,7 +75,7 @@ class ResultType(object):
         elif result_name == "Host Detail":
             return cls.HOST_DETAIL
         else:
-            assert False, "Erroneous result name {0}.".format(result_name)
+            assert False, f"Erroneous result name {result_name}."
 
 
 def valid_uuid(value) -> bool:

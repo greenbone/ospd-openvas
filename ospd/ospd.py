@@ -343,9 +343,7 @@ class OSPDaemon:
 
         scan_process = self.scan_processes.get(scan_id)
         if not scan_process:
-            raise OspdCommandError(
-                'Scan not found {0}.'.format(scan_id), 'stop_scan'
-            )
+            raise OspdCommandError(f'Scan not found {scan_id}.', 'stop_scan')
         if not scan_process.is_alive():
             raise OspdCommandError(
                 'Scan already stopped or finished.', 'stop_scan'
@@ -562,7 +560,7 @@ class OSPDaemon:
             scan_id,
             host=host,
             name="Timeout",
-            value="{0} exec timeout.".format(self.get_scanner_name()),
+            value=f"{self.get_scanner_name()} exec timeout.",
         )
 
     def sort_host_finished(
@@ -681,13 +679,13 @@ class OSPDaemon:
             attributes = info.get_attributes()
             elements = info.get_elements()
 
-            command_txt = "\t{0: <22} {1}\n".format(name, description)
+            command_txt = f"\t{name: <22} {description}\n"
 
             if attributes:
                 command_txt = ''.join([command_txt, "\t Attributes:\n"])
 
                 for attrname, attrdesc in attributes.items():
-                    attr_txt = "\t  {0: <22} {1}\n".format(attrname, attrdesc)
+                    attr_txt = f"\t  {attrname: <22} {attrdesc}\n"
                     command_txt = ''.join([command_txt, attr_txt])
 
             if elements:

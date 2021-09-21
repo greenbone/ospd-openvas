@@ -85,8 +85,9 @@ class BaseCommand(metaclass=InitSubclassMeta):
         }
 
     def __repr__(self):
-        return '<{} description="{}" attributes={} elements={}>'.format(
-            self.name, self.description, self.attributes, self.elements
+        return (
+            f'<{self.name} description="{self.description}" '
+            f'attributes={self.attributes} elements={self.elements}>'
         )
 
 
@@ -292,7 +293,7 @@ class DeleteScan(BaseCommand):
             )
 
         if not self._daemon.scan_exists(scan_id):
-            text = "Failed to find scan '{0}'".format(scan_id)
+            text = f"Failed to find scan '{scan_id}'"
             return simple_response_str('delete_scan', 404, text)
 
         self._daemon.check_scan_process(scan_id)
@@ -336,7 +337,7 @@ class GetVts(BaseCommand):
 
         if self._daemon.vts and vt_id and vt_id not in self._daemon.vts:
             self._daemon.vts.is_cache_available = True
-            text = "Failed to find vulnerability test '{0}'".format(vt_id)
+            text = f"Failed to find vulnerability test '{vt_id}'"
             raise OspdCommandError(text, 'get_vts', 404)
 
         filtered_vts = None
@@ -455,7 +456,7 @@ class GetScans(BaseCommand):
             )
             responses.append(scan)
         else:
-            text = "Failed to find scan '{0}'".format(scan_id)
+            text = f"Failed to find scan '{scan_id}'"
             return simple_response_str('get_scans', 404, text)
 
         return simple_response_str('get_scans', 200, 'OK', responses)

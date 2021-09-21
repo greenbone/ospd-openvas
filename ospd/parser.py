@@ -232,8 +232,8 @@ class CliParser:
             logger.debug('Loaded config %s', configfile)
         except Exception as e:  # pylint: disable=broad-except
             raise RuntimeError(
-                'Error while parsing config file {config}. Error was '
-                '{message}'.format(config=configfile, message=e)
+                f'Error while parsing config file {configfile}. Error was '
+                f'{e}'
             ) from None
 
         return config

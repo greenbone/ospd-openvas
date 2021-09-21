@@ -203,7 +203,7 @@ def elements_as_text(
         else:
             assert False, "Only string or dictionary"
 
-        ele_txt = "\t{0}{1: <22} {2}".format(' ' * indent, elename, desc_txt)
+        ele_txt = f"\t{' ' * indent}{elename: <22} {desc_txt}"
 
         text = ''.join([text, ele_txt])
 
