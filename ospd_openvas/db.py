@@ -556,7 +556,7 @@ class KbDB(BaseKbDB):
 
     def scan_is_stopped(self, scan_id: str) -> bool:
         """Check if the scan should be stopped"""
-        status = self._get_single_item('internal/%s' % scan_id)
+        status = self._get_single_item(f'internal/{scan_id}')
         return status == 'stop_all'
 
     def get_scan_status(self) -> List:
@@ -609,7 +609,7 @@ class MainDB(BaseDB):
             resp = self.ctx.hsetnx(DBINDEX_NAME, index, _in_use)
         except:
             raise OspdOpenvasError(
-                'Redis Error: Not possible to set %s.' % DBINDEX_NAME
+                f'Redis Error: Not possible to set {DBINDEX_NAME}.'
             ) from None
 
         return resp == 1
