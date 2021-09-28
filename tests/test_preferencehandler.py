@@ -1202,9 +1202,7 @@ class PreferenceHandlerTestCase(TestCase):
             ) in (
                 p_handler._nvts_params.items()  # pylint: disable = protected-access
             ):
-                self.assertTrue(
-                    "{0}|||{1}".format(key, value) in alive_test_out
-                )
+                self.assertTrue(f"{key}|||{value}" in alive_test_out)
 
     @patch('ospd_openvas.db.KbDB')
     def test_prepare_alive_test_not_supplied_as_enum(self, mock_kb):

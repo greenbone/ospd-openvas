@@ -160,7 +160,7 @@ class NVTICache(BaseDB):
         """
         resp = OpenvasDB.get_list_item(
             self.ctx,
-            "nvt:%s" % oid,
+            f"nvt:{oid}",
             start=NVT_META_FIELDS.index("NVT_FILENAME_POS"),
             end=NVT_META_FIELDS.index("NVT_NAME_POS"),
         )
@@ -224,7 +224,7 @@ class NVTICache(BaseDB):
         """
         resp = OpenvasDB.get_list_item(
             self.ctx,
-            "nvt:%s" % oid,
+            f"nvt:{oid}",
             start=NVT_META_FIELDS.index("NVT_CVES_POS"),
             end=NVT_META_FIELDS.index("NVT_XREFS_POS"),
         )
@@ -250,7 +250,7 @@ class NVTICache(BaseDB):
         """
         return OpenvasDB.get_single_item(
             self.ctx,
-            'nvt:%s' % oid,
+            f"nvt:{oid}",
             index=NVT_META_FIELDS.index("NVT_FAMILY_POS"),
         )
 
@@ -264,7 +264,7 @@ class NVTICache(BaseDB):
         Returns:
             A list with the VT preferences.
         """
-        key = 'oid:%s:prefs' % oid
+        key = f'oid:{oid}:prefs'
         return OpenvasDB.get_list_item(self.ctx, key)
 
     def get_nvt_timeout(self, oid: str) -> Optional[str]:
@@ -279,7 +279,7 @@ class NVTICache(BaseDB):
         """
         return OpenvasDB.get_single_item(
             self.ctx,
-            'nvt:%s' % oid,
+            f"nvt:{oid}",
             index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"),
         )
 
@@ -295,7 +295,7 @@ class NVTICache(BaseDB):
         """
         tag = OpenvasDB.get_single_item(
             self.ctx,
-            'nvt:%s' % oid,
+            f"nvt:{oid}",
             index=NVT_META_FIELDS.index('NVT_TAGS_POS'),
         )
         tags = tag.split('|')
@@ -317,9 +317,7 @@ class NVTICache(BaseDB):
         if not vt:
             raise RequiredArgument('add_vt_to_cache', 'vt')
         if not isinstance(vt, list) or len(vt) != 15:
-            raise OspdOpenvasError(
-                'Error trying to load the VT' ' {} in cache'.format(vt)
-            )
+            raise OspdOpenvasError(f'Error trying to load the VT {vt} in cache')
 
         OpenvasDB.add_single_list(self.ctx, vt_id, vt)
 
