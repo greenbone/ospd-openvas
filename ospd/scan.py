@@ -506,7 +506,17 @@ class ScanCollection:
     def get_host_list(self, scan_id: str) -> Dict:
         """Get a scan's host list."""
 
-        return self.scans_table[scan_id]['target'].get('hosts')
+        target = None
+        try:
+            target = self.scans_table[scan_id]['target'].get('hosts')
+        except KeyError:
+            LOGGER.warning(
+                '%s: Scan ID is in the scan table, but it was '
+                'not initialized.',
+                scan_id,
+            )
+
+        return target
 
     def get_host_count(self, scan_id: str) -> int:
         """Get total host count in the target."""
