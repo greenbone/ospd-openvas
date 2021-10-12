@@ -4,17 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-### Added
+## [20.8.4] - 2021-10-12
 ### Changed
 - Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
 
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v20.8.3...HEAD
-
+[20.8.4]: https://github.com/greenbone/ospd-openvas/compare/v20.8.3...v20.8.4
 
 ## [20.8.3] - 2021-08-04
 ### Changed
