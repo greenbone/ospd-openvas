@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [tool.poetry]
 name = "ospd-openvas"
-version = "21.4.3.dev1"
+version = "21.4.3"
 description = "ospd based scanner for openvas"
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 license = "AGPL-3.0-or-later"

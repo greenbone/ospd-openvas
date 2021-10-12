@@ -4,18 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-### Added
+## [21.4.3] - 2021-10-12
 ### Changed
 - Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
 
-### Deprecated
-### Removed
 ### Fixed
 - Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
 
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
-
+[21.4.3]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...v21.4.3
 
 ## [21.4.2] - 2021-08-04
 ### Changed
@@ -52,14 +48,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 [21.4.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...v21.4.0
 
-## [Unreleased]
-### Added
+## [21.4.3] - 2021-10-12
 ### Changed
-### Deprecated
-### Removed
-### Fixed
+- Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
 
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...HEAD
+## [21.4.3] - 2021-10-12### Fixed
+- Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
+
+
+
+
+
+[21.4.3]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...v21.4.3
+
+[21.4.3]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...v21.4.3
 
 ## [20.8.2] ()
 ### Added
