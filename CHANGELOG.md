@@ -4,20 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [21.4.4] (Unreleased)
+## [21.4.4] - 2021-10-12
 
-### Added
 ### Changed
 - Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
 - Downgrade required version for psutil to 5.5.1 [#453](https://github.com/greenbone/ospd/pull/453)
 
-### Deprecated
-### Removed
 ### Fixed
 - Fix resume scan. [#464](https://github.com/greenbone/ospd/pull/464)
 
-
-[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
+[21.4.4]: https://github.com/greenbone/ospd/compare/v21.4.3...v21.4.4
 
 ## [21.4.3] - 2021-08-04
 
