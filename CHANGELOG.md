@@ -15,11 +15,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 - Stopping and interrupting scans. [#450](https://github.com/greenbone/ospd-openvas/pull/450)
-### Removed
+- Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
 
+### Deprecated
+
+### Removed
 - Remove source_iface preferences. [#418](https://github.com/greenbone/ospd-openvas/pull/418)
 
 ### Fixed
+- Fix pylint warnings. Remove u prefix for strings, no longer necessary. [#495](https://github.com/greenbone/ospd-openvas/pull/495)
 
 [21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
 
@@ -28,6 +32,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 ### Changed
 ### Fixed
+- Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
 
 ### Removed
 

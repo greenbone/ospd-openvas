@@ -44,18 +44,18 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 redis = "^3.5.3"
-psutil = "^5.7.2"
+psutil = "^5.5.1"
 packaging = "^20.4"
 ospd = {git = "https://github.com/greenbone/ospd.git", branch = "master"}
 sentry-sdk = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.9.6"
-rope = "^0.19.0"
+pylint = "^2.11.1"
+rope = "^0.20.1"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = {version = "^21.7.1", python = "^3.7"}
-pontos = "^21.7.4"
-black = {version = "21.6b0", python = "^3.7"}
+pontos = "^21.10.2"
+black = {version = "21.7b0", python = "^3.7"}
 
 [tool.poetry.scripts]
 ospd-openvas = "ospd_openvas.daemon:main"
