@@ -353,8 +353,13 @@ class ScanCollection:
 
     def get_status(self, scan_id: str) -> ScanStatus:
         """ Get scan_id scans's status."""
+        status = None
+        try:
+            status = self.scans_table[scan_id].get('status')
+        except KeyError:
+            LOGGER.error("Scan ID %s not found", scan_id)
 
-        return self.scans_table[scan_id].get('status')
+        return status
 
     def get_options(self, scan_id: str) -> Dict:
         """ Get scan_id scan's options list. """
@@ -421,9 +426,19 @@ class ScanCollection:
             Count of excluded host.
         """
         exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
+        LOGGER.debug(
+            '%s: Excluded Hosts: %s',
+            scan_id,
+            pformat(exc_hosts_list),
+        )
 
         finished_hosts_list = target_str_to_list(
             self.get_finished_hosts(scan_id)
+        )
+        LOGGER.debug(
+            '%s: Finished Hosts: %s',
+            scan_id,
+            pformat(finished_hosts_list),
         )
 
         # Remove finished hosts from excluded host list
