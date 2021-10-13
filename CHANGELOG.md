@@ -18,7 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Fixed
 - Fix resume scan. [#464](https://github.com/greenbone/ospd/pull/464)
-
+- Fix get_status. Backport #471.[#472](https://github.com/greenbone/ospd/pull/472)
 
 [Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
 
