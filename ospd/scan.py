@@ -510,7 +510,7 @@ class ScanCollection:
         try:
             target = self.scans_table[scan_id]['target'].get('hosts')
         except KeyError:
-            LOGGER.warning(
+            logger.warning(
                 '%s: Scan ID is in the scan table, but it was '
                 'not initialized.',
                 scan_id,
