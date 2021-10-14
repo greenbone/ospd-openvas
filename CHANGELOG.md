@@ -4,17 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-### Added
+## [21.4.4] - 2021-10-12
+
 ### Changed
-### Deprecated
-### Removed
+- Use better defaults for file paths and permissions [#429](https://github.com/greenbone/ospd/pull/429)
+- Downgrade required version for psutil to 5.5.1 [#453](https://github.com/greenbone/ospd/pull/453)
+
 ### Fixed
+- Fix resume scan. [#464](https://github.com/greenbone/ospd/pull/464)
 
-[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
-
+[21.4.4]: https://github.com/greenbone/ospd/compare/v21.4.3...v21.4.4
 
 ## [21.4.3] - 2021-08-04
+
 ### Changed
 - Stopping scan. [#437](https://github.com/greenbone/ospd/pull/437)
 
@@ -24,7 +26,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Fixed
 
-[21.4.1]: https://github.com/greenbone/ospd/compare/v21.4.0...ospd-21.04
+[21.4.1]: https://github.com/greenbone/ospd/compare/v21.4.0...stable
 
 ## [21.4.0] (2021-04-16)
 
@@ -35,40 +37,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
 
-[21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...v21.4.0
+## [20.8.3] - 2021-08-04
 
-## [Unreleased]
-### Added
-### Changed
-### Deprecated
-### Removed
 ### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
-
-
-## [21.4.3] - 2021-08-04
-### Changed
-- Stopping scan. [#437](https://github.com/greenbone/ospd/pull/437)
-
-## [Unreleased]
-### Added
-### Changed
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd/compare/v21.4.3...HEAD
-
-
-## [21.4.3] - 2021-08-04### Fixed
 - Do not start all queued scans simultaneously once available memory is enough. [#401](https://github.com/greenbone/ospd/pull/401)
 - Remove the pid file if there is no process for the pid or the process name does not match. [#405](https://github.com/greenbone/ospd/pull/405)
 - Fix regex of gvmcg titles for get_performance command. [#413](https://github.com/greenbone/ospd/pull/413)
 
-[21.4.3]: https://github.com/greenbone/ospd/compare/v21.4.1...v21.4.3
-
-[21.4.3]: https://github.com/greenbone/ospd/compare/v20.8.2...v21.4.3
+[21.4.3]: https://github.com/greenbone/ospd/compare/v20.8.2...v20.8.3
 
 ## [20.8.2] (2021-02-01)
 
@@ -90,7 +66,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#377](https://github.com/greenbone/ospd/pull/377)
   [#380](https://github.com/greenbone/ospd/pull/380)
 
-[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
+[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...oldstable
 
 ## [20.8.1] (2020-08-12)
 
@@ -159,7 +135,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
 
-[20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
+[20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...oldstable
 
 ## [2.0.1]
 
@@ -236,7 +212,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Improve error handling when sending data. [#147](https://github.com/greenbone/ospd/pull/147)
 - Fix classifier in setup.py. [#154](https://github.com/greenbone/ospd/pull/154)
 
-[2.0]: https://github.com/greenbone/ospd/compare/ospd-1.3...master
+[2.0]: https://github.com/greenbone/ospd/compare/ospd-1.3...ospd-2.0
 
 
 ## [1.3] (2018-06-05)
