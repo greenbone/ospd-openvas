@@ -29,7 +29,7 @@ options.
   - [Install using pip](#install-using-pip)
 - [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
 - [Support](#support)
-- [oldstabletainer](#oldstabletainer)
+- [Maintainer](#Maintainer)
 - [Contributing](#contributing)
 - [License](#license)
 
