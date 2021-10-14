@@ -45,7 +45,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#377](https://github.com/greenbone/ospd/pull/377)
   [#380](https://github.com/greenbone/ospd/pull/380)
 
-[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...v20.8.2
+[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...oldstable
 
 ## [20.8.1] (2020-08-12)
 
