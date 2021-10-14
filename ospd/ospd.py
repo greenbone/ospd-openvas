@@ -656,7 +656,9 @@ class OSPDaemon:
     def get_scan_status(self, scan_id: str) -> ScanStatus:
         """ Get scan_id scans's status."""
         status = self.scan_collection.get_status(scan_id)
-        logger.debug('%s: Current scan status: %s,', scan_id, status.name)
+        st = status.name if status else None
+        logger.debug('%s: Current scan status: %s,', scan_id, st)
+
         return status
 
     def scan_exists(self, scan_id: str) -> bool:

@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 
 [tool.poetry]
 name = "ospd"
-version = "21.4.4.dev1"
+version = "21.4.5.dev1"
 description = "OSPD is a base for scanner wrappers which share the same communication protocol: OSP (Open Scanner Protocol)"
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 license = "AGPL-3.0-or-later"
@@ -37,7 +37,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-psutil = "^5.7.2"
+psutil = "^5.5.1"
 lxml = "^4.5.2"
 defusedxml = ">=0.6,<0.8"
 paramiko = "^2.7.1"
