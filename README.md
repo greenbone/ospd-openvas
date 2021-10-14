@@ -4,9 +4,9 @@
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/ospd.svg)](https://github.com/greenbone/ospd/releases)
 [![PyPI](https://img.shields.io/pypi/v/ospd.svg)](https://pypi.org/project/ospd/)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd/badges/quality-score.png?b=ospd-20.08)](https://scrutinizer-ci.com/g/greenbone/ospd/?branch=ospd-20.08)
-[![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/ospd-20.08/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
-[![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/ospd-20.08.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/ospd-20.08)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd/badges/quality-score.png?b=oldstable)](https://scrutinizer-ci.com/g/greenbone/ospd/?branch=oldstable)
+[![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/oldstable/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd)
+[![CircleCI](https://circleci.com/gh/greenbone/ospd/tree/oldstable.svg?style=svg)](https://circleci.com/gh/greenbone/ospd/tree/oldstable)
 
 ospd is a base class for scanner wrappers which share the same communication
 protocol: OSP (Open Scanner Protocol). OSP creates a unified interface for
@@ -29,7 +29,7 @@ options.
   - [Install using pip](#install-using-pip)
 - [How to write your own OSP Scanner Wrapper](#how-to-write-your-own-osp-scanner-wrapper)
 - [Support](#support)
-- [Maintainer](#maintainer)
+- [oldstabletainer](#oldstabletainer)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -79,9 +79,9 @@ There are some online resources about this topic:
 
 For any question on the usage of OSPD please use the [Greenbone Community Portal](https://community.greenbone.net/c/osp). If you found a problem with the software, please [create an issue](https://github.com/greenbone/ospd/issues) on GitHub.
 
-## Maintainer
+## oldstabletainer
 
-This project is maintained by [Greenbone Networks GmbH](https://www.greenbone.net/).
+This project is oldstabletained by [Greenbone Networks GmbH](https://www.greenbone.net/).
 
 ## Contributing
 
