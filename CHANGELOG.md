@@ -25,7 +25,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 - Fix pylint warnings. Remove u prefix for strings, no longer necessary. [#495](https://github.com/greenbone/ospd-openvas/pull/495)
 
-[21.10]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-21.04...master
+[21.10]: https://github.com/greenbone/ospd-openvas/compare/stable...main
 
 ## [21.4.1] (unreleased)
 
@@ -38,7 +38,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
 
-[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...ospd-openvas-21.04
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...stable
 
 ## [21.4.0] (2021-04-16)
 
@@ -55,7 +55,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Deprecated
 ### Removed
 
-[21.4]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...ospd-openvas-21.04
+[21.4]: https://github.com/greenbone/ospd-openvas/compare/oldstable...stable
 
 ## [20.8.3]
 ### Added
@@ -67,7 +67,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 ### Fixed
 
-[20.8.3]: https://github.com/greenbone/ospd-openvas/compare/v20.8.2...ospd-openvas-20.08
+[20.8.3]: https://github.com/greenbone/ospd-openvas/compare/v20.8.2...oldstable
 
 ## [20.8.2] - 2021-06-24
 ### Added
@@ -118,7 +118,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
 - Don't crash with non-ascii chars in openvas.conf. [#391](https://github.com/greenbone/ospd-openvas/pull/381)
 
-[20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...ospd-openvas-20.08
+[20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...oldstable
 
 ## [20.8.0] (2020-08-12)
 
@@ -179,7 +179,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 - Drop handling of network_scan. [#265](https://github.com/greenbone/ospd-openvas/pull/265)
 
-[20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
+[20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...oldstable
 
 ## [1.0.1]
 
