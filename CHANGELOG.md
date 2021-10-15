@@ -33,7 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove dry run from ospd. [#402](https://github.com/greenbone/ospd-openvas/pull/402)
 
-[21.10.0]: https://github.com/greenbone/ospd/compare/ospd-21.04...master
+[21.10.0]: https://github.com/greenbone/ospd/compare/stable...main
 
 ## [21.4.0] (unreleased)
 
@@ -47,7 +47,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove python3.5 support and deprecated methods. [#316](https://github.com/greenbone/ospd/pull/316)
 
-[21.4.0]: https://github.com/greenbone/ospd/compare/ospd-20.08...master
+[21.4.0]: https://github.com/greenbone/ospd/compare/oldstable...main
 
 ## [20.8.3] (Unreleased)
 ### Added
@@ -81,7 +81,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   [#377](https://github.com/greenbone/ospd/pull/377)
   [#380](https://github.com/greenbone/ospd/pull/380)
 
-[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...ospd-20.08
+[20.8.2]: https://github.com/greenbone/ospd/compare/v20.8.1...oldstable
 
 ## [20.8.1] (2020-08-12)
 
@@ -150,7 +150,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove support for resume task. [#266](https://github.com/greenbone/ospd/pull/266)
 
-[20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...ospd-20.08
+[20.8.0]: https://github.com/greenbone/ospd/compare/ospd-2.0...oldstable
 
 ## [2.0.1]
 
@@ -227,7 +227,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Improve error handling when sending data. [#147](https://github.com/greenbone/ospd/pull/147)
 - Fix classifier in setup.py. [#154](https://github.com/greenbone/ospd/pull/154)
 
-[2.0]: https://github.com/greenbone/ospd/compare/ospd-1.3...master
+[2.0]: https://github.com/greenbone/ospd/compare/ospd-1.3...main
 
 
 ## [1.3] (2018-06-05)
