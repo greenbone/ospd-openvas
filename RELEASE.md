@@ -44,7 +44,7 @@ first time.
 
   ```sh
   git fetch upstream
-  git checkout -b create-new-release upstream/master
+  git checkout -b create-new-release upstream/main
   ```
 
 * Get the current version number
@@ -142,11 +142,11 @@ first time.
 
 * Ask another developer/maintainer to review and merge the PR.
 
-* Once the PR is merged, update the local `master` branch:
+* Once the PR is merged, update the local `main` branch:
 
   ```sh
   git fetch upstream
-  git rebase upstream/master master
+  git rebase upstream/main main
   ```
 
 * Create a git tag:
@@ -173,7 +173,7 @@ first time.
 
 * Check if new version is available at <https://pypi.org/project/ospd>.
 
-## Bumping `master` Branch to the Next Version
+## Bumping `main` Branch to the Next Version
 
 
 * Update to a Development Version
