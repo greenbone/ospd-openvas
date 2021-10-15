@@ -4,17 +4,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
-### Added
-### Changed
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.3...HEAD
-
-
 ## [21.4.3] - 2021-10-12
+
 ### Changed
 - Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
 
@@ -24,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 [21.4.3]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...v21.4.3
 
 ## [21.4.2] - 2021-08-04
+
 ### Changed
 - Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
 - Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
@@ -39,9 +31,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Removed
 - Remove some special handling for Consider Alive alive test. [#413](https://github.com/greenbone/ospd-openvas/pull/413)
 
-[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...v21.4.1
+[21.4.1]: https://github.com/greenbone/ospd-openvas/compare/v21.4.0...stable
 
-## [21.4.0] (2021-04-16)
+## [21.4.0] - 2021-04-16
 
 ### Added
 - Add dedicated port list for alive detection (Boreas only) as scanner preference if supplied via OSP. [#327](https://github.com/greenbone/ospd-openvas/pull/327)
@@ -53,61 +45,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Get all results from main kb. [#285](https://github.com/greenbone/ospd-openvas/pull/285)
 - Extend severities with origin and date. [#192](https://github.com/greenbone/ospd-openvas/pull/192)
 
-### Deprecated
-### Removed
+[21.4]: https://github.com/greenbone/ospd-openvas/compare/oldstable...v21.4.0
 
-[21.4.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-20.08...v21.4.0
+## [20.8.4] - 2021-10-12
 
-## [Unreleased]
-### Added
-### Changed
-### Deprecated
-### Removed
-### Fixed
-
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.3...HEAD
-
-
-## [21.4.3] - 2021-10-12
 ### Changed
 - Downgrade required version for psutil to 5.5.1 [#489](https://github.com/greenbone/ospd-openvas/pull/489)
 
-## [Unreleased]
-### Added
+[20.8.4]: https://github.com/greenbone/ospd-openvas/compare/v20.8.3...v20.8.4
+
+## [20.8.3] - 2021-08-04
+
 ### Changed
-### Deprecated
-### Removed
-### Fixed
+- Use better defaults for for ospd-openvas settings [#454](https://github.com/greenbone/ospd-openvas/pull/454)
+- Improved error logging while trying to acquire a lock file [#458](https://github.com/greenbone/ospd-openvas/pull/458)
 
-[Unreleased]: https://github.com/greenbone/ospd-openvas/compare/v21.4.3...HEAD
+[20.8.3]: https://github.com/greenbone/ospd-openvas/compare/v20.8.2...v20.8.3
 
+## [20.8.2] - 2021-06-24
 
-## [21.4.3] - 2021-10-12### Fixed
-- Fix timeout preference handling. [#486](https://github.com/greenbone/ospd-openvas/pull/486)
-
-
-
-
-
-[21.4.3]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...v21.4.3
-
-[21.4.3]: https://github.com/greenbone/ospd-openvas/compare/v21.4.2...v21.4.3
-
-## [20.8.2] ()
 ### Added
 - Check for scanner error messages before leaving. [#395](https://github.com/greenbone/ospd-openvas/pull/395)
 
 ### Fixed
 - Don't crash with non-ascii chars in openvas.conf. [#381](https://github.com/greenbone/ospd-openvas/pull/381)
 
-### Removed
-- Remove methods handling the nvticache name. [#318](https://github.com/greenbone/ospd-openvas/pull/318)
-- Remove py35 and py36 support. [#319](https://github.com/greenbone/ospd-openvas/pull/319)
-- Remove globalscanid. [#326](https://github.com/greenbone/ospd-openvas/pull/326)
+[20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.8.1...v20.8.2
 
-[20.8.2]: https://github.com/greenbone/ospd-openvas/compare/v20.08.1...ospd-openvas-20.08
-
-## (20.8.1) - 2021-02-01
+## [20.8.1] - 2021-02-01
 
 ### Added
 - Add debug level log messages. [#373](https://github.com/greenbone/ospd-openvas/pull/373)
@@ -126,7 +91,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Fix progress calculation when the host count differs from the target string count. [#343](https://github.com/greenbone/ospd-openvas/pull/343)
 - Don't crash with non-ascii chars in openvas.conf. [#391](https://github.com/greenbone/ospd-openvas/pull/381)
 
-[20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...ospd-openvas-20.08
+[20.8.1]: https://github.com/greenbone/ospd-openvas/compare/v20.8.0...oldstable
 
 ## [20.8.0] (2020-08-12)
 
@@ -187,7 +152,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Don't release vts explicitly. [#261](https://github.com/greenbone/ospd-openvas/pull/261)
 - Drop handling of network_scan. [#265](https://github.com/greenbone/ospd-openvas/pull/265)
 
-[20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...ospd-openvas-20.08
+[20.8.0]: https://github.com/greenbone/ospd-openvas/compare/ospd-openvas-1.0...oldstable
 
 ## [1.0.1]
 
