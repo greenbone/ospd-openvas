@@ -2,7 +2,10 @@
 
 # ospd-openvas
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/badges/quality-score.png?b=ospd-openvas-20.08)](https://scrutinizer-ci.com/g/greenbone/ospd-openvas/?branch=ospd-openvas-20.08)
+[![GitHub releases](https://img.shields.io/github/release/greenbone/ospd-openvas.svg)](https://github.com/greenbone/ospd-openvas/releases)
+[![PyPI](https://img.shields.io/pypi/v/ospd-openvas.svg)](https://pypi.org/project/ospd-openvas/)
+[![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/oldstable/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd-openvas)
+[![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=oldstable)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%Aoldstable++)
 
 This is an OSP server implementation to allow GVM to remotely control
 OpenVAS, see <https://github.com/greenbone/openvas>.
@@ -29,7 +32,7 @@ installation guide for ospd-based scanners.
 
 Please follow the general installation guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/master/doc/INSTALL-ospd-scanner.md>
+  <https://github.com/greenbone/ospd/blob/main/doc/INSTALL-ospd-scanner.md>
 
 ### Mandatory configuration
 
@@ -72,7 +75,7 @@ guide.
 
 Please follow the general usage guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/master/doc/USAGE-ospd-scanner.md>
+  <https://github.com/greenbone/ospd/blob/main/doc/USAGE-ospd-scanner.md>
 
 ## Support
 
