@@ -174,7 +174,6 @@ class TestNVTICache(TestCase):
             '',
             'URL:http://www.mantisbt.org/',
             '3',
-            '10',
             'Product detection',
             'Mantis Detection',
         ]
@@ -204,7 +203,7 @@ class TestNVTICache(TestCase):
                     'id': '0',
                     'type': 'entry',
                     'name': 'timeout',
-                    'description': 'Script Timeout',
+                    'description': 'Description',
                     'default': '10',
                 },
                 '1': {
@@ -217,7 +216,10 @@ class TestNVTICache(TestCase):
             },
         }
 
-        prefs1 = ['1|||dns-fuzz.timelimit|||entry|||default']
+        prefs1 = [
+            '0|||timeout|||entry|||10',
+            '1|||dns-fuzz.timelimit|||entry|||default',
+        ]
 
         MockOpenvasDB.get_list_item.side_effect = [metadata, prefs1]
         resp = self.nvti.get_nvt_metadata('1.2.3.4')
@@ -260,13 +262,6 @@ class TestNVTICache(TestCase):
         resp = self.nvti.get_nvt_prefs('1.2.3.4')
 
         self.assertEqual(resp, prefs)
-
-    def test_get_nvt_timeout(self, MockOpenvasDB):
-        MockOpenvasDB.get_single_item.return_value = '300'
-
-        resp = self.nvti.get_nvt_timeout('1.2.3.4')
-
-        self.assertEqual(resp, '300')
 
     def test_get_nvt_tags(self, MockOpenvasDB):
         tag = (
