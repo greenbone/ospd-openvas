@@ -254,22 +254,6 @@ class NVTICache(BaseDB):
         key = f'oid:{oid}:prefs'
         return OpenvasDB.get_list_item(self.ctx, key)
 
-    def get_nvt_timeout(self, oid: str) -> Optional[str]:
-        """Get NVT timeout
-
-        Arguments:
-            ctx: Redis context to be used.
-            oid: OID of VT from which to get the script timeout.
-
-        Returns:
-            The timeout.
-        """
-        return OpenvasDB.get_single_item(
-            self.ctx,
-            f"nvt:{oid}",
-            index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"),
-        )
-
     def get_nvt_tags(self, oid: str) -> Optional[Dict[str, str]]:
         """Get Tags of the given OID.
 
