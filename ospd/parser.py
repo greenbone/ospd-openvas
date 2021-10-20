@@ -40,6 +40,8 @@ DEFAULT_SCANINFO_STORE_TIME = 0  # in hours
 DEFAULT_MAX_SCAN = 0  # 0 = disable
 DEFAULT_MIN_FREE_MEM_SCAN_QUEUE = 0  # 0 = Disable
 DEFAULT_MAX_QUEUED_SCANS = 0  # 0 = Disable
+DEFAULT_MQTT_BROKER_ADDRESS = "localhost"
+DEFAULT_MQTT_BROKER_PORT = 1883
 
 ParserType = argparse.ArgumentParser
 Arguments = argparse.Namespace
@@ -93,8 +95,9 @@ class CliParser:
         parser.add_argument(
             '--pid-file',
             default=DEFAULT_PID_PATH,
-            help='Location of the file for the process ID. '
-            'Default: %(default)s',
+            help=(
+                'Location of the file for the process ID. Default: %(default)s'
+            ),
         )
         parser.add_argument(
             '--lock-file-dir',
@@ -157,9 +160,11 @@ class CliParser:
             '--scaninfo-store-time',
             default=DEFAULT_SCANINFO_STORE_TIME,
             type=int,
-            help='Time in hours a scan is stored before being considered '
-            'forgotten and being delete from the scan table. '
-            'Default %(default)s, disabled.',
+            help=(
+                'Time in hours a scan is stored before being considered '
+                'forgotten and being delete from the scan table. '
+                'Default %(default)s, disabled.'
+            ),
         )
         parser.add_argument(
             '--list-commands',
@@ -170,24 +175,50 @@ class CliParser:
             '--max-scans',
             default=DEFAULT_MAX_SCAN,
             type=int,
-            help='Max. amount of parallel task that can be started. '
-            'Default %(default)s, disabled',
+            help=(
+                'Max. amount of parallel task that can be started. '
+                'Default %(default)s, disabled'
+            ),
         )
         parser.add_argument(
             '--min-free-mem-scan-queue',
             default=DEFAULT_MIN_FREE_MEM_SCAN_QUEUE,
             type=int,
-            help='Minimum free memory in MB required to run the scan. '
-            'If no enough free memory is available, the scan queued. '
-            'Default %(default)s, disabled',
+            help=(
+                'Minimum free memory in MB required to run the scan. '
+                'If no enough free memory is available, the scan queued. '
+                'Default %(default)s, disabled'
+            ),
         )
         parser.add_argument(
             '--max-queued-scans',
             default=DEFAULT_MAX_QUEUED_SCANS,
             type=int,
-            help='Maximum number allowed of queued scans before '
-            'starting to reject new scans. '
-            'Default %(default)s, disabled',
+            help=(
+                'Maximum number allowed of queued scans before '
+                'starting to reject new scans. '
+                'Default %(default)s, disabled'
+            ),
+        )
+        parser.add_argument(
+            '--mqtt-broker-address',
+            default=DEFAULT_MQTT_BROKER_ADDRESS,
+            type=str,
+            help=(
+                'Broker address to connect to for MQTT communication.'
+                ' Neccessary to get results from Notus-Scanner.Default'
+                ' %(default)s'
+            ),
+        )
+        parser.add_argument(
+            '--mqtt-broker-port',
+            default=DEFAULT_MQTT_BROKER_PORT,
+            type=self.network_port,
+            help=(
+                'Broker port to connect to for MQTT communication.'
+                ' Neccessary to get results from Notus-Scanner.Default'
+                'Default %(default)s'
+            ),
         )
 
         self.parser = parser
@@ -232,8 +263,7 @@ class CliParser:
             logger.debug('Loaded config %s', configfile)
         except Exception as e:  # pylint: disable=broad-except
             raise RuntimeError(
-                f'Error while parsing config file {configfile}. Error was '
-                f'{e}'
+                f'Error while parsing config file {configfile}. Error was {e}'
             ) from None
 
         return config

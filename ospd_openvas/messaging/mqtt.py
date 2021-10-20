@@ -30,7 +30,7 @@ from .subscriber import Subscriber
 
 logger = logging.getLogger(__name__)
 
-NOTUS_MQTT_CLIENT_ID = "notus-scanner"
+OSPD_OPENVAS_MQTT_CLIENT_ID = "ospd-openvas"
 
 QOS_AT_LEAST_ONCE = 1
 
@@ -40,7 +40,7 @@ class MQTTClient(mqtt.Client):
         self,
         mqtt_broker_address: str,
         mqtt_broker_port: int,
-        client_id=NOTUS_MQTT_CLIENT_ID,
+        client_id=OSPD_OPENVAS_MQTT_CLIENT_ID,
     ):
         self._mqtt_broker_address = mqtt_broker_address
         self._mqtt_broker_port = mqtt_broker_port
@@ -140,6 +140,7 @@ class MQTTDaemon:
         self._client = client
         self._client.on_disconnect = self.on_disconnect
         self._client.on_connect = self.on_connect
+        self._client._userdata = "foo"
 
         self._client.connect()
 
@@ -156,4 +157,4 @@ class MQTTDaemon:
         client.loop_stop()
 
     def run(self):
-        self._client.loop_forever()
+        self._client.loop_start()
