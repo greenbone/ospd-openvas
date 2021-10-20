@@ -273,9 +273,7 @@ class PreferenceHandler:
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
 
                 vts_params[
-                    "{0}:{1}:{2}:{3}".format(
-                        vtid, vt_param_id, param_type, param_name
-                    )
+                    f'{vtid}:{vt_param_id}:{param_type}:{param_name}'
                 ] = str(vt_param_value)
 
         return vts_list, vts_params
