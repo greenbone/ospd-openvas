@@ -576,7 +576,7 @@ class PreferenceHandler:
                 port = cred_params.get('port', '')
                 priv_username = cred_params.get('priv_username', '')
                 priv_password = cred_params.get('priv_password', '')
-                cred_prefs_list.append(f'auth_port_ssh|||' + '{port}')
+                cred_prefs_list.append(f'auth_port_ssh|||{port}')
                 cred_prefs_list.append(
                     f'{OID_SSH_AUTH}:7:'
                     f'entry:SSH privilege login name:|||{priv_username}'
@@ -586,10 +586,7 @@ class PreferenceHandler:
                     f'password:SSH privilege password:|||{priv_password}'
                 )
                 cred_prefs_list.append(
-                    OID_SSH_AUTH
-                    + ':1:'
-                    + 'entry:SSH login '
-                    + 'name:|||{0}'.format(username)
+                    f'{OID_SSH_AUTH}:1:entry:SSH login name:|||{username}'
                 )
                 if cred_type == 'up':
                     cred_prefs_list.append(
