@@ -47,23 +47,13 @@ type Custom struct {
     RequiredKeys string `xml:"required_keys,omitempty"`
     ExcludedKeys string `xml:"excluded_keys,omitempty"`
     MandatoryKeys string `xml:"mandatory_keys,omitempty"`
-    Affected string `xml:"affected,omitempty"`
     CreationDate string `xml:"creation_date,omitempty"`
     CvssBase string `xml:"cvss_base,omitempty"`
     CvssBaseVector string `xml:"cvss_base_vector,omitempty"`
     Deprecated string `xml:"deprecated,omitempty"`
-    Impact string `xml:"impact,omitempty"`
-    Insight string `xml:"insight,omitempty"`
     LastModification string `xml:"last_modification,omitempty"`
     Qod string `xml:"qod,omitempty"`
     QodType string `xml:"qod_type,omitempty"`
-    SeverityDate string `xml:"severity_date,omitempty"`
-    SeverityOrigin string `xml:"severity_origin,omitempty"`
-    SeverityVector string `xml:"severity_vector,omitempty"`
-    Solution string `xml:"solution,omitempty"`
-    SolutionMethod string `xml:"solution_method,omitempty"`
-    SolutionType string `xml:"solution_type,omitempty"`
-    Summary string `xml:"summary,omitempty"`
     Vuldetect string `xml:"vuldetect,omitempty"`
 }
 
