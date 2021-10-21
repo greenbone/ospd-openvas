@@ -181,35 +181,22 @@ class NVTICache(BaseDB):
             'bid',
             'xref',
             'category',
-            'timeout',
             'family',
             'name',
         ]
 
         custom = dict()
         custom['refs'] = dict()
-        custom['vt_params'] = dict()
         for child, res in zip(subelem, resp):
-            if child not in ['cve', 'bid', 'xref', 'tag', 'timeout'] and res:
+            if child not in ['cve', 'bid', 'xref', 'tag'] and res:
                 custom[child] = res
             elif child == 'tag':
                 custom.update(self._parse_metadata_tags(res, oid))
             elif child in ['cve', 'bid', 'xref'] and res:
                 custom['refs'][child] = res.split(", ")
-            elif child == 'timeout':
-                if res is None:
-                    continue
-                vt_params = {}
-                if int(res) > 0:
-                    _param_id = '0'
-                    vt_params[_param_id] = dict()
-                    vt_params[_param_id]['id'] = _param_id
-                    vt_params[_param_id]['type'] = 'entry'
-                    vt_params[_param_id]['name'] = 'timeout'
-                    vt_params[_param_id]['description'] = 'Script Timeout'
-                    vt_params[_param_id]['default'] = res
-                custom['vt_params'] = vt_params
-                custom['vt_params'].update(self.get_nvt_params(oid))
+
+        custom['vt_params'] = dict()
+        custom['vt_params'].update(self.get_nvt_params(oid))
 
         return custom
 
@@ -266,22 +253,6 @@ class NVTICache(BaseDB):
         """
         key = f'oid:{oid}:prefs'
         return OpenvasDB.get_list_item(self.ctx, key)
-
-    def get_nvt_timeout(self, oid: str) -> Optional[str]:
-        """Get NVT timeout
-
-        Arguments:
-            ctx: Redis context to be used.
-            oid: OID of VT from which to get the script timeout.
-
-        Returns:
-            The timeout.
-        """
-        return OpenvasDB.get_single_item(
-            self.ctx,
-            f"nvt:{oid}",
-            index=NVT_META_FIELDS.index("NVT_TIMEOUT_POS"),
-        )
 
     def get_nvt_tags(self, oid: str) -> Optional[Dict[str, str]]:
         """Get Tags of the given OID.

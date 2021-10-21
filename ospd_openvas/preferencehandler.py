@@ -272,12 +272,9 @@ class PreferenceHandler:
                 if type_aux == 'checkbox':
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
 
-                if vt_param_id == '0':
-                    vts_params[f"timeout.{vtid}"] = str(vt_param_value)
-                else:
-                    vts_params[
-                        f"{vtid}:{vt_param_id}:{param_type}:{param_name}"
-                    ] = str(vt_param_value)
+                vts_params[
+                    f'{vtid}:{vt_param_id}:{param_type}:{param_name}'
+                ] = str(vt_param_value)
 
         return vts_list, vts_params
 
