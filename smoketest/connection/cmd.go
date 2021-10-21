@@ -3,6 +3,7 @@ package connection
 import (
 	"encoding/xml"
 	"errors"
+	"fmt"
 	"io"
 	"net"
 	"reflect"
@@ -22,9 +23,12 @@ func SendCommand(protcol, address string, cmd interface{}, v interface{}) error 
     if err != nil {
         return err
     }
-    _, err = c.Write(b)
+    n, err := c.Write(b)
     if err != nil {
         return err
+    }
+    if n != len(b) {
+        return fmt.Errorf("%d bytes were not send", len(b) - n)
     }
     incoming, err := io.ReadAll(c)
     if err != nil {
