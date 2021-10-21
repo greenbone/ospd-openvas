@@ -3,9 +3,9 @@
 # ospd-openvas
 
 [![GitHub releases](https://img.shields.io/github/release/greenbone/ospd-openvas.svg)](https://github.com/greenbone/ospd-openvas/releases)
- [![PyPI](https://img.shields.io/pypi/v/ospd-openvas.svg)](https://pypi.org/project/ospd-openvas/)
- [![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/ospd-openvas-21.04/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd-openvas)
- [![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=ospd-openvas-21.04)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%3Aospd-openvas-21.04++)
+[![PyPI](https://img.shields.io/pypi/v/ospd-openvas.svg)](https://pypi.org/project/ospd-openvas/)
+[![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/stable/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd-openvas)
+[![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=stable)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%stable++)
 
 This is an OSP server implementation to allow GVM to remotely control
 OpenVAS, see <https://github.com/greenbone/openvas>.
@@ -32,7 +32,7 @@ installation guide for ospd-based scanners.
 
 Please follow the general installation guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/master/doc/INSTALL-ospd-scanner.md>
+  <https://github.com/greenbone/ospd/blob/stable/doc/INSTALL-ospd-scanner.md>
 
 ### Mandatory configuration
 
@@ -75,7 +75,7 @@ guide.
 
 Please follow the general usage guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/master/doc/USAGE-ospd-scanner.md>
+  <https://github.com/greenbone/ospd/blob/stable/doc/USAGE-ospd-scanner.md>
 
 ## Support
 
