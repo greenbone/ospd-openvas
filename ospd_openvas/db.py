@@ -470,11 +470,11 @@ class BaseKbDB(BaseDB):
         return self._pop_list_items("internal/results")
 
     def get_status(self, openvas_scan_id: str) -> Optional[str]:
-        """ Return the status of the host scan """
-        return self._get_single_item('internal/{}'.format(openvas_scan_id))
+        """Return the status of the host scan"""
+        return self._get_single_item(f'internal/{openvas_scan_id}')
 
     def __repr__(self):
-        return '<{} index={}>'.format(self.__class__.__name__, self.index)
+        return f'<{self.__class__.__name__} index={self.index}>'
 
 
 class ScanDB(BaseKbDB):
@@ -509,12 +509,12 @@ class KbDB(BaseKbDB):
             yield scan_db.select(kbindex)
 
     def add_scan_id(self, scan_id: str):
-        self._add_single_item('internal/{}'.format(scan_id), ['new'])
+        self._add_single_item(f'internal/{scan_id}', ['new'])
         self._add_single_item('internal/scanid', [scan_id])
 
     def add_scan_preferences(self, openvas_scan_id: str, preferences: Iterable):
         self._add_single_item(
-            'internal/{}/scanprefs'.format(openvas_scan_id), preferences
+            f'internal/{openvas_scan_id}/scanprefs', preferences
         )
 
     def add_credentials_to_scan_preferences(
@@ -523,7 +523,7 @@ class KbDB(BaseKbDB):
         """Force the usage of the utf-8 encoding, since some credentials
         contain special chars not supported by latin-1 encoding."""
         self._add_single_item(
-            'internal/{}/scanprefs'.format(openvas_scan_id),
+            f'internal/{openvas_scan_id}/scanprefs',
             preferences,
             utf8_enc=True,
         )
@@ -540,7 +540,7 @@ class KbDB(BaseKbDB):
     def target_is_finished(self, scan_id: str) -> bool:
         """ Check if a target has finished. """
 
-        status = self._get_single_item('internal/{}'.format(scan_id))
+        status = self._get_single_item(f'internal/{scan_id}')
 
         if status is None:
             logger.error(
@@ -552,13 +552,11 @@ class KbDB(BaseKbDB):
         return status == 'finished' or status is None
 
     def stop_scan(self, openvas_scan_id: str):
-        self._set_single_item(
-            'internal/{}'.format(openvas_scan_id), ['stop_all']
-        )
+        self._set_single_item(f'internal/{openvas_scan_id}', ['stop_all'])
 
     def scan_is_stopped(self, scan_id: str) -> bool:
         """Check if the scan should be stopped"""
-        status = self._get_single_item('internal/%s' % scan_id)
+        status = self._get_single_item(f'internal/{scan_id}')
         return status == 'stop_all'
 
     def get_scan_status(self) -> List:
@@ -611,7 +609,7 @@ class MainDB(BaseDB):
             resp = self.ctx.hsetnx(DBINDEX_NAME, index, _in_use)
         except:
             raise OspdOpenvasError(
-                'Redis Error: Not possible to set %s.' % DBINDEX_NAME
+                f'Redis Error: Not possible to set {DBINDEX_NAME}.'
             ) from None
 
         return resp == 1
@@ -632,7 +630,7 @@ class MainDB(BaseDB):
         """Find a kb db by via a scan id"""
         for index in range(1, self.max_database_index):
             ctx = OpenvasDB.create_context(index)
-            if OpenvasDB.get_key_count(ctx, 'internal/{}'.format(scan_id)):
+            if OpenvasDB.get_key_count(ctx, f'internal/{scan_id}'):
                 return KbDB(index, ctx)
 
         return None

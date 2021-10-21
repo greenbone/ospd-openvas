@@ -264,12 +264,10 @@ class PreferenceHandler:
                     vt_param_value = _from_bool_to_str(int(vt_param_value))
 
                 if vt_param_id == '0':
-                    vts_params["timeout.{0}".format(vtid)] = str(vt_param_value)
+                    vts_params[f"timeout.{vtid}"] = str(vt_param_value)
                 else:
                     vts_params[
-                        "{0}:{1}:{2}:{3}".format(
-                            vtid, vt_param_id, param_type, param_name
-                        )
+                        f"{vtid}:{vt_param_id}:{param_type}:{param_name}"
                     ] = str(vt_param_value)
 
         return vts_list, vts_params
@@ -283,7 +281,7 @@ class PreferenceHandler:
             nvts_list, self._nvts_params = self._process_vts(nvts)
             # Add nvts list
             separ = ';'
-            plugin_list = 'plugin_set|||%s' % separ.join(nvts_list)
+            plugin_list = f'plugin_set|||{separ.join(nvts_list)}'
             self.kbdb.add_scan_preferences(self.scan_id, [plugin_list])
 
             nvts_list = None
@@ -299,7 +297,7 @@ class PreferenceHandler:
 
         items_list = []
         for key, val in self._nvts_params.items():
-            items_list.append('%s|||%s' % (key, val))
+            items_list.append(f'{key}|||{val}')
 
         if items_list:
             self.kbdb.add_scan_preferences(self.scan_id, items_list)
@@ -358,7 +356,7 @@ class PreferenceHandler:
             else:
                 value = "no"
             target_opt_prefs_list[
-                OID_PING_HOST + ':1:checkbox:' + 'Do a TCP ping'
+                f'{OID_PING_HOST}:1:checkbox:Do a TCP ping'
             ] = value
 
             if (
@@ -369,9 +367,7 @@ class PreferenceHandler:
             else:
                 value = "no"
             target_opt_prefs_list[
-                OID_PING_HOST
-                + ':2:checkbox:'
-                + 'TCP ping tries also TCP-SYN ping'
+                f'{OID_PING_HOST}:2:checkbox:TCP ping tries also TCP-SYN ping'
             ] = value
 
             if (alive_test & AliveTest.ALIVE_TEST_TCP_SYN_SERVICE) and not (
@@ -381,9 +377,7 @@ class PreferenceHandler:
             else:
                 value = "no"
             target_opt_prefs_list[
-                OID_PING_HOST
-                + ':7:checkbox:'
-                + 'TCP ping tries only TCP-SYN ping'
+                f'{OID_PING_HOST}:7:checkbox:TCP ping tries only TCP-SYN ping'
             ] = value
 
             if alive_test & AliveTest.ALIVE_TEST_ICMP:
@@ -391,25 +385,22 @@ class PreferenceHandler:
             else:
                 value = "no"
             target_opt_prefs_list[
-                OID_PING_HOST + ':3:checkbox:' + 'Do an ICMP ping'
+                f'{OID_PING_HOST}:3:checkbox:Do an ICMP ping'
             ] = value
 
             if alive_test & AliveTest.ALIVE_TEST_ARP:
                 value = "yes"
             else:
                 value = "no"
-            target_opt_prefs_list[
-                OID_PING_HOST + ':4:checkbox:' + 'Use ARP'
-            ] = value
+            target_opt_prefs_list[f'{OID_PING_HOST}:4:checkbox:Use ARP'] = value
 
             if alive_test & AliveTest.ALIVE_TEST_CONSIDER_ALIVE:
                 value = "no"
             else:
                 value = "yes"
             target_opt_prefs_list[
-                OID_PING_HOST
-                + ':5:checkbox:'
-                + 'Mark unrechable Hosts as dead (not scanning)'
+                f'{OID_PING_HOST}:5:checkbox:Mark unrechable Hosts '
+                'as dead (not scanning)'
             ] = value
 
         return target_opt_prefs_list
@@ -475,24 +466,17 @@ class PreferenceHandler:
         # If a valid alive_test was set then the bit mask
         # has value between 31 (11111) and 1 (10000)
         if 1 <= alive_test <= 31:
-            pref = "{pref_key}|||{pref_value}".format(
-                pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
-            )
+            pref = f"{BOREAS_ALIVE_TEST}|||{alive_test}"
             self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
         if alive_test == AliveTest.ALIVE_TEST_SCAN_CONFIG_DEFAULT:
             alive_test = AliveTest.ALIVE_TEST_ICMP
-            pref = "{pref_key}|||{pref_value}".format(
-                pref_key=BOREAS_ALIVE_TEST, pref_value=alive_test
-            )
+            pref = f"{BOREAS_ALIVE_TEST}|||{alive_test}"
             self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
         # Add portlist if present. Validity is checked on Boreas side.
         if alive_test_ports is not None:
-            pref = "{pref_key}|||{pref_value}".format(
-                pref_key=BOREAS_ALIVE_TEST_PORTS,
-                pref_value=alive_test_ports,
-            )
+            pref = f"{BOREAS_ALIVE_TEST_PORTS}|||{alive_test_ports}"
             self.kbdb.add_scan_preferences(self.scan_id, [pref])
 
     def prepare_reverse_lookup_opt_for_openvas(self):
@@ -503,13 +487,13 @@ class PreferenceHandler:
                 self.target_options.get('reverse_lookup_only', '0')
             )
             rev_lookup_only = _from_bool_to_str(_rev_lookup_only)
-            items.append('reverse_lookup_only|||%s' % (rev_lookup_only))
+            items.append(f'reverse_lookup_only|||{rev_lookup_only}')
 
             _rev_lookup_unify = int(
                 self.target_options.get('reverse_lookup_unify', '0')
             )
             rev_lookup_unify = _from_bool_to_str(_rev_lookup_unify)
-            items.append('reverse_lookup_unify|||%s' % rev_lookup_unify)
+            items.append(f'reverse_lookup_unify|||{rev_lookup_unify}')
 
             self.kbdb.add_scan_preferences(self.scan_id, items)
 
@@ -518,14 +502,14 @@ class PreferenceHandler:
         in the kb"""
 
         target = self.scan_collection.get_host_list(self.scan_id)
-        target_aux = 'TARGET|||%s' % target
+        target_aux = f'TARGET|||{target}'
         self.kbdb.add_scan_preferences(self.scan_id, [target_aux])
 
     def prepare_ports_for_openvas(self) -> str:
         """Get the port list from the scan collection and store the list
         in the kb."""
         ports = self.scan_collection.get_ports(self.scan_id)
-        port_range = 'port_range|||%s' % ports
+        port_range = f'port_range|||{ports}'
         self.kbdb.add_scan_preferences(self.scan_id, [port_range])
 
         return ports
@@ -592,72 +576,47 @@ class PreferenceHandler:
                 port = cred_params.get('port', '')
                 priv_username = cred_params.get('priv_username', '')
                 priv_password = cred_params.get('priv_password', '')
-                cred_prefs_list.append('auth_port_ssh|||' + '{0}'.format(port))
+                cred_prefs_list.append(f'auth_port_ssh|||{port}')
                 cred_prefs_list.append(
-                    OID_SSH_AUTH
-                    + ':7:'
-                    + 'entry:SSH privilege login name:|||{0}'.format(
-                        priv_username
-                    )
+                    f'{OID_SSH_AUTH}:7:'
+                    f'entry:SSH privilege login name:|||{priv_username}'
                 )
                 cred_prefs_list.append(
-                    OID_SSH_AUTH
-                    + ':8:'
-                    + 'password:SSH privilege password:|||{0}'.format(
-                        priv_password
-                    )
+                    f'{OID_SSH_AUTH}:8:'
+                    f'password:SSH privilege password:|||{priv_password}'
                 )
                 cred_prefs_list.append(
-                    OID_SSH_AUTH
-                    + ':1:'
-                    + 'entry:SSH login '
-                    + 'name:|||{0}'.format(username)
+                    f'{OID_SSH_AUTH}:1:entry:SSH login name:|||{username}'
                 )
                 if cred_type == 'up':
                     cred_prefs_list.append(
-                        OID_SSH_AUTH
-                        + ':3:'
-                        + 'password:SSH password '
-                        + '(unsafe!):|||{0}'.format(password)
+                        f'{OID_SSH_AUTH}:3:password:SSH password '
+                        f'(unsafe!):|||{password}'
                     )
                 else:
                     private = cred_params.get('private', '')
                     cred_prefs_list.append(
-                        OID_SSH_AUTH
-                        + ':2:'
-                        + 'password:SSH key passphrase:|||'
-                        + '{0}'.format(password)
+                        f'{OID_SSH_AUTH}:2:password:SSH key passphrase:|||'
+                        f'{password}'
                     )
                     cred_prefs_list.append(
-                        OID_SSH_AUTH
-                        + ':4:'
-                        + 'file:SSH private key:|||'
-                        + '{0}'.format(private)
+                        f'{OID_SSH_AUTH}:4:file:SSH private key:|||'
+                        f'{private}'
                     )
             if service == 'smb':
                 cred_prefs_list.append(
-                    OID_SMB_AUTH
-                    + ':1:entry'
-                    + ':SMB login:|||{0}'.format(username)
+                    f'{OID_SMB_AUTH}:1:entry:SMB login:|||{username}'
                 )
                 cred_prefs_list.append(
-                    OID_SMB_AUTH
-                    + ':2:'
-                    + 'password:SMB password:|||'
-                    + '{0}'.format(password)
+                    f'{OID_SMB_AUTH}:2:password:SMB password:|||{password}'
                 )
             if service == 'esxi':
                 cred_prefs_list.append(
-                    OID_ESXI_AUTH
-                    + ':1:entry:'
-                    + 'ESXi login name:|||'
-                    + '{0}'.format(username)
+                    f'{OID_ESXI_AUTH}:1:entry:ESXi login name:|||{username}'
                 )
                 cred_prefs_list.append(
-                    OID_ESXI_AUTH
-                    + ':2:'
-                    + 'password:ESXi login password:|||'
-                    + '{0}'.format(password)
+                    f'{OID_ESXI_AUTH}:2:password:ESXi login password:|||'
+                    f'{password}'
                 )
 
             if service == 'snmp':
@@ -667,38 +626,25 @@ class PreferenceHandler:
                 privacy_algorithm = cred_params.get('privacy_algorithm', '')
 
                 cred_prefs_list.append(
-                    OID_SNMP_AUTH
-                    + ':1:'
-                    + 'password:SNMP Community:|||'
-                    + '{0}'.format(community)
+                    f'{OID_SNMP_AUTH}:1:password:SNMP Community:|||{community}'
                 )
                 cred_prefs_list.append(
-                    OID_SNMP_AUTH
-                    + ':2:'
-                    + 'entry:SNMPv3 Username:|||'
-                    + '{0}'.format(username)
+                    f'{OID_SNMP_AUTH}:2:entry:SNMPv3 Username:|||{username}'
                 )
                 cred_prefs_list.append(
-                    OID_SNMP_AUTH + ':3:'
-                    'password:SNMPv3 Password:|||' + '{0}'.format(password)
+                    f'{OID_SNMP_AUTH}:3:password:SNMPv3 Password:|||{password}'
                 )
                 cred_prefs_list.append(
-                    OID_SNMP_AUTH
-                    + ':4:'
-                    + 'radio:SNMPv3 Authentication Algorithm:|||'
-                    + '{0}'.format(auth_algorithm)
+                    f'{OID_SNMP_AUTH}:4:radio:SNMPv3 Authentication Algorithm:'
+                    f'|||{auth_algorithm}'
                 )
                 cred_prefs_list.append(
-                    OID_SNMP_AUTH
-                    + ':5:'
-                    + 'password:SNMPv3 Privacy Password:|||'
-                    + '{0}'.format(privacy_password)
+                    f'{OID_SNMP_AUTH}:5:password:SNMPv3 Privacy Password:|||'
+                    f'{privacy_password}'
                 )
                 cred_prefs_list.append(
-                    OID_SNMP_AUTH
-                    + ':6:'
-                    + 'radio:SNMPv3 Privacy Algorithm:|||'
-                    + '{0}'.format(privacy_algorithm)
+                    f'{OID_SNMP_AUTH}:6:radio:SNMPv3 Privacy Algorithm:|||'
+                    f'{privacy_algorithm}'
                 )
 
         return cred_prefs_list
@@ -722,5 +668,5 @@ class PreferenceHandler:
     def prepare_main_kbindex_for_openvas(self):
         """Store main_kbindex as global preference in the
         kb, used by OpenVAS"""
-        ov_maindbid = 'ov_maindbid|||%d' % self.kbdb.index
+        ov_maindbid = f'ov_maindbid|||{self.kbdb.index}'
         self.kbdb.add_scan_preferences(self.scan_id, [ov_maindbid])

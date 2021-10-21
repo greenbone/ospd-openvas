@@ -528,7 +528,7 @@ class OSPDopenvas(OSPDaemon):
             )
 
         feed_date = None
-        with feed_info_file.open() as fcontent:
+        with feed_info_file.open(encoding='utf-8') as fcontent:
             for line in fcontent:
                 if "PLUGIN_SET" in line:
                     feed_date = line.split('=', 1)[1]
