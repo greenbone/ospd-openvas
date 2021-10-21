@@ -28,4 +28,4 @@
 <!-- to check an item, place an "x" in the box like so: "- [x] Tests" -->
 
 - [ ] Tests
-- [ ] [CHANGELOG](https://github.com/greenbone/ospd/blob/master/CHANGELOG.md) Entry
+- [ ] [CHANGELOG](https://github.com/greenbone/ospd/blob/main/CHANGELOG.md) Entry
