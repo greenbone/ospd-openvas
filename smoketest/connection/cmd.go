@@ -10,7 +10,7 @@ import (
 )
 
 // SendCommand sends given cmd to OSP (protocol, address) and unmarshal the result into v
-func SendCommand(protcol, address string, cmd interface{}, v interface{}) error {
+func SendCommand(protcol, address string, cmd, v interface{}) error {
 	if reflect.ValueOf(v).Kind() != reflect.Ptr {
 		return errors.New("non-pointer passed to Unmarshal")
 	}
