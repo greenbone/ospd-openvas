@@ -31,7 +31,7 @@ from ospd.command.command import (
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import create_process
 
-from ..helper import DummyWrapper, assert_called, FakeStream, FakeDataManager
+from ..helper import DummyWrapper, assert_called_once, FakeStream, FakeDataManager
 
 
 class GetPerformanceTestCase(TestCase):
@@ -127,7 +127,7 @@ class StartScanTestCase(TestCase):
         self.assertNotEqual(vts_collection, {'1.2.3.6': {}})
 
         daemon.start_queued_scans()
-        assert_called(mock_create_process)
+        assert_called_once(mock_create_process)
 
     def test_scan_pop_vts(self):
         daemon = DummyWrapper([])
@@ -208,7 +208,7 @@ class StartScanTestCase(TestCase):
         scan_id = response.findtext('id')
         self.assertEqual(daemon.get_scan_vts(scan_id), {})
 
-        assert_called(mock_create_process)
+        assert_called_once(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_param_id(self):
         daemon = DummyWrapper([])
@@ -265,7 +265,7 @@ class StartScanTestCase(TestCase):
             {'1234': {'ABC': '200'}, 'vt_groups': []},
         )
         daemon.start_queued_scans()
-        assert_called(mock_create_process)
+        assert_called_once(mock_create_process)
 
     def test_scan_with_vts_and_param_missing_vt_group_filter(self):
         daemon = DummyWrapper([])
@@ -317,7 +317,7 @@ class StartScanTestCase(TestCase):
 
         self.assertEqual(daemon.get_scan_vts(scan_id), {'vt_groups': ['a']})
 
-        assert_called(mock_create_process)
+        assert_called_once(mock_create_process)
 
     @patch("ospd.ospd.create_process")
     @patch("ospd.command.command.logger")
@@ -338,8 +338,8 @@ class StartScanTestCase(TestCase):
 
         cmd.handle_xml(request)
         daemon.start_queued_scans()
-        assert_called(mock_logger.warning)
-        assert_called(mock_create_process)
+        assert_called_once(mock_logger.warning)
+        assert_called_once(mock_create_process)
 
     def test_max_queued_scans_reached(self):
         daemon = DummyWrapper([])
@@ -390,8 +390,8 @@ class StartScanTestCase(TestCase):
         self.assertEqual(daemon.get_scan_host(scan_id), 'localhost')
         self.assertEqual(daemon.get_scan_ports(scan_id), '22')
 
-        assert_called(mock_logger.warning)
-        assert_called(mock_create_process)
+        assert_called_once(mock_logger.warning)
+        assert_called_once(mock_create_process)
 
 
 class StopCommandTestCase(TestCase):
@@ -420,8 +420,8 @@ class StopCommandTestCase(TestCase):
 
         daemon.start_queued_scans()
 
-        assert_called(mock_create_process)
-        assert_called(mock_process.start)
+        assert_called_once(mock_create_process)
+        assert_called_once(mock_process.start)
 
         scan_id = response.findtext('id')
 
@@ -429,7 +429,7 @@ class StopCommandTestCase(TestCase):
         cmd = StopScan(daemon)
         cmd.handle_xml(request)
 
-        assert_called(mock_process.terminate)
+        assert_called_once(mock_process.terminate)
 
         mock_os.getpgid.assert_called_with('foo')
 

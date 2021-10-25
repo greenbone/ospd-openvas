@@ -36,7 +36,7 @@ from ospd.scan import ScanStatus
 
 from .helper import (
     DummyWrapper,
-    assert_called,
+    assert_called_once,
     FakeStream,
     FakeDataManager,
     FakePsutil,
@@ -1435,8 +1435,8 @@ class ScanTestCase(unittest.TestCase):
 
         self.daemon.start_queued_scans()
 
-        assert_called(mock_create_process)
-        assert_called(mock_process.start)
+        assert_called_once(mock_create_process)
+        assert_called_once(mock_process.start)
 
         self.daemon.handle_command(f'<stop_scan scan_id="{scan_id}" />', fs)
 
