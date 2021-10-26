@@ -3,7 +3,7 @@ pull_request_rules:
   - name: backport main patches to oldstable branch
     conditions:
       - base=main
-      - label=backport-to-oldstable
+      - label=backport-to-stable
     actions:
       backport:
         branches:
@@ -50,7 +50,7 @@ pull_request_rules:
   - name: backport oldstable patches to oldstable branch
     conditions:
       - base=oldstable
-      - label=backport-to-oldstable
+      - label=backport-to-stable
     actions:
       backport:
         branches:
