@@ -1095,7 +1095,7 @@ class OSPDopenvas(OSPDaemon):
             # test_alive_host_only in openvas is enable
             elif msg[0] == 'DEADHOST':
                 try:
-                    total_dead = int(msg[5])
+                    total_dead = total_dead + int(msg[5])
                 except TypeError:
                     logger.debug('Error processing dead host count')
 
