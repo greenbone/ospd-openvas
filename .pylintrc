@@ -48,7 +48,8 @@ disable=len-as-condition,
         attribute-defined-outside-init,
         missing-docstring,
         bad-continuation,
-        R
+        R,
+        consider-using-f-string
 
 #disable=print-statement,
 #       parameter-unpacking,
