@@ -25,6 +25,7 @@ from xml.etree import ElementTree as et
 
 from ospd.ospd import OSPDaemon
 
+
 def assert_called_once(mock: Mock):
     if hasattr(mock, 'assert_called_once'):
         return mock.assert_called_once()

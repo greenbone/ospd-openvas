@@ -31,7 +31,12 @@ from ospd.command.command import (
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import create_process
 
-from ..helper import DummyWrapper, assert_called_once, FakeStream, FakeDataManager
+from ..helper import (
+    DummyWrapper,
+    assert_called_once,
+    FakeStream,
+    FakeDataManager,
+)
 
 
 class GetPerformanceTestCase(TestCase):
