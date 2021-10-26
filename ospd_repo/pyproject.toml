@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+
+[tool.poetry]
+name = "ospd"
+version = "21.4.5.dev1"
+description = "OSPD is a base for scanner wrappers which share the same communication protocol: OSP (Open Scanner Protocol)"
+authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
+license = "AGPL-3.0-or-later"
+readme = "README.md"
+homepage = "https://github.com/greenbone/ospd"
+repository = "https://github.com/greenbone/ospd"
+classifiers = [
+  # Full list: https://pypi.org/pypi?%3Aaction=list_classifiers
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+]
+keywords = [
+  "Greenbone Vulnerability Management",
+  "Vulnerability Scanner",
+  "Open Scanner Protocol",
+  "OSP",
+]
+packages = [
+  { include = "ospd"},
+  { include = "tests", format = "sdist" },
+  { include = "COPYING", format = "sdist"},
+  { include = "CHANGELOG.md", format = "sdist"},
+  { include = "poetry.lock", format = "sdist"},
+  { include = "poetry.toml", format = "sdist"},
+  { include = "setup.py", format = "sdist"},
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+psutil = "^5.5.1"
+lxml = "^4.5.2"
+defusedxml = ">=0.6,<0.8"
+paramiko = "^2.7.1"
+deprecated = "^1.2.10"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.7.2"
+autohooks-plugin-pylint = "^1.2.0"
+
+autohooks-plugin-black = {version = "^1.2.0", python = "^3.7"}
+black = {version = "20.8b1", python = "^3.7"}
+rope = "^0.18.0"
+pontos = "^21.6.7"
+
+[tool.black]
+line-length = 80
+target-version = ['py37', 'py38']
+skip-string-normalization = true
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.venv
+  | \.circleci
+  | \.github
+  | \.vscode
+  | _build
+  | build
+  | dist
+  | docs
+)/
+'''
+
+[tool.autohooks]
+mode = "poetry"
+pre-commit = ['autohooks.plugins.black', 'autohooks.plugins.pylint']
+
+[tool.pontos.version]
+version-module-file = "ospd/__version__.py"
