@@ -25,7 +25,7 @@ from unittest.mock import patch
 from ospd.errors import OspdCommandError
 from ospd.datapickler import DataPickler
 
-from .helper import assert_called
+from .helper import assert_called_once
 
 
 class DataPecklerTestCase(TestCase):
@@ -97,7 +97,7 @@ class DataPecklerTestCase(TestCase):
         data_pickler = DataPickler('/root')
         data_pickler.remove_file(filename)
 
-        assert_called(mock_logger.error)
+        assert_called_once(mock_logger.error)
 
     @patch("ospd.datapickler.logger")
     def test_load_data_no_file(self, mock_logger):
@@ -105,7 +105,7 @@ class DataPecklerTestCase(TestCase):
         data_pickler = DataPickler('/tmp')
 
         data_loaded = data_pickler.load_data(filename, "1234")
-        assert_called(mock_logger.error)
+        assert_called_once(mock_logger.error)
         self.assertIsNone(data_loaded)
 
         data_pickler.remove_file(filename)
