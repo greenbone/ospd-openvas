@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 
 class CliParser:
     def __init__(self, description: str) -> None:
-        """ Create a command-line arguments parser for OSPD. """
+        """Create a command-line arguments parser for OSPD."""
         self._name = description
         parser = argparse.ArgumentParser(description=description)
 
@@ -193,7 +193,7 @@ class CliParser:
         self.parser = parser
 
     def network_port(self, string: str) -> int:
-        """ Check if provided string is a valid network port. """
+        """Check if provided string is a valid network port."""
 
         value = int(string)
         if not 0 < value <= 65535:
@@ -203,7 +203,7 @@ class CliParser:
         return value
 
     def log_level(self, string: str) -> str:
-        """ Check if provided string is a valid log level. """
+        """Check if provided string is a valid log level."""
 
         if not hasattr(logging, string.upper()):
             raise argparse.ArgumentTypeError(

@@ -107,7 +107,7 @@ class OSPDaemon:
         max_queued_scans=0,
         **kwargs,
     ):  # pylint: disable=unused-argument
-        """ Initializes the daemon's internal data. """
+        """Initializes the daemon's internal data."""
         self.scan_collection = ScanCollection(file_storage_dir)
         self.scan_processes = dict()
 
@@ -163,13 +163,13 @@ class OSPDaemon:
         self.initialized = True
 
     def set_command_attributes(self, name: str, attributes: Dict) -> None:
-        """ Sets the xml attributes of a specified command. """
+        """Sets the xml attributes of a specified command."""
         if self.command_exists(name):
             command = self.commands.get(name)
             command.attributes = attributes
 
     def set_scanner_param(self, name: str, scanner_params: Dict) -> None:
-        """ Set a scanner parameter. """
+        """Set a scanner parameter."""
 
         assert name
         assert scanner_params
@@ -250,32 +250,32 @@ class OSPDaemon:
         return self.vts_version
 
     def command_exists(self, name: str) -> bool:
-        """ Checks if a commands exists. """
+        """Checks if a commands exists."""
         return name in self.commands
 
     def get_scanner_name(self) -> str:
-        """ Gives the wrapped scanner's name. """
+        """Gives the wrapped scanner's name."""
         return self.scanner_info['name']
 
     def get_scanner_version(self) -> str:
-        """ Gives the wrapped scanner's version. """
+        """Gives the wrapped scanner's version."""
         return self.scanner_info['version']
 
     def get_scanner_description(self) -> str:
-        """ Gives the wrapped scanner's description. """
+        """Gives the wrapped scanner's description."""
         return self.scanner_info['description']
 
     def get_server_version(self) -> str:
-        """ Gives the specific OSP server's version. """
+        """Gives the specific OSP server's version."""
         assert self.server_version
         return self.server_version
 
     def get_protocol_version(self) -> str:
-        """ Gives the OSP's version. """
+        """Gives the OSP's version."""
         return self.protocol_version
 
     def preprocess_scan_params(self, xml_params):
-        """ Processes the scan parameters. """
+        """Processes the scan parameters."""
         params = {}
 
         for param in xml_params:
@@ -367,22 +367,22 @@ class OSPDaemon:
         logger.info('%s: Scan stopped.', scan_id)
 
     def exec_scan(self, scan_id: str):
-        """ Asserts to False. Should be implemented by subclass. """
+        """Asserts to False. Should be implemented by subclass."""
         raise NotImplementedError
 
     def finish_scan(self, scan_id: str) -> None:
-        """ Sets a scan as finished. """
+        """Sets a scan as finished."""
         self.scan_collection.set_progress(scan_id, ScanProgress.FINISHED.value)
         self.set_scan_status(scan_id, ScanStatus.FINISHED)
         logger.info("%s: Scan finished.", scan_id)
 
     def interrupt_scan(self, scan_id: str) -> None:
-        """ Set scan status as interrupted. """
+        """Set scan status as interrupted."""
         self.set_scan_status(scan_id, ScanStatus.INTERRUPTED)
         logger.info("%s: Scan interrupted.", scan_id)
 
     def daemon_exit_cleanup(self) -> None:
-        """ Perform a cleanup before exiting """
+        """Perform a cleanup before exiting"""
         self.scan_collection.clean_up_pickled_scan_info()
 
         # Stop scans which are not already stopped.
@@ -418,15 +418,15 @@ class OSPDaemon:
             time.sleep(1)
 
     def get_daemon_name(self) -> str:
-        """ Gives osp daemon's name. """
+        """Gives osp daemon's name."""
         return self.daemon_info['name']
 
     def get_daemon_version(self) -> str:
-        """ Gives osp daemon's version. """
+        """Gives osp daemon's version."""
         return self.daemon_info['version']
 
     def get_scanner_param_type(self, param: str):
-        """ Returns type of a scanner parameter. """
+        """Returns type of a scanner parameter."""
         assert isinstance(param, str)
         entry = self.scanner_params.get(param)
         if not entry:
@@ -434,7 +434,7 @@ class OSPDaemon:
         return entry.get('type')
 
     def get_scanner_param_mandatory(self, param: str):
-        """ Returns if a scanner parameter is mandatory. """
+        """Returns if a scanner parameter is mandatory."""
         assert isinstance(param, str)
         entry = self.scanner_params.get(param)
         if not entry:
@@ -442,7 +442,7 @@ class OSPDaemon:
         return entry.get('mandatory')
 
     def get_scanner_param_default(self, param: str):
-        """ Returns default value of a scanner parameter. """
+        """Returns default value of a scanner parameter."""
         assert isinstance(param, str)
         entry = self.scanner_params.get(param)
         if not entry:
@@ -450,7 +450,7 @@ class OSPDaemon:
         return entry.get('default')
 
     def handle_client_stream(self, stream: Stream) -> None:
-        """ Handles stream of data received from client. """
+        """Handles stream of data received from client."""
         data = b''
 
         request_parser = RequestParser()
@@ -496,7 +496,7 @@ class OSPDaemon:
         stream.close()
 
     def process_finished_hosts(self, scan_id: str) -> None:
-        """ Process the finished hosts before launching the scans."""
+        """Process the finished hosts before launching the scans."""
 
         finished_hosts = self.scan_collection.get_finished_hosts(scan_id)
         if not finished_hosts:
@@ -506,7 +506,7 @@ class OSPDaemon:
         self.scan_collection.set_host_finished(scan_id, exc_finished_hosts_list)
 
     def start_scan(self, scan_id: str) -> None:
-        """ Starts the scan with scan_id. """
+        """Starts the scan with scan_id."""
         os.setsid()
 
         self.process_finished_hosts(scan_id)
@@ -544,7 +544,7 @@ class OSPDaemon:
         self._get_scan_progress_raw(scan_id)
 
     def dry_run_scan(self, scan_id: str, target: Dict) -> None:
-        """ Dry runs a scan. """
+        """Dry runs a scan."""
 
         os.setsid()
 
@@ -561,7 +561,7 @@ class OSPDaemon:
         self.finish_scan(scan_id)
 
     def handle_timeout(self, scan_id: str, host: str) -> None:
-        """ Handles scanner reaching timeout error. """
+        """Handles scanner reaching timeout error."""
         self.add_scan_error(
             scan_id,
             host=host,
@@ -642,19 +642,19 @@ class OSPDaemon:
         self.set_scan_progress_batch(scan_id, host_progress)
 
     def get_scan_host_progress(self, scan_id: str, host: str = None) -> int:
-        """ Get host's progress which is part of target."""
+        """Get host's progress which is part of target."""
         current_progress = self.scan_collection.get_current_target_progress(
             scan_id
         )
         return current_progress.get(host)
 
     def set_scan_status(self, scan_id: str, status: ScanStatus) -> None:
-        """ Set the scan's status."""
+        """Set the scan's status."""
         logger.debug('%s: Set scan status %s,', scan_id, status.name)
         self.scan_collection.set_status(scan_id, status)
 
     def get_scan_status(self, scan_id: str) -> ScanStatus:
-        """ Get scan_id scans's status."""
+        """Get scan_id scans's status."""
         status = self.scan_collection.get_status(scan_id)
         st = status.name if status else None
         logger.debug('%s: Current scan status: %s,', scan_id, st)
@@ -670,7 +670,7 @@ class OSPDaemon:
         return self.scan_collection.id_exists(scan_id)
 
     def get_help_text(self) -> str:
-        """ Returns the help output in plain text format."""
+        """Returns the help output in plain text format."""
 
         txt = ''
         for name, info in self.commands.items():
@@ -1237,7 +1237,7 @@ class OSPDaemon:
                 self.scan_collection.restore_temp_result_list(scan_id)
 
     def check(self):
-        """ Asserts to False. Should be implemented by subclass. """
+        """Asserts to False. Should be implemented by subclass."""
         raise NotImplementedError
 
     def run(self) -> None:
@@ -1254,7 +1254,7 @@ class OSPDaemon:
             logger.info("Received Ctrl-C shutting-down ...")
 
     def start_queued_scans(self) -> None:
-        """ Starts a queued scan if it is allowed """
+        """Starts a queued scan if it is allowed"""
 
         current_queued_scans = self.get_count_queued_scans()
         if not current_queued_scans:
@@ -1357,7 +1357,7 @@ class OSPDaemon:
         to run tasks periodically."""
 
     def wait_for_children(self):
-        """ Join the zombie process to releases resources."""
+        """Join the zombie process to releases resources."""
         for scan_id, _ in self.scan_processes.items():
             self.scan_processes[scan_id].join(0)
 
@@ -1392,11 +1392,11 @@ class OSPDaemon:
         )
 
     def get_scan_options(self, scan_id: str) -> str:
-        """ Gives a scan's list of options. """
+        """Gives a scan's list of options."""
         return self.scan_collection.get_options(scan_id)
 
     def set_scan_option(self, scan_id: str, name: str, value: Any) -> None:
-        """ Sets a scan's option to a provided value. """
+        """Sets a scan's option to a provided value."""
         return self.scan_collection.set_option(scan_id, name, value)
 
     def set_scan_total_hosts(self, scan_id: str, count_total: int) -> None:
@@ -1432,7 +1432,7 @@ class OSPDaemon:
                     self.delete_scan(scan_id)
 
     def check_scan_process(self, scan_id: str) -> None:
-        """ Check the scan's process, and terminate the scan if not alive. """
+        """Check the scan's process, and terminate the scan if not alive."""
         status = self.get_scan_status(scan_id)
         if status == ScanStatus.QUEUED:
             return
@@ -1468,7 +1468,7 @@ class OSPDaemon:
         )
 
     def get_count_queued_scans(self) -> int:
-        """ Get the amount of scans with queued status """
+        """Get the amount of scans with queued status"""
         count = 0
         for scan_id in self.scan_collection.ids_iterator():
             if self.get_scan_status(scan_id) == ScanStatus.QUEUED:
@@ -1476,7 +1476,7 @@ class OSPDaemon:
         return count
 
     def get_count_running_scans(self) -> int:
-        """ Get the amount of scans with INIT/RUNNING status """
+        """Get the amount of scans with INIT/RUNNING status"""
         count = 0
         for scan_id in self.scan_collection.ids_iterator():
             status = self.get_scan_status(scan_id)
@@ -1485,17 +1485,17 @@ class OSPDaemon:
         return count
 
     def get_scan_progress(self, scan_id: str) -> int:
-        """ Gives a scan's current progress value. """
+        """Gives a scan's current progress value."""
         progress = self.scan_collection.get_progress(scan_id)
         logger.debug('%s: Current scan progress: %s,', scan_id, progress)
         return progress
 
     def get_scan_host(self, scan_id: str) -> str:
-        """ Gives a scan's target. """
+        """Gives a scan's target."""
         return self.scan_collection.get_host_list(scan_id)
 
     def get_scan_ports(self, scan_id: str) -> str:
-        """ Gives a scan's ports list. """
+        """Gives a scan's ports list."""
         return self.scan_collection.get_ports(scan_id)
 
     def get_scan_exclude_hosts(self, scan_id: str):
@@ -1514,15 +1514,15 @@ class OSPDaemon:
         return self.scan_collection.get_target_options(scan_id)
 
     def get_scan_vts(self, scan_id: str) -> Dict:
-        """ Gives a scan's vts. """
+        """Gives a scan's vts."""
         return self.scan_collection.get_vts(scan_id)
 
     def get_scan_start_time(self, scan_id: str) -> str:
-        """ Gives a scan's start time. """
+        """Gives a scan's start time."""
         return self.scan_collection.get_start_time(scan_id)
 
     def get_scan_end_time(self, scan_id: str) -> str:
-        """ Gives a scan's end time. """
+        """Gives a scan's end time."""
         return self.scan_collection.get_end_time(scan_id)
 
     def add_scan_log(
@@ -1537,7 +1537,7 @@ class OSPDaemon:
         qod: str = '',
         uri: str = '',
     ) -> None:
-        """ Adds a log result to scan_id scan. """
+        """Adds a log result to scan_id scan."""
 
         self.scan_collection.add_result(
             scan_id,
@@ -1564,7 +1564,7 @@ class OSPDaemon:
         test_id='',
         uri: str = '',
     ) -> None:
-        """ Adds an error result to scan_id scan. """
+        """Adds an error result to scan_id scan."""
         self.scan_collection.add_result(
             scan_id,
             ResultType.ERROR,
@@ -1586,7 +1586,7 @@ class OSPDaemon:
         value: str = '',
         uri: str = '',
     ) -> None:
-        """ Adds a host detail result to scan_id scan. """
+        """Adds a host detail result to scan_id scan."""
         self.scan_collection.add_result(
             scan_id, ResultType.HOST_DETAIL, host, hostname, name, value, uri
         )
@@ -1604,7 +1604,7 @@ class OSPDaemon:
         qod: str = '',
         uri: str = '',
     ) -> None:
-        """ Adds an alarm result to scan_id scan. """
+        """Adds an alarm result to scan_id scan."""
         self.scan_collection.add_result(
             scan_id,
             ResultType.ALARM,

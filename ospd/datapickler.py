@@ -52,7 +52,7 @@ class DataPickler:
             pass
 
     def remove_file(self, filename: str) -> None:
-        """ Remove the file containing a scan_info pickled object """
+        """Remove the file containing a scan_info pickled object"""
         storage_file_path = Path(self._storage_path) / filename
         try:
             storage_file_path.unlink()
@@ -60,7 +60,7 @@ class DataPickler:
             logger.error('Not possible to delete %s. %s', filename, e)
 
     def store_data(self, filename: str, data_object: Any) -> str:
-        """ Pickle a object and store it in a file named"""
+        """Pickle a object and store it in a file named"""
         storage_file_path = Path(self._storage_path) / filename
 
         try:
@@ -134,7 +134,7 @@ class DataPickler:
         return unpickled_scan_info
 
     def _pickled_data_hash_generator(self, pickled_data: bytes) -> str:
-        """ Calculate the sha256 hash of a pickled data """
+        """Calculate the sha256 hash of a pickled data"""
         if not pickled_data:
             return
 

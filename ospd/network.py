@@ -32,7 +32,7 @@ __LOGGER = logging.getLogger(__name__)
 
 
 def target_to_ipv4(target: str) -> Optional[List]:
-    """ Attempt to return a single IPv4 host list from a target string. """
+    """Attempt to return a single IPv4 host list from a target string."""
 
     try:
         socket.inet_pton(socket.AF_INET, target)
@@ -42,7 +42,7 @@ def target_to_ipv4(target: str) -> Optional[List]:
 
 
 def target_to_ipv6(target: str) -> Optional[List]:
-    """ Attempt to return a single IPv6 host list from a target string. """
+    """Attempt to return a single IPv6 host list from a target string."""
 
     try:
         socket.inet_pton(socket.AF_INET6, target)
@@ -52,7 +52,7 @@ def target_to_ipv6(target: str) -> Optional[List]:
 
 
 def ipv4_range_to_list(start_packed, end_packed) -> Optional[List]:
-    """ Return a list of IPv4 entries from start_packed to end_packed. """
+    """Return a list of IPv4 entries from start_packed to end_packed."""
 
     new_list = list()
     start = struct.unpack('!L', start_packed)[0]
@@ -66,7 +66,7 @@ def ipv4_range_to_list(start_packed, end_packed) -> Optional[List]:
 
 
 def target_to_ipv4_short(target: str) -> Optional[List]:
-    """ Attempt to return a IPv4 short range list from a target string. """
+    """Attempt to return a IPv4 short range list from a target string."""
 
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -100,7 +100,7 @@ def target_to_ipv4_short(target: str) -> Optional[List]:
 
 
 def target_to_ipv4_cidr(target: str) -> Optional[List]:
-    """ Attempt to return a IPv4 CIDR list from a target string. """
+    """Attempt to return a IPv4 CIDR list from a target string."""
 
     splitted = target.split('/')
     if len(splitted) != 2:
@@ -127,7 +127,7 @@ def target_to_ipv4_cidr(target: str) -> Optional[List]:
 
 
 def target_to_ipv6_cidr(target: str) -> Optional[List]:
-    """ Attempt to return a IPv6 CIDR list from a target string. """
+    """Attempt to return a IPv6 CIDR list from a target string."""
 
     splitted = target.split('/')
     if len(splitted) != 2:
@@ -161,7 +161,7 @@ def target_to_ipv6_cidr(target: str) -> Optional[List]:
 
 
 def target_to_ipv4_long(target: str) -> Optional[List]:
-    """ Attempt to return a IPv4 long-range list from a target string. """
+    """Attempt to return a IPv4 long-range list from a target string."""
 
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -180,7 +180,7 @@ def target_to_ipv4_long(target: str) -> Optional[List]:
 
 
 def ipv6_range_to_list(start_packed, end_packed) -> List:
-    """ Return a list of IPv6 entries from start_packed to end_packed. """
+    """Return a list of IPv6 entries from start_packed to end_packed."""
 
     new_list = list()
 
@@ -199,7 +199,7 @@ def ipv6_range_to_list(start_packed, end_packed) -> List:
 
 
 def target_to_ipv6_short(target: str) -> Optional[List]:
-    """ Attempt to return a IPv6 short-range list from a target string. """
+    """Attempt to return a IPv6 short-range list from a target string."""
 
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -221,7 +221,7 @@ def target_to_ipv6_short(target: str) -> Optional[List]:
 
 
 def target_to_ipv6_long(target: str) -> Optional[List]:
-    """ Attempt to return a IPv6 long-range list from a target string. """
+    """Attempt to return a IPv6 long-range list from a target string."""
 
     splitted = target.split('-')
     if len(splitted) != 2:
@@ -240,7 +240,7 @@ def target_to_ipv6_long(target: str) -> Optional[List]:
 
 
 def target_to_hostname(target: str) -> Optional[List]:
-    """ Attempt to return a single hostname list from a target string. """
+    """Attempt to return a single hostname list from a target string."""
 
     if len(target) == 0 or len(target) > 255:
         return None
@@ -252,7 +252,7 @@ def target_to_hostname(target: str) -> Optional[List]:
 
 
 def target_to_list(target: str) -> Optional[List]:
-    """ Attempt to return a list of single hosts from a target string. """
+    """Attempt to return a list of single hosts from a target string."""
 
     # Is it an IPv4 address ?
     new_list = target_to_ipv4(target)
@@ -310,7 +310,7 @@ def target_str_to_list(target_str: str) -> Optional[List]:
 
 
 def resolve_hostname(hostname: str) -> Optional[str]:
-    """ Returns IP of a hostname. """
+    """Returns IP of a hostname."""
 
     assert hostname
     try:
@@ -337,7 +337,7 @@ def is_valid_address(address: str) -> bool:
 
 
 def get_hostname_by_address(address: str) -> str:
-    """ Returns hostname of an address. """
+    """Returns hostname of an address."""
 
     if not is_valid_address(address):
         return ''
@@ -477,17 +477,17 @@ def ports_as_list(port_str: str) -> Tuple[Optional[List], Optional[List]]:
 
 
 def get_tcp_port_list(port_str: str) -> Optional[List]:
-    """ Return a list with tcp ports from a given port list in string format """
+    """Return a list with tcp ports from a given port list in string format"""
     return ports_as_list(port_str)[0]
 
 
 def get_udp_port_list(port_str: str) -> Optional[List]:
-    """ Return a list with udp ports from a given port list in string format """
+    """Return a list with udp ports from a given port list in string format"""
     return ports_as_list(port_str)[1]
 
 
 def port_list_compress(port_list: List) -> str:
-    """ Compress a port list and return a string. """
+    """Compress a port list and return a string."""
 
     if not port_list or len(port_list) == 0:
         __LOGGER.info("Invalid or empty port list.")

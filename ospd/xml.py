@@ -191,7 +191,7 @@ def get_elements_from_dict(data: Dict[str, Any]) -> List[Element]:
 def elements_as_text(
     elements: Dict[str, Union[str, Dict]], indent: int = 2
 ) -> str:
-    """ Returns the elements dictionary as formatted plain text. """
+    """Returns the elements dictionary as formatted plain text."""
 
     text = ""
     for elename, eledesc in elements.items():

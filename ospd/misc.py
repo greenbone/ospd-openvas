@@ -42,7 +42,7 @@ def create_process(
 
 class ResultType(object):
 
-    """ Various scan results types values. """
+    """Various scan results types values."""
 
     ALARM = 0
     LOG = 1
@@ -51,7 +51,7 @@ class ResultType(object):
 
     @classmethod
     def get_str(cls, result_type: int) -> str:
-        """ Return string name of a result type. """
+        """Return string name of a result type."""
         if result_type == cls.ALARM:
             return "Alarm"
         elif result_type == cls.LOG:
@@ -65,7 +65,7 @@ class ResultType(object):
 
     @classmethod
     def get_type(cls, result_name: str) -> int:
-        """ Return string name of a result type. """
+        """Return string name of a result type."""
         if result_name == "Alarm":
             return cls.ALARM
         elif result_name == "Log Message":
@@ -79,7 +79,7 @@ class ResultType(object):
 
 
 def valid_uuid(value) -> bool:
-    """ Check if value is a valid UUID. """
+    """Check if value is a valid UUID."""
 
     try:
         uuid.UUID(value, version=4)
@@ -89,7 +89,7 @@ def valid_uuid(value) -> bool:
 
 
 def go_to_background() -> None:
-    """ Daemonize the running process. """
+    """Daemonize the running process."""
     try:
         if os.fork():
             sys.exit()

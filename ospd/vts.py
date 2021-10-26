@@ -174,7 +174,7 @@ class Vts:
         return copy
 
     def calculate_vts_collection_hash(self, include_vt_params: bool = True):
-        """ Calculate the vts collection sha256 hash. """
+        """Calculate the vts collection sha256 hash."""
         if not self._vts:
             logger.debug(
                 "Error calculating VTs collection hash. Cache is empty"

@@ -43,11 +43,11 @@ CVSS_V3_METRICS = {
 
 
 class CVSS(object):
-    """ Handle cvss vectors and calculate the cvss scoring"""
+    """Handle cvss vectors and calculate the cvss scoring"""
 
     @staticmethod
     def roundup(value: float) -> float:
-        """It rounds up to 1 decimal. """
+        """It rounds up to 1 decimal."""
         return math.ceil(value * 10) / 10
 
     @staticmethod

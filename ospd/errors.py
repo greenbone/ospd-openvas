@@ -22,7 +22,7 @@ from ospd.xml import simple_response_str
 
 
 class OspdError(Exception):
-    """ Base error class for all Ospd related errors """
+    """Base error class for all Ospd related errors"""
 
 
 class RequiredArgument(OspdError):
@@ -56,5 +56,5 @@ class OspdCommandError(OspdError):
         self.status = status
 
     def as_xml(self) -> str:
-        """ Return the error in xml format. """
+        """Return the error in xml format."""
         return simple_response_str(self.command, self.status, self.message)

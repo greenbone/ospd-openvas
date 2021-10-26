@@ -33,7 +33,7 @@ LOGGER = logging.getLogger(__name__)
 
 
 class ScanStatus(Enum):
-    """Scan status. """
+    """Scan status."""
 
     QUEUED = 0
     INIT = 1
@@ -44,7 +44,7 @@ class ScanStatus(Enum):
 
 
 class ScanProgress(IntEnum):
-    """Scan or host progress. """
+    """Scan or host progress."""
 
     FINISHED = 100
     INIT = 0
@@ -70,7 +70,7 @@ class ScanCollection:
     """
 
     def __init__(self, file_storage_dir: str) -> None:
-        """ Initialize the Scan Collection. """
+        """Initialize the Scan Collection."""
 
         self.data_manager = (
             None
@@ -95,7 +95,7 @@ class ScanCollection:
         qod: str = '',
         uri: str = '',
     ) -> None:
-        """ Add a result to a scan in the table. """
+        """Add a result to a scan in the table."""
 
         assert scan_id
         assert len(name) or len(value)
@@ -155,7 +155,7 @@ class ScanCollection:
         self.scans_table[scan_id]['target_progress'] = target
 
     def set_progress(self, scan_id: str, progress: int) -> None:
-        """ Sets scan_id scan's progress. """
+        """Sets scan_id scan's progress."""
 
         if progress > ScanProgress.INIT and progress <= ScanProgress.FINISHED:
             self.scans_table[scan_id]['progress'] = progress
@@ -166,7 +166,7 @@ class ScanCollection:
     def set_host_progress(
         self, scan_id: str, host_progress_batch: Dict[str, int]
     ) -> None:
-        """ Sets scan_id scan's progress. """
+        """Sets scan_id scan's progress."""
 
         host_progresses = self.scans_table[scan_id].get('target_progress')
         host_progresses.update(host_progress_batch)
@@ -176,7 +176,7 @@ class ScanCollection:
         self.scans_table[scan_id]['target_progress'] = host_progresses
 
     def set_host_finished(self, scan_id: str, hosts: List[str]) -> None:
-        """ Increase the amount of finished hosts which were alive."""
+        """Increase the amount of finished hosts which were alive."""
 
         LOGGER.debug(
             '%s: Setting the following hosts as finished: %s',
@@ -190,7 +190,7 @@ class ScanCollection:
         self.scans_table[scan_id]['count_alive'] = count_alive
 
     def set_host_dead(self, scan_id: str, hosts: List[str]) -> None:
-        """ Increase the amount of dead hosts. """
+        """Increase the amount of dead hosts."""
 
         LOGGER.debug(
             '%s: Setting the following hosts as dead: %s',
@@ -202,13 +202,13 @@ class ScanCollection:
         self.scans_table[scan_id]['count_dead'] = count_dead
 
     def set_amount_dead_hosts(self, scan_id: str, total_dead: int) -> None:
-        """ Increase the amount of dead hosts. """
+        """Increase the amount of dead hosts."""
 
         count_dead = self.scans_table[scan_id].get('count_dead') + total_dead
         self.scans_table[scan_id]['count_dead'] = count_dead
 
     def clean_temp_result_list(self, scan_id):
-        """ Clean the results stored in the temporary list. """
+        """Clean the results stored in the temporary list."""
         self.scans_table[scan_id]['temp_results'] = list()
 
     def restore_temp_result_list(self, scan_id):
@@ -247,7 +247,7 @@ class ScanCollection:
         return iter(self.scans_table[scan_id]['results'])
 
     def ids_iterator(self) -> Iterator[str]:
-        """ Returns an iterator over the collection's scan IDS. """
+        """Returns an iterator over the collection's scan IDS."""
 
         # Do not iterate over the scans_table because it can change
         # during iteration, since it is accessed by multiple processes.
@@ -255,7 +255,7 @@ class ScanCollection:
         return iter(scan_id_list)
 
     def clean_up_pickled_scan_info(self) -> None:
-        """ Remove files of pickled scan info """
+        """Remove files of pickled scan info"""
         for scan_id in self.ids_iterator():
             if self.get_status(scan_id) == ScanStatus.QUEUED:
                 self.remove_file_pickled_scan_info(scan_id)
@@ -346,13 +346,13 @@ class ScanCollection:
         return scan_id
 
     def set_status(self, scan_id: str, status: ScanStatus) -> None:
-        """ Sets scan_id scan's status. """
+        """Sets scan_id scan's status."""
         self.scans_table[scan_id]['status'] = status
         if status == ScanStatus.STOPPED or status == ScanStatus.INTERRUPTED:
             self.scans_table[scan_id]['end_time'] = int(time.time())
 
     def get_status(self, scan_id: str) -> ScanStatus:
-        """ Get scan_id scans's status."""
+        """Get scan_id scans's status."""
         status = None
         try:
             status = self.scans_table[scan_id].get('status')
@@ -362,37 +362,37 @@ class ScanCollection:
         return status
 
     def get_options(self, scan_id: str) -> Dict:
-        """ Get scan_id scan's options list. """
+        """Get scan_id scan's options list."""
 
         return self.scans_table[scan_id].get('options')
 
     def set_option(self, scan_id, name: str, value: Any) -> None:
-        """ Set a scan_id scan's name option to value. """
+        """Set a scan_id scan's name option to value."""
 
         self.scans_table[scan_id]['options'][name] = value
 
     def get_progress(self, scan_id: str) -> int:
-        """ Get a scan's current progress value. """
+        """Get a scan's current progress value."""
 
         return self.scans_table[scan_id].get('progress', ScanProgress.INIT)
 
     def get_count_dead(self, scan_id: str) -> int:
-        """ Get a scan's current dead host count. """
+        """Get a scan's current dead host count."""
 
         return self.scans_table[scan_id]['count_dead']
 
     def get_count_alive(self, scan_id: str) -> int:
-        """ Get a scan's current alive host count. """
+        """Get a scan's current alive host count."""
 
         return self.scans_table[scan_id]['count_alive']
 
     def update_count_total(self, scan_id: str, count_total: int) -> int:
-        """ Sets a scan's total hosts."""
+        """Sets a scan's total hosts."""
 
         self.scans_table[scan_id]['count_total'] = count_total
 
     def get_count_total(self, scan_id: str) -> int:
-        """ Get a scan's total host count. """
+        """Get a scan's total host count."""
 
         count_total = self.scans_table[scan_id]['count_total']
 
@@ -413,7 +413,7 @@ class ScanCollection:
         return count_total
 
     def get_current_target_progress(self, scan_id: str) -> Dict[str, int]:
-        """ Get a scan's current hosts progress """
+        """Get a scan's current hosts progress"""
         return self.scans_table[scan_id]['target_progress']
 
     def simplify_exclude_host_count(self, scan_id: str) -> int:
@@ -472,7 +472,7 @@ class ScanCollection:
         return excluded_simplified
 
     def get_simplified_exclude_host_count(self, scan_id: str) -> int:
-        """ Get a scan's excluded host count. """
+        """Get a scan's excluded host count."""
         excluded_simplified = self.scans_table[scan_id]['excluded_simplified']
         # Check for None because it is the init value, as excluded can be 0
         # as well
@@ -505,17 +505,17 @@ class ScanCollection:
         return t_prog
 
     def get_start_time(self, scan_id: str) -> str:
-        """ Get a scan's start time. """
+        """Get a scan's start time."""
 
         return self.scans_table[scan_id]['start_time']
 
     def get_end_time(self, scan_id: str) -> str:
-        """ Get a scan's end time. """
+        """Get a scan's end time."""
 
         return self.scans_table[scan_id]['end_time']
 
     def get_host_list(self, scan_id: str) -> Dict:
-        """ Get a scan's host list. """
+        """Get a scan's host list."""
 
         target = None
         try:
@@ -530,7 +530,7 @@ class ScanCollection:
         return target
 
     def get_host_count(self, scan_id: str) -> int:
-        """ Get total host count in the target. """
+        """Get total host count in the target."""
         host = self.get_host_list(scan_id)
         total_hosts = 0
 
@@ -568,7 +568,7 @@ class ScanCollection:
         return self.scans_table[scan_id]['target'].get('options')
 
     def get_vts(self, scan_id: str) -> Dict[str, Union[Dict[str, str], List]]:
-        """ Get a scan's vts. """
+        """Get a scan's vts."""
         scan_info = self.scans_table[scan_id]
         vts = scan_info.pop('vts')
         self.scans_table[scan_id] = scan_info
@@ -576,12 +576,12 @@ class ScanCollection:
         return vts
 
     def id_exists(self, scan_id: str) -> bool:
-        """ Check whether a scan exists in the table. """
+        """Check whether a scan exists in the table."""
 
         return self.scans_table.get(scan_id) is not None
 
     def delete_scan(self, scan_id: str) -> bool:
-        """ Delete a scan if fully finished. """
+        """Delete a scan if fully finished."""
 
         if self.get_status(scan_id) == ScanStatus.RUNNING:
             return False

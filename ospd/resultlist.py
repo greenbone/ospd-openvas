@@ -26,7 +26,7 @@ from ospd.misc import ResultType
 
 
 class ResultList:
-    """ Class for handling list of resutls."""
+    """Class for handling list of resutls."""
 
     def __init__(self):
         self._result_list = list()
@@ -42,7 +42,7 @@ class ResultList:
         value: str = '',
         uri: str = '',
     ) -> None:
-        """ Adds a host detail result to result list. """
+        """Adds a host detail result to result list."""
         self.add_result_to_list(
             ResultType.HOST_DETAIL, host, hostname, name, value, uri
         )
@@ -57,7 +57,7 @@ class ResultList:
         test_id='',
         uri: str = '',
     ) -> None:
-        """ Adds an error result to result list. """
+        """Adds an error result to result list."""
         self.add_result_to_list(
             ResultType.ERROR, host, hostname, name, value, port, test_id, uri
         )
@@ -73,7 +73,7 @@ class ResultList:
         qod: str = '',
         uri: str = '',
     ) -> None:
-        """ Adds log result to a list of results. """
+        """Adds log result to a list of results."""
         self.add_result_to_list(
             ResultType.LOG,
             host,
@@ -99,7 +99,7 @@ class ResultList:
         qod: str = '',
         uri: str = '',
     ) -> None:
-        """ Adds an alarm result to a result list. """
+        """Adds an alarm result to a result list."""
         self.add_result_to_list(
             ResultType.ALARM,
             host,
