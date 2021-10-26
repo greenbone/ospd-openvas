@@ -18,7 +18,6 @@
 # pylint: disable=protected-access
 
 import time
-import multiprocessing
 
 from unittest.mock import Mock
 
