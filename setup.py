@@ -48,7 +48,6 @@ setup(
     ],
     python_requires='>=3.7',
     install_requires=[
-        'ospd>=21.4.0',
         'redis>=3.0.1',
         'psutil',
         'packaging',
