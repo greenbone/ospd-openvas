@@ -10,6 +10,7 @@ import (
 )
 
 var address string
+
 const protocoll = "unix"
 const pluginPath = "../data/plugins"
 
@@ -21,12 +22,12 @@ func init() {
 }
 
 func TestGetVTs(t *testing.T) {
-    var response vt.GetVTsResponse
-    if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
+	var response vt.GetVTsResponse
+	if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
 		t.Fatalf("Connectio to %s failed: %s", address, err)
-    }
+	}
 	n := 0
-	dirs, err :=os.ReadDir(pluginPath)
+	dirs, err := os.ReadDir(pluginPath)
 	if err != nil {
 		t.Fatalf("Plugin folder %s not found: %s", pluginPath, err)
 	}
