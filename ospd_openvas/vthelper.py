@@ -20,17 +20,26 @@
 """ Provide functions to handle VT Info. """
 
 from hashlib import sha256
+import logging
+from ospd_openvas.notus import Notus
 from typing import Optional, Dict, List, Tuple, Iterator
 
+from typing import Any
 from ospd.cvss import CVSS
 from ospd_openvas.nvticache import NVTICache
+
+logger = logging.getLogger(__name__)
 
 
 class VtHelper:
     def __init__(self, nvticache: NVTICache):
         self.nvti = nvticache
 
-    def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, any]]:
+    def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, Any]]:
+        nr = self.nvti.notus.get_nvt_metadata(vt_id)
+        if nr:
+            return nr
+
         custom = self.nvti.get_nvt_metadata(vt_id)
 
         if not custom:
@@ -48,6 +57,9 @@ class VtHelper:
                 deps = custom.pop('dependencies')
                 deps_list = deps.split(', ')
                 for dep_name in deps_list:
+                    # this will bug out on notus since notus does contain
+                    # multiple oids per advisory; however luckily they don't
+                    # have dependencies; otherwise it must be treated as a list
                     dep_oid = oids.get(dep_name)
                     if dep_oid:
                         vt_dependencies.append(dep_oid)
@@ -162,13 +174,17 @@ class VtHelper:
 
         oids = None
         if not vt_selection or details:
-            vt_collection = dict(self.nvti.get_oids())
+            # notus contains multiple oids per advisory therefore unlike
+            # nasl they share the filename
+            vt_collection = self.nvti.get_oids()
 
             if not vt_selection:
-                vt_selection = vt_collection.values()
+                vt_selection = [v for _, v in vt_collection]
 
             if details:
-                oids = vt_collection
+                # luckily notus doesn't have dependency therefore we can
+                # treat oids for dependency lookup as a dict
+                oids = dict(vt_collection)
 
         for vt_id in vt_selection:
             vt = self.get_single_vt(vt_id, oids)

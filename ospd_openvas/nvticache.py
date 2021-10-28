@@ -20,6 +20,7 @@
 """ Provide functions to handle NVT Info Cache. """
 
 import logging
+from ospd_openvas.notus import Notus
 
 from typing import List, Dict, Optional, Iterator, Tuple
 from pathlib import Path
@@ -57,11 +58,12 @@ class NVTICache(BaseDB):
     }
 
     def __init__(  # pylint: disable=super-init-not-called
-        self, main_db: MainDB
+        self, main_db: MainDB, notus: Notus
     ):
         self._ctx = None
         self.index = None
         self._main_db = main_db
+        self.notus = notus
 
     @property
     def ctx(self) -> Optional[RedisCtx]:
@@ -80,6 +82,7 @@ class NVTICache(BaseDB):
             # no nvti cache db available yet
             return None
 
+        # no feed version for notus otherwise tha would be a contract change
         return OpenvasDB.get_single_item(self.ctx, NVTI_CACHE_NAME)
 
     def get_oids(self) -> Iterator[Tuple[str, str]]:
@@ -89,7 +92,12 @@ class NVTICache(BaseDB):
             A i. Each single list contains the filename
             as first element and the oid as second one.
         """
-        return OpenvasDB.get_filenames_and_oids(self.ctx)
+        for f, oid in self.notus.get_filenames_and_oids():
+            yield (f, oid)
+        if self.ctx:
+            for f, oid in OpenvasDB.get_filenames_and_oids(self.ctx):
+                if not self.notus.cache.get(oid):
+                    yield (f, oid)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
         """Get NVT's preferences.
@@ -227,7 +235,7 @@ class NVTICache(BaseDB):
 
         return refs
 
-    def get_nvt_family(self, oid: str) -> str:
+    def get_nvt_family(self, oid: str) -> Optional[str]:
         """Get NVT family
         Arguments:
             oid: OID of VT from which to get the VT family.
@@ -235,6 +243,11 @@ class NVTICache(BaseDB):
         Returns:
             A str with the VT family.
         """
+        n = self.notus.get_nvt_metadata(oid)
+        if n:
+            return n.get("family")
+
+
         return OpenvasDB.get_single_item(
             self.ctx,
             f"nvt:{oid}",
@@ -252,6 +265,7 @@ class NVTICache(BaseDB):
             A list with the VT preferences.
         """
         key = f'oid:{oid}:prefs'
+        # notus doesn't seem to have preferences, ignoring
         return OpenvasDB.get_list_item(self.ctx, key)
 
     def get_nvt_tags(self, oid: str) -> Optional[Dict[str, str]]:
@@ -280,6 +294,7 @@ class NVTICache(BaseDB):
         return OpenvasDB.get_key_count(self.ctx, "nvt:*")
 
     def force_reload(self):
+        self.notus.reload_cache()
         self._main_db.release_database(self)
 
     def add_vt_to_cache(self, vt_id: str, vt: List[str]):
