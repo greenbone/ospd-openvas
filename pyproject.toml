@@ -54,7 +54,7 @@ deprecated = "^1.2.10"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.11.1"
-rope = "^0.20.1"
+rope = "^0.21.0"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = {version = "^21.7.1", python = "^3.7"}
 pontos = "^21.10.2"

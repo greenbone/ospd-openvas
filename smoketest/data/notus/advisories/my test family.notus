@@ -1,0 +1,49 @@
+{
+    "version": "1.0",
+    "advisories": [
+        {
+            "oid": "1.3.6.1.4.1.25623.1.0.90022",
+            "title": "NOTUS: should be overriden in get_nvts",
+            "creation_date": 1623250709,
+            "last_modification": 1629339952,
+            "advisory_id": "Example",
+            "advisory_xref": "https://www.greenbone.net",
+            "cves": [
+                "CVE-2009-5029"
+            ],
+            "summary": "Sad, sad robot",
+            "insight": "His steely skin is covered by centuries of dust. Once he was a great one, now he's dull and rust.",
+            "affected": "The robot, I guess.",
+            "impact": "No one, he's not a great one anymore.",
+            "xrefs": [],
+            "severity": {
+                "origin": "NVD",
+                "date": 1367584740,
+                "cvss_v2": "AV:N/AC:M/Au:N/C:P/I:P/A:P",
+                "cvss_v3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N"
+            }
+        },
+        {
+            "oid": "1.3.6.1.4.1.25623.1.0.42",
+            "title": "I am also here",
+            "creation_date": 1623250710,
+            "last_modification": 1629339962,
+            "advisory_id": "Example",
+            "advisory_xref": "https://www.greenbone.net",
+            "cves": [
+                "CVE-2009-5029"
+            ],
+            "summary": "Sad, sad robot",
+            "insight": "His steely skin is covered by centuries of dust. Once he was a great one, now he's dull and rust.",
+            "affected": "The robot, I guess.",
+            "impact": "No one, he's not a great one anymore.",
+            "xrefs": [],
+            "severity": {
+                "origin": "NVD",
+                "date": 1367584740,
+                "cvss_v2": "AV:N/AC:M/Au:N/C:P/I:P/A:P",
+                "cvss_v3": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N"
+            }
+        }
+    ]
+}
