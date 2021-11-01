@@ -432,7 +432,14 @@ class OSPDopenvas(OSPDaemon):
     ):
         """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
-        self.nvti = NVTICache(self.main_db, Notus(kwargs['notus_feed_dir']))
+        self.nvti = NVTICache(
+            self.main_db,
+            Notus(
+                kwargs.get(
+                    'notus_feed_dir', '/var/lib/openvas/notus/advisories'
+                )
+            ),
+        )
 
         super().__init__(
             customvtfilter=OpenVasVtsFilter(self.nvti),

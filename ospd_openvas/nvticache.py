@@ -247,7 +247,6 @@ class NVTICache(BaseDB):
         if n:
             return n.get("family")
 
-
         return OpenvasDB.get_single_item(
             self.ctx,
             f"nvt:{oid}",
