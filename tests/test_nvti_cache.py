@@ -27,7 +27,6 @@ from unittest import TestCase
 from unittest.mock import patch, Mock, PropertyMock
 from pathlib import Path
 
-from ospd_openvas.notus import Notus
 from ospd_openvas.nvticache import NVTICache, NVTI_CACHE_NAME
 
 from tests.helper import assert_called
@@ -75,11 +74,13 @@ class TestNVTICache(TestCase):
         )
 
     def test_get_oids(self, MockOpenvasDB):
-        MockOpenvasDB.get_filenames_and_oids.return_value = [('filename', 'oid')]
+        MockOpenvasDB.get_filenames_and_oids.return_value = [
+            ('filename', 'oid')
+        ]
 
         resp = self.nvti.get_oids()
 
-        self.assertEqual([ x for x in resp ], [('filename', 'oid')])
+        self.assertEqual([x for x in resp], [('filename', 'oid')])
 
     def test_parse_metadata_tag_missing_value(self, MockOpenvasDB):
         logging.Logger.error = Mock()

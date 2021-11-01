@@ -160,7 +160,7 @@ class DummyDaemon(OSPDopenvas):
         }
         nvti.get_feed_version.return_value = '123'
 
-        super().__init__(niceness=10, lock_file_dir='/tmp' )
+        super().__init__(niceness=10, lock_file_dir='/tmp')
 
         self.scan_collection.data_manager = FakeDataManager()
 
