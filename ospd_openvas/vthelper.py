@@ -21,9 +21,8 @@
 
 from hashlib import sha256
 import logging
-from typing import Optional, Dict, List, Tuple, Iterator
+from typing import Any, Optional, Dict, List, Tuple, Iterator
 
-from typing import Any
 from ospd.cvss import CVSS
 from ospd_openvas.nvticache import NVTICache
 
