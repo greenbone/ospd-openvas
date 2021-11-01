@@ -94,6 +94,7 @@ class DummyDaemon(OSPDopenvas):
         assert NvtiClass
         nvti = NvtiClass.return_value
         oids = [['mantis_detect.nasl', '1.3.6.1.4.1.25623.1.0.100061']]
+        nvti.notus = None
         nvti.get_oids.return_value = oids
         nvti.get_nvt_params.return_value = {
             '1': {
@@ -159,7 +160,7 @@ class DummyDaemon(OSPDopenvas):
         }
         nvti.get_feed_version.return_value = '123'
 
-        super().__init__(niceness=10, lock_file_dir='/tmp')
+        super().__init__(niceness=10, lock_file_dir='/tmp' )
 
         self.scan_collection.data_manager = FakeDataManager()
 

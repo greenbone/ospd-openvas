@@ -21,7 +21,6 @@
 
 from hashlib import sha256
 import logging
-from ospd_openvas.notus import Notus
 from typing import Optional, Dict, List, Tuple, Iterator
 
 from typing import Any
@@ -36,9 +35,10 @@ class VtHelper:
         self.nvti = nvticache
 
     def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, Any]]:
-        nr = self.nvti.notus.get_nvt_metadata(vt_id)
-        if nr:
-            return nr
+        if self.nvti.notus:
+            nr = self.nvti.notus.get_nvt_metadata(vt_id)
+            if nr:
+                return nr
 
         custom = self.nvti.get_nvt_metadata(vt_id)
 

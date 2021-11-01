@@ -48,8 +48,8 @@ class Notus:
     def get_filenames_and_oids(self):
         if not self.cache:
             self.reload_cache()
-        for k, v in self.cache.items():
-            yield (Path(v).name, k)
+        for key, value in self.cache.items():
+            yield (Path(value).name, key)
 
     def find_advisory(self, path: Path, oid: str):
         advisories = json.loads(path.read_bytes())

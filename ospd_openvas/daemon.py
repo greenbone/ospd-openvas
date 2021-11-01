@@ -23,8 +23,6 @@
 
 import logging
 
-from ospd.parser import CliParser
-from ospd_openvas.notus import Notus
 import time
 import copy
 
@@ -37,6 +35,7 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
+from ospd.parser import CliParser
 from ospd.ospd import OSPDaemon
 from ospd.scan import ScanProgress, ScanStatus
 from ospd.server import BaseServer
@@ -47,6 +46,7 @@ from ospd.resultlist import ResultList
 from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
+from ospd_openvas.notus import Notus
 from ospd_openvas.dryrun import DryRun
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB
@@ -432,13 +432,12 @@ class OSPDopenvas(OSPDaemon):
     ):
         """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
+        notus_dir = kwargs.get( 'notus_feed_dir')
+        notus = Notus(notus_dir) if notus_dir else None
+        
         self.nvti = NVTICache(
             self.main_db,
-            Notus(
-                kwargs.get(
-                    'notus_feed_dir', '/var/lib/openvas/notus/advisories'
-                )
-            ),
+            notus,
         )
 
         super().__init__(

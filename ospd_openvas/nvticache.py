@@ -20,7 +20,6 @@
 """ Provide functions to handle NVT Info Cache. """
 
 import logging
-from ospd_openvas.notus import Notus
 
 from typing import List, Dict, Optional, Iterator, Tuple
 from pathlib import Path
@@ -29,6 +28,7 @@ from time import time
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
+from ospd_openvas.notus import Notus
 
 NVTI_CACHE_NAME = "nvticache"
 
@@ -58,7 +58,7 @@ class NVTICache(BaseDB):
     }
 
     def __init__(  # pylint: disable=super-init-not-called
-        self, main_db: MainDB, notus: Notus
+        self, main_db: MainDB, notus: Optional[Notus]
     ):
         self._ctx = None
         self.index = None
@@ -92,11 +92,12 @@ class NVTICache(BaseDB):
             A i. Each single list contains the filename
             as first element and the oid as second one.
         """
-        for f, oid in self.notus.get_filenames_and_oids():
-            yield (f, oid)
+        if self.notus:
+            for f, oid in self.notus.get_filenames_and_oids():
+                yield (f, oid)
         if self.ctx:
             for f, oid in OpenvasDB.get_filenames_and_oids(self.ctx):
-                if not self.notus.cache.get(oid):
+                if not self.notus or not self.notus.cache.get(oid):
                     yield (f, oid)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
@@ -243,9 +244,9 @@ class NVTICache(BaseDB):
         Returns:
             A str with the VT family.
         """
-        n = self.notus.get_nvt_metadata(oid)
-        if n:
-            return n.get("family")
+        notus_entry = self.notus.get_nvt_metadata(oid) if self.notus else None
+        if notus_entry:
+            return notus_entry.get("family")
 
         return OpenvasDB.get_single_item(
             self.ctx,
@@ -293,7 +294,8 @@ class NVTICache(BaseDB):
         return OpenvasDB.get_key_count(self.ctx, "nvt:*")
 
     def force_reload(self):
-        self.notus.reload_cache()
+        if self.notus:
+            self.notus.reload_cache()
         self._main_db.release_database(self)
 
     def add_vt_to_cache(self, vt_id: str, vt: List[str]):
