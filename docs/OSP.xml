@@ -1,0 +1,1716 @@
+<?xml version="1.0"?>
+
+<!--
+Copyright (C) 2014-2021 Greenbone Networks GmbH
+
+SPDX-License-Identifier: GPL-2.0-or-later
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 2
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+-->
+
+<protocol>
+  <name>Open Scanner Protocol</name>
+  <abbreviation>OSP</abbreviation>
+  <summary>The Open Scanner Protocol</summary>
+  <version>21.10</version>
+
+  <!-- Types. -->
+
+  <type>
+    <name>boolean</name>
+    <summary>0 or 1</summary>
+    <pattern>
+      <e>xsd:token { pattern = "[01]" }</e>
+    </pattern>
+  </type>
+  <type>
+    <name>epoch_time</name>
+    <summary>A date, in Unix format</summary>
+    <pattern>
+      <e>integer</e>
+    </pattern>
+  </type>
+  <type>
+    <name>integer</name>
+    <summary>An integer</summary>
+    <pattern>
+      <e>integer</e>
+    </pattern>
+  </type>
+  <type>
+    <name>status</name>
+    <summary>Status code describing the result of a command</summary>
+    <pattern>
+      <e>xsd:token { pattern = "[1-5][0-9][0-9]" }</e>
+    </pattern>
+  </type>
+  <type>
+    <name>string</name>
+    <summary>A string</summary>
+    <pattern>
+      <e>text</e>
+    </pattern>
+  </type>
+  <type>
+    <name>uuid</name>
+    <summary>A Universally Unique Identifier (UUID)</summary>
+    <pattern>
+      <e>xsd:token { pattern = "[0-9abcdefABCDEF\-]{1,40}" }</e>
+    </pattern>
+  </type>
+  <type>
+    <name>vt_id</name>
+    <summary>Identifier for a vulnerability test</summary>
+    <pattern>
+      <e>xsd:token { pattern = "[0-9a-zA-Z_\-.:]{1,80}" }</e>
+    </pattern>
+  </type>
+
+  <!-- Elements. -->
+
+  <element>
+    <name>credential</name>
+    <summary>A credential consisting of type, service, port, username and password.</summary>
+    <pattern>
+      <attrib>
+        <name>type</name>
+        <type>string</type>
+        <required>1</required>
+      </attrib>
+      <attrib>
+        <name>service</name>
+        <type>string</type>
+        <required>1</required>
+      </attrib>
+      <attrib>
+        <name>port</name>
+        <type>string</type>
+      </attrib>
+      <e>username</e>
+      <e>password</e>
+    </pattern>
+    <ele>
+      <name>username</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>password</name>
+      <pattern>text</pattern>
+    </ele>
+    <example>
+      <summary>Credential with port</summary>
+      <e>
+        <credential type="up" service="ssh" port="22">
+          <username>scanuser</username>
+          <password>mypass</password>
+        </credential>
+      </e>
+    </example>
+    <example>
+      <summary>Credential without port</summary>
+      <e>
+        <credential type="up" service="smb">
+          <username>smbuser</username>
+          <password>mypass</password>
+        </credential>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>scanner_params</name>
+    <summary>Contains elements that represent scanner specific parameters</summary>
+    <pattern>
+      <e>e</e>
+    </pattern>
+    <ele>
+      <name>e</name>
+      <summary>Element that represents a scanner specific parameters</summary>
+      <type>string</type>
+      <pattern>string</pattern>
+    </ele>
+    <example>
+      <summary>scanner_params</summary>
+      <e>
+        <scanner_params>
+          <target_port>443</target_port>
+          <use_https>1</use_https>
+          <profile>fast_scan</profile>
+        </scanner_params>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>targets</name>
+    <summary>List of targets</summary>
+    <pattern>
+      <e>target</e>
+    </pattern>
+    <example>
+      <summary>Two targets</summary>
+      <e>
+        <targets>
+          <target>...</target>
+          <target>...</target>
+        </targets>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>target</name>
+    <summary>A scan target consisting of hosts, a port selection and credentials</summary>
+    <pattern>
+      <e>hosts</e>
+      <e>ports</e>
+      <e>credentials</e>
+      <e>exclude_hosts</e>
+      <e>finished_hosts</e>
+      <e>alive_test_ports</e>
+      <or>
+        <e>alive_test</e>
+        <e>alive_test_methods</e>
+      </or>
+      <e>reverse_lookup_unify</e>
+      <e>reverse_lookup_only</e>
+    </pattern>
+    <ele>
+      <name>hosts</name>
+      <summary>One or many hosts. The list is comma-separated. Each entry can be a IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6</summary>
+      <type>string</type>
+    </ele>
+    <ele>
+      <name>ports</name>
+      <type>string</type>
+      <summary>A list of ports that is the same for the given hosts</summary>
+    </ele>
+    <ele>
+      <name>credentials</name>
+      <summary>One or many credentials containing the credential for the given hosts</summary>
+      <pattern>
+        <e>credential</e>
+      </pattern>
+    </ele>
+    <ele>
+      <name>exclude_hosts</name>
+      <summary>One or many hosts to exclude. The list is comma-separated. Each entry can be a IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6. Each wrapper must handle the exclude hosts
+      </summary>
+      <type>string</type>
+    </ele>
+    <ele>
+      <name>finished_hosts</name>
+      <summary>One or many finished hosts to exclude when the client resumes a task. The list is comma-separated. Each entry can be an IP address, a CIDR notation, a hostname, a IP range. IPs can be v4 or v6. The listed hosts will be set as finished before starting the scan. Each wrapper must handle the finished hosts
+      </summary>
+      <type>string</type>
+    </ele>
+    <ele>
+      <name>alive_test</name>
+      <summary>Alive test type to be performed against the target</summary>
+      <type>integer</type>
+    </ele>
+    <ele>
+      <name>alive_test_methods</name>
+      <summary>Alive test methods to be performed against the target</summary>
+      <pattern>
+        <e>icmp</e>
+      </pattern>
+      <ele>
+        <name>icmp</name>
+        <summary>ICMP ping</summary>
+        <type>boolean</type>
+      </ele>
+      <pattern>
+        <e>tcp_syn</e>
+      </pattern>
+      <ele>
+        <name>tcp_syn</name>
+        <summary>TCP-SYN ping</summary>
+        <type>boolean</type>
+      </ele>
+      <pattern>
+        <e>tcp_ack</e>
+      </pattern>
+      <ele>
+        <name>tcp_ack</name>
+        <summary>TCP-ACK ping</summary>
+        <type>boolean</type>
+      </ele>
+      <pattern>
+        <e>arp</e>
+      </pattern>
+      <ele>
+        <name>arp</name>
+        <summary>ARP ping</summary>
+        <type>boolean</type>
+      </ele>
+      <pattern>
+        <e>consider_alive</e>
+      </pattern>
+      <ele>
+        <name>consider_alive</name>
+        <summary>Consider the target to be alive</summary>
+        <type>boolean</type>
+      </ele>
+    </ele>
+    <ele>
+      <name>alive_test_ports</name>
+      <summary>Dedicated port list for alive detection. Used for TCP-SYN and TCP-ACK ping when Boreas (scanner preference test_alive_hosts_only) is enabled. If no port list is provided ports 80, 137, 587, 3128, 8081 are used as defaults</summary>
+      <type>string</type>
+    </ele>
+    <ele>
+      <name>reverse_lookup_only</name>
+      <summary>Only scan IP addresses that can be resolved into a DNS name</summary>
+      <type>string</type>
+    </ele>
+    <ele>
+      <name>reverse_lookup_unify</name>
+      <summary>If multiple IP addresses resolve to the same DNS name the DNS name will only get scanned once</summary>
+      <type>string</type>
+    </ele>
+    <example>
+      <summary>Target without credentials</summary>
+      <e>
+        <target>
+          <hosts>example.org</hosts>
+          <ports>T:22,U:5060</ports>
+          <alive_test>0</alive_test>
+          <alive_test_ports>22,80,123</alive_test_ports>
+          <reverse_lookup_only>0</reverse_lookup_only>
+          <reverse_lookup_unify>0</reverse_lookup_unify>
+        </target>
+      </e>
+    </example>
+    <example>
+      <summary>Target with two credentials</summary>
+      <e>
+        <target>
+          <hosts>192.168.1.0/24</hosts>
+          <ports>1,2,3,80,443</ports>
+          <credentials>
+            <credential>...</credential>
+            <credential>...</credential>
+          </credentials>
+          <exclude_hosts>192.168.1.10-15</exclude_hosts>
+          <finished_hosts>192.168.1.1-3</finished_hosts>
+        </target>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>vt_group</name>
+    <summary>Collection of Vulnerability Test</summary>
+    <pattern>
+      <attrib>
+        <name>filter</name>
+        <type>string</type>
+        <required>1</required>
+      </attrib>
+    </pattern>
+    <example>
+      <summary>VT group filtered by family name </summary>
+      <e>
+        <vt_group filter='family=general'/>
+        <vt_group filter='family=debian'/>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>vt_selection</name>
+    <summary>Contains elements that represent a Vulnerability Test or a collection of Vulnerability Tests to be executed and their parameters</summary>
+    <pattern>
+      <e>vt_single</e>
+      <e>vt_group</e>
+    </pattern>
+    <example>
+      <summary>VT with parameters and VT group </summary>
+      <e>
+        <vt_selection>
+          <vt_single id='1.3.6.1.4.1.25623.1.0.10662'>
+            <vt_value id='XYZ JKL'>200</vt_value>
+            <vt_value id='ABC'>yes</vt_value>
+          </vt_single>
+          <vt_single id='1.3.6.1.4.1.25623.1.0.10330'></vt_single>
+          <vt_single id='1.3.6.1.4.1.25623.1.0.100034'></vt_single>
+          <vt_group filter='family=general'/>
+          <vt_group filter='family=debian'/>
+        </vt_selection>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>vt_single</name>
+    <summary>Elements that represent Vulnerability Tests</summary>
+    <pattern>
+      <attrib>
+        <name>id</name>
+        <summary>Identifier for a vulnerability test</summary>
+        <type>vt_id</type>
+        <required>1</required>
+      </attrib>
+      <e>vt_value</e>
+    </pattern>
+    <example>
+      <summary>VT with parameters</summary>
+      <e>
+        <vt_single id='1.3.6.1.4.1.25623.1.0.10662'>
+          <vt_value id='XYZ JKL'>200</vt_value>
+          <vt_value id='ABC'>yes</vt_value>
+        </vt_single>
+        <vt_single id='1.3.6.1.4.1.25623.1.0.10330'></vt_single>
+      </e>
+    </example>
+  </element>
+
+  <element>
+    <name>vt_value</name>
+    <summary>Vulnerability Test parameter</summary>
+    <pattern>
+      <attrib>
+        <name>id</name>
+        <type>string</type>
+        <required>1</required>
+      </attrib>
+      string
+    </pattern>
+    <example>
+      <summary>Parameters for a single VT</summary>
+      <e>
+        <vt_value id='XYZ JKL'>200</vt_value>
+        <vt_value id='ABC'>yes</vt_value>
+      </e>
+    </example>
+  </element>
+
+  <!-- Commands. -->
+
+  <command>
+    <name>help</name>
+    <summary>Get the help text</summary>
+    <pattern>
+      <attrib>
+        <name>format</name>
+        <summary>Help format</summary>
+        <type>
+          <alts>
+            <alt>xml</alt>
+            <alt>text</alt>
+          </alts>
+        </type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        text
+      </pattern>
+    </response>
+    <example>
+      <summary>Get the help text</summary>
+      <request>
+        <help format='xml'/>
+      </request>
+      <response>
+        <help_response status_text="OK" status="200">
+          <delete_scan>
+            <attributes>
+              <scan_id>ID of scan to delete</scan_id>
+            </attributes>
+            <elements></elements>
+            <description>Delete a finished scan</description>
+          </delete_scan>
+          <help>
+            <attributes>
+              <format>Help format. Could be text or xml</format>
+            </attributes>
+            <elements></elements>
+            <description>Print the commands help</description>
+          </help>
+          <get_version>
+            <attributes></attributes>
+            <elements></elements>
+            <description>Return various versions</description>
+          </get_version>
+          <stop_scan>
+            <attributes>
+              <scan_id>ID of scan stop.</scan_id>
+            </attributes>
+            <elements></elements>
+            <description>Stop a currently running scan.</description>
+          </stop_scan>
+          <get_scanner_details>
+            <attributes></attributes>
+            <elements></elements>
+            <description>Return scanner description and parameters</description>
+          </get_scanner_details>
+          <start_scan>
+            <attributes>
+              <scan_id>Optional UUID value to set as scan ID</scan_id>
+              <target>Target hosts to scan in a comma-separated list</target>
+              <ports>Ports list to scan as comma-separated list</ports>
+              <parallel>Optional number of parallel scans to run</parallel>
+            </attributes>
+            <elements>
+              <scanner_params>
+                <profile>Scan profile</profile>
+                <target_port>Target port</target_port>
+                <use_https>Use HTTPS</use_https>
+                <w3af_timeout>w3af scan timeout</w3af_timeout>
+              </scanner_params>
+            </elements>
+            <description>Start a new scan</description>
+          </start_scan>
+          <stop_scan>
+            <attributes>
+              <scan_id>ID of scan to stop</scan_id>
+            </attributes>
+            <description>Stop a currently running scan</description>
+          </stop_scan>
+          <get_scans>
+            <attributes>
+              <scan_id>Mandatory ID of a specific scan to get</scan_id>
+              <details>Whether to return the full scan report</details>
+              <progress>Whether to return a detailed progress information</progress>
+              <pop_results>Whether to remove the fetched results</pop_results>
+              <max_results>Maximum number of results to fetch. Only considered if pop_results is enabled. Default = None, which means that all available results are returned</max_results>
+            </attributes>
+            <elements></elements>
+            <description>List the scans in buffer</description>
+          </get_scans>
+          <get_performance>
+            <description>Return system report</description>
+            <elements/>
+            <attributes>
+              <title>Name of report.</title>
+              <start>Time of first data point in report.</start>
+              <end>Time of last data point in report.</end>
+            </attributes>
+          </get_performance>
+        </help_response>
+      </response>
+    </example>
+  </command>
+
+  <command>
+    <name>get_performance</name>
+    <summary>Return performance information from an external program</summary>
+    <pattern>
+      <attrib>
+        <name>start</name>
+        <summary>Interval start</summary>
+        <type>int</type>
+      </attrib>
+      <attrib>
+        <name>end</name>
+        <summary>Interval end</summary>
+        <type>int</type>
+      </attrib>
+      <attrib>
+        <name>titles</name>
+        <summary>Interval title to get</summary>
+        <type>text</type>
+      </attrib>
+    </pattern>
+     <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        text
+      </pattern>
+     </response>
+     <example>
+       <request>
+         <get_performance start='0' titles='mem'/>
+       </request>
+       <response>
+         <help_response status="200" status_text="OK">
+           Some output.
+         </help_response>
+       </response>
+     </example>
+
+  </command>
+  <command>
+    <name>get_scans</name>
+    <summary>Get a stored scan in buffer</summary>
+    <pattern>
+      <attrib>
+        <name>scan_id</name>
+        <summary>Scan UUID</summary>
+        <type>uuid</type>
+      </attrib>
+      <attrib>
+        <name>details</name>
+        <summary>Whether to get full scan reports</summary>
+        <type>boolean</type>
+      </attrib>
+      <attrib>
+        <name>progress</name>
+        <summary>Whether to return a detailed progress information</summary>
+        <type>boolean</type>
+      </attrib>
+      <attrib>
+        <name>pop_results</name>
+        <summary>Whether to remove the fetched results</summary>
+        <type>boolean</type>
+      </attrib>
+      <attrib>
+        <name>max_results</name>
+        <summary>Maximum number of results to fetch. Only considered if pop_results is enabled. Default = None, which means that all available results are returned</summary>
+        <type>int</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <any><e>scan</e></any>
+      </pattern>
+      <ele>
+        <name>scan</name>
+        <pattern>
+          <attrib>
+            <name>id</name>
+            <type>uuid</type>
+          </attrib>
+          <attrib>
+            <name>target</name>
+            <type>string</type>
+          </attrib>
+          <attrib>
+            <name>start_time</name>
+            <type>epoch_time</type>
+          </attrib>
+          <attrib>
+            <name>end_time</name>
+            <type>epoch_time</type>
+          </attrib>
+          <attrib>
+            <name>progress</name>
+            <type>integer</type>
+          </attrib>
+          <attrib>
+            <name>status</name>
+            <type>string</type>
+          </attrib>
+          <ele>
+            <name>results</name>
+          </ele>
+        </pattern>
+      </ele>
+    </response>
+    <example>
+      <summary>Get a scan report summary</summary>
+      <request>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="1" pop_results="0"/>
+      </request>
+      <response>
+        <get_scans_response status_text="OK" status="200">
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
+                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
+             <results>
+               <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp"
+                       test_id="" name="Path disclosure vulnerability"
+                       type="Alarm">
+                 The URL: &quot;https://192.168.1.252/&quot; has a path
+                 disclosure vulnerability which discloses "/var/www/phpinfo.php"
+                 ...
+               </result>
+               ...
+             </results>
+           </scan>
+        </get_scans_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get a scan report summary</summary>
+      <request>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="1" pop_results="1" max_results="1"/>
+      </request>
+      <response>
+        <get_scans_response status_text="OK" status="200">
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
+                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
+             <results>
+               <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp"
+                       test_id="" name="Path disclosure vulnerability"
+                       type="Alarm">
+                 The URL: &quot;https://192.168.1.252/&quot; has a path
+                 disclosure vulnerability which discloses "/var/www/phpinfo.php"
+                 ...
+               </result>
+             </results>
+           </scan>
+        </get_scans_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get a scan progress summary</summary>
+      <request>
+        <get_scans scan_id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" details="0" progress="1"/>
+      </request>
+      <response>
+        <get_scans_response status="200" status_text="OK">
+            <scan end_time="0" id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" progress="17" start_time="1592316467" status="running" target="192.168.56.100, 127.0.0.1">
+                <progress>
+                    <host name="127.0.0.1">2</host>
+                    <host name="192.168.56.100">32</host>
+                    <overall>17</overall>
+                    <count_alive>0</count_alive>
+                    <count_dead>0</count_dead>
+                    <count_excluded>0</count_excluded>
+                    <count_total>2</count_total>
+                </progress>
+            </scan>
+        </get_scans_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>delete_scan</name>
+    <summary>Delete a finished scan</summary>
+    <pattern>
+      <attrib>
+        <name>scan_id</name>
+        <summary>Scan UUID</summary>
+        <type>uuid</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
+    </response>
+    <example>
+      <summary>Delete a scan successfully</summary>
+      <request>
+        <delete_scan scan_id="013587e3-b4d7-8e79-9ebb-90a2133c338c"/>
+      </request>
+      <response>
+        <delete_scan_response status_text="OK" status="200"></delete_scan_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>get_version</name>
+    <summary>Return various versions</summary>
+    <pattern/>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>protocol</e>
+        <e>daemon</e>
+        <e>scanner</e>
+      </pattern>
+      <ele>
+        <name>protocol</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+      </ele>
+      <ele>
+        <name>daemon</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+      </ele>
+      <ele>
+        <name>scanner</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Get protocol, scanner and daemon versions</summary>
+      <request>
+        <get_version/>
+      </request>
+      <response>
+        <get_version_response status_text="OK" status="200">
+          <protocol>
+            <version>1.0</version>
+            <name>OSP</name>
+          </protocol>
+          <daemon>
+            <version>generic version</version>
+            <name>generic ospd</name>
+          </daemon>
+          <scanner>
+            <version>1.6.0.4</version>
+            <name>w3af</name>
+          </scanner>
+        </get_version_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>get_scanner_details</name>
+    <summary>Return scanner description and parameters</summary>
+    <pattern>
+      <attrib>
+        <name>list_all</name>
+        <summary>List all available scanner parameters. Not only those visible to the client.</summary>
+        <type>boolean</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>description</e>
+        <e>scanner_params</e>
+      </pattern>
+      <ele>
+        <name>description</name>
+        <pattern></pattern>
+      </ele>
+      <ele>
+        <name>scanner_params</name>
+        <pattern>
+          <any><e>scanner_param</e></any>
+        </pattern>
+        <ele>
+          <name>scanner_param</name>
+          <pattern>
+            <attrib>
+              <name>id</name>
+              <type>string</type>
+            </attrib>
+            <attrib>
+              <name>type</name>
+              <type>string</type>
+            </attrib>
+            <e>name</e>
+            <e>description</e>
+            <e>default</e>
+            <e>mandatory</e>
+          </pattern>
+          <ele>
+            <name>name</name>
+          </ele>
+          <ele>
+            <name>description</name>
+          </ele>
+          <ele>
+            <name>default</name>
+          </ele>
+          <ele>
+            <name>mandatory</name>
+          </ele>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Get scanner details</summary>
+      <request>
+        <get_scanner_details/>
+      </request>
+      <response>
+        <get_scanner_details_response status_text="OK" status="200">
+          <description>
+            ...
+          </description>
+          <scanner_params>
+            <scanner_param id="profile" type="selection">
+              <name>Scan profile</name>
+              <description>Scan profiles are predefined set of plugins and customized configurations.</description>
+              <default>fast_scan|fast_scan|audit_high_risk|full_audit|OWASP_TOP10|bruteforce|empty_profile|web_infrastructure|full_audit_spider_man|sitemap</default>
+            </scanner_param>
+            <scanner_param id="http_request_status" type="boolean">
+              <name>Show HTTP request status</name>
+              <description>Whether to show the HTTP request&apos;s status in results</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="dry_run" type="boolean">
+              <name>Dry Run</name>
+              <description>Whether to dry run scan.</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="http_request_headers" type="boolean">
+              <name>Show HTTP request headers</name>
+              <description>Whether to show the HTTP request&apos;s headers in results</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="http_response_status" type="boolean">
+              <name>Show HTTP response status</name>
+              <description>Whether to show the HTTP response&apos;s status in results</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="seed_path" type="string">
+              <name>Seed path</name>
+              <description>Path to start with</description>
+              <default>/</default>
+            </scanner_param>
+            <scanner_param id="debug_mode" type="boolean">
+              <name>Debug Mode</name>
+              <description>Whether to get extra scan debug information.</description>
+              <default>0</default>
+            </scanner_param>
+            <scanner_param id="target_port" type="integer">
+              <name>Target port</name>
+              <description>Port on target host to scan</description>
+              <default>80</default>
+            </scanner_param>
+            <scanner_param id="use_https" type="boolean">
+              <name>Use HTTPS</name>
+              <description>Whether the target application is running over HTTPS</description>
+              <default>0</default>
+            </scanner_param>
+          </scanner_params>
+        </get_scanner_details_response>
+      </response>
+    </example>
+  </command>
+
+  <command>
+    <name>get_vts</name>
+    <summary>Return information about vulnerability tests, if offered by scanner</summary>
+    <pattern>
+      <attrib>
+        <name>vt_id</name>
+        <summary>Identifier for vulnerability test</summary>
+        <type>vt_id</type>
+      </attrib>
+      <attrib>
+        <name>filter</name>
+        <summary>Filter to get a sub group of a VT collection</summary>
+        <type>string</type>
+      </attrib>
+      <attrib>
+        <name>details</name>
+        <summary>Return more details about vulnerability tests, if offered by the scanner</summary>
+        <type>string</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>vts</e>
+      </pattern>
+      <ele>
+        <name>vts</name>
+        <pattern>
+          <any><e>vt</e></any>
+        </pattern>
+        <ele>
+          <name>vt</name>
+          <pattern>
+            <attrib>
+              <name>id</name>
+              <type>vt_id</type>
+            </attrib>
+            <e>name</e>
+            <e>creation_time</e>
+            <e>modification_time</e>
+            <e>params</e>
+            <e>refs</e>
+            <e>dependencies</e>
+            <e>summary</e>
+            <e>impact</e>
+            <e>affected</e>
+            <e>insight</e>
+            <e>solution</e>
+            <e>detection</e>
+            <e>severities</e>
+            <e>custom</e>
+          </pattern>
+          <ele>
+            <name>name</name>
+          </ele>
+          <ele>
+            <creation_time>creation_time</creation_time>
+          </ele>
+          <ele>
+            <modification_time>modification_time</modification_time>
+          </ele>
+          <ele>
+            <name>params</name>
+            <pattern>
+              <e>param</e>
+            </pattern>
+            <ele>
+              <name>param</name>
+              <pattern>
+                <attrib>
+                    <name>type</name>
+                    <type>string</type>
+                </attrib>
+                <attrib>
+                  <name>id</name>
+                  <type>string</type>
+                </attrib>
+              </pattern>
+            </ele>
+          </ele>
+          <ele>
+            <name>refs</name>
+            <pattern>
+              <e>ref</e>
+            </pattern>
+            <ele>
+              <name>ref</name>
+              <pattern>
+                <attrib>
+                    <name>type</name>
+                    <type>string</type>
+                </attrib>
+                <attrib>
+                  <name>id</name>
+                  <type>string</type>
+                </attrib>
+              </pattern>
+            </ele>
+          </ele>
+          <ele>
+            <name>dependencies</name>
+            <pattern>
+              <e>dependency</e>
+            </pattern>
+            <ele>
+              <name>dependency</name>
+              <pattern>
+                <attrib>
+                  <name>vt_id</name>
+                  <type>vt_id</type>
+                </attrib>
+              </pattern>
+            </ele>
+          </ele>
+          <ele>
+            <name>summary</name>
+          </ele>
+          <ele>
+            <name>impact</name>
+          </ele>
+          <ele>
+            <name>affected</name>
+          </ele>
+          <ele>
+            <name>insight</name>
+          </ele>
+          <ele>
+            <name>solution</name>
+            <pattern>
+              <attrib>
+                <name>type</name>
+                  <summary>Solution type, for example "VendorFix"</summary>
+                <type>string</type>
+              </attrib>
+              <attrib>
+                <name>method</name>
+                  <summary>Solution method, for example "DebianAPTUpgrade"</summary>
+                <type>string</type>
+              </attrib>
+            </pattern>
+          </ele>
+          <ele>
+            <name>detection</name>
+          </ele>
+          <ele>
+            <name>severities</name>
+            <pattern>
+              <any><e>severity</e></any>
+            </pattern>
+            <ele>
+              <name>severity</name>
+              <pattern>
+                <attrib>
+                  <name>type</name>
+                  <type>string</type>
+                </attrib>
+                <e>origin</e>
+                <e>date</e>
+                <e>value</e>
+              </pattern>
+              <ele>
+                <name>origin</name>
+                <summary>Optional reference to the origin of the severity</summary>
+                <type>string</type>
+              </ele>
+              <ele>
+                <name>date</name>
+                <summary>Optional timestamp in seconds since epoch. Defaults to VT creation date</summary>
+                <type>string</type>
+              </ele>
+              <ele>
+                <name>value</name>
+                <summary>The actual value, the format must correspond with the type</summary>
+                <type>string</type>
+              </ele>
+            </ele>
+          </ele>
+          <ele>
+            <name>custom</name>
+          </ele>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Get information for all available vulnerability tests</summary>
+      <request>
+        <get_vts/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts total="10">
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerability X</name>
+            </vt>
+            <vt id="ad45h67">
+              <name>Check for presence of vulnerability Y</name>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a single vulnerability test</summary>
+      <request>
+        <get_vts vt_id='1.2.3.4.5'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts total="10">
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerability X</name>
+              <refs>
+                <ref id="2014-16494" type="fedora" />
+                <ref id="https://lists.fedoraproject.org/" type="url" />
+                <ref id="CVE-2014-9116" type="cve" />
+              </refs>
+              <dependencies>
+                <dependency vt_id="1.3.6.1.4.1.25623.1.0.50282" />
+              </dependencies>
+              <creation_time>1200603949</creation_time>
+              <modification_time>1567429142</modification_time>
+              <summary>Check the version of App</summary>
+              <affected>App in OS v2</affected>
+              <insight>App is a small but very powerful app.</insight>
+              <solution type="VendorFix">Please Install the Updated Packages.
+              </solution>
+              <detection qod_type="package">Get the installed version with the help of detect NVT and check if the version is vulnerable or not.</detection>
+              <severities>
+                <severity type="cvss_base_v2">
+                  <origin>CVE-2014-9116</origin>
+                  <date>1200603949</date>
+                  <value>AV:N/AC:L/Au:N/C:N/I:N/A:P</value>
+                </severity>
+              </severities>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a filtered collection of vulnerability test without details</summary>
+      <request>
+        <get_vts filter='modification_time&gt;201903150834;modification_time&lt;201903150835' details='0'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts total="10" sent="1">
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerability X</name>
+              <refs>
+                <ref id="2014-16494" type="fedora" />
+                <ref id="https://lists.fedoraproject.org/" type="url" />
+                <ref id="CVE-2014-9116" type="cve" />
+              </refs>
+              <creation_time>1200603949</creation_time>
+              <modification_time>1567429142</modification_time>
+              <summary>Check the version of App</summary>
+              <affected>App in OS v2</affected>
+              <insight>App is a small but very powerful app.</insight>
+              <solution type="VendorFix">Please Install the Updated Packages.
+              </solution>
+              <detection qod_type="package">Get the installed version with the help of detect NVT and check if the version is vulnerable or not.</detection>
+              <severities>
+                <severity type="cvss_base_v2">
+                  <origin>CVE-2014-9116</origin>
+                  <date>1200603949</date>
+                  <value>AV:N/AC:L/Au:N/C:N/I:N/A:P</value>
+                </severity>
+              </severities>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a vulnerability test with custom data</summary>
+      <request>
+        <get_vts vt_id='1.2.3.4.5'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts total="10">
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerability X</name>
+              <custom>
+                <my_element>First custom element</my_element>
+                <my_other_element>second custom element</my_other_element>
+              </custom>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+    <example>
+      <summary>Get information for a vulnerability test with VT parameters data</summary>
+      <request>
+        <get_vts vt_id='1.2.3.4.5'/>
+      </request>
+      <response>
+        <get_vts_response status_text="OK" status="200">
+          <vts total="10">
+            <vt id="1.2.3.4.5">
+              <name>Check for presence of vulnerability X</name>
+              <params>
+                <param id="timeout" type="integer">
+                  <name>Timeout</name>
+                  <description>Vulnerability Test Timeout</description>
+                  <default>300</default>
+                </param>
+                <param id="scan.udp" type="boolean">
+                  <name>Scan UDP</name>
+                  <description />
+                  <default>1</default>
+                </param>
+              </params>
+              <refs>
+                <ref type="cve" id="CVE-2010-4480"/>
+                <ref type="url" id="http://www.exploit-db.com/exploits/15699/"/>
+                <ref type="url" id="http://www.vupen.com/english/advisories/2010/3133"/>
+              </refs>
+              <custom>
+                <my_element>First custom element</my_element>
+                <my_other_element>second custom element</my_other_element>
+              </custom>
+            </vt>
+          </vts>
+        </get_vts_response>
+      </response>
+    </example>
+  </command>
+
+  <command>
+    <name>start_scan</name>
+    <summary>Start a new scan</summary>
+    <pattern>
+      <attrib>
+        <name>target</name>
+        <summary>Target hosts to scan in a comma-separated list</summary>
+        <type>string</type>
+      </attrib>
+      <attrib>
+        <name>ports</name>
+        <summary>Ports list to scan as comma-separated list</summary>
+        <type>string</type>
+      </attrib>
+      <attrib>
+        <name>scan_id</name>
+        <summary>Optional UUID value to use as scan ID</summary>
+        <type>uuid</type>
+      </attrib>
+      <attrib>
+        <name>parallel</name>
+        <summary>Optional number of parallel scan to run </summary>
+        <type>integer</type>
+      </attrib>
+      <e>scanner_params</e>
+      <e>vt_selection</e>
+      <e>targets</e>
+    </pattern>
+    <ele>
+      <name>scanner_params</name>
+      <summary>Contains elements that represent scanner specific parameters</summary>
+    </ele>
+    <ele>
+      <name>vt_selection</name>
+      <summary>Contains elements that represent a Vulnerability Test or a collection of Vulnerability Tests to be executed and their parameters</summary>
+    </ele>
+    <ele>
+      <name>targets</name>
+      <summary>Contains elements that represent a target to execute a scan against. If target and port attributes are present this element is not take into account</summary>
+    </ele>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>id</e>
+      </pattern>
+      <ele>
+        <name>id</name>
+        <summary>New scan's UUID</summary>
+      </ele>
+    </response>
+    <example>
+      <summary>Start a new scan. Legacy mode</summary>
+      <request>
+        <start_scan target='localhost' ports='80, 443'>
+          <scanner_params>
+            <target_port>443</target_port>
+            <use_https>1</use_https>
+            <profile>fast_scan</profile>
+          </scanner_params>
+        </start_scan>
+      </request>
+      <response>
+        <start_scan_response status_text="OK" status="200">
+          <id>2f616d53-595f-4785-9b97-4395116ca118</id>
+        </start_scan_response>
+      </response>
+    </example>
+    <example>
+      <summary>Start a new scan with multi-targets running simultaneously. Each one has a different port list and one of them has credentials for authenticated scans.</summary>
+      <request>
+        <start_scan parallel='10'>
+          <scanner_params>
+            ...
+          </scanner_params>
+          <vt_selection>
+            ....
+          </vt_selection>
+          <targets>
+            <target>
+              ...
+            </target>
+            <target>
+              <hosts>192.168.1.0/24</hosts>
+              <ports>1,2,3,80,443</ports>
+              <credentials>
+                ...
+              </credentials>
+              <exclude_hosts>192.168.1.10-15</exclude_hosts>
+              <finished_hosts>192.168.1.1-3</finished_hosts>
+            </target>
+          </targets>
+        </start_scan>
+      </request>
+      <response>
+        <start_scan_response status_text="OK" status="200">
+          <id>2f616d53-595f-4785-9b97-4395116ca118</id>
+        </start_scan_response>
+      </response>
+    </example>
+  </command>
+
+  <command>
+    <name>stop_scan</name>
+    <summary>Stop a currently running scan</summary>
+    <pattern>
+      <attrib>
+        <name>scan_id</name>
+        <summary>ID of scan to stop</summary>
+        <type>uuid</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
+    </response>
+    <example>
+      <summary>Stop a scan</summary>
+      <request>
+        <stop_scan scan_id='6ec1732c-10e8-448c-90fb-7797ad47ada2'>
+        </stop_scan>
+      </request>
+      <response>
+        <stop_scan_response status_text="OK" status="200">
+        </stop_scan_response>
+      </response>
+    </example>
+  </command>
+
+  <command>
+    <name>get_memory_usage</name>
+    <summary>Return memory usage information of the osp daemon</summary>
+    <pattern>
+      <attrib>
+        <name>unit</name>
+        <summary>Size unit for the memory. b for bytes, kb for kilobytes and mb for megabytes.</summary>
+        <type>text</type>
+      </attrib>
+    </pattern>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+      </pattern>
+      <ele>
+        <name>processes</name>
+        <summary>List of running processes</summary>
+        <ele>
+          <name>process</name>
+          <summary>Single running processes</summary>
+          <pattern>
+            <attrib>
+              <name>name</name>
+              <summary>Name of the process</summary>
+              <type>string</type>
+            </attrib>
+            <attrib>
+              <name>pid</name>
+              <summary>Process ID</summary>
+              <type>int</type>
+            </attrib>
+          </pattern>
+          <ele>
+            <name>rss</name>
+            <description>Resident Set Size. Non-swapped physical memory of the process</description>
+            <type>int</type>
+          </ele>
+          <ele>
+            <name>vms</name>
+            <description>Virtual Memory Size. Total amount of virtual memory used by the process.</description>
+            <type>int</type>
+          </ele>
+          <ele>
+            <name>shared</name>
+            <description>Memory shared with other processes</description>
+            <type>int</type>
+          </ele>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <request>
+        <get_memory_usage unit="kb"/>
+      </request>
+      <response>
+        <get_memory_usage status="200" status_text="OK">
+          <processes>
+            <process name="MainProcess" pid="12345">
+              <rss>127182</rss>
+              <vss>239616</vss>
+              <shared>135168</shared>
+            </process>
+            <process name="Process-1" pid="23456">
+            ...
+            </process>
+          </processes>
+        </get_memory_usage>
+      </response>
+    </example>
+  </command>
+
+  <parameter_type>
+    <name>integer</name>
+    <summary>An integer value</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>string</name>
+    <summary>A string</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>boolean</name>
+    <summary>0 or 1</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>selection</name>
+    <summary>A value out of the | separated values list</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>credential_up</name>
+    <summary>The username:password of a credential</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>file</name>
+    <summary>A file's content</summary>
+  </parameter_type>
+  <parameter_type>
+    <name>ovaldef_file</name>
+    <summary>An ovaldef file's content that is base64 encoded</summary>
+  </parameter_type>
+
+  <change>
+    <command>START_SCAN</command>
+    <summary>Add support for dedicated port list for alive detection</summary>
+    <description>Target element received new target option alive_test_ports.
+    </description>
+    <version>21.04</version>
+  </change>
+
+  <change>
+    <command>START_SCAN</command>
+    <summary>Add support for supplying alive test methods via separate elements.</summary>
+    <description>Target element received new optional target option alive_test_methods with subelements imcp, tcp_ack, tcp_syn, arp and consider_alive.
+    </description>
+    <version>21.04</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Returned object changes and extends severity information</summary>
+    <description>
+      The element SEVERITY inside SEVERITIES of the returned VT moves the origin and the value
+      into explicit elements ORIGIN and VALUE. Furthremore the element DATE is added.
+    </description>
+    <version>21.04</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Returned object extended with solution method</summary>
+    <description>
+      The element SOLUTION of the returned VT object has a new optional attribute METHOD
+      that describes the solution method in case the VT offers such a detail.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Returned object extended with amount of VTS</summary>
+    <description>
+      The main element vts has the new TOTAL attribute with the amount of vts in the collection and the new optional SENT attribute with the amount of vts which matched a given filter.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Add attribute DETAILS</summary>
+    <description>
+      The new attribute DETAILS allows to get more details about a vulnerability test if the scanner support it. By default is set True, and for a lighter response must be explicitly set to False.
+    </description>
+    <version>20.08</version>
+  </change>
+
+    <change>
+    <command>GET_VTS</command>
+    <summary>Add attribute SHA256_HASH</summary>
+    <description>
+      The new attribute SHA256_HASH is calculated from the vulnerability test OID, modification time and VT preferences, sorted by OID. The new attribute is helpful for feed integrity check.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>Add attribute VTS_VERSION</summary>
+    <description>
+      The feed version is included in the get_vts command response.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>START_SCAN</command>
+    <summary>Add support for target options</summary>
+    <description>Target element receive new target options reverse_lookup_only, reverse_lookup_unify and alive_test.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_SCANS</command>
+    <summary>Add scan progress details</summary>
+    <description>New attribute PROGRESS to specify whether to return a detailed progress information.
+    </description>
+    <version>20.08</version>
+  </change>
+
+  <change>
+    <command>GET_VTS</command>
+    <summary>command added</summary>
+    <description>
+      Added new command to retrieve information about vulnerability tests a scanner might offer.
+    </description>
+    <version>1.2</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>vts optional element added </summary>
+    <description>
+      Added optional element vts to allow the client to specify a vts list
+      to use for the scan and their parameters.
+    </description>
+    <version>1.2</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>target optional element added </summary>
+    <description>
+      Added optional element targets to specify different hosts with a different port list and credentials. This is take in account only if target and port attributes are not present in start_scan tag.
+    </description>
+    <version>1.2</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary> parallel attribute added </summary>
+    <description>
+      Added optional attribute parallel to specify the number of simultaneous scans to be run.
+    </description>
+    <version>1.2</version>
+  </change>
+
+  <change>
+    <command>STOP_SCAN</command>
+    <summary>command added</summary>
+    <description>
+      Added new command to stop a currently running scan.
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>scan_id attribute added</summary>
+    <description>
+      <p>
+        The scan_id attribute was added to allow the client to specify a UUID as
+        the ID of the scan.
+      </p>
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>START_SCAN</command>
+    <summary>ports attribute added</summary>
+    <description>
+      The ports attribute was added to allow the client to specify a ports list
+      to use for the scan.
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>Scanner Parameters Types</command>
+    <summary>Type credential_up added</summary>
+    <description>
+      Introduce an aggregated type to express a username:password tuple.
+    </description>
+    <version>1.1</version>
+  </change>
+  <change>
+    <command>GET_PERFORMANCE</command>
+    <summary>Command added</summary>
+    <description>
+      Added new command to get performance from an external program.
+    </description>
+    <version>1.2</version>
+  </change>
+
+</protocol>
