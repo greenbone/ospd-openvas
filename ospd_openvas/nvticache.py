@@ -97,7 +97,7 @@ class NVTICache(BaseDB):
                 yield (f, oid)
         if self.ctx:
             for f, oid in OpenvasDB.get_filenames_and_oids(self.ctx):
-                if not self.notus or not self.notus.cache.get(oid):
+                if not self.notus or not self.notus.exists(oid):
                     yield (f, oid)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:

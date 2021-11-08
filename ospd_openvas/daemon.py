@@ -433,7 +433,7 @@ class OSPDopenvas(OSPDaemon):
         """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
         notus_dir = kwargs.get('notus_feed_dir')
-        notus = Notus(notus_dir) if notus_dir else None
+        notus = Notus(notus_dir, self.main_db.ctx) if notus_dir else None
 
         self.nvti = NVTICache(
             self.main_db,

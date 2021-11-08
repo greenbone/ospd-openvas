@@ -34,12 +34,14 @@ class VtHelper:
         self.nvti = nvticache
 
     def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, Any]]:
+        nr = None
         if self.nvti.notus:
             nr = self.nvti.notus.get_nvt_metadata(vt_id)
-            if nr:
-                return nr
 
-        custom = self.nvti.get_nvt_metadata(vt_id)
+        if nr:
+            custom = nr
+        else:
+            custom = self.nvti.get_nvt_metadata(vt_id)
 
         if not custom:
             return None
@@ -101,6 +103,7 @@ class VtHelper:
             qod_v = custom.pop('qod')
 
         severity = dict()
+
         if 'severity_vector' in custom:
             severity_vector = custom.pop('severity_vector')
         else:
