@@ -89,8 +89,7 @@ class NVTICache(BaseDB):
         """Get the list of NVT file names and OIDs.
 
         Returns:
-            A i. Each single list contains the filename
-            as first element and the oid as second one.
+            An iterable of tuples of file name and oid.
         """
         if self.notus:
             for f, oid in self.notus.get_filenames_and_oids():
