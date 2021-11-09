@@ -81,9 +81,10 @@ class Notus:
         result["insight"] = advisory.get("insight")
         result['solution'] = "Please install the updated package(s)."
         result['solution_type'] = "VendorFix"
-        result[
-            'vuldetect'
-        ] = 'Checks if a vulnerable package version is present on the target host.'
+        result['vuldetect'] = (
+            'Checks if a vulnerable package version is present on the target'
+            ' host.'
+        )
         result['qod_type'] = 'package'
         severity = advisory.get('severity', {})
         result["severity_vector"] = severity.get(
