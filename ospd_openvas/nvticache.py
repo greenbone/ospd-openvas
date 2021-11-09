@@ -58,7 +58,7 @@ class NVTICache(BaseDB):
     }
 
     def __init__(  # pylint: disable=super-init-not-called
-        self, main_db: MainDB, notus: Optional[Notus]
+        self, main_db: MainDB, notus: Optional[Notus] = None
     ):
         self._ctx = None
         self.index = None
