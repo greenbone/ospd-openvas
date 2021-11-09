@@ -46,7 +46,7 @@ class Cache:
 
     def get_keys(self) -> Iterator[str]:
         for key in self.db.scan_iter(f"{self.__prefix}*"):
-            yield str(key).split('/')[-1]
+            yield str(key).rsplit('/', maxsplit=1)[-1]
 
 
 class Notus:
