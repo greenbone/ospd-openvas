@@ -51,6 +51,7 @@ lxml = "^4.5.2"
 defusedxml = ">=0.6,<0.8"
 paramiko = "^2.7.1"
 deprecated = "^1.2.10"
+paho-mqtt = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.11.1"
