@@ -23,4 +23,4 @@ COPY dist/* /ospd-openvas
 RUN python3 -m pip install /ospd-openvas/*
 
 ENTRYPOINT ["ospd-openvas"]
-CMD ["-c", "etc/gvm/ospd.conf"]
+CMD ["-c", "/etc/gvm/ospd.conf"]
