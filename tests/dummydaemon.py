@@ -44,7 +44,7 @@ class DummyDaemon(OSPDopenvas):
                 'required_ports': 'Services/www, 80',
                 'timeout': '0',
             },
-            'modification_time': ('1533906565'),
+            'modification_time': '1533906565',
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'insight': 'some insight',
@@ -73,7 +73,10 @@ class DummyDaemon(OSPDopenvas):
                     'id': '2',
                     'default': 'no',
                     'description': 'Description',
-                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'name': (
+                        'Do not randomize the  order  in  which ports are'
+                        ' scanned'
+                    ),
                     'type': 'checkbox',
                 },
             },
@@ -94,6 +97,7 @@ class DummyDaemon(OSPDopenvas):
         assert NvtiClass
         nvti = NvtiClass.return_value
         oids = [['mantis_detect.nasl', '1.3.6.1.4.1.25623.1.0.100061']]
+        nvti.notus = None
         nvti.get_oids.return_value = oids
         nvti.get_nvt_params.return_value = {
             '1': {
@@ -107,7 +111,9 @@ class DummyDaemon(OSPDopenvas):
                 'id': '2',
                 'default': 'no',
                 'description': 'Description',
-                'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                'name': (
+                    'Do not randomize the  order  in  which ports are scanned'
+                ),
                 'type': 'checkbox',
             },
         }
@@ -123,7 +129,7 @@ class DummyDaemon(OSPDopenvas):
             'excluded_keys': 'Settings/disable_cgi_scanning',
             'family': 'Product detection',
             'filename': 'mantis_detect.nasl',
-            'last_modification': ('1533906565'),
+            'last_modification': '1533906565',
             'name': 'Mantis Detection',
             'qod_type': 'remote_banner',
             'required_ports': 'Services/www, 80',
@@ -132,7 +138,7 @@ class DummyDaemon(OSPDopenvas):
             'solution_method': 'DebianAPTUpgrade',
             'impact': 'some impact',
             'insight': 'some insight',
-            'summary': ('some summary'),
+            'summary': 'some summary',
             'affected': 'some affection',
             'timeout': '0',
             'vt_params': {
@@ -147,7 +153,10 @@ class DummyDaemon(OSPDopenvas):
                     'id': '2',
                     'default': 'no',
                     'description': 'Description',
-                    'name': 'Do not randomize the  order  in  which ports are scanned',  # pylint: disable=line-too-long
+                    'name': (
+                        'Do not randomize the  order  in  which ports are'
+                        ' scanned'
+                    ),
                     'type': 'checkbox',
                 },
             },
@@ -159,15 +168,14 @@ class DummyDaemon(OSPDopenvas):
         }
         nvti.get_feed_version.return_value = '123'
 
-        super().__init__(niceness=10, lock_file_dir='/tmp')
+        super().__init__(
+            niceness=10, lock_file_dir='/tmp', mqtt_broker_address=""
+        )
 
         self.scan_collection.data_manager = FakeDataManager()
 
     def create_xml_target(self) -> et.Element:
         target = et.fromstring(
-            "<target>"
-            "<hosts>192.168.0.1</hosts>"
-            "<ports>80,443</ports>"
-            "</target>"
+            "<target><hosts>192.168.0.1</hosts><ports>80,443</ports></target>"
         )
         return target

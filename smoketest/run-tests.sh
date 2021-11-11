@@ -11,5 +11,5 @@ trap shutdown EXIT
 
 sudo redis-server /etc/redis/redis.conf
 ospd-openvas -u /var/run/ospd/ospd.sock -l /var/log/gvm/ospd.log
-cd /usr/local/src/it
+cd /usr/local/src/ospd-openvas/smoketest
 go test ./...

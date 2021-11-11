@@ -22,11 +22,13 @@
 """ Setup for the OSP OpenVAS Server. """
 
 import logging
+
 import time
 import copy
 
 from typing import Optional, Dict, List, Tuple, Iterator
 from datetime import datetime
+from socket import gaierror
 
 from pathlib import Path
 from os import geteuid, environ
@@ -44,13 +46,16 @@ from ospd.resultlist import ResultList
 from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
+from ospd_openvas.notus import Notus, NotusParser, NotusResultHandler
 from ospd_openvas.dryrun import DryRun
+from ospd_openvas.messages.result import ResultMessage
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.vthelper import VtHelper
+from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
 
 SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
@@ -425,11 +430,23 @@ class OSPDopenvas(OSPDaemon):
     """Class for ospd-openvas daemon."""
 
     def __init__(
-        self, *, niceness=None, lock_file_dir='/var/lib/openvas', **kwargs
+        self,
+        *,
+        niceness=None,
+        lock_file_dir='/var/lib/openvas',
+        mqtt_broker_address="localhost",
+        mqtt_broker_port=1883,
+        **kwargs,
     ):
         """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
-        self.nvti = NVTICache(self.main_db)
+        notus_dir = kwargs.get('notus_feed_dir')
+        notus = Notus(notus_dir, self.main_db.ctx) if notus_dir else None
+
+        self.nvti = NVTICache(
+            self.main_db,
+            notus,
+        )
 
         super().__init__(
             customvtfilter=OpenVasVtsFilter(self.nvti),
@@ -455,6 +472,48 @@ class OSPDopenvas(OSPDaemon):
         self._is_running_as_root = None
 
         self.scan_only_params = dict()
+
+        notus_handler = NotusResultHandler(self.report_notus_results)
+
+        if mqtt_broker_address:
+            try:
+                client = MQTTClient(
+                    mqtt_broker_address, mqtt_broker_port, "ospd"
+                )
+                daemon = MQTTDaemon(client)
+                subscriber = MQTTSubscriber(client)
+
+                subscriber.subscribe(
+                    ResultMessage, notus_handler.result_handler
+                )
+                daemon.run()
+            except ConnectionRefusedError as e:
+                logger.error(
+                    "Could not connect to MQTT broker at %s. %s. Unable to get"
+                    " results from Notus.",
+                    e,
+                    mqtt_broker_address,
+                )
+            except gaierror as e:
+                logger.error(
+                    "Could not connect to MQTT broker at %s. %s. Unable to get"
+                    " results from Notus.",
+                    mqtt_broker_address,
+                    e,
+                )
+            except ValueError as e:
+                logger.error(
+                    "Could not connect to MQTT broker at %s. %s Unable to get"
+                    " results from Notus.",
+                    mqtt_broker_address,
+                    e,
+                )
+
+        else:
+            logger.info(
+                "MQTT Broker Adress empty. MQTT disabled. Unable to get Notus"
+                " results."
+            )
 
     def init(self, server: BaseServer) -> None:
 
@@ -980,36 +1039,63 @@ class OSPDopenvas(OSPDaemon):
 
         self.sort_host_finished(scan_id, finished_hosts)
 
+    def report_notus_results(self, results: list, scan_id: str) -> bool:
+        return self.report_results(results, scan_id)
+
     def report_openvas_results(self, db: BaseDB, scan_id: str) -> bool:
+        """Get all result entries from redis kb."""
+
+        # result_type|||host ip|||hostname|||port|||OID|||value[|||uri]
+        all_results = db.get_result()
+        results = []
+        for res in all_results:
+            if not res:
+                continue
+            msg = res.split('|||')
+            result = {
+                "result_type": msg[0],
+                "host_ip": msg[1],
+                "host_name": msg[2],
+                "port": msg[3],
+                "oid": msg[4],
+                "value": msg[5],
+            }
+            if len(msg) > 6:
+                result["uri"] = msg[6]
+
+            results.append(result)
+
+        return self.report_results(results, scan_id)
+
+    def report_results(self, results: list, scan_id: str) -> bool:
         """Get all result entries from redis kb."""
 
         vthelper = VtHelper(self.nvti)
 
-        # Result messages come in the next form, with optional uri field
-        # type ||| host ip ||| hostname ||| port ||| OID ||| value [|||uri]
-        all_results = db.get_result()
         res_list = ResultList()
         total_dead = 0
-        for res in all_results:
+        for res in results:
             if not res:
                 continue
 
-            msg = res.split('|||')
-            roid = msg[4].strip()
+            roid = res["oid"].strip()
             rqod = ''
             rname = ''
-            current_host = msg[1].strip() if msg[1] else ''
-            rhostname = msg[2].strip() if msg[2] else ''
-            host_is_dead = "Host dead" in msg[5] or msg[0] == "DEADHOST"
-            host_deny = "Host access denied" in msg[5]
-            start_end_msg = msg[0] == "HOST_START" or msg[0] == "HOST_END"
-            host_count = msg[0] == "HOSTS_COUNT"
+            current_host = res["host_ip"].strip() if res["host_ip"] else ''
+            rhostname = res["host_name"].strip() if res["host_name"] else ''
+            host_is_dead = (
+                "Host dead" in res["value"] or res["result_type"] == "DEADHOST"
+            )
+            host_deny = "Host access denied" in res["value"]
+            start_end_msg = (
+                res["result_type"] == "HOST_START"
+                or res["result_type"] == "HOST_END"
+            )
+            host_count = res["result_type"] == "HOSTS_COUNT"
             vt_aux = None
 
-            # URI is optional and msg list length must be checked
-            ruri = ''
-            if len(msg) > 6:
-                ruri = msg[6]
+            # URI is optional and containing must be checked
+            ruri = res["uri"] if "uri" in res else ""
 
             if (
                 roid
@@ -1038,53 +1124,56 @@ class OSPDopenvas(OSPDaemon):
 
                 rname = vt_aux.get('name')
 
-            if msg[0] == 'ERRMSG':
+            if res["result_type"] == 'ERRMSG':
                 res_list.add_scan_error_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
-                    port=msg[3],
+                    value=res["value"],
+                    port=res["port"],
                     test_id=roid,
                     uri=ruri,
                 )
 
-            elif msg[0] == 'HOST_START' or msg[0] == 'HOST_END':
+            elif (
+                res["result_type"] == 'HOST_START'
+                or res["result_type"] == 'HOST_END'
+            ):
                 res_list.add_scan_log_to_list(
                     host=current_host,
-                    name=msg[0],
-                    value=msg[5],
+                    name=res["result_type"],
+                    value=res["value"],
                 )
 
-            elif msg[0] == 'LOG':
+            elif res["result_type"] == 'LOG':
                 res_list.add_scan_log_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
-                    port=msg[3],
+                    value=res["value"],
+                    port=res["port"],
                     qod=rqod,
                     test_id=roid,
                     uri=ruri,
                 )
 
-            elif msg[0] == 'HOST_DETAIL':
+            elif res["result_type"] == 'HOST_DETAIL':
                 res_list.add_scan_host_detail_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
+                    value=res["value"],
                     uri=ruri,
                 )
 
-            elif msg[0] == 'ALARM':
+            elif res["result_type"] == 'ALARM':
                 rseverity = vthelper.get_severity_score(vt_aux)
                 res_list.add_scan_alarm_to_list(
                     host=current_host,
                     hostname=rhostname,
                     name=rname,
-                    value=msg[5],
-                    port=msg[3],
+                    value=res["value"],
+                    port=res["port"],
                     test_id=roid,
                     severity=rseverity,
                     qod=rqod,
@@ -1093,16 +1182,16 @@ class OSPDopenvas(OSPDaemon):
 
             # To process non-scanned dead hosts when
             # test_alive_host_only in openvas is enable
-            elif msg[0] == 'DEADHOST':
+            elif res["result_type"] == 'DEADHOST':
                 try:
-                    total_dead = total_dead + int(msg[5])
+                    total_dead = total_dead + int(res["value"])
                 except TypeError:
                     logger.debug('Error processing dead host count')
 
             # To update total host count
-            if msg[0] == 'HOSTS_COUNT':
+            if res["result_type"] == 'HOSTS_COUNT':
                 try:
-                    count_total = int(msg[5])
+                    count_total = int(res["value"])
                     logger.debug(
                         '%s: Set total hosts counted by OpenVAS: %d',
                         scan_id,
@@ -1360,6 +1449,8 @@ class OSPDopenvas(OSPDaemon):
                 time.sleep(0.05)
             got_results = False
 
+        # Sleep a second to be sure to get all notus results
+        time.sleep(1)
         # Delete keys from KB related to this scan task.
         logger.debug('%s: End Target. Release main database', scan_id)
         self.main_db.release_database(kbdb)
@@ -1367,7 +1458,8 @@ class OSPDopenvas(OSPDaemon):
 
 def main():
     """OSP openvas main function."""
-    daemon_main('OSPD - openvas', OSPDopenvas)
+
+    daemon_main('OSPD - openvas', OSPDopenvas, NotusParser())
 
 
 if __name__ == '__main__':

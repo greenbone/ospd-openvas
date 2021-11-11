@@ -119,7 +119,7 @@ class VtHelperTestCase(TestCase):
                     'id': '2',
                     'default': 'no',
                     'description': 'Description',
-                    'name': (  # pylint: disable=line-too-long
+                    'name': (
                         'Do not randomize the  order  in  which ports are'
                         ' scanned'
                     ),
@@ -180,7 +180,7 @@ class VtHelperTestCase(TestCase):
                     'id': '2',
                     'default': 'no',
                     'description': 'Description',
-                    'name': (  # pylint: disable=line-too-long
+                    'name': (
                         'Do not randomize the  order  in  which ports are'
                         ' scanned'
                     ),

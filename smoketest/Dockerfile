@@ -26,12 +26,13 @@ RUN curl -L https://golang.org/dl/go1.17.2.linux-amd64.tar.gz -o /tmp/go.tar.gz 
     tar -C /usr/local -xzf /tmp/go.tar.gz &&\
     rm /tmp/go.tar.gz
 RUN useradd -rm -d /home/gvm -s /bin/bash -g root -g redis -G sudo -u 1000 gvm
-RUN  echo 'gvm:test' | chpasswd
+RUN echo 'gvm:test' | chpasswd
 RUN echo "gvm ALL = NOPASSWD: /usr/sbin/openvas" > /etc/sudoers.d/allow_openvas
 RUN echo "gvm ALL = NOPASSWD: /usr/bin/redis-server" > /etc/sudoers.d/allow_redis-server
-COPY redis.conf /etc/redis/redis.conf
-COPY --chmod=7777 . /usr/local/src/it
-RUN mv /usr/local/src/it/data/plugins/* /var/lib/openvas/plugins
+COPY smoketest/redis.conf /etc/redis/redis.conf
+COPY --chmod=7777 . /usr/local/src/ospd-openvas
+RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
+RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/openvas/notus
 RUN mkdir /run/redis
 RUN chown redis:redis /run/redis
 RUN mkdir -p /home/gvm/
@@ -45,5 +46,5 @@ RUN python3 -m pip install .
 RUN chown gvm:sudo /var/log/gvm
 RUN ln -s /usr/local/go/bin/* /usr/local/bin/
 USER gvm
-WORKDIR /usr/local/src/it
-CMD /usr/local/src/it/run-tests.sh
+WORKDIR /usr/local/src/ospd-openas/smoketest
+CMD /usr/local/src/ospd-openvas/smoketest/run-tests.sh
