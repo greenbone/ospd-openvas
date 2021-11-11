@@ -1,5 +1,5 @@
 
-FROM greenbone/openvas-scanner-master-gcc-build
+FROM greenbone/openvas-scanner:unstable
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
     redis \
@@ -41,10 +41,6 @@ RUN chown gvm:sudo /var/run/ospd
 RUN touch /etc/openvas/openvas_log.conf
 # hack since ospd-openvas does execute `openvas --updatye-vt-info` without sudo 
 RUN chown gvm:sudo /etc/openvas/openvas_log.conf
-WORKDIR /usr/local/src
-RUN git clone --single-branch --depth=1 https://github.com/greenbone/ospd.git
-WORKDIR /usr/local/src/ospd
-RUN python3 -m pip install .
 WORKDIR /usr/local/src/ospd-openvas
 RUN python3 -m pip install .
 RUN chown gvm:sudo /var/log/gvm
