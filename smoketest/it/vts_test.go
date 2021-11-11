@@ -2,7 +2,6 @@ package it
 
 import (
 	"os"
-	"strings"
 	"testing"
 
 	"github.com/greenbone/ospd-openvas/smoketest/connection"
@@ -13,6 +12,13 @@ var address string
 
 const protocoll = "unix"
 const pluginPath = "../data/plugins"
+const notusPath = "../data/notus/advisories"
+
+var title = map[string]string{
+	"1.3.6.1.4.1.25623.1.0.90022": "NOTUS: should be overriden in get_nvts",
+	"1.3.6.1.4.1.25623.1.0.42":    "I am also here",
+	"1.3.6.1.4.1.25623.0.0.1":     "keys",
+}
 
 func init() {
 	address = os.Getenv("OSPD_SOCKET")
@@ -21,24 +27,39 @@ func init() {
 	}
 }
 
-func TestGetVTs(t *testing.T) {
+func getVTs(t *testing.T) vt.GetVTsResponse {
 	var response vt.GetVTsResponse
 	if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
 		t.Fatalf("Connectio to %s failed: %s", address, err)
 	}
-	n := 0
-	dirs, err := os.ReadDir(pluginPath)
-	if err != nil {
-		t.Fatalf("Plugin folder %s not found: %s", pluginPath, err)
+	return response
+
+}
+
+func retryUntilPluginsAreLoaded(t *testing.T) vt.GetVTsResponse {
+	var response vt.GetVTsResponse
+	if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
+		t.Fatalf("Connectio to %s failed: %s", address, err)
 	}
-	for _, d := range dirs {
-		if d.Type().IsRegular() {
-			if strings.HasSuffix(d.Name(), ".nasl") {
-				n = n + 1
-			}
-		}
+	r := getVTs(t)
+	for len(r.VTs.VT) == 0 {
+		r = getVTs(t)
 	}
+	return r
+
+}
+
+func TestGetVTs(t *testing.T) {
+	response := retryUntilPluginsAreLoaded(t)
+	n := len(title)
 	if len(response.VTs.VT) != n {
 		t.Errorf("Expected %d vts but got %d", n, len(response.VTs.VT))
+	}
+	for _, v := range response.VTs.VT {
+		if title[v.ID] != v.Name {
+			t.Errorf("Expected %s title but got %s", title[v.ID], v.Name)
+
+		}
+
 	}
 }

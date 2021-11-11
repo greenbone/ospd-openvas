@@ -37,7 +37,7 @@ class TestNVTICache(TestCase):
     @patch('ospd_openvas.db.MainDB')
     def setUp(self, MockMainDB):  # pylint: disable=arguments-differ
         self.db = MockMainDB()
-        self.nvti = NVTICache(self.db)
+        self.nvti = NVTICache(self.db, None)
         self.nvti._ctx = 'foo'
 
     def test_set_index(self, MockOpenvasDB):
@@ -74,11 +74,13 @@ class TestNVTICache(TestCase):
         )
 
     def test_get_oids(self, MockOpenvasDB):
-        MockOpenvasDB.get_filenames_and_oids.return_value = ['oids']
+        MockOpenvasDB.get_filenames_and_oids.return_value = [
+            ('filename', 'oid')
+        ]
 
         resp = self.nvti.get_oids()
 
-        self.assertEqual(resp, ['oids'])
+        self.assertEqual([x for x in resp], [('filename', 'oid')])
 
     def test_parse_metadata_tag_missing_value(self, MockOpenvasDB):
         logging.Logger.error = Mock()

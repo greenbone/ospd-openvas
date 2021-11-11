@@ -22,6 +22,7 @@
 """ Setup for the OSP OpenVAS Server. """
 
 import logging
+
 import time
 import copy
 
@@ -34,6 +35,7 @@ from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
+from ospd.parser import CliParser
 from ospd.ospd import OSPDaemon
 from ospd.scan import ScanProgress, ScanStatus
 from ospd.server import BaseServer
@@ -44,6 +46,7 @@ from ospd.resultlist import ResultList
 from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
+from ospd_openvas.notus import Notus
 from ospd_openvas.dryrun import DryRun
 from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB
@@ -429,7 +432,13 @@ class OSPDopenvas(OSPDaemon):
     ):
         """Initializes the ospd-openvas daemon's internal data."""
         self.main_db = MainDB()
-        self.nvti = NVTICache(self.main_db)
+        notus_dir = kwargs.get('notus_feed_dir')
+        notus = Notus(notus_dir, self.main_db.ctx) if notus_dir else None
+
+        self.nvti = NVTICache(
+            self.main_db,
+            notus,
+        )
 
         super().__init__(
             customvtfilter=OpenVasVtsFilter(self.nvti),
@@ -1365,9 +1374,20 @@ class OSPDopenvas(OSPDaemon):
         self.main_db.release_database(kbdb)
 
 
+class NotusParser(CliParser):
+    def __init__(self):
+        super().__init__('OSPD - openvas')
+        self.parser.add_argument(
+            '--notus-feed-dir',
+            default="/var/lib/openvas/notus/advisories",
+            help='Directory where notus feed is placed. Default: %(default)s',
+        )
+
+
 def main():
     """OSP openvas main function."""
-    daemon_main('OSPD - openvas', OSPDopenvas)
+
+    daemon_main('OSPD - openvas', OSPDopenvas, NotusParser())
 
 
 if __name__ == '__main__':
