@@ -1,10 +1,8 @@
 name: Container Image Builds
 
 on:
-  pull_request:
-    branches: [ main ]
   push:
-    branches: [ main ]
+    branches: [ main, stable, oldstable ]
     tags: ["v*"]
   workflow_dispatch:
 
