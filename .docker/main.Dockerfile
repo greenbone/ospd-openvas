@@ -1,4 +1,6 @@
-FROM debian:stable-slim
+ARG VERSION=unstable
+
+FROM greenbone/openvas-scanner:${VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
