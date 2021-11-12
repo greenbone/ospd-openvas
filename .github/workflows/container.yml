@@ -2,9 +2,9 @@ name: Container Image Builds
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: [ stable ]
   push:
-    branches: [ main ]
+    branches: [ stable ]
     tags: ["v*"]
   workflow_dispatch:
 
@@ -38,4 +38,4 @@ jobs:
           context: .
           push: true
           tags: ${{ steps.container.outputs.image-tags }}
-          file: .docker/main.Dockerfile
+          file: .docker/stable.Dockerfile

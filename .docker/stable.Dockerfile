@@ -1,10 +1,12 @@
-FROM debian:stable-slim
+ARG VERSION=stable
+
+FROM greenbone/openvas-scanner:${VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /
-COPY ./config/ospd-openvas.conf etc/gvm/ospd.conf
+COPY ./config/ospd-openvas.conf /etc/gvm/ospd.conf
 WORKDIR /ospd-openvas
 
 RUN apt-get update && \
@@ -23,4 +25,4 @@ COPY dist/* /ospd-openvas
 RUN python3 -m pip install /ospd-openvas/*
 
 ENTRYPOINT ["ospd-openvas"]
-CMD ["-c", "/etc/gvm/ospd.conf"]
+CMD ["-c", "/etc/gvm/ospd.conf", "-f", "-m", "666"]
