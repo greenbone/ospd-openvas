@@ -29,6 +29,7 @@ keywords = [
 
 packages = [
   { include = "ospd_openvas"},
+  { include = "ospd"},
   { include = "docs/ospd-openvas.8", format = "sdist"},
   { include = "config/ospd-openvas.service", format = "sdist"},
   { include = "config/ospd-openvas.conf", format = "sdist"},
