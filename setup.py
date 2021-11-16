@@ -48,6 +48,10 @@ setup(
     ],
     python_requires='>=3.7',
     install_requires=[
+        'paramiko',
+        'defusedxml',
+        'lxml',
+        'deprecated',
         'redis>=3.0.1',
         'psutil',
         'packaging',
