@@ -75,7 +75,7 @@ def exit_cleanup(
     if not pidpath.is_file():
         return
 
-    with pidpath.open() as f:
+    with pidpath.open(encoding='utf-8') as f:
         if int(f.read()) == os.getpid():
             LOGGER.debug("Performing exit clean up")
             daemon.daemon_exit_cleanup()
