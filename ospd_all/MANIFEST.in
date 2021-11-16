@@ -1,0 +1,2 @@
+include CHANGELOG.md  COPYING  Poetry.toml  Poetry.lock  pyproject.toml README.md setup.py
+recursive-include tests *.py
