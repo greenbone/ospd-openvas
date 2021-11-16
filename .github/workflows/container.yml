@@ -1,8 +1,6 @@
 name: Container Image Builds
 
 on:
-  pull_request:
-    branches: [ stable ]
   push:
     branches: [ stable ]
     tags: ["v*"]
