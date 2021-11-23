@@ -8,7 +8,7 @@
 [![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=main)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%3Amain++)
 
 This is an OSP server implementation to allow GVM to remotely control
-[OpenVAS](https://github.com/greenbone/openvas) and [Notus](https://github.com/greenbone/notus-scanner).
+[OpenVAS](https://github.com/greenbone/openvas-scanner) and [Notus](https://github.com/greenbone/notus-scanner).
 
 Once running, you need to configure OpenVAS and Notus for the Greenbone Vulnerability
 Manager, for example via the web interface Greenbone Security Assistant. Then
@@ -32,7 +32,7 @@ installation guide for ospd-based scanners.
 
 Please follow the general installation guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/main/doc/INSTALL-ospd-scanner.md>
+  <https://github.com/greenbone/ospd-openvas/blob/main/docs/INSTALL-ospd-scanner.md>
 
 ### Mandatory configuration
 
@@ -77,7 +77,7 @@ guide.
 
 Please follow the general usage guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/main/doc/USAGE-ospd-scanner.md>
+  <https://github.com/greenbone/ospd-openvas/blob/main/docs/USAGE-ospd-scanner.md>
 
 ## Support
 
