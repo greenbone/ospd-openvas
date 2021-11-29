@@ -55,7 +55,7 @@ deprecated = "^1.2.10"
 paho-mqtt = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.11.1"
+pylint = "^2.12.1"
 rope = "^0.21.1"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = {version = "^21.7.1", python = "^3.7"}
