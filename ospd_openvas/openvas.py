@@ -21,12 +21,12 @@ from typing import Optional, Dict, Any
 import logging
 import subprocess
 import psutil
+import sys
 
-
-logger = logging.getLogger(__name__)
 
 _BOOL_DICT = {'no': 0, 'yes': 1}
 
+logger = logging.getLogger(__name__)
 
 class Openvas:
     """Class for calling the openvas executable"""
@@ -39,12 +39,12 @@ class Openvas:
             )
             return result.decode('ascii')
         except (subprocess.SubprocessError, OSError) as e:
-            logger.debug(
+            logger.error(
                 'Is was not possible to call openvas to get the version '
                 'information. Reason %s',
                 e,
             )
-            return None
+            sys.exit(1)
 
     @staticmethod
     def check() -> bool:
@@ -100,8 +100,8 @@ class Openvas:
             result = subprocess.check_output(['openvas', '-s'])
             result = result.decode('ascii')
         except (subprocess.SubprocessError, OSError, UnicodeDecodeError) as e:
-            logger.warning('Could not gather openvas settings. Reason %s', e)
-            return param_list
+            logger.error('Could not gather openvas settings. Reason %s', e)
+            sys.exit(1)
 
         for conf in result.split('\n'):
             if not conf:
