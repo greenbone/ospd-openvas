@@ -20,8 +20,8 @@ from typing import Optional, Dict, Any
 
 import logging
 import subprocess
-import psutil
 import sys
+import psutil
 
 
 _BOOL_DICT = {'no': 0, 'yes': 1}
