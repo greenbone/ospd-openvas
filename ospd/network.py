@@ -375,10 +375,7 @@ def port_range_expand(portrange: str) -> Optional[List]:
 
     port_list = list()
 
-    for single_port in range(
-        port_range_min,
-        port_range_max,
-    ):
+    for single_port in range(port_range_min, port_range_max):
         port_list.append(single_port)
 
     return port_list

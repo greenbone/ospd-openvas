@@ -61,10 +61,7 @@ class DryRun:
         exclude_hosts = self._daemon.scan_collection.get_exclude_hosts(scan_id)
         logger.info("The exclude hosts list %s", exclude_hosts)
 
-        self._daemon.set_scan_total_hosts(
-            scan_id,
-            count_total=len(host_list),
-        )
+        self._daemon.set_scan_total_hosts(scan_id, count_total=len(host_list))
         self._daemon.scan_collection.set_amount_dead_hosts(
             scan_id, total_dead=0
         )
@@ -85,10 +82,7 @@ class DryRun:
             # Check if the scan was stopped.
             status = self._daemon.get_scan_status(scan_id)
             if status == ScanStatus.STOPPED or status == ScanStatus.FINISHED:
-                logger.debug(
-                    'Task %s stopped or finished.',
-                    scan_id,
-                )
+                logger.debug('Task %s stopped or finished.', scan_id)
                 return
 
             res_list = ResultList()
@@ -159,9 +153,7 @@ class DryRun:
                     )
 
             res_list.add_scan_log_to_list(
-                host=current_host,
-                name="HOST_END",
-                value=str(int(time.time())),
+                host=current_host, name="HOST_END", value=str(int(time.time()))
             )
 
             # Add the result to the scan collection

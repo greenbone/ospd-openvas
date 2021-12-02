@@ -24,7 +24,6 @@ from logging.config import fileConfig
 from pathlib import Path
 from typing import Optional
 
-
 DEFAULT_HANDLER_CONSOLE = {
     'class': 'logging.StreamHandler',
     'level': 'INFO',
@@ -91,11 +90,14 @@ def init_logging(
     config['handler_default_handler']['level'] = log_level
     log_config_path = Path(log_config)
     if log_config_path.exists():
+        print("aaaahiyed")
         config.read(log_config)
     else:
+        print("naaaash")
         config['loggers'] = DEFAULT_LOGGERS
         config['logger_root'] = DEFAULT_ROOT_LOGGER
 
     fileConfig(config, disable_existing_loggers=False)
     logging.Formatter.converter = time.gmtime
-    logging.getLogger()
+    print("yologo")
+    # logging.getLogger()

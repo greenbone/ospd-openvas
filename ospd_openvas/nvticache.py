@@ -278,9 +278,7 @@ class NVTICache(BaseDB):
             A dictionary with the VT tags.
         """
         tag = OpenvasDB.get_single_item(
-            self.ctx,
-            f"nvt:{oid}",
-            index=NVT_META_FIELDS.index('NVT_TAGS_POS'),
+            self.ctx, f"nvt:{oid}", index=NVT_META_FIELDS.index('NVT_TAGS_POS')
         )
         tags = tag.split('|')
 
@@ -320,16 +318,12 @@ class NVTICache(BaseDB):
         """
         # Try to get first sha256 checksum
         sha256sum = OpenvasDB.get_single_item(
-            self.ctx,
-            f'sha256sums:{file_abs_path}',
+            self.ctx, f'sha256sums:{file_abs_path}'
         )
         if sha256sum:
             return sha256sum
 
         # Search for md5 checksum
-        md5sum = OpenvasDB.get_single_item(
-            self.ctx,
-            f'md5sums:{file_abs_path}',
-        )
+        md5sum = OpenvasDB.get_single_item(self.ctx, f'md5sums:{file_abs_path}')
         if md5sum:
             return md5sum

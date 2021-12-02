@@ -69,8 +69,7 @@ class DataPickler:
             parent_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
             raise OspdCommandError(
-                f'Not possible to access dir for {filename}. {e}',
-                'start_scan',
+                f'Not possible to access dir for {filename}. {e}', 'start_scan'
             ) from e
 
         try:

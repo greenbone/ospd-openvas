@@ -326,11 +326,7 @@ class ScanCollection:
         scan_info['start_time'] = int(time.time())
         scan_info['end_time'] = 0
 
-        scan_info_to_pickle = {
-            'target': target,
-            'options': options,
-            'vts': vts,
-        }
+        scan_info_to_pickle = {'target': target, 'options': options, 'vts': vts}
 
         if scan_id is None or scan_id == '':
             scan_id = str(uuid.uuid4())
@@ -430,19 +426,13 @@ class ScanCollection:
             Count of excluded host.
         """
         exc_hosts_list = target_str_to_list(self.get_exclude_hosts(scan_id))
-        logger.debug(
-            '%s: Excluded Hosts: %s',
-            scan_id,
-            pformat(exc_hosts_list),
-        )
+        logger.debug('%s: Excluded Hosts: %s', scan_id, pformat(exc_hosts_list))
 
         finished_hosts_list = target_str_to_list(
             self.get_finished_hosts(scan_id)
         )
         logger.debug(
-            '%s: Finished Hosts: %s',
-            scan_id,
-            pformat(finished_hosts_list),
+            '%s: Finished Hosts: %s', scan_id, pformat(finished_hosts_list)
         )
 
         # Remove finished hosts from excluded host list

@@ -28,16 +28,7 @@ import time
 import os
 
 from pprint import pformat
-from typing import (
-    List,
-    Any,
-    Iterator,
-    Dict,
-    Optional,
-    Iterable,
-    Tuple,
-    Union,
-)
+from typing import List, Any, Iterator, Dict, Optional, Iterable, Tuple, Union
 from xml.etree.ElementTree import Element, SubElement
 
 import defusedxml.ElementTree as secET
@@ -54,11 +45,7 @@ from ospd.scan import ScanCollection, ScanStatus, ScanProgress
 from ospd.server import BaseServer, Stream
 from ospd.vtfilter import VtsFilter
 from ospd.vts import Vts
-from ospd.xml import (
-    elements_as_text,
-    get_result_xml,
-    get_progress_xml,
-)
+from ospd.xml import elements_as_text, get_result_xml, get_progress_xml
 
 logger = logging.getLogger(__name__)
 
@@ -560,9 +547,7 @@ class OSPDaemon:
         )
 
     def sort_host_finished(
-        self,
-        scan_id: str,
-        finished_hosts: Union[List[str], str],
+        self, scan_id: str, finished_hosts: Union[List[str], str]
     ) -> None:
         """Check if the finished host in the list was alive or dead
         and update the corresponding alive_count or dead_count."""
@@ -615,10 +600,7 @@ class OSPDaemon:
         self.set_scan_progress(scan_id)
 
     def set_scan_host_progress(
-        self,
-        scan_id: str,
-        host: str = None,
-        progress: int = None,
+        self, scan_id: str, host: str = None, progress: int = None
     ) -> None:
         """Sets host's progress which is part of target.
         Each time a host progress is updated, the scan progress
@@ -636,11 +618,7 @@ class OSPDaemon:
         host_progress = {host: progress}
         self.set_scan_progress_batch(scan_id, host_progress)
 
-    def get_scan_host_progress(
-        self,
-        scan_id: str,
-        host: str = None,
-    ) -> int:
+    def get_scan_host_progress(self, scan_id: str, host: str = None) -> int:
         """Get host's progress which is part of target."""
         current_progress = self.scan_collection.get_current_target_progress(
             scan_id
@@ -688,11 +666,7 @@ class OSPDaemon:
 
             if elements:
                 command_txt = ''.join(
-                    [
-                        command_txt,
-                        "\t Elements:\n",
-                        elements_as_text(elements),
-                    ]
+                    [command_txt, "\t Elements:\n", elements_as_text(elements)]
                 )
 
             txt += command_txt
@@ -760,9 +734,7 @@ class OSPDaemon:
         )
 
         logging.debug(
-            "%s: Current progress: \n%s",
-            scan_id,
-            pformat(current_progress),
+            "%s: Current progress: \n%s", scan_id, pformat(current_progress)
         )
         return current_progress
 

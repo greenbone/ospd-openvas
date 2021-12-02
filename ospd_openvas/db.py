@@ -237,9 +237,7 @@ class OpenvasDB:
 
     @staticmethod
     def get_single_item(
-        ctx: RedisCtx,
-        name: str,
-        index: Optional[int] = LIST_FIRST_POS,
+        ctx: RedisCtx, name: str, index: Optional[int] = LIST_FIRST_POS
     ) -> Optional[str]:
         """Get a single KB element.
 
@@ -370,10 +368,7 @@ class OpenvasDB:
         return sorted(ctx.keys(pattern))
 
     @classmethod
-    def get_filenames_and_oids(
-        cls,
-        ctx: RedisCtx,
-    ) -> Iterable[Tuple[str, str]]:
+    def get_filenames_and_oids(cls, ctx: RedisCtx) -> Iterable[Tuple[str, str]]:
         """Get all items with index 'index', stored under
         a given pattern.
 
@@ -435,10 +430,7 @@ class BaseKbDB(BaseDB):
         """
         return OpenvasDB.get_single_item(self.ctx, name)
 
-    def _get_list_item(
-        self,
-        name: str,
-    ) -> Optional[List]:
+    def _get_list_item(self, name: str) -> Optional[List]:
         """Returns the specified elements from `start` to `end` of the
         list stored as `name`.
 
@@ -522,9 +514,7 @@ class KbDB(BaseKbDB):
         """Force the usage of the utf-8 encoding, since some credentials
         contain special chars not supported by latin-1 encoding."""
         self._add_single_item(
-            f'internal/{openvas_scan_id}/scanprefs',
-            preferences,
-            utf8_enc=True,
+            f'internal/{openvas_scan_id}/scanprefs', preferences, utf8_enc=True
         )
 
     def add_scan_process_id(self, pid: int):

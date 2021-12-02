@@ -133,10 +133,7 @@ class MQTTSubscriber(Subscriber):
 class MQTTDaemon:
     """A class to start and stop the MQTT client"""
 
-    def __init__(
-        self,
-        client: MQTTClient,
-    ):
+    def __init__(self, client: MQTTClient):
         self._client = client
         self._client.on_disconnect = self.on_disconnect
         self._client.on_connect = self.on_connect

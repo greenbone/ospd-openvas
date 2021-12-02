@@ -132,10 +132,7 @@ class PreferenceHandler:
         )
         return self._target_options
 
-    def _get_vts_in_groups(
-        self,
-        filters: List[str],
-    ) -> List[str]:
+    def _get_vts_in_groups(self, filters: List[str]) -> List[str]:
         """Return a list of vts which match with the given filter.
 
         Arguments:
@@ -216,8 +213,7 @@ class PreferenceHandler:
         return 1
 
     def _process_vts(
-        self,
-        vts: Dict[str, Dict[str, str]],
+        self, vts: Dict[str, Dict[str, str]]
     ) -> Tuple[List[str], Dict[str, str]]:
         """Add single VTs and their parameters."""
         vts_list = []

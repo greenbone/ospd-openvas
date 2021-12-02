@@ -28,6 +28,7 @@ _BOOL_DICT = {'no': 0, 'yes': 1}
 
 logger = logging.getLogger(__name__)
 
+
 class Openvas:
     """Class for calling the openvas executable"""
 
@@ -137,9 +138,7 @@ class Openvas:
 
     @staticmethod
     def start_scan(
-        scan_id: str,
-        sudo: bool = False,
-        niceness: int = None,
+        scan_id: str, sudo: bool = False, niceness: int = None
     ) -> Optional[psutil.Popen]:
         """Calls openvas to start a scan process"""
         cmd = []
@@ -176,8 +175,6 @@ class Openvas:
         except (subprocess.SubprocessError, OSError) as e:
             # the command is not available
             logger.warning(
-                'Not possible to stop scan: %s. Reason %s',
-                scan_id,
-                e,
+                'Not possible to stop scan: %s. Reason %s', scan_id, e
             )
             return False

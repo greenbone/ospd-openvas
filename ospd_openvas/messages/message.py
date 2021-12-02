@@ -53,7 +53,7 @@ class Message:
         if message_type != cls.message_type:
             raise ValueError(
                 f"Invalid message type {message_type} for {cls.__name__}. "
-                f"Must be {cls.message_type}.",
+                f"Must be {cls.message_type}."
             )
         return {
             'message_id': UUID(data.get("message_id")),

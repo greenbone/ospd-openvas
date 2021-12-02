@@ -443,10 +443,7 @@ class OSPDopenvas(OSPDaemon):
         notus_dir = kwargs.get('notus_feed_dir')
         notus = Notus(notus_dir, self.main_db.ctx) if notus_dir else None
 
-        self.nvti = NVTICache(
-            self.main_db,
-            notus,
-        )
+        self.nvti = NVTICache(self.main_db, notus)
 
         super().__init__(
             customvtfilter=OpenVasVtsFilter(self.nvti),
@@ -1211,9 +1208,7 @@ class OSPDopenvas(OSPDaemon):
             )
         if total_dead:
             logger.debug(
-                '%s: Set dead hosts counted by OpenVAS: %d',
-                scan_id,
-                total_dead,
+                '%s: Set dead hosts counted by OpenVAS: %d', scan_id, total_dead
             )
             self.scan_collection.set_amount_dead_hosts(
                 scan_id, total_dead=total_dead
@@ -1317,22 +1312,12 @@ class OSPDopenvas(OSPDaemon):
                 'All authentifications contain errors.'
                 + 'Starting unauthenticated scan instead.'
             )
-            self.add_scan_error(
-                scan_id,
-                name='',
-                host='',
-                value=error,
-            )
+            self.add_scan_error(scan_id, name='', host='', value=error)
             logger.error(error)
         errors = scan_prefs.get_error_messages()
         for e in errors:
             error = 'Malformed credential. ' + e
-            self.add_scan_error(
-                scan_id,
-                name='',
-                host='',
-                value=error,
-            )
+            self.add_scan_error(scan_id, name='', host='', value=error)
             logger.error(error)
 
         if not scan_prefs.prepare_plugins_for_openvas():
@@ -1420,8 +1405,7 @@ class OSPDopenvas(OSPDaemon):
 
             if not openvas_process_is_alive:
                 logger.error(
-                    'Task %s was unexpectedly stopped or killed.',
-                    scan_id,
+                    'Task %s was unexpectedly stopped or killed.', scan_id
                 )
                 self.add_scan_error(
                     scan_id,

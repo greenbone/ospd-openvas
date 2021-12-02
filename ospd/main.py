@@ -51,10 +51,7 @@ def print_version(daemon: OSPDaemon, file=sys.stdout):
     daemon_name = daemon.get_daemon_name()
     daemon_version = daemon.get_daemon_version()
 
-    print(
-        f"OSP Server for {scanner_name}: {server_version}",
-        file=file,
-    )
+    print(f"OSP Server for {scanner_name}: {server_version}", file=file)
     print(f"OSP: {protocol_version}", file=file)
     print(f"{daemon_name}: {daemon_version}", file=file)
     print(file=file)
@@ -97,21 +94,28 @@ def main(
         parser = create_parser(name)
     args = parser.parse_arguments()
 
+    print("yooooo1")
+
     if args.version:
         args.foreground = True
 
+    print("yooooo2")
     init_logging(
         args.log_level,
         log_file=args.log_file,
         log_config=args.log_config,
         foreground=args.foreground,
     )
+    print("yooooo3")
+    import time
+
+    time.sleep(1)
+    logger.debug('Logging activated...')
+    print("yooooo4")
 
     if args.port == 0:
         server = UnixSocketServer(
-            args.unix_socket,
-            args.socket_mode,
-            args.stream_timeout,
+            args.unix_socket, args.socket_mode, args.stream_timeout
         )
     else:
         server = TlsServer(
@@ -122,9 +126,11 @@ def main(
             args.ca_file,
             args.stream_timeout,
         )
+    print("yooooo5")
 
     daemon = daemon_class(**vars(args))
 
+    print("yooooo6")
     if args.version:
         print_version(daemon)
         sys.exit()

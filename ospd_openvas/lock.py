@@ -60,9 +60,7 @@ class LockFile:
             self._fd = self._lock_file_path.open('a')
         except Exception as e:  # pylint: disable=broad-except
             logger.error(
-                "Failed to open lock file %s. %s",
-                str(self._lock_file_path),
-                e,
+                "Failed to open lock file %s. %s", str(self._lock_file_path), e
             )
             try:
                 self._fd.close()
@@ -88,9 +86,7 @@ class LockFile:
             logger.debug("Created lock file %s.", str(self._lock_file_path))
         except BlockingIOError as e:
             logger.debug(
-                "Failed to lock the file %s. %s",
-                str(self._lock_file_path),
-                e,
+                "Failed to lock the file %s. %s", str(self._lock_file_path), e
             )
             try:
                 self._fd.close()

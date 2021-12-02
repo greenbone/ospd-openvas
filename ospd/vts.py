@@ -23,14 +23,7 @@ from hashlib import sha256
 import re
 
 from copy import deepcopy
-from typing import (
-    Dict,
-    Any,
-    Type,
-    Iterator,
-    Iterable,
-    Tuple,
-)
+from typing import Dict, Any, Type, Iterator, Iterable, Tuple
 
 from ospd.errors import OspdError
 
@@ -41,9 +34,7 @@ DEFAULT_VT_ID_PATTERN = re.compile("[0-9a-zA-Z_\\-:.]{1,80}")
 
 class Vts:
     def __init__(
-        self,
-        storage: Type[Dict] = None,
-        vt_id_pattern=DEFAULT_VT_ID_PATTERN,
+        self, storage: Type[Dict] = None, vt_id_pattern=DEFAULT_VT_ID_PATTERN
     ):
         self.storage = storage
 
