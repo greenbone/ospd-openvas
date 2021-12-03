@@ -33,4 +33,4 @@ RUN touch /etc/openvas/openvas_log.conf && \
 USER ospd-openvas
 
 ENTRYPOINT ["ospd-openvas"]
-CMD ["-c", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
+CMD ["--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
