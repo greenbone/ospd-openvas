@@ -6,7 +6,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /
-COPY ./config/ospd-openvas.conf /etc/gvm/ospd.conf
+COPY ./config/ospd-openvas.conf /etc/gvm/ospd-openvas.conf
 WORKDIR /ospd-openvas
 
 RUN apt-get update && \
@@ -33,4 +33,4 @@ RUN touch /etc/openvas/openvas_log.conf && \
 USER ospd-openvas
 
 ENTRYPOINT ["ospd-openvas"]
-CMD ["-c", "/etc/gvm/ospd.conf", "-f", "-m", "666"]
+CMD ["-c", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
