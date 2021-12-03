@@ -161,11 +161,14 @@ class NotusResultHandler:
             timer.start()
 
 
+DEFAULT_NOTUS_FEED_DIR = "/var/lib/openvas/notus/advisories"
+
+
 class NotusParser(CliParser):
     def __init__(self):
         super().__init__('OSPD - openvas')
         self.parser.add_argument(
             '--notus-feed-dir',
-            default="/var/lib/openvas/notus/advisories",
+            default=DEFAULT_NOTUS_FEED_DIR,
             help='Directory where notus feed is placed. Default: %(default)s',
         )
