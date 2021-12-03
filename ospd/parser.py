@@ -63,8 +63,7 @@ class CliParser:
             '-s',
             '--config',
             nargs='?',
-            default=DEFAULT_CONFIG_PATH,
-            help='Configuration file path (default: %(default)s)',
+            help=f'Configuration file path (default: {DEFAULT_CONFIG_PATH})',
         )
         parser.add_argument(
             '--log-config',
@@ -249,14 +248,16 @@ class CliParser:
     def _load_config(self, configfile: str) -> Config:
         config = Config()
 
-        if not configfile:
-            return config
-
-        configpath = Path(configfile)
+        configpath = Path(configfile or DEFAULT_CONFIG_PATH)
 
         if not configpath.expanduser().resolve().exists():
-            logger.debug('Ignoring non existing config file %s', configfile)
-            return config
+            if configfile:
+                # user has passed an config file
+                # print error and exit
+                self.parser.error(f'Config file {configpath} does not exist')
+            else:
+                logger.debug('Ignoring non existing config file %s', configfile)
+                return config
 
         try:
             config.load(configpath, def_section=self._name)

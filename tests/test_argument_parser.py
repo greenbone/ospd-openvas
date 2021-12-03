@@ -23,9 +23,12 @@ import unittest
 from unittest.mock import patch
 
 from io import StringIO
+from pathlib import Path
 from typing import List
 
 from ospd.parser import (
+    DEFAULT_MQTT_BROKER_ADDRESS,
+    DEFAULT_MQTT_BROKER_PORT,
     create_parser,
     Arguments,
     DEFAULT_ADDRESS,
@@ -33,11 +36,13 @@ from ospd.parser import (
     DEFAULT_KEY_FILE,
     DEFAULT_NICENESS,
     DEFAULT_SCANINFO_STORE_TIME,
-    DEFAULT_CONFIG_PATH,
     DEFAULT_UNIX_SOCKET_PATH,
     DEFAULT_PID_PATH,
     DEFAULT_LOCKFILE_DIR_PATH,
 )
+from ospd_openvas.notus import NotusParser
+
+here = Path(__file__).absolute().parent
 
 
 class ArgumentParserTestCase(unittest.TestCase):
@@ -91,13 +96,46 @@ class ArgumentParserTestCase(unittest.TestCase):
     def test_defaults(self):
         args = self.parse_args([])
 
+        self.assertIsNone(args.config)
         self.assertEqual(args.key_file, DEFAULT_KEY_FILE)
         self.assertEqual(args.niceness, DEFAULT_NICENESS)
         self.assertEqual(args.log_level, 'INFO')
         self.assertEqual(args.address, DEFAULT_ADDRESS)
         self.assertEqual(args.port, DEFAULT_PORT)
         self.assertEqual(args.scaninfo_store_time, DEFAULT_SCANINFO_STORE_TIME)
-        self.assertEqual(args.config, DEFAULT_CONFIG_PATH)
         self.assertEqual(args.unix_socket, DEFAULT_UNIX_SOCKET_PATH)
         self.assertEqual(args.pid_file, DEFAULT_PID_PATH)
         self.assertEqual(args.lock_file_dir, DEFAULT_LOCKFILE_DIR_PATH)
+        self.assertEqual(args.mqtt_broker_address, DEFAULT_MQTT_BROKER_ADDRESS)
+        self.assertEqual(args.mqtt_broker_port, DEFAULT_MQTT_BROKER_PORT)
+
+
+class ArgumentParserConfigTestCase(unittest.TestCase):
+    def setUp(self):
+        self.parser = NotusParser()
+
+    def parse_args(self, args: List[str]) -> Arguments:
+        return self.parser.parse_arguments(args)
+
+    def test_using_config(self):
+        config_file = str(here / 'testing.conf')
+        args = self.parse_args(['--config', config_file])
+
+        self.assertEqual(args.key_file, '/foo/key.pem')
+        self.assertEqual(args.niceness, 666)
+        self.assertEqual(args.log_level, 'DEBUG')
+        self.assertEqual(args.address, '6.6.6.6')
+        self.assertEqual(args.port, 6666)
+        self.assertEqual(args.scaninfo_store_time, 123)
+        self.assertEqual(args.config, config_file)
+        self.assertEqual(args.unix_socket, '/foo/ospd-openvas.sock')
+        self.assertEqual(args.pid_file, '/foo/ospd-openvas.pid')
+        self.assertEqual(args.lock_file_dir, '/foo/openvas')
+        self.assertEqual(args.mqtt_broker_address, 'foo.bar.com')
+        self.assertEqual(args.mqtt_broker_port, 1234)
+        self.assertEqual(args.notus_feed_dir, '/foo/advisories')
+
+    @patch('sys.stderr', new_callable=StringIO)
+    def test_not_existing_config(self, _mock):
+        with self.assertRaises(SystemExit):
+            self.parse_args(['--config', 'foo.conf'])
