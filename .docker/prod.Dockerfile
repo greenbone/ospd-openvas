@@ -21,14 +21,14 @@ RUN addgroup --gid 1001 --system ospd-openvas && \
     adduser --no-create-home --shell /bin/false --disabled-password \
     --uid 1001 --system --group ospd-openvas
 
+RUN chgrp -R ospd-openvas /etc/openvas/ && \
+    chown ospd-openvas /var/log/gvm && \
+    chmod 755 /etc/openvas /var/log/gvm && \
+    chmod 644 /etc/openvas/openvas_log.conf
+
 COPY dist/* /ospd-openvas
 
 RUN python3 -m pip install /ospd-openvas/*
-
-# Create empty config file and change owner for /etc/openvas/openvas_log.conf
-# because the openvas process executed by ospd requires sudo on this file
-RUN touch /etc/openvas/openvas_log.conf && \
-    chown ospd-openvas:sudo /etc/openvas/openvas_log.conf
 
 USER ospd-openvas
 
