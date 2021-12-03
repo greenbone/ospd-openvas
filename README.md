@@ -8,11 +8,11 @@
 [![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=main)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%3Amain++)
 
 This is an OSP server implementation to allow GVM to remotely control
-OpenVAS, see <https://github.com/greenbone/openvas>.
+[OpenVAS](https://github.com/greenbone/openvas-scanner) and [Notus](https://github.com/greenbone/notus-scanner).
 
-Once running, you need to configure OpenVAS for the Greenbone Vulnerability
+Once running, you need to configure OpenVAS and Notus for the Greenbone Vulnerability
 Manager, for example via the web interface Greenbone Security Assistant. Then
-you can create scan tasks to use OpenVAS.
+you can create scan tasks to use OpenVAS and Notus.
 
 ## Installation
 
@@ -32,7 +32,7 @@ installation guide for ospd-based scanners.
 
 Please follow the general installation guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/main/doc/INSTALL-ospd-scanner.md>
+  <https://github.com/greenbone/ospd-openvas/blob/main/docs/INSTALL-ospd-scanner.md>
 
 ### Mandatory configuration
 
@@ -40,6 +40,8 @@ The `ospd-openvas` startup parameter `--lock-file-dir` or the `lock_file_dir` co
 parameter of the `ospd.conf` config file needs to point to the same location / path of
 the `gvmd` daemon and the `openvas` command line tool (Default: `<install-prefix>/var/run`).
 Examples for both are shipped within the `config` sub-folder of this project.
+
+Also in order to be able to use Notus ospd-openvas must connect to a MQTT broker, such as [Mosquitto](https://mosquitto.org/) in order to communicate. With the parameter `--mqtt-broker-address` (Default: localhost) the correct address must be given as well as the corresponding port with `--mqtt-broker-port` (Default: 1883).
 
 Please see the `Details` section of the [GVM release notes](https://community.greenbone.net/t/gvm-20-08-stable-initial-release-2020-08-12/6312)
 for more details.
@@ -75,7 +77,7 @@ guide.
 
 Please follow the general usage guide for ospd-based scanners:
 
-  <https://github.com/greenbone/ospd/blob/main/doc/USAGE-ospd-scanner.md>
+  <https://github.com/greenbone/ospd-openvas/blob/main/docs/USAGE-ospd-scanner.md>
 
 ## Support
 
@@ -99,7 +101,7 @@ changes need to be discussed with the development team via the [issues section
 at GitHub](https://github.com/greenbone/ospd-openvas/issues) first.
 
 For development you should use [poetry](https://python-poetry.org)
-to keep you python packages separated in different environments. First install
+to keep your python packages separated in different environments. First install
 poetry via pip
 
     python3 -m pip install --user poetry
