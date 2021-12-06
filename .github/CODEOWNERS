@@ -1,2 +1,9 @@
 # default reviewers
 *                 @greenbone/ospd-maintainers
+<<<<<<< HEAD
+=======
+
+# dev ops
+.github/          @greenbone/devops @greenbone/ospd-maintainers
+.docker/          @greenbone/devops @greenbone/ospd-maintainers
+>>>>>>> 1c7b0937 (Update CODEOWNERS)
