@@ -467,7 +467,7 @@ dev = ["build", "pytest", "pytest-timeout"]
 
 [[package]]
 name = "sentry-sdk"
-version = "1.4.3"
+version = "1.5.0"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = false
@@ -996,8 +996,8 @@ rope = [
     {file = "rope-0.22.0.tar.gz", hash = "sha256:b00fbc064a26fc62d7220578a27fd639b2fad57213663cc396c137e92d73f10f"},
 ]
 sentry-sdk = [
-    {file = "sentry-sdk-1.4.3.tar.gz", hash = "sha256:b9844751e40710e84a457c5bc29b21c383ccb2b63d76eeaad72f7f1c808c8828"},
-    {file = "sentry_sdk-1.4.3-py2.py3-none-any.whl", hash = "sha256:c091cc7115ff25fe3a0e410dbecd7a996f81a3f6137d2272daef32d6c3cfa6dc"},
+    {file = "sentry-sdk-1.5.0.tar.gz", hash = "sha256:789a11a87ca02491896e121efdd64e8fd93327b69e8f2f7d42f03e2569648e88"},
+    {file = "sentry_sdk-1.5.0-py2.py3-none-any.whl", hash = "sha256:0db297ab32e095705c20f742c3a5dac62fe15c4318681884053d0898e5abb2f6"},
 ]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
