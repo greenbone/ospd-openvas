@@ -152,7 +152,7 @@ class MQTTDaemon:
             logger.error('Failed to connect to broker. Reason code %s', rc)
 
     @staticmethod
-    def on_disconnect(client, _userdata, rc=0):
+    def on_disconnect(client, _userdata, rc, _properties):
         logger.info("Disconnected from broker. Reason code %s", rc)
         client.loop_stop()
 
