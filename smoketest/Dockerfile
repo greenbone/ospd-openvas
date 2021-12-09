@@ -15,6 +15,8 @@ RUN apt-get update && apt-get install --no-install-recommends --no-install-sugge
     python3-defusedxml \
     python3-paramiko \
     python3-redis \
+    python3-gnupg \
+    python3-paho-mqtt \
     curl \
     sudo &&\
 	apt-get remove --purge --auto-remove -y &&\
@@ -31,6 +33,7 @@ RUN echo "gvm ALL = NOPASSWD: /usr/sbin/openvas" > /etc/sudoers.d/allow_openvas
 RUN echo "gvm ALL = NOPASSWD: /usr/bin/redis-server" > /etc/sudoers.d/allow_redis-server
 COPY smoketest/redis.conf /etc/redis/redis.conf
 COPY --chmod=7777 . /usr/local/src/ospd-openvas
+
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/openvas/notus
 RUN mkdir /run/redis
@@ -45,6 +48,13 @@ WORKDIR /usr/local/src/ospd-openvas
 RUN python3 -m pip install .
 RUN chown gvm:sudo /var/log/gvm
 RUN ln -s /usr/local/go/bin/* /usr/local/bin/
+RUN gpg --batch --gen-key smoketest/gpg-key-definition
+RUN gpg --import foo.pub
+WORKDIR /var/lib/openvas/notus/advisories
+RUN sha256sum * > sha256sums
+RUN gpg --pinentry-mode=loopback --passphrase abc --detach-sign -a sha256sums
 USER gvm
-WORKDIR /usr/local/src/ospd-openas/smoketest
+WORKDIR /usr/local/src/ospd-openvas/smoketest
+RUN gpg --import ../foo.pub
+
 CMD /usr/local/src/ospd-openvas/smoketest/run-tests.sh

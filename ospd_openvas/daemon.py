@@ -22,6 +22,7 @@
 """ Setup for the OSP OpenVAS Server. """
 
 import logging
+from ospd_openvas.gpg_sha_verifier import ReloadConfiguration, create_verify, reload_sha256sums
 
 import time
 import copy
@@ -439,9 +440,20 @@ class OSPDopenvas(OSPDaemon):
         **kwargs,
     ):
         """Initializes the ospd-openvas daemon's internal data."""
+        def notus_gpp_verification_failure(_: Optional[Dict[str, str]]) -> Dict[str, str]:
+            raise Exception("GPG verification of notus sha256sums failed")
+
         self.main_db = MainDB()
         notus_dir = kwargs.get('notus_feed_dir')
-        notus = Notus(notus_dir, self.main_db.ctx) if notus_dir else None
+        notus = None
+        if notus_dir:
+            ndir = Path(notus_dir)
+            rc = ReloadConfiguration(
+                ndir / "sha256sums",
+                notus_gpp_verification_failure
+            )
+            reloader = reload_sha256sums(rc)
+            notus = Notus(ndir, self.main_db.ctx, create_verify(reloader))
 
         self.nvti = NVTICache(
             self.main_db,

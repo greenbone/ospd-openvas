@@ -58,18 +58,31 @@ class Notus:
     cache: Cache
     loaded: bool = False
     path: Path
+    _verifier: Callable[[Path], bool]
 
-    def __init__(self, path: str, redis: Redis):
-        self.path = Path(path)
+    def __init__(
+        self,
+        path: Path,
+        redis: Redis,
+        verifier: Callable[[Path], bool],
+    ):
+        self.path = path
         self.cache = Cache(redis)
+            
+        self._verifier = verifier
 
     def reload_cache(self):
         for f in self.path.glob('*.notus'):
-            data = json.loads(f.read_bytes())
-            advisories = data.get("advisories", [])
-            for advisory in advisories:
-                res = self.__to_ospd(f, advisory)
-                self.cache.store_advisory(advisory["oid"], res)
+            if self._verifier(f):
+                data = json.loads(f.read_bytes())
+                advisories = data.get("advisories", [])
+                for advisory in advisories:
+                    res = self.__to_ospd(f, advisory)
+                    self.cache.store_advisory(advisory["oid"], res)
+            else:
+                logger.log(
+                    logging.WARN, f"ignoring {f} due to invalid signature"
+                )
         self.loaded = True
 
     def __to_ospd(self, path: Path, advisory: Dict[str, Any]):
