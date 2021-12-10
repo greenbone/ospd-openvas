@@ -575,9 +575,9 @@ class OSPDopenvas(OSPDaemon):
         current_feed = safe_int(current_feed)
         if current_feed is None:
             logger.debug(
-                "Wrong PLUGIN_SET format in plugins feed file %s. Format has to"
-                " be yyyymmddhhmm. For example 'PLUGIN_SET = \"201910251033\"'",
-                feed_info_file,
+                "Wrong PLUGIN_SET format in plugins feed file "
+                "'plugin_feed_info.inc'. Format has to"
+                " be yyyymmddhhmm. For example 'PLUGIN_SET = \"201910251033\"'"
             )
 
         feed_info = self.get_feed_info()
