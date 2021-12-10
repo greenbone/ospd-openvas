@@ -39,8 +39,6 @@ packages = [
   { include = "COPYING", format = "sdist"},
   { include = "poetry.lock", format = "sdist"},
   { include = "poetry.toml", format = "sdist"},
-  { include = "setup.py", format = "sdist"},
-  { include = "MANIFEST.in", format = "sdist"},
 ]
 
 [tool.poetry.dependencies]
