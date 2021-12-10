@@ -5,7 +5,6 @@ FROM greenbone/openvas-scanner:${VERSION}
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR /
 COPY ./config/ospd-openvas.conf /etc/gvm/ospd-openvas.conf
 WORKDIR /ospd-openvas
 
