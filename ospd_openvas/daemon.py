@@ -25,7 +25,7 @@ import logging
 import time
 import copy
 
-from typing import Optional, Dict, List, Tuple, Iterator
+from typing import Optional, Dict, List, Tuple, Iterator, Any
 from datetime import datetime
 from socket import gaierror
 
@@ -608,6 +608,48 @@ class OSPDopenvas(OSPDaemon):
         return (
             (not feed_date) or (not current_feed) or (current_feed < feed_date)
         )
+
+    def get_feed_info(self) -> Dict[str, Any]:
+        """Parses the current plugin_feed_info.inc file"""
+        feed_info = dict()
+
+        plugins_folder = self.scan_only_params.get('plugins_folder')
+        if not plugins_folder:
+            raise OspdOpenvasError("Error: Path to plugins folder not found.")
+
+        feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
+        if not feed_info_file.exists():
+            self.set_params_from_openvas_settings()
+            logger.debug('Plugins feed file %s not found.', feed_info_file)
+            return None
+
+        with feed_info_file.open(encoding='utf-8') as fcontent:
+            for line in fcontent:
+
+                try:
+                    key, value = line.split('=', 1)
+                except ValueError:
+                    continue
+                key = key.strip()
+                value = value.strip()
+                value = value.replace(';', '')
+                value = value.replace('"', '')
+                if value:
+                    feed_info[key] = value
+
+        return feed_info
+
+    def set_feed_info(self):
+        """Set feed current information to be included in the response of
+        <get_version/> command
+        """
+        current_feed = self.nvti.get_feed_version()
+        self.set_vts_version(vts_version=current_feed)
+
+        feed_info = self.get_feed_info()
+        self.set_feed_vendor(feed_info.get("FEED_VENDOR", "unknown"))
+        self.set_feed_home(feed_info.get("FEED_HOME", "unknown"))
+        self.set_feed_name(feed_info.get("PLUGIN_FEED", "unknown"))
 
     def check_feed(self):
         """Check if there is a feed update.
