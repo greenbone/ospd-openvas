@@ -157,6 +157,12 @@ class GetVersion(BaseCommand):
             vts = Element('vts')
             elem = SubElement(vts, 'version')
             elem.text = vts_version
+            elem = SubElement(vts, 'vendor')
+            elem.text = self._daemon.get_feed_vendor()
+            elem = SubElement(vts, 'home')
+            elem.text = self._daemon.get_feed_home()
+            elem = SubElement(vts, 'name')
+            elem.text = self._daemon.get_feed_name()
             content.append(vts)
 
         return simple_response_str('get_version', 200, 'OK', content)
