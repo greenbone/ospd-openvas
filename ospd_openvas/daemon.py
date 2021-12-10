@@ -545,8 +545,7 @@ class OSPDopenvas(OSPDaemon):
 
         with self.feed_lock.wait_for_lock():
             Openvas.load_vts_into_redis()
-            current_feed = self.nvti.get_feed_version()
-            self.set_vts_version(vts_version=current_feed)
+            self.set_feed_info()
 
             logger.debug("Calculating vts integrity check hash...")
             vthelper = VtHelper(self.nvti)
@@ -573,16 +572,6 @@ class OSPDopenvas(OSPDaemon):
                 redis cache.
             None if there is no feed on the disk.
         """
-        plugins_folder = self.scan_only_params.get('plugins_folder')
-        if not plugins_folder:
-            raise OspdOpenvasError("Error: Path to plugins folder not found.")
-
-        feed_info_file = Path(plugins_folder) / 'plugin_feed_info.inc'
-        if not feed_info_file.exists():
-            self.set_params_from_openvas_settings()
-            logger.debug('Plugins feed file %s not found.', feed_info_file)
-            return None
-
         current_feed = safe_int(current_feed)
         if current_feed is None:
             logger.debug(
@@ -591,16 +580,9 @@ class OSPDopenvas(OSPDaemon):
                 feed_info_file,
             )
 
-        feed_date = None
-        with feed_info_file.open(encoding='utf-8') as fcontent:
-            for line in fcontent:
-                if "PLUGIN_SET" in line:
-                    feed_date = line.split('=', 1)[1]
-                    feed_date = feed_date.strip()
-                    feed_date = feed_date.replace(';', '')
-                    feed_date = feed_date.replace('"', '')
-                    feed_date = safe_int(feed_date)
-                    break
+        feed_info = self.get_feed_info()
+        feed_date = feed_info.get("PLUGIN_SET")
+        feed_date = safe_int(feed_date)
 
         logger.debug("Current feed version: %s", current_feed)
         logger.debug("Plugin feed version: %s", feed_date)
@@ -669,8 +651,7 @@ class OSPDopenvas(OSPDaemon):
                 if fl.has_lock():
                     self.initialized = False
                     Openvas.load_vts_into_redis()
-                    current_feed = self.nvti.get_feed_version()
-                    self.set_vts_version(vts_version=current_feed)
+                    self.set_feed_info()
 
                     vthelper = VtHelper(self.nvti)
                     self.vts.sha256_hash = (
