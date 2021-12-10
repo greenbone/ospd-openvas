@@ -160,6 +160,9 @@ class OSPDaemon:
 
         self.vts = Vts(storage)
         self.vts_version = None
+        self.feed_name = None
+        self.feed_vendor = None
+        self.feed_home = None
 
         if customvtfilter:
             self.vts_filter = customvtfilter
@@ -258,9 +261,54 @@ class OSPDaemon:
             )
         self.vts_version = vts_version
 
+    def set_feed_vendor(self, feed_vendor: str) -> None:
+        """Set the feed vendor.
+        Parameters:
+            feed_home (str): Identifies the feed home.
+        """
+        if not feed_vendor:
+            raise OspdCommandError(
+                'A feed vendor parameter is required', 'set_feed_vendor'
+            )
+        self.feed_vendor = feed_vendor
+
+    def set_feed_home(self, feed_home: str) -> None:
+        """Set the feed home.
+        Parameters:
+            feed_home (str): Identifies the feed home.
+        """
+        if not feed_home:
+            raise OspdCommandError(
+                'A feed home parameter is required', 'set_feed_home'
+            )
+        self.feed_home = feed_home
+
+    def set_feed_name(self, feed_name: str) -> None:
+        """Set the feed name.
+        Parameters:
+            feed_name (str): Identifies the feed name.
+        """
+        if not feed_name:
+            raise OspdCommandError(
+                'A feed name parameter is required', 'set_feed_name'
+            )
+        self.feed_name = feed_name
+
     def get_vts_version(self) -> Optional[str]:
         """Return the vts version."""
         return self.vts_version
+
+    def get_feed_vendor(self) -> Optional[str]:
+        """Return the feed vendor."""
+        return self.feed_vendor
+
+    def get_feed_home(self) -> Optional[str]:
+        """Return the feed home."""
+        return self.feed_home
+
+    def get_feed_name(self) -> Optional[str]:
+        """Return the feed name."""
+        return self.feed_name
 
     def command_exists(self, name: str) -> bool:
         """Checks if a commands exists."""
