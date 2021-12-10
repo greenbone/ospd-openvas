@@ -5,8 +5,12 @@ FROM greenbone/openvas-scanner:${VERSION}
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+<<<<<<< HEAD
 WORKDIR /
 COPY ./config/ospd-openvas.conf /etc/gvm/ospd.conf
+=======
+COPY ./config/ospd-openvas.conf /etc/gvm/ospd-openvas.conf
+>>>>>>> f31f015d (Remove unnecessary WORKDIR command)
 WORKDIR /ospd-openvas
 
 RUN apt-get update && \
