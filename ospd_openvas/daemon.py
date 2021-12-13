@@ -22,8 +22,6 @@
 """ Setup for the OSP OpenVAS Server. """
 
 import logging
-from ospd_openvas.gpg_sha_verifier import ReloadConfiguration, create_verify, reload_sha256sums
-
 import time
 import copy
 
@@ -57,6 +55,12 @@ from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
+
+from ospd_openvas.gpg_sha_verifier import (
+    ReloadConfiguration,
+    create_verify,
+    reload_sha256sums,
+)
 
 SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
@@ -440,7 +444,10 @@ class OSPDopenvas(OSPDaemon):
         **kwargs,
     ):
         """Initializes the ospd-openvas daemon's internal data."""
-        def notus_gpp_verification_failure(_: Optional[Dict[str, str]]) -> Dict[str, str]:
+
+        def notus_gpp_verification_failure(
+            _: Optional[Dict[str, str]]
+        ) -> Dict[str, str]:
             raise Exception("GPG verification of notus sha256sums failed")
 
         self.main_db = MainDB()
@@ -449,8 +456,7 @@ class OSPDopenvas(OSPDaemon):
         if notus_dir:
             ndir = Path(notus_dir)
             rc = ReloadConfiguration(
-                ndir / "sha256sums",
-                notus_gpp_verification_failure
+                ndir / "sha256sums", notus_gpp_verification_failure
             )
             reloader = reload_sha256sums(rc)
             notus = Notus(ndir, self.main_db.ctx, create_verify(reloader))

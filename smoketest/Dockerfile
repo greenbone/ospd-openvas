@@ -2,6 +2,8 @@
 FROM greenbone/openvas-scanner:unstable
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
+    build-essential \
+    mosquitto \
     redis \
     git \
     python3 \
@@ -31,9 +33,11 @@ RUN useradd -rm -d /home/gvm -s /bin/bash -g root -g redis -G sudo -u 1000 gvm
 RUN echo 'gvm:test' | chpasswd
 RUN echo "gvm ALL = NOPASSWD: /usr/sbin/openvas" > /etc/sudoers.d/allow_openvas
 RUN echo "gvm ALL = NOPASSWD: /usr/bin/redis-server" > /etc/sudoers.d/allow_redis-server
+RUN echo "gvm ALL = NOPASSWD: /usr/sbin/mosquitto" > /etc/sudoers.d/allow_mosquitto
 COPY smoketest/redis.conf /etc/redis/redis.conf
 COPY --chmod=7777 . /usr/local/src/ospd-openvas
-
+# remove previous plugins
+RUN rm -rf /var/lib/openvas/plugins/*
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/openvas/notus
 RUN mkdir /run/redis
@@ -53,6 +57,17 @@ RUN gpg --import foo.pub
 WORKDIR /var/lib/openvas/notus/advisories
 RUN sha256sum * > sha256sums
 RUN gpg --pinentry-mode=loopback --passphrase abc --detach-sign -a sha256sums
+
+RUN mkdir /run/mosquitto
+RUN echo "allow_anonymous true" >> /etc/mosquitto.conf
+RUN echo "log_dest file /tmp/mosquitto.log" >> /etc/mosquitto.conf
+RUN echo "persistence true" >> /etc/mosquitto.conf
+RUN echo "mqtt_server_uri = localhost:1883" >> /etc/openvas/openvas.conf
+RUN chown mosquitto:mosquitto /run/mosquitto
+RUN mkdir -p /var/log/mosquitto/
+RUN chown mosquitto:mosquitto /var/log/mosquitto
+RUN chmod 774 /var/log/mosquitto
+
 USER gvm
 WORKDIR /usr/local/src/ospd-openvas/smoketest
 RUN gpg --import ../foo.pub

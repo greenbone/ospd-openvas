@@ -68,7 +68,7 @@ class Notus:
     ):
         self.path = path
         self.cache = Cache(redis)
-            
+
         self._verifier = verifier
 
     def reload_cache(self):
@@ -81,7 +81,7 @@ class Notus:
                     self.cache.store_advisory(advisory["oid"], res)
             else:
                 logger.log(
-                    logging.WARN, f"ignoring {f} due to invalid signature"
+                    logging.WARN, "ignoring %s due to invalid signature", f
                 )
         self.loaded = True
 
