@@ -662,8 +662,33 @@ class TestOspdOpenvas(TestCase):
         assert_called_once(logging.Logger.warning)
 
     @patch('ospd_openvas.daemon.Path.exists')
+    @patch('ospd_openvas.daemon.Path.open')
+    def test_get_feed_info(
+        self,
+        mock_path_open: MagicMock,
+        mock_path_exists: MagicMock,
+    ):
+        read_data = 'PLUGIN_SET = "1235";'
+
+        mock_path_exists.return_value = True
+        mock_read = MagicMock(name='Path open context manager')
+        mock_read.__enter__ = MagicMock(return_value=io.StringIO(read_data))
+        mock_path_open.return_value = mock_read
+
+        w = DummyDaemon()
+
+        # Return True
+        w.scan_only_params['plugins_folder'] = '/foo/bar'
+
+        ret = w.get_feed_info()
+        self.assertEqual(ret, {"PLUGIN_SET": "1235"})
+
+        self.assertEqual(mock_path_exists.call_count, 1)
+        self.assertEqual(mock_path_open.call_count, 1)
+
+    @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.OSPDopenvas.set_params_from_openvas_settings')
-    def test_feed_is_outdated_none(
+    def test_get_feed_info_none(
         self, mock_set_params: MagicMock, mock_path_exists: MagicMock
     ):
         w = DummyDaemon()
@@ -673,7 +698,7 @@ class TestOspdOpenvas(TestCase):
         # Return None
         mock_path_exists.return_value = False
 
-        ret = w.feed_is_outdated('1234')
+        ret = w.get_feed_info()
         self.assertIsNone(ret)
 
         self.assertEqual(mock_set_params.call_count, 1)

@@ -580,9 +580,10 @@ class OSPDopenvas(OSPDaemon):
                 " be yyyymmddhhmm. For example 'PLUGIN_SET = \"201910251033\"'"
             )
 
+        feed_date = None
         feed_info = self.get_feed_info()
-        feed_date = feed_info.get("PLUGIN_SET")
-        feed_date = safe_int(feed_date)
+        if feed_info:
+            feed_date = safe_int(feed_info.get("PLUGIN_SET"))
 
         logger.debug("Current feed version: %s", current_feed)
         logger.debug("Plugin feed version: %s", feed_date)
