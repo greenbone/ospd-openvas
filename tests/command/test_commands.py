@@ -18,11 +18,12 @@
 import time
 
 from unittest import TestCase
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from xml.etree import ElementTree as et
 
 from ospd.command.command import (
+    CheckFeed,
     GetPerformance,
     StartScan,
     StopScan,
@@ -30,13 +31,32 @@ from ospd.command.command import (
 )
 from ospd.errors import OspdCommandError, OspdError
 from ospd.misc import create_process
-
 from ..helper import (
     DummyWrapper,
     assert_called_once,
     FakeStream,
     FakeDataManager,
 )
+
+
+class CheckFeedTestCase(TestCase):
+    def test_check_feed_fail(self):
+        daemon = DummyWrapper([])
+        daemon.check_feed_self_test = MagicMock(return_value=None)
+        cmd = CheckFeed(daemon)
+        request = et.fromstring('<check_feed/>')
+
+        with self.assertRaises(OspdCommandError):
+            cmd.handle_xml(request)
+
+    def test_check_feed(self):
+        daemon = DummyWrapper([])
+        daemon.check_feed_self_test = MagicMock(return_value={'a': '1'})
+        cmd = CheckFeed(daemon)
+        response = et.fromstring(cmd.handle_xml(et.fromstring('<check_feed/>')))
+
+        self.assertEqual(response.get('status'), '200')
+        self.assertEqual(response.tag, 'check_feed_response')
 
 
 class GetPerformanceTestCase(TestCase):
