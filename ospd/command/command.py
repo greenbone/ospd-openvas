@@ -129,7 +129,7 @@ class CheckFeed(BaseCommand):
         feed = Element('feed')
 
         feed_status = self._daemon.check_feed_self_test()
-        print(feed_status)
+
         if not feed_status or not isinstance(feed_status, dict):
             raise OspdCommandError('No feed status available', 'check_feed')
 
