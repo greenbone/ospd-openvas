@@ -55,6 +55,7 @@ from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
+from ospd_openvas.feed import Feed
 
 from ospd_openvas.gpg_sha_verifier import (
     ReloadConfiguration,
@@ -633,6 +634,32 @@ class OSPDopenvas(OSPDaemon):
         self.set_feed_vendor(feed_info.get("FEED_VENDOR", "unknown"))
         self.set_feed_home(feed_info.get("FEED_HOME", "unknown"))
         self.set_feed_name(feed_info.get("PLUGIN_FEED", "unknown"))
+
+    def check_feed_self_test(self) -> Dict:
+        """Perform a feed sync self tests and check if the feed lock file is
+        locked.
+        """
+        feed_status = dict()
+
+        # It is locked by the current process
+        if self.feed_lock.has_lock():
+            feed_status["lockfile_in_use"] = '1'
+        # Check if we can get the lock
+        else:
+            with self.feed_lock as fl:
+                # It is available
+                if fl.has_lock():
+                    feed_status["lockfile_in_use"] = '0'
+                # Locked by another process
+                else:
+                    feed_status["lockfile_in_use"] = '1'
+
+        feed = Feed()
+        _exit_error, _error_msg = feed.perform_feed_sync_self_test_success()
+        feed_status["self_test_exit_error"] = str(_exit_error)
+        feed_status["self_test_error_msg"] = _error_msg
+
+        return feed_status
 
     def check_feed(self):
         """Check if there is a feed update.
