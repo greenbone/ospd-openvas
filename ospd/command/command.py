@@ -114,6 +114,34 @@ class HelpCommand(BaseCommand):
         raise OspdCommandError('Bogus help format', 'help')
 
 
+class CheckFeed(BaseCommand):
+    name = "check_feed"
+    description = 'Perform a sync feed self test and return the status'
+    must_be_initialized = False
+
+    def handle_xml(self, xml: Element) -> bytes:
+        """Handles <check_feed> command.
+
+        Return:
+            Response string for <check_feed> command.
+        """
+
+        feed = Element('feed')
+
+        feed_status = self._daemon.check_feed_self_test()
+        print(feed_status)
+        if not feed_status or not isinstance(feed_status, dict):
+            raise OspdCommandError('No feed status available', 'check_feed')
+
+        for key, value in feed_status.items():
+            elem = SubElement(feed, key)
+            elem.text = value
+
+        content = [feed]
+
+        return simple_response_str('check_feed', 200, 'OK', content)
+
+
 class GetVersion(BaseCommand):
     name = "get_version"
     description = 'Return various version information'
