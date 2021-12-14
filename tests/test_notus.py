@@ -21,12 +21,36 @@ import logging
 from unittest import TestCase, mock
 from ospd_openvas.messages.result import ResultMessage
 
-from ospd_openvas.notus import NotusResultHandler
+from ospd_openvas.notus import NotusResultHandler, Notus
 
 
 class NotusTestCase(TestCase):
-    # def mock_report_func(self, results: list, scan_id: str) -> bool:
-    #     pass
+    def test_notus_retrieve(self):
+        path_mock = mock.MagicMock()
+        redis_mock = mock.MagicMock()
+        redis_mock.scan_iter.return_value = ["internal/notus/advisories/12"]
+        redis_mock.lindex.return_value = '{"file_name": "/tmp/something" }'
+        notus = Notus(path_mock, redis_mock, lambda _: True)
+        oids = [x for x in notus.get_filenames_and_oids()]
+        self.assertEqual(len(oids), 1)
+
+    def test_notus_reload(self):
+        path_mock = mock.MagicMock()
+        adv_path = mock.MagicMock()
+        adv_path.name = "hi"
+        adv_path.stem = "family"
+        path_mock.glob.return_value = [adv_path]
+        adv_path.read_bytes.return_value = (
+            b'{ "advisories": [ { "oid": "12", "file_name": "aha.txt" } ] }'
+        )
+        redis_mock = mock.MagicMock()
+        load_into_redis = Notus(path_mock, redis_mock, lambda _: True)
+        load_into_redis.reload_cache()
+        self.assertEqual(redis_mock.lpush.call_count, 1)
+        redis_mock.reset_mock()
+        do_not_load_into_redis = Notus(path_mock, redis_mock, lambda _: False)
+        do_not_load_into_redis.reload_cache()
+        self.assertEqual(redis_mock.lpush.call_count, 0)
 
     def test_notus_fail_cases(self):
         def start(self):

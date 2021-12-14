@@ -1,8 +1,9 @@
-package it
+package main
 
 import (
+	"fmt"
+	"log"
 	"os"
-	"testing"
 
 	"github.com/greenbone/ospd-openvas/smoketest/connection"
 	"github.com/greenbone/ospd-openvas/smoketest/vt"
@@ -27,39 +28,43 @@ func init() {
 	}
 }
 
-func getVTs(t *testing.T) vt.GetVTsResponse {
+func getVTs() vt.GetVTsResponse {
 	var response vt.GetVTsResponse
 	if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
-		t.Fatalf("Connectio to %s failed: %s", address, err)
+        panic(err)
 	}
 	return response
 
 }
 
-func retryUntilPluginsAreLoaded(t *testing.T) vt.GetVTsResponse {
+func retryUntilPluginsAreLoaded() vt.GetVTsResponse {
 	var response vt.GetVTsResponse
 	if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
-		t.Fatalf("Connectio to %s failed: %s", address, err)
+        panic(err)
 	}
-	r := getVTs(t)
+	r := getVTs()
 	for len(r.VTs.VT) == 0 {
-		r = getVTs(t)
+		r = getVTs()
 	}
 	return r
 
 }
 
-func TestGetVTs(t *testing.T) {
-	response := retryUntilPluginsAreLoaded(t)
+
+func main() {
+    log.Print("Trying to connect")
+	response := retryUntilPluginsAreLoaded()
 	n := len(title)
+    log.Printf("Got %d vts", len(response.VTs.VT))
 	if len(response.VTs.VT) != n {
-		t.Errorf("Expected %d vts but got %d", n, len(response.VTs.VT))
+		panic(fmt.Errorf("Expected %d vts but got %d", n, len(response.VTs.VT)))
 	}
 	for _, v := range response.VTs.VT {
 		if title[v.ID] != v.Name {
-			t.Errorf("Expected %s title but got %s", title[v.ID], v.Name)
+			panic(fmt.Errorf("Expected %s title but got %s", title[v.ID], v.Name))
 
 		}
-
 	}
+    log.Print("Success")
+
 }

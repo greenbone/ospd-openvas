@@ -52,6 +52,7 @@ defusedxml = ">=0.6,<0.8"
 paramiko = "^2.7.1"
 deprecated = "^1.2.10"
 paho-mqtt = "^1.6.0"
+python-gnupg = "^0.4.8"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.12.2"
