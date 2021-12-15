@@ -6,14 +6,16 @@ from typing import Callable, Dict, Optional
 from dataclasses import dataclass
 from gnupg import GPG
 
+OPENVAS_GPG_HOME = "/etc/openvas/gnupg"
+
 
 def __default_gpg_home() -> GPG:
     """
-    __defaultGpgHome tries to load the variable 'GPG_HOME' or to guess it
+    __defaultGpgHome tries to load the variable 'GNUPGHOME' or to guess it
     """
-    manual = os.getenv("GPG_HOME")
+    manual = os.getenv("GNUPGHOME")
 
-    home = Path(manual) if manual else Path.home() / ".gnupg"
+    home = Path(manual) if manual else Path(OPENVAS_GPG_HOME)
     return GPG(gnupghome=f"{home.absolute()}")
 
 
