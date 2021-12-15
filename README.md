@@ -20,19 +20,17 @@ you can create scan tasks to use OpenVAS and Notus.
 
 Python 3.7 and later is supported.
 
-Beyond the [ospd base library](https://github.com/greenbone/ospd),
 `ospd-openvas` has dependencies on the following Python packages:
 
-- `redis`
-- `psutil`
+- `defusedxml`
+- `depreacted`
+- `lxml`
 - `packaging`
-
-There are no special installation aspects for this module beyond the general
-installation guide for ospd-based scanners.
-
-Please follow the general installation guide for ospd-based scanners:
-
-  <https://github.com/greenbone/ospd-openvas/blob/main/docs/INSTALL-ospd-scanner.md>
+- `paho-mqtt`
+- `paramiko`
+- `psutil`
+- `python-gnupg`
+- `redis`
 
 ### Mandatory configuration
 
