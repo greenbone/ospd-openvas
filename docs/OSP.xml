@@ -455,6 +455,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <elements></elements>
             <description>Return various versions</description>
           </get_version>
+          <check_feed>
+            <attributes></attributes>
+            <elements></elements>
+            <description>Perform sync feed self test and check lockfile status</description>
+          </check_feed>
           <stop_scan>
             <attributes>
               <scan_id>ID of scan stop.</scan_id>
@@ -759,6 +764,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <e>protocol</e>
         <e>daemon</e>
         <e>scanner</e>
+        <e>vts</e>
       </pattern>
       <ele>
         <name>protocol</name>
@@ -799,6 +805,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <name>name</name>
         </ele>
       </ele>
+      <ele>
+        <name>vts</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+          <e>home</e>
+          <e>vendor</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+        <ele>
+          <name>home</name>
+        </ele>
+        <ele>
+          <name>vendor</name>
+        </ele>
+      </ele>
     </response>
     <example>
       <summary>Get protocol, scanner and daemon versions</summary>
@@ -819,7 +846,65 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <version>1.6.0.4</version>
             <name>w3af</name>
           </scanner>
+          <vts>
+            <version>202112070837</version>
+            <vendor>Greenbone Networks GmbH</vendor>
+            <home>https://www.greenbone.net/en/security-feed/</home>
+            <name>Greenbone Security Feed</name>
+          </vts>
         </get_version_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>check_feed</name>
+    <summary>Perform sync feed self test and check lockfile status</summary>
+    <pattern/>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>feed</e>
+      </pattern>
+      <ele>
+        <name>feed</name>
+        <pattern>
+          <e>lockfile_in_use</e>
+          <e>self_test_exit_error</e>
+          <e>self_test_error_msg</e>
+        </pattern>
+        <ele>
+          <name>lockfile_in_use</name>
+        </ele>
+        <ele>
+          <name>self_test_exit_error</name>
+        </ele>
+        <ele>
+          <name>self_test_error_msg</name>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Perform sync feed self test and check lockfile status</summary>
+      <request>
+        <check_feed/>
+      </request>
+      <response>
+        <check_feed_response status_text="OK" status="200">
+          <feed>
+            <lockfile_in_use>0</lockfile_in_use>
+            <self_test_exit_error>0</self_test_exit_error>
+            <self_test_error_msg/>
+          </feed>
+        </check_feed_response>
       </response>
     </example>
   </command>
