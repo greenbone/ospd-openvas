@@ -17,8 +17,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-import subprocess
-
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
 
