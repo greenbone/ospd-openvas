@@ -1054,6 +1054,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <summary>Return more details about vulnerability tests, if offered by the scanner</summary>
         <type>string</type>
       </attrib>
+      <attrib>
+        <name>version_only</name>
+        <summary>Return only feed information</summary>
+        <type>boolean</type>
+      </attrib>
     </pattern>
     <response>
       <pattern>
@@ -1072,6 +1077,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <ele>
         <name>vts</name>
         <pattern>
+          <attrib>
+            <name>vts_version</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>feed_vendor</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>feed_home</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>feed_name</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>total</name>
+            <type>integer</type>
+          </attrib>
+          <attrib>
+            <name>sha256_hash</name>
+            <type>text</type>
+          </attrib>
           <any><e>vt</e></any>
         </pattern>
         <ele>
@@ -1227,6 +1256,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         </ele>
       </ele>
     </response>
+    <example>
+      <summary>Get only feed information</summary>
+      <request>
+        <get_vts version_only='1'/>
+      </request>
+      <response>
+        <get_vts_response status="200" status_text="OK">
+          <vts vts_version="202112140941" feed_vendor="Greenbone Networks GmbH" feed_home="https://www.greenbone.net/en/security-feed/" feed_name="Greenbone Security Feed" total="" sha256_hash="1762240dbd4ad0baf41ad9dcec58863922d63da35ceaa44488a55c3c23c4fcdb"/>
+        </get_vts_response>
+      </response>
+    </example>
     <example>
       <summary>Get information for all available vulnerability tests</summary>
       <request>
@@ -1630,6 +1670,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
+  
+  <change>
+    <command>CHECK_FEED</command>
+    <summary>New command to perform a sync feed self test</summary>
+    <description>Perform a sync feed self test and check if the lockfile is locked
+    </description>
+    <version>21.10</version>
+  </change>
+
+    <change>
+    <command>GET_VTS</command>
+    <summary>Add feed information</summary>
+    <description>Include as arguments the feed's vendor, name and home.
+    </description>
+    <version>21.10</version>
+  </change>
+
+  <change>
+    <command>GET_VERSION</command>
+    <summary>Add feed information</summary>
+    <description>Include as arguments the feed's vendor, name and home.
+    </description>
+    <version>21.10</version>
+  </change>
 
   <change>
     <command>START_SCAN</command>

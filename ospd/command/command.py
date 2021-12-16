@@ -392,9 +392,21 @@ class GetVts(BaseCommand):
         yield xml_helper.create_response('get_vts')
 
         begin_vts_tag = xml_helper.create_element('vts')
+
+        # Add Feed information as attributes
         begin_vts_tag = xml_helper.add_attr(
             begin_vts_tag, "vts_version", self._daemon.get_vts_version()
         )
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "feed_vendor", self._daemon.get_feed_vendor()
+        )
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "feed_home", self._daemon.get_feed_home()
+        )
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "feed_name", self._daemon.get_feed_name()
+        )
+
         val = len(self._daemon.vts)
         begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "total", val)
         if filtered_vts and not version_only:
