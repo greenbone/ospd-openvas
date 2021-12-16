@@ -114,6 +114,34 @@ class HelpCommand(BaseCommand):
         raise OspdCommandError('Bogus help format', 'help')
 
 
+class CheckFeed(BaseCommand):
+    name = "check_feed"
+    description = 'Perform a sync feed self test and return the status'
+    must_be_initialized = False
+
+    def handle_xml(self, xml: Element) -> bytes:
+        """Handles <check_feed> command.
+
+        Return:
+            Response string for <check_feed> command.
+        """
+
+        feed = Element('feed')
+
+        feed_status = self._daemon.check_feed_self_test()
+
+        if not feed_status or not isinstance(feed_status, dict):
+            raise OspdCommandError('No feed status available', 'check_feed')
+
+        for key, value in feed_status.items():
+            elem = SubElement(feed, key)
+            elem.text = value
+
+        content = [feed]
+
+        return simple_response_str('check_feed', 200, 'OK', content)
+
+
 class GetVersion(BaseCommand):
     name = "get_version"
     description = 'Return various version information'
@@ -157,6 +185,12 @@ class GetVersion(BaseCommand):
             vts = Element('vts')
             elem = SubElement(vts, 'version')
             elem.text = vts_version
+            elem = SubElement(vts, 'vendor')
+            elem.text = self._daemon.get_feed_vendor()
+            elem = SubElement(vts, 'home')
+            elem.text = self._daemon.get_feed_home()
+            elem = SubElement(vts, 'name')
+            elem.text = self._daemon.get_feed_name()
             content.append(vts)
 
         return simple_response_str('get_version', 200, 'OK', content)
@@ -358,9 +392,21 @@ class GetVts(BaseCommand):
         yield xml_helper.create_response('get_vts')
 
         begin_vts_tag = xml_helper.create_element('vts')
+
+        # Add Feed information as attributes
         begin_vts_tag = xml_helper.add_attr(
             begin_vts_tag, "vts_version", self._daemon.get_vts_version()
         )
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "feed_vendor", self._daemon.get_feed_vendor()
+        )
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "feed_home", self._daemon.get_feed_home()
+        )
+        begin_vts_tag = xml_helper.add_attr(
+            begin_vts_tag, "feed_name", self._daemon.get_feed_name()
+        )
+
         val = len(self._daemon.vts)
         begin_vts_tag = xml_helper.add_attr(begin_vts_tag, "total", val)
         if filtered_vts and not version_only:

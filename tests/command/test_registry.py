@@ -22,6 +22,7 @@ from ospd.command.registry import get_commands, register_command, remove_command
 
 COMMAND_NAMES = [
     "help",
+    "check_feed",
     "get_version",
     "get_performance",
     "get_scanner_details",

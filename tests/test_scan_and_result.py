@@ -176,6 +176,9 @@ class ScanTestCase(unittest.TestCase):
         fs = FakeStream()
         self.daemon.add_vt('1.2.3.4', 'A vulnerability test')
         self.daemon.set_vts_version('today')
+        self.daemon.set_feed_vendor('Greenbone')
+        self.daemon.set_feed_name('GCF')
+        self.daemon.set_feed_home('www.greenbone.net')
         self.daemon.handle_command('<get_vts version_only="1"/>', fs)
         response = fs.get_response()
 
@@ -183,6 +186,12 @@ class ScanTestCase(unittest.TestCase):
 
         vts_version = response.find('vts').attrib['vts_version']
         self.assertEqual(vts_version, self.daemon.get_vts_version())
+        feed_vendor = response.find('vts').attrib['feed_vendor']
+        self.assertEqual(feed_vendor, self.daemon.get_feed_vendor())
+        feed_home = response.find('vts').attrib['feed_home']
+        self.assertEqual(feed_home, self.daemon.get_feed_home())
+        feed_name = response.find('vts').attrib['feed_name']
+        self.assertEqual(feed_name, self.daemon.get_feed_name())
 
         vts = response.find('vts')
         self.assertIsNone(vts.find('vt'))

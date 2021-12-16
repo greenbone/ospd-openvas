@@ -455,6 +455,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <elements></elements>
             <description>Return various versions</description>
           </get_version>
+          <check_feed>
+            <attributes></attributes>
+            <elements></elements>
+            <description>Perform sync feed self test and check lockfile status</description>
+          </check_feed>
           <stop_scan>
             <attributes>
               <scan_id>ID of scan stop.</scan_id>
@@ -759,6 +764,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <e>protocol</e>
         <e>daemon</e>
         <e>scanner</e>
+        <e>vts</e>
       </pattern>
       <ele>
         <name>protocol</name>
@@ -799,6 +805,27 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <name>name</name>
         </ele>
       </ele>
+      <ele>
+        <name>vts</name>
+        <pattern>
+          <e>name</e>
+          <e>version</e>
+          <e>home</e>
+          <e>vendor</e>
+        </pattern>
+        <ele>
+          <name>version</name>
+        </ele>
+        <ele>
+          <name>name</name>
+        </ele>
+        <ele>
+          <name>home</name>
+        </ele>
+        <ele>
+          <name>vendor</name>
+        </ele>
+      </ele>
     </response>
     <example>
       <summary>Get protocol, scanner and daemon versions</summary>
@@ -819,7 +846,65 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <version>1.6.0.4</version>
             <name>w3af</name>
           </scanner>
+          <vts>
+            <version>202112070837</version>
+            <vendor>Greenbone Networks GmbH</vendor>
+            <home>https://www.greenbone.net/en/security-feed/</home>
+            <name>Greenbone Security Feed</name>
+          </vts>
         </get_version_response>
+      </response>
+    </example>
+  </command>
+  <command>
+    <name>check_feed</name>
+    <summary>Perform sync feed self test and check lockfile status</summary>
+    <pattern/>
+    <response>
+      <pattern>
+        <attrib>
+          <name>status</name>
+          <type>status</type>
+          <required>1</required>
+        </attrib>
+        <attrib>
+          <name>status_text</name>
+          <type>text</type>
+          <required>1</required>
+        </attrib>
+        <e>feed</e>
+      </pattern>
+      <ele>
+        <name>feed</name>
+        <pattern>
+          <e>lockfile_in_use</e>
+          <e>self_test_exit_error</e>
+          <e>self_test_error_msg</e>
+        </pattern>
+        <ele>
+          <name>lockfile_in_use</name>
+        </ele>
+        <ele>
+          <name>self_test_exit_error</name>
+        </ele>
+        <ele>
+          <name>self_test_error_msg</name>
+        </ele>
+      </ele>
+    </response>
+    <example>
+      <summary>Perform sync feed self test and check lockfile status</summary>
+      <request>
+        <check_feed/>
+      </request>
+      <response>
+        <check_feed_response status_text="OK" status="200">
+          <feed>
+            <lockfile_in_use>0</lockfile_in_use>
+            <self_test_exit_error>0</self_test_exit_error>
+            <self_test_error_msg/>
+          </feed>
+        </check_feed_response>
       </response>
     </example>
   </command>
@@ -969,6 +1054,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <summary>Return more details about vulnerability tests, if offered by the scanner</summary>
         <type>string</type>
       </attrib>
+      <attrib>
+        <name>version_only</name>
+        <summary>Return only feed information</summary>
+        <type>boolean</type>
+      </attrib>
     </pattern>
     <response>
       <pattern>
@@ -987,6 +1077,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <ele>
         <name>vts</name>
         <pattern>
+          <attrib>
+            <name>vts_version</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>feed_vendor</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>feed_home</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>feed_name</name>
+            <type>text</type>
+          </attrib>
+          <attrib>
+            <name>total</name>
+            <type>integer</type>
+          </attrib>
+          <attrib>
+            <name>sha256_hash</name>
+            <type>text</type>
+          </attrib>
           <any><e>vt</e></any>
         </pattern>
         <ele>
@@ -1142,6 +1256,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         </ele>
       </ele>
     </response>
+    <example>
+      <summary>Get only feed information</summary>
+      <request>
+        <get_vts version_only='1'/>
+      </request>
+      <response>
+        <get_vts_response status="200" status_text="OK">
+          <vts vts_version="202112140941" feed_vendor="Greenbone Networks GmbH" feed_home="https://www.greenbone.net/en/security-feed/" feed_name="Greenbone Security Feed" total="" sha256_hash="1762240dbd4ad0baf41ad9dcec58863922d63da35ceaa44488a55c3c23c4fcdb"/>
+        </get_vts_response>
+      </response>
+    </example>
     <example>
       <summary>Get information for all available vulnerability tests</summary>
       <request>
@@ -1545,6 +1670,30 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
+  
+  <change>
+    <command>CHECK_FEED</command>
+    <summary>New command to perform a sync feed self test</summary>
+    <description>Perform a sync feed self test and check if the lockfile is locked
+    </description>
+    <version>21.10</version>
+  </change>
+
+    <change>
+    <command>GET_VTS</command>
+    <summary>Add feed information</summary>
+    <description>Include as arguments the feed's vendor, name and home.
+    </description>
+    <version>21.10</version>
+  </change>
+
+  <change>
+    <command>GET_VERSION</command>
+    <summary>Add feed information</summary>
+    <description>Include as arguments the feed's vendor, name and home.
+    </description>
+    <version>21.10</version>
+  </change>
 
   <change>
     <command>START_SCAN</command>
