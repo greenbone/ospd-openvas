@@ -85,7 +85,11 @@ def gpg_sha256sums(
             for line in f.readlines():
                 hsum, fname = line.split("  ")
                 # the second part can contain a newline
-                result[hsum] = fname.strip()
+                # sometimes the hash sum got generated outside the current dir
+                # and may contain leading paths.
+                # Since we check against the filename we should normalize to
+                # prevent false positives.
+                result[hsum] = fname.split("/")[-1].strip()
         return result
 
 
