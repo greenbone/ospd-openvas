@@ -122,6 +122,7 @@ class Notus:
         result["refs"] = refs
         result["family"] = path.stem
         result["name"] = advisory.get("title", "")
+        result["category"] = "3"
         return result
 
     def get_filenames_and_oids(self):
