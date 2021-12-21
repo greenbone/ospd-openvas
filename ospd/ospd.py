@@ -59,6 +59,7 @@ from ospd.xml import (
     get_result_xml,
     get_progress_xml,
 )
+from ospd.xmlvt import XmlStringVTHelper
 
 logger = logging.getLogger(__name__)
 
@@ -875,227 +876,6 @@ class OSPDaemon:
 
         return response
 
-    @staticmethod
-    def get_custom_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, custom: Dict
-    ) -> str:
-        """Create a string representation of the XML object from the
-        custom data object.
-        This needs to be implemented by each ospd wrapper, in case
-        custom elements for VTs are used.
-
-        The custom XML object which is returned will be embedded
-        into a <custom></custom> element.
-
-        Returns:
-            XML object as string for custom data.
-        """
-        return ''
-
-    @staticmethod
-    def get_params_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, vt_params
-    ) -> str:
-        """Create a string representation of the XML object from the
-        vt_params data object.
-        This needs to be implemented by each ospd wrapper, in case
-        vt_params elements for VTs are used.
-
-        The params XML object which is returned will be embedded
-        into a <params></params> element.
-
-        Returns:
-            XML object as string for vt parameters data.
-        """
-        return ''
-
-    @staticmethod
-    def get_refs_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, vt_refs
-    ) -> str:
-        """Create a string representation of the XML object from the
-        refs data object.
-        This needs to be implemented by each ospd wrapper, in case
-        refs elements for VTs are used.
-
-        The refs XML object which is returned will be embedded
-        into a <refs></refs> element.
-
-        Returns:
-            XML object as string for vt references data.
-        """
-        return ''
-
-    @staticmethod
-    def get_dependencies_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, vt_dependencies
-    ) -> str:
-        """Create a string representation of the XML object from the
-        vt_dependencies data object.
-        This needs to be implemented by each ospd wrapper, in case
-        vt_dependencies elements for VTs are used.
-
-        The vt_dependencies XML object which is returned will be embedded
-        into a <dependencies></dependencies> element.
-
-        Returns:
-            XML object as string for vt dependencies data.
-        """
-        return ''
-
-    @staticmethod
-    def get_creation_time_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, vt_creation_time
-    ) -> str:
-        """Create a string representation of the XML object from the
-        vt_creation_time data object.
-        This needs to be implemented by each ospd wrapper, in case
-        vt_creation_time elements for VTs are used.
-
-        The vt_creation_time XML object which is returned will be embedded
-        into a <vt_creation_time></vt_creation_time> element.
-
-        Returns:
-            XML object as string for vt creation time data.
-        """
-        return ''
-
-    @staticmethod
-    def get_modification_time_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, vt_modification_time
-    ) -> str:
-        """Create a string representation of the XML object from the
-        vt_modification_time data object.
-        This needs to be implemented by each ospd wrapper, in case
-        vt_modification_time elements for VTs are used.
-
-        The vt_modification_time XML object which is returned will be embedded
-        into a <vt_modification_time></vt_modification_time> element.
-
-        Returns:
-            XML object as string for vt references data.
-        """
-        return ''
-
-    @staticmethod
-    def get_summary_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, summary
-    ) -> str:
-        """Create a string representation of the XML object from the
-        summary data object.
-        This needs to be implemented by each ospd wrapper, in case
-        summary elements for VTs are used.
-
-        The summary XML object which is returned will be embedded
-        into a <summary></summary> element.
-
-        Returns:
-            XML object as string for summary data.
-        """
-        return ''
-
-    @staticmethod
-    def get_impact_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, impact
-    ) -> str:
-        """Create a string representation of the XML object from the
-        impact data object.
-        This needs to be implemented by each ospd wrapper, in case
-        impact elements for VTs are used.
-
-        The impact XML object which is returned will be embedded
-        into a <impact></impact> element.
-
-        Returns:
-            XML object as string for impact data.
-        """
-        return ''
-
-    @staticmethod
-    def get_affected_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, affected
-    ) -> str:
-        """Create a string representation of the XML object from the
-        affected data object.
-        This needs to be implemented by each ospd wrapper, in case
-        affected elements for VTs are used.
-
-        The affected XML object which is returned will be embedded
-        into a <affected></affected> element.
-
-        Returns:
-            XML object as string for affected data.
-        """
-        return ''
-
-    @staticmethod
-    def get_insight_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, insight
-    ) -> str:
-        """Create a string representation of the XML object from the
-        insight data object.
-        This needs to be implemented by each ospd wrapper, in case
-        insight elements for VTs are used.
-
-        The insight XML object which is returned will be embedded
-        into a <insight></insight> element.
-
-        Returns:
-            XML object as string for insight data.
-        """
-        return ''
-
-    @staticmethod
-    def get_solution_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, solution, solution_type=None, solution_method=None
-    ) -> str:
-        """Create a string representation of the XML object from the
-        solution data object.
-        This needs to be implemented by each ospd wrapper, in case
-        solution elements for VTs are used.
-
-        The solution XML object which is returned will be embedded
-        into a <solution></solution> element.
-
-        Returns:
-            XML object as string for solution data.
-        """
-        return ''
-
-    @staticmethod
-    def get_detection_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, detection=None, qod_type=None, qod=None
-    ) -> str:
-        """Create a string representation of the XML object from the
-        detection data object.
-        This needs to be implemented by each ospd wrapper, in case
-        detection elements for VTs are used.
-
-        The detection XML object which is returned is an element with
-        tag <detection></detection> element
-
-        Returns:
-            XML object as string for detection data.
-        """
-        return ''
-
-    @staticmethod
-    def get_severities_vt_as_xml_str(  # pylint: disable=unused-argument
-        vt_id: str, severities
-    ) -> str:
-        """Create a string representation of the XML object from the
-        severities data object.
-        This needs to be implemented by each ospd wrapper, in case
-        severities elements for VTs are used.
-
-        The severities XML objects which are returned will be embedded
-        into a <severities></severities> element.
-
-        Returns:
-            XML object as string for severities data.
-        """
-        return ''
-
     def get_vt_iterator(  # pylint: disable=unused-argument
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
@@ -1122,60 +902,64 @@ class OSPDaemon:
             elem = SubElement(vt_xml, name)
             elem.text = str(value)
 
+        xml_helper = XmlStringVTHelper()
+
         if vt.get('vt_params'):
-            params_xml_str = self.get_params_vt_as_xml_str(
+            params_xml_str = xml_helper.get_params_vt_as_xml_str(
                 vt_id, vt.get('vt_params')
             )
             vt_xml.append(secET.fromstring(params_xml_str))
 
         if vt.get('vt_refs'):
-            refs_xml_str = self.get_refs_vt_as_xml_str(vt_id, vt.get('vt_refs'))
+            refs_xml_str = xml_helper.get_refs_vt_as_xml_str(
+                vt_id, vt.get('vt_refs')
+            )
             vt_xml.append(secET.fromstring(refs_xml_str))
 
         if vt.get('vt_dependencies'):
-            dependencies = self.get_dependencies_vt_as_xml_str(
+            dependencies = xml_helper.get_dependencies_vt_as_xml_str(
                 vt_id, vt.get('vt_dependencies')
             )
             vt_xml.append(secET.fromstring(dependencies))
 
         if vt.get('creation_time'):
-            vt_ctime = self.get_creation_time_vt_as_xml_str(
+            vt_ctime = xml_helper.get_creation_time_vt_as_xml_str(
                 vt_id, vt.get('creation_time')
             )
             vt_xml.append(secET.fromstring(vt_ctime))
 
         if vt.get('modification_time'):
-            vt_mtime = self.get_modification_time_vt_as_xml_str(
+            vt_mtime = xml_helper.get_modification_time_vt_as_xml_str(
                 vt_id, vt.get('modification_time')
             )
             vt_xml.append(secET.fromstring(vt_mtime))
 
         if vt.get('summary'):
-            summary_xml_str = self.get_summary_vt_as_xml_str(
+            summary_xml_str = xml_helper.get_summary_vt_as_xml_str(
                 vt_id, vt.get('summary')
             )
             vt_xml.append(secET.fromstring(summary_xml_str))
 
         if vt.get('impact'):
-            impact_xml_str = self.get_impact_vt_as_xml_str(
+            impact_xml_str = xml_helper.get_impact_vt_as_xml_str(
                 vt_id, vt.get('impact')
             )
             vt_xml.append(secET.fromstring(impact_xml_str))
 
         if vt.get('affected'):
-            affected_xml_str = self.get_affected_vt_as_xml_str(
+            affected_xml_str = xml_helper.get_affected_vt_as_xml_str(
                 vt_id, vt.get('affected')
             )
             vt_xml.append(secET.fromstring(affected_xml_str))
 
         if vt.get('insight'):
-            insight_xml_str = self.get_insight_vt_as_xml_str(
+            insight_xml_str = xml_helper.get_insight_vt_as_xml_str(
                 vt_id, vt.get('insight')
             )
             vt_xml.append(secET.fromstring(insight_xml_str))
 
         if vt.get('solution'):
-            solution_xml_str = self.get_solution_vt_as_xml_str(
+            solution_xml_str = xml_helper.get_solution_vt_as_xml_str(
                 vt_id,
                 vt.get('solution'),
                 vt.get('solution_type'),
@@ -1184,19 +968,19 @@ class OSPDaemon:
             vt_xml.append(secET.fromstring(solution_xml_str))
 
         if vt.get('detection') or vt.get('qod_type') or vt.get('qod'):
-            detection_xml_str = self.get_detection_vt_as_xml_str(
+            detection_xml_str = xml_helper.get_detection_vt_as_xml_str(
                 vt_id, vt.get('detection'), vt.get('qod_type'), vt.get('qod')
             )
             vt_xml.append(secET.fromstring(detection_xml_str))
 
         if vt.get('severities'):
-            severities_xml_str = self.get_severities_vt_as_xml_str(
+            severities_xml_str = xml_helper.get_severities_vt_as_xml_str(
                 vt_id, vt.get('severities')
             )
             vt_xml.append(secET.fromstring(severities_xml_str))
 
         if vt.get('custom'):
-            custom_xml_str = self.get_custom_vt_as_xml_str(
+            custom_xml_str = xml_helper.get_custom_vt_as_xml_str(
                 vt_id, vt.get('custom')
             )
             vt_xml.append(secET.fromstring(custom_xml_str))
