@@ -1176,31 +1176,24 @@ class OSPDopenvas(OSPDaemon):
             ruri = res["uri"] if "uri" in res else ""
 
             if (
-                roid
-                and not host_is_dead
+                not host_is_dead
                 and not host_deny
                 and not start_end_msg
                 and not host_count
             ):
+                if not roid and res["result_type"] != 'ERRMSG':
+                    logger.warning('Missing VT oid for a result')
                 vt_aux = vthelper.get_single_vt(roid)
+                if not vt_aux:
+                    logger.warning('Invalid VT oid %s for a result', roid)
+                else:
+                    if vt_aux.get('qod_type'):
+                        qod_t = vt_aux.get('qod_type')
+                        rqod = self.nvti.QOD_TYPES[qod_t]
+                    elif vt_aux.get('qod'):
+                        rqod = vt_aux.get('qod')
 
-            if (
-                not vt_aux
-                and not host_is_dead
-                and not host_deny
-                and not start_end_msg
-                and not host_count
-            ):
-                logger.warning('Invalid VT oid %s for a result', roid)
-
-            if vt_aux:
-                if vt_aux.get('qod_type'):
-                    qod_t = vt_aux.get('qod_type')
-                    rqod = self.nvti.QOD_TYPES[qod_t]
-                elif vt_aux.get('qod'):
-                    rqod = vt_aux.get('qod')
-
-                rname = vt_aux.get('name')
+                    rname = vt_aux.get('name')
 
             if res["result_type"] == 'ERRMSG':
                 res_list.add_scan_error_to_list(
