@@ -31,7 +31,6 @@ from socket import gaierror
 
 from pathlib import Path
 from os import geteuid, environ
-from lxml.etree import tostring, SubElement, Element
 
 import psutil
 
