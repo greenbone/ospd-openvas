@@ -15,7 +15,6 @@ RUN apt-get update && apt-get install --no-install-recommends --no-install-sugge
     python3-psutil \
     python3-lxml \
     python3-defusedxml \
-    python3-paramiko \
     python3-redis \
     python3-gnupg \
     python3-paho-mqtt \
