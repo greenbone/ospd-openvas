@@ -40,6 +40,7 @@ from .helper import (
     FakeStream,
     FakeDataManager,
     FakePsutil,
+    DummyXML,
 )
 
 
@@ -216,7 +217,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
             vt_modification_time='19000202',
         )
         fs = FakeStream()
@@ -243,7 +243,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
             vt_modification_time='19000202',
         )
         fs = FakeStream()
@@ -288,7 +287,10 @@ class ScanTestCase(unittest.TestCase):
         vts = response.find('vts')
         self.assertIsNotNone(vts.find('vt'))
 
-    def test_get_vts_multiple_vts_with_custom(self):
+    @patch('ospd.ospd.XmlStringVTHelper')
+    def test_get_vts_multiple_vts_with_custom(self, mxml):
+        mxml.side_effect = DummyXML
+
         self.daemon.add_vt('1.2.3.4', 'A vulnerability test', custom='b')
         self.daemon.add_vt(
             '4.3.2.1', 'Another vulnerability test with custom info', custom='b'
@@ -305,9 +307,11 @@ class ScanTestCase(unittest.TestCase):
 
         self.assertEqual(3, len(custom))
 
-    def test_get_vts_vts_with_params(self):
+    @patch('ospd.ospd.XmlStringVTHelper')
+    def test_get_vts_vts_with_params(self, mxml):
+        mxml.side_effect = DummyXML
         self.daemon.add_vt(
-            '1.2.3.4', 'A vulnerability test', vt_params="a", custom="b"
+            '1.2.3.4', 'A vulnerability test', vt_params='a', custom='b'
         )
         fs = FakeStream()
 
@@ -331,7 +335,9 @@ class ScanTestCase(unittest.TestCase):
         params = response.findall('vts/vt/params/param')
         self.assertEqual(2, len(params))
 
-    def test_get_vts_vts_with_refs(self):
+    @patch('ospd.ospd.XmlStringVTHelper')
+    def test_get_vts_vts_with_refs(self, mxml):
+        mxml.side_effect = DummyXML
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
@@ -356,18 +362,15 @@ class ScanTestCase(unittest.TestCase):
         vt_params = response[0][0].findall('params')
         self.assertEqual(1, len(vt_params))
 
-        custom = response[0][0].findall('custom')
-        self.assertEqual(1, len(custom))
-
         refs = response.findall('vts/vt/refs/ref')
         self.assertEqual(2, len(refs))
 
-    def test_get_vts_vts_with_dependencies(self):
+    @patch('ospd.ospd.XmlStringVTHelper')
+    def test_get_vts_vts_with_dependencies(self, mxml):
+        mxml.side_effect = DummyXML
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             vt_dependencies="c",
         )
         fs = FakeStream()
@@ -383,8 +386,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             severities="c",
         )
         fs = FakeStream()
@@ -399,8 +400,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             detection="c",
             qod_t="d",
         )
@@ -416,8 +415,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             detection="c",
             qod_v="d",
         )
@@ -429,13 +426,13 @@ class ScanTestCase(unittest.TestCase):
         detection = response.findall('vts/vt/detection')
         self.assertEqual(1, len(detection))
 
-    def test_get_vts_vts_with_summary(self):
+    @patch('ospd.ospd.XmlStringVTHelper')
+    def test_get_vts_vts_with_summary(self, mxml):
+        mxml.side_effect = DummyXML
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
-            summary="c",
+            summary="a",
         )
         fs = FakeStream()
 
@@ -449,8 +446,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             impact="c",
         )
         fs = FakeStream()
@@ -465,8 +460,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             affected="c",
         )
         fs = FakeStream()
@@ -481,8 +474,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             insight="c",
         )
         fs = FakeStream()
@@ -497,8 +488,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
-            custom="b",
             solution="c",
             solution_t="d",
             solution_m="e",
@@ -515,7 +504,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
             vt_creation_time='01-01-1900',
         )
         fs = FakeStream()
@@ -533,7 +521,6 @@ class ScanTestCase(unittest.TestCase):
         self.daemon.add_vt(
             '1.2.3.4',
             'A vulnerability test',
-            vt_params="a",
             vt_modification_time='02-01-1900',
         )
         fs = FakeStream()

@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=unused-argument
+
 
 import time
 
@@ -74,18 +76,7 @@ class FakeDataManager:
         return dict()
 
 
-class DummyWrapper(OSPDaemon):
-    def __init__(self, results, checkresult=True):
-        super().__init__()
-        self.checkresult = checkresult
-        self.results = results
-        self.initialized = True
-        self.scan_collection.data_manager = FakeDataManager()
-        self.scan_collection.file_storage_dir = '/tmp'
-
-    def check(self):
-        return self.checkresult
-
+class DummyXML:
     @staticmethod
     def get_custom_vt_as_xml_str(vt_id, custom):
         return '<custom><mytest>static test</mytest></custom>'
@@ -187,6 +178,19 @@ class DummyWrapper(OSPDaemon):
         )
 
         return response
+
+
+class DummyWrapper(OSPDaemon):
+    def __init__(self, results, checkresult=True):
+        super().__init__()
+        self.checkresult = checkresult
+        self.results = results
+        self.initialized = True
+        self.scan_collection.data_manager = FakeDataManager()
+        self.scan_collection.file_storage_dir = '/tmp'
+
+    def check(self):
+        return self.checkresult
 
     def exec_scan(self, scan_id):
         time.sleep(0.01)

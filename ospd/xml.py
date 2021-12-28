@@ -20,10 +20,10 @@
 
 import re
 
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Optional
 
 from xml.sax.saxutils import escape, quoteattr
-from xml.etree.ElementTree import tostring, Element
+from xml.etree.ElementTree import Element, tostring
 
 from ospd.misc import ResultType
 

@@ -27,7 +27,6 @@ Python 3.7 and later is supported.
 - `lxml`
 - `packaging`
 - `paho-mqtt`
-- `paramiko`
 - `psutil`
 - `python-gnupg`
 - `redis`
