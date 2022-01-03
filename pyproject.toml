@@ -59,7 +59,7 @@ rope = "^0.22.0"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = {version = "^21.12.0", python = "^3.7"}
 pontos = "^21.11.0"
-black = {version = "21.7b0", python = "^3.7"}
+black = {version = "21.12b0", python = "^3.7"}
 
 [tool.poetry.scripts]
 ospd-openvas = "ospd_openvas.daemon:main"
