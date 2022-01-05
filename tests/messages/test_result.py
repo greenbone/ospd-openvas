@@ -40,7 +40,7 @@ class ResultMessageTestCase(TestCase):
         self.assertIsInstance(message.created, datetime)
 
         self.assertEqual(message.message_type, MessageType.RESULT)
-        self.assertEqual(message.topic, 'scanner/results')
+        self.assertEqual(message.topic, 'scanner/scan/info')
 
         self.assertEqual(message.scan_id, 'scan_1')
         self.assertEqual(message.host_ip, '1.1.1.1')

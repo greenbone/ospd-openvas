@@ -29,7 +29,7 @@ class ResultType(Enum):
 
 class ResultMessage(Message):
     message_type: MessageType = MessageType.RESULT
-    topic = "scanner/results"
+    topic = "scanner/scan/info"
 
     def __init__(
         self,
