@@ -52,7 +52,7 @@ class MQTTPublisherTestCase(TestCase):
         publisher.publish(message)
 
         client.publish.assert_called_with(
-            'scanner/results',
+            'scanner/scan/info',
             '{"message_id": "63026767-029d-417e-9148-77f4da49f49a", '
             '"message_type": "result.scan", '
             '"group_id": "866350e8-1492-497e-b12b-c079287d51dd", '
@@ -88,7 +88,7 @@ class MQTTSubscriberTestCase(TestCase):
 
         subscriber.subscribe(message, callback)
 
-        client.subscribe.assert_called_with('scanner/results', qos=1)
+        client.subscribe.assert_called_with('scanner/scan/info', qos=1)
 
 
 class MQTTDaemonTestCase(TestCase):
