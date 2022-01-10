@@ -28,13 +28,13 @@ class MessageTestCase(TestCase):
         message = Message()
 
         self.assertIsInstance(message.message_id, UUID)
-        self.assertIsInstance(message.group_id, UUID)
+        self.assertIsInstance(message.group_id, str)
         self.assertIsInstance(message.created, datetime)
 
     def test_serialize(self):
         created = datetime.fromtimestamp(1628512774)
         message_id = UUID('63026767-029d-417e-9148-77f4da49f49a')
-        group_id = UUID('866350e8-1492-497e-b12b-c079287d51dd')
+        group_id = '866350e8-1492-497e-b12b-c079287d51dd'
         message = Message(
             message_id=message_id, group_id=group_id, created=created
         )
@@ -64,7 +64,7 @@ class MessageTestCase(TestCase):
             message.message_id, UUID('63026767-029d-417e-9148-77f4da49f49a')
         )
         self.assertEqual(
-            message.group_id, UUID('866350e8-1492-497e-b12b-c079287d51dd')
+            message.group_id, '866350e8-1492-497e-b12b-c079287d51dd'
         )
         self.assertEqual(
             message.created,
@@ -101,7 +101,7 @@ class MessageTestCase(TestCase):
     def test_to_str(self):
         created = datetime.fromtimestamp(1628512774)
         message_id = UUID('63026767-029d-417e-9148-77f4da49f49a')
-        group_id = UUID('866350e8-1492-497e-b12b-c079287d51dd')
+        group_id = '866350e8-1492-497e-b12b-c079287d51dd'
         message = Message(
             message_id=message_id, group_id=group_id, created=created
         )
@@ -129,7 +129,7 @@ class MessageTestCase(TestCase):
             message.message_id, UUID('63026767-029d-417e-9148-77f4da49f49a')
         )
         self.assertEqual(
-            message.group_id, UUID('866350e8-1492-497e-b12b-c079287d51dd')
+            message.group_id, '866350e8-1492-497e-b12b-c079287d51dd'
         )
         self.assertEqual(
             message.created,

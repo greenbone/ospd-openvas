@@ -36,7 +36,7 @@ class ResultMessageTestCase(TestCase):
         )
 
         self.assertIsInstance(message.message_id, UUID)
-        self.assertIsInstance(message.group_id, UUID)
+        self.assertIsInstance(message.group_id, str)
         self.assertIsInstance(message.created, datetime)
 
         self.assertEqual(message.message_type, MessageType.RESULT)
@@ -108,7 +108,7 @@ class ResultMessageTestCase(TestCase):
             message.message_id, UUID('63026767-029d-417e-9148-77f4da49f49a')
         )
         self.assertEqual(
-            message.group_id, UUID('866350e8-1492-497e-b12b-c079287d51dd')
+            message.group_id, '866350e8-1492-497e-b12b-c079287d51dd'
         )
         self.assertEqual(
             message.created,
