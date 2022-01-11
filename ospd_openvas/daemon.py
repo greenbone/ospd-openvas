@@ -64,6 +64,7 @@ from ospd_openvas.gpg_sha_verifier import (
 
 SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
+    # pylint: disable=import-error
     import sentry_sdk
 
     sentry_sdk.init(  # pylint: disable=abstract-class-instantiated
