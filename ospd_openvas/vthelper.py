@@ -188,6 +188,7 @@ class VtHelper:
                 # treat oids for dependency lookup as a dict
                 oids = dict(vt_collection)
 
+        vt_selection.sort()
         for vt_id in vt_selection:
             vt = self.get_single_vt(vt_id, oids)
             yield (vt_id, vt)
