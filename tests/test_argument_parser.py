@@ -29,7 +29,6 @@ from typing import List
 from ospd.parser import (
     DEFAULT_MQTT_BROKER_ADDRESS,
     DEFAULT_MQTT_BROKER_PORT,
-    create_parser,
     Arguments,
     DEFAULT_ADDRESS,
     DEFAULT_PORT,
@@ -47,7 +46,7 @@ here = Path(__file__).absolute().parent
 
 class ArgumentParserTestCase(unittest.TestCase):
     def setUp(self):
-        self.parser = create_parser('Wrapper name')
+        self.parser = NotusParser()
 
     def parse_args(self, args: List[str]) -> Arguments:
         return self.parser.parse_arguments(args)
@@ -93,6 +92,12 @@ class ArgumentParserTestCase(unittest.TestCase):
         args = self.parse_args('-k /etc/passwd'.split())
         self.assertEqual('/etc/passwd', args.key_file)
 
+    def test_disable_notus_hashsum_verification(self):
+        args = self.parse_args(
+            '--disable-notus-hashsum-verification true'.split()
+        )
+        self.assertEqual(args.disable_notus_hashsum_verification, True)
+
     def test_defaults(self):
         args = self.parse_args([])
 
@@ -108,6 +113,7 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.lock_file_dir, DEFAULT_LOCKFILE_DIR_PATH)
         self.assertEqual(args.mqtt_broker_address, DEFAULT_MQTT_BROKER_ADDRESS)
         self.assertEqual(args.mqtt_broker_port, DEFAULT_MQTT_BROKER_PORT)
+        self.assertEqual(args.disable_notus_hashsum_verification, False)
 
 
 class ArgumentParserConfigTestCase(unittest.TestCase):

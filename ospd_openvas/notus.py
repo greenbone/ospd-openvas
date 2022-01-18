@@ -191,3 +191,12 @@ class NotusParser(CliParser):
             default=DEFAULT_NOTUS_FEED_DIR,
             help='Directory where notus feed is placed. Default: %(default)s',
         )
+        self.parser.add_argument(
+            '--disable-notus-hashsum-verification',
+            default=False,
+            type=bool,
+            help=(
+                'Disables hashsum verification for notus advisories.'
+                ' %(default)s'
+            ),
+        )

@@ -25,7 +25,7 @@ import logging
 import time
 import copy
 
-from typing import Optional, Dict, List, Tuple, Iterator, Any
+from typing import Callable, Optional, Dict, List, Tuple, Iterator, Any
 from datetime import datetime
 from socket import gaierror
 
@@ -429,6 +429,28 @@ class OpenVasVtsFilter(VtsFilter):
         return vt_oid_list
 
 
+def hashsum_verificator(
+    advisories_directory_path: Path, disable: bool
+) -> Callable[[Path], bool]:
+    if disable:
+        logger.info("hashsum verification is disabled")
+        return lambda _: True
+
+    def on_hash_sum_verification_failure(
+        _: Optional[Dict[str, str]]
+    ) -> Dict[str, str]:
+        raise Exception("GPG verification of notus sha256sums failed")
+
+    sha_sum_file_path = advisories_directory_path / "sha256sums"
+    sha_sum_reload_config = ReloadConfiguration(
+        hash_file=sha_sum_file_path,
+        on_verification_failure=on_hash_sum_verification_failure,
+    )
+
+    sums = reload_sha256sums(sha_sum_reload_config)
+    return create_verify(sums)
+
+
 class OSPDopenvas(OSPDaemon):
 
     """Class for ospd-openvas daemon."""
@@ -440,25 +462,20 @@ class OSPDopenvas(OSPDaemon):
         lock_file_dir='/var/lib/openvas',
         mqtt_broker_address="localhost",
         mqtt_broker_port=1883,
+        disable_notus_hashsum_verification=False,
         **kwargs,
     ):
         """Initializes the ospd-openvas daemon's internal data."""
-
-        def notus_gpp_verification_failure(
-            _: Optional[Dict[str, str]]
-        ) -> Dict[str, str]:
-            raise Exception("GPG verification of notus sha256sums failed")
 
         self.main_db = MainDB()
         notus_dir = kwargs.get('notus_feed_dir')
         notus = None
         if notus_dir:
             ndir = Path(notus_dir)
-            rc = ReloadConfiguration(
-                ndir / "sha256sums", notus_gpp_verification_failure
+            verifier = hashsum_verificator(
+                ndir, disable_notus_hashsum_verification
             )
-            reloader = reload_sha256sums(rc)
-            notus = Notus(ndir, self.main_db.ctx, create_verify(reloader))
+            notus = Notus(ndir, self.main_db.ctx, verifier)
 
         self.nvti = NVTICache(
             self.main_db,
