@@ -23,6 +23,7 @@
 
 import io
 import logging
+from pathlib import Path
 
 from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
@@ -35,6 +36,7 @@ from tests.helper import assert_called_once
 from ospd_openvas.daemon import (
     OSPD_PARAMS,
     OpenVasVtsFilter,
+    hashsum_verificator,
 )
 from ospd_openvas.openvas import Openvas
 
@@ -304,6 +306,10 @@ OSPD_PARAMS_OUT = {
 
 
 class TestOspdOpenvas(TestCase):
+    def test_return_disabled_verifier(self):
+        verifier = hashsum_verificator(Path('/tmp'), True)
+        self.assertEqual(verifier(Path('/tmp')), True)
+
     @patch('ospd_openvas.daemon.Openvas')
     def test_set_params_from_openvas_settings(self, mock_openvas: Openvas):
         mock_openvas.get_settings.return_value = {
