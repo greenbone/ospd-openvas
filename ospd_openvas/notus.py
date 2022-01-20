@@ -75,9 +75,9 @@ class Notus:
         for f in self.path.glob('*.notus'):
             if self._verifier(f):
                 data = json.loads(f.read_bytes())
-                advisories = data.get("advisories", [])
+                advisories = data.pop("advisories", [])
                 for advisory in advisories:
-                    res = self.__to_ospd(f, advisory, data.get("family"))
+                    res = self.__to_ospd(f, advisory, data)
                     self.cache.store_advisory(advisory["oid"], res)
             else:
                 logger.log(
@@ -86,7 +86,7 @@ class Notus:
         self.loaded = True
 
     def __to_ospd(
-        self, path: Path, advisory: Dict[str, Any], family: Optional[str]
+        self, path: Path, advisory: Dict[str, Any], meta_data: Dict[str, Any]
     ):
         result = {}
         result["vt_params"] = []
@@ -122,10 +122,7 @@ class Notus:
             refs['xref'] = xref
 
         result["refs"] = refs
-        if family:
-            result["family"] = family
-        else:
-            result["family"] = path.stem
+        result["family"] = meta_data.get("family", path.stem)
         result["name"] = advisory.get("title", "")
         result["category"] = "3"
         return result
