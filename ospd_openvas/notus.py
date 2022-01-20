@@ -103,7 +103,7 @@ class Notus:
             'Checks if a vulnerable package version is present on the target'
             ' host.'
         )
-        result['qod_type'] = 'package'
+        result['qod_type'] = meta_data.get('qod_type', 'package')
         severity = advisory.get('severity', {})
         result["severity_vector"] = severity.get(
             "cvss_v3", severity.get("cvss_v2", "")
