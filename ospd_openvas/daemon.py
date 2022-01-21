@@ -507,12 +507,17 @@ class OSPDopenvas(OSPDaemon):
 
         self.scan_only_params = dict()
 
+        self._mqtt_broker_address = mqtt_broker_address
+        self._mqtt_broker_port = mqtt_broker_port
+
+    def init(self, server: BaseServer) -> None:
+
         notus_handler = NotusResultHandler(self.report_results)
 
-        if mqtt_broker_address:
+        if self._mqtt_broker_address:
             try:
                 client = MQTTClient(
-                    mqtt_broker_address, mqtt_broker_port, "ospd"
+                    self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
                 )
                 daemon = MQTTDaemon(client)
                 subscriber = MQTTSubscriber(client)
@@ -521,35 +526,18 @@ class OSPDopenvas(OSPDaemon):
                     ResultMessage, notus_handler.result_handler
                 )
                 daemon.run()
-            except ConnectionRefusedError as e:
+            except (ConnectionRefusedError, gaierror, ValueError) as e:
                 logger.error(
-                    "Could not connect to MQTT broker at %s. %s. Unable to get"
-                    " results from Notus.",
-                    e,
-                    mqtt_broker_address,
-                )
-            except gaierror as e:
-                logger.error(
-                    "Could not connect to MQTT broker at %s. %s. Unable to get"
-                    " results from Notus.",
-                    mqtt_broker_address,
+                    "Could not connect to MQTT broker at %s, error was: %s."
+                    " Unable to get results from Notus.",
+                    self._mqtt_broker_address,
                     e,
                 )
-            except ValueError as e:
-                logger.error(
-                    "Could not connect to MQTT broker at %s. %s Unable to get"
-                    " results from Notus.",
-                    mqtt_broker_address,
-                    e,
-                )
-
         else:
             logger.info(
                 "MQTT Broker Adress empty. MQTT disabled. Unable to get Notus"
                 " results."
             )
-
-    def init(self, server: BaseServer) -> None:
 
         self.scan_collection.init()
 
