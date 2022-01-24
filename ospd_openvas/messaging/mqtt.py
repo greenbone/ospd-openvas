@@ -140,7 +140,6 @@ class MQTTDaemon:
         self._client = client
         self._client.on_disconnect = self.on_disconnect
         self._client.on_connect = self.on_connect
-        self._client._userdata = "foo"
 
         self._client.connect()
 
