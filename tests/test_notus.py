@@ -40,9 +40,14 @@ class NotusTestCase(TestCase):
         adv_path.name = "hi"
         adv_path.stem = "family"
         path_mock.glob.return_value = [adv_path]
-        adv_path.read_bytes.return_value = (
-            b'{ "advisories": [ { "oid": "12", "file_name": "aha.txt" } ] }'
-        )
+        adv_path.read_bytes.return_value = b'''
+        { 
+            "family": "family", 
+            "qod_type": "remote_app", 
+            "advisories": [ 
+                { "oid": "12", "file_name": "aha.txt" } 
+            ] 
+        }'''
         redis_mock = mock.MagicMock()
         load_into_redis = Notus(path_mock, redis_mock, lambda _: True)
         load_into_redis.reload_cache()
