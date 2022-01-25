@@ -598,7 +598,6 @@ class OSPDopenvas(OSPDaemon):
 
     def get_feed_info(self) -> Dict[str, Any]:
         """Parses the current plugin_feed_info.inc file"""
-        feed_info = dict()
 
         plugins_folder = self.scan_only_params.get('plugins_folder')
         if not plugins_folder:
@@ -608,8 +607,9 @@ class OSPDopenvas(OSPDaemon):
         if not feed_info_file.exists():
             self.set_params_from_openvas_settings()
             logger.debug('Plugins feed file %s not found.', feed_info_file)
-            return None
+            return {}
 
+        feed_info = {}
         with feed_info_file.open(encoding='utf-8') as fcontent:
             for line in fcontent:
 
