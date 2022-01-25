@@ -146,8 +146,9 @@ class BaseServer(ABC):
 
     def close(self):
         """Shutdown the server"""
-        self.server.shutdown()
-        self.server.server_close()
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
 
     @abstractmethod
     def handle_request(self, request, client_address):

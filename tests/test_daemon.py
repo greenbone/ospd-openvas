@@ -371,7 +371,7 @@ class TestOspdOpenvas(TestCase):
         mock_path_exists.return_value = False
 
         ret = w.get_feed_info()
-        self.assertIsNone(ret)
+        self.assertEqual(ret, {})
 
         self.assertEqual(mock_set_params.call_count, 1)
         self.assertEqual(mock_path_exists.call_count, 1)
