@@ -563,41 +563,53 @@ class OSPDaemon:
 
     def start_scan(self, scan_id: str) -> None:
         """Starts the scan with scan_id."""
-        os.setsid()
-
-        self.process_finished_hosts(scan_id)
-
+        # A hidden BrokenPipeError can occur on a sensor when a SSH
+        # connection got lost in between while shutting down ospd in a
+        # when handled in a subprocess.
+        # When this happens a stack trace should not be logged because it is
+        # self correcting occurance.
         try:
-            self.set_scan_status(scan_id, ScanStatus.RUNNING)
-            self.exec_scan(scan_id)
-        except Exception as e:  # pylint: disable=broad-except
-            self.add_scan_error(
-                scan_id,
-                name='',
-                host=self.get_scan_host(scan_id),
-                value=f'Host process failure ({e}).',
-            )
-            logger.exception('%s: Exception %s while scanning', scan_id, e)
-        else:
-            logger.info("%s: Host scan finished.", scan_id)
+            os.setsid()
 
-        status = self.get_scan_status(scan_id)
-        is_stopped = status == ScanStatus.STOPPED
-        self.set_scan_progress(scan_id)
-        progress = self.get_scan_progress(scan_id)
-        if not is_stopped and progress == ScanProgress.FINISHED:
-            self.finish_scan(scan_id)
-        elif not is_stopped:
-            logger.info(
-                "%s: Host scan got interrupted. Progress: %d, Status: %s",
-                scan_id,
-                progress,
-                status.name,
-            )
-            self.interrupt_scan(scan_id)
+            self.process_finished_hosts(scan_id)
 
-        # For debug purposes
-        self._get_scan_progress_raw(scan_id)
+            try:
+                self.set_scan_status(scan_id, ScanStatus.RUNNING)
+                self.exec_scan(scan_id)
+            except Exception as e:  # pylint: disable=broad-except
+                self.add_scan_error(
+                    scan_id,
+                    name='',
+                    host=self.get_scan_host(scan_id),
+                    value=f'Host process failure ({e}).',
+                )
+                logger.exception('%s: Exception %s while scanning', scan_id, e)
+            else:
+                logger.info("%s: Host scan finished.", scan_id)
+
+            status = self.get_scan_status(scan_id)
+            is_stopped = status == ScanStatus.STOPPED
+            self.set_scan_progress(scan_id)
+            progress = self.get_scan_progress(scan_id)
+            if not is_stopped and progress == ScanProgress.FINISHED:
+                self.finish_scan(scan_id)
+            elif not is_stopped:
+                logger.info(
+                    "%s: Host scan got interrupted. Progress: %d, Status: %s",
+                    scan_id,
+                    progress,
+                    status.name,
+                )
+                self.interrupt_scan(scan_id)
+
+            # For debug purposes
+            self._get_scan_progress_raw(scan_id)
+        except BrokenPipeError as e:
+            logger.warning(
+                "Error sending data to the client while"
+                " executing a scan %s.",
+                scan_id,
+            )
 
     def handle_timeout(self, scan_id: str, host: str) -> None:
         """Handles scanner reaching timeout error."""
@@ -1119,7 +1131,6 @@ class OSPDaemon:
                     logger.error("Start scan error %s", e)
                     self.stop_scan(scan_id)
                     continue
-
                 scan_func = self.start_scan
                 scan_process = create_process(func=scan_func, args=(scan_id,))
                 self.scan_processes[scan_id] = scan_process
