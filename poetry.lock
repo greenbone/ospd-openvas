@@ -330,7 +330,7 @@ python-versions = "*"
 
 [[package]]
 name = "redis"
-version = "4.1.1"
+version = "4.1.2"
 description = "Python client for Redis database and key-value store"
 category = "main"
 optional = false
@@ -721,8 +721,8 @@ python-gnupg = [
     {file = "python_gnupg-0.4.8-py2.py3-none-any.whl", hash = "sha256:93a521501d6c2785d96b190aec7125ba89c1c2fe708b0c98af3fb32b59026ab8"},
 ]
 redis = [
-    {file = "redis-4.1.1-py3-none-any.whl", hash = "sha256:bc97d18938ca18d66737d0ef88584a2073069589e4026813cfba9ad6df9a9f40"},
-    {file = "redis-4.1.1.tar.gz", hash = "sha256:07420a3fbedd8e012c31d4fadac943fb81568946da202c5a5bc237774e5280a0"},
+    {file = "redis-4.1.2-py3-none-any.whl", hash = "sha256:f13eea4254e302485add677cadedaf1305c1b3a4e07535e23b7b239798ce9301"},
+    {file = "redis-4.1.2.tar.gz", hash = "sha256:bf86397be532fc0a888d5976a5313a3a70d8f912d52bc0c09bffda4b8425a1d4"},
 ]
 requests = [
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
