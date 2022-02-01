@@ -72,6 +72,22 @@ class PreferenceHandlerTestCase(TestCase):
 
         self.assertFalse(ret[1])
 
+    def test_not_append_notus_oids(self):
+        dummy = DummyDaemon()
+
+        vts = {
+            '1.3.6.1.4.1.25623.1.0.100061': {'1': 'new value'},
+            'vt_groups': ['family=debian', 'family=general'],
+        }
+
+        p_handler = PreferenceHandler(
+            '1234-1234', None, dummy.scan_collection, dummy.nvti, lambda _: True
+        )
+        re = p_handler._process_vts(vts)  # pylint: disable = protected-access
+
+        self.assertEqual(re[0], [])
+        self.assertEqual(re[1], {})
+
     def test_process_vts(self):
         dummy = DummyDaemon()
 
