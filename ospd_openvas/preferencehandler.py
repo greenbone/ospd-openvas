@@ -191,16 +191,12 @@ class PreferenceHandler:
         """Check if the value of a vt parameter matches with
         the type founded.
         """
-        if (
-            param_type
-            in [
-                'entry',
-                'password',
-                'radio',
-                'sshlogin',
-            ]
-            and isinstance(vt_param_value, str)
-        ):
+        if param_type in [
+            'entry',
+            'password',
+            'radio',
+            'sshlogin',
+        ] and isinstance(vt_param_value, str):
             return None
         elif param_type == 'checkbox' and (
             vt_param_value == '0' or vt_param_value == '1'
