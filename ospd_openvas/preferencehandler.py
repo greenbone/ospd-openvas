@@ -27,7 +27,7 @@ import logging
 import binascii
 
 from enum import IntEnum
-from typing import Optional, Dict, List, Tuple
+from typing import Callable, Optional, Dict, List, Tuple
 from base64 import b64decode
 
 from ospd.scan import ScanCollection
@@ -97,6 +97,7 @@ class PreferenceHandler:
         kbdb: KbDB,
         scan_collection: ScanCollection,
         nvticache: NVTICache,
+        is_handled_by_notus: Optional[Callable[[str], bool]] = None,
     ):
         self.scan_id = scan_id
         self.kbdb = kbdb
@@ -106,7 +107,12 @@ class PreferenceHandler:
         self._nvts_params = None
 
         self.nvti = nvticache
-
+        if is_handled_by_notus:
+            self.is_handled_by_notus = is_handled_by_notus
+        elif not is_handled_by_notus and nvticache and nvticache.notus:
+            self.is_handled_by_notus = nvticache.notus.exists
+        else:
+            self.is_handled_by_notus = lambda _: False
         self.errors = []
 
     def prepare_scan_id_for_openvas(self):
@@ -230,6 +236,11 @@ class PreferenceHandler:
             vts_list = self._get_vts_in_groups(vtgroups)
 
         for vtid, vt_params in vts.items():
+            # remove oids handled by notus
+            if self.is_handled_by_notus(vtid):
+                logger.debug('The VT %s is handled by notus. Ignoring.', vtid)
+                continue
+
             vt = vthelper.get_single_vt(vtid)
             if not vt:
                 logger.warning(
@@ -283,16 +294,13 @@ class PreferenceHandler:
         The plugin list is immediately stored in the kb.
         """
         nvts = self.scan_collection.get_vts(self.scan_id)
+
         if nvts:
             nvts_list, self._nvts_params = self._process_vts(nvts)
             # Add nvts list
             separ = ';'
             plugin_list = f'plugin_set|||{separ.join(nvts_list)}'
             self.kbdb.add_scan_preferences(self.scan_id, [plugin_list])
-
-            nvts_list = None
-            plugin_list = None
-            nvts = None
 
             return True
 
