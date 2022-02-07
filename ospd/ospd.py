@@ -604,7 +604,7 @@ class OSPDaemon:
 
             # For debug purposes
             self._get_scan_progress_raw(scan_id)
-        except BrokenPipeError as e:
+        except BrokenPipeError:
             logger.warning(
                 "Error sending data to the client while"
                 " executing a scan %s.",
