@@ -23,7 +23,7 @@ jobs:
         uses: greenbone/actions/lint-python@v1
         with:
           version: ${{ matrix.python-version }}
-          packages: ospd_openvas tests
+          packages: ospd_openvas ospd tests
 
   test:
     name: Run all tests
