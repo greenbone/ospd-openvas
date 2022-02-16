@@ -222,8 +222,6 @@ class PreferenceHandler:
 
         counter = 0
         for vtid, vt_params in vts.items():
-<<<<<<< HEAD
-=======
             counter += 1
             if counter % 500 == 0:
                 if (
@@ -232,12 +230,6 @@ class PreferenceHandler:
                 ):
                     break
 
-            # remove oids handled by notus
-            if self.is_handled_by_notus(vtid):
-                logger.debug('The VT %s is handled by notus. Ignoring.', vtid)
-                continue
-
->>>>>>> 41b25c29 (Fix: Stop and resume scan (#604))
             vt = vthelper.get_single_vt(vtid)
             if not vt:
                 logger.warning(
