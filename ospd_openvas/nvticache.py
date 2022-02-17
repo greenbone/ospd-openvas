@@ -51,6 +51,7 @@ class NVTICache(BaseDB):
         'executable_version': '80',
         'remote_analysis': '70',
         'remote_probe': '50',
+        'package_unreliable': '30',
         'remote_banner_unreliable': '30',
         'executable_version_unreliable': '30',
         'general_note': '1',
