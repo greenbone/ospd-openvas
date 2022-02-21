@@ -292,7 +292,12 @@ class DeleteScan(BaseCommand):
             )
 
         if not self._daemon.scan_exists(scan_id):
+<<<<<<< HEAD
             text = "Failed to find scan '{0}'".format(scan_id)
+=======
+            text = f"Failed to find scan '{scan_id}'"
+            logger.debug(text)
+>>>>>>> 41b25c29 (Fix: Stop and resume scan (#604))
             return simple_response_str('delete_scan', 404, text)
 
         self._daemon.check_scan_process(scan_id)
