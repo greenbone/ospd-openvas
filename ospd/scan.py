@@ -587,7 +587,9 @@ class ScanCollection:
             return False
 
         scans_table = self.scans_table
-        del scans_table[scan_id]
-        self.scans_table = scans_table
-
+        try:
+            del scans_table[scan_id]
+            self.scans_table = scans_table
+        except KeyError:
+            return False
         return True

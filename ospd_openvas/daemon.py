@@ -1167,9 +1167,13 @@ class OSPDopenvas(OSPDaemon):
     @staticmethod
     def is_openvas_process_alive(openvas_process: psutil.Popen) -> bool:
 
-        if openvas_process.status() == psutil.STATUS_ZOMBIE:
-            logger.debug("Process is a Zombie, waiting for it to clean up")
-            openvas_process.wait()
+        try:
+            if openvas_process.status() == psutil.STATUS_ZOMBIE:
+                logger.debug("Process is a Zombie, waiting for it to clean up")
+                openvas_process.wait()
+        except psutil.NoSuchProcess:
+            return False
+
         return openvas_process.is_running()
 
     def stop_scan_cleanup(
@@ -1276,7 +1280,8 @@ class OSPDopenvas(OSPDaemon):
         # Release memory used for scan preferences.
         del scan_prefs
 
-        if do_not_launch or kbdb.scan_is_stopped(scan_id):
+        scan_stopped = self.get_scan_status(scan_id) == ScanStatus.STOPPED
+        if do_not_launch or kbdb.scan_is_stopped(scan_id) or scan_stopped:
             self.main_db.release_database(kbdb)
             return
 
@@ -1328,6 +1333,8 @@ class OSPDopenvas(OSPDaemon):
 
                 # clean main_db, but wait for scanner to finish.
                 while not kbdb.target_is_finished(scan_id):
+                    if not self.is_openvas_process_alive(openvas_process):
+                        break
                     logger.debug('%s: Waiting for openvas to finish', scan_id)
                     time.sleep(1)
                 self.main_db.release_database(kbdb)
