@@ -30,7 +30,7 @@ from enum import IntEnum
 from typing import Callable, Optional, Dict, List, Tuple
 from base64 import b64decode
 
-from ospd.scan import ScanCollection
+from ospd.scan import ScanCollection, ScanStatus
 from ospd.ospd import BASE_SCANNER_PARAMS
 from ospd.network import valid_port_list
 from ospd_openvas.openvas import Openvas
@@ -231,7 +231,16 @@ class PreferenceHandler:
         if vtgroups:
             vts_list = self._get_vts_in_groups(vtgroups)
 
+        counter = 0
         for vtid, vt_params in vts.items():
+            counter += 1
+            if counter % 500 == 0:
+                if (
+                    self.scan_collection.get_status(self.scan_id)
+                    == ScanStatus.STOPPED
+                ):
+                    break
+
             # remove oids handled by notus
             if self.is_handled_by_notus(vtid):
                 logger.debug('The VT %s is handled by notus. Ignoring.', vtid)
@@ -306,8 +315,16 @@ class PreferenceHandler:
         """Prepare the vts preferences. Store the data in the kb."""
 
         items_list = []
+        counter = 0
         for key, val in self._nvts_params.items():
             items_list.append(f'{key}|||{val}')
+            counter += 1
+            if counter % 500 == 0:
+                if (
+                    self.scan_collection.get_status(self.scan_id)
+                    == ScanStatus.STOPPED
+                ):
+                    break
 
         if items_list:
             self.kbdb.add_scan_preferences(self.scan_id, items_list)
