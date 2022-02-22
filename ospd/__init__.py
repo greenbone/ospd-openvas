@@ -18,4 +18,4 @@
 
 """ OSPd core module. """
 
-from .__version__ import __version__
+from ospd_openvas.__version__ import __version__

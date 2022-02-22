@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "ospd-openvas"
-version = "21.10.0.dev1"
+version = "22.4.0.dev1"
 description = "ospd based scanner for openvas"
 authors = ["Greenbone Networks GmbH <info@greenbone.net>"]
 license = "AGPL-3.0-or-later"
@@ -19,6 +19,7 @@ classifiers=[
   "Intended Audience :: System Administrators",
   "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
 ]
 keywords = [
   "openvas",
@@ -57,9 +58,9 @@ python-gnupg = "^0.4.8"
 pylint = "^2.12.2"
 rope = "^0.22.0"
 autohooks-plugin-pylint = "^21.6.0"
-autohooks-plugin-black = {version = "^21.12.0", python = "^3.7"}
+autohooks-plugin-black = "^21.12.0"
 pontos = "^22.2.2"
-black = {version = "22.1.0", python = "^3.7"}
+black = "22.1.0"
 
 [tool.poetry.extras]
 tracking = ["sentry-sdk"]
