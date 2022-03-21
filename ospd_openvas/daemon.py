@@ -548,7 +548,7 @@ class OSPDopenvas(OSPDaemon):
         self.set_params_from_openvas_settings()
 
         with self.feed_lock.wait_for_lock():
-            Openvas.load_vts_into_redis()
+            self.update_vts()
             self.set_feed_info()
 
             logger.debug("Calculating vts integrity check hash...")
@@ -664,6 +664,27 @@ class OSPDopenvas(OSPDaemon):
 
         return feed_status
 
+    def update_vts(self):
+        """Updates VTs in redis via the openvas-scanner"""
+        logger.info(
+            "Loading VTs. Scans will be [requested|queued] until VTs are"
+            " loaded. This may take a few minutes, please wait..."
+        )
+        old = self.nvti.get_feed_version() or 0
+        if Openvas.load_vts_into_redis():
+            new = self.nvti.get_feed_version()
+            if new != old:
+                logger.info(
+                    "Finished loading VTs. The VT cache has been updated from"
+                    " version %s to %s.",
+                    old,
+                    new,
+                )
+            else:
+                logger.info("VTs were up to date. Feed version is %s.", new)
+        else:
+            logger.error("Updating VTs failed.")
+
     def check_feed(self):
         """Check if there is a feed update.
 
@@ -681,7 +702,7 @@ class OSPDopenvas(OSPDaemon):
             with self.feed_lock as fl:
                 if fl.has_lock():
                     self.initialized = False
-                    Openvas.load_vts_into_redis()
+                    self.update_vts()
                     self.set_feed_info()
 
                     vthelper = VtHelper(self.nvti)

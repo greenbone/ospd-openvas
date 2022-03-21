@@ -123,7 +123,7 @@ class Openvas:
         return param_list
 
     @staticmethod
-    def load_vts_into_redis():
+    def load_vts_into_redis() -> bool:
         """Loads all VTs into the redis database"""
         logger.debug('Loading VTs into Redis DB...')
 
@@ -132,8 +132,10 @@ class Openvas:
                 ['openvas', '--update-vt-info'], stdout=subprocess.DEVNULL
             )
             logger.debug('Finished loading VTs into Redis DB')
+            return True
         except (subprocess.SubprocessError, OSError) as err:
             logger.error('OpenVAS Scanner failed to load VTs. %s', err)
+            return False
 
     @staticmethod
     def start_scan(
