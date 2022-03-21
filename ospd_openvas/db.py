@@ -23,6 +23,7 @@ import sys
 import time
 
 from typing import List, NewType, Optional, Iterable, Iterator, Tuple
+from urllib import parse
 
 import redis
 
@@ -74,12 +75,24 @@ class OpenvasDB:
             settings = Openvas.get_settings()
 
             cls._db_address = settings.get('db_address')
+            if cls._db_address:
+                # translate openvas tcp:// configuration to redis://
+                cls._db_address = cls._db_address.replace("tcp://", "redis://")
+                # translate non scheme to unix://
+                if not parse.urlparse(cls._db_address).scheme:
+                    cls._db_address = "unix://" + cls._db_address
+                if cls._db_address.startswith("redis://"):
+                    logger.warning(
+                        "A Redis TCP connection is being used. "
+                        "This feature is experimental and insecure. "
+                        "It is not recommended in production environments."
+                    )
 
         return cls._db_address
 
     @classmethod
     def create_context(
-        cls, dbnum: Optional[int] = 0, encoding: Optional[str] = 'latin-1'
+        cls, dbnum: int = 0, encoding: str = 'latin-1'
     ) -> RedisCtx:
         """Connect to redis to the given database or to the default db 0 .
 
@@ -92,13 +105,14 @@ class OpenvasDB:
         tries = 5
         while tries:
             try:
-                ctx = redis.Redis(
-                    unix_socket_path=cls.get_database_address(),
+                ctx = redis.Redis.from_url(
+                    url=cls.get_database_address(),
                     db=dbnum,
                     socket_timeout=SOCKET_TIMEOUT,
                     encoding=encoding,
                     decode_responses=True,
                 )
+
                 ctx.keys("test")
             except (redis.exceptions.ConnectionError, FileNotFoundError) as err:
                 logger.debug(
