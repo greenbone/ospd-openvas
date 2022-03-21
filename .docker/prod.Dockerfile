@@ -34,4 +34,4 @@ RUN python3 -m pip install /ospd-openvas/*
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
-CMD ["ospd-openvas", "--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
+CMD ["ospd-openvas", "--disable-notus-hashsum-verification", "--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]

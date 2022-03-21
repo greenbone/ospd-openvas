@@ -50,16 +50,16 @@ class TestOpenvasDB(TestCase):
         # set the first time
         mock_openvas.get_settings.return_value = {'db_address': '/foo/bar'}
 
-        self.assertEqual(OpenvasDB.get_database_address(), "/foo/bar")
+        self.assertEqual(OpenvasDB.get_database_address(), "unix:///foo/bar")
 
         self.assertEqual(mock_openvas.get_settings.call_count, 2)
 
         # should cache address
-        self.assertEqual(OpenvasDB.get_database_address(), "/foo/bar")
+        self.assertEqual(OpenvasDB.get_database_address(), "unix:///foo/bar")
         self.assertEqual(mock_openvas.get_settings.call_count, 2)
 
     def test_create_context_fail(self, mock_redis):
-        mock_redis.side_effect = RCE
+        mock_redis.from_url.side_effect = RCE
 
         logging.Logger.error = MagicMock()
 
@@ -72,7 +72,7 @@ class TestOpenvasDB(TestCase):
         )
 
     def test_create_context_success(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ret = OpenvasDB.create_context()
         self.assertIs(ret, ctx)
 
@@ -91,7 +91,7 @@ class TestOpenvasDB(TestCase):
         mock_redis.execute_command.assert_called_with('SELECT 1')
 
     def test_get_list_item_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_list_item(None, 'foo')
@@ -100,7 +100,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_list_item(ctx, None)
 
     def test_get_list_item(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.lrange.return_value = ['1234']
 
         ret = OpenvasDB.get_list_item(ctx, 'name')
@@ -109,7 +109,7 @@ class TestOpenvasDB(TestCase):
         assert_called(ctx.lrange)
 
     def test_get_last_list_item(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.rpop.return_value = 'foo'
 
         ret = OpenvasDB.get_last_list_item(ctx, 'name')
@@ -118,7 +118,7 @@ class TestOpenvasDB(TestCase):
         ctx.rpop.assert_called_with('name')
 
     def test_get_last_list_item_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_last_list_item(ctx, None)
@@ -127,7 +127,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_last_list_item(None, 'name')
 
     def test_remove_list_item(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.lrem.return_value = 1
 
         OpenvasDB.remove_list_item(ctx, 'name', '1234')
@@ -135,7 +135,7 @@ class TestOpenvasDB(TestCase):
         ctx.lrem.assert_called_once_with('name', count=0, value='1234')
 
     def test_remove_list_item_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.remove_list_item(None, '1', 'bar')
@@ -147,7 +147,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.remove_list_item(ctx, '1', None)
 
     def test_get_single_item_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_single_item(None, 'foo')
@@ -156,7 +156,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_single_item(ctx, None)
 
     def test_get_single_item(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.lindex.return_value = 'a'
 
         value = OpenvasDB.get_single_item(ctx, 'a')
@@ -165,7 +165,7 @@ class TestOpenvasDB(TestCase):
         ctx.lindex.assert_called_once_with('a', 0)
 
     def test_add_single_list(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         pipeline = ctx.pipeline.return_value
         pipeline.delete.return_value = None
         pipeline.execute.return_value = (None, 0)
@@ -177,7 +177,7 @@ class TestOpenvasDB(TestCase):
         assert_called(pipeline.execute)
 
     def test_add_single_item(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.rpush.return_value = 1
 
         OpenvasDB.add_single_item(ctx, 'a', ['12', '12'])
@@ -185,7 +185,7 @@ class TestOpenvasDB(TestCase):
         ctx.rpush.assert_called_once_with('a', '12')
 
     def test_add_single_item_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.add_single_item(None, '1', ['12'])
@@ -197,7 +197,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.add_single_item(ctx, '1', None)
 
     def test_set_single_item_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.set_single_item(None, '1', ['12'])
@@ -209,7 +209,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.set_single_item(ctx, '1', None)
 
     def test_pop_list_items_no_results(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         pipeline = ctx.pipeline.return_value
         pipeline.lrange.return_value = None
         pipeline.delete.return_value = None
@@ -224,7 +224,7 @@ class TestOpenvasDB(TestCase):
         assert_called(pipeline.execute)
 
     def test_pop_list_items_with_results(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         pipeline = ctx.pipeline.return_value
         pipeline.lrange.return_value = None
         pipeline.delete.return_value = None
@@ -240,7 +240,7 @@ class TestOpenvasDB(TestCase):
         assert_called(pipeline.execute)
 
     def test_set_single_item(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         pipeline = ctx.pipeline.return_value
         pipeline.delete.return_value = None
         pipeline.rpush.return_value = None
@@ -253,7 +253,7 @@ class TestOpenvasDB(TestCase):
         assert_called(pipeline.execute)
 
     def test_get_pattern(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.keys.return_value = ['a', 'b']
         ctx.lrange.return_value = [1, 2, 3]
 
@@ -262,7 +262,7 @@ class TestOpenvasDB(TestCase):
         self.assertEqual(ret, [['a', [1, 2, 3]], ['b', [1, 2, 3]]])
 
     def test_get_pattern_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_pattern(None, 'a')
@@ -275,7 +275,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_filenames_and_oids(None)
 
     def test_get_filenames_and_oids(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.keys.return_value = ['nvt:1', 'nvt:2']
         ctx.lindex.side_effect = ['aa', 'ab']
 
@@ -284,7 +284,7 @@ class TestOpenvasDB(TestCase):
         self.assertEqual(list(ret), [('aa', '1'), ('ab', '2')])
 
     def test_get_keys_by_pattern_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_keys_by_pattern(None, 'a')
@@ -293,7 +293,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_keys_by_pattern(ctx, None)
 
     def test_get_keys_by_pattern(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.keys.return_value = ['nvt:2', 'nvt:1']
 
         ret = OpenvasDB.get_keys_by_pattern(ctx, 'nvt:*')
@@ -302,7 +302,7 @@ class TestOpenvasDB(TestCase):
         self.assertEqual(ret, ['nvt:1', 'nvt:2'])
 
     def test_get_key_count(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         ctx.keys.return_value = ['aa', 'ab']
 
@@ -312,7 +312,7 @@ class TestOpenvasDB(TestCase):
         ctx.keys.assert_called_with('foo')
 
     def test_get_key_count_with_default_pattern(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         ctx.keys.return_value = ['aa', 'ab']
 
@@ -326,7 +326,7 @@ class TestOpenvasDB(TestCase):
             OpenvasDB.get_key_count(None)
 
     def test_find_database_by_pattern_none(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.keys.return_value = None
 
         new_ctx, index = OpenvasDB.find_database_by_pattern('foo*', 123)
@@ -335,7 +335,7 @@ class TestOpenvasDB(TestCase):
         self.assertIsNone(index)
 
     def test_find_database_by_pattern(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         # keys is called twice per iteration
         ctx.keys.side_effect = [None, None, None, None, True, True]
@@ -350,7 +350,7 @@ class TestOpenvasDB(TestCase):
 class ScanDBTestCase(TestCase):
     @patch('ospd_openvas.db.redis.Redis')
     def setUp(self, mock_redis):  # pylint: disable=arguments-differ
-        self.ctx = mock_redis.return_value
+        self.ctx = mock_redis.from_url.return_value
         self.db = ScanDB(10, self.ctx)
 
     def test_get_result(self, mock_openvas_db):
@@ -398,7 +398,7 @@ class ScanDBTestCase(TestCase):
 class KbDBTestCase(TestCase):
     @patch('ospd_openvas.db.redis.Redis')
     def setUp(self, mock_redis):  # pylint: disable=arguments-differ
-        self.ctx = mock_redis.return_value
+        self.ctx = mock_redis.from_url.return_value
         self.db = KbDB(10, self.ctx)
 
     def test_get_result(self, mock_openvas_db):
@@ -480,7 +480,7 @@ class KbDBTestCase(TestCase):
     ):
         prefs = ['foo', 'bar']
 
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         mock_openvas_db.create_context.return_value = ctx
 
         self.db.add_credentials_to_scan_preferences('scan_id', prefs)
@@ -601,7 +601,7 @@ class KbDBTestCase(TestCase):
 @patch('ospd_openvas.db.redis.Redis')
 class MainDBTestCase(TestCase):
     def test_max_database_index_fail(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.config_get.return_value = {}
 
         maindb = MainDB(ctx)
@@ -614,7 +614,7 @@ class MainDBTestCase(TestCase):
         ctx.config_get.assert_called_with('databases')
 
     def test_max_database_index(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.config_get.return_value = {'databases': '123'}
 
         maindb = MainDB(ctx)
@@ -625,7 +625,7 @@ class MainDBTestCase(TestCase):
         ctx.config_get.assert_called_with('databases')
 
     def test_try_database_success(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.hsetnx.return_value = 1
 
         maindb = MainDB(ctx)
@@ -636,7 +636,7 @@ class MainDBTestCase(TestCase):
         ctx.hsetnx.assert_called_with(DBINDEX_NAME, 1, 1)
 
     def test_try_database_false(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.hsetnx.return_value = 0
 
         maindb = MainDB(ctx)
@@ -647,7 +647,7 @@ class MainDBTestCase(TestCase):
         ctx.hsetnx.assert_called_with(DBINDEX_NAME, 1, 1)
 
     def test_try_db_index_error(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.hsetnx.side_effect = Exception
 
         maindb = MainDB(ctx)
@@ -656,7 +656,7 @@ class MainDBTestCase(TestCase):
             maindb.try_database(1)
 
     def test_release_database_by_index(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.hdel.return_value = 1
 
         maindb = MainDB(ctx)
@@ -666,7 +666,7 @@ class MainDBTestCase(TestCase):
         ctx.hdel.assert_called_once_with(DBINDEX_NAME, 3)
 
     def test_release_database(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
         ctx.hdel.return_value = 1
 
         db = MagicMock()
@@ -678,7 +678,7 @@ class MainDBTestCase(TestCase):
         db.flush.assert_called_with()
 
     def test_release(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         maindb = MainDB(ctx)
         maindb.release()
@@ -687,7 +687,7 @@ class MainDBTestCase(TestCase):
         ctx.flushdb.assert_called_with()
 
     def test_get_new_kb_database(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         maindb = MainDB(ctx)
         maindb._max_dbindex = 123  # pylint: disable=protected-access
@@ -700,7 +700,7 @@ class MainDBTestCase(TestCase):
         ctx.flushdb.assert_called_once_with()
 
     def test_get_new_kb_database_none(self, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         maindb = MainDB(ctx)
         maindb._max_dbindex = 3  # pylint: disable=protected-access
@@ -716,7 +716,7 @@ class MainDBTestCase(TestCase):
     def test_find_kb_database_by_scan_id_none(
         self, mock_openvas_db, mock_redis
     ):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         new_ctx = 'bar'  # just some object to compare
         mock_openvas_db.create_context.return_value = new_ctx
@@ -735,7 +735,7 @@ class MainDBTestCase(TestCase):
 
     @patch('ospd_openvas.db.OpenvasDB')
     def test_find_kb_database_by_scan_id(self, mock_openvas_db, mock_redis):
-        ctx = mock_redis.return_value
+        ctx = mock_redis.from_url.return_value
 
         new_ctx = 'foo'  # just some object to compare
         mock_openvas_db.create_context.return_value = new_ctx
