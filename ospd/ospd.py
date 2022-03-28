@@ -344,7 +344,7 @@ class OSPDaemon:
             params[param.tag] = param.text or ''
 
         # Validate values.
-        for key in params:
+        for key in list(params.keys()):
             param_type = self.get_scanner_param_type(key)
             if not param_type:
                 continue
@@ -606,8 +606,7 @@ class OSPDaemon:
             self._get_scan_progress_raw(scan_id)
         except BrokenPipeError:
             logger.warning(
-                "Error sending data to the client while"
-                " executing a scan %s.",
+                "Error sending data to the client while executing a scan %s.",
                 scan_id,
             )
 
