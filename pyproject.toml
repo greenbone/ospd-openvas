@@ -60,7 +60,7 @@ rope = "^0.23.0"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = "^21.12.0"
 pontos = "^22.2.4"
-black = "22.1.0"
+black = "22.3.0"
 
 [tool.poetry.extras]
 tracking = ["sentry-sdk"]
