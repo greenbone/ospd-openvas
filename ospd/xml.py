@@ -20,7 +20,7 @@
 
 import re
 
-from typing import List, Dict, Any, Union, Optional
+from typing import List, Dict, Any, Union
 
 from xml.sax.saxutils import escape, quoteattr
 from xml.etree.ElementTree import Element, tostring
