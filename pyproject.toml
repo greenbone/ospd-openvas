@@ -55,7 +55,7 @@ paho-mqtt = "^1.6.0"
 python-gnupg = "^0.4.8"
 
 [tool.poetry.dev-dependencies]
-pylint = "^2.13.2"
+pylint = "^2.13.4"
 rope = "^0.23.0"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = "^21.12.0"
