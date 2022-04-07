@@ -355,6 +355,17 @@ OSPD_PARAMS = {
             + 'list for a dry run scan.'
         ),
     },
+    'table_driven_lsc': {
+        'type': 'boolean',
+        'name': 'table_driven_lsc',
+        'default': 1,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'If this option is enabled a scanner for table_driven_lsc will '
+            + 'scan package results.'
+        ),
+    },
 }
 
 
