@@ -56,7 +56,7 @@ python-gnupg = "^0.4.8"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13.4"
-rope = "^0.23.0"
+rope = "^1.0.0"
 autohooks-plugin-pylint = "^21.6.0"
 autohooks-plugin-black = "^21.12.0"
 pontos = "^22.4.0"
