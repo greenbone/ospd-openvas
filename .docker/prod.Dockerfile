@@ -31,8 +31,6 @@ RUN chgrp -R ospd-openvas /etc/openvas/ && \
 
 COPY dist/* /ospd-openvas
 
-# allow openvas to access raw sockets and all kind of network related tasks
-RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas
 RUN python3 -m pip install /ospd-openvas/*
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
