@@ -13,6 +13,7 @@ WORKDIR /ospd-openvas
 RUN apt-get update && \
     apt-get install --no-install-recommends --no-install-suggests -y \
     gosu \
+    libcap2-bin \
     python3 \
     python3-pip && \
     apt-get remove --purge --auto-remove -y && \
@@ -30,6 +31,8 @@ RUN chgrp -R ospd-openvas /etc/openvas/ && \
 
 COPY dist/* /ospd-openvas
 
+# allow openvas to access raw sockets and all kind of network related tasks
+RUN setcap cap_net_raw,cap_net_admin+eip /usr/local/sbin/openvas
 RUN python3 -m pip install /ospd-openvas/*
 
 
