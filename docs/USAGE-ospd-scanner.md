@@ -27,7 +27,7 @@ what Greenbone Vulnerability Manager does. See the ospd module for the original
 specification available in [ospd/doc/OSP.xml](OSP.xml).
 
 There is also an online version available at
-<https://docs.greenbone.net/API/OSP/osp.html>.
+<https://docs.greenbone.net/API/OSP/osp-21.04.html>.
 
 
 gvm-tools
