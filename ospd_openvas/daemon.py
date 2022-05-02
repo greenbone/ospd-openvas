@@ -682,6 +682,10 @@ class OSPDopenvas(OSPDaemon):
             " loaded. This may take a few minutes, please wait..."
         )
         old = self.nvti.get_feed_version() or 0
+        # reload notus cache
+        if self.nvti.notus:
+            self.nvti.notus.reload_cache()
+
         if Openvas.load_vts_into_redis():
             new = self.nvti.get_feed_version()
             if new != old:

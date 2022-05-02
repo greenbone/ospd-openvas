@@ -39,6 +39,7 @@ from ospd_openvas.daemon import (
     hashsum_verificator,
 )
 from ospd_openvas.openvas import Openvas
+from ospd_openvas.notus import Notus
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {
@@ -343,6 +344,12 @@ class TestOspdOpenvas(TestCase):
         w._is_running_as_root = False  # pylint: disable=protected-access
 
         self.assertTrue(w.sudo_available)
+
+    def test_update_vts(self):
+        daemon = DummyDaemon()
+        daemon.nvti.notus = MagicMock(spec=Notus)
+        daemon.update_vts()
+        self.assertEqual(daemon.nvti.notus.reload_cache.call_count, 1)
 
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.Path.open')
