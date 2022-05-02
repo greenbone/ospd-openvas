@@ -107,7 +107,13 @@ class VtHelper:
         if 'severity_vector' in custom:
             severity_vector = custom.pop('severity_vector')
         else:
-            severity_vector = custom.pop('cvss_base_vector')
+            severity_vector = custom.pop('cvss_base_vector', None)
+        if not severity_vector:
+            logger.warning("no severity_vector in %s found.", vt_id)
+            # when there is no severity than we return None; alternatively we
+            # could set it to an empty dict and continue
+            # severity_vector = {}
+            return None
         severity['severity_base_vector'] = severity_vector
 
         if "CVSS:3" in severity_vector:
