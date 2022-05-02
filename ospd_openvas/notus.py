@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from pathlib import Path
+from time import sleep
 from typing import Any, Dict, Iterator, Optional, Callable
 from threading import Timer
 import json
@@ -57,6 +58,7 @@ class Notus:
 
     cache: Cache
     loaded: bool = False
+    loading: bool = False
     path: Path
     _verifier: Callable[[Path], bool]
 
@@ -72,6 +74,13 @@ class Notus:
         self._verifier = verifier
 
     def reload_cache(self):
+        if self.loading:
+            # block until loading is done
+            while not self.loading:
+                sleep(1)
+            return
+        self.loading = True
+        self.loaded = False
         for f in self.path.glob('*.notus'):
             if self._verifier(f):
                 data = json.loads(f.read_bytes())
@@ -83,6 +92,7 @@ class Notus:
                 logger.log(
                     logging.WARN, "ignoring %s due to invalid signature", f
                 )
+        self.loading = False
         self.loaded = True
 
     def __to_ospd(
