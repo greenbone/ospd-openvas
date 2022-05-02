@@ -19,6 +19,7 @@
 
 from hashlib import sha256
 from unittest import TestCase
+from unittest.mock import MagicMock, patch
 
 from tests.dummydaemon import DummyDaemon
 from tests.helper import assert_called_once
@@ -34,6 +35,58 @@ class VtHelperTestCase(TestCase):
 
         assert_called_once(dummy.nvti.get_nvt_metadata)
         self.assertEqual("Mantis Detection", res.get('name'))
+
+    @patch('ospd_openvas.daemon.NVTICache')
+    def test_handle_null_severities(self, nvticlass: MagicMock):
+        nvti = nvticlass.return_value
+        nvti.notus = None
+        nvti.get_nvt_metadata.return_value = {
+            'category': '3',
+            'creation_date': '1237458156',
+            'excluded_keys': 'Settings/disable_cgi_scanning',
+            'family': 'Product detection',
+            'filename': 'mantis_detect.nasl',
+            'last_modification': '1533906565',
+            'name': 'Mantis Detection',
+            'qod_type': 'remote_banner',
+            'required_ports': 'Services/www, 80',
+            'solution': 'some solution',
+            'solution_type': 'WillNotFix',
+            'solution_method': 'DebianAPTUpgrade',
+            'impact': 'some impact',
+            'insight': 'some insight',
+            'summary': 'some summary',
+            'affected': 'some affection',
+            'timeout': '0',
+            'vt_params': {
+                '1': {
+                    'id': '1',
+                    'default': '',
+                    'description': 'Description',
+                    'name': 'Data length :',
+                    'type': 'entry',
+                },
+                '2': {
+                    'id': '2',
+                    'default': 'no',
+                    'description': 'Description',
+                    'name': (
+                        'Do not randomize the  order  in  which ports are'
+                        ' scanned'
+                    ),
+                    'type': 'checkbox',
+                },
+            },
+            'refs': {
+                'bid': [''],
+                'cve': [''],
+                'xref': ['URL:http://www.mantisbt.org/'],
+            },
+        }
+
+        vthelper = VtHelper(nvti)
+        res = vthelper.get_single_vt("1.3.6.1.4.1.25623.1.0.100061")
+        assert not res
 
     def test_calculate_vts_collection_hash_no_params(self):
         dummy = DummyDaemon()
