@@ -849,7 +849,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <vts>
             <version>202112070837</version>
             <vendor>Greenbone Networks GmbH</vendor>
-            <home>https://www.greenbone.net/en/security-feed/</home>
+            <home>https://www.greenbone.net/en/feed-comparison/</home>
             <name>Greenbone Security Feed</name>
           </vts>
         </get_version_response>
@@ -1263,7 +1263,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_vts_response status="200" status_text="OK">
-          <vts vts_version="202112140941" feed_vendor="Greenbone Networks GmbH" feed_home="https://www.greenbone.net/en/security-feed/" feed_name="Greenbone Security Feed" total="" sha256_hash="1762240dbd4ad0baf41ad9dcec58863922d63da35ceaa44488a55c3c23c4fcdb"/>
+          <vts vts_version="202112140941" feed_vendor="Greenbone Networks GmbH" feed_home="https://www.greenbone.net/en/feed-comparison/" feed_name="Greenbone Security Feed" total="" sha256_hash="1762240dbd4ad0baf41ad9dcec58863922d63da35ceaa44488a55c3c23c4fcdb"/>
         </get_vts_response>
       </response>
     </example>
