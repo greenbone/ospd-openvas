@@ -197,7 +197,8 @@ class VtHelper:
         vt_selection.sort()
         for vt_id in vt_selection:
             vt = self.get_single_vt(vt_id, oids)
-            yield (vt_id, vt)
+            if vt:
+                yield (vt_id, vt)
 
     def calculate_vts_collection_hash(self) -> str:
         """Calculate the vts collection sha256 hash."""
@@ -210,11 +211,12 @@ class VtHelper:
             vt_params = vt.get('vt_params')
             if vt_params:
                 for _, param in sorted(vt_params.items()):
-                    param_chain += (
-                        param.get('id')
-                        + param.get('name')
-                        + param.get('default')
-                    )
+                    if param:
+                        param_chain += (
+                            param.get('id')
+                            + param.get('name')
+                            + param.get('default')
+                        )
 
             m.update(
                 (vt_id + vt.get('modification_time')).encode('utf-8')
