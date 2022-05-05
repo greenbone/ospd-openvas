@@ -44,7 +44,7 @@ from ospd.resultlist import ResultList
 from ospd_openvas import __version__
 from ospd_openvas.errors import OspdOpenvasError
 
-from ospd_openvas.notus import Notus, NotusParser, NotusResultHandler
+from ospd_openvas.notus import Cache, Notus, NotusParser, NotusResultHandler
 from ospd_openvas.dryrun import DryRun
 from ospd_openvas.messages.result import ResultMessage
 from ospd_openvas.nvticache import NVTICache
@@ -486,7 +486,8 @@ class OSPDopenvas(OSPDaemon):
             verifier = hashsum_verificator(
                 ndir, disable_notus_hashsum_verification
             )
-            notus = Notus(ndir, self.main_db.ctx, verifier)
+
+            notus = Notus(ndir, Cache(self.main_db.ctx), verifier)
 
         self.nvti = NVTICache(
             self.main_db,

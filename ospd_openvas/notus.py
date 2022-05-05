@@ -65,12 +65,11 @@ class Notus:
     def __init__(
         self,
         path: Path,
-        redis: Redis,
+        cache: Cache,
         verifier: Callable[[Path], bool],
     ):
         self.path = path
-        self.cache = Cache(redis)
-
+        self.cache = cache
         self._verifier = verifier
 
     def reload_cache(self):
@@ -115,10 +114,10 @@ class Notus:
         )
         result['qod_type'] = meta_data.get('qod_type', 'package')
         severity = advisory.get('severity', {})
-        result["severity_vector"] = severity.get(
-            "cvss_v3", severity.get("cvss_v2", "")
-        )
-
+        cvss = severity.get("cvss_v3", None)
+        if not cvss:
+            cvss = severity.get("cvss_v2", None)
+        result["severity_vector"] = cvss
         result["filename"] = path.name
         bid = advisory.get("bid", [])
         cve = advisory.get("cve", [])
