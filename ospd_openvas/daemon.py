@@ -521,6 +521,11 @@ class OSPDopenvas(OSPDaemon):
 
         self._mqtt_broker_address = mqtt_broker_address
         self._mqtt_broker_port = mqtt_broker_port
+        self._mqtt_daemon = None
+
+    def __del__(self):
+        if self._mqtt_daemon:
+            self._mqtt_daemon.stop()
 
     def init(self, server: BaseServer) -> None:
 
@@ -531,13 +536,14 @@ class OSPDopenvas(OSPDaemon):
                 client = MQTTClient(
                     self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
                 )
-                daemon = MQTTDaemon(client)
+                self._mqtt_daemon = MQTTDaemon(client)
                 subscriber = MQTTSubscriber(client)
 
                 subscriber.subscribe(
                     ResultMessage, notus_handler.result_handler
                 )
-                daemon.run()
+                self._mqtt_daemon.run()
+
             except (ConnectionRefusedError, gaierror, ValueError) as e:
                 logger.error(
                     "Could not connect to MQTT broker at %s, error was: %s."
