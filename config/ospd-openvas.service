@@ -8,7 +8,6 @@ ConditionKernelCommandLine=!recovery
 [Service]
 Type=forking
 User=gvm
-Group=gvm
 RuntimeDirectory=ospd
 RuntimeDirectoryMode=2775
 PIDFile=/run/ospd/ospd-openvas.pid
