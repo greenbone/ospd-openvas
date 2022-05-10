@@ -100,6 +100,13 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </attrib>
       <e>username</e>
       <e>password</e>
+      <e>private</e>
+      <e>priv_username</e>
+      <e>priv_password</e>
+      <e>community</e>
+      <e>auth_algorithm</e>
+      <e>privacy_password</e>
+      <e>privacy_algorithm</e>
     </pattern>
     <ele>
       <name>username</name>
@@ -109,8 +116,36 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <name>password</name>
       <pattern>text</pattern>
     </ele>
+    <ele>
+      <name>private</name>
+      <pattern>file</pattern>
+    </ele>
+    <ele>
+      <name>priv_username</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>priv_password</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>community</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>auth_algorithm</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>privacy_password</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>privacy_algorithm</name>
+      <pattern>text</pattern>
+    </ele>
     <example>
-      <summary>Credential with port</summary>
+      <summary>SSH Credential with username + password authentication and port</summary>
       <e>
         <credential type="up" service="ssh" port="22">
           <username>scanuser</username>
@@ -119,11 +154,45 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </e>
     </example>
     <example>
-      <summary>Credential without port</summary>
+      <summary>SSH Credential with username + SSH Key authentication and port</summary>
+      <e>
+        <credential type="usk" service="ssh" port="22">
+          <username>scanuser</username>
+          <password>keypass</password>
+          <private>/path/to/ssh/keyfile</private>
+        </credential>
+      </e>
+    </example>
+    <example>
+      <summary>SSH Credential with elevated privileges</summary>
+      <e>
+        <credential type="up" service="ssh" port="22">
+          <username>scanuser</username>
+          <password>mypass</password>
+          <priv_username>root</priv_username>
+          <priv_password>rootpw</priv_password>
+        </credential>
+      </e>
+    </example>
+    <example>
+      <summary>ESXi Credential with username + password authentication</summary>
       <e>
         <credential type="up" service="smb">
           <username>smbuser</username>
           <password>mypass</password>
+        </credential>
+      </e>
+    </example>
+    <example>
+      <summary>SNMP Credentials</summary>
+      <e>
+        <credential type="snmp" service="snmp">
+          <username>smbuser</username>
+          <password>mypass</password>
+          <community>public</community>
+          <auth_algorithm>md5</auth_algorithm>
+          <privacy_password>privpass</privacy_password>
+          <privacy_algorithm>aes</privacy_algorithm>
         </credential>
       </e>
     </example>
@@ -540,7 +609,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         <type>text</type>
       </attrib>
     </pattern>
-     <response>
+    <response>
       <pattern>
         <attrib>
           <name>status</name>
@@ -554,17 +623,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
         </attrib>
         text
       </pattern>
-     </response>
-     <example>
-       <request>
-         <get_performance start='0' titles='mem'/>
-       </request>
-       <response>
-         <help_response status="200" status_text="OK">
+    </response>
+    <example>
+      <request>
+        <get_performance start='0' titles='mem'/>
+      </request>
+      <response>
+        <help_response status="200" status_text="OK">
            Some output.
-         </help_response>
-       </response>
-     </example>
+        </help_response>
+      </response>
+    </example>
 
   </command>
   <command>
@@ -609,7 +678,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <type>text</type>
           <required>1</required>
         </attrib>
-        <any><e>scan</e></any>
+        <any>
+          <e>scan</e>
+        </any>
       </pattern>
       <ele>
         <name>scan</name>
@@ -651,19 +722,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_scans_response status_text="OK" status="200">
-          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
-                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
-             <results>
-               <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp"
-                       test_id="" name="Path disclosure vulnerability"
-                       type="Alarm">
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252" end_time="1432824234" progress="100" status="finished" start_time="1432824206">
+            <results>
+              <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp" test_id="" name="Path disclosure vulnerability" type="Alarm">
                  The URL: &quot;https://192.168.1.252/&quot; has a path
                  disclosure vulnerability which discloses "/var/www/phpinfo.php"
                  ...
-               </result>
+              </result>
                ...
-             </results>
-           </scan>
+            </results>
+          </scan>
         </get_scans_response>
       </response>
     </example>
@@ -674,18 +742,15 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_scans_response status_text="OK" status="200">
-          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252"
-                end_time="1432824234" progress="100" status="finished" start_time="1432824206">
-             <results>
-               <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp"
-                       test_id="" name="Path disclosure vulnerability"
-                       type="Alarm">
+          <scan id="9750f1f8-07aa-49cc-9c31-2f9e469c8f65" target="192.168.1.252" end_time="1432824234" progress="100" status="finished" start_time="1432824206">
+            <results>
+              <result host="192.168.1.252" hostname="" severity="2.5" port="443/tcp" test_id="" name="Path disclosure vulnerability" type="Alarm">
                  The URL: &quot;https://192.168.1.252/&quot; has a path
                  disclosure vulnerability which discloses "/var/www/phpinfo.php"
                  ...
-               </result>
-             </results>
-           </scan>
+              </result>
+            </results>
+          </scan>
         </get_scans_response>
       </response>
     </example>
@@ -696,17 +761,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       </request>
       <response>
         <get_scans_response status="200" status_text="OK">
-            <scan end_time="0" id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" progress="17" start_time="1592316467" status="running" target="192.168.56.100, 127.0.0.1">
-                <progress>
-                    <host name="127.0.0.1">2</host>
-                    <host name="192.168.56.100">32</host>
-                    <overall>17</overall>
-                    <count_alive>0</count_alive>
-                    <count_dead>0</count_dead>
-                    <count_excluded>0</count_excluded>
-                    <count_total>2</count_total>
-                </progress>
-            </scan>
+          <scan end_time="0" id="f14747d3-a4d7-4e79-99bb-a0a1276cb78c" progress="17" start_time="1592316467" status="running" target="192.168.56.100, 127.0.0.1">
+            <progress>
+              <host name="127.0.0.1">2</host>
+              <host name="192.168.56.100">32</host>
+              <overall>17</overall>
+              <count_alive>0</count_alive>
+              <count_dead>0</count_dead>
+              <count_excluded>0</count_excluded>
+              <count_total>2</count_total>
+            </progress>
+          </scan>
         </get_scans_response>
       </response>
     </example>
@@ -940,7 +1005,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
       <ele>
         <name>scanner_params</name>
         <pattern>
-          <any><e>scanner_param</e></any>
+          <any>
+            <e>scanner_param</e>
+          </any>
         </pattern>
         <ele>
           <name>scanner_param</name>
@@ -1101,7 +1168,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <name>sha256_hash</name>
             <type>text</type>
           </attrib>
-          <any><e>vt</e></any>
+          <any>
+            <e>vt</e>
+          </any>
         </pattern>
         <ele>
           <name>vt</name>
@@ -1143,8 +1212,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <name>param</name>
               <pattern>
                 <attrib>
-                    <name>type</name>
-                    <type>string</type>
+                  <name>type</name>
+                  <type>string</type>
                 </attrib>
                 <attrib>
                   <name>id</name>
@@ -1162,8 +1231,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
               <name>ref</name>
               <pattern>
                 <attrib>
-                    <name>type</name>
-                    <type>string</type>
+                  <name>type</name>
+                  <type>string</type>
                 </attrib>
                 <attrib>
                   <name>id</name>
@@ -1204,12 +1273,12 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
             <pattern>
               <attrib>
                 <name>type</name>
-                  <summary>Solution type, for example "VendorFix"</summary>
+                <summary>Solution type, for example "VendorFix"</summary>
                 <type>string</type>
               </attrib>
               <attrib>
                 <name>method</name>
-                  <summary>Solution method, for example "DebianAPTUpgrade"</summary>
+                <summary>Solution method, for example "DebianAPTUpgrade"</summary>
                 <type>string</type>
               </attrib>
             </pattern>
@@ -1220,7 +1289,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
           <ele>
             <name>severities</name>
             <pattern>
-              <any><e>severity</e></any>
+              <any>
+                <e>severity</e>
+              </any>
             </pattern>
             <ele>
               <name>severity</name>
@@ -1670,7 +1741,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <name>ovaldef_file</name>
     <summary>An ovaldef file's content that is base64 encoded</summary>
   </parameter_type>
-  
+
   <change>
     <command>CHECK_FEED</command>
     <summary>New command to perform a sync feed self test</summary>
@@ -1679,7 +1750,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <version>21.10</version>
   </change>
 
-    <change>
+  <change>
     <command>GET_VTS</command>
     <summary>Add feed information</summary>
     <description>Include as arguments the feed's vendor, name and home.
@@ -1749,7 +1820,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <version>20.08</version>
   </change>
 
-    <change>
+  <change>
     <command>GET_VTS</command>
     <summary>Add attribute SHA256_HASH</summary>
     <description>
