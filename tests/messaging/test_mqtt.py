@@ -97,8 +97,16 @@ class MQTTDaemonTestCase(TestCase):
 
         # pylint: disable=unused-variable
         daemon = MQTTDaemon(client)
+        daemon.run()
 
         client.connect.assert_called_with()
+
+    def test_stop(self):
+        client = mock.MagicMock()
+        daemon = MQTTDaemon(client)
+        daemon.stop()
+        client.disconnect.assert_called_with()
+        client.loop_stop.assert_called_with()
 
     def test_run(self):
         client = mock.MagicMock()
