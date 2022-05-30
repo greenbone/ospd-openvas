@@ -1,10 +1,9 @@
 if(description)
 {
-  script_dependencies("keys.nasl");
-  script_oid("1.3.6.1.4.1.25623.1.0.90022");
+  script_oid("0.0.0.0.0.0.0.0.0.1");
   script_version("2019-11-10T15:30:28+0000");
-  script_name("mqtt test");
-  script_category(ACT_INIT);
+  script_name("test");
+  script_category(ACT_SCANNER);
   script_family("my test family");  
   script_tag(name:"some", value:"tag");
   script_tag(name:"last_modification", value:"2019-11-10 15:30:28 +0000 (Tue, 10 Nov 2020)");
@@ -31,19 +30,14 @@ if(description)
   script_tag(name:"insight", value:"Some detailed insights of the problem");
   script_tag(name:"impact", value:"Some detailed about what is impacted");
 
-  script_mandatory_keys("test/key1");
-  script_require_keys("test/key2");
-  script_exclude_keys("1", "2");
   script_tag(name:"affected", value:"Affected programs, operation system, ...");
 
   script_tag(name:"solution", value:"Solution description");
   script_tag(name:"solution_type", value:"Type of solution (e.g. mitigation, vendor fix)");
   script_tag(name:"solution_method", value:"how to solve it (e.g. debian apt upgrade)");
   script_tag(name:"qod_type", value:"package");
-exit(0);
+  exit(0);
 }
-
-set_kb_item( name: "test", value: TRUE );
 
 sec_msg = "this is a security message";
 log_msg = "this is a log message";

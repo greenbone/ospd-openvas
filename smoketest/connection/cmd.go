@@ -9,6 +9,8 @@ import (
 	"reflect"
 )
 
+const debug = false
+
 // SendCommand sends given cmd to OSP (protocol, address) and unmarshal the result into v
 func SendCommand(protcol, address string, cmd, v interface{}) error {
 	if reflect.ValueOf(v).Kind() != reflect.Ptr {
@@ -31,8 +33,15 @@ func SendCommand(protcol, address string, cmd, v interface{}) error {
 		return fmt.Errorf("%d bytes were not send", len(b)-n)
 	}
 	incoming, err := io.ReadAll(c)
+	if debug {
+		fmt.Printf("response: %s\n", incoming)
+	}
 	if err != nil {
 		return err
+	}
+
+	if v == nil {
+		return nil
 	}
 	return xml.Unmarshal(incoming, v)
 }
