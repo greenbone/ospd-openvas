@@ -12,9 +12,12 @@ WORKDIR /ospd-openvas
 
 RUN apt-get update && \
     apt-get install --no-install-recommends --no-install-suggests -y \
+    # gcc and python3-dev are required for psutil on arm
+    gcc \
     gosu \
     python3 \
-    python3-pip && \
+    python3-pip \
+    python3-dev && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
@@ -34,6 +37,7 @@ COPY dist/* /ospd-openvas
 
 RUN python3 -m pip install /ospd-openvas/*
 
+RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
