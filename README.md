@@ -7,12 +7,12 @@
 [![code test coverage](https://codecov.io/gh/greenbone/ospd/branch/main/graphs/badge.svg)](https://codecov.io/gh/greenbone/ospd-openvas)
 [![Build and test](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml/badge.svg?branch=main)](https://github.com/greenbone/ospd-openvas/actions/workflows/ci-python.yml?query=branch%3Amain++)
 
-This is an OSP server implementation to allow GVM to remotely control
-[OpenVAS](https://github.com/greenbone/openvas-scanner) and [Notus](https://github.com/greenbone/notus-scanner).
+ospd-openvas is an OSP server implementation to remotely control
+[OpenVAS Scanner](https://github.com/greenbone/openvas-scanner) and [Notus Scanner](https://github.com/greenbone/notus-scanner).
 
-Once running, you need to configure OpenVAS and Notus for the Greenbone Vulnerability
+Once running, you need to configure OpenVAS Scanner and Notus Scanner for the Greenbone Vulnerability
 Manager, for example via the web interface Greenbone Security Assistant. Then
-you can create scan tasks to use OpenVAS and Notus.
+you can create scan tasks to use both scanners.
 
 ## Installation
 
@@ -79,7 +79,7 @@ Please follow the general usage guide for ospd-based scanners:
 ## Support
 
 For any question on the usage of ospd-openvas please use the [Greenbone
-Community Portal](https://community.greenbone.net/c/gse). If you found a problem
+Community Portal](https://community.greenbone.net/). If you found a problem
 with the software, please [create an
 issue](https://github.com/greenbone/ospd-openvas/issues) on GitHub. If you are a
 Greenbone customer you may alternatively or additionally forward your issue to
@@ -120,6 +120,6 @@ are active.
 
 ## License
 
-Copyright (C) 2018-2021 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2018-2022 [Greenbone Networks GmbH](https://www.greenbone.net/)
 
 Licensed under the [GNU Affero General Public License v3.0 or later](COPYING).
