@@ -37,11 +37,8 @@ COPY dist/* /ospd-openvas
 
 RUN python3 -m pip install /ospd-openvas/*
 
-<<<<<<< HEAD
-=======
 RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
 
->>>>>>> ed838008 (Also build container images für arm64)
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
 CMD ["ospd-openvas", "--disable-notus-hashsum-verification", "--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
