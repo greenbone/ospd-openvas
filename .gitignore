@@ -9,3 +9,5 @@ build
 .vscode
 .coverage
 .venv
+smoketest/run
+smoketest/build.log

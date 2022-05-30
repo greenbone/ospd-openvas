@@ -2,10 +2,8 @@
 FROM greenbone/openvas-scanner:unstable
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
-    build-essential \
     mosquitto \
     redis \
-    git \
     python3 \
     python3-pip \
     python3-setuptools \
@@ -18,47 +16,35 @@ RUN apt-get update && apt-get install --no-install-recommends --no-install-sugge
     python3-redis \
     python3-gnupg \
     python3-paho-mqtt \
-    curl \
-    sudo &&\
+    curl &&\
 	apt-get remove --purge --auto-remove -y &&\
 	rm -rf /var/lib/apt/lists/*
-
 # due to old version in buster
 RUN curl -L https://golang.org/dl/go1.17.2.linux-amd64.tar.gz -o /tmp/go.tar.gz && \
     rm -rf /usr/local/go && \
     tar -C /usr/local -xzf /tmp/go.tar.gz &&\
     rm /tmp/go.tar.gz
-RUN useradd -rm -d /home/gvm -s /bin/bash -g root -g redis -G sudo -u 1000 gvm
-RUN echo 'gvm:test' | chpasswd
-RUN echo "gvm ALL = NOPASSWD: /usr/sbin/openvas" > /etc/sudoers.d/allow_openvas
-RUN echo "gvm ALL = NOPASSWD: /usr/bin/redis-server" > /etc/sudoers.d/allow_redis-server
-RUN echo "gvm ALL = NOPASSWD: /usr/sbin/mosquitto" > /etc/sudoers.d/allow_mosquitto
-COPY smoketest/redis.conf /etc/redis/redis.conf
+
+
 COPY --chmod=7777 . /usr/local/src/ospd-openvas
-# remove previous plugins
+COPY smoketest/redis.conf /etc/redis/redis.conf
 RUN rm -rf /var/lib/openvas/plugins/*
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
-RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/openvas/notus
+RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/openvas/plugins/notus
+
+RUN useradd -rm -s /bin/bash -g redis -u 1000 gvm
 RUN mkdir /run/redis
-RUN chown redis:redis /run/redis
-RUN mkdir -p /home/gvm/
+RUN chown gvm:redis /run/redis
 RUN mkdir -p /var/run/ospd/
-RUN chown gvm:sudo /var/run/ospd
+RUN chown gvm:redis /var/run/ospd
 RUN touch /etc/openvas/openvas_log.conf
-# hack since ospd-openvas does execute `openvas --updatye-vt-info` without sudo 
-RUN chown gvm:sudo /etc/openvas/openvas_log.conf
+RUN chown gvm:redis /etc/openvas/openvas_log.conf
 WORKDIR /usr/local/src/ospd-openvas
 RUN python3 -m pip install .
-RUN chown gvm:sudo /var/log/gvm
-RUN ln -s /usr/local/go/bin/* /usr/local/bin/
-RUN gpg --batch --gen-key smoketest/gpg-key-definition
-RUN gpg --import foo.pub
-WORKDIR /var/lib/openvas/notus/advisories
-RUN sha256sum * > sha256sums
-RUN gpg --pinentry-mode=loopback --passphrase abc --detach-sign -a sha256sums
-
+RUN chown gvm:redis /var/log/gvm
 RUN mkdir /run/mosquitto
 RUN echo "allow_anonymous true" >> /etc/mosquitto.conf
+RUN echo "pid_file /tmp/mosquitto.pid" >> /etc/mosquitto.conf
 RUN echo "log_dest file /tmp/mosquitto.log" >> /etc/mosquitto.conf
 RUN echo "persistence true" >> /etc/mosquitto.conf
 RUN echo "mqtt_server_uri = localhost:1883" >> /etc/openvas/openvas.conf
@@ -67,8 +53,13 @@ RUN mkdir -p /var/log/mosquitto/
 RUN chown mosquitto:mosquitto /var/log/mosquitto
 RUN chmod 774 /var/log/mosquitto
 
-USER gvm
 WORKDIR /usr/local/src/ospd-openvas/smoketest
-RUN gpg --import ../foo.pub
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 /usr/local/go/bin/go build -o /usr/local/bin/ospd-openvas-smoketests cmd/test/main.go
+RUN mv /usr/local/src/ospd-openvas/smoketest/run-tests.sh /usr/local/bin/run
 
-CMD /usr/local/src/ospd-openvas/smoketest/run-tests.sh
+RUN rm -rf /usr/local/go
+RUN rm -rf /usr/local/src/ospd-openvas
+RUN apt-get remove --purge --auto-remove -y curl python3-pip python3-packaging
+
+USER gvm
+CMD /usr/local/bin/run

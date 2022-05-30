@@ -1,17 +1,28 @@
 #!/usr/bin/env bash
-# Is a convenience script to start redis, ospd-openvas and execute `go test`
-set -e
+# Is a convenience script to start redis, ospd-openvas and execute smoketests
 
 shutdown() {
-  kill -9 $(cat /var/run/ospd/ospd.pid)
+  kill $(cat /var/run/ospd/ospd.pid) || true
+  kill $(cat /tmp/mosquitto.pid) || true
   redis-cli -s /var/run/redis/redis.sock SHUTDOWN
 }
 
 trap shutdown EXIT
 
-sudo mosquitto -c /etc/mosquitto.conf &
-sudo redis-server /etc/redis/redis.conf
-ospd-openvas -u /var/run/ospd/ospd.sock -l /var/log/gvm/ospd.log
-cd /usr/local/src/ospd-openvas/smoketest
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o run cmd/test/main.go
-./run
+set -e
+mosquitto -c /etc/mosquitto.conf &
+redis-server /etc/redis/redis.conf
+ospd-openvas --disable-notus-hashsum-verification True \
+  -u /var/run/ospd/ospd.sock \
+  -l /var/log/gvm/ospd.log
+wait_turn=0
+while [ ! -S /var/run/ospd/ospd.sock ]; do
+  if [ $wait_turn -eq 10 ]; then
+    printf "too many attempts to find ospd.sock\n"
+    exit 1
+  fi
+  printf "waiting for ospd socket ($wait_turn)\n"
+  sleep 1
+  wait_turn=$(($wait_turn + 1))
+done
+/usr/local/bin/ospd-openvas-smoketests
