@@ -138,22 +138,11 @@ class MQTTDaemon:
         client: MQTTClient,
     ):
         self._client = client
-        self._client.on_disconnect = self.on_disconnect
-        self._client.on_connect = self.on_connect
-
-        self._client.connect()
-
-    @staticmethod
-    def on_connect(_client, _userdata, _flags, rc, _properties):
-        if rc == 0:
-            logger.info("Connected to broker successfully")
-        else:
-            logger.error('Failed to connect to broker. Reason code %s', rc)
-
-    @staticmethod
-    def on_disconnect(client, _userdata, rc, _properties):
-        logger.info("Disconnected from broker. Reason code %s", rc)
-        client.loop_stop()
 
     def run(self):
+        self._client.connect()
         self._client.loop_start()
+
+    def stop(self):
+        self._client.disconnect()
+        self._client.loop_stop()
