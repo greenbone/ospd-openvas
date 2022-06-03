@@ -1768,6 +1768,14 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
 
   <change>
     <command>START_SCAN</command>
+    <summary>Add support for privileged access to target</summary>
+    <description>Credential Element got new Elements in case of SSH type. These new Elements allow an additional root access to the target system.
+    </description>
+    <version>22.04</version>
+  </change>
+
+  <change>
+    <command>START_SCAN</command>
     <summary>Add support for dedicated port list for alive detection</summary>
     <description>Target element received new target option alive_test_ports.
     </description>
