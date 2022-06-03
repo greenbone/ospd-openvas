@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
   <name>Open Scanner Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
-  <version>21.10</version>
+  <version>22.04</version>
 
   <!-- Types. -->
 
@@ -1747,7 +1747,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>New command to perform a sync feed self test</summary>
     <description>Perform a sync feed self test and check if the lockfile is locked
     </description>
-    <version>21.10</version>
+    <version>22.04</version>
   </change>
 
   <change>
@@ -1755,7 +1755,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Add feed information</summary>
     <description>Include as arguments the feed's vendor, name and home.
     </description>
-    <version>21.10</version>
+    <version>22.04</version>
   </change>
 
   <change>
@@ -1763,7 +1763,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
     <summary>Add feed information</summary>
     <description>Include as arguments the feed's vendor, name and home.
     </description>
-    <version>21.10</version>
+    <version>22.04</version>
   </change>
 
   <change>
