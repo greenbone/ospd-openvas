@@ -9,6 +9,14 @@ type ScannerParam struct {
 	TableDrivenLSC string `xml:"table_driven_lsc,omitempty"`
 }
 
+var DefaultScannerParams = []ScannerParam{
+	{},
+}
+
+var DisableNotus = []ScannerParam{
+	{TableDrivenLSC: "0"},
+}
+
 type VTValue struct {
 	ID    string `xml:"id,attr,omitempty"`
 	Value string `xml:",chardata"`
@@ -32,8 +40,13 @@ type Credential struct {
 	Type     string `xml:"type,attr,omitempty"`
 	Service  string `xml:"service,attr,omitempty"`
 	Port     string `xml:"port,attr,omitempty"`
-	Username string `xml:"username,attr,omitempty"`
-	Password string `xml:"password,attr,omitempty"`
+	Username string `xml:"username,omitempty"`
+	Password string `xml:"password,omitempty"`
+}
+
+type Credentials struct {
+	XMLName     xml.Name     `xml:"credentials"`
+	Credentials []Credential `xml:"credential"`
 }
 
 type AliveTestMethods struct {
@@ -44,11 +57,15 @@ type AliveTestMethods struct {
 	ConsiderAlive int `xml:"consider_alive,omitempty"`
 }
 
+var ConsiderAlive AliveTestMethods = AliveTestMethods{
+	ConsiderAlive: 1,
+}
+
 type Target struct {
 	XMLName            xml.Name         `xml:"target"`
 	Hosts              string           `xml:"hosts,omitempty"`
 	Ports              string           `xml:"ports,omitempty"`
-	Credentials        Credential       `xml:"credentials,omitempty"`
+	Credentials        Credentials      `xml:"credentials,omitempty"`
 	ExcludedHosts      string           `xml:"excluded_hosts,omitempty"`
 	FinishedHosts      string           `xml:"finished_hosts,omitempty"`
 	AliveTestPorts     string           `xml:"alive_test_ports,omitempty"`
