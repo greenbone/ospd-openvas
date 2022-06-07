@@ -4,6 +4,7 @@
 shutdown() {
   kill $(cat /var/run/ospd/ospd.pid) || true
   kill $(cat /tmp/mosquitto.pid) || true
+  kill $(grep -o "Pidfile.*" /etc/ssh/sshd_config | awk '{printf $2}') || true
   redis-cli -s /var/run/redis/redis.sock SHUTDOWN
 }
 
@@ -12,6 +13,7 @@ trap shutdown EXIT
 set -e
 mosquitto -c /etc/mosquitto.conf &
 redis-server /etc/redis/redis.conf
+/usr/sbin/sshd
 ospd-openvas --disable-notus-hashsum-verification True \
   -u /var/run/ospd/ospd.sock \
   -l /var/log/gvm/ospd.log

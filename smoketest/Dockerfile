@@ -1,3 +1,9 @@
+FROM ghcr.io/greenbone/data-objects:community-staging AS data_objects
+RUN mv `ls -d /var/lib/gvm/data-objects/gvmd/*/*configs | sort -r | head -n 1` /policies
+
+FROM ghcr.io/greenbone/vulnerability-tests:community-staging AS nasl
+# use latest version
+RUN mv `ls -d /var/lib/openvas/* | sort -r | head -n 1`/vt-data/nasl /nasl
 
 FROM greenbone/openvas-scanner:unstable
 
@@ -16,6 +22,8 @@ RUN apt-get update && apt-get install --no-install-recommends --no-install-sugge
     python3-redis \
     python3-gnupg \
     python3-paho-mqtt \
+    make \
+    openssh-server \
     curl &&\
 	apt-get remove --purge --auto-remove -y &&\
 	rm -rf /var/lib/apt/lists/*
@@ -54,12 +62,21 @@ RUN chown mosquitto:mosquitto /var/log/mosquitto
 RUN chmod 774 /var/log/mosquitto
 
 WORKDIR /usr/local/src/ospd-openvas/smoketest
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 /usr/local/go/bin/go build -o /usr/local/bin/ospd-openvas-smoketests cmd/test/main.go
+RUN GO="/usr/local/go/bin/go" make build-cmds
+RUN mv bin/* /usr/local/bin/
 RUN mv /usr/local/src/ospd-openvas/smoketest/run-tests.sh /usr/local/bin/run
-
+COPY --from=nasl --chmod=7777 /nasl /usr/local/src/nasl
+COPY --from=data_objects --chmod=7777 /policies /usr/local/src/policies
+RUN ospd-policy-feed -s /usr/local/src/nasl -t /var/lib/openvas/plugins -p /usr/local/src/policies
 RUN rm -rf /usr/local/go
 RUN rm -rf /usr/local/src/ospd-openvas
-RUN apt-get remove --purge --auto-remove -y curl python3-pip python3-packaging
-
+#RUN rm -rf /usr/local/src/nasl
+RUN apt-get remove --purge --auto-remove -y curl python3-pip python3-packaging make
+RUN chown -R gvm:redis /var/lib/openvas/plugins/
+RUN mkdir /run/sshd
+# make gvm capable of running sshd
+RUN chown -R gvm:redis /etc/ssh
+RUN echo 'gvm:test' | chpasswd
+RUN sed -i 's/#PidFile/Pidfile/' /etc/ssh/sshd_config
 USER gvm
 CMD /usr/local/bin/run

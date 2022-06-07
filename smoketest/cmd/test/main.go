@@ -5,27 +5,44 @@ import (
 	"os"
 
 	"github.com/greenbone/ospd-openvas/smoketest/connection"
+	"github.com/greenbone/ospd-openvas/smoketest/policies"
 	"github.com/greenbone/ospd-openvas/smoketest/vt"
 
 	"github.com/greenbone/ospd-openvas/smoketest/usecases"
 	"github.com/greenbone/ospd-openvas/smoketest/usecases/notus"
+	"github.com/greenbone/ospd-openvas/smoketest/usecases/policy"
 	"github.com/greenbone/ospd-openvas/smoketest/usecases/scan"
 )
 
-var address string
+var ospdSocket string
+var policyPath string
+var username string
+var password string
 
 const protocoll = "unix"
 
 func init() {
-	address = os.Getenv("OSPD_SOCKET")
-	if address == "" {
-		address = "/var/run/ospd/ospd.sock"
+	ospdSocket = os.Getenv("OSPD_SOCKET")
+	if ospdSocket == "" {
+		ospdSocket = "/var/run/ospd/ospd.sock"
+	}
+	policyPath = os.Getenv("POLICY_PATH")
+	if policyPath == "" {
+		policyPath = "/usr/local/src/policies"
+	}
+	username = os.Getenv("USERNAME")
+	if username == "" {
+		username = "gvm"
+	}
+	password = os.Getenv("PASSWORD")
+	if password == "" {
+		password = "test"
 	}
 }
 
 func getVTs() vt.GetVTsResponse {
 	var response vt.GetVTsResponse
-	if err := connection.SendCommand(protocoll, address, vt.Get{}, &response); err != nil {
+	if err := connection.SendCommand(protocoll, ospdSocket, vt.Get{}, &response); err != nil {
 		panic(err)
 	}
 	return response
@@ -55,16 +72,22 @@ func PrintFailures(uc usecases.Tests, resp []usecases.Response) {
 }
 
 func main() {
+	fmt.Printf("Initializing policy cache (%s)\n", policyPath)
+	policyCache, err := policies.InitCache(policyPath)
+	if err != nil {
+		panic(err)
+	}
 	fmt.Print("Trying to connect\n")
 	response := retryUntilPluginsAreLoaded()
 	ucs := []usecases.Tests{
 		notus.Create(),
 		scan.Create(),
+		policy.Create(policyCache, username, password),
 	}
 	resps := make([][]usecases.Response, len(ucs))
 	fmt.Printf("OSPD loaded %d vts\n", len(response.VTs.VT))
 	for i, t := range ucs {
-		resps[i] = t.Run(protocoll, address)
+		resps[i] = t.Run(protocoll, ospdSocket)
 	}
 	for i, t := range ucs {
 		PrintFailures(t, resps[i])
