@@ -139,10 +139,7 @@ class MQTTDaemon:
     ):
         self._client = client
 
-    def run(self):
         self._client.connect()
-        self._client.loop_start()
 
-    def stop(self):
-        self._client.disconnect()
-        self._client.loop_stop()
+    def run(self):
+        self._client.loop_start()
