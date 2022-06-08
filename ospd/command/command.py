@@ -598,7 +598,7 @@ class StartScan(BaseCommand):
 
         scanner_params = xml.find('scanner_params')
         if scanner_params is None:
-            raise OspdCommandError('No scanner_params element', 'start_scan')
+            scanner_params = {}
 
         # params are the parameters we got from the <scanner_params> XML.
         params = self._daemon.preprocess_scan_params(scanner_params)
