@@ -10,10 +10,11 @@ import (
 )
 
 type Plugin struct {
-	Path    string
-	OID     string
-	Family  string
-	Plugins []string
+	Path               string
+	OID                string
+	Family             string
+	Plugins            []string
+	ScriptDependencies []string
 }
 
 type Token int
@@ -231,11 +232,11 @@ func Parse(source, path string, input io.Reader) Plugin {
 	oid := ""
 	family := ""
 	plugins := make([]string, 0)
+	script_dependencies := make([]string, 0)
 	scanner := NewScanner(input)
-	appendPluginPath := func(arg string) {
-
+	appendPluginPath := func(arg string, cache *[]string) {
 		ip := filepath.Join(source, arg)
-		plugins = append(plugins, ip)
+		*cache = append(*cache, ip)
 	}
 	for {
 		t, i := scanner.Scan()
@@ -254,20 +255,19 @@ func Parse(source, path string, input io.Reader) Plugin {
 					family = arg
 				}
 			case "script_dependencies":
-				// TODO on nasl we actually need to parse them again
 				if args, ok := multipleAnonStringArgumentFunction(scanner); ok {
 					for _, i := range args {
 						// there are some instances that call script_dependencies("a.nasl, b.nasl");
 						// instead of script_dependencies("a.nasl", "b.nasl");
 						split := strings.Split(i, ",")
 						for _, j := range split {
-							appendPluginPath(strings.Trim(j, " "))
+							appendPluginPath(strings.Trim(j, " "), &script_dependencies)
 						}
 					}
 				}
 			case "include":
 				if arg, ok := singleAnonStringArgumentFunction(scanner); ok {
-					appendPluginPath(arg)
+					appendPluginPath(arg, &plugins)
 				}
 			}
 
@@ -275,10 +275,11 @@ func Parse(source, path string, input io.Reader) Plugin {
 
 	}
 	return Plugin{
-		Path:    path,
-		OID:     oid,
-		Family:  family,
-		Plugins: plugins,
+		Path:               path,
+		OID:                oid,
+		Family:             family,
+		Plugins:            plugins,
+		ScriptDependencies: script_dependencies,
 	}
 
 }

@@ -18,8 +18,47 @@ import (
 
 const familyPrefixLen int = len("family = \"")
 
-func copyFile(source, target, fpath string) (int64, error) {
-	npath := strings.Replace(fpath, source, target, 1)
+type copier struct {
+	sync.RWMutex
+	copied []string
+	source string
+	target string
+}
+
+func (c *copier) Append(path string) {
+	c.Lock()
+	c.copied = append(c.copied, path)
+	c.Unlock()
+
+}
+
+func (c *copier) IsCopied(path string) bool {
+	c.RLock()
+  idx := -1
+  for i := range c.copied {
+    if c.copied[i] == path {
+      idx = i
+      break;
+    }
+  }
+	c.RUnlock()
+	return idx > -1
+}
+
+func newCopier(source, target string) *copier {
+	return &copier{
+		copied: make([]string, 0),
+		source: source,
+		target: target,
+	}
+
+}
+
+func (c *copier) Copy(fpath string) (int64, error) {
+	if c.IsCopied(fpath) {
+		return 0, nil
+	}
+	npath := strings.Replace(fpath, c.source, c.target, 1)
 	bdir := filepath.Dir(npath)
 	if _, err := os.Stat(bdir); errors.Is(err, os.ErrNotExist) {
 		if err := os.MkdirAll(bdir, 0740); err != nil {
@@ -43,6 +82,8 @@ func copyFile(source, target, fpath string) (int64, error) {
 		if err := os.Remove(npath); err != nil {
 			fmt.Fprintf(os.Stderr, "failed to remove %s: %s\n", npath, err)
 		}
+	} else {
+		c.Append(fpath)
 	}
 	return blen, err
 
@@ -54,14 +95,17 @@ type preparer struct {
 	policyCache *policies.Cache
 	feedsource  string
 	feedtarget  string
+	copier      *copier
 }
 
 func NewPreparer(naslCache *nasl.Cache, policyCache *policies.Cache, source, target string) *preparer {
+	c := newCopier(source, target)
 	return &preparer{
 		naslCache:   naslCache,
 		policyCache: policyCache,
 		feedsource:  source,
 		feedtarget:  target,
+		copier:      c,
 	}
 }
 
@@ -89,14 +133,29 @@ func (p *preparer) feedInfo() error {
 }
 
 func (p *preparer) copyPlugin(n *nasl.Plugin) error {
+	cp := func(np *nasl.Plugin) error {
 
-	if _, err := copyFile(p.feedsource, p.feedtarget, n.Path); err != nil {
+		if _, err := p.copier.Copy(np.Path); err != nil {
+			return err
+		}
+		for _, inc := range np.Plugins {
+
+			if _, err := p.copier.Copy(inc); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if err := cp(n); err != nil {
 		return err
 	}
-	for _, inc := range n.Plugins {
-
-		if _, err := copyFile(p.feedsource, p.feedtarget, inc); err != nil {
-			return err
+	for _, sdp := range n.ScriptDependencies {
+		if sd := p.naslCache.ByPath(sdp); sd != nil {
+			if err := cp(sd); err != nil {
+				return err
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "%s dependency %s not found\n", n.OID, sdp)
 		}
 	}
 	return nil

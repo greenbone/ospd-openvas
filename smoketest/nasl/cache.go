@@ -14,6 +14,7 @@ type Cache struct {
 	plugins  []Plugin
 	byOID    map[string]*Plugin
 	byFamily map[string][]*Plugin
+	byPath   map[string]*Plugin
 }
 
 func NewCache() *Cache {
@@ -21,6 +22,7 @@ func NewCache() *Cache {
 		plugins:  make([]Plugin, 0),
 		byOID:    make(map[string]*Plugin),
 		byFamily: make(map[string][]*Plugin),
+		byPath:   make(map[string]*Plugin),
 	}
 }
 
@@ -32,6 +34,7 @@ func (c *Cache) Append(p Plugin) {
 	// have to track of the original
 	ptr := &c.plugins[len(c.plugins)-1]
 	c.byOID[p.OID] = ptr
+	c.byPath[p.Path] = ptr
 	fam := strings.ToLower(p.Family)
 	if f, ok := c.byFamily[fam]; ok {
 		c.byFamily[fam] = append(f, ptr)
@@ -52,6 +55,15 @@ func (c *Cache) ByOID(oid string) *Plugin {
 	c.RLock()
 	defer c.RUnlock()
 	if r, ok := c.byOID[oid]; ok {
+		return r
+	}
+	return nil
+}
+
+func (c *Cache) ByPath(path string) *Plugin {
+	c.RLock()
+	defer c.RUnlock()
+	if r, ok := c.byPath[path]; ok {
 		return r
 	}
 	return nil
