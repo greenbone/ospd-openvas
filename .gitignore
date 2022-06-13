@@ -13,3 +13,4 @@ smoketest/bin
 smoketest/build.log
 
 smoketest/.scan-config
+smoketest/.nasl
