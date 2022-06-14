@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -73,6 +74,8 @@ func PrintFailures(uc usecases.Tests, resp []usecases.Response) {
 
 func main() {
 	fmt.Printf("Initializing policy cache (%s)\n", policyPath)
+	tg := flag.String("t", "", "Name of testgroup. If set it just tests given testgroup t.")
+	flag.Parse()
 	policyCache, err := policies.InitCache(policyPath)
 	if err != nil {
 		panic(err)
@@ -80,14 +83,17 @@ func main() {
 	fmt.Print("Trying to connect\n")
 	response := retryUntilPluginsAreLoaded()
 	ucs := []usecases.Tests{
-		notus.Create(),
+		notus.Create(username, password),
 		scan.Create(),
 		policy.Create(policyCache, username, password),
 	}
 	resps := make([][]usecases.Response, len(ucs))
 	fmt.Printf("OSPD loaded %d vts\n", len(response.VTs.VT))
 	for i, t := range ucs {
-		resps[i] = t.Run(protocoll, ospdSocket)
+		if *tg == "" || *tg == t.Title {
+
+			resps[i] = t.Run(protocoll, ospdSocket)
+		}
 	}
 	for i, t := range ucs {
 		PrintFailures(t, resps[i])
