@@ -34,13 +34,13 @@ func (c *copier) Append(path string) {
 
 func (c *copier) IsCopied(path string) bool {
 	c.RLock()
-  idx := -1
-  for i := range c.copied {
-    if c.copied[i] == path {
-      idx = i
-      break;
-    }
-  }
+	idx := -1
+	for i := range c.copied {
+		if c.copied[i] == path {
+			idx = i
+			break
+		}
+	}
 	c.RUnlock()
 	return idx > -1
 }

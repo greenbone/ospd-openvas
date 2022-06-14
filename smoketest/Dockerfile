@@ -54,6 +54,7 @@ RUN mkdir /run/mosquitto
 RUN echo "allow_anonymous true" >> /etc/mosquitto.conf
 RUN echo "pid_file /tmp/mosquitto.pid" >> /etc/mosquitto.conf
 RUN echo "log_dest file /tmp/mosquitto.log" >> /etc/mosquitto.conf
+RUN echo "persistence_location = /tmp/" >> /etc/mosquitto.conf
 RUN echo "persistence true" >> /etc/mosquitto.conf
 RUN echo "mqtt_server_uri = localhost:1883" >> /etc/openvas/openvas.conf
 RUN chown mosquitto:mosquitto /run/mosquitto
@@ -79,4 +80,5 @@ RUN chown -R gvm:redis /etc/ssh
 RUN echo 'gvm:test' | chpasswd
 RUN sed -i 's/#PidFile/Pidfile/' /etc/ssh/sshd_config
 USER gvm
+WORKDIR /home/gvm
 CMD /usr/local/bin/run
