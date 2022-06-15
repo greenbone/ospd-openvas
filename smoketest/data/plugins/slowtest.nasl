@@ -39,8 +39,7 @@ if(description)
   exit(0);
 }
 
-log_message(data: "before sleep");
 sleep(60);
-log_message(data: "after sleep");
+log_message(data: "waking up");
 
 exit(0);

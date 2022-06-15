@@ -28,6 +28,79 @@ var DefaultStart = scan.Start{
 	VTSelection:   DefaultSelection,
 }
 
+func stopDeleteWhenNoResults() usecases.Test {
+	return usecases.Test{
+		Title: "When no results: Queue->Init->Running->Stop->Delete",
+		Run: func(proto, address string) usecases.Response {
+			testeach := scan.AliveTestMethods{
+				ICMP:          1,
+				TCPSYN:        1,
+				TCPACK:        1,
+				ARP:           1,
+				ConsiderAlive: 0,
+			}
+			target := scan.Targets{Targets: []scan.Target{
+				{
+					Hosts:            "localhost,smoketest.localdomain,smoke.localdomain,and.localdomain,mirrors.localdomain",
+					Ports:            "8080,443",
+					AliveTestMethods: testeach,
+				},
+			},
+			}
+			slowSelection := []scan.VTSelection{
+				{Single: []scan.VTSingle{{
+					ID: "0.0.0.0.0.0.0.0.0.2",
+				}}},
+			}
+			startScan := scan.Start{
+				ScannerParams: scan.DefaultScannerParams,
+				Targets:       target,
+				VTSelection:   slowSelection,
+			}
+
+			var startR scan.StartResponse
+			if err := connection.SendCommand(proto, address, startScan, &startR); err != nil {
+				panic(err)
+			}
+			if startR.Code != "200" {
+				return *usecases.WrongStatusCodeResponse(startR.StatusCodeResponse)
+			}
+			get := scan.GetScans{ID: startR.ID}
+
+			r := usecases.TillState(get, proto, address, "running")
+			if r.Failure != nil {
+				return *r.Failure
+			}
+			if len(r.Resp.Scan.Results.Results) > 1 {
+				return usecases.Response{
+					Success:     false,
+					Description: fmt.Sprintf("Expected to have 0 results but got %d", len(r.Resp.Scan.Results.Results)),
+				}
+			}
+
+			var stopR scan.StopResponse
+			if err := connection.SendCommand(proto, address, scan.Stop{ID: get.ID}, &stopR); err != nil {
+				panic(err)
+			}
+			if stopR.Code != "200" {
+				return *usecases.WrongStatusCodeResponse(r.Resp.StatusCodeResponse)
+			}
+
+			var deleteR scan.DeleteResponse
+			connection.SendCommand(proto, address, scan.Delete{ID: get.ID}, &deleteR)
+			if deleteR.Code != "200" {
+				return *usecases.WrongStatusCodeResponse(deleteR.StatusCodeResponse)
+			}
+
+			return usecases.Response{
+				Success:     true,
+				Description: "",
+			}
+
+		},
+	}
+}
+
 func transitionQueueToRunning() usecases.Test {
 	return usecases.Test{
 		Title: "GVMD Workflow: Queue->Init->Running->Stop->Delete-Start->Finish",
@@ -121,6 +194,7 @@ func Create() usecases.Tests {
 		UseCases: []usecases.Test{
 			startScan(),
 			transitionQueueToRunning(),
+			stopDeleteWhenNoResults(),
 		},
 	}
 }

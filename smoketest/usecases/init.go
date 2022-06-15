@@ -108,6 +108,26 @@ func TillNextState(get scan.GetScans, proto, address, status string) GetScanResp
 	return result
 }
 
+func TillState(get scan.GetScans, proto, address, status string) GetScanResponseFailure {
+	var result GetScanResponseFailure
+	result.Resp.Scan.Status = status
+	for !ScanStatusFinished(result.Resp.Scan.Status) && result.Resp.Scan.Status != status {
+		result.Resp = scan.GetScansResponse{}
+		if err := connection.SendCommand(proto, address, get, &result.Resp); err != nil {
+			panic(err)
+		}
+		if result.Resp.Code != "200" {
+			result.Failure = WrongStatusCodeResponse(result.Resp.StatusCodeResponse)
+			break
+		}
+	}
+	if result.Failure == nil && result.Resp.Scan.Status != status {
+		result.Failure = WrongScanStatus(status, result.Resp.Scan.Status)
+	}
+
+	return result
+}
+
 func StartScanGetLastStatus(start scan.Start, proto, address string) GetScanResponseFailure {
 	var result GetScanResponseFailure
 	var startR scan.StartResponse
