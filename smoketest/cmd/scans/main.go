@@ -4,10 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/greenbone/ospd-openvas/smoketest/connection"
 	"github.com/greenbone/ospd-openvas/smoketest/policies"
 	"github.com/greenbone/ospd-openvas/smoketest/scan"
+	"github.com/greenbone/ospd-openvas/smoketest/usecases"
 )
 
 var address string
@@ -27,36 +29,35 @@ var DefaultScannerParams = []scan.ScannerParam{
 
 func main() {
 
-	policy := flag.String("policy", "", "policy to use for a scan.")
+	tps := flag.String("policies", "", "comma separated list of policies to use for a scan.")
 	policyPath := flag.String("policy-path", "/usr/local/src/policies", "path to policies.")
 	host := flag.String("host", "", "host to scan")
-	oids := flag.String("oid", "", "oid of a plugin to execute")
+	oids := flag.String("oid", "", "comma separated list of oid of a plugin to execute")
+	ports := flag.String("ports", "22,80,443,8080", "comma separated list of oid of a ports")
 	username := flag.String("user", "", "user of host (when using credentials)")
 	password := flag.String("password", "", "password of user (when using credentials)")
 	scan_id := flag.String("id", "", "id of a scan")
-	cmd := flag.String("cmd", "automatic", "get either be start,get,automatic. On automatic the cmd will be selected based on other parameter.")
+	cmd := flag.String("cmd", "", "Can either be start,get,start-finish.")
 	flag.Parse()
+	tillFinished := false
 	var ospdCMD interface{}
 	if flag.Parsed() {
-		if *cmd == "automatic" {
-			if *host == "" && *scan_id != "" {
-				*cmd = "get"
-			} else {
-				*cmd = "start"
-			}
-		}
 		switch *cmd {
 		case "get":
 			ospdCMD = scan.GetScans{
 				ID: *scan_id,
 			}
+		case "start-finish":
+			tillFinished = true
+			fallthrough
+
 		case "start":
 			alive := scan.AliveTestMethods{
 				ConsiderAlive: 1,
 			}
 			target := scan.Target{
 				Hosts:            *host,
-				Ports:            "22,80,443,8080",
+				Ports:            *ports,
 				AliveTestMethods: alive,
 			}
 			if *username != "" {
@@ -70,17 +71,28 @@ func main() {
 					Credentials: []scan.Credential{credential},
 				}
 			}
-			var selection scan.VTSelection
+			selection := scan.VTSelection{
+				Single: make([]scan.VTSingle, 0),
+				Group:  make([]scan.VTGroup, 0),
+			}
 
 			policyCache, err := policies.InitCache(*policyPath)
 			if err != nil {
 				panic(err)
 			}
-			selection = policyCache.ByName(*policy).AsVTSelection()
+			if *tps != "" {
+				for _, policy := range strings.Split(*tps, ",") {
+					ps := policyCache.ByName(policy).AsVTSelection()
+					selection.Group = append(selection.Group, ps.Group...)
+					selection.Single = append(selection.Single, ps.Single...)
+				}
+			}
 			if *oids != "" {
-				selection.Single = append(selection.Single, scan.VTSingle{
-					ID: *oids,
-				})
+				for _, oid := range strings.Split(*oids, ",") {
+					selection.Single = append(selection.Single, scan.VTSingle{
+						ID: oid,
+					})
+				}
 			}
 
 			ospdCMD = scan.Start{
@@ -89,12 +101,28 @@ func main() {
 				ScannerParams: DefaultScannerParams,
 			}
 
+		default:
+			flag.Usage()
+			os.Exit(1)
 		}
 	}
-	connection.Debug = true
-	b, err := connection.SendRaw(protocoll, address, ospdCMD)
-	if err != nil {
-		panic(err)
+	connection.Debug = false
+
+	if !tillFinished {
+		b, err := connection.SendRaw(protocoll, address, ospdCMD)
+		if err != nil {
+			panic(err)
+		}
+		fmt.Printf("%s\n", b)
+	} else {
+
+		resp := usecases.StartScanGetLastStatus(ospdCMD.(scan.Start), protocoll, address)
+		if resp.Failure != nil {
+			panic(fmt.Errorf(resp.Failure.Description))
+		}
+		for _, r := range resp.Resp.Scan.Results.Results {
+			fmt.Printf("%+v\n", r)
+		}
 	}
-	fmt.Printf("%s\n", b)
+
 }
