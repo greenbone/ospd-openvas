@@ -58,7 +58,7 @@ type ScanResultMessage struct {
 func (s *Server) check() bool {
 
 	select {
-	case in, open := <-s.client.In():
+	case in, open := <-s.client.Incoming():
 		if in != nil {
 			var start ScanStartMessage
 			if err := json.NewDecoder(bytes.NewReader(in.Message)).Decode(&start); err != nil {
