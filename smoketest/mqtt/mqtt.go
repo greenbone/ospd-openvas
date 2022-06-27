@@ -20,22 +20,22 @@ type MQTT struct {
 	client            *paho.Client
 	connectProperties *paho.Connect
 	qos               byte
-	in                chan *TopicData // Is used to send respons messages of a handler downwards
+	incoming                chan *TopicData // Is used to send respons messages of a handler downwards
 }
 
-func (m MQTT) In() <-chan *TopicData {
-	return m.in
+func (m MQTT) Incoming() <-chan *TopicData {
+	return m.incoming
 }
 
 func (m MQTT) Close() error {
-	close(m.in)
+	close(m.incoming)
 	return m.client.Disconnect(&paho.Disconnect{ReasonCode: 0})
 }
 
 func (m MQTT) register(topic string) error {
 
 	m.client.Router.RegisterHandler(topic, func(p *paho.Publish) {
-		m.in <- &TopicData{Topic: topic, Message: p.Payload}
+		m.incoming <- &TopicData{Topic: topic, Message: p.Payload}
 
 	})
 
@@ -130,6 +130,6 @@ func New(conn net.Conn,
 		client:            c,
 		connectProperties: cp,
 		qos:               cfg.QOS,
-		in:                make(chan *TopicData, cfg.Inflight),
+		incoming:                make(chan *TopicData, cfg.Inflight),
 	}, nil
 }
