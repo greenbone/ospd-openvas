@@ -43,6 +43,12 @@ func transitionQueueToRunning() usecases.Test {
 
 			if r := usecases.VerifyTillNextState(get, proto, address, "queued"); r.Failure == nil {
 				if r.Resp.Scan.Status != "init" {
+					// on some slower machines it can happen that the call to get the state
+					// is taking too long for the init phase and it is already running.
+					// On this case we just skip forward.
+					if r.Resp.Scan.Status == "running" {
+						goto is_running
+					}
 					return *usecases.WrongScanStatus("init", r.Resp.Scan.Status)
 				}
 				r = usecases.TillNextState(get, proto, address, "init")
@@ -52,6 +58,7 @@ func transitionQueueToRunning() usecases.Test {
 				if r.Resp.Scan.Status != "running" {
 					return *usecases.WrongScanStatus("running", r.Resp.Scan.Status)
 				}
+			is_running:
 				var stopR scan.StopResponse
 				if err := connection.SendCommand(proto, address, scan.Stop{ID: get.ID}, &stopR); err != nil {
 					panic(err)
