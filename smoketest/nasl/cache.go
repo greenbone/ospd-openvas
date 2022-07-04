@@ -35,11 +35,14 @@ func (c *Cache) Append(p Plugin) {
 	ptr := &c.plugins[len(c.plugins)-1]
 	c.byOID[p.OID] = ptr
 	c.byPath[p.Path] = ptr
-	fam := strings.ToLower(p.Family)
-	if f, ok := c.byFamily[fam]; ok {
-		c.byFamily[fam] = append(f, ptr)
-	} else {
-		c.byFamily[fam] = []*Plugin{ptr}
+	if p.Family != "" {
+		fam := strings.ToLower(p.Family)
+		if f, ok := c.byFamily[fam]; ok {
+			c.byFamily[fam] = append(f, ptr)
+		} else {
+			c.byFamily[fam] = []*Plugin{ptr}
+		}
+
 	}
 	// not using defer to speed things up
 	c.Unlock()
@@ -72,8 +75,17 @@ func (c *Cache) ByPath(path string) *Plugin {
 func (c *Cache) ByFamily(family string) []*Plugin {
 	c.RLock()
 	defer c.RUnlock()
-	if r, ok := c.byFamily[family]; ok {
-		return r
+	if family == "" {
+		result := make([]*Plugin, 0)
+		for _, v := range c.byFamily {
+			result = append(result, v...)
+		}
+		return result
+	} else {
+		if r, ok := c.byFamily[family]; ok {
+			return r
+		}
+
 	}
 	return []*Plugin{}
 }
