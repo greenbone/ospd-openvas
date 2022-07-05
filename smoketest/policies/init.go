@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 
+	"github.com/greenbone/ospd-openvas/smoketest/nasl"
 	"github.com/greenbone/ospd-openvas/smoketest/scan"
 )
 
@@ -18,18 +19,26 @@ type NVTSelectors struct {
 	Selectors []NVTSelector `xml:"nvt_selector"`
 }
 
-func (s NVTSelector) AsScanSelector() (group *scan.VTGroup, single *scan.VTSingle) {
+func (s NVTSelector) AsScanSelector(cache *nasl.Cache) (group *scan.VTGroup, single []scan.VTSingle) {
 	switch s.Type {
 	case 0:
-		group = &scan.VTGroup{
-			Filter: fmt.Sprintf("family"),
+		if cache != nil {
+
+			plugins := cache.ByFamily("")
+			single = make([]scan.VTSingle, len(plugins))
+			for i, p := range plugins {
+				single[i] = scan.VTSingle{
+					ID: p.OID,
+				}
+			}
 		}
 	case 1:
 		group = &scan.VTGroup{
 			Filter: fmt.Sprintf("family = \"%s\"", s.Filter),
 		}
 	case 2:
-		single = &scan.VTSingle{
+		single = make([]scan.VTSingle, 1)
+		single[0] = scan.VTSingle{
 			ID: s.Filter,
 		}
 	}
@@ -46,15 +55,17 @@ type ScanConfig struct {
 	Selectors NVTSelectors
 }
 
-func (c ScanConfig) AsVTSelection() scan.VTSelection {
+func (c ScanConfig) AsVTSelection(cache *nasl.Cache) scan.VTSelection {
 	selection := scan.VTSelection{
 		Single: make([]scan.VTSingle, 0),
 		Group:  make([]scan.VTGroup, 0),
 	}
 	for _, sel := range c.Selectors.Selectors {
-		if g, s := sel.AsScanSelector(); s != nil {
-			selection.Single = append(selection.Single, *s)
-		} else if g != nil {
+		g, s := sel.AsScanSelector(cache)
+		if s != nil {
+			selection.Single = append(selection.Single, s...)
+		}
+		if g != nil {
 			selection.Group = append(selection.Group, *g)
 		}
 

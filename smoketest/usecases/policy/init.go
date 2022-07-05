@@ -14,7 +14,7 @@ func discoveryAuthenticated(cache *policies.Cache, username, password string) uc
 		Run: func(proto string, address string) uc.Response {
 			pol := "Discovery"
 			sc := cache.ByName(pol)
-			selection := sc.AsVTSelection()
+			selection := sc.AsVTSelection(nil)
 			if len(selection.Single) == 0 && len(selection.Group) == 0 {
 				return uc.Response{
 					Success:     false,

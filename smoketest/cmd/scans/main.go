@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/xml"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
 	"github.com/greenbone/ospd-openvas/smoketest/connection"
+	"github.com/greenbone/ospd-openvas/smoketest/nasl"
 	"github.com/greenbone/ospd-openvas/smoketest/policies"
 	"github.com/greenbone/ospd-openvas/smoketest/scan"
 	"github.com/greenbone/ospd-openvas/smoketest/usecases"
@@ -27,19 +30,47 @@ var DefaultScannerParams = []scan.ScannerParam{
 	{},
 }
 
+type PrintResponses struct{}
+
+func (pr PrintResponses) Each(r scan.GetScansResponse) {
+  fmt.Printf("\rprogress: %d", r.Scan.Progress)
+}
+
+func (pr PrintResponses) Last(r scan.GetScansResponse) {
+	xr, err := xml.MarshalIndent(r, "", " ")
+	if err != nil {
+		panic(err)
+	}
+	tmp, err := ioutil.TempFile(os.TempDir(), fmt.Sprintf("result-%s.xml", r.Scan.ID))
+	if tmp == nil {
+		panic(err)
+	}
+  fmt.Printf("\rprogress: %d; status: %s; report: %s\n", r.Scan.Progress, r.Scan.Status, tmp.Name())
+	if _, err := tmp.Write(xr); err != nil {
+		panic(err)
+	}
+	tmp.Close()
+}
+
 func main() {
 
-	tps := flag.String("policies", "", "comma separated list of policies to use for a scan.")
+	vtDIR := flag.String("vt-dir", "/var/lib/openvas/plugins", "A path to existing plugins.")
+	tps := flag.String("policies", "", "comma separated list of policies.")
 	policyPath := flag.String("policy-path", "/usr/local/src/policies", "path to policies.")
 	host := flag.String("host", "", "host to scan")
 	oids := flag.String("oid", "", "comma separated list of oid of a plugin to execute")
-	ports := flag.String("ports", "22,80,443,8080", "comma separated list of oid of a ports")
+	ports := flag.String("ports", "22,80,443,8080,513", "comma separated list of ports.")
 	username := flag.String("user", "", "user of host (when using credentials)")
 	password := flag.String("password", "", "password of user (when using credentials)")
 	scan_id := flag.String("id", "", "id of a scan")
 	cmd := flag.String("cmd", "", "Can either be start,get,start-finish.")
+	debug := flag.Bool("verbose", false, "Enables or disables verbose.")
 	flag.Parse()
 	tillFinished := false
+	naslCache, err := nasl.InitCache(*vtDIR)
+	if err != nil {
+		panic(err)
+	}
 	var ospdCMD interface{}
 	if flag.Parsed() {
 		switch *cmd {
@@ -82,7 +113,7 @@ func main() {
 			}
 			if *tps != "" {
 				for _, policy := range strings.Split(*tps, ",") {
-					ps := policyCache.ByName(policy).AsVTSelection()
+					ps := policyCache.ByName(policy).AsVTSelection(naslCache)
 					selection.Group = append(selection.Group, ps.Group...)
 					selection.Single = append(selection.Single, ps.Single...)
 				}
@@ -106,7 +137,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	connection.Debug = false
+	connection.Debug = *debug
 
 	if !tillFinished {
 		b, err := connection.SendRaw(protocoll, address, ospdCMD)
@@ -115,13 +146,9 @@ func main() {
 		}
 		fmt.Printf("%s\n", b)
 	} else {
-
-		resp := usecases.StartScanGetLastStatus(ospdCMD.(scan.Start), protocoll, address)
+		resp := usecases.StartScanGetLastStatus(ospdCMD.(scan.Start), protocoll, address, PrintResponses{})
 		if resp.Failure != nil {
 			panic(fmt.Errorf(resp.Failure.Description))
-		}
-		for _, r := range resp.Resp.Scan.Results.Results {
-			fmt.Printf("%+v\n", r)
 		}
 	}
 
