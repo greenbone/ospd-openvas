@@ -195,7 +195,10 @@ func (p *preparer) Run() error {
 				p.wg.Add(1)
 				go func(filter string) {
 					defer p.wg.Done()
-					fam := strings.ToLower(filter[familyPrefixLen : len(filter)-1])
+					var fam string
+					if len(filter) > familyPrefixLen {
+						fam = strings.ToLower(filter[familyPrefixLen : len(filter)-1])
+					}
 					for _, j := range p.naslCache.ByFamily(fam) {
 						if err := p.copyPlugin(j); err != nil {
 							fmt.Fprintf(os.Stderr, "Unable to copy %s: %s\n", j.OID, err)

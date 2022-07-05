@@ -19,12 +19,16 @@ type NVTSelectors struct {
 }
 
 func (s NVTSelector) AsScanSelector() (group *scan.VTGroup, single *scan.VTSingle) {
-	if s.Type == 1 {
+	switch s.Type {
+	case 0:
+		group = &scan.VTGroup{
+			Filter: fmt.Sprintf("family"),
+		}
+	case 1:
 		group = &scan.VTGroup{
 			Filter: fmt.Sprintf("family = \"%s\"", s.Filter),
 		}
-	}
-	if s.Type == 2 {
+	case 2:
 		single = &scan.VTSingle{
 			ID: s.Filter,
 		}
