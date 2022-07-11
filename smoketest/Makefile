@@ -7,7 +7,7 @@ ALTERNATIVE_HOSTS := smoketest.localdomain smoke.localdomain and.localdomain mir
 ADD_HOST := $(addprefix --add-host ,$(addsuffix :127.0.0.1, ${ALTERNATIVE_HOSTS}))
 
 RUN_PARAM := run --rm --privileged ${ADD_HOST}
-VARIANT := enterprise
+VARIANT := community
 DATA_OBJECTS := ghcr.io/greenbone/data-objects:${VARIANT}-staging
 NASL := ghcr.io/greenbone/vulnerability-tests:${VARIANT}-staging
 
