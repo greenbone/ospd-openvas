@@ -38,15 +38,15 @@ tomlkit = ">=0.5.11"
 
 [[package]]
 name = "autohooks-plugin-black"
-version = "21.12.0"
+version = "22.7.0"
 description = "An autohooks plugin for python code formatting via black"
 category = "dev"
 optional = false
-python-versions = ">=3.7.0,<4.0"
+python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
-autohooks = ">=21.6.0,<22.0.0"
-black = ">=20.8,<=23.0.0b0"
+autohooks = ">=21.6.0"
+black = ">=20.8"
 
 [[package]]
 name = "autohooks-plugin-pylint"
@@ -499,7 +499,7 @@ tracking = ["sentry-sdk"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "b074a5a78a344ac67bead5a8314d2a0de24096668b73422e1eeff4d132a880eb"
+content-hash = "419201119348870aac29a017663020b27701fdea6e95ffacf634b52694e5bd49"
 
 [metadata.files]
 astroid = [
@@ -515,8 +515,8 @@ autohooks = [
     {file = "autohooks-21.7.0.tar.gz", hash = "sha256:8d09ee52f67cedd5873578a9b4d97b6b80fd9db6dca6d1844621d02a197a12e2"},
 ]
 autohooks-plugin-black = [
-    {file = "autohooks-plugin-black-21.12.0.tar.gz", hash = "sha256:8808fa5d2c7a7b7e66023784d43c210169121998c2f88ac30c71e1b7e5a84a1d"},
-    {file = "autohooks_plugin_black-21.12.0-py3-none-any.whl", hash = "sha256:39f30256243164c88a9082f726c2d27e8b12560ff5529e2ceaa131367b698d7b"},
+    {file = "autohooks-plugin-black-22.7.0.tar.gz", hash = "sha256:39193d8a85df4d0d80b920b1b8b5cf6d257ad502364d0c0bf5c7ff0717b14091"},
+    {file = "autohooks_plugin_black-22.7.0-py3-none-any.whl", hash = "sha256:a420e1e351346e4326aba5d68db2a8c953742ea859e07dd27df6d1957e4a879b"},
 ]
 autohooks-plugin-pylint = [
     {file = "autohooks-plugin-pylint-21.6.0.tar.gz", hash = "sha256:6f1a486f19c8012618fecd9eaa985f5da3ef5c954b32d823323439547b947302"},
@@ -638,7 +638,6 @@ lxml = [
     {file = "lxml-4.9.1-cp27-cp27m-win_amd64.whl", hash = "sha256:4cfbe42c686f33944e12f45a27d25a492cc0e43e1dc1da5d6a87cbcaf2e95627"},
     {file = "lxml-4.9.1-cp27-cp27mu-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:dad7b164905d3e534883281c050180afcf1e230c3d4a54e8038aa5cfcf312b84"},
     {file = "lxml-4.9.1-cp27-cp27mu-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:a614e4afed58c14254e67862456d212c4dcceebab2eaa44d627c2ca04bf86837"},
-    {file = "lxml-4.9.1-cp310-cp310-macosx_10_15_universal2.whl", hash = "sha256:49a866923e69bc7da45a0565636243707c22752fc38f6b9d5c8428a86121022c"},
     {file = "lxml-4.9.1-cp310-cp310-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_24_i686.whl", hash = "sha256:f9ced82717c7ec65a67667bb05865ffe38af0e835cdd78728f1209c8fffe0cad"},
     {file = "lxml-4.9.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.manylinux_2_24_aarch64.whl", hash = "sha256:d9fc0bf3ff86c17348dfc5d322f627d78273eba545db865c3cd14b3f19e57fa5"},
     {file = "lxml-4.9.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl", hash = "sha256:e5f66bdf0976ec667fc4594d2812a00b07ed14d1b44259d19a41ae3fff99f2b8"},
