@@ -168,7 +168,7 @@ func (p *preparer) Run() error {
 		return err
 	}
 	for _, policy := range policies {
-		s := policy.AsVTSelection()
+		s := policy.AsVTSelection(p.naslCache)
 		p.wg.Add(1)
 		go func(s []scan.VTSingle) {
 			defer p.wg.Done()
@@ -196,9 +196,6 @@ func (p *preparer) Run() error {
 				go func(filter string) {
 					defer p.wg.Done()
 					var fam string
-					if len(filter) > familyPrefixLen {
-						fam = strings.ToLower(filter[familyPrefixLen : len(filter)-1])
-					}
 					for _, j := range p.naslCache.ByFamily(fam) {
 						if err := p.copyPlugin(j); err != nil {
 							fmt.Fprintf(os.Stderr, "Unable to copy %s: %s\n", j.OID, err)

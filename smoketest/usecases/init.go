@@ -128,7 +128,12 @@ func TillState(get scan.GetScans, proto, address, status string) GetScanResponse
 	return result
 }
 
-func StartScanGetLastStatus(start scan.Start, proto, address string) GetScanResponseFailure {
+type MessageHandler interface {
+	Each(scan.GetScansResponse)
+	Last(scan.GetScansResponse)
+}
+
+func StartScanGetLastStatus(start scan.Start, proto, address string, mhs ...MessageHandler) GetScanResponseFailure {
 	var result GetScanResponseFailure
 	var startR scan.StartResponse
 
@@ -147,9 +152,19 @@ func StartScanGetLastStatus(start scan.Start, proto, address string) GetScanResp
 		if err := connection.SendCommand(proto, address, get, &result.Resp); err != nil {
 			panic(err)
 		}
+		for _, mh := range mhs {
+			if mh != nil {
+				mh.Each(result.Resp)
+			}
+		}
 		if result.Resp.Code != "200" {
 			result.Failure = WrongStatusCodeResponse(result.Resp.StatusCodeResponse)
 			return result
+		}
+	}
+	for _, mh := range mhs {
+		if mh != nil {
+			mh.Last(result.Resp)
 		}
 	}
 	return result
