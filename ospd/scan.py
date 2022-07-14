@@ -111,11 +111,16 @@ class ScanCollection:
         result['port'] = port
         result['qod'] = qod
         result['uri'] = uri
+        rlock = multiprocessing.RLock()
+        rlock.acquire()
         results = self.scans_table[scan_id]['results']
+        rlock.release()
         results.append(result)
-
+        lock = multiprocessing.Lock()
+        lock.acquire()
         # Set scan_info's results to propagate results to parent process.
         self.scans_table[scan_id]['results'] = results
+        lock.release()
 
     def add_result_list(
         self, scan_id: str, result_list: Iterable[Dict[str, str]]
@@ -232,17 +237,26 @@ class ScanCollection:
 
         max_res works only together with pop_results.
         """
-        if pop_res and max_res:
-            result_aux = self.scans_table[scan_id].get('results', list())
-            self.scans_table[scan_id]['results'] = result_aux[max_res:]
-            self.scans_table[scan_id]['temp_results'] = result_aux[:max_res]
-            return iter(self.scans_table[scan_id]['temp_results'])
-        elif pop_res:
-            self.scans_table[scan_id]['temp_results'] = self.scans_table[
-                scan_id
-            ].get('results', list())
-            self.scans_table[scan_id]['results'] = list()
-            return iter(self.scans_table[scan_id]['temp_results'])
+        if pop_res:
+            rlock = multiprocessing.RLock()
+            rlock.acquire()
+            temp_results = self.scans_table[scan_id].get('results', list())
+            rlock.release()
+            lock = multiprocessing.Lock()
+            if max_res:
+                lock.acquire()
+                self.scans_table[scan_id]['results'] = temp_results[max_res:]
+                self.scans_table[scan_id]['temp_results'] = temp_results[
+                    :max_res
+                ]
+                lock.release()
+                return iter(self.scans_table[scan_id]['temp_results'])
+            else:
+                lock.acquire()
+                self.scans_table[scan_id]['temp_results'] = temp_results
+                self.scans_table[scan_id]['results'] = list()
+                lock.release()
+                return iter(self.scans_table[scan_id]['temp_results'])
 
         return iter(self.scans_table[scan_id]['results'])
 

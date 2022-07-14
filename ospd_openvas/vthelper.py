@@ -49,8 +49,13 @@ class VtHelper:
         vt_params = custom.pop('vt_params')
         vt_refs = custom.pop('refs')
         name = custom.pop('name')
-        vt_creation_time = custom.pop('creation_date')
-        vt_modification_time = custom.pop('last_modification')
+        vt_creation_time = custom.pop('creation_date', None)
+        vt_modification_time = custom.pop('last_modification', None)
+        if not vt_creation_time or not vt_modification_time:
+            logger.warning(
+                "Unable to get modification_time or creation_time for %s", vt_id
+            )
+            return None
 
         if oids:
             vt_dependencies = list()
