@@ -357,12 +357,9 @@ class ScanCollection:
 
     def get_status(self, scan_id: str) -> ScanStatus:
         """Get scan_id scans's status."""
-        status = None
-        try:
-            status = self.scans_table[scan_id].get('status')
-        except KeyError:
-            logger.error("Scan ID %s not found", scan_id)
-
+        status = self.scans_table.get(scan_id, {}).get('status', None)
+        if not status:
+            logger.warning("Scan ID %s not found", scan_id)
         return status
 
     def get_options(self, scan_id: str) -> Dict:
