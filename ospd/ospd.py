@@ -21,11 +21,13 @@
 """
 
 import logging
+import multiprocessing
+import os
+from pathlib import Path
+import re
 import socket
 import ssl
-import multiprocessing
 import time
-import os
 
 from pprint import pformat
 from typing import (
@@ -91,6 +93,11 @@ def _terminate_process_group(process: multiprocessing.Process) -> None:
     os.killpg(os.getpgid(process.pid), 15)
 
 
+is_uuid_re = re.compile(
+    '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+)
+
+
 class OSPDaemon:
 
     """Daemon class for OSP traffic handling.
@@ -122,8 +129,18 @@ class OSPDaemon:
         **kwargs,
     ):  # pylint: disable=unused-argument
         """Initializes the daemon's internal data."""
+
+        def remove_previous_data_pickler_files():
+            logger.debug("removing uuid files in %s", file_storage_dir)
+            root = Path(file_storage_dir)
+            for dp in root.glob('*'):
+                if is_uuid_re.match(dp.name):
+                    dp.unlink(missing_ok=True)
+            return
+
         self.scan_collection = ScanCollection(file_storage_dir)
         self.scan_processes = dict()
+        remove_previous_data_pickler_files()
 
         self.daemon_info = dict()
         self.daemon_info['name'] = "OSPd"
