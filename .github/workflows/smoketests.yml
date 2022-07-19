@@ -2,9 +2,9 @@ name: SmokeTests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ stable ]
   pull_request:
-    branches: [ main ]
+    branches: [ stable ]
 
 jobs:
   test:
