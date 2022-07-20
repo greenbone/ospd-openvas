@@ -25,7 +25,7 @@ typing-extensions = {version = ">=3.6.5", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "autohooks"
-version = "21.7.0"
+version = "22.7.2"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
@@ -33,7 +33,7 @@ python-versions = ">=3.7,<4.0"
 
 [package.dependencies]
 colorful = ">=0.5.4,<0.6.0"
-packaging = ">=20.3,<21.0"
+pontos = ">=22.7.0,<23.0.0"
 tomlkit = ">=0.5.11"
 
 [[package]]
@@ -245,14 +245,14 @@ python-versions = "*"
 
 [[package]]
 name = "packaging"
-version = "20.9"
+version = "21.3"
 description = "Core utilities for Python packages"
 category = "main"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = ">=3.6"
 
 [package.dependencies]
-pyparsing = ">=2.0.2"
+pyparsing = ">=2.0.2,<3.0.5 || >3.0.5"
 
 [[package]]
 name = "paho-mqtt"
@@ -499,7 +499,7 @@ tracking = ["sentry-sdk"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "f465e4dd85fe761ca759ff7b593b1efbba0ad717b12baea3f5c627b2a24091cf"
+content-hash = "0958c1a1d6f08afc9ec247cf198bd7a8bdf84dbc2272daaaff3ed51b2146491f"
 
 [metadata.files]
 astroid = [
@@ -511,8 +511,8 @@ async-timeout = [
     {file = "async_timeout-4.0.2-py3-none-any.whl", hash = "sha256:8ca1e4fcf50d07413d66d1a5e416e42cfdf5851c981d679a09851a6853383b3c"},
 ]
 autohooks = [
-    {file = "autohooks-21.7.0-py3-none-any.whl", hash = "sha256:54bda89bbd5b19d83538a110bca0088b38378a4c0e1cf14581792f3e41a5a260"},
-    {file = "autohooks-21.7.0.tar.gz", hash = "sha256:8d09ee52f67cedd5873578a9b4d97b6b80fd9db6dca6d1844621d02a197a12e2"},
+    {file = "autohooks-22.7.2-py3-none-any.whl", hash = "sha256:8fd967717ac60ac69f09ff5deb8cfdba6dd007fa293f49903e111ce9a06d626e"},
+    {file = "autohooks-22.7.2.tar.gz", hash = "sha256:7dc86b0d85a74968f72c27d7b817978ae6f8100706f730c63321e7b59b1c75b9"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-22.7.0.tar.gz", hash = "sha256:39193d8a85df4d0d80b920b1b8b5cf6d257ad502364d0c0bf5c7ff0717b14091"},
@@ -711,8 +711,8 @@ mypy-extensions = [
     {file = "mypy_extensions-0.4.3.tar.gz", hash = "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"},
 ]
 packaging = [
-    {file = "packaging-20.9-py2.py3-none-any.whl", hash = "sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a"},
-    {file = "packaging-20.9.tar.gz", hash = "sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5"},
+    {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
+    {file = "packaging-21.3.tar.gz", hash = "sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb"},
 ]
 paho-mqtt = [
     {file = "paho-mqtt-1.6.1.tar.gz", hash = "sha256:2a8291c81623aec00372b5a85558a372c747cbca8e9934dfe218638b8eefc26f"},
