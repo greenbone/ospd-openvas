@@ -186,7 +186,7 @@ class NotusResultHandler:
             timer.start()
 
 
-DEFAULT_NOTUS_FEED_DIR = "/var/lib/openvas/plugins/notus/advisories"
+DEFAULT_NOTUS_FEED_DIR = "/var/lib/notus/advisories"
 
 
 class NotusParser(CliParser):
