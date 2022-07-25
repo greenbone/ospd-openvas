@@ -38,7 +38,8 @@ COPY dist/* /ospd-openvas
 RUN python3 -m pip install /ospd-openvas/*
 
 RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
+RUN printf "disable_notus_hashsum_verification = True\n" >> /etc/gvm/ospd-openvas.conf
 
 ENTRYPOINT ["/usr/local/bin/entrypoint"]
 
-CMD ["ospd-openvas", "--disable-notus-hashsum-verification", "--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
+CMD ["ospd-openvas", "--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
