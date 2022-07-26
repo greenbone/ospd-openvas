@@ -27,8 +27,9 @@ RUN addgroup --gid 1001 --system ospd-openvas && \
 
 RUN mkdir -p /run/ospd && \
     mkdir -p /var/lib/openvas && \
+    mkdir -p /var/lib/notus && \
     chown -R ospd-openvas.ospd-openvas \
-    /run/ospd /var/lib/openvas /etc/openvas /var/log/gvm && \
+    /run/ospd /var/lib/openvas /var/lib/notus /etc/openvas /var/log/gvm && \
     chmod 755 /etc/openvas /var/log/gvm && \
     chmod 644 /etc/openvas/openvas_log.conf && \
     chmod 755 /usr/local/bin/entrypoint
