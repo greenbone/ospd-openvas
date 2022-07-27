@@ -1,10 +1,15 @@
 ARG VERSION=unstable
 
+FROM golang AS tools
+COPY smoketest /usr/local/src
+WORKDIR /usr/local/src
+RUN make build-cmds
+
 FROM greenbone/openvas-scanner:${VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
+COPY --from=tools /usr/local/src/bin/ospd-scans /usr/local/bin/
 COPY ./config/ospd-openvas.conf /etc/gvm/ospd-openvas.conf
 COPY .docker/entrypoint.sh /usr/local/bin/entrypoint
 
