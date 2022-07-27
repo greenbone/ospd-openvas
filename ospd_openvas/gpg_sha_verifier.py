@@ -44,13 +44,18 @@ def reload_sha256sums(
         # therefore a collision is not the end of the world and sha1 is more
         # than sufficient
         hasher = hashlib.sha1()
-        with file.open(mode="rb") as f:
-            for hash_file_bytes in iter(lambda: f.read(1024), b""):
-                hasher.update(hash_file_bytes)
-        return hasher.hexdigest()
+        try:
+            with file.open(mode="rb") as f:
+                for hash_file_bytes in iter(lambda: f.read(1024), b""):
+                    hasher.update(hash_file_bytes)
+            return hasher.hexdigest()
+        except FileNotFoundError:
+            return ""
 
     def internal_reload() -> Dict[str, str]:
         fingerprint = create_hash(config.hash_file)
+        if not fingerprint:
+            return {}
         if not config.cache or config.fingerprint != fingerprint:
             config.fingerprint = fingerprint
             config.cache = gpg_sha256sums(config.hash_file, config.gpg)
