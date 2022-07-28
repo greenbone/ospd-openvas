@@ -33,8 +33,7 @@ RUN apt-get update && apt-get install --no-install-recommends --no-install-sugge
 COPY --chmod=7777 . /usr/local/src/ospd-openvas
 COPY smoketest/redis.conf /etc/redis/redis.conf
 RUN rm -rf /var/lib/openvas/plugins/*
-RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
-RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/openvas/plugins/notus
+RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/notus /var/lib/notus
 
 RUN useradd -rm -s /bin/bash -g redis -u 1000 gvm
 RUN mkdir /run/redis
@@ -60,7 +59,8 @@ RUN chmod 774 /var/log/mosquitto
 
 COPY --from=binaries /usr/local/src/bin/* /usr/local/bin/
 RUN mv /usr/local/src/ospd-openvas/smoketest/run-tests.sh /usr/local/bin/run
-COPY --from=nasl --chmod=7777 /nasl /usr/local/src/nasl
+COPY --from=nasl --chmod=7777 /nasl /var/lib/openvas/plugins
+RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
 COPY --from=data_objects --chmod=7777 /policies /usr/local/src/policies
 RUN rm -rf /usr/local/src/ospd-openvas
 RUN apt-get remove --purge --auto-remove -y python3-pip python3-packaging
