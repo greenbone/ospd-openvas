@@ -25,7 +25,7 @@ const protocoll = "unix"
 func init() {
 	ospdSocket = os.Getenv("OSPD_SOCKET")
 	if ospdSocket == "" {
-		ospdSocket = "/var/run/ospd/ospd.sock"
+		ospdSocket = "/var/run/ospd/ospd-openvas.sock"
 	}
 	policyPath = os.Getenv("POLICY_PATH")
 	if policyPath == "" {
