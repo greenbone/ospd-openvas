@@ -119,16 +119,18 @@ class Notus:
             cvss = severity.get("cvss_v2", None)
         result["severity_vector"] = cvss
         result["filename"] = path.name
-        bid = advisory.get("bid", [])
-        cve = advisory.get("cve", [])
-        xref = advisory.get("xrefs", [])
+        cves = advisory.get("cves", None)
+        xrefs = advisory.get("xrefs", None)
+        advisory_xref = advisory.get("advisory_xref", "")
         refs = {}
-        if bid:
-            refs['bid'] = bid
-        if cve:
-            refs['cve'] = cve
-        if xref:
-            refs['xref'] = xref
+        refs['url'] = [advisory_xref]
+        advisory_id = advisory.get("advisory_id", None)
+        if cves:
+            refs['cve'] = cves
+        if xrefs:
+            refs['url'] = refs['url'] + xrefs
+        if advisory_id:
+            refs['advisory_id'] = [advisory_id]
 
         result["refs"] = refs
         result["family"] = meta_data.get("family", path.stem)
