@@ -124,7 +124,7 @@ class OSPDaemon:
         storage=None,
         max_scans=0,
         min_free_mem_scan_queue=0,
-        file_storage_dir='/var/run/ospd',
+        file_storage_dir='/run/ospd',
         max_queued_scans=0,
         **kwargs,
     ):  # pylint: disable=unused-argument

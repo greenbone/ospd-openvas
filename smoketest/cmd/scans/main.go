@@ -22,7 +22,7 @@ const protocoll = "unix"
 func init() {
 	address = os.Getenv("OSPD_SOCKET")
 	if address == "" {
-		address = "/var/run/ospd/ospd-openvas.sock"
+		address = "/run/ospd/ospd-openvas.sock"
 	}
 }
 
