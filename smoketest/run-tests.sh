@@ -2,10 +2,10 @@
 # Is a convenience script to start redis, ospd-openvas and execute smoketests
 
 shutdown() {
-  kill $(cat /var/run/ospd/ospd.pid) || true
+  kill $(cat /run/ospd/ospd.pid) || true
   kill $(cat /tmp/mosquitto.pid) || true
   kill $(grep -o "Pidfile.*" /etc/ssh/sshd_config | awk '{printf $2}') || true
-  redis-cli -s /var/run/redis/redis.sock SHUTDOWN
+  redis-cli -s /run/redis/redis.sock SHUTDOWN
 }
 
 trap shutdown EXIT
@@ -15,10 +15,10 @@ mosquitto -c /etc/mosquitto.conf &
 redis-server /etc/redis/redis.conf
 /usr/sbin/sshd
 ospd-openvas --disable-notus-hashsum-verification True \
-  -u /var/run/ospd/ospd-openvas.sock \
+  -u /run/ospd/ospd-openvas.sock \
   -l /var/log/gvm/ospd.log
 wait_turn=0
-while [ ! -S /var/run/ospd/ospd-openvas.sock ]; do
+while [ ! -S /run/ospd/ospd-openvas.sock ]; do
   if [ $wait_turn -eq 10 ]; then
     printf "too many attempts to find ospd-openvas.sock\n"
     exit 1
