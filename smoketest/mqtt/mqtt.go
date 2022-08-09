@@ -20,7 +20,7 @@ type MQTT struct {
 	client            *paho.Client
 	connectProperties *paho.Connect
 	qos               byte
-	incoming                chan *TopicData // Is used to send respons messages of a handler downwards
+	incoming          chan *TopicData // Is used to send respons messages of a handler downwards
 }
 
 func (m MQTT) Incoming() <-chan *TopicData {
@@ -130,6 +130,6 @@ func New(conn net.Conn,
 		client:            c,
 		connectProperties: cp,
 		qos:               cfg.QOS,
-		incoming:                make(chan *TopicData, cfg.Inflight),
+		incoming:          make(chan *TopicData, cfg.Inflight),
 	}, nil
 }
