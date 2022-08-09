@@ -33,7 +33,7 @@ var DefaultScannerParams = []scan.ScannerParam{
 type PrintResponses struct{}
 
 func (pr PrintResponses) Each(r scan.GetScansResponse) {
-  fmt.Printf("\rprogress: %d", r.Scan.Progress)
+	fmt.Printf("\rprogress: %d", r.Scan.Progress)
 }
 
 func (pr PrintResponses) Last(r scan.GetScansResponse) {
@@ -45,7 +45,7 @@ func (pr PrintResponses) Last(r scan.GetScansResponse) {
 	if tmp == nil {
 		panic(err)
 	}
-  fmt.Printf("\rprogress: %d; status: %s; report: %s\n", r.Scan.Progress, r.Scan.Status, tmp.Name())
+	fmt.Printf("\rprogress: %d; status: %s; report: %s\n", r.Scan.Progress, r.Scan.Status, tmp.Name())
 	if _, err := tmp.Write(xr); err != nil {
 		panic(err)
 	}
@@ -63,6 +63,7 @@ func main() {
 	username := flag.String("user", "", "user of host (when using credentials)")
 	password := flag.String("password", "", "password of user (when using credentials)")
 	scan_id := flag.String("id", "", "id of a scan")
+	alivemethod := flag.Int("alive-method", 15, "which alive method to use; 1. bit is for ICMP, 2. bit is for TCPSYN, 3. bit is for TCPACK, 4. bit is for ARP and 5. bit is to consider alive. Default is 15 to enable all but consider alive. Use 16 for consider alive.")
 	cmd := flag.String("cmd", "", "Can either be start,get,start-finish.")
 	debug := flag.Bool("verbose", false, "Enables or disables verbose.")
 	flag.Parse()
@@ -84,7 +85,11 @@ func main() {
 
 		case "start":
 			alive := scan.AliveTestMethods{
-				ConsiderAlive: 1,
+				ICMP:          *alivemethod >> 0 & 1,
+				TCPSYN:        *alivemethod >> 1 & 1,
+				TCPACK:        *alivemethod >> 2 & 1,
+				ARP:           *alivemethod >> 3 & 1,
+				ConsiderAlive: *alivemethod >> 4 & 1,
 			}
 			target := scan.Target{
 				Hosts:            *host,

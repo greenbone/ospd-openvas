@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/greenbone/ospd-openvas/smoketest/file"
@@ -16,7 +17,8 @@ type Cache struct {
 
 func (c *Cache) Append(s ScanConfig) {
 	c.Lock()
-	c.cache[s.Name] = s
+
+	c.cache[strings.ToLower(s.Name)] = s
 	c.Unlock()
 }
 
@@ -35,7 +37,7 @@ func (c *Cache) Get() []ScanConfig {
 func (c *Cache) ByName(name string) ScanConfig {
 	c.RLock()
 	defer c.RUnlock()
-	if s, ok := c.cache[name]; ok {
+	if s, ok := c.cache[strings.ToLower(name)]; ok {
 		return s
 	}
 	return ScanConfig{}
