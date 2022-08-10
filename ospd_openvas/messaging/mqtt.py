@@ -19,6 +19,9 @@ import json
 import logging
 
 from functools import partial
+from socket import gaierror, timeout
+from threading import Thread
+from time import sleep
 from typing import Callable, Type
 
 import paho.mqtt.client as mqtt
@@ -156,9 +159,29 @@ class MQTTDaemon:
         self,
         client: MQTTClient,
     ):
-        self._client = client
+        self._client: MQTTClient = client
 
-        self._client.connect()
+    def _try_connect_loop(self):
+        while True:
+            try:
+                self._client.connect()
+                self._client.loop_start()
+                logger.info("Successfully connected to MQTT broker")
+                return
+            except (gaierror, ValueError) as e:
+                logger.error(
+                    "Could not connect to MQTT broker, error was: %s."
+                    " Unable to get results from Notus.",
+                    e,
+                )
+                return
+            except (ConnectionRefusedError, timeout) as e:
+                logger.warning(
+                    "Could not connect to MQTT broker, error was: %s."
+                    " Trying again in 10s.",
+                    e,
+                )
+                sleep(10)
 
     def run(self):
-        self._client.loop_start()
+        Thread(target=self._try_connect_loop, daemon=True).start()
