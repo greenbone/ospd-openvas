@@ -27,7 +27,6 @@ import copy
 
 from typing import Callable, Optional, Dict, List, Tuple, Iterator, Any
 from datetime import datetime
-from socket import gaierror
 
 from pathlib import Path
 from os import geteuid, environ
@@ -527,24 +526,14 @@ class OSPDopenvas(OSPDaemon):
         notus_handler = NotusResultHandler(self.report_results)
 
         if self._mqtt_broker_address:
-            try:
-                client = MQTTClient(
-                    self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
-                )
-                daemon = MQTTDaemon(client)
-                subscriber = MQTTSubscriber(client)
+            client = MQTTClient(
+                self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
+            )
+            daemon = MQTTDaemon(client)
+            subscriber = MQTTSubscriber(client)
 
-                subscriber.subscribe(
-                    ResultMessage, notus_handler.result_handler
-                )
-                daemon.run()
-            except (ConnectionRefusedError, gaierror, ValueError) as e:
-                logger.error(
-                    "Could not connect to MQTT broker at %s, error was: %s."
-                    " Unable to get results from Notus.",
-                    self._mqtt_broker_address,
-                    e,
-                )
+            subscriber.subscribe(ResultMessage, notus_handler.result_handler)
+            daemon.run()
         else:
             logger.info(
                 "MQTT Broker Adress empty. MQTT disabled. Unable to get Notus"
