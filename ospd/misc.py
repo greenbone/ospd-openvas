@@ -103,22 +103,23 @@ def create_pid(pidfile: str) -> bool:
     Otherwise gives an error."""
 
     pid = str(os.getpid())
-    new_process = psutil.Process(int(pid))
-    new_process_name = new_process.name()
+    current_process = psutil.Process(int(pid))
+    current_process_name = current_process.name()
 
     pidpath = Path(pidfile)
+    pf_process_name = ""
+    pf_pid = ""
 
     if pidpath.is_file():
-        process_name = None
-        with pidpath.open('r', encoding='utf-8') as pidfile:
-            current_pid = pidfile.read()
+        with pidpath.open('r', encoding='utf-8') as file:
+            pf_pid = file.read()
             try:
-                process = psutil.Process(int(current_pid))
-                process_name = process.name()
+                process = psutil.Process(int(pf_pid))
+                pf_process_name = process.name()
             except psutil.NoSuchProcess:
                 pass
 
-        if process_name == new_process_name:
+        if pf_process_name == current_process_name and pf_pid != pid:
             logger.error(
                 "There is an already running process. See %s.",
                 str(pidpath.absolute()),
@@ -130,9 +131,9 @@ def create_pid(pidfile: str) -> bool:
                 "the process %s. It seems that %s was abruptly stopped. "
                 "Removing the pid file.",
                 str(pidpath.absolute()),
-                current_pid,
-                process_name,
-                new_process_name,
+                pf_pid,
+                pf_process_name,
+                current_process_name,
             )
 
     try:
