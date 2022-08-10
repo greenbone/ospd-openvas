@@ -175,7 +175,10 @@ class MQTTDaemon:
                     e,
                 )
                 return
-            except (ConnectionRefusedError, timeout) as e:
+            # ConnectionRefusedError - when mqtt declines connection
+            # timeout - when address is not reachable
+            # OSError - in container when address cannot be assigned
+            except (ConnectionRefusedError, timeout, OSError) as e:
                 logger.warning(
                     "Could not connect to MQTT broker, error was: %s."
                     " Trying again in 10s.",
