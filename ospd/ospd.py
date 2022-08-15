@@ -135,7 +135,8 @@ class OSPDaemon:
             root = Path(file_storage_dir)
             for dp in root.glob('*'):
                 if is_uuid_re.match(dp.name):
-                    dp.unlink(missing_ok=True)
+                    if dp.exists():
+                        dp.unlink()
             return
 
         self.scan_collection = ScanCollection(file_storage_dir)
