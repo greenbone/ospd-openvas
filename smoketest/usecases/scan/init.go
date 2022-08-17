@@ -31,7 +31,7 @@ var DefaultStart = scan.Start{
 func stopDeleteWhenNoResults() usecases.Test {
 	return usecases.Test{
 		Title: "When no results: Queue->Init->Running->Stop->Delete",
-		Run: func(proto, address string) usecases.Response {
+		Run: func(co connection.OSPDSender) usecases.Response {
 			testeach := scan.AliveTestMethods{
 				ICMP:          1,
 				TCPSYN:        1,
@@ -59,7 +59,7 @@ func stopDeleteWhenNoResults() usecases.Test {
 			}
 
 			var startR scan.StartResponse
-			if err := connection.SendCommand(proto, address, startScan, &startR); err != nil {
+			if err := co.SendCommand(startScan, &startR); err != nil {
 				panic(err)
 			}
 			if startR.Code != "200" {
@@ -67,7 +67,7 @@ func stopDeleteWhenNoResults() usecases.Test {
 			}
 			get := scan.GetScans{ID: startR.ID}
 
-			r := usecases.TillState(get, proto, address, "running")
+			r := usecases.TillState(get, co, "running")
 			if r.Failure != nil {
 				return *r.Failure
 			}
@@ -79,7 +79,7 @@ func stopDeleteWhenNoResults() usecases.Test {
 			}
 
 			var stopR scan.StopResponse
-			if err := connection.SendCommand(proto, address, scan.Stop{ID: get.ID}, &stopR); err != nil {
+			if err := co.SendCommand(scan.Stop{ID: get.ID}, &stopR); err != nil {
 				panic(err)
 			}
 			if stopR.Code != "200" {
@@ -87,7 +87,7 @@ func stopDeleteWhenNoResults() usecases.Test {
 			}
 
 			var deleteR scan.DeleteResponse
-			connection.SendCommand(proto, address, scan.Delete{ID: get.ID}, &deleteR)
+			co.SendCommand(scan.Delete{ID: get.ID}, &deleteR)
 			if deleteR.Code != "200" {
 				return *usecases.WrongStatusCodeResponse(deleteR.StatusCodeResponse)
 			}
@@ -104,9 +104,9 @@ func stopDeleteWhenNoResults() usecases.Test {
 func transitionQueueToRunning() usecases.Test {
 	return usecases.Test{
 		Title: "GVMD Workflow: Queue->Init->Running->Stop->Delete-Start->Finish",
-		Run: func(proto, address string) usecases.Response {
+		Run: func(co connection.OSPDSender) usecases.Response {
 			var startR scan.StartResponse
-			if err := connection.SendCommand(proto, address, DefaultStart, &startR); err != nil {
+			if err := co.SendCommand(DefaultStart, &startR); err != nil {
 				panic(err)
 			}
 			if startR.Code != "200" {
@@ -114,7 +114,7 @@ func transitionQueueToRunning() usecases.Test {
 			}
 			get := scan.GetScans{ID: startR.ID}
 
-			if r := usecases.VerifyTillNextState(get, proto, address, "queued"); r.Failure == nil {
+			if r := usecases.VerifyTillNextState(get, co, "queued"); r.Failure == nil {
 				if r.Resp.Scan.Status != "init" {
 					// on some slower machines it can happen that the call to get the state
 					// is taking too long for the init phase and it is already running.
@@ -124,7 +124,7 @@ func transitionQueueToRunning() usecases.Test {
 					}
 					return *usecases.WrongScanStatus("init", r.Resp.Scan.Status)
 				}
-				r = usecases.TillNextState(get, proto, address, "init")
+				r = usecases.TillNextState(get, co, "init")
 				if r.Failure != nil {
 					return *r.Failure
 				}
@@ -133,26 +133,26 @@ func transitionQueueToRunning() usecases.Test {
 				}
 			is_running:
 				var stopR scan.StopResponse
-				if err := connection.SendCommand(proto, address, scan.Stop{ID: get.ID}, &stopR); err != nil {
+				if err := co.SendCommand(scan.Stop{ID: get.ID}, &stopR); err != nil {
 					panic(err)
 				}
 				if stopR.Code != "200" {
 					return *usecases.WrongStatusCodeResponse(r.Resp.StatusCodeResponse)
 				}
-				r = usecases.VerifyGet(get, proto, address, "stopped")
+				r = usecases.VerifyGet(get, co, "stopped")
 				if r.Failure != nil {
 					return *r.Failure
 				}
 
 				var deleteR scan.DeleteResponse
-				connection.SendCommand(proto, address, scan.Delete{ID: get.ID}, &deleteR)
+				co.SendCommand(scan.Delete{ID: get.ID}, &deleteR)
 				if deleteR.Code != "200" {
 					return *usecases.WrongStatusCodeResponse(deleteR.StatusCodeResponse)
 				}
 
 				resume := DefaultStart
 				resume.ID = get.ID
-				r = usecases.StartScanGetLastStatus(resume, proto, address)
+				r = usecases.StartScanGetLastStatus(resume, co)
 				if r.Resp.Scan.Status != "finished" {
 					return *usecases.WrongScanStatus("finished", r.Resp.Scan.Status)
 				}
@@ -172,9 +172,9 @@ func transitionQueueToRunning() usecases.Test {
 func startScan() usecases.Test {
 	return usecases.Test{
 		Title: "start",
-		Run: func(proto, address string) usecases.Response {
+		Run: func(co connection.OSPDSender) usecases.Response {
 
-			r := usecases.StartScanGetLastStatus(DefaultStart, proto, address)
+			r := usecases.StartScanGetLastStatus(DefaultStart, co)
 			if r.Resp.Scan.Status != "finished" {
 				return *usecases.WrongScanStatus("finished", r.Resp.Scan.Status)
 			}

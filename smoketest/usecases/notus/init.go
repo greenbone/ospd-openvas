@@ -17,9 +17,9 @@ func includeNotusAdvisory() uc.Test {
 	oid := "1.3.6.1.4.1.25623.1.0.42"
 	return uc.Test{
 		Title: "Advisories are included within GetVTs",
-		Run: func(proto string, address string) uc.Response {
+		Run: func(co connection.OSPDSender) uc.Response {
 			var response vt.GetVTsResponse
-			if err := connection.SendCommand(proto, address, vt.Get{
+			if err := co.SendCommand(vt.Get{
 				ID: oid,
 			}, &response); err != nil {
 				panic(err)
@@ -35,11 +35,11 @@ func includeNotusAdvisory() uc.Test {
 func overridesNVTS() uc.Test {
 	return uc.Test{
 		Title: "Advisories override NASL",
-		Run: func(proto string, address string) uc.Response {
+		Run: func(co connection.OSPDSender) uc.Response {
 			oid := "1.3.6.1.4.1.25623.1.0.90022"
 			var response vt.GetVTsResponse
 			expected := "NOTUS: should be overriden in get_nvts"
-			if err := connection.SendCommand(proto, address, vt.Get{
+			if err := co.SendCommand(vt.Get{
 				ID: oid,
 			}, &response); err != nil {
 				panic(err)
@@ -62,7 +62,7 @@ func overridesNVTS() uc.Test {
 func containNotusResults(username, password string) uc.Test {
 	return uc.Test{
 		Title: "contain results",
-		Run: func(proto, address string) uc.Response {
+		Run: func(co connection.OSPDSender) uc.Response {
 			oid := "1.3.6.1.4.1.25623.1.0.50282" // gatherpackagelist is a dependency for notus
 			selection := scan.VTSelection{
 				Single: []scan.VTSingle{{
@@ -103,7 +103,7 @@ func containNotusResults(username, password string) uc.Test {
 				VTSelection:   []scan.VTSelection{selection},
 				ScannerParams: scan.DefaultScannerParams,
 			}
-			resp := uc.StartScanGetLastStatus(start, proto, address)
+			resp := uc.StartScanGetLastStatus(start, co)
 			if resp.Failure != nil {
 				return *resp.Failure
 			}

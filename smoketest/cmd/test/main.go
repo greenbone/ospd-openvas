@@ -15,22 +15,12 @@ import (
 	"github.com/greenbone/ospd-openvas/smoketest/usecases/scan"
 )
 
-var ospdSocket string
-var policyPath string
 var username string
 var password string
 
 const protocoll = "unix"
 
 func init() {
-	ospdSocket = os.Getenv("OSPD_SOCKET")
-	if ospdSocket == "" {
-		ospdSocket = "/run/ospd/ospd-openvas.sock"
-	}
-	policyPath = os.Getenv("POLICY_PATH")
-	if policyPath == "" {
-		policyPath = "/usr/local/src/policies"
-	}
 	username = os.Getenv("USERNAME")
 	if username == "" {
 		username = "gvm"
@@ -41,19 +31,19 @@ func init() {
 	}
 }
 
-func getVTs() vt.GetVTsResponse {
+func getVTs(co connection.OSPDSender) vt.GetVTsResponse {
 	var response vt.GetVTsResponse
-	if err := connection.SendCommand(protocoll, ospdSocket, vt.Get{}, &response); err != nil {
+	if err := co.SendCommand(vt.Get{}, &response); err != nil {
 		panic(err)
 	}
 	return response
 
 }
 
-func retryUntilPluginsAreLoaded() vt.GetVTsResponse {
-	r := getVTs()
+func retryUntilPluginsAreLoaded(co connection.OSPDSender) vt.GetVTsResponse {
+	r := getVTs(co)
 	for len(r.VTs.VT) == 0 {
-		r = getVTs()
+		r = getVTs(co)
 	}
 	return r
 
@@ -73,15 +63,29 @@ func PrintFailures(uc usecases.Tests, resp []usecases.Response) {
 }
 
 func main() {
-	fmt.Printf("Initializing policy cache (%s)\n", policyPath)
-	tg := flag.String("t", "", "Name of testgroup. If set it just tests given testgroup t.")
+	ospdSocket := flag.String("u", "/run/ospd/ospd-openvas.sock", "(optional, default: /run/ospd/ospd-openvas.sock) path the ospd unix socket")
+	tcpAddress := flag.String("a", "", "(optional, when set it will NOT use unix socket but TCP) a target address (e.g. 10.42.0.81:4242)")
+	policyPath := flag.String("policy-path", "/usr/local/src/policies", "(optional, default: /usr/local/src/policies) path to policies.")
+	certPath := flag.String("cert-path", "", "(only require when port is set ) path to the certificate used by ospd.")
+	certKeyPath := flag.String("certkey-path", "", "(only required when port is set) path to certificate key used by ospd.")
+	tg := flag.String("t", "", "(optional) Name of testgroup. If set it just tests given testgroup t.")
+
 	flag.Parse()
-	policyCache, err := policies.InitCache(policyPath)
+	fmt.Printf("Initializing policy cache (%s)\n", *policyPath)
+	policyCache, err := policies.InitCache(*policyPath)
 	if err != nil {
 		panic(err)
 	}
+	protocoll := "unix"
+	address := *ospdSocket
+	if *tcpAddress != "" {
+		protocoll = "tcp"
+		address = *tcpAddress
+	}
+
+	co := connection.New(protocoll, address, *certPath, *certKeyPath, false)
 	fmt.Print("Trying to connect\n")
-	response := retryUntilPluginsAreLoaded()
+	response := retryUntilPluginsAreLoaded(co)
 	ucs := []usecases.Tests{
 		notus.Create(username, password),
 		scan.Create(),
@@ -92,7 +96,7 @@ func main() {
 	for i, t := range ucs {
 		if *tg == "" || *tg == t.Title {
 
-			resps[i] = t.Run(protocoll, ospdSocket)
+			resps[i] = t.Run(co)
 		}
 	}
 	for i, t := range ucs {

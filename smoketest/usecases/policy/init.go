@@ -3,6 +3,7 @@ package policy
 import (
 	"fmt"
 
+	"github.com/greenbone/ospd-openvas/smoketest/connection"
 	"github.com/greenbone/ospd-openvas/smoketest/policies"
 	"github.com/greenbone/ospd-openvas/smoketest/scan"
 	uc "github.com/greenbone/ospd-openvas/smoketest/usecases"
@@ -11,7 +12,7 @@ import (
 func discoveryAuthenticated(cache *policies.Cache, username, password string) uc.Test {
 	return uc.Test{
 		Title: "Discovery - enable authenticated checks",
-		Run: func(proto string, address string) uc.Response {
+		Run: func(co connection.OSPDSender) uc.Response {
 			pol := "Discovery"
 			sc := cache.ByName(pol)
 			selection := sc.AsVTSelection(nil)
@@ -40,7 +41,7 @@ func discoveryAuthenticated(cache *policies.Cache, username, password string) uc
 				VTSelection:   []scan.VTSelection{selection},
 				ScannerParams: scan.DisableNotus,
 			}
-			r := uc.StartScanGetLastStatus(ospdCMD, proto, address)
+			r := uc.StartScanGetLastStatus(ospdCMD, co)
 			if r.Failure != nil {
 				return *r.Failure
 			}
