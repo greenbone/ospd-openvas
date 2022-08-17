@@ -36,3 +36,10 @@ This will parse the given scan configs and copy the necessary plugins from <path
 
 On top of that you need to have a local ssh-server running and populate user credentials via `USERNAME` and `PASSWORD`; otherwise the policy test will fail because they're unable to connect to ssh.
 
+
+## Usage
+
+```
+make build run
+```
+

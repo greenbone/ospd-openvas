@@ -15,17 +15,6 @@ import (
 	"github.com/greenbone/ospd-openvas/smoketest/usecases"
 )
 
-var address string
-
-const protocoll = "unix"
-
-func init() {
-	address = os.Getenv("OSPD_SOCKET")
-	if address == "" {
-		address = "/run/ospd/ospd-openvas.sock"
-	}
-}
-
 var DefaultScannerParams = []scan.ScannerParam{
 	{},
 }
@@ -63,9 +52,15 @@ func main() {
 	username := flag.String("user", "", "user of host (when using credentials)")
 	password := flag.String("password", "", "password of user (when using credentials)")
 	scan_id := flag.String("id", "", "id of a scan")
-	alivemethod := flag.Int("alive-method", 15, "which alive method to use; 1. bit is for ICMP, 2. bit is for TCPSYN, 3. bit is for TCPACK, 4. bit is for ARP and 5. bit is to consider alive. Default is 15 to enable all but consider alive. Use 16 for consider alive.")
+	alivemethod := flag.Int("alive-method", 15, "which alive method to use; 1. bit is for ICMP, 2. bit is for TCPSYN, 3. bit is for TCPACK, 4. bit is for ARP and 5. bit is to consider alive. Use 16 to disable alive check.")
 	cmd := flag.String("cmd", "", "Can either be start,get,start-finish.")
-	debug := flag.Bool("verbose", false, "Enables or disables verbose.")
+
+	ospdSocket := flag.String("u", "/run/ospd/ospd-openvas.sock", "path the ospd unix socket")
+	tcpAddress := flag.String("a", "", "(optional) a target address, will set usage from UNIX to TCP protocoll (e.g. 10.42.0.81:4242)")
+	certPath := flag.String("cert-path", "", "(only required when 'a' is set ) path to the certificate used by ospd.")
+	certKeyPath := flag.String("certkey-path", "", "(only required when 'a' is set) path to certificate key used by ospd.")
+
+	debug := flag.Bool("v", false, "Enables or disables verbose.")
 	flag.Parse()
 	tillFinished := false
 	naslCache, err := nasl.InitCache(*vtDIR)
@@ -142,16 +137,24 @@ func main() {
 			os.Exit(1)
 		}
 	}
-	connection.Debug = *debug
+
+	protocoll := "unix"
+	address := *ospdSocket
+	if *tcpAddress != "" {
+		address = *tcpAddress
+		protocoll = "tcp"
+	}
+
+	co := connection.New(protocoll, address, *certPath, *certKeyPath, *debug)
 
 	if !tillFinished {
-		b, err := connection.SendRaw(protocoll, address, ospdCMD)
+		b, err := co.SendRaw(ospdCMD)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Printf("%s\n", b)
 	} else {
-		resp := usecases.StartScanGetLastStatus(ospdCMD.(scan.Start), protocoll, address, PrintResponses{})
+		resp := usecases.StartScanGetLastStatus(ospdCMD.(scan.Start), co, PrintResponses{})
 		if resp.Failure != nil {
 			panic(fmt.Errorf(resp.Failure.Description))
 		}

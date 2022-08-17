@@ -7,7 +7,7 @@ import (
 	"github.com/greenbone/ospd-openvas/smoketest/scan"
 )
 
-type Runner func(string, string) Response
+type Runner func(connection.OSPDSender) Response
 
 type Test struct {
 	Title string
@@ -24,12 +24,12 @@ type Tests struct {
 	UseCases []Test
 }
 
-func (ouc Tests) Run(proto, address string) []Response {
+func (ouc Tests) Run(co connection.OSPDSender) []Response {
 	result := make([]Response, len(ouc.UseCases))
 	fmt.Printf("Testing %s\n", ouc.Title)
 	for i, t := range ouc.UseCases {
 		fmt.Printf("\t%s\t", t.Title)
-		result[i] = t.Run(proto, address)
+		result[i] = t.Run(co)
 		if !result[i].Success {
 			fmt.Printf("\x1B[31mX\x1B[0m\n")
 		} else {
@@ -67,9 +67,9 @@ type GetScanResponseFailure struct {
 	Failure *Response
 }
 
-func VerifyGet(get scan.GetScans, proto, address, status string) GetScanResponseFailure {
+func VerifyGet(get scan.GetScans, co connection.OSPDSender, status string) GetScanResponseFailure {
 	var result GetScanResponseFailure
-	if err := connection.SendCommand(proto, address, get, &result.Resp); err != nil {
+	if err := co.SendCommand(get, &result.Resp); err != nil {
 		panic(err)
 	}
 	if result.Resp.Code != "200" {
@@ -82,21 +82,21 @@ func VerifyGet(get scan.GetScans, proto, address, status string) GetScanResponse
 	return result
 }
 
-func VerifyTillNextState(get scan.GetScans, proto, address, status string) GetScanResponseFailure {
-	if r := VerifyGet(get, proto, address, status); r.Failure != nil {
+func VerifyTillNextState(get scan.GetScans, co connection.OSPDSender, status string) GetScanResponseFailure {
+	if r := VerifyGet(get, co, status); r.Failure != nil {
 		return r
 	}
 
-	return TillNextState(get, proto, address, status)
+	return TillNextState(get, co, status)
 
 }
 
-func TillNextState(get scan.GetScans, proto, address, status string) GetScanResponseFailure {
+func TillNextState(get scan.GetScans, co connection.OSPDSender, status string) GetScanResponseFailure {
 	var result GetScanResponseFailure
 	result.Resp.Scan.Status = status
 	for result.Resp.Scan.Status == status {
 		result.Resp = scan.GetScansResponse{}
-		if err := connection.SendCommand(proto, address, get, &result.Resp); err != nil {
+		if err := co.SendCommand(get, &result.Resp); err != nil {
 			panic(err)
 		}
 		if result.Resp.Code != "200" {
@@ -108,12 +108,12 @@ func TillNextState(get scan.GetScans, proto, address, status string) GetScanResp
 	return result
 }
 
-func TillState(get scan.GetScans, proto, address, status string) GetScanResponseFailure {
+func TillState(get scan.GetScans, co connection.OSPDSender, status string) GetScanResponseFailure {
 	var result GetScanResponseFailure
 	result.Resp.Scan.Status = status
 	for !ScanStatusFinished(result.Resp.Scan.Status) && result.Resp.Scan.Status != status {
 		result.Resp = scan.GetScansResponse{}
-		if err := connection.SendCommand(proto, address, get, &result.Resp); err != nil {
+		if err := co.SendCommand(get, &result.Resp); err != nil {
 			panic(err)
 		}
 		if result.Resp.Code != "200" {
@@ -133,11 +133,11 @@ type MessageHandler interface {
 	Last(scan.GetScansResponse)
 }
 
-func StartScanGetLastStatus(start scan.Start, proto, address string, mhs ...MessageHandler) GetScanResponseFailure {
+func StartScanGetLastStatus(start scan.Start, co connection.OSPDSender, mhs ...MessageHandler) GetScanResponseFailure {
 	var result GetScanResponseFailure
 	var startR scan.StartResponse
 
-	if err := connection.SendCommand(proto, address, start, &startR); err != nil {
+	if err := co.SendCommand(start, &startR); err != nil {
 		panic(err)
 	}
 	if startR.Code != "200" {
@@ -149,7 +149,7 @@ func StartScanGetLastStatus(start scan.Start, proto, address string, mhs ...Mess
 	for !ScanStatusFinished(result.Resp.Scan.Status) {
 		// reset to not contain previous results
 		result.Resp = scan.GetScansResponse{}
-		if err := connection.SendCommand(proto, address, get, &result.Resp); err != nil {
+		if err := co.SendCommand(get, &result.Resp); err != nil {
 			panic(err)
 		}
 		for _, mh := range mhs {
