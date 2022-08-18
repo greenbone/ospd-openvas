@@ -43,7 +43,7 @@ typing-extensions = {version = ">=3.6.5", markers = "python_version < \"3.8\""}
 
 [[package]]
 name = "autohooks"
-version = "22.8.0"
+version = "22.8.1"
 description = "Library for managing git hooks"
 category = "dev"
 optional = false
@@ -68,7 +68,7 @@ black = ">=20.8"
 
 [[package]]
 name = "autohooks-plugin-pylint"
-version = "21.6.0"
+version = "22.8.1"
 description = "An autohooks plugin for python code linting via pylint"
 category = "dev"
 optional = false
@@ -488,7 +488,7 @@ dev = ["pytest-timeout", "pytest", "build"]
 
 [[package]]
 name = "sentry-sdk"
-version = "1.9.4"
+version = "1.9.5"
 description = "Python client for Sentry (https://sentry.io)"
 category = "main"
 optional = true
@@ -600,7 +600,7 @@ tracking = ["sentry-sdk"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "9246cdf21f5a0cce80d3e6e8a732cfa5b0693aa57a6c1f7e85061bec76e64656"
+content-hash = "d9b97904da119746deb7964df2825363f791f6a1bcdb832b0772607fd21449fa"
 
 [metadata.files]
 anyio = [
@@ -616,16 +616,16 @@ async-timeout = [
     {file = "async_timeout-4.0.2-py3-none-any.whl", hash = "sha256:8ca1e4fcf50d07413d66d1a5e416e42cfdf5851c981d679a09851a6853383b3c"},
 ]
 autohooks = [
-    {file = "autohooks-22.8.0-py3-none-any.whl", hash = "sha256:3a9ff614c1336aa8e777d826367c47fd763df1e353d49dfeaeec7dae932459fa"},
-    {file = "autohooks-22.8.0.tar.gz", hash = "sha256:af718aafc680327b755cf7c7548342541e64c010d5d9aaafd61afc3c93df9928"},
+    {file = "autohooks-22.8.1-py3-none-any.whl", hash = "sha256:3343c8f50e00c9f6d3fc5e69f23f938d32dcac9d86bfcf667213c9836e07560b"},
+    {file = "autohooks-22.8.1.tar.gz", hash = "sha256:4e68f8b615e32ea6da4b2576c2cfa459b81ee46ea98eaac80a05d59e0ffaa803"},
 ]
 autohooks-plugin-black = [
     {file = "autohooks-plugin-black-22.8.1.tar.gz", hash = "sha256:cf48a1951b12f8eac9e697fb18edb05ab3519da8f29e7b31135bfc1cdb74b3f5"},
     {file = "autohooks_plugin_black-22.8.1-py3-none-any.whl", hash = "sha256:f4b6b083be62fc13740705b1a1a897801c4f8222654f3f7d8c7e6635b7640444"},
 ]
 autohooks-plugin-pylint = [
-    {file = "autohooks-plugin-pylint-21.6.0.tar.gz", hash = "sha256:6f1a486f19c8012618fecd9eaa985f5da3ef5c954b32d823323439547b947302"},
-    {file = "autohooks_plugin_pylint-21.6.0-py3-none-any.whl", hash = "sha256:0d6ab34739d4c494012aa1647c02e6a4fb9474e4050432ee82f378fcd05c70e4"},
+    {file = "autohooks-plugin-pylint-22.8.1.tar.gz", hash = "sha256:d348a61b2b027ad51275dace830ec3643cf14416519eb68167a4bdadfe44ac7e"},
+    {file = "autohooks_plugin_pylint-22.8.1-py3-none-any.whl", hash = "sha256:a7195e0f6a568cd8e0e4a964ebcecf2eb4e457a17a8b3dbc6283dfc546a474c2"},
 ]
 black = [
     {file = "black-22.6.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:f586c26118bc6e714ec58c09df0157fe2d9ee195c764f630eb0d8e7ccce72e69"},
@@ -913,8 +913,8 @@ rope = [
     {file = "rope-1.1.1.tar.gz", hash = "sha256:13048ff0245a0fa187f282697a55add46e4ccf083e7670f868bdf54ee9e47f2e"},
 ]
 sentry-sdk = [
-    {file = "sentry-sdk-1.9.4.tar.gz", hash = "sha256:f1e2333d1922dca3f91e57dad872c73b3cc449ac8542867664fb898b2eec342f"},
-    {file = "sentry_sdk-1.9.4-py2.py3-none-any.whl", hash = "sha256:02b7bf195f209f51c9f9458098a8f541dbf82314d21477e68ad841668fcf9a46"},
+    {file = "sentry-sdk-1.9.5.tar.gz", hash = "sha256:2d7ec7bc88ebbdf2c4b6b2650b3257893d386325a96c9b723adcd31033469b63"},
+    {file = "sentry_sdk-1.9.5-py2.py3-none-any.whl", hash = "sha256:b4b41f90951ed83e7b4c176eef021b19ecba39da5b73aca106c97a9b7e279a90"},
 ]
 sniffio = [
     {file = "sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
