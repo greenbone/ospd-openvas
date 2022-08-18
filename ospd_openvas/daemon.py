@@ -850,7 +850,12 @@ class OSPDopenvas(OSPDaemon):
             with following fields: result_type, host_ip, host_name, port, oid,
             value, uri (optional)
 
+        Returns:
+            True if the results have been reported
         """
+        if not self.scan_collection.id_exists(scan_id):
+            logger.warning("Unknown scan_id %s", scan_id)
+            return False
 
         vthelper = VtHelper(self.nvti)
 
