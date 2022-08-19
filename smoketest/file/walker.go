@@ -1,6 +1,7 @@
 package file
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -34,6 +35,9 @@ open:
 }
 
 func (fw *Walker) Walk(p string, i os.FileInfo, e error) error {
+	if i == nil {
+		return fmt.Errorf("%s does not contain os.FileInfo", p)
+	}
 	if e != nil {
 		if pe, ok := e.(*fs.PathError); i.IsDir() && ok {
 			if pe.Err.Error() == "too many open files" {
