@@ -1,11 +1,10 @@
-name: Manually release gvm-libs with pontos
+name: Release Patch (pontos)
 
 on:
   workflow_dispatch:
 
 jobs:
   release-patch:
-    name: Release patch with pontos
     runs-on: 'ubuntu-latest'
     steps:
     - name: Release with release action
