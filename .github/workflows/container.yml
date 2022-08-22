@@ -13,12 +13,6 @@ jobs:
 
     steps:
       - name: Checkout repository
-<<<<<<< HEAD
-        uses: actions/checkout@v2
-      - name: Gather container image tags
-        uses: greenbone/actions/container-image-tags@v1
-        id: container
-=======
         uses: actions/checkout@v3
       - name: Setup container meta information
         id: meta
@@ -38,23 +32,11 @@ jobs:
             type=raw,value=oldstable,enable=${{ github.ref == format('refs/heads/{0}', 'oldstable') }}
             # use unstable for main branch
             type=raw,value=unstable,enable={{is_default_branch}}
->>>>>>> 6c147266 (Change: Use docker/meta-action for container tags and labels)
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-<<<<<<< HEAD
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - name: Install poetry
-        uses: greenbone/actions/poetry@v1
-      - name: Build wheel
-        run: poetry build -f wheel
-=======
->>>>>>> 1dc3c5e6 (Change: Update Dockerfile to build without required wheel)
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
