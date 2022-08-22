@@ -1,5 +1,24 @@
 ARG VERSION=stable
 
+FROM debian:stable-slim as builder
+
+COPY . /source
+
+WORKDIR /source
+
+RUN apt-get update && \
+    apt-get install --no-install-recommends --no-install-suggests -y \
+    python3 \
+    python-is-python3 \
+    python3-pip && \
+    apt-get remove --purge --auto-remove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN python -m pip install --upgrade pip && \
+    python3 -m pip install poetry
+
+RUN rm -rf dist && poetry build -f wheel
+
 FROM greenbone/openvas-scanner:${VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -34,7 +53,7 @@ RUN mkdir -p /run/ospd && \
     chmod 644 /etc/openvas/openvas_log.conf && \
     chmod 755 /usr/local/bin/entrypoint
 
-COPY dist/* /ospd-openvas
+COPY --from=builder /source/dist/* /ospd-openvas/
 
 RUN python3 -m pip install /ospd-openvas/*
 
