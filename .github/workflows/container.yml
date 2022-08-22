@@ -14,22 +14,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Gather container image tags
-        uses: greenbone/actions/container-image-tags@v1
-        id: container
+      - name: Setup container meta information
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: greenbone/ospd-openvas
+          labels: |
+            org.opencontainers.image.vendor=Greenbone
+            org.opencontainers.image.base.name=debian/stable-slim
+          flavor: latest=false # no latest container tag for git tags
+          tags: |
+            # create container tag for git tags
+            type=ref,event=tag
+            # use latest for stable branch
+            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
+            type=raw,value=oldstable,enable=${{ github.ref == format('refs/heads/{0}', 'oldstable') }}
+            # use unstable for main branch
+            type=raw,value=unstable,enable={{is_default_branch}}
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.9
-      - name: Install poetry
-        uses: greenbone/actions/poetry@v1
-      - name: Build wheel
-        run: poetry build -f wheel
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -39,6 +46,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ steps.container.outputs.image-tags }}
           platforms: linux/amd64,linux/arm64
           file: .docker/prod.Dockerfile
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
