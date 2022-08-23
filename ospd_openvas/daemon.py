@@ -1090,6 +1090,15 @@ class OSPDopenvas(OSPDaemon):
             dryrun.exec_dry_run_scan(scan_id, self.nvti, OSPD_PARAMS)
             return
 
+        kbdb, err = self.main_db.check_consistency(scan_id)
+        if err < 0:
+            logger.debug(
+                "An old scan with the same scanID was found in the kb. "
+                "Waiting for the kb clean up to finish."
+            )
+            self.stop_scan_cleanup(kbdb, scan_id, kbdb.get_scan_process_id())
+            self.main_db.release_database(kbdb)
+
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
