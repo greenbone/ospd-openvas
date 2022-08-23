@@ -648,6 +648,25 @@ class MainDB(BaseDB):
 
         return None
 
+    def check_consistency(self, scan_id) -> Tuple[Optional[KbDB], int]:
+        """Check if the current scan id already exists in a kb.
+
+        Return a tuple with the kb or none, and an error code, being 0 if
+        the db is clean, -1 on old finished scan, -2 on still running scan.
+        """
+        err = 0
+
+        kb = self.find_kb_database_by_scan_id(scan_id)
+        current_status = None
+        if kb:
+            current_status = kb.get_status(scan_id)
+        if current_status == "finished":
+            err = -1
+        elif current_status == "stop_all" or current_status == "ready":
+            err = -2
+
+        return (kb, err)
+
     def release_database(self, database: BaseDB):
         self.release_database_by_index(database.index)
         database.flush()
