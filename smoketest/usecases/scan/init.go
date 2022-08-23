@@ -8,14 +8,7 @@ import (
 	"github.com/greenbone/ospd-openvas/smoketest/usecases"
 )
 
-var DefaultTargets = scan.Targets{Targets: []scan.Target{
-	{
-		Hosts:            "localhost,smoketest.localdomain,smoke.localdomain,and.localdomain,mirrors.localdomain",
-		Ports:            "8080,443",
-		AliveTestMethods: scan.ConsiderAlive,
-	},
-},
-}
+var DefaultTargets = Targets(scan.ConsiderAlive)
 
 var DefaultSelection = []scan.VTSelection{
 	{Single: []scan.VTSingle{{
@@ -28,25 +21,57 @@ var DefaultStart = scan.Start{
 	VTSelection:   DefaultSelection,
 }
 
+func Targets(alive scan.AliveTestMethods) scan.Targets {
+	return scan.Targets{Targets: []scan.Target{
+		{
+			Hosts:            "localhost,smoketest.localdomain,smoke.localdomain,and.localdomain,mirrors.localdomain",
+			Ports:            "8080,443",
+			AliveTestMethods: alive,
+		},
+	},
+	}
+}
+
+func addHostName() usecases.Test {
+	return usecases.Test{
+		Title: "Add Host Name Function",
+		Run: func(o connection.OSPDSender) usecases.Response {
+			target := Targets(scan.Alive)
+			slowSelection := []scan.VTSelection{
+				{Single: []scan.VTSingle{{
+					ID: "0.0.0.0.0.0.0.0.0.3",
+				}}},
+			}
+			startScan := scan.Start{
+				ScannerParams: scan.DefaultScannerParams,
+				Targets:       target,
+				VTSelection:   slowSelection,
+			}
+			r := usecases.StartScanGetLastStatus(startScan, o)
+			if r.Resp.Scan.Status != "finished" {
+				return *usecases.WrongScanStatus("finished", r.Resp.Scan.Status)
+			}
+			for _, result := range r.Resp.Scan.Results.Results {
+				if result.HostName == "addhostname.localdomain" {
+					return usecases.Response{
+						Success: true,
+					}
+				}
+			}
+			return usecases.Response{
+				Description: fmt.Sprintf("addhost not found in %+v", r.Resp.Scan.Results.Results),
+				Success:     false,
+			}
+
+		},
+	}
+}
+
 func stopDeleteWhenNoResults() usecases.Test {
 	return usecases.Test{
 		Title: "When no results: Queue->Init->Running->Stop->Delete",
 		Run: func(co connection.OSPDSender) usecases.Response {
-			testeach := scan.AliveTestMethods{
-				ICMP:          1,
-				TCPSYN:        1,
-				TCPACK:        1,
-				ARP:           1,
-				ConsiderAlive: 0,
-			}
-			target := scan.Targets{Targets: []scan.Target{
-				{
-					Hosts:            "localhost,smoketest.localdomain,smoke.localdomain,and.localdomain,mirrors.localdomain",
-					Ports:            "8080,443",
-					AliveTestMethods: testeach,
-				},
-			},
-			}
+			target := Targets(scan.Alive)
 			slowSelection := []scan.VTSelection{
 				{Single: []scan.VTSingle{{
 					ID: "0.0.0.0.0.0.0.0.0.2",
@@ -192,6 +217,7 @@ func Create() usecases.Tests {
 	return usecases.Tests{
 		Title: "Scan",
 		UseCases: []usecases.Test{
+			addHostName(),
 			startScan(),
 			transitionQueueToRunning(),
 			stopDeleteWhenNoResults(),

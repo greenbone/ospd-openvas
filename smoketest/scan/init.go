@@ -61,6 +61,16 @@ var ConsiderAlive AliveTestMethods = AliveTestMethods{
 	ConsiderAlive: 1,
 }
 
+
+var Alive = AliveTestMethods{
+	ICMP:          1,
+	TCPSYN:        1,
+	TCPACK:        1,
+	ARP:           1,
+	ConsiderAlive: 0,
+}
+
+
 type Target struct {
 	XMLName            xml.Name         `xml:"target"`
 	Hosts              string           `xml:"hosts,omitempty"`
