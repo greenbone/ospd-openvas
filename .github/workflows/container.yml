@@ -36,12 +36,8 @@ jobs:
             # use unstable for main branch
             type=raw,value=unstable,enable={{is_default_branch}}
       - name: Login to GitHub Container Registry
-<<<<<<< HEAD
-        uses: docker/login-action@v1
-=======
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
->>>>>>> 94e09d41 (Change: Build container images for pull requests too)
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
