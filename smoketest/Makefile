@@ -2,7 +2,7 @@
 
 MAKEFILE_PATH := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 
-ALTERNATIVE_HOSTS := smoketest.localdomain smoke.localdomain and.localdomain mirrors.localdomain
+ALTERNATIVE_HOSTS := smoketest.localdomain smoke.localdomain and.localdomain mirrors.localdomain addhostname.localdomain
 
 ADD_HOST := $(addprefix --add-host ,$(addsuffix :127.0.0.1, ${ALTERNATIVE_HOSTS}))
 
