@@ -1017,7 +1017,7 @@ class OSPDopenvas(OSPDaemon):
         self,
         kbdb: BaseDB,
         scan_id: str,
-        ovas_process: psutil.Popen,  # pylint: disable=arguments-differ
+        ovas_pid: str,  # pylint: disable=arguments-differ
     ):
         """Set a key in redis to indicate the wrapper is stopped.
         It is done through redis because it is a new multiprocess
@@ -1031,8 +1031,17 @@ class OSPDopenvas(OSPDaemon):
             # Set stop flag in redis
             kbdb.stop_scan(scan_id)
 
+            try:
+                ovas_process = psutil.Process(int(ovas_pid))
+            except psutil.NoSuchProcess:
+                ovas_process = None
+
             # Check if openvas is running
-            if ovas_process.is_running():
+            if (
+                ovas_process
+                and ovas_process.is_running()
+                and ovas_process.name() == "openvas"
+            ):
                 # Cleaning in case of Zombie Process
                 if ovas_process.status() == psutil.STATUS_ZOMBIE:
                     logger.debug(
@@ -1066,7 +1075,7 @@ class OSPDopenvas(OSPDaemon):
                 logger.debug(
                     "%s: Process with PID %s already stopped",
                     scan_id,
-                    ovas_process.pid,
+                    ovas_pid,
                 )
 
             # Clean redis db
