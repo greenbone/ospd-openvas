@@ -4,6 +4,8 @@ on:
   push:
     branches: [ main, stable, oldstable ]
     tags: ["v*"]
+  pull_request:
+    branches: [ main, stable, oldstable ]
   workflow_dispatch:
 
 jobs:
@@ -18,14 +20,15 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: greenbone/ospd-openvas
+          images: ${{ github.repository }}
           labels: |
             org.opencontainers.image.vendor=Greenbone
-            org.opencontainers.image.base.name=debian/stable-slim
+            org.opencontainers.image.base.name=greenbone/openvas-scanner
           flavor: latest=false # no latest container tag for git tags
           tags: |
             # create container tag for git tags
             type=ref,event=tag
+            type=ref,event=pr
             # use latest for stable branch
             type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
             type=raw,value=stable,enable=${{ github.ref == format('refs/heads/{0}', 'stable') }}
@@ -33,6 +36,7 @@ jobs:
             # use unstable for main branch
             type=raw,value=unstable,enable={{is_default_branch}}
       - name: Login to GitHub Container Registry
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -45,7 +49,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           file: .docker/prod.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
