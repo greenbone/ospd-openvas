@@ -1171,7 +1171,7 @@ class OSPDopenvas(OSPDaemon):
         while kbdb.get_status(scan_id) == 'new':
             res = openvas_process.poll()
             if res and res < 0:
-                self.stop_scan_cleanup(kbdb, scan_id, openvas_process)
+                self.stop_scan_cleanup(kbdb, scan_id, openvas_process.pid)
                 logger.error(
                     'It was not possible run the task %s, since openvas ended '
                     'unexpectedly with errors during launching.',
@@ -1198,7 +1198,7 @@ class OSPDopenvas(OSPDaemon):
             if scan_stopped:
                 logger.debug('%s: Scan stopped by the client', scan_id)
 
-                self.stop_scan_cleanup(kbdb, scan_id, openvas_process)
+                self.stop_scan_cleanup(kbdb, scan_id, openvas_process.pid)
 
                 # clean main_db, but wait for scanner to finish.
                 while not kbdb.target_is_finished(scan_id):
