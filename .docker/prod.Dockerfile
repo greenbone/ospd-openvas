@@ -28,6 +28,8 @@ FROM greenbone/openvas-scanner:${VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PIP_NO_CACHE_DIR off
+
 COPY --from=tools /usr/local/src/bin/ospd-scans /usr/local/bin/
 COPY ./config/ospd-openvas.conf /etc/gvm/ospd-openvas.conf
 COPY .docker/entrypoint.sh /usr/local/bin/entrypoint
