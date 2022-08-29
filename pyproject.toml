@@ -52,7 +52,7 @@ lxml = "^4.5.2"
 defusedxml = ">=0.6,<0.8"
 deprecated = "^1.2.10"
 paho-mqtt = ">=1.5.1"
-python-gnupg = "^0.4.8"
+python-gnupg = ">=0.4.8,<0.6.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13.9"
