@@ -50,7 +50,8 @@ class NotusTestCase(TestCase):
         redis_mock = mock.MagicMock()
         redis_mock.scan_iter.return_value = ["internal/notus/advisories/12"]
         redis_mock.lindex.return_value = '{"file_name": "/tmp/something" }'
-        notus = Notus(path_mock, Cache(redis_mock), lambda _: True)
+        notus = Notus(path_mock, Cache(redis_mock))
+        notus._verifier = lambda _: True  # pylint: disable=protected-access
         oids = [x for x in notus.get_filenames_and_oids()]
         self.assertEqual(len(oids), 1)
 
@@ -69,13 +70,15 @@ class NotusTestCase(TestCase):
             ] 
         }'''
         redis_mock = mock.MagicMock()
-        load_into_redis = Notus(path_mock, Cache(redis_mock), lambda _: True)
+        load_into_redis = Notus(path_mock, Cache(redis_mock))
+        # pylint: disable=protected-access
+        load_into_redis._verifier = lambda _: True
         load_into_redis.reload_cache()
         self.assertEqual(redis_mock.lpush.call_count, 1)
         redis_mock.reset_mock()
-        do_not_load_into_redis = Notus(
-            path_mock, Cache(redis_mock), lambda _: False
-        )
+        do_not_load_into_redis = Notus(path_mock, Cache(redis_mock))
+        # pylint: disable=protected-access
+        do_not_load_into_redis._verifier = lambda _: False
         do_not_load_into_redis.reload_cache()
         self.assertEqual(redis_mock.lpush.call_count, 0)
 
@@ -102,7 +105,8 @@ class NotusTestCase(TestCase):
             ] 
         }'''
         cache_fake = CacheFake()
-        notus = Notus(path_mock, cache_fake, lambda _: True)
+        notus = Notus(path_mock, cache_fake)
+        notus._verifier = lambda _: True  # pylint: disable=protected-access
         notus.reload_cache()
         nm = notus.get_nvt_metadata("12")
         assert nm

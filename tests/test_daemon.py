@@ -36,10 +36,9 @@ from tests.helper import assert_called_once
 from ospd_openvas.daemon import (
     OSPD_PARAMS,
     OpenVasVtsFilter,
-    hashsum_verificator,
 )
 from ospd_openvas.openvas import Openvas
-from ospd_openvas.notus import Notus
+from ospd_openvas.notus import Notus, hashsum_verificator
 
 OSPD_PARAMS_OUT = {
     'auto_enable_dependencies': {

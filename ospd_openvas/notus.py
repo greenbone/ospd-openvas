@@ -28,7 +28,35 @@ from redis import Redis
 from ospd.parser import CliParser
 from ospd_openvas.messages.result import ResultMessage
 
+from ospd_openvas.gpg_sha_verifier import (
+    ReloadConfiguration,
+    create_verify,
+    reload_sha256sums,
+)
+
 logger = logging.getLogger(__name__)
+
+
+def hashsum_verificator(
+    advisories_directory_path: Path, disable: bool
+) -> Callable[[Path], bool]:
+    if disable:
+        logger.info("hashsum verification is disabled")
+        return lambda _: True
+
+    def on_hash_sum_verification_failure(
+        _: Optional[Dict[str, str]]
+    ) -> Dict[str, str]:
+        raise Exception("GPG verification of notus sha256sums failed")
+
+    sha_sum_file_path = advisories_directory_path / "sha256sums"
+    sha_sum_reload_config = ReloadConfiguration(
+        hash_file=sha_sum_file_path,
+        on_verification_failure=on_hash_sum_verification_failure,
+    )
+
+    sums = reload_sha256sums(sha_sum_reload_config)
+    return create_verify(sums)
 
 
 class Cache:
@@ -60,17 +88,19 @@ class Notus:
     loaded: bool = False
     loading: bool = False
     path: Path
-    _verifier: Callable[[Path], bool]
+    disable_hashsum_verification: bool
+    _verifier: Optional[Callable[[Path], bool]]
 
     def __init__(
         self,
         path: Path,
         cache: Cache,
-        verifier: Callable[[Path], bool],
+        disable_hashsum_verification: bool = False,
     ):
         self.path = path
         self.cache = cache
-        self._verifier = verifier
+        self._verifier = None
+        self.disable_hashsum_verification = disable_hashsum_verification
 
     def reload_cache(self):
         if self.loading:
@@ -81,16 +111,21 @@ class Notus:
         self.loading = True
         self.loaded = False
         for f in self.path.glob('*.notus'):
-            if self._verifier(f):
-                data = json.loads(f.read_bytes())
-                advisories = data.pop("advisories", [])
-                for advisory in advisories:
-                    res = self.__to_ospd(f, advisory, data)
-                    self.cache.store_advisory(advisory["oid"], res)
-            else:
-                logger.log(
-                    logging.WARN, "ignoring %s due to invalid signature", f
+            if not self._verifier:
+                self._verifier = hashsum_verificator(
+                    self.path, self.disable_hashsum_verification
                 )
+            if self._verifier:
+                if self._verifier(f):
+                    data = json.loads(f.read_bytes())
+                    advisories = data.pop("advisories", [])
+                    for advisory in advisories:
+                        res = self.__to_ospd(f, advisory, data)
+                        self.cache.store_advisory(advisory["oid"], res)
+                else:
+                    logger.log(
+                        logging.WARN, "ignoring %s due to invalid signature", f
+                    )
         self.loading = False
         self.loaded = True
 

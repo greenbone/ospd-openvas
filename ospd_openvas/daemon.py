@@ -25,7 +25,7 @@ import logging
 import time
 import copy
 
-from typing import Callable, Optional, Dict, List, Tuple, Iterator, Any
+from typing import Optional, Dict, List, Tuple, Iterator, Any
 from datetime import datetime
 
 from pathlib import Path
@@ -54,12 +54,6 @@ from ospd_openvas.openvas import Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
 from ospd_openvas.feed import Feed
-
-from ospd_openvas.gpg_sha_verifier import (
-    ReloadConfiguration,
-    create_verify,
-    reload_sha256sums,
-)
 
 SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
@@ -439,28 +433,6 @@ class OpenVasVtsFilter(VtsFilter):
         return vt_oid_list
 
 
-def hashsum_verificator(
-    advisories_directory_path: Path, disable: bool
-) -> Callable[[Path], bool]:
-    if disable:
-        logger.info("hashsum verification is disabled")
-        return lambda _: True
-
-    def on_hash_sum_verification_failure(
-        _: Optional[Dict[str, str]]
-    ) -> Dict[str, str]:
-        raise Exception("GPG verification of notus sha256sums failed")
-
-    sha_sum_file_path = advisories_directory_path / "sha256sums"
-    sha_sum_reload_config = ReloadConfiguration(
-        hash_file=sha_sum_file_path,
-        on_verification_failure=on_hash_sum_verification_failure,
-    )
-
-    sums = reload_sha256sums(sha_sum_reload_config)
-    return create_verify(sums)
-
-
 class OSPDopenvas(OSPDaemon):
 
     """Class for ospd-openvas daemon."""
@@ -482,11 +454,11 @@ class OSPDopenvas(OSPDaemon):
         notus = None
         if notus_dir:
             ndir = Path(notus_dir)
-            verifier = hashsum_verificator(
-                ndir, disable_notus_hashsum_verification
+            notus = Notus(
+                ndir,
+                Cache(self.main_db.ctx),
+                disable_notus_hashsum_verification,
             )
-
-            notus = Notus(ndir, Cache(self.main_db.ctx), verifier)
 
         self.nvti = NVTICache(
             self.main_db,
