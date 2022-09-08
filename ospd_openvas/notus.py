@@ -47,7 +47,11 @@ def hashsum_verificator(
     def on_hash_sum_verification_failure(
         _: Optional[Dict[str, str]]
     ) -> Dict[str, str]:
-        raise Exception("GPG verification of notus sha256sums failed")
+        logger.warning(
+            "GPG verification of notus sha256sums failed."
+            " Notus advisories are not loaded."
+        )
+        return {}
 
     sha_sum_file_path = advisories_directory_path / "sha256sums"
     sha_sum_reload_config = ReloadConfiguration(
