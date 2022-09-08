@@ -1,12 +1,27 @@
 import hashlib
 import os
+import logging
 from pathlib import Path
 from typing import Callable, Dict, Optional
 
 from dataclasses import dataclass
 from gnupg import GPG
 
+logger = logging.getLogger(__name__)
 OPENVAS_GPG_HOME = "/etc/openvas/gnupg"
+
+
+def __determine_default_gpg_home() -> Path:
+    gos_default = Path(OPENVAS_GPG_HOME)
+    if gos_default.exists():
+        return gos_default
+    user_default = Path.home() / ".gnupg"
+    if not user_default.exists():
+        logger.warning(
+            "No GnuPG home found; "
+            "please verify setup and set the GNUPGHOME variable if necessary"
+        )
+    return user_default
 
 
 def __default_gpg_home() -> GPG:
@@ -15,7 +30,8 @@ def __default_gpg_home() -> GPG:
     """
     manual = os.getenv("GNUPGHOME")
 
-    home = Path(manual) if manual else Path(OPENVAS_GPG_HOME)
+    home = Path(manual) if manual else __determine_default_gpg_home()
+    logger.debug("Using %s as GnuPG home.", home)
     return GPG(gnupghome=f"{home.absolute()}")
 
 
