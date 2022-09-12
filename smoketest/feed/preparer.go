@@ -151,7 +151,7 @@ func (p *preparer) copyPlugin(n *nasl.Plugin) error {
 	}
 	for _, sdp := range n.ScriptDependencies {
 		if sd := p.naslCache.ByPath(sdp); sd != nil {
-			if err := cp(sd); err != nil {
+			if err := p.copyPlugin(sd); err != nil {
 				return err
 			}
 		} else {
