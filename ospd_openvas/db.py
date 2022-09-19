@@ -318,6 +318,8 @@ class OpenvasDB:
 
         if lpush:
             ctx.lpush(name, *set(values))
+            return
+
         ctx.rpush(name, *set(values))
 
     @staticmethod
