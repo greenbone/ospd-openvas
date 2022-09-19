@@ -36,6 +36,8 @@ from ospd_openvas.gpg_sha_verifier import (
 
 logger = logging.getLogger(__name__)
 
+NOTUS_CACHE_NAME = "notuscache"
+
 
 def hashsum_verificator(
     advisories_directory_path: Path, disable: bool
