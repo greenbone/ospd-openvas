@@ -23,8 +23,6 @@ from threading import Timer
 import json
 import logging
 
-from redis import Redis
-
 from ospd.parser import CliParser
 from ospd_openvas.messages.result import ResultMessage
 from ospd_openvas.db import OpenvasDB, BaseDB, MainDB
