@@ -27,7 +27,7 @@ from redis import Redis
 
 from ospd.parser import CliParser
 from ospd_openvas.messages.result import ResultMessage
-
+from ospd_openvas.db import OpenvasDB, BaseDB, MainDB
 from ospd_openvas.gpg_sha_verifier import (
     ReloadConfiguration,
     create_verify,
@@ -64,8 +64,22 @@ def hashsum_verificator(
 
 
 class Cache:
-    def __init__(self, db: Redis, prefix: str = "internal/notus/advisories"):
-        self.db = db
+    def __init__(
+        self, main_db: MainDB, prefix: str = "internal/notus/advisories"
+    ):
+
+        self._main_db = main_db
+        # Check if it was previously uploaded
+        self.ctx, _ = OpenvasDB.find_database_by_pattern(
+            NOTUS_CACHE_NAME, self._main_db.max_database_index
+        )
+        # Get a new namespace for the Notus Cache
+        if not self.ctx:
+            new_db = self._main_db.get_new_kb_database()
+            self.ctx = new_db.ctx
+            OpenvasDB.add_single_item(
+                self.ctx, NOTUS_CACHE_NAME, set([1]), lpush=True
+            )
         self.__prefix = prefix
 
     def store_advisory(self, oid: str, value: Dict[str, str]):
