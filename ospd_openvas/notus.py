@@ -85,20 +85,24 @@ class Cache:
         self.__prefix = prefix
 
     def store_advisory(self, oid: str, value: Dict[str, str]):
-        return self.db.lpush(f"{self.__prefix}/{oid}", json.dumps(value))
+        return OpenvasDB.add_single_item(
+            self.ctx, f"{self.__prefix}/{oid}", [json.dumps(value)], lpush=True
+        )
 
     def exists(self, oid: str) -> bool:
-        return self.db.exists(f"{self.__prefix}/{oid}") == 1
+        return OpenvasDB.exists(self.ctx, f"{self.__prefix}/{oid}")
 
     def get_advisory(self, oid: str) -> Optional[Dict[str, str]]:
-        result = self.db.lindex(f"{self.__prefix}/{oid}", 0)
+        result = OpenvasDB.get_single_item(self.ctx, f"{self.__prefix}/{oid}")
+
         if result:
             return json.loads(result)
         return None
 
-    def get_keys(self) -> Iterator[str]:
-        for key in self.db.scan_iter(f"{self.__prefix}*"):
-            yield str(key).rsplit('/', maxsplit=1)[-1]
+    def get_filenames_and_oids(self):
+        return OpenvasDB.get_filenames_and_oids(
+            self.ctx, pattern=f"{self.__prefix}*"
+        )
 
 
 class Notus:
@@ -196,10 +200,8 @@ class Notus:
     def get_filenames_and_oids(self):
         if not self.loaded:
             self.reload_cache()
-        for key in self.cache.get_keys():
-            adv = self.cache.get_advisory(key)
-            if adv:
-                yield (adv.get("filename", ""), key)
+
+        return self.cache.get_filenames_and_oids()
 
     def exists(self, oid: str) -> bool:
         return self.cache.exists(oid)

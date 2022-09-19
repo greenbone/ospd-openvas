@@ -297,7 +297,9 @@ class OpenvasDB:
         pipe.execute()
 
     @staticmethod
-    def add_single_item(ctx: RedisCtx, name: str, values: Iterable):
+    def add_single_item(
+        ctx: RedisCtx, name: str, values: Iterable, lpush: bool = False
+    ):
         """Add a single KB element with one or more values. Don't add
         duplicated values during this operation, but if the the same
         values already exists under the key, this will not be overwritten.
@@ -314,6 +316,8 @@ class OpenvasDB:
         if not values:
             raise RequiredArgument('add_single_item', 'value')
 
+        if lpush:
+            ctx.lpush(name, *set(values))
         ctx.rpush(name, *set(values))
 
     @staticmethod
@@ -385,8 +389,7 @@ class OpenvasDB:
 
     @classmethod
     def get_filenames_and_oids(
-        cls,
-        ctx: RedisCtx,
+        cls, ctx: RedisCtx, pattern: str = 'nvt:*'
     ) -> Iterable[Tuple[str, str]]:
         """Get all items with index 'index', stored under
         a given pattern.
@@ -397,12 +400,37 @@ class OpenvasDB:
         Return an iterable where each single tuple contains the filename
             as first element and the oid as the second one.
         """
+
+        def parse_oid(item: str, pattern: str):
+            """Returns the OID depending on the key pattern"""
+
+            if pattern == 'nvt:*':
+                return item[4:]
+            return str(item).rsplit('/', maxsplit=1)[-1]
+
         if not ctx:
             raise RequiredArgument('get_filenames_and_oids', 'ctx')
 
-        items = cls.get_keys_by_pattern(ctx, 'nvt:*')
+        items = cls.get_keys_by_pattern(ctx, pattern)
 
-        return ((ctx.lindex(item, 0), item[4:]) for item in items)
+        return (
+            (ctx.lindex(item, 0), parse_oid(item, pattern)) for item in items
+        )
+
+    @staticmethod
+    def exists(ctx: RedisCtx, key: str) -> bool:
+        """Check that the given key exists in the given context.
+
+        Arguments:
+            ctx: Redis context to use.
+            patternkey: key to check.
+
+        Return a True if exists, False otherwise.
+        """
+        if not ctx:
+            raise RequiredArgument('exists', 'ctx')
+
+        return ctx.exists(key) == 1
 
 
 class BaseDB:
