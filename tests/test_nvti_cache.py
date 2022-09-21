@@ -302,11 +302,6 @@ class TestNVTICache(TestCase):
         self.assertEqual(self.nvti.get_nvt_count(), 20)
         MockOpenvasDB.get_key_count.assert_called_with('foo', 'nvt:*')
 
-    def test_force_reload(self, _MockOpenvasDB):
-        self.nvti.force_reload()
-
-        self.db.release_database.assert_called_with(self.nvti)
-
     def test_flush(self, _MockOpenvasDB):
         self.nvti._ctx = Mock()
 

@@ -295,11 +295,6 @@ class NVTICache(BaseDB):
     def get_nvt_count(self) -> int:
         return OpenvasDB.get_key_count(self.ctx, "nvt:*")
 
-    def force_reload(self):
-        if self.notus:
-            self.notus.reload_cache()
-        self._main_db.release_database(self)
-
     def add_vt_to_cache(self, vt_id: str, vt: List[str]):
         if not vt_id:
             raise RequiredArgument('add_vt_to_cache', 'vt_id')
