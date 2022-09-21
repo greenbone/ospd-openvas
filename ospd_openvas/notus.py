@@ -18,14 +18,14 @@
 
 from pathlib import Path
 from time import sleep
-from typing import Any, Dict, Iterator, Optional, Callable
+from typing import Any, Dict, Optional, Callable
 from threading import Timer
 import json
 import logging
 
 from ospd.parser import CliParser
 from ospd_openvas.messages.result import ResultMessage
-from ospd_openvas.db import OpenvasDB, BaseDB, MainDB
+from ospd_openvas.db import OpenvasDB, MainDB
 from ospd_openvas.gpg_sha_verifier import (
     ReloadConfiguration,
     create_verify,
