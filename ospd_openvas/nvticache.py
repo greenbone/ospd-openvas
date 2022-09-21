@@ -92,13 +92,15 @@ class NVTICache(BaseDB):
         Returns:
             An iterable of tuples of file name and oid.
         """
-        if self.notus:
-            for f, oid in self.notus.get_filenames_and_oids():
-                yield (f, oid)
+
+        def parse_oid(item):
+            return item[4:]
+
         if self.ctx:
-            for f, oid in OpenvasDB.get_filenames_and_oids(self.ctx):
-                if not self.notus or not self.notus.exists(oid):
-                    yield (f, oid)
+            for f, oid in OpenvasDB.get_filenames_and_oids(
+                self.ctx, 'nvt:*', parse_oid
+            ):
+                yield (f, oid)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
         """Get NVT's preferences.
