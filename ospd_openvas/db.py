@@ -22,7 +22,7 @@ import logging
 import sys
 import time
 
-from typing import List, NewType, Optional, Iterable, Iterator, Tuple
+from typing import List, NewType, Optional, Iterable, Iterator, Tuple, Callable
 from urllib import parse
 
 import redis
@@ -391,7 +391,7 @@ class OpenvasDB:
 
     @classmethod
     def get_filenames_and_oids(
-        cls, ctx: RedisCtx, pattern: str, parser: Callable[str]
+        cls, ctx: RedisCtx, pattern: str, parser: Callable[[str], str]
     ) -> Iterable[Tuple[str, str]]:
         """Get all items with index 'index', stored under
         a given pattern.

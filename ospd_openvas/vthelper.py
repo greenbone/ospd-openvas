@@ -26,19 +26,20 @@ from itertools import chain
 
 from ospd.cvss import CVSS
 from ospd_openvas.nvticache import NVTICache
+from ospd_openvas.notus import Notus
 
 logger = logging.getLogger(__name__)
 
 
 class VtHelper:
-    def __init__(self, nvticache: NVTICache):
+    def __init__(self, nvticache: NVTICache, notus: Notus):
         self.nvti = nvticache
-        self.notus = self.nvti.notus
+        self.notus = notus
 
     def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, Any]]:
         nr = None
-        if self.nvti.notus:
-            nr = self.nvti.notus.get_nvt_metadata(vt_id)
+        if self.notus:
+            nr = self.notus.get_nvt_metadata(vt_id)
 
         if nr:
             custom = nr

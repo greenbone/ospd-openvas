@@ -97,6 +97,7 @@ class PreferenceHandler:
         kbdb: KbDB,
         scan_collection: ScanCollection,
         nvticache: NVTICache,
+        notus: Notus = None,
         is_handled_by_notus: Optional[Callable[[str], bool]] = None,
     ):
         self.scan_id = scan_id
@@ -107,10 +108,11 @@ class PreferenceHandler:
         self._nvts_params = None
 
         self.nvti = nvticache
+        self.notus = notus
         if is_handled_by_notus:
             self.is_handled_by_notus = is_handled_by_notus
-        elif not is_handled_by_notus and nvticache and nvticache.notus:
-            self.is_handled_by_notus = nvticache.notus.exists
+        elif not is_handled_by_notus and self.notus:
+            self.is_handled_by_notus = self.notus.exists
         else:
             self.is_handled_by_notus = lambda _: False
         self.errors = []

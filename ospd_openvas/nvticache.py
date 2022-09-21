@@ -28,7 +28,6 @@ from time import time
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
-from ospd_openvas.notus import Notus
 
 NVTI_CACHE_NAME = "nvticache"
 
@@ -59,12 +58,11 @@ class NVTICache(BaseDB):
     }
 
     def __init__(  # pylint: disable=super-init-not-called
-        self, main_db: MainDB, notus: Optional[Notus] = None
+        self, main_db: MainDB
     ):
         self._ctx = None
         self.index = None
         self._main_db = main_db
-        self.notus = notus
 
     @property
     def ctx(self) -> Optional[RedisCtx]:

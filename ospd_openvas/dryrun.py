@@ -73,7 +73,7 @@ class DryRun:
         vts = list(self._daemon.scan_collection.get_vts(scan_id))
         if "vt_groups" in vts:
             vts.remove("vt_groups")
-        vthelper = VtHelper(nvti)
+        vthelper = VtHelper(nvti, None)
 
         # Run the scan.
         # Scan simulation for each single host.
