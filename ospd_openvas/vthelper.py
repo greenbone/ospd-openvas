@@ -22,6 +22,7 @@
 from hashlib import sha256
 import logging
 from typing import Any, Optional, Dict, List, Tuple, Iterator
+from itertools import chain
 
 from ospd.cvss import CVSS
 from ospd_openvas.nvticache import NVTICache
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 class VtHelper:
     def __init__(self, nvticache: NVTICache):
         self.nvti = nvticache
+        self.notus = self.nvti.notus
 
     def get_single_vt(self, vt_id: str, oids=None) -> Optional[Dict[str, Any]]:
         nr = None
@@ -184,7 +186,8 @@ class VtHelper:
         if not vt_selection or details:
             # notus contains multiple oids per advisory therefore unlike
             # nasl they share the filename
-            vt_collection = self.nvti.get_oids()
+            # The vt collection is taken from both Caches
+            vt_collection = chain(self.notus.get_oids(), self.nvti.get_oids())
 
             if not vt_selection:
                 vt_selection = [v for _, v in vt_collection]
