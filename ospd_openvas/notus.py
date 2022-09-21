@@ -18,7 +18,7 @@
 
 from pathlib import Path
 from time import sleep
-from typing import Any, Dict, Optional, Callable
+from typing import Any, Dict, Iterator, Optional, Callable, Tuple
 from threading import Timer
 import json
 import logging
@@ -97,10 +97,20 @@ class Cache:
             return json.loads(result)
         return None
 
-    def get_filenames_and_oids(self):
-        return OpenvasDB.get_filenames_and_oids(
-            self.ctx, pattern=f"{self.__prefix}*"
-        )
+    def get_oids(self) -> Iterator[Tuple[str, str]]:
+        """Get the list of NVT file names and OIDs.
+
+        Returns:
+            An iterable of tuples of file name and oid.
+        """
+
+        def parse_oid(item):
+            return str(item).rsplit('/', maxsplit=1)[-1]
+
+        for f, oid in OpenvasDB.get_filenames_and_oids(
+            self.ctx, f"{self.__prefix}*", parse_oid
+        ):
+            yield (f, oid)
 
 
 class Notus:
@@ -195,11 +205,11 @@ class Notus:
         result["category"] = "3"
         return result
 
-    def get_filenames_and_oids(self):
+    def get_oids(self):
         if not self.loaded:
             self.reload_cache()
 
-        return self.cache.get_filenames_and_oids()
+        return self.cache.get_oids()
 
     def exists(self, oid: str) -> bool:
         return self.cache.exists(oid)
