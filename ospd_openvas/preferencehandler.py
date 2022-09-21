@@ -154,6 +154,8 @@ class PreferenceHandler:
         vts_list = list()
         families = dict()
 
+        # Only get vts from NVTICache. Does not include Notus advisories,
+        # since they are handled by Notus.
         oids = self.nvti.get_oids()
 
         for _, oid in oids:
@@ -228,6 +230,9 @@ class PreferenceHandler:
 
         vthelper = VtHelper(self.nvti)
 
+        # This get vt groups which are not Notus Family.
+        # Since Notus advisories are handled by notus, they
+        # are not sent to Openvas-scanner
         if vtgroups:
             vts_list = self._get_vts_in_groups(vtgroups)
 
@@ -241,7 +246,7 @@ class PreferenceHandler:
                 ):
                     break
 
-            # remove oids handled by notus
+            # Remove oids handled by notus
             if self.is_handled_by_notus(vtid):
                 logger.debug('The VT %s is handled by notus. Ignoring.', vtid)
                 continue
