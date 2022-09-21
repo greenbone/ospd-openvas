@@ -158,6 +158,9 @@ class PreferenceHandler:
         # since they are handled by Notus.
         oids = self.nvti.get_oids()
 
+        # Same here. Only check for families in NVT Cache.
+        # If necessary, consider to call get_advisory_famaly from
+        # Notus class
         for _, oid in oids:
             family = self.nvti.get_nvt_family(oid)
             if family not in families:

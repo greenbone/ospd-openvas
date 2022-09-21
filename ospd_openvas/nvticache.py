@@ -246,10 +246,6 @@ class NVTICache(BaseDB):
         Returns:
             A str with the VT family.
         """
-        notus_entry = self.notus.get_nvt_metadata(oid) if self.notus else None
-        if notus_entry:
-            return notus_entry.get("family")
-
         return OpenvasDB.get_single_item(
             self.ctx,
             f"nvt:{oid}",
