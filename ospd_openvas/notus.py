@@ -83,8 +83,8 @@ class Cache:
         self.__prefix = prefix
 
     def store_advisory(self, oid: str, value: Dict[str, str]):
-        return OpenvasDB.add_single_item(
-            self.ctx, f"{self.__prefix}/{oid}", [json.dumps(value)], lpush=True
+        return OpenvasDB.set_single_item(
+            self.ctx, f"{self.__prefix}/{oid}", [json.dumps(value)]
         )
 
     def exists(self, oid: str) -> bool:
