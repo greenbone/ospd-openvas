@@ -18,16 +18,14 @@
 
 from pathlib import Path
 from time import sleep
-from typing import Any, Dict, Iterator, Optional, Callable
+from typing import Any, Dict, Optional, Callable
 from threading import Timer
 import json
 import logging
 
-from redis import Redis
-
 from ospd.parser import CliParser
 from ospd_openvas.messages.result import ResultMessage
-
+from ospd_openvas.db import OpenvasDB, MainDB
 from ospd_openvas.gpg_sha_verifier import (
     ReloadConfiguration,
     create_verify,
@@ -35,6 +33,8 @@ from ospd_openvas.gpg_sha_verifier import (
 )
 
 logger = logging.getLogger(__name__)
+
+NOTUS_CACHE_NAME = "notuscache"
 
 
 def hashsum_verificator(
@@ -64,25 +64,43 @@ def hashsum_verificator(
 
 
 class Cache:
-    def __init__(self, db: Redis, prefix: str = "internal/notus/advisories"):
-        self.db = db
+    def __init__(
+        self, main_db: MainDB, prefix: str = "internal/notus/advisories"
+    ):
+
+        self._main_db = main_db
+        # Check if it was previously uploaded
+        self.ctx, _ = OpenvasDB.find_database_by_pattern(
+            NOTUS_CACHE_NAME, self._main_db.max_database_index
+        )
+        # Get a new namespace for the Notus Cache
+        if not self.ctx:
+            new_db = self._main_db.get_new_kb_database()
+            self.ctx = new_db.ctx
+            OpenvasDB.add_single_item(
+                self.ctx, NOTUS_CACHE_NAME, set([1]), lpush=True
+            )
         self.__prefix = prefix
 
     def store_advisory(self, oid: str, value: Dict[str, str]):
-        return self.db.lpush(f"{self.__prefix}/{oid}", json.dumps(value))
+        return OpenvasDB.add_single_item(
+            self.ctx, f"{self.__prefix}/{oid}", [json.dumps(value)], lpush=True
+        )
 
     def exists(self, oid: str) -> bool:
-        return self.db.exists(f"{self.__prefix}/{oid}") == 1
+        return OpenvasDB.exists(self.ctx, f"{self.__prefix}/{oid}")
 
     def get_advisory(self, oid: str) -> Optional[Dict[str, str]]:
-        result = self.db.lindex(f"{self.__prefix}/{oid}", 0)
+        result = OpenvasDB.get_single_item(self.ctx, f"{self.__prefix}/{oid}")
+
         if result:
             return json.loads(result)
         return None
 
-    def get_keys(self) -> Iterator[str]:
-        for key in self.db.scan_iter(f"{self.__prefix}*"):
-            yield str(key).rsplit('/', maxsplit=1)[-1]
+    def get_filenames_and_oids(self):
+        return OpenvasDB.get_filenames_and_oids(
+            self.ctx, pattern=f"{self.__prefix}*"
+        )
 
 
 class Notus:
@@ -180,10 +198,8 @@ class Notus:
     def get_filenames_and_oids(self):
         if not self.loaded:
             self.reload_cache()
-        for key in self.cache.get_keys():
-            adv = self.cache.get_advisory(key)
-            if adv:
-                yield (adv.get("filename", ""), key)
+
+        return self.cache.get_filenames_and_oids()
 
     def exists(self, oid: str) -> bool:
         return self.cache.exists(oid)
