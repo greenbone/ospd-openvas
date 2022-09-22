@@ -90,13 +90,13 @@ class NotusTestCase(TestCase):
         # pylint: disable=protected-access
         load_into_redis._verifier = lambda _: True
         load_into_redis.reload_cache()
-        self.assertEqual(mock_openvasdb.add_single_item.call_count, 1)
+        self.assertEqual(mock_openvasdb.set_single_item.call_count, 1)
         mock_openvasdb.reset_mock()
         do_not_load_into_redis = Notus(path_mock, Cache(redis_mock))
         # pylint: disable=protected-access
         do_not_load_into_redis._verifier = lambda _: False
         do_not_load_into_redis.reload_cache()
-        self.assertEqual(mock_openvasdb.add_single_item.call_count, 0)
+        self.assertEqual(mock_openvasdb.set_single_item.call_count, 0)
 
     def test_notus_cvss_v2_v3_none(self):
         path_mock = mock.MagicMock()
