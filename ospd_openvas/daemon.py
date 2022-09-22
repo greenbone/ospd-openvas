@@ -456,7 +456,7 @@ class OSPDopenvas(OSPDaemon):
             ndir = Path(notus_dir)
             notus = Notus(
                 ndir,
-                Cache(self.main_db.ctx),
+                Cache(self.main_db),
                 disable_notus_hashsum_verification,
             )
 

@@ -29,6 +29,7 @@ class CacheFake(Cache):
     # pylint: disable=super-init-not-called
     def __init__(self):
         self.db = {}
+        self.ctx = 'foo'
 
     def store_advisory(self, oid: str, value: Dict[str, str]):
         self.db[oid] = value
@@ -40,22 +41,35 @@ class CacheFake(Cache):
         return self.db.get(oid, None)
 
     def get_keys(self) -> Iterator[str]:
-        for key in self.db.keys():
+        for key, _ in self.db:
             yield key
 
 
 class NotusTestCase(TestCase):
-    def test_notus_retrieve(self):
+    @mock.patch('ospd_openvas.notus.OpenvasDB')
+    def test_notus_retrieve(self, mock_openvasdb):
         path_mock = mock.MagicMock()
         redis_mock = mock.MagicMock()
-        redis_mock.scan_iter.return_value = ["internal/notus/advisories/12"]
-        redis_mock.lindex.return_value = '{"file_name": "/tmp/something" }'
+        mock_openvasdb.find_database_by_pattern.return_value = ('foo', 1)
+        mock_openvasdb.get_filenames_and_oids.return_value = [
+            ('filename', '1.2.3')
+        ]
         notus = Notus(path_mock, Cache(redis_mock))
         notus._verifier = lambda _: True  # pylint: disable=protected-access
         oids = [x for x in notus.get_filenames_and_oids()]
         self.assertEqual(len(oids), 1)
 
-    def test_notus_reload(self):
+    @mock.patch('ospd_openvas.notus.OpenvasDB')
+    def test_notus_init(self, mock_openvasdb):
+        mock_openvasdb.find_database_by_pattern.return_value = ('foo', 1)
+        redis_mock = mock.MagicMock()
+        path_mock = mock.MagicMock()
+        notus = Notus(path_mock, Cache(redis_mock))
+        self.assertEqual(mock_openvasdb.find_database_by_pattern.call_count, 1)
+        self.assertEqual(notus.cache.ctx, 'foo')
+
+    @mock.patch('ospd_openvas.notus.OpenvasDB')
+    def test_notus_reload(self, mock_openvasdb):
         path_mock = mock.MagicMock()
         adv_path = mock.MagicMock()
         adv_path.name = "hi"
@@ -69,18 +83,20 @@ class NotusTestCase(TestCase):
                 { "oid": "12", "file_name": "aha.txt" } 
             ] 
         }'''
+
         redis_mock = mock.MagicMock()
+        mock_openvasdb.find_database_by_pattern.return_value = ('foo', 1)
         load_into_redis = Notus(path_mock, Cache(redis_mock))
         # pylint: disable=protected-access
         load_into_redis._verifier = lambda _: True
         load_into_redis.reload_cache()
-        self.assertEqual(redis_mock.lpush.call_count, 1)
-        redis_mock.reset_mock()
+        self.assertEqual(mock_openvasdb.add_single_item.call_count, 1)
+        mock_openvasdb.reset_mock()
         do_not_load_into_redis = Notus(path_mock, Cache(redis_mock))
         # pylint: disable=protected-access
         do_not_load_into_redis._verifier = lambda _: False
         do_not_load_into_redis.reload_cache()
-        self.assertEqual(redis_mock.lpush.call_count, 0)
+        self.assertEqual(mock_openvasdb.add_single_item.call_count, 0)
 
     def test_notus_cvss_v2_v3_none(self):
         path_mock = mock.MagicMock()
