@@ -97,8 +97,7 @@ class PreferenceHandler:
         kbdb: KbDB,
         scan_collection: ScanCollection,
         nvticache: NVTICache,
-        notus: Notus = None,
-        is_handled_by_notus: Optional[Callable[[str], bool]] = None,
+        is_handled_by_notus: Callable[[str], bool],
     ):
         self.scan_id = scan_id
         self.kbdb = kbdb
@@ -108,11 +107,8 @@ class PreferenceHandler:
         self._nvts_params = None
 
         self.nvti = nvticache
-        self.notus = notus
         if is_handled_by_notus:
             self.is_handled_by_notus = is_handled_by_notus
-        elif not is_handled_by_notus and self.notus:
-            self.is_handled_by_notus = self.notus.exists
         else:
             self.is_handled_by_notus = lambda _: False
         self.errors = []
@@ -233,7 +229,7 @@ class PreferenceHandler:
         vts_params = {}
         vtgroups = vts.pop('vt_groups')
 
-        vthelper = VtHelper(self.nvti)
+        vthelper = VtHelper(self.nvti, None)
 
         # This get vt groups which are not Notus Family.
         # Since Notus advisories are handled by notus, they

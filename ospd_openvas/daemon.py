@@ -1088,7 +1088,7 @@ class OSPDopenvas(OSPDaemon):
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
-            scan_id, kbdb, self.scan_collection, self.nvti
+            scan_id, kbdb, self.scan_collection, self.nvti, self.notus.exists
         )
         kbdb.add_scan_id(scan_id)
         scan_prefs.prepare_target_for_openvas()
