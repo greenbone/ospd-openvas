@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class VtHelper:
-    def __init__(self, nvticache: NVTICache, notus: Notus):
+    def __init__(self, nvticache: NVTICache, notus: Optional[Notus] = None):
         self.nvti = nvticache
         self.notus = notus
 
@@ -188,7 +188,12 @@ class VtHelper:
             # notus contains multiple oids per advisory therefore unlike
             # nasl they share the filename
             # The vt collection is taken from both Caches
-            vt_collection = chain(self.notus.get_oids(), self.nvti.get_oids())
+            if self.notus:
+                vt_collection = chain(
+                    self.notus.get_oids(), self.nvti.get_oids()
+                )
+            else:
+                vt_collection = self.nvti.get_oids()
 
             if not vt_selection:
                 vt_selection = [v for _, v in vt_collection]
