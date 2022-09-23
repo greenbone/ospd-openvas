@@ -37,7 +37,7 @@ class TestNVTICache(TestCase):
     @patch('ospd_openvas.db.MainDB')
     def setUp(self, MockMainDB):  # pylint: disable=arguments-differ
         self.db = MockMainDB()
-        self.nvti = NVTICache(self.db, None)
+        self.nvti = NVTICache(self.db)
         self.nvti._ctx = 'foo'
 
     def test_set_index(self, MockOpenvasDB):

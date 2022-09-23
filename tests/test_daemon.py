@@ -355,9 +355,9 @@ class TestOspdOpenvas(TestCase):
 
     def test_update_vts(self):
         daemon = DummyDaemon()
-        daemon.nvti.notus = MagicMock(spec=Notus)
+        daemon.notus = MagicMock(spec=Notus)
         daemon.update_vts()
-        self.assertEqual(daemon.nvti.notus.reload_cache.call_count, 1)
+        self.assertEqual(daemon.notus.reload_cache.call_count, 1)
 
     @patch('ospd_openvas.daemon.Path.exists')
     @patch('ospd_openvas.daemon.Path.open')
@@ -652,7 +652,7 @@ class TestOspdOpenvas(TestCase):
 
 class TestFilters(TestCase):
     def test_format_vt_modification_time(self):
-        ovformat = OpenVasVtsFilter(None)
+        ovformat = OpenVasVtsFilter(None, None)
         td = '1517443741'
         formatted = ovformat.format_vt_modification_time(td)
         self.assertEqual(formatted, "20180201000901")
@@ -661,7 +661,7 @@ class TestFilters(TestCase):
         w = DummyDaemon()
         vts_collection = ['1234', '1.3.6.1.4.1.25623.1.0.100061']
 
-        ovfilter = OpenVasVtsFilter(w.nvti)
+        ovfilter = OpenVasVtsFilter(w.nvti, None)
         res = ovfilter.get_filtered_vts_list(
             vts_collection, "modification_time<10"
         )
@@ -671,7 +671,7 @@ class TestFilters(TestCase):
         w = DummyDaemon()
         vts_collection = ['1234', '1.3.6.1.4.1.25623.1.0.100061']
 
-        ovfilter = OpenVasVtsFilter(w.nvti)
+        ovfilter = OpenVasVtsFilter(w.nvti, None)
         res = ovfilter.get_filtered_vts_list(
             vts_collection, "modification_time>10"
         )

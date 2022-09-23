@@ -49,7 +49,7 @@ class PreferenceHandlerTestCase(TestCase):
         }
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti
+            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti, None
         )
         dummy.nvti.get_nvt_metadata.return_value = None
         p_handler._process_vts(vts)  # pylint: disable = protected-access
@@ -65,7 +65,7 @@ class PreferenceHandlerTestCase(TestCase):
         }
 
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, dummy.nvti
+            '1234-1234', None, dummy.scan_collection, dummy.nvti, None
         )
 
         ret = p_handler._process_vts(vts)  # pylint: disable = protected-access
@@ -101,7 +101,7 @@ class PreferenceHandlerTestCase(TestCase):
         )
 
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, dummy.nvti
+            '1234-1234', None, dummy.scan_collection, dummy.nvti, None
         )
         ret = p_handler._process_vts(vts)  # pylint: disable = protected-access
 
@@ -115,7 +115,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_vts.return_value = {}
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti
+            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti, None
         )
         p_handler.kbdb.add_scan_preferences = Mock()
         ret = p_handler.prepare_plugins_for_openvas()
@@ -135,7 +135,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_vts.return_value = vts
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti
+            '1234-1234', mock_kb, dummy.scan_collection, dummy.nvti, None
         )
         p_handler.kbdb.add_scan_preferences = Mock()
         ret = p_handler.prepare_plugins_for_openvas()
@@ -163,7 +163,7 @@ class PreferenceHandlerTestCase(TestCase):
             }
         }
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
 
         ret = p_handler.build_credentials_as_prefs(cred_dict)
@@ -227,7 +227,7 @@ class PreferenceHandlerTestCase(TestCase):
         }
 
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
         ret = p_handler.build_credentials_as_prefs(cred_dict)
 
@@ -249,7 +249,7 @@ class PreferenceHandlerTestCase(TestCase):
         target_options_dict = {'alive_test': '0'}
 
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
         ret = p_handler.build_alive_test_opt_as_prefs(target_options_dict)
 
@@ -259,7 +259,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy = DummyDaemon()
         target_options_dict = {'alive_test_methods': '1', 'icmp': '0'}
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
         ret = p_handler.build_alive_test_opt_as_prefs(target_options_dict)
         self.assertEqual(ret, {})
@@ -283,7 +283,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         target_options_dict = {'alive_test': '2'}
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
         ret = p_handler.build_alive_test_opt_as_prefs(target_options_dict)
 
@@ -293,7 +293,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy = DummyDaemon()
         target_options_dict = {'alive_test_methods': '1', 'icmp': '1'}
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
         ret = p_handler.build_alive_test_opt_as_prefs(target_options_dict)
         self.assertEqual(ret, alive_test_out)
@@ -304,7 +304,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         target_options_dict = {'alive_test': 'a'}
         p_handler = PreferenceHandler(
-            '1234-1234', None, dummy.scan_collection, None
+            '1234-1234', None, dummy.scan_collection, None, None
         )
         target_options = p_handler.build_alive_test_opt_as_prefs(
             target_options_dict
@@ -322,7 +322,7 @@ class PreferenceHandlerTestCase(TestCase):
         )
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -340,7 +340,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_ports = MagicMock(return_value='80,443')
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -358,7 +358,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_ports = MagicMock(return_value='2,-9,4')
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -369,7 +369,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy = DummyDaemon()
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.kbdb.add_scan_preferences = Mock()
         p_handler.kbdb.index = 2
@@ -413,7 +413,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_credentials_to_scan_preferences = MagicMock()
@@ -439,7 +439,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -465,7 +465,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -490,7 +490,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -514,7 +514,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -540,7 +540,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -571,7 +571,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -604,7 +604,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -637,7 +637,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -668,7 +668,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -699,7 +699,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -723,7 +723,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_credentials = MagicMock(return_value=creds)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -740,7 +740,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -760,7 +760,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_exclude_hosts = MagicMock(return_value=exc)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -787,7 +787,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_options = MagicMock(return_value=opt)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -805,7 +805,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler.scan_id = '456-789'
         p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -828,7 +828,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -843,7 +843,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -859,7 +859,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -875,7 +875,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -891,7 +891,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -910,7 +910,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -933,7 +933,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy.scan_collection.get_target_options = MagicMock(return_value=t_opt)
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -948,7 +948,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -964,7 +964,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -980,7 +980,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -996,7 +996,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1012,7 +1012,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1028,7 +1028,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1051,7 +1051,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1071,7 +1071,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1097,7 +1097,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {BOREAS_SETTING_NAME: 1}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1115,7 +1115,7 @@ class PreferenceHandlerTestCase(TestCase):
         ov_setting = {}
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1134,7 +1134,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler.scan_id = '456-789'
             p_handler.kbdb.add_scan_preferences = MagicMock()
@@ -1153,7 +1153,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler._nvts_params = {}  # pylint: disable = protected-access
             p_handler.scan_id = '456-789'
@@ -1173,7 +1173,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler._nvts_params = {}  # pylint: disable = protected-access
             p_handler.scan_id = '456-789'
@@ -1205,7 +1205,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler._nvts_params = {}  # pylint: disable = protected-access
             p_handler.scan_id = '456-789'
@@ -1243,7 +1243,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler._nvts_params = {}  # pylint: disable = protected-access
             p_handler.scan_id = '456-789'
@@ -1266,7 +1266,7 @@ class PreferenceHandlerTestCase(TestCase):
 
         with patch.object(Openvas, 'get_settings', return_value=ov_setting):
             p_handler = PreferenceHandler(
-                '1234-1234', mock_kb, dummy.scan_collection, None
+                '1234-1234', mock_kb, dummy.scan_collection, None, None
             )
             p_handler._nvts_params = {}  # pylint: disable = protected-access
             p_handler.scan_id = '456-789'
@@ -1360,7 +1360,7 @@ class PreferenceHandlerTestCase(TestCase):
         ]
 
         p_handler = PreferenceHandler(
-            '1234-1234', mock_kb, dummy.scan_collection, None
+            '1234-1234', mock_kb, dummy.scan_collection, None, None
         )
         p_handler._nvts_params = {  # pylint: disable = protected-access
             "1.3.6.1.4.1.25623.1.0.100315:1:checkbox:Do a TCP ping": "no"
@@ -1378,7 +1378,7 @@ class PreferenceHandlerTestCase(TestCase):
         dummy = DummyDaemon()
 
         p_handler = PreferenceHandler(
-            '456-789', mock_kb, dummy.scan_collection, None
+            '456-789', mock_kb, dummy.scan_collection, None, None
         )
         p_handler._nvts_params = {}  # pylint: disable = protected-access
         p_handler.kbdb.add_scan_preferences = MagicMock()
