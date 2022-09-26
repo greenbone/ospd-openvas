@@ -1,0 +1,13 @@
+<config id="c18bb781-3740-44c2-aa01-1b73a00066e8">
+  <name>GatherPackageList</name>
+  <comment>A simple policy containing only gather package list.</comment>
+  <type>0</type>
+  <usage_type>scan</usage_type>
+  <nvt_selectors>
+    <nvt_selector>
+      <include>1</include>
+      <type>2</type>
+      <family_or_nvt>1.3.6.1.4.1.25623.1.0.50282</family_or_nvt>
+    </nvt_selector>
+  </nvt_selectors>
+</config>

@@ -1,7 +1,4 @@
-FROM ghcr.io/greenbone/data-objects:community-staging AS data_objects
-RUN mv `ls -d /var/lib/gvm/data-objects/gvmd/*/*configs | sort -r | head -n 1` /policies
-
-FROM ghcr.io/greenbone/vulnerability-tests:community-staging AS nasl
+FROM greenbone/vulnerability-tests AS nasl
 # use latest version
 RUN mv `ls -d /var/lib/openvas/* | sort -r | head -n 1`/vt-data/nasl /nasl
 
@@ -60,8 +57,14 @@ RUN chmod 774 /var/log/mosquitto
 COPY --from=binaries /usr/local/src/bin/* /usr/local/bin/
 RUN mv /usr/local/src/ospd-openvas/smoketest/run-tests.sh /usr/local/bin/run
 COPY --from=nasl --chmod=7777 /nasl /var/lib/openvas/plugins
+
+RUN mkdir -p /usr/local/src/policies 
+COPY smoketest/gatherpackagelist-c18bb781-3740-44c2-aa01-1b73a00066e8.xml /usr/local/src/policies
+RUN ospd-policy-feed -p /usr/local/src/policies -t /usr/local/src/plugins
+RUN rm -rf /var/lib/openvas/plugins
+RUN mv /usr/local/src/plugins /var/lib/openvas/plugins
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
-COPY --from=data_objects --chmod=7777 /policies /usr/local/src/policies
+
 RUN rm -rf /usr/local/src/ospd-openvas
 RUN apt-get remove --purge --auto-remove -y python3-pip python3-packaging
 RUN chown -R gvm:redis /var/lib/openvas/plugins/
