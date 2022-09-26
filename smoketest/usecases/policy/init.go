@@ -11,9 +11,9 @@ import (
 
 func discoveryAuthenticated(cache *policies.Cache, username, password string) uc.Test {
 	return uc.Test{
-		Title: "Discovery - enable authenticated checks",
+		Title: "GatherPackageList - enable authenticated checks",
 		Run: func(co connection.OSPDSender) uc.Response {
-			pol := "Discovery"
+			pol := "GatherPackageList"
 			sc := cache.ByName(pol)
 			selection := sc.AsVTSelection(nil)
 			if len(selection.Single) == 0 && len(selection.Group) == 0 {
