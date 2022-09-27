@@ -98,6 +98,36 @@ class NotusTestCase(TestCase):
         do_not_load_into_redis.reload_cache()
         self.assertEqual(mock_openvasdb.set_single_item.call_count, 0)
 
+    def test_notus_qod_type(self):
+        path_mock = mock.MagicMock()
+        adv_path = mock.MagicMock()
+        adv_path.name = "hi"
+        adv_path.stem = "family"
+        path_mock.glob.return_value = [adv_path]
+        adv_path.read_bytes.return_value = b'''
+        { 
+            "family": "family", 
+            "advisories": [ 
+                {
+                    "oid": "12",
+                    "qod_type": "package_unreliable",
+                    "severity": {
+                        "origin": "NVD",
+                        "date": 1505784960,
+                        "cvss_v2": "AV:N/AC:M/Au:N/C:C/I:C/A:C",
+                        "cvss_v3": null
+                    }
+                } 
+            ] 
+        }'''
+        cache_fake = CacheFake()
+        notus = Notus(path_mock, cache_fake)
+        notus._verifier = lambda _: True  # pylint: disable=protected-access
+        notus.reload_cache()
+        nm = notus.get_nvt_metadata("12")
+        assert nm
+        self.assertEqual("package_unreliable", nm.get("qod_type", ""))
+
     def test_notus_cvss_v2_v3_none(self):
         path_mock = mock.MagicMock()
         adv_path = mock.MagicMock()
@@ -107,7 +137,6 @@ class NotusTestCase(TestCase):
         adv_path.read_bytes.return_value = b'''
         { 
             "family": "family", 
-            "qod_type": "remote_app", 
             "advisories": [ 
                 {
                     "oid": "12",
