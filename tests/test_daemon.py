@@ -249,6 +249,15 @@ OSPD_PARAMS_OUT = {
             + '"T:1-65535,U:1-1024".'
         ),
     },
+    'alive_test_ports': {
+        'type': 'string',
+        'name': 'alive_test_ports',
+        'default': '21-23,25,53,80,110-111,135,139,143,443,445,'
+        + '993,995,1723,3306,3389,5900,8080',
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': ('Port list used for host alive detection.'),
+    },
     'test_alive_hosts_only': {
         'type': 'boolean',
         'name': 'test_alive_hosts_only',
