@@ -318,6 +318,17 @@ OSPD_PARAMS = {
             + 'significantly.'
         ),
     },
+    'test_alive_wait_timeout': {
+        'type': 'integer',
+        'name': 'test_alive_wait_timeout',
+        'default': 1,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'This is the default timeout to wait for replies after last '
+            + 'packet was sent.'
+        ),
+    },
     'hosts_allow': {
         'type': 'string',
         'name': 'hosts_allow',
