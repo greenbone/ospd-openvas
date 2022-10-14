@@ -97,7 +97,7 @@ class PreferenceHandler:
         kbdb: KbDB,
         scan_collection: ScanCollection,
         nvticache: NVTICache,
-        is_handled_by_notus: Optional[Callable[[str], bool]] = None,
+        is_handled_by_notus: Callable[[str], bool],
     ):
         self.scan_id = scan_id
         self.kbdb = kbdb
@@ -109,8 +109,6 @@ class PreferenceHandler:
         self.nvti = nvticache
         if is_handled_by_notus:
             self.is_handled_by_notus = is_handled_by_notus
-        elif not is_handled_by_notus and nvticache and nvticache.notus:
-            self.is_handled_by_notus = nvticache.notus.exists
         else:
             self.is_handled_by_notus = lambda _: False
         self.errors = []
@@ -154,8 +152,13 @@ class PreferenceHandler:
         vts_list = list()
         families = dict()
 
+        # Only get vts from NVTICache. Does not include Notus advisories,
+        # since they are handled by Notus.
         oids = self.nvti.get_oids()
 
+        # Same here. Only check for families in NVT Cache.
+        # If necessary, consider to call get_advisory_famaly from
+        # Notus class
         for _, oid in oids:
             family = self.nvti.get_nvt_family(oid)
             if family not in families:
@@ -226,8 +229,11 @@ class PreferenceHandler:
         vts_params = {}
         vtgroups = vts.pop('vt_groups')
 
-        vthelper = VtHelper(self.nvti)
+        vthelper = VtHelper(self.nvti, None)
 
+        # This get vt groups which are not Notus Family.
+        # Since Notus advisories are handled by notus, they
+        # are not sent to Openvas-scanner
         if vtgroups:
             vts_list = self._get_vts_in_groups(vtgroups)
 
@@ -241,7 +247,7 @@ class PreferenceHandler:
                 ):
                     break
 
-            # remove oids handled by notus
+            # Remove oids handled by notus
             if self.is_handled_by_notus(vtid):
                 logger.debug('The VT %s is handled by notus. Ignoring.', vtid)
                 continue

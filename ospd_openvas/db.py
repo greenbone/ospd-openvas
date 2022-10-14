@@ -22,7 +22,7 @@ import logging
 import sys
 import time
 
-from typing import List, NewType, Optional, Iterable, Iterator, Tuple
+from typing import List, NewType, Optional, Iterable, Iterator, Tuple, Callable
 from urllib import parse
 
 import redis
@@ -391,33 +391,29 @@ class OpenvasDB:
 
     @classmethod
     def get_filenames_and_oids(
-        cls, ctx: RedisCtx, pattern: str = 'nvt:*'
+        cls, ctx: RedisCtx, pattern: str, parser: Callable[[str], str]
     ) -> Iterable[Tuple[str, str]]:
         """Get all items with index 'index', stored under
         a given pattern.
 
         Arguments:
             ctx: Redis context to use.
+            pattern: Pattern used for searching the keys
+            parser: Callable method to remove the pattern from the keys.
 
         Return an iterable where each single tuple contains the filename
             as first element and the oid as the second one.
         """
-
-        def parse_oid(item: str, pattern: str):
-            """Returns the OID depending on the key pattern"""
-
-            if pattern == 'nvt:*':
-                return item[4:]
-            return str(item).rsplit('/', maxsplit=1)[-1]
-
         if not ctx:
             raise RequiredArgument('get_filenames_and_oids', 'ctx')
+        if not pattern:
+            raise RequiredArgument('get_filenames_and_oids', 'pattern')
+        if not parser:
+            raise RequiredArgument('get_filenames_and_oids', 'parser')
 
         items = cls.get_keys_by_pattern(ctx, pattern)
 
-        return (
-            (ctx.lindex(item, 0), parse_oid(item, pattern)) for item in items
-        )
+        return ((ctx.lindex(item, 0), parser(item)) for item in items)
 
     @staticmethod
     def exists(ctx: RedisCtx, key: str) -> bool:

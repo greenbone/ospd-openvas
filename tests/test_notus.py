@@ -56,7 +56,7 @@ class NotusTestCase(TestCase):
         ]
         notus = Notus(path_mock, Cache(redis_mock))
         notus._verifier = lambda _: True  # pylint: disable=protected-access
-        oids = [x for x in notus.get_filenames_and_oids()]
+        oids = [x for x in notus.get_oids()]
         self.assertEqual(len(oids), 1)
 
     @mock.patch('ospd_openvas.notus.OpenvasDB')
