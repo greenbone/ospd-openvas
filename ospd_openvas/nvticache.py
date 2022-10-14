@@ -28,7 +28,6 @@ from time import time
 from ospd.errors import RequiredArgument
 from ospd_openvas.errors import OspdOpenvasError
 from ospd_openvas.db import NVT_META_FIELDS, OpenvasDB, MainDB, BaseDB, RedisCtx
-from ospd_openvas.notus import Notus
 
 NVTI_CACHE_NAME = "nvticache"
 
@@ -59,12 +58,11 @@ class NVTICache(BaseDB):
     }
 
     def __init__(  # pylint: disable=super-init-not-called
-        self, main_db: MainDB, notus: Optional[Notus] = None
+        self, main_db: MainDB
     ):
         self._ctx = None
         self.index = None
         self._main_db = main_db
-        self.notus = notus
 
     @property
     def ctx(self) -> Optional[RedisCtx]:
@@ -92,13 +90,15 @@ class NVTICache(BaseDB):
         Returns:
             An iterable of tuples of file name and oid.
         """
-        if self.notus:
-            for f, oid in self.notus.get_filenames_and_oids():
-                yield (f, oid)
+
+        def parse_oid(item):
+            return item[4:]
+
         if self.ctx:
-            for f, oid in OpenvasDB.get_filenames_and_oids(self.ctx):
-                if not self.notus or not self.notus.exists(oid):
-                    yield (f, oid)
+            for f, oid in OpenvasDB.get_filenames_and_oids(
+                self.ctx, 'nvt:*', parse_oid
+            ):
+                yield (f, oid)
 
     def get_nvt_params(self, oid: str) -> Optional[Dict[str, str]]:
         """Get NVT's preferences.
@@ -244,10 +244,6 @@ class NVTICache(BaseDB):
         Returns:
             A str with the VT family.
         """
-        notus_entry = self.notus.get_nvt_metadata(oid) if self.notus else None
-        if notus_entry:
-            return notus_entry.get("family")
-
         return OpenvasDB.get_single_item(
             self.ctx,
             f"nvt:{oid}",
@@ -292,11 +288,6 @@ class NVTICache(BaseDB):
 
     def get_nvt_count(self) -> int:
         return OpenvasDB.get_key_count(self.ctx, "nvt:*")
-
-    def force_reload(self):
-        if self.notus:
-            self.notus.reload_cache()
-        self._main_db.release_database(self)
 
     def add_vt_to_cache(self, vt_id: str, vt: List[str]):
         if not vt_id:

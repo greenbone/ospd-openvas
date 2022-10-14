@@ -272,14 +272,17 @@ class TestOpenvasDB(TestCase):
 
     def test_get_filenames_and_oids_error(self, mock_redis):
         with self.assertRaises(RequiredArgument):
-            OpenvasDB.get_filenames_and_oids(None)
+            OpenvasDB.get_filenames_and_oids(None, None, None)
 
     def test_get_filenames_and_oids(self, mock_redis):
+        def _pars(item):
+            return item[4:]
+
         ctx = mock_redis.from_url.return_value
         ctx.keys.return_value = ['nvt:1', 'nvt:2']
         ctx.lindex.side_effect = ['aa', 'ab']
 
-        ret = OpenvasDB.get_filenames_and_oids(ctx)
+        ret = OpenvasDB.get_filenames_and_oids(ctx, "nvt:*", _pars)
 
         self.assertEqual(list(ret), [('aa', '1'), ('ab', '2')])
 

@@ -396,10 +396,11 @@ class OpenVasVtsFilter(VtsFilter):
 
     """Methods to overwrite the ones in the original class."""
 
-    def __init__(self, nvticache: NVTICache) -> None:
+    def __init__(self, nvticache: NVTICache, notus: Notus) -> None:
         super().__init__()
 
         self.nvti = nvticache
+        self.notus = notus
 
     def format_vt_modification_time(self, value: str) -> str:
         """Convert the string seconds since epoch into a 19 character
@@ -428,9 +429,16 @@ class OpenVasVtsFilter(VtsFilter):
         if not self.nvti:
             return None
 
-        vt_oid_list = [vtlist[1] for vtlist in self.nvti.get_oids()]
+        # build a list with nvts and notus advisories
+        nvt_oid_list = [vtlist[1] for vtlist in self.nvti.get_oids()]
+        if self.notus:
+            notus_oid_list = [vtlist[1] for vtlist in self.notus.get_oids()]
+            vt_oid_list = notus_oid_list + nvt_oid_list
+        else:
+            vt_oid_list = nvt_oid_list
+
         vt_oid_list_temp = copy.copy(vt_oid_list)
-        vthelper = VtHelper(self.nvti)
+        vthelper = VtHelper(self.nvti, self.notus)
 
         for element, oper, filter_val in filters:
             for vt_oid in vt_oid_list_temp:
@@ -471,22 +479,19 @@ class OSPDopenvas(OSPDaemon):
 
         self.main_db = MainDB()
         notus_dir = kwargs.get('notus_feed_dir')
-        notus = None
+        self.notus = None
         if notus_dir:
             ndir = Path(notus_dir)
-            notus = Notus(
+            self.notus = Notus(
                 ndir,
                 Cache(self.main_db),
                 disable_notus_hashsum_verification,
             )
 
-        self.nvti = NVTICache(
-            self.main_db,
-            notus,
-        )
+        self.nvti = NVTICache(self.main_db)
 
         super().__init__(
-            customvtfilter=OpenVasVtsFilter(self.nvti),
+            customvtfilter=OpenVasVtsFilter(self.nvti, self.notus),
             storage=dict,
             file_storage_dir=lock_file_dir,
             **kwargs,
@@ -545,7 +550,7 @@ class OSPDopenvas(OSPDaemon):
             self.set_feed_info()
 
             logger.debug("Calculating vts integrity check hash...")
-            vthelper = VtHelper(self.nvti)
+            vthelper = VtHelper(self.nvti, self.notus)
             self.vts.sha256_hash = vthelper.calculate_vts_collection_hash()
 
         self.initialized = True
@@ -665,8 +670,8 @@ class OSPDopenvas(OSPDaemon):
         )
         old = self.nvti.get_feed_version() or 0
         # reload notus cache
-        if self.nvti.notus:
-            self.nvti.notus.reload_cache()
+        if self.notus:
+            self.notus.reload_cache()
 
         if Openvas.load_vts_into_redis():
             new = self.nvti.get_feed_version()
@@ -702,7 +707,7 @@ class OSPDopenvas(OSPDaemon):
                     self.update_vts()
                     self.set_feed_info()
 
-                    vthelper = VtHelper(self.nvti)
+                    vthelper = VtHelper(self.nvti, self.notus)
                     self.vts.sha256_hash = (
                         vthelper.calculate_vts_collection_hash()
                     )
@@ -722,7 +727,7 @@ class OSPDopenvas(OSPDaemon):
     def get_vt_iterator(
         self, vt_selection: List[str] = None, details: bool = True
     ) -> Iterator[Tuple[str, Dict]]:
-        vthelper = VtHelper(self.nvti)
+        vthelper = VtHelper(self.nvti, self.notus)
         return vthelper.get_vt_iterator(vt_selection, details)
 
     @property
@@ -849,7 +854,7 @@ class OSPDopenvas(OSPDaemon):
             logger.warning("Unknown scan_id %s", scan_id)
             return False
 
-        vthelper = VtHelper(self.nvti)
+        vthelper = VtHelper(self.nvti, self.notus)
 
         res_list = ResultList()
         total_dead = 0
@@ -1094,7 +1099,7 @@ class OSPDopenvas(OSPDaemon):
         do_not_launch = False
         kbdb = self.main_db.get_new_kb_database()
         scan_prefs = PreferenceHandler(
-            scan_id, kbdb, self.scan_collection, self.nvti
+            scan_id, kbdb, self.scan_collection, self.nvti, self.notus.exists
         )
         kbdb.add_scan_id(scan_id)
         scan_prefs.prepare_target_for_openvas()
