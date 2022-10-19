@@ -17,8 +17,13 @@
 
 """ Common Vulnerability Scoring System handling class. """
 
+import logging
+
 import math
 from typing import List, Dict, Optional
+
+logger = logging.getLogger(__name__)
+
 
 CVSS_V2_METRICS = {
     'AV': {'L': 0.395, 'A': 0.646, 'N': 1.0},
@@ -74,9 +79,13 @@ class CVSS(object):
         if not cvss_base_vector:
             return None
 
-        _av, _ac, _au, _c, _i, _a = cls._parse_cvss_base_vector(
-            cvss_base_vector
-        )
+        try:
+            _av, _ac, _au, _c, _i, _a = cls._parse_cvss_base_vector(
+                cvss_base_vector
+            )
+        except ValueError:
+            logger.warning('Invalid severity vector %s', cvss_base_vector)
+            return None
 
         _impact = 10.41 * (
             1
@@ -109,9 +118,21 @@ class CVSS(object):
         """
         if not cvss_base_vector:
             return None
-        _ver, _av, _ac, _pr, _ui, _s, _c, _i, _a = cls._parse_cvss_base_vector(
-            cvss_base_vector
-        )
+        try:
+            (
+                _ver,
+                _av,
+                _ac,
+                _pr,
+                _ui,
+                _s,
+                _c,
+                _i,
+                _a,
+            ) = cls._parse_cvss_base_vector(cvss_base_vector)
+        except ValueError:
+            logger.warning('Invalid severity vector %s', cvss_base_vector)
+            return None
 
         scope_changed = CVSS_V3_METRICS['S'].get(_s)
 
