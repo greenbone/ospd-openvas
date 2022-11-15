@@ -13,9 +13,9 @@ jobs:
     strategy:
         matrix:
           python-version:
-            - 3.7
-            - 3.8
-            - 3.9
+            - "3.7"
+            - "3.8"
+            - "3.9"
             - "3.10"
 
     steps:
@@ -32,9 +32,9 @@ jobs:
     strategy:
         matrix:
           python-version:
-            - 3.7
-            - 3.8
-            - 3.9
+            - "3.7"
+            - "3.8"
+            - "3.9"
             - "3.10"
 
     steps:
@@ -53,6 +53,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Calculate and upload coverage to codecov.io
-        uses: greenbone/actions/coverage-python@v1
+        uses: greenbone/actions/coverage-python@v2
         with:
-          version: 3.8
+          version: "3.9"
