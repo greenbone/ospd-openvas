@@ -19,7 +19,7 @@ pull_request_rules:
           - oldstable
 
   # backports from upcoming release branch
-  - name: backport oldstable patches to main branch
+  - name: backport stable patches to main branch
     conditions:
       - base=stable
       - label=backport-to-main
@@ -28,7 +28,7 @@ pull_request_rules:
         branches:
           - main
 
-  - name: backport oldstable patches to oldstable branch
+  - name: backport stable patches to oldstable branch
     conditions:
       - base=stable
       - label=backport-to-oldstable
