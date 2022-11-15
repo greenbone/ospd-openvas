@@ -16,11 +16,12 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
+            - "3.10"
 
     steps:
       - uses: actions/checkout@v3
       - name: Check with black, pylint and pontos.version
-        uses: greenbone/actions/lint-python@v1
+        uses: greenbone/actions/lint-python@v2
         with:
           version: ${{ matrix.python-version }}
           packages: ospd_openvas ospd tests
@@ -34,11 +35,12 @@ jobs:
             - 3.7
             - 3.8
             - 3.9
+            - "3.10"
 
     steps:
       - uses: actions/checkout@v3
       - name: Install poetry and dependencies
-        uses: greenbone/actions/poetry@v1
+        uses: greenbone/actions/poetry@v2
         with:
           version: ${{ matrix.python-version }}
       - name: Run unit tests
