@@ -41,6 +41,7 @@ RUN apt-get update && \
     # gcc and python3-dev are required for psutil on arm
     gcc \
     gosu \
+    procps \
     python3 \
     python3-pip \
     python3-dev && \
