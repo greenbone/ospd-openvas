@@ -209,10 +209,7 @@ class VtHelper:
             if vt:
                 yield (vt_id, vt)
 
-    def calculate_vts_collection_hash(self) -> str:
-        """Calculate the vts collection sha256 hash."""
-        m = sha256()  # pylint: disable=invalid-name
-
+    def vt_verification_string_iter(self) -> str:
         # for a reproducible hash calculation
         # the vts must already be sorted in the dictionary.
         for vt_id, vt in self.get_vt_iterator(details=False):
@@ -226,12 +223,17 @@ class VtHelper:
                             + param.get('name')
                             + param.get('default')
                         )
-
-            m.update(
+            yield (
                 (vt_id + vt.get('modification_time')).encode('utf-8')
                 + param_chain.encode('utf-8')
             )
 
+    def calculate_vts_collection_hash(self) -> str:
+        """Calculate the vts collection sha256 hash."""
+        m = sha256()  # pylint: disable=invalid-name
+
+        for chunk in self.vt_verification_string_iter():
+            m.update(chunk)
         return m.hexdigest()
 
     def get_severity_score(self, vt_aux: dict) -> Optional[float]:
