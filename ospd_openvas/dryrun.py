@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2021 Greenbone Networks GmbH
+# Copyright (C) 2021-2023 Greenbone Networks GmbH
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
