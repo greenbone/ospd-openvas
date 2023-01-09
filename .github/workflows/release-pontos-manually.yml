@@ -4,8 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       branch:
+<<<<<<< HEAD
         description: 'Branch'
         required: true
+=======
+        description: 'Select branch that should be used for releasing'
+        required: false
+>>>>>>> efd57709 (Update release-pontos-manually.yml (#833))
         default: 'main'
 
 jobs:
