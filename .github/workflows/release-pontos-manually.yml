@@ -2,6 +2,11 @@ name: Release Patch (pontos)
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Select branch that should be used for releasing'
+        required: false
+        default: 'main'
 
 jobs:
   release-patch:
