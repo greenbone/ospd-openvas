@@ -624,21 +624,22 @@ test = ["appdirs (==1.4.4)", "pytest (>=7.2)", "pytest-cov (>=4)", "pytest-mock 
 
 [[package]]
 name = "pontos"
-version = "22.12.0"
+version = "23.1.3"
 description = "Common utilities and tools maintained by Greenbone Networks"
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "pontos-22.12.0-py3-none-any.whl", hash = "sha256:360eb2eeeb4d6dde34ad5763f87df191a78b0cbbf433ff7a14dca72f630a9bd4"},
-    {file = "pontos-22.12.0.tar.gz", hash = "sha256:80df7c831eed3c5bc7864fe2f2cc010f610673e2de53099bc4d4efe5450f8b2d"},
+    {file = "pontos-23.1.3-py3-none-any.whl", hash = "sha256:91dfcd5790d8f429b94c0d0fa7bc478785e1bd3dbf50f1f28748c48afce4f521"},
+    {file = "pontos-23.1.3.tar.gz", hash = "sha256:3394408eb38fd8ad3f6c7df423ab6e63b63dd9331be8deb380d6df0d39671d16"},
 ]
 
 [package.dependencies]
 colorful = ">=0.5.4,<0.6.0"
 httpx = {version = ">=0.23.0,<0.24.0", extras = ["http2"]}
 packaging = ">=20.3"
-rich = ">=12.4.4,<13.0.0"
+python-dateutil = ">=2.8.2,<3.0.0"
+rich = ">=12.4.4"
 tomlkit = ">=0.5.11"
 typing-extensions = {version = ">=4.4.0,<5.0.0", markers = "python_version < \"3.8\""}
 
@@ -708,6 +709,21 @@ typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""
 
 [package.extras]
 testutil = ["gitpython (>3)"]
+
+[[package]]
+name = "python-dateutil"
+version = "2.8.2"
+description = "Extensions to the standard Python datetime module"
+category = "dev"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
+    {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
+]
+
+[package.dependencies]
+six = ">=1.5"
 
 [[package]]
 name = "python-gnupg"
@@ -878,6 +894,18 @@ files = [
 docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-hoverxref (<2)", "sphinx-inline-tabs", "sphinx-notfound-page (==0.8.3)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
 testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8 (<5)", "flake8-2020", "ini2toml[lite] (>=0.9)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pip (>=19.1)", "pip-run (>=8.8)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-timeout", "pytest-xdist", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
 testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
+
+[[package]]
+name = "six"
+version = "1.16.0"
+description = "Python 2 and 3 compatibility utilities"
+category = "dev"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+files = [
+    {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
+    {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
 
 [[package]]
 name = "sniffio"
