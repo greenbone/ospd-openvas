@@ -15,15 +15,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import configparser
 import logging
 import os
-import configparser
 import time
-
 from logging.config import fileConfig
 from pathlib import Path
 from typing import Optional
-
 
 DEFAULT_HANDLER_CONSOLE = {
     'class': 'logging.StreamHandler',
@@ -33,9 +31,10 @@ DEFAULT_HANDLER_CONSOLE = {
 }
 
 DEFAULT_HANDLER_FILE = {
-    'class': 'FileHandler',
+    'class': 'handlers.WatchedFileHandler',
     'level': 'INFO',
     'formatter': 'file',
+    'args': '("/dev/null", "a")',
 }
 
 DEFAULT_HANDLER_SYSLOG = {
@@ -45,24 +44,21 @@ DEFAULT_HANDLER_SYSLOG = {
     'args': '("/dev/log", handlers.SysLogHandler.LOG_USER)',
 }
 
-DEFAULT_HANDLERS = {'keys': 'default_handler'}
+DEFAULT_HANDLERS = {'keys': 'console,file,syslog'}
 DEFAULT_FORMATTERS = {'keys': 'file,syslog'}
 DEFAULT_FORMATTER_FILE = {
-    'format': 'OSPD['
-    + str(os.getpid())
-    + '] %(asctime)s: %(levelname)s: (%(name)s) %(message)s',
+    'format': f'OSPD[{os.getpid()}] %(asctime)s: %(levelname)s: '
+    '(%(name)s) %(message)s',
     'datefmt': '',
 }
 DEFAULT_FORMATTER_SYSLOG = {
-    'format': 'OSPD['
-    + str(os.getpid())
-    + '] %(levelname)s: (%(name)s) %(message)s',
+    'format': f'OSPD[{os.getpid()}] %(levelname)s: (%(name)s) %(message)s',
     'datefmt': '',
 }
 DEFAULT_LOGGERS = {'keys': 'root'}
 DEFAULT_ROOT_LOGGER = {
     'level': 'NOTSET',
-    'handlers': 'default_handler',
+    'handlers': 'file',
     'propagate': '0',
 }
 
@@ -73,28 +69,40 @@ def init_logging(
     log_file: Optional[str] = None,
     log_config: Optional[str] = None,
     foreground: Optional[bool] = False,
-):
+) -> None:
     config = configparser.ConfigParser()
     config['handlers'] = DEFAULT_HANDLERS
     config['formatters'] = DEFAULT_FORMATTERS
     config['formatter_file'] = DEFAULT_FORMATTER_FILE
     config['formatter_syslog'] = DEFAULT_FORMATTER_SYSLOG
+    config['handler_console'] = DEFAULT_HANDLER_CONSOLE
+    config['handler_syslog'] = DEFAULT_HANDLER_SYSLOG
+    config['handler_file'] = DEFAULT_HANDLER_FILE
+    config['loggers'] = DEFAULT_LOGGERS
+    config['logger_root'] = DEFAULT_ROOT_LOGGER
 
     if foreground:
-        config['handler_default_handler'] = DEFAULT_HANDLER_CONSOLE
-    elif log_file:
-        config['handler_default_handler'] = DEFAULT_HANDLER_FILE
-        config['handler_default_handler']['args'] = "('" + log_file + "', 'a')"
-    else:
-        config['handler_default_handler'] = DEFAULT_HANDLER_SYSLOG
+        config['logger_root']['handlers'] = 'console'
 
-    config['handler_default_handler']['level'] = log_level
+    if log_file:
+        if foreground:
+            config['logger_root']['handlers'] = 'console,file'
+        else:
+            config['logger_root']['handlers'] = 'file'
+
+        config['handler_file']['args'] = f"('{log_file}', 'a')"
+
+    if not foreground and not log_file:
+        config['logger_root']['handlers'] = 'syslog'
+
+    config['handler_file']['level'] = log_level
+    config['handler_console']['level'] = log_level
+    config['handler_syslog']['level'] = log_level
+
     log_config_path = Path(log_config)
+
     if log_config_path.exists():
         config.read(log_config)
-    else:
-        config['loggers'] = DEFAULT_LOGGERS
-        config['logger_root'] = DEFAULT_ROOT_LOGGER
 
     fileConfig(config, disable_existing_loggers=False)
     logging.Formatter.converter = time.gmtime
