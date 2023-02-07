@@ -784,7 +784,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(res_len, 0)
 
     def test_billon_laughs(self):
-
         lol = (
             '<?xml version="1.0"?><!DOCTYPE lolz [ <!ENTITY lol "lol">'
             ' <!ELEMENT lolz (#PCDATA)> <!ENTITY lol1'
@@ -1001,7 +1000,6 @@ class ScanTestCase(unittest.TestCase):
         )
 
     def test_progress(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1025,7 +1023,6 @@ class ScanTestCase(unittest.TestCase):
         )
 
     def test_progress_all_host_dead(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1083,7 +1080,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(status, ScanStatus.INTERRUPTED.name.lower())
 
     def test_sort_host_finished(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1159,7 +1155,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertNotEqual(end_time, 0)
 
     def test_calculate_progress_without_current_hosts(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1212,7 +1207,6 @@ class ScanTestCase(unittest.TestCase):
         )
 
     def test_get_scan_without_scanid(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1235,7 +1229,6 @@ class ScanTestCase(unittest.TestCase):
         )
 
     def test_set_scan_total_hosts(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1260,7 +1253,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(count, 3)
 
     def test_set_scan_total_hosts_zero(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1289,7 +1281,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(count, 0)
 
     def test_set_scan_total_hosts_invalid_target(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1315,7 +1306,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(count, 0)
 
     def test_scan_invalid_excluded_hosts(self):
-
         logging.Logger.warning = Mock()
         fs = FakeStream()
         self.daemon.handle_command(
@@ -1348,7 +1338,6 @@ class ScanTestCase(unittest.TestCase):
         )
 
     def test_get_scan_progress_xml(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="2">'
@@ -1462,7 +1451,6 @@ class ScanTestCase(unittest.TestCase):
         self.assertEqual(status, 'Continue')
 
     def test_result_order(self):
-
         fs = FakeStream()
         self.daemon.handle_command(
             '<start_scan parallel="1">'

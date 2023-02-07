@@ -67,7 +67,6 @@ class Cache:
     def __init__(
         self, main_db: MainDB, prefix: str = "internal/notus/advisories"
     ):
-
         self._main_db = main_db
         # Check if it was previously uploaded
         self.ctx, _ = OpenvasDB.find_database_by_pattern(

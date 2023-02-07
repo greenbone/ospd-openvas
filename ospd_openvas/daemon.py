@@ -519,7 +519,6 @@ class OSPDopenvas(OSPDaemon):
         self._mqtt_broker_port = mqtt_broker_port
 
     def init(self, server: BaseServer) -> None:
-
         notus_handler = NotusResultHandler(self.report_results)
 
         if self._mqtt_broker_address:
@@ -610,7 +609,6 @@ class OSPDopenvas(OSPDaemon):
         feed_info = {}
         with feed_info_file.open(encoding='utf-8') as fcontent:
             for line in fcontent:
-
                 try:
                     key, value = line.split('=', 1)
                 except ValueError:
@@ -1000,7 +998,6 @@ class OSPDopenvas(OSPDaemon):
 
     @staticmethod
     def is_openvas_process_alive(openvas_process: psutil.Popen) -> bool:
-
         try:
             if openvas_process.status() == psutil.STATUS_ZOMBIE:
                 logger.debug("Process is a Zombie, waiting for it to clean up")
@@ -1191,7 +1188,6 @@ class OSPDopenvas(OSPDaemon):
 
         got_results = False
         while True:
-
             openvas_process_is_alive = self.is_openvas_process_alive(
                 openvas_process
             )

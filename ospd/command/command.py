@@ -43,7 +43,6 @@ logger = logging.getLogger(__name__)
 
 
 class BaseCommand(metaclass=InitSubclassMeta):
-
     name = None
     description = None
     attributes = None
@@ -544,99 +543,104 @@ class StartScan(BaseCommand):
         Return:
             Response string for <start_scan> command.
         """
+        with self._daemon.scan_collection.scan_collection_lock:
+            current_queued_scans = self._daemon.get_count_queued_scans()
+            if (
+                self._daemon.max_queued_scans
+                and current_queued_scans >= self._daemon.max_queued_scans
+            ):
+                logger.info(
+                    'Maximum number of queued scans set to %d reached.',
+                    self._daemon.max_queued_scans,
+                )
+                raise OspdCommandError(
+                    'Maximum number of queued scans set to '
+                    f'{str(self._daemon.max_queued_scans)} reached.',
+                    'start_scan',
+                )
 
-        current_queued_scans = self._daemon.get_count_queued_scans()
-        if (
-            self._daemon.max_queued_scans
-            and current_queued_scans >= self._daemon.max_queued_scans
-        ):
+            target_str = xml.get('target')
+            ports_str = xml.get('ports')
+
+            # For backward compatibility, if target and ports attributes
+            # are set, <targets> element is ignored.
+            if target_str is None or ports_str is None:
+                target_element = xml.find('targets/target')
+                if target_element is None:
+                    raise OspdCommandError('No targets or ports', 'start_scan')
+                else:
+                    scan_target = OspRequest.process_target_element(
+                        target_element
+                    )
+            else:
+                scan_target = {
+                    'hosts': target_str,
+                    'ports': ports_str,
+                    'credentials': {},
+                    'exclude_hosts': '',
+                    'finished_hosts': '',
+                    'options': {},
+                }
+                logger.warning(
+                    "Legacy start scan command format is being used, which "
+                    "is deprecated since 20.08. Please read the documentation "
+                    "for start scan command."
+                )
+
+            scan_id = xml.get('scan_id')
+            if (
+                scan_id is not None
+                and scan_id != ''
+                and not valid_uuid(scan_id)
+            ):
+                raise OspdCommandError('Invalid scan_id UUID', 'start_scan')
+
+            if xml.get('parallel'):
+                logger.warning(
+                    "parallel attribute of start_scan will be ignored, sice "
+                    "parallel scan is not supported by OSPd."
+                )
+
+            scanner_params = xml.find('scanner_params')
+            if scanner_params is None:
+                scanner_params = {}
+
+            # params are the parameters we got from the <scanner_params> XML.
+            params = self._daemon.preprocess_scan_params(scanner_params)
+
+            # VTS is an optional element. If present should not be empty.
+            vt_selection = {}  # type: Dict
+            scanner_vts = xml.find('vt_selection')
+            if scanner_vts is not None:
+                if len(scanner_vts) == 0:
+                    raise OspdCommandError('VTs list is empty', 'start_scan')
+                else:
+                    vt_selection = OspRequest.process_vts_params(scanner_vts)
+
+            scan_params = self._daemon.process_scan_params(params)
+            scan_id_aux = scan_id
+            scan_id = self._daemon.create_scan(
+                scan_id, scan_target, scan_params, vt_selection
+            )
+
+            if not scan_id:
+                id_ = Element('id')
+                id_.text = scan_id_aux
+                return simple_response_str('start_scan', 100, 'Continue', id_)
+
             logger.info(
-                'Maximum number of queued scans set to %d reached.',
-                self._daemon.max_queued_scans,
-            )
-            raise OspdCommandError(
-                'Maximum number of queued scans set to '
-                f'{str(self._daemon.max_queued_scans)} reached.',
-                'start_scan',
+                'Scan %s added to the queue in position %d.',
+                scan_id,
+                self._daemon.get_count_queued_scans() + 1,
             )
 
-        target_str = xml.get('target')
-        ports_str = xml.get('ports')
-
-        # For backward compatibility, if target and ports attributes are set,
-        # <targets> element is ignored.
-        if target_str is None or ports_str is None:
-            target_element = xml.find('targets/target')
-            if target_element is None:
-                raise OspdCommandError('No targets or ports', 'start_scan')
-            else:
-                scan_target = OspRequest.process_target_element(target_element)
-        else:
-            scan_target = {
-                'hosts': target_str,
-                'ports': ports_str,
-                'credentials': {},
-                'exclude_hosts': '',
-                'finished_hosts': '',
-                'options': {},
-            }
-            logger.warning(
-                "Legacy start scan command format is being used, which "
-                "is deprecated since 20.08. Please read the documentation "
-                "for start scan command."
-            )
-
-        scan_id = xml.get('scan_id')
-        if scan_id is not None and scan_id != '' and not valid_uuid(scan_id):
-            raise OspdCommandError('Invalid scan_id UUID', 'start_scan')
-
-        if xml.get('parallel'):
-            logger.warning(
-                "parallel attribute of start_scan will be ignored, sice "
-                "parallel scan is not supported by OSPd."
-            )
-
-        scanner_params = xml.find('scanner_params')
-        if scanner_params is None:
-            scanner_params = {}
-
-        # params are the parameters we got from the <scanner_params> XML.
-        params = self._daemon.preprocess_scan_params(scanner_params)
-
-        # VTS is an optional element. If present should not be empty.
-        vt_selection = {}  # type: Dict
-        scanner_vts = xml.find('vt_selection')
-        if scanner_vts is not None:
-            if len(scanner_vts) == 0:
-                raise OspdCommandError('VTs list is empty', 'start_scan')
-            else:
-                vt_selection = OspRequest.process_vts_params(scanner_vts)
-
-        scan_params = self._daemon.process_scan_params(params)
-        scan_id_aux = scan_id
-        scan_id = self._daemon.create_scan(
-            scan_id, scan_target, scan_params, vt_selection
-        )
-
-        if not scan_id:
             id_ = Element('id')
-            id_.text = scan_id_aux
-            return simple_response_str('start_scan', 100, 'Continue', id_)
+            id_.text = scan_id
 
-        logger.info(
-            'Scan %s added to the queue in position %d.',
-            scan_id,
-            current_queued_scans + 1,
-        )
-
-        id_ = Element('id')
-        id_.text = scan_id
-
-        return simple_response_str('start_scan', 200, 'OK', id_)
+            return simple_response_str('start_scan', 200, 'OK', id_)
 
 
 class GetMemoryUsage(BaseCommand):
-
     name = "get_memory_usage"
     description = "print the memory consumption of all processes"
     attributes = {

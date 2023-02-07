@@ -72,7 +72,6 @@ class DataPecklerTestCase(TestCase):
         data_pickler.remove_file(filename)
 
     def test_load_data(self):
-
         data_pickler = DataPickler('/tmp')
 
         data = {'foo', 'bar'}
@@ -111,7 +110,6 @@ class DataPecklerTestCase(TestCase):
         data_pickler.remove_file(filename)
 
     def test_load_data_corrupted(self):
-
         data_pickler = DataPickler('/tmp')
 
         data = {'foo', 'bar'}
