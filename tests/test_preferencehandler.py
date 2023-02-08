@@ -1276,7 +1276,6 @@ class PreferenceHandlerTestCase(TestCase):
             p_handler.kbdb.add_scan_preferences.assert_not_called()
 
     def test_alive_test_methods_to_bit_field(self):
-
         self.assertEqual(
             AliveTest.ALIVE_TEST_TCP_ACK_SERVICE,
             alive_test_methods_to_bit_field(

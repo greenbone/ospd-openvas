@@ -38,7 +38,6 @@ LIST_LAST_POS = -1
 
 
 class NVTICache(BaseDB):
-
     QOD_TYPES = {
         'exploit': '100',
         'remote_vul': '99',
