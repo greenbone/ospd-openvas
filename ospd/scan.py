@@ -77,9 +77,13 @@ class ScanCollection:
         )  # type: Optional[multiprocessing.managers.SyncManager]
         self.scans_table = dict()  # type: Dict
         self.file_storage_dir = file_storage_dir
+        self.scan_collection_lock = (
+            None
+        )  # type: Optional[multiprocessing.managers.Lock]
 
     def init(self):
         self.data_manager = multiprocessing.Manager()
+        self.scan_collection_lock = self.data_manager.RLock()
 
     def add_result(
         self,

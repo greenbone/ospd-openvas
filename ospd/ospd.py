@@ -542,10 +542,10 @@ class OSPDaemon:
             except (AttributeError, ValueError) as message:
                 logger.error(message)
                 return
-            except (ssl.SSLError) as exception:
+            except ssl.SSLError as exception:
                 logger.debug('Error: %s', exception)
                 break
-            except (socket.timeout) as exception:
+            except socket.timeout as exception:
                 logger.debug('Request timeout: %s', exception)
                 break
 

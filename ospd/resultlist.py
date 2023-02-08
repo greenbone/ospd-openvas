@@ -138,7 +138,6 @@ class ResultList:
         qod: str = '',
         uri: str = '',
     ) -> None:
-
         result = OrderedDict()  # type: Dict
         result['type'] = result_type
         result['name'] = name

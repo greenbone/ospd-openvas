@@ -35,7 +35,6 @@ class BaseCommandTestCase(TestCase):
         after = len(commands)
 
         try:
-
             self.assertEqual(before + 1, after)
 
             c_dict = {c.name: c for c in commands}
