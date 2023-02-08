@@ -17,6 +17,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # pylint: disable=unused-argument
+# pylint: disable=disallowed-name
 
 
 import time
@@ -74,6 +75,12 @@ class FakeDataManager:
 
     def dict(self):
         return dict()
+
+    def __enter__(self):
+        pass
+
+    def __exit__(self, foo=None, bar=None, bar1=None, foo1=None):
+        pass
 
 
 class DummyXML:
@@ -188,6 +195,7 @@ class DummyWrapper(OSPDaemon):
         self.initialized = True
         self.scan_collection.data_manager = FakeDataManager()
         self.scan_collection.file_storage_dir = '/tmp'
+        self.scan_collection.scan_collection_lock = FakeDataManager()
 
     def check(self):
         return self.checkresult
