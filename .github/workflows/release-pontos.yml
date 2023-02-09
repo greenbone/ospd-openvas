@@ -12,20 +12,6 @@ jobs:
     if: (github.event_name == 'workflow_dispatch') || (contains( github.event.pull_request.labels.*.name, 'make release') && github.event.pull_request.merged == true)
     runs-on: "ubuntu-latest"
     steps:
-<<<<<<< HEAD
-    - name: Release with release action
-      uses: greenbone/actions/release-python@v1
-      with:
-        version: 3.8
-        conventional-commits: true
-        github-user: ${{ secrets.GREENBONE_BOT }}
-        github-user-mail: ${{ secrets.GREENBONE_BOT_MAIL }}
-        github-user-token: ${{ secrets.GREENBONE_BOT_TOKEN }}
-        gpg-key: ${{ secrets.GPG_KEY }}
-        gpg-fingerprint: ${{ secrets.GPG_FINGERPRINT }}
-        gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
-        strategy: patch
-=======
       - name: Setting the Reference
         run: |
           if [[ "${{ github.event_name }}" = "workflow_dispatch" ]]; then
@@ -46,4 +32,3 @@ jobs:
           gpg-passphrase: ${{ secrets.GPG_PASSPHRASE }}
           strategy: calendar
           ref: ${{ env.RELEASE_REF }}
->>>>>>> cf177f9f (Change: Use a single release workflow file)
