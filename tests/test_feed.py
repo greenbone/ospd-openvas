@@ -29,7 +29,7 @@ class FeedCommandTestCase(TestCase):
         f = Feed()
         proc = f.perform_feed_sync_self_test_success()
 
-        mock_subproc.assert_called_with('greenbone-nvt-sync --selftest')
+        mock_subproc.assert_called_with('greenbone-feed-sync --selftest')
 
         self.assertIsNotNone(proc)
 
