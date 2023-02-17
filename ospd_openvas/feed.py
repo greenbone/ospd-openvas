@@ -29,7 +29,7 @@ class Feed:
         """Calls greenbone-nvt-sync with --selftest option"""
 
         try:
-            return subprocess.getstatusoutput("greenbone-nvt-sync --selftest")
+            return subprocess.getstatusoutput("greenbone-feed-sync --selftest")
         except (subprocess.SubprocessError, OSError) as e:
             # the command is not available
             logger.warning('Feed sync self test failed. Reason %s', e)
