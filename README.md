@@ -66,6 +66,9 @@ file too:
 
     Defaults        secure_path=<existing paths...>:<install prefix>/sbin
 
+`ospd-openvas` calls an external tool to test if a feed update is possible.
+For this, the [greenbone-feed-sync](https://github.com/greenbone/greenbone-feed-sync) external tool is required.
+
 ## Usage
 
 There are no special usage aspects for this module beyond the generic usage
