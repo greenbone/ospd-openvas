@@ -26,7 +26,7 @@ class Feed:
     """Class for getting feed info and checks"""
 
     def perform_feed_sync_self_test_success(self) -> tuple:
-        """Calls greenbone-nvt-sync with --selftest option"""
+        """Calls greenbone-feed-sync with --selftest option"""
 
         try:
             return subprocess.getstatusoutput("greenbone-feed-sync --selftest")
