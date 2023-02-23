@@ -219,6 +219,16 @@ class CliParser:
                 'Default %(default)s'
             ),
         )
+        parser.add_argument(
+            '--feed-updater',
+            default="openvas",
+            choices=['openvas', 'nasl-cli'],
+            help=(
+                'Sets the method of updating the feed.'
+                ' Can either be openvas or nasl-cli.'
+                ' Default: %(default)s.'
+            ),
+        )
 
         self.parser = parser
 

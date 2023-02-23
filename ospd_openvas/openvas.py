@@ -28,6 +28,22 @@ logger = logging.getLogger(__name__)
 _BOOL_DICT = {'no': 0, 'yes': 1}
 
 
+class NASLCli:
+    """Class for calling nasl-cli executable"""
+
+    @staticmethod
+    def load_vts_into_redis() -> bool:
+        """Loads all VTs into the redis database"""
+        try:
+            subprocess.check_call(
+                ['nasl-cli', 'feed', 'update'], stdout=subprocess.DEVNULL
+            )
+            return True
+        except (subprocess.SubprocessError, OSError) as err:
+            logger.error('nasl-cli failed to load VTs. %s', err)
+            return False
+
+
 class Openvas:
     """Class for calling the openvas executable"""
 
