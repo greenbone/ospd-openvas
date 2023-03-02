@@ -50,7 +50,7 @@ from ospd_openvas.nvticache import NVTICache
 from ospd_openvas.db import MainDB, BaseDB
 from ospd_openvas.lock import LockFile
 from ospd_openvas.preferencehandler import PreferenceHandler
-from ospd_openvas.openvas import Openvas
+from ospd_openvas.openvas import NASLCli, Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
 from ospd_openvas.feed import Feed
@@ -472,6 +472,7 @@ class OSPDopenvas(OSPDaemon):
         lock_file_dir='/var/lib/openvas',
         mqtt_broker_address="localhost",
         mqtt_broker_port=1883,
+        feed_updater="openvas",
         disable_notus_hashsum_verification=False,
         **kwargs,
     ):
@@ -488,6 +489,7 @@ class OSPDopenvas(OSPDaemon):
                 disable_notus_hashsum_verification,
             )
 
+        self.feed_updater = feed_updater
         self.nvti = NVTICache(self.main_db)
 
         super().__init__(
@@ -670,8 +672,13 @@ class OSPDopenvas(OSPDaemon):
         # reload notus cache
         if self.notus:
             self.notus.reload_cache()
+        loaded = False
+        if self.feed_updater == "nasl-cli":
+            loaded = NASLCli.load_vts_into_redis()
+        else:
+            loaded = Openvas.load_vts_into_redis()
 
-        if Openvas.load_vts_into_redis():
+        if loaded:
             new = self.nvti.get_feed_version()
             if new != old:
                 logger.info(
