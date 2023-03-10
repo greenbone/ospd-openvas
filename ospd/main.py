@@ -1,4 +1,4 @@
-# Copyright (C) 2014-2021 Greenbone Networks GmbH
+# Copyright (C) 2014-2021 Greenbone AG
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 #
@@ -34,7 +34,7 @@ from ospd.server import TlsServer, UnixSocketServer, BaseServer
 from ospd.logger import init_logging
 
 
-COPYRIGHT = """Copyright (C) 2014-2021 Greenbone Networks GmbH
+COPYRIGHT = """Copyright (C) 2014-2021 Greenbone AG
 License GPLv2+: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law."""
