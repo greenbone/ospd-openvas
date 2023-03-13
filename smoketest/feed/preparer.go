@@ -123,7 +123,7 @@ func (p *preparer) feedInfo() error {
 		}
 		fmt.Fprintf(fout, "PLUGIN_SET = \"%d\"\n", time.Now().UnixMilli())
 		fmt.Fprintf(fout, "PLUGIN_FEED = \"%s\"\n", "Policy Plugins Only")
-		fmt.Fprintf(fout, "FEED_VENDOR = \"%s\"\n", "Greenbone Networks GmbH")
+		fmt.Fprintf(fout, "FEED_VENDOR = \"%s\"\n", "Greenbone AG")
 		fmt.Fprintf(fout, "FEED_HOME = \"%s\"\n", "N/A")
 		fmt.Fprintf(fout, "FEED_NAME = \"%s\"\n", "PPO")
 		fout.Close()
