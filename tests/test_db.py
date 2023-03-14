@@ -58,8 +58,15 @@ class TestOpenvasDB(TestCase):
         self.assertEqual(OpenvasDB.get_database_address(), "unix:///foo/bar")
         self.assertEqual(mock_openvas.get_settings.call_count, 2)
 
-    def test_create_context_fail(self, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_create_context_fail(self, mock_openvas: MagicMock, mock_redis):
         mock_redis.from_url.side_effect = RCE
+        mock_check = mock_openvas.check.return_value
+        mock_check.get.return_value = True
+
+        OpenvasDB._db_address = None  # pylint: disable=protected-access
+        mock_settings = mock_openvas.get_settings.return_value
+        mock_settings.get.return_value = None
 
         logging.Logger.error = MagicMock()
 
@@ -71,8 +78,16 @@ class TestOpenvasDB(TestCase):
             'Redis Error: Not possible to connect to the kb.'
         )
 
-    def test_create_context_success(self, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_create_context_success(self, mock_openvas: MagicMock, mock_redis):
         ctx = mock_redis.from_url.return_value
+        mock_check = mock_openvas.check.return_value
+        mock_check.get.return_value = True
+
+        OpenvasDB._db_address = None  # pylint: disable=protected-access
+        mock_settings = mock_openvas.get_settings.return_value
+        mock_settings.get.return_value = None
+
         ret = OpenvasDB.create_context()
         self.assertIs(ret, ctx)
 
@@ -328,17 +343,37 @@ class TestOpenvasDB(TestCase):
         with self.assertRaises(RequiredArgument):
             OpenvasDB.get_key_count(None)
 
-    def test_find_database_by_pattern_none(self, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_find_database_by_pattern_none(
+        self, mock_openvas: MagicMock, mock_redis
+    ):
         ctx = mock_redis.from_url.return_value
         ctx.keys.return_value = None
+
+        mock_check = mock_openvas.check.return_value
+        mock_check.get.return_value = True
+
+        OpenvasDB._db_address = None  # pylint: disable=protected-access
+        mock_settings = mock_openvas.get_settings.return_value
+        mock_settings.get.return_value = None
 
         new_ctx, index = OpenvasDB.find_database_by_pattern('foo*', 123)
 
         self.assertIsNone(new_ctx)
         self.assertIsNone(index)
 
-    def test_find_database_by_pattern(self, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_find_database_by_pattern(
+        self, mock_openvas: MagicMock, mock_redis
+    ):
         ctx = mock_redis.from_url.return_value
+
+        mock_check = mock_openvas.check.return_value
+        mock_check.get.return_value = True
+
+        OpenvasDB._db_address = None  # pylint: disable=protected-access
+        mock_settings = mock_openvas.get_settings.return_value
+        mock_settings.get.return_value = None
 
         # keys is called twice per iteration
         ctx.keys.side_effect = [None, None, None, None, True, True]
@@ -689,8 +724,16 @@ class MainDBTestCase(TestCase):
         ctx.hdel.assert_called_with(DBINDEX_NAME, maindb.index)
         ctx.flushdb.assert_called_with()
 
-    def test_get_new_kb_database(self, mock_redis):
+    @patch('ospd_openvas.db.Openvas')
+    def test_get_new_kb_database(self, mock_openvas: MagicMock, mock_redis):
         ctx = mock_redis.from_url.return_value
+
+        mock_check = mock_openvas.check.return_value
+        mock_check.get.return_value = True
+
+        OpenvasDB._db_address = None  # pylint: disable=protected-access
+        mock_settings = mock_openvas.get_settings.return_value
+        mock_settings.get.return_value = None
 
         maindb = MainDB(ctx)
         maindb._max_dbindex = 123  # pylint: disable=protected-access
