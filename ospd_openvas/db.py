@@ -72,6 +72,13 @@ class OpenvasDB:
     @classmethod
     def get_database_address(cls) -> Optional[str]:
         if not cls._db_address:
+            if not Openvas.check():
+                logger.error(
+                    'openvas executable not available. Please install openvas'
+                    ' into your PATH.'
+                )
+                sys.exit(1)
+
             settings = Openvas.get_settings()
 
             cls._db_address = settings.get('db_address')
