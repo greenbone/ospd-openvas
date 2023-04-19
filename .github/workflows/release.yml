@@ -37,17 +37,15 @@ jobs:
   release:
     name: release
     if: |
-      ${{
         (github.event_name == 'workflow_dispatch') ||
         (
-          ( github.event.pull_request.merged == true) &&
+          github.event.pull_request.merged == true &&
           ( 
             contains(github.event.pull_request.labels.*.name, 'major_release') ||
             contains(github.event.pull_request.labels.*.name, 'minor_release') ||
             contains(github.event.pull_request.labels.*.name, 'patch_release')
           )
         )
-      }}
     runs-on: "ubuntu-latest"
     steps:
       - name: set RELEASE_KIND = ${{ github.event.inputs.release }}
@@ -136,11 +134,12 @@ jobs:
       - run: mkdir assets/
       - name: release ${{ env.LATEST_VERSION }} -> ${{ env.NEW_VERSION }}
         run: |
+          export PROJECT=$(echo "${{ github.repository }}" | sed 's/.*\///' )
           pontos-changelog \
             --current-version ${{ env.LATEST_VERSION }} \
             --next-version ${{ env.NEW_VERSION }} \
             --config changelog.toml \
-            --project openvas-scanner \
+            --project $PROJECT \
             --versioning-scheme semver \
             -o /tmp/changelog.md   || true
           # we would rather have empty release notes than no release
@@ -150,13 +149,14 @@ jobs:
           echo "${{ secrets.GREENBONE_BOT_TOKEN }}" | gh auth login --with-token
           # lets see how smart it is
           export nrn="v${{ env.NEW_VERSION }}"
+          export filename="$PROJECT-$nrn"
           gh release create "$nrn" -F /tmp/changelog.md
           mkdir -p assets
           ls -las assets/
-          curl -Lo assets/$nrn.zip https://github.com/nichtsfrei/openvas-scanner/archive/refs/tags/$nrn.zip
-          curl -Lo assets/$nrn.tar.gz https://github.com/nichtsfrei/openvas-scanner/archive/refs/tags/$nrn.tar.gz
+          curl -Lo assets/$filename.zip https://github.com/${{ github.repository }}/archive/refs/tags/$nrn.zip
+          curl -Lo assets/$filename.tar.gz https://github.com/${{ github.repository }}/archive/refs/tags/$nrn.tar.gz
           echo -e "${{ secrets.GPG_KEY }}" > private.pgp
           echo ${{ secrets.GPG_PASSPHRASE }} | bash .github/sign-assets.sh private.pgp
-          rm assets/$nrn.zip
-          rm assets/$nrn.tar.gz
+          rm assets/$filename.zip
+          rm assets/$filename.tar.gz
           gh release upload $nrn assets/*
