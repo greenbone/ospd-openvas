@@ -53,7 +53,6 @@ from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import NASLCli, Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
-from ospd_openvas.feed import Feed
 
 SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
@@ -655,10 +654,10 @@ class OSPDopenvas(OSPDaemon):
                 else:
                     feed_status["lockfile_in_use"] = '1'
 
-        feed = Feed()
-        _exit_error, _error_msg = feed.perform_feed_sync_self_test_success()
-        feed_status["self_test_exit_error"] = str(_exit_error)
-        feed_status["self_test_error_msg"] = _error_msg
+        # The feed self test is not performed any more, but the following
+        # entries are kept for backward compatibility.
+        feed_status["self_test_exit_error"] = "0"
+        feed_status["self_test_error_msg"] = None
 
         return feed_status
 
