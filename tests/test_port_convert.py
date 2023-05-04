@@ -43,7 +43,7 @@ PORT_LISTS = {
     "WEB_SERVICES": "T:80-80,443-443",
 }
 
-logging.disable()
+logging.disable(logging.CRITICAL)
 
 
 class ValidatePortList(unittest.TestCase):
