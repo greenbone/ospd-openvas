@@ -44,6 +44,7 @@ RUN apt-get update && \
     procps \
     python3 \
     python3-pip \
+    tini \
     python3-dev && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
@@ -67,6 +68,6 @@ RUN python3 -m pip install /ospd-openvas/*
 
 RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
 
-ENTRYPOINT ["/usr/local/bin/entrypoint"]
+ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint"]
 
 CMD ["ospd-openvas", "--config", "/etc/gvm/ospd-openvas.conf", "-f", "-m", "666"]
