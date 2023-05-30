@@ -119,6 +119,6 @@ are active.
 
 ## License
 
-Copyright (C) 2018-2022 [Greenbone Networks GmbH](https://www.greenbone.net/)
+Copyright (C) 2018-2022 [Greenbone AG](https://www.greenbone.net/)
 
 Licensed under the [GNU Affero General Public License v3.0 or later](COPYING).

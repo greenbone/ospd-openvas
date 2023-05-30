@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2023 Greenbone AG
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /*
 Package notus is testing ospd-openvas functionality specific to enable notus.
 */

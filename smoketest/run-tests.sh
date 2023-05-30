@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# SPDX-FileCopyrightText: 2023 Greenbone AG
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 # Is a convenience script to start redis, ospd-openvas and execute smoketests
 
 shutdown() {

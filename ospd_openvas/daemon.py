@@ -1,21 +1,7 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2014-2021 Greenbone Networks GmbH
+# SPDX-FileCopyrightText: 2014-2023 Greenbone AG
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 
 # pylint: disable=too-many-lines
 
@@ -53,7 +39,6 @@ from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import NASLCli, Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
-from ospd_openvas.feed import Feed
 
 SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
 if SENTRY_DSN_OSPD_OPENVAS:
@@ -655,10 +640,10 @@ class OSPDopenvas(OSPDaemon):
                 else:
                     feed_status["lockfile_in_use"] = '1'
 
-        feed = Feed()
-        _exit_error, _error_msg = feed.perform_feed_sync_self_test_success()
-        feed_status["self_test_exit_error"] = str(_exit_error)
-        feed_status["self_test_error_msg"] = _error_msg
+        # The feed self test is not performed any more, but the following
+        # entries are kept for backward compatibility.
+        feed_status["self_test_exit_error"] = "0"
+        feed_status["self_test_error_msg"] = None
 
         return feed_status
 
