@@ -15,7 +15,7 @@ from typing import Optional, Dict, List, Tuple, Iterator, Any
 from datetime import datetime
 
 from pathlib import Path
-from os import geteuid, environ
+from os import geteuid
 
 import psutil
 
@@ -39,18 +39,6 @@ from ospd_openvas.preferencehandler import PreferenceHandler
 from ospd_openvas.openvas import NASLCli, Openvas
 from ospd_openvas.vthelper import VtHelper
 from ospd_openvas.messaging.mqtt import MQTTClient, MQTTDaemon, MQTTSubscriber
-
-SENTRY_DSN_OSPD_OPENVAS = environ.get("SENTRY_DSN_OSPD_OPENVAS")
-if SENTRY_DSN_OSPD_OPENVAS:
-    # pylint: disable=import-error
-    import sentry_sdk
-
-    sentry_sdk.init(  # pylint: disable=abstract-class-instantiated
-        SENTRY_DSN_OSPD_OPENVAS,
-        traces_sample_rate=1.0,
-        server_name=environ.get('SENTRY_SERVER_NAME'),
-        environment=environ.get('SENTRY_ENVIRONMENT'),
-    )
 
 logger = logging.getLogger(__name__)
 
