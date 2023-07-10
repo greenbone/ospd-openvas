@@ -19,8 +19,8 @@ RUN apt-get update && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python -m pip install --upgrade pip && \
-    python3 -m pip install poetry
+RUN python3 -m pip install --upgrade --break-system-packages pip && \
+    python3 -m pip install --break-system-packages poetry
 
 RUN rm -rf dist && poetry build -f wheel
 
@@ -64,7 +64,7 @@ RUN mkdir -p /run/ospd && \
 
 COPY --from=builder /source/dist/* /ospd-openvas/
 
-RUN python3 -m pip install /ospd-openvas/*
+RUN python3 -m pip install --break-system-packages /ospd-openvas/*
 
 RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
 
