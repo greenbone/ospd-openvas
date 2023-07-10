@@ -1,4 +1,4 @@
-ARG VERSION=unstable
+ARG VERSION=edge
 
 FROM golang AS tools
 COPY smoketest /usr/local/src
