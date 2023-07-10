@@ -12,18 +12,10 @@ FROM greenbone/openvas-scanner:unstable
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
     mosquitto \
     redis \
+    gcc \
+    python3-dev \
     python3 \
     python3-pip \
-    python3-setuptools \
-    python3-packaging \
-    python3-wrapt \
-    python3-cffi \
-    python3-psutil \
-    python3-lxml \
-    python3-defusedxml \
-    python3-redis \
-    python3-gnupg \
-    python3-paho-mqtt \
     openssh-server &&\
 	apt-get remove --purge --auto-remove -y &&\
 	rm -rf /var/lib/apt/lists/*
@@ -40,7 +32,7 @@ RUN chown gvm:redis /var/run/ospd
 RUN touch /etc/openvas/openvas_log.conf
 RUN chown gvm:redis /etc/openvas/openvas_log.conf
 WORKDIR /usr/local/src/ospd-openvas
-RUN python3 -m pip install .
+RUN python3 -m pip install --break-system-packages .
 RUN chown gvm:redis /var/log/gvm
 RUN mkdir /run/mosquitto
 RUN echo "allow_anonymous true" >> /etc/mosquitto.conf
@@ -66,7 +58,7 @@ RUN mv /usr/local/src/plugins /var/lib/openvas/plugins
 RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/plugins
 
 RUN rm -rf /usr/local/src/ospd-openvas
-RUN apt-get remove --purge --auto-remove -y python3-pip python3-packaging
+RUN apt-get remove --purge --auto-remove -y python3-pip
 RUN chown -R gvm:redis /var/lib/openvas/plugins/
 RUN mkdir /run/sshd
 # make gvm capable of running sshd
