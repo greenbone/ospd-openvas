@@ -17,13 +17,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: greenbone/actions/is-latest-tag@v2
         id: latest
-      - name: 'set IS_VERSION_TAG'
-        run: |
-          echo "IS_VERSION_TAG=${{ github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}" >> $GITHUB_ENV
-          # set defaults
-          echo "IS_LATEST_TAG=false" >> $GITHUB_ENV
-          fi
-      - name: 'Setup meta information (IS_VERSION_TAG: ${{ env.IS_VERSION_TAG }}, IS_LATEST_TAG: ${{ steps.latest.outputs.is-latest-tag }} )'
+      - name: 'Setup meta information (IS_LATEST_TAG: ${{ steps.latest.outputs.is-latest-tag }} )'
         id: meta
         uses: docker/metadata-action@v4
         with:
@@ -37,9 +31,9 @@ jobs:
             type=raw,value=latest,enable=${{ steps.latest.outputs.is-latest-tag == 'true' }}
             type=raw,value=stable,enable=${{ steps.latest.outputs.is-latest-tag == 'true' }}
             # if tag version is set than create a version tags
-            type=semver,pattern={{version}},enable=${{ env.IS_VERSION_TAG }}
-            type=semver,pattern={{major}}.{{minor}},enable=${{ env.IS_VERSION_TAG }}
-            type=semver,pattern={{major}},enable=${{ env.IS_VERSION_TAG }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
             # if we are on the main branch set edge
             type=edge,branch=main
             # use branch-sha otherwise for pushes to branches other then main (will not be uploaded)
