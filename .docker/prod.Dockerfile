@@ -51,6 +51,7 @@ RUN apt-get update && \
 
 # produces the bug ` ‘/usr/share/doc/python3-impacket/examples/wmiexec.py’: [Errno 2] No such file or directory`
 RUN apt-get remove -y python3-impacket || true
+RUN apt-get autoremove -y
 
 RUN addgroup --gid 1001 --system ospd-openvas && \
     adduser --no-create-home --shell /bin/false --disabled-password \
