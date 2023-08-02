@@ -49,6 +49,9 @@ RUN apt-get update && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
+# produces the bug ` ‘/usr/share/doc/python3-impacket/examples/wmiexec.py’: [Errno 2] No such file or directory`
+RUN apt-get remove -y python3-impacket || true
+
 RUN addgroup --gid 1001 --system ospd-openvas && \
     adduser --no-create-home --shell /bin/false --disabled-password \
     --uid 1001 --system --group ospd-openvas
@@ -65,6 +68,11 @@ RUN mkdir -p /run/ospd && \
 COPY --from=builder /source/dist/* /ospd-openvas/
 
 RUN python3 -m pip install --break-system-packages /ospd-openvas/*
+# install impacket via pip and not apt-get to get the latest version
+RUN python3 -m pip install --break-system-packages impacket 
+# openvas is expecting impacket-wmiexec to be in the path although it got renamed
+# until openvas is fixed we create a symlink
+RUN ln -s /usr/local/bin/wmiexec.py /usr/local/bin/impacket-wmiexec
 
 RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
 
