@@ -58,7 +58,7 @@ pylint = "^2.13.9"
 rope = "^1.9.0"
 autohooks-plugin-pylint = ">=21.6.0"
 autohooks-plugin-black = ">=22.7.0"
-pontos = ">=22.7.2"
+pontos = ">=22.8.0"
 black = ">=22.6.0"
 
 [tool.poetry.scripts]
