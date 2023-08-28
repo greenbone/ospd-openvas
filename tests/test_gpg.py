@@ -21,7 +21,9 @@ class GpgTest(TestCase):
     @patch("pathlib.Path")
     def test_reload(self, gmock, pathmock: Path):
         def on_failure(_: Optional[Dict[str, str]]) -> Dict[str, str]:
-            raise Exception("verification_failed")
+            raise Exception(  # pylint: disable=broad-exception-raised
+                "verification_failed"
+            )
 
         omock = Mock()
         emock = Mock()
