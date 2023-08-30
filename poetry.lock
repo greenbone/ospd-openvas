@@ -664,14 +664,14 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4)", "pytest-co
 
 [[package]]
 name = "pontos"
-version = "23.8.2"
+version = "23.8.5"
 description = "Common utilities and tools maintained by Greenbone Networks"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pontos-23.8.2-py3-none-any.whl", hash = "sha256:3af9313865646a214aa2fa82e18d01486d3d8f122c0576faa8c87fdc06888b9b"},
-    {file = "pontos-23.8.2.tar.gz", hash = "sha256:4dcffb326ae4a1a75b5740c7970337227553decd7e0128c0225eed338490d3a6"},
+    {file = "pontos-23.8.5-py3-none-any.whl", hash = "sha256:6435668a3b1bc33b1e23d3bc8886487589e75bfb54b9edafb74795bcfca4df23"},
+    {file = "pontos-23.8.5.tar.gz", hash = "sha256:a18de945e316dc979b6a7f7c544060ad878b49e230e9bcf467c7c24b3bbd8437"},
 ]
 
 [package.dependencies]
@@ -808,14 +808,14 @@ validation = ["pydantic (>=1.7.4)"]
 
 [[package]]
 name = "redis"
-version = "4.6.0"
+version = "5.0.0"
 description = "Python client for Redis database and key-value store"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "redis-4.6.0-py3-none-any.whl", hash = "sha256:e2b03db868160ee4591de3cb90d40ebb50a90dd302138775937f6a42b7ed183c"},
-    {file = "redis-4.6.0.tar.gz", hash = "sha256:585dc516b9eb042a619ef0a39c3d7d55fe81bdb4df09a52c9cdde0d07bf1aa7d"},
+    {file = "redis-5.0.0-py3-none-any.whl", hash = "sha256:06570d0b2d84d46c21defc550afbaada381af82f5b83e5b3777600e05d8e2ed0"},
+    {file = "redis-5.0.0.tar.gz", hash = "sha256:5cea6c0d335c9a7332a460ed8729ceabb4d0c489c7285b0a86dbbf8a017bd120"},
 ]
 
 [package.dependencies]
@@ -1024,4 +1024,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "764a4243ccc37430ae1f47833ba52aee11e0fb3234271496bba8f4503fb4e6bb"
+content-hash = "3d9a04df0c6a2b9baa4e392912fd3603e9306a08fa8d9c8e7fee754229cc2c3f"
