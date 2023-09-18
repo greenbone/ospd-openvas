@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/login-action@v2
+      - uses: docker/login-action@v3
         with:
           username: greenbonebot
           password: ${{ secrets.GREENBONE_BOT_TOKEN }}
