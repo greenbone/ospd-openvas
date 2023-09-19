@@ -5,9 +5,17 @@ updates:
     schedule:
       interval: weekly
       time: "04:00"
+    groups:
+      python-packages:
+        patterns:
+          - "*"
     open-pull-requests-limit: 10
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
