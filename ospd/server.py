@@ -63,8 +63,8 @@ class Stream:
                 except (socket.error, BrokenPipeError) as e:
                     logger.error("Error sending data to the client. %s", e)
                     ret_success = False
-                finally:
-                    return ret_success  # pylint: disable=lost-exception
+
+                return ret_success
 
             try:
                 b_sent = self.socket.send(data[b_start:b_end])

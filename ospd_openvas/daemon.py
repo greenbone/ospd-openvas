@@ -275,7 +275,7 @@ OSPD_PARAMS = {
         + '993,995,1723,3306,3389,5900,8080',
         'mandatory': 0,
         'visible_for_client': True,
-        'description': ('Port list used for host alive detection.'),
+        'description': 'Port list used for host alive detection.',
     },
     'test_alive_hosts_only': {
         'type': 'boolean',
@@ -533,7 +533,7 @@ class OSPDopenvas(OSPDaemon):
         """Set OSPD_PARAMS with the params taken from the openvas executable."""
         param_list = Openvas.get_settings()
 
-        for elem in param_list:  # pylint: disable=consider-using-dict-items
+        for elem in param_list.items():
             if elem not in OSPD_PARAMS:
                 self.scan_only_params[elem] = param_list[elem]
             else:
@@ -655,8 +655,10 @@ class OSPDopenvas(OSPDaemon):
             new = self.nvti.get_feed_version()
             if new != old:
                 logger.info(
-                    "Finished loading VTs. The VT cache has been updated from"
-                    " version %s to %s.",
+                    (
+                        "Finished loading VTs. The VT cache has been updated"
+                        " from version %s to %s."
+                    ),
                     old,
                     new,
                 )
@@ -1019,8 +1021,10 @@ class OSPDopenvas(OSPDaemon):
                 # Cleaning in case of Zombie Process
                 if ovas_process.status() == psutil.STATUS_ZOMBIE:
                     logger.debug(
-                        '%s: Process with PID %s is a Zombie process.'
-                        ' Cleaning up...',
+                        (
+                            '%s: Process with PID %s is a Zombie process.'
+                            ' Cleaning up...'
+                        ),
                         scan_id,
                         ovas_process.pid,
                     )
@@ -1158,8 +1162,10 @@ class OSPDopenvas(OSPDaemon):
                     kbdb, scan_id, kbdb.get_scan_process_id()
                 )
                 logger.error(
-                    'It was not possible run the task %s, since openvas ended '
-                    'unexpectedly with errors during launching.',
+                    (
+                        'It was not possible run the task %s, since openvas'
+                        ' ended unexpectedly with errors during launching.'
+                    ),
                     scan_id,
                 )
                 return
