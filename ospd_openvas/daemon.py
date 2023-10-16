@@ -463,6 +463,7 @@ class OSPDopenvas(OSPDaemon):
             )
 
         self.feed_updater = feed_updater
+        self.signature_check = kwargs.get('signature_check')
         self.nvti = NVTICache(self.main_db)
 
         super().__init__(
@@ -647,7 +648,7 @@ class OSPDopenvas(OSPDaemon):
             self.notus.reload_cache()
         loaded = False
         if self.feed_updater == "nasl-cli":
-            loaded = NASLCli.load_vts_into_redis()
+            loaded = NASLCli.load_vts_into_redis(self.signature_check)
         else:
             loaded = Openvas.load_vts_into_redis()
 

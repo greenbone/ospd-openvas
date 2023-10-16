@@ -19,12 +19,18 @@ class NASLCli:
     """Class for calling nasl-cli executable"""
 
     @staticmethod
-    def load_vts_into_redis() -> bool:
+    def load_vts_into_redis(signature_check: bool) -> bool:
         """Loads all VTs into the redis database"""
         try:
-            subprocess.check_call(
-                ['nasl-cli', 'feed', 'update'], stdout=subprocess.DEVNULL
-            )
+            if signature_check:
+                subprocess.check_call(
+                    ['nasl-cli', 'feed', 'update', '-x'],
+                    stdout=subprocess.DEVNULL,
+                )
+            else:
+                subprocess.check_call(
+                    ['nasl-cli', 'feed', 'update'], stdout=subprocess.DEVNULL
+                )
             return True
         except (subprocess.SubprocessError, OSError) as err:
             logger.error('nasl-cli failed to load VTs. %s', err)
