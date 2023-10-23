@@ -84,13 +84,13 @@ black = ">=20.8"
 
 [[package]]
 name = "autohooks-plugin-pylint"
-version = "23.4.0"
+version = "23.10.0"
 description = "An autohooks plugin for python code linting via pylint"
 optional = false
-python-versions = ">=3.7.2,<4.0.0"
+python-versions = ">=3.9,<4.0"
 files = [
-    {file = "autohooks_plugin_pylint-23.4.0-py3-none-any.whl", hash = "sha256:2dd581c3764949ef9c1041f5a34206cac796a342a900f47e5f42346e80598009"},
-    {file = "autohooks_plugin_pylint-23.4.0.tar.gz", hash = "sha256:746c24a73bb312e9883f531d13db16da4bd05949969e7adeee3e8d1105a9c6c2"},
+    {file = "autohooks_plugin_pylint-23.10.0-py3-none-any.whl", hash = "sha256:49e1e60b81f48ca17d55a6660bff9aae0e9bd8cda2ec6f4ef1237b2f86475682"},
+    {file = "autohooks_plugin_pylint-23.10.0.tar.gz", hash = "sha256:ed2f82ba89d28f772562794734eb37ae630b7a3011526e9cdfc13240865b0359"},
 ]
 
 [package.dependencies]
