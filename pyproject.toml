@@ -55,7 +55,7 @@ python-gnupg = ">=0.4.8,<0.6.0"
 
 [tool.poetry.dev-dependencies]
 pylint = "^3.0.2"
-rope = "^1.10.0"
+rope = "^1.11.0"
 autohooks-plugin-pylint = ">=21.6.0"
 autohooks-plugin-black = ">=22.7.0"
 pontos = ">=22.8.0"
