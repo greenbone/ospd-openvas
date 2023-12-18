@@ -208,6 +208,25 @@ class CliParser:
             ),
         )
         parser.add_argument(
+            '--mqtt-broker-username',
+            default=None,
+            type=str,
+            help=(
+                'Username to connect to MQTT broker for MQTT communication.'
+                'Default %(default)s'
+            ),
+        )
+        parser.add_argument(
+            '--mqtt-broker-password',
+            default=None,
+            type=str,
+            help=(
+                'PASSWORD to connect to MQTT broker for MQTT communication.'
+                'Default %(default)s'
+            ),
+        )
+
+        parser.add_argument(
             '--feed-updater',
             default="openvas",
             choices=['openvas', 'nasl-cli'],

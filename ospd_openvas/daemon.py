@@ -493,6 +493,8 @@ class OSPDopenvas(OSPDaemon):
 
         self._mqtt_broker_address = mqtt_broker_address
         self._mqtt_broker_port = mqtt_broker_port
+        self._mqtt_broker_username = kwargs.get('mqtt_broker_username')
+        self._mqtt_broker_password = kwargs.get('mqtt_broker_password')
 
     def init(self, server: BaseServer) -> None:
         notus_handler = NotusResultHandler(self.report_results)
@@ -501,6 +503,11 @@ class OSPDopenvas(OSPDaemon):
             client = MQTTClient(
                 self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
             )
+            if self._mqtt_broker_username and self._mqtt_broker_password:
+                client.username_pw_set(
+                    self._mqtt_broker_username, self._mqtt_broker_password
+                )
+
             daemon = MQTTDaemon(client)
             subscriber = MQTTSubscriber(client)
 
