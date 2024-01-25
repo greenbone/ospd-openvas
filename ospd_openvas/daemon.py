@@ -497,28 +497,6 @@ class OSPDopenvas(OSPDaemon):
         self._mqtt_broker_password = kwargs.get('mqtt_broker_password')
 
     def init(self, server: BaseServer) -> None:
-        notus_handler = NotusResultHandler(self.report_results)
-
-        if self._mqtt_broker_address:
-            client = MQTTClient(
-                self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
-            )
-            if self._mqtt_broker_username and self._mqtt_broker_password:
-                client.username_pw_set(
-                    self._mqtt_broker_username, self._mqtt_broker_password
-                )
-
-            daemon = MQTTDaemon(client)
-            subscriber = MQTTSubscriber(client)
-
-            subscriber.subscribe(ResultMessage, notus_handler.result_handler)
-            daemon.run()
-        else:
-            logger.info(
-                "MQTT Broker Adress empty. MQTT disabled. Unable to get Notus"
-                " results."
-            )
-
         self.scan_collection.init()
 
         server.start(self.handle_client_stream)
@@ -526,6 +504,27 @@ class OSPDopenvas(OSPDaemon):
         self.scanner_info['version'] = Openvas.get_version()
 
         self.set_params_from_openvas_settings()
+
+        # Do not init MQTT daemon if Notus runs via openvasd.
+        if not self.scan_only_params.get("openvasd_server"):
+            notus_handler = NotusResultHandler(self.report_results)
+
+            if self._mqtt_broker_address:
+                client = MQTTClient(
+                    self._mqtt_broker_address, self._mqtt_broker_port, "ospd"
+                )
+                daemon = MQTTDaemon(client)
+                subscriber = MQTTSubscriber(client)
+
+                subscriber.subscribe(
+                    ResultMessage, notus_handler.result_handler
+                )
+                daemon.run()
+            else:
+                logger.info(
+                    "MQTT Broker Address empty. MQTT disabled. "
+                    "Unable to get Notus results."
+                )
 
         with self.feed_lock.wait_for_lock():
             self.update_vts()
