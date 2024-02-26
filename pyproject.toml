@@ -51,11 +51,11 @@ lxml = ">=4.5.2,<6.0.0"
 defusedxml = ">=0.6,<0.8"
 deprecated = "^1.2.10"
 # use v1.x due to https://github.com/eclipse/paho.mqtt.python/issues/814
-paho-mqtt = "^1.6"
+paho-mqtt = ">=1.6,<3.0"
 python-gnupg = ">=0.4.8,<0.6.0"
 
 [tool.poetry.dev-dependencies]
-pylint = "^3.0.3"
+pylint = "^3.1.0"
 rope = "^1.12.0"
 autohooks-plugin-pylint = ">=21.6.0"
 autohooks-plugin-black = ">=22.7.0"
