@@ -41,7 +41,6 @@ class ScanProgress(IntEnum):
 
 
 class ScanCollection:
-
     """Scans collection, managing scans and results read and write, exposing
     only needed information.
 
