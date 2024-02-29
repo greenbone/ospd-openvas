@@ -366,7 +366,6 @@ def safe_int(value: str) -> Optional[int]:
 
 
 class OpenVasVtsFilter(VtsFilter):
-
     """Methods to overwrite the ones in the original class."""
 
     def __init__(self, nvticache: NVTICache, notus: Notus) -> None:
@@ -435,7 +434,6 @@ class OpenVasVtsFilter(VtsFilter):
 
 
 class OSPDopenvas(OSPDaemon):
-
     """Class for ospd-openvas daemon."""
 
     def __init__(
