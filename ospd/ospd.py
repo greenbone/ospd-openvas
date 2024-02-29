@@ -87,7 +87,6 @@ is_uuid_re = re.compile(
 
 
 class OSPDaemon:
-
     """Daemon class for OSP traffic handling.
 
     Every scanner wrapper should subclass it and make necessary additions and
@@ -808,9 +807,9 @@ class OSPDaemon:
         """Returns a dictionary with scan_id scan's progress information."""
         current_progress = dict()
 
-        current_progress[
-            'current_hosts'
-        ] = self.scan_collection.get_current_target_progress(scan_id)
+        current_progress['current_hosts'] = (
+            self.scan_collection.get_current_target_progress(scan_id)
+        )
         current_progress['overall'] = self.get_scan_progress(scan_id)
         current_progress['count_alive'] = self.scan_collection.get_count_alive(
             scan_id
@@ -818,9 +817,9 @@ class OSPDaemon:
         current_progress['count_dead'] = self.scan_collection.get_count_dead(
             scan_id
         )
-        current_progress[
-            'count_excluded'
-        ] = self.scan_collection.get_simplified_exclude_host_count(scan_id)
+        current_progress['count_excluded'] = (
+            self.scan_collection.get_simplified_exclude_host_count(scan_id)
+        )
         current_progress['count_total'] = self.scan_collection.get_count_total(
             scan_id
         )

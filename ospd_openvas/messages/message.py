@@ -54,9 +54,9 @@ class Message:
     def serialize(self) -> Dict[str, Union[int, str]]:
         return {
             "message_id": str(self.message_id),
-            "message_type": self.message_type.value
-            if self.message_type
-            else None,
+            "message_type": (
+                self.message_type.value if self.message_type else None
+            ),
             "group_id": str(self.group_id),
             "created": self.created.timestamp(),
         }
