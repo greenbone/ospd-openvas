@@ -29,7 +29,6 @@ class RequiredArgument(OspdError):
 
 
 class OspdCommandError(OspdError):
-
     """This is an exception that will result in an error message to the
     client"""
 
