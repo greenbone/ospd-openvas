@@ -6,9 +6,12 @@ on:
 
 jobs:
   deploy:
+    permissions:
+      id-token: write
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/project/ospd-openvas/
     steps:
       - name: Build and publish to PyPI
         uses: greenbone/actions/pypi-upload@v3
-        with:
-          pypi-token: ${{ secrets.PYPI_TOKEN }}

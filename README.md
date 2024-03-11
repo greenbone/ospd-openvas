@@ -22,7 +22,7 @@ Python 3.7 and later is supported.
 `ospd-openvas` has dependencies on the following Python packages:
 
 - `defusedxml`
-- `depreacted`
+- `deprecated`
 - `lxml`
 - `packaging`
 - `paho-mqtt`

@@ -29,7 +29,6 @@ def create_process(
 
 
 class ResultType(object):
-
     """Various scan results types values."""
 
     ALARM = 0

@@ -1370,7 +1370,7 @@ class ScanTestCase(unittest.TestCase):
         current_hosts = progress.findall('host')
         self.assertEqual(len(current_hosts), 2)
 
-        count_excluded = progress.findtext('count_excluded')
+        count_excluded = progress.findtext('count_total_excluded')
         self.assertEqual(count_excluded, '0')
 
     def test_set_get_vts_version(self):

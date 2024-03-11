@@ -41,7 +41,6 @@ class ScanProgress(IntEnum):
 
 
 class ScanCollection:
-
     """Scans collection, managing scans and results read and write, exposing
     only needed information.
 
@@ -280,6 +279,7 @@ class ScanCollection:
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
         scan_info['count_total'] = None
+        scan_info['count_total_excluded'] = 0
         scan_info['excluded_simplified'] = None
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
@@ -384,6 +384,19 @@ class ScanCollection:
 
         self.scans_table[scan_id]['count_total'] = count_total
 
+    def update_count_total_excluded(
+        self, scan_id: str, count_excluded: int
+    ) -> int:
+        """Sets a scan's total hosts."""
+
+        self.scans_table[scan_id]['count_total_excluded'] = count_excluded
+
+    def get_count_total_excluded(self, scan_id: str) -> int:
+        """Get a scan's total host count."""
+
+        count_excluded = self.scans_table[scan_id]['count_total_excluded']
+        return count_excluded
+
     def get_count_total(self, scan_id: str) -> int:
         """Get a scan's total host count."""
 
@@ -480,15 +493,15 @@ class ScanCollection:
         in the target."""
 
         total_hosts = self.get_count_total(scan_id)
-        exc_hosts = self.get_simplified_exclude_host_count(scan_id)
         count_alive = self.get_count_alive(scan_id)
         count_dead = self.get_count_dead(scan_id)
         host_progresses = self.get_current_target_progress(scan_id)
+        finished_hosts = self.get_finished_hosts_count(scan_id)
 
         try:
             t_prog = int(
                 (sum(host_progresses.values()) + 100 * count_alive)
-                / (total_hosts - exc_hosts - count_dead)
+                / (total_hosts + finished_hosts - count_dead)
             )
         except ZeroDivisionError:
             # Consider the case in which all hosts are dead or excluded
@@ -546,6 +559,14 @@ class ScanCollection:
     def get_finished_hosts(self, scan_id: str) -> str:
         """Get the finished host list sent by the client for a given target."""
         return self.scans_table[scan_id]['target'].get('finished_hosts')
+
+    def get_finished_hosts_count(self, scan_id: str) -> int:
+        """Get the finished host list sent by the client for a given target."""
+        fin_hosts = target_str_to_list(self.get_finished_hosts(scan_id))
+        finish_count = 0
+        if fin_hosts:
+            finish_count = len(fin_hosts)
+        return finish_count
 
     def get_credentials(self, scan_id: str) -> Dict[str, Dict[str, str]]:
         """Get a scan's credential list. It return dictionary with

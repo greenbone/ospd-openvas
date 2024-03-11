@@ -366,7 +366,6 @@ def safe_int(value: str) -> Optional[int]:
 
 
 class OpenVasVtsFilter(VtsFilter):
-
     """Methods to overwrite the ones in the original class."""
 
     def __init__(self, nvticache: NVTICache, notus: Notus) -> None:
@@ -435,7 +434,6 @@ class OpenVasVtsFilter(VtsFilter):
 
 
 class OSPDopenvas(OSPDaemon):
-
     """Class for ospd-openvas daemon."""
 
     def __init__(
@@ -861,6 +859,7 @@ class OSPDopenvas(OSPDaemon):
                 or res["result_type"] == "HOST_END"
             )
             host_count = res["result_type"] == "HOSTS_COUNT"
+            host_excluded = res["result_type"] == "HOSTS_EXCLUDED"
             vt_aux = None
 
             # URI is optional and containing must be checked
@@ -871,6 +870,7 @@ class OSPDopenvas(OSPDaemon):
                 and not host_deny
                 and not start_end_msg
                 and not host_count
+                and not host_excluded
             ):
                 if not roid and res["result_type"] != 'ERRMSG':
                     logger.warning('Missing VT oid for a result')
@@ -962,6 +962,19 @@ class OSPDopenvas(OSPDaemon):
                     self.set_scan_total_hosts(scan_id, count_total)
                 except TypeError:
                     logger.debug('Error processing total host count')
+
+            # To update total excluded hosts
+            if res["result_type"] == 'HOSTS_EXCLUDED':
+                try:
+                    total_excluded = int(res["value"])
+                    logger.debug(
+                        '%s: Set total excluded counted by OpenVAS: %d',
+                        scan_id,
+                        total_excluded,
+                    )
+                    self.set_scan_total_excluded_hosts(scan_id, total_excluded)
+                except TypeError:
+                    logger.debug('Error processing total excluded hosts')
 
         # Insert result batch into the scan collection table.
         if len(res_list):
