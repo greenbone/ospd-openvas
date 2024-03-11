@@ -518,13 +518,13 @@ files = [
 
 [[package]]
 name = "packaging"
-version = "23.2"
+version = "24.0"
 description = "Core utilities for Python packages"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "packaging-23.2-py3-none-any.whl", hash = "sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7"},
-    {file = "packaging-23.2.tar.gz", hash = "sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5"},
+    {file = "packaging-24.0-py3-none-any.whl", hash = "sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5"},
+    {file = "packaging-24.0.tar.gz", hash = "sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9"},
 ]
 
 [[package]]
@@ -568,13 +568,13 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-
 
 [[package]]
 name = "pontos"
-version = "24.2.2"
+version = "24.3.1"
 description = "Common utilities and tools maintained by Greenbone Networks"
 optional = false
 python-versions = ">=3.9,<4.0"
 files = [
-    {file = "pontos-24.2.2-py3-none-any.whl", hash = "sha256:3e45e17c6627cc32c5fd9ccffb74abba5b324b5da80c564c250dd5386de4aaf0"},
-    {file = "pontos-24.2.2.tar.gz", hash = "sha256:2599ce6adb885cc6f92750d5972cdfa9c6b6eb5fa35485bb429927a60713c2d5"},
+    {file = "pontos-24.3.1-py3-none-any.whl", hash = "sha256:9561fd69a0a0e14b9cb802dece0c3d090d88094363a6b8df526e2fcff3c48255"},
+    {file = "pontos-24.3.1.tar.gz", hash = "sha256:df05a7703686b227053750c4855dcb622640a598103538fcc8691b1624678aa0"},
 ]
 
 [package.dependencies]
@@ -585,7 +585,7 @@ packaging = ">=20.3"
 python-dateutil = ">=2.8.2"
 rich = ">=12.4.4"
 semver = ">=2.13"
-shtab = ">=1.6.5"
+shtab = ">=1.7.0"
 tomlkit = ">=0.5.11"
 
 [[package]]
@@ -710,17 +710,17 @@ validation = ["pydantic (>=2.5.3)"]
 
 [[package]]
 name = "redis"
-version = "5.0.2"
+version = "5.0.3"
 description = "Python client for Redis database and key-value store"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "redis-5.0.2-py3-none-any.whl", hash = "sha256:4caa8e1fcb6f3c0ef28dba99535101d80934b7d4cd541bbb47f4a3826ee472d1"},
-    {file = "redis-5.0.2.tar.gz", hash = "sha256:3f82cc80d350e93042c8e6e7a5d0596e4dd68715babffba79492733e1f367037"},
+    {file = "redis-5.0.3-py3-none-any.whl", hash = "sha256:5da9b8fe9e1254293756c16c008e8620b3d15fcc6dde6babde9541850e72a32d"},
+    {file = "redis-5.0.3.tar.gz", hash = "sha256:4973bae7444c0fbed64a06b87446f79361cb7e4ec1538c022d696ed7a5015580"},
 ]
 
 [package.dependencies]
-async-timeout = ">=4.0.3"
+async-timeout = {version = ">=4.0.3", markers = "python_full_version < \"3.11.3\""}
 
 [package.extras]
 hiredis = ["hiredis (>=1.0.0)"]
@@ -925,4 +925,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "ad75364865f907951ac9a99735a726e20285a338c04571585386ada3f80c639d"
+content-hash = "09f7a8047acdc939f0cf2aa3495db6c0c16f87f840e75ab62f5a4a219aba7e4a"
