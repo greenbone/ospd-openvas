@@ -279,7 +279,7 @@ class ScanCollection:
         scan_info['count_alive'] = 0
         scan_info['count_dead'] = 0
         scan_info['count_total'] = None
-        scan_info['count_total_excluded'] = 0
+        scan_info['count_excluded'] = 0
         scan_info['excluded_simplified'] = None
         scan_info['target'] = unpickled_scan_info.pop('target')
         scan_info['vts'] = unpickled_scan_info.pop('vts')
@@ -384,17 +384,15 @@ class ScanCollection:
 
         self.scans_table[scan_id]['count_total'] = count_total
 
-    def update_count_total_excluded(
-        self, scan_id: str, count_excluded: int
-    ) -> int:
+    def update_count_excluded(self, scan_id: str, count_excluded: int) -> int:
         """Sets a scan's total hosts."""
 
-        self.scans_table[scan_id]['count_total_excluded'] = count_excluded
+        self.scans_table[scan_id]['count_excluded'] = count_excluded
 
-    def get_count_total_excluded(self, scan_id: str) -> int:
+    def get_count_excluded(self, scan_id: str) -> int:
         """Get a scan's total host count."""
 
-        count_excluded = self.scans_table[scan_id]['count_total_excluded']
+        count_excluded = self.scans_table[scan_id]['count_excluded']
         return count_excluded
 
     def get_count_total(self, scan_id: str) -> int:
