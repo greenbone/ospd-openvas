@@ -817,12 +817,13 @@ class OSPDaemon:
         current_progress['count_dead'] = self.scan_collection.get_count_dead(
             scan_id
         )
-        current_progress['count_excluded'] = (
+        current_progress['count_total_excluded'] = (
             self.scan_collection.get_simplified_exclude_host_count(scan_id)
         )
+
         current_progress['count_total'] = self.scan_collection.get_count_total(
             scan_id
-        )
+        ) + self.scan_collection.get_finished_hosts_count(scan_id)
 
         logging.debug(
             "%s: Current progress: \n%s",
@@ -1255,6 +1256,15 @@ class OSPDaemon:
         """Sets a scan's total hosts. Allow the scanner to update
         the total count of host to be scanned."""
         self.scan_collection.update_count_total(scan_id, count_total)
+
+    def set_scan_total_excluded_hosts(
+        self, scan_id: str, excluded_hosts: int
+    ) -> None:
+        """Sets a scan's total excluded hosts. Allow the scanner to update
+        the total excluded count of hosts from the host to be scanned."""
+        self.scan_collection.update_count_total_excluded(
+            scan_id, excluded_hosts
+        )
 
     def clean_forgotten_scans(self) -> None:
         """Check for old stopped or finished scans which have not been
