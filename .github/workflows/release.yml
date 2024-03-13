@@ -140,6 +140,7 @@ jobs:
             --next-version ${{ env.NEW_VERSION }} \
             --config changelog.toml \
             --project $PROJECT \
+            --repository ${{ github.repository }} \
             --versioning-scheme semver \
             -o /tmp/changelog.md   || true
           # we would rather have empty release notes than no release
