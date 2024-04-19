@@ -5,7 +5,6 @@
 
 import json
 import logging
-
 from functools import partial
 from socket import gaierror, timeout
 from threading import Thread
@@ -13,9 +12,9 @@ from time import sleep
 from typing import Callable, Type
 
 import paho.mqtt.client as mqtt
+from paho.mqtt import __version__ as paho_mqtt_version
 
 from ..messages.message import Message
-
 from .publisher import Publisher
 from .subscriber import Subscriber
 
@@ -24,6 +23,10 @@ logger = logging.getLogger(__name__)
 OSPD_OPENVAS_MQTT_CLIENT_ID = "ospd-openvas"
 
 QOS_AT_LEAST_ONCE = 1
+
+
+def is_paho_mqtt_version_2() -> bool:
+    return paho_mqtt_version.startswith("2")
 
 
 class MQTTClient(mqtt.Client):
@@ -36,7 +39,21 @@ class MQTTClient(mqtt.Client):
         self._mqtt_broker_address = mqtt_broker_address
         self._mqtt_broker_port = mqtt_broker_port
 
-        super().__init__(client_id=client_id, protocol=mqtt.MQTTv5)
+        mqtt_client_args = {
+            "client_id": client_id,
+            "protocol": mqtt.MQTTv5,
+        }
+
+        if is_paho_mqtt_version_2():
+            logger.debug("Using Paho MQTT version 2")
+            # pylint: disable=no-member
+            mqtt_client_args["callback_api_version"] = (
+                mqtt.CallbackAPIVersion.VERSION1
+            )
+        else:
+            logger.debug("Using Paho MQTT version 1")
+
+        super().__init__(**mqtt_client_args)
 
         self.enable_logger()
 
