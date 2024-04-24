@@ -21,6 +21,7 @@ jobs:
     with:
       build-docker-file: ./.docker/prod.Dockerfile
       build-args: VERSION=${{ contains(github.ref_type, 'tag') && 'stable' || 'edge' }}
+      container-tag-parent: ospd
       helm-chart: openvasd
       image-url: ${{ github.repository }}
       image-labels: |
