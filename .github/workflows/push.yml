@@ -1,0 +1,30 @@
+name: Build and Push Container and Helm Chart
+
+on:
+  push:
+    branches: [ main ]
+    tags: ["v*"]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  building:
+    name: Ospd Openvas
+    uses: greenbone/workflows/.github/workflows/helm-container-build-push-3rd-gen.yml@main
+    with:
+      build-docker-file: ./.docker/prod.Dockerfile
+      build-args: VERSION=${{ contains(github.ref_type, 'tag') && 'stable' || 'edge' }}
+      helm-chart: openvasd
+      image-url: ${{ github.repository }}
+      image-labels: |
+        org.opencontainers.image.vendor=Greenbone
+        org.opencontainers.image.base.name=greenbone/openvas-scanner
+      scout: true
+    secrets: inherit
