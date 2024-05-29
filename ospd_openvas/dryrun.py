@@ -92,6 +92,8 @@ class DryRun:
                 oid = choice(vts)
                 port = choice(tcp)
                 vt = vthelper.get_single_vt(oid)
+                rname = ''
+                rqod = ''
                 if vt:
                     if vt.get('qod_type'):
                         qod_t = vt.get('qod_type')
