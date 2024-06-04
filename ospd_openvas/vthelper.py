@@ -195,6 +195,29 @@ class VtHelper:
             if vt:
                 yield (vt_id, vt)
 
+    def get_vt_id_iterator(
+        self, vt_selection: List[str] = None
+    ) -> Iterator[str]:
+        """Yield the vt ids from the Redis NVTicache."""
+
+        if not vt_selection or details:
+            # notus contains multiple oids per advisory therefore unlike
+            # nasl they share the filename
+            # The vt collection is taken from both Caches
+            if self.notus:
+                vt_collection = chain(
+                    self.notus.get_oids(), self.nvti.get_oids()
+                )
+            else:
+                vt_collection = self.nvti.get_oids()
+
+            if not vt_selection:
+                vt_selection = [v for _, v in vt_collection]
+
+        #vt_selection.sort()
+        for vt_id in vt_selection:
+            yield vt_id
+
     def vt_verification_string_iter(self) -> str:
         # for a reproducible hash calculation
         # the vts must already be sorted in the dictionary.
