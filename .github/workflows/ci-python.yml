@@ -24,6 +24,7 @@ jobs:
         with:
           version: ${{ matrix.python-version }}
           packages: ospd_openvas ospd tests
+          linter: pylint
 
   test:
     name: Run all tests
