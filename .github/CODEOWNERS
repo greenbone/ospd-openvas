@@ -2,5 +2,5 @@
 *                 @greenbone/scanner-maintainers
 
 # dev ops
-.github/          @greenbone/devops @greenbone/scanner-maintainers
-.docker/          @greenbone/devops @greenbone/scanner-maintainers
+.github/          @greenbone/scanner-maintainers
+.docker/          @greenbone/scanner-maintainers
