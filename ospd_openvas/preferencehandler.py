@@ -32,6 +32,8 @@ OID_SMB_AUTH = "1.3.6.1.4.1.25623.1.0.90023"
 OID_ESXI_AUTH = "1.3.6.1.4.1.25623.1.0.105058"
 OID_SNMP_AUTH = "1.3.6.1.4.1.25623.1.0.105076"
 OID_PING_HOST = "1.3.6.1.4.1.25623.1.0.100315"
+# TODO: check me, check me, check me 
+OID_KRB5_AUTH = "1.3.6.1.4.1.25623.1.81.0"
 
 BOREAS_ALIVE_TEST = "ALIVE_TEST"
 BOREAS_ALIVE_TEST_PORTS = "ALIVE_TEST_PORTS"
@@ -589,6 +591,9 @@ class PreferenceHandler:
         for credential in credentials.items():
             service = credential[0]
             cred_params = credentials.get(service)
+            if not cred_params:
+                logger.warning("No credentials parameter found for service %s", service)
+                continue
             cred_type = cred_params.get('type', '')
             username = cred_params.get('username', '')
             password = cred_params.get('password', '')
@@ -664,6 +669,28 @@ class PreferenceHandler:
                 )
                 cred_prefs_list.append(
                     f'{OID_SMB_AUTH}:2:password:SMB password:|||{password}'
+                )
+            elif service == 'krb5':
+                realm = cred_params.get('realm', '')
+                if not realm:
+                    self.errors.append("Missing realm for Kerberos authentication.")
+                    continue
+                kdc = cred_params.get('kdc', '')
+                if not kdc:
+                    self.errors.append("Missing KDC for Kerberos authentication.")
+                    continue
+                cred_prefs_list.append(
+                    f'{OID_KRB5_AUTH}:1:entry:KRB5 login:|||{username}'
+                )
+                cred_prefs_list.append(
+                    f'{OID_KRB5_AUTH}:2:password:KRB5 password:|||{password}'
+                )
+                cred_prefs_list.append(
+                    f'{OID_KRB5_AUTH}:3:entry:KRB5 realm:|||{realm}'
+                )
+                #TODO: add multiple kdcs
+                cred_prefs_list.append(
+                    f'{OID_KRB5_AUTH}:4:entry:KRB5 kdc:|||{kdc}'
                 )
             # Check service esxi
             elif service == 'esxi':
