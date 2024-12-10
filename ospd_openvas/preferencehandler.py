@@ -577,6 +577,11 @@ class PreferenceHandler:
         if prefs_val:
             self.kbdb.add_scan_preferences(self.scan_id, prefs_val)
 
+    def disable_message(self, disabled: str) -> str:
+        """Return a string with the message for exclusive services."""
+        disabled = f"Disabled {disabled}"
+        return disabled + ": KRB5 and SMB credentials are mutually exclusive."
+
     def build_credentials_as_prefs(self, credentials: Dict) -> List[str]:
         """Parse the credential dictionary.
         Arguments:
@@ -586,6 +591,7 @@ class PreferenceHandler:
             A list with the credentials in string format to be
             added to the redis KB.
         """
+
         cred_prefs_list = []
         krb5_set = False
         smb_set = False
@@ -668,9 +674,7 @@ class PreferenceHandler:
             # Check servic smb
             elif service == 'smb':
                 if krb5_set:
-                    self.errors.append(
-                        "Disabled SMB: Kerberos and SMB credentials are mutually exclusive."
-                    )
+                    self.errors.append(self.disable_message("SMB"))
                     continue
                 smb_set = True
                 cred_prefs_list.append(
@@ -681,9 +685,7 @@ class PreferenceHandler:
                 )
             elif service == 'krb5':
                 if smb_set:
-                    self.errors.append(
-                        "Disabled KRB5: Kerberos and SMB credentials are mutually exclusive."
-                    )
+                    self.errors.append(self.disable_message("KRB5"))
                     continue
                 krb5_set = True
                 realm = cred_params.get('realm', '')
