@@ -669,7 +669,7 @@ class PreferenceHandler:
             elif service == 'smb':
                 if krb5_set:
                     self.errors.append(
-                        "Kerberos and SMB credentials are mutually exclusive."
+                        "Disabled SMB: Kerberos and SMB credentials are mutually exclusive."
                     )
                     continue
                 smb_set = True
@@ -682,7 +682,7 @@ class PreferenceHandler:
             elif service == 'krb5':
                 if smb_set:
                     self.errors.append(
-                        "Kerberos and SMB credentials are mutually exclusive."
+                        "Disabled KRB5: Kerberos and SMB credentials are mutually exclusive."
                     )
                     continue
                 krb5_set = True
