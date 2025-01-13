@@ -24,13 +24,13 @@ trio = ["trio (>=0.23)"]
 
 [[package]]
 name = "astroid"
-version = "3.3.5"
+version = "3.3.8"
 description = "An abstract syntax tree for Python with inference support."
 optional = false
 python-versions = ">=3.9.0"
 files = [
-    {file = "astroid-3.3.5-py3-none-any.whl", hash = "sha256:a9d1c946ada25098d790e079ba2a1b112157278f3fb7e718ae6a9252f5835dc8"},
-    {file = "astroid-3.3.5.tar.gz", hash = "sha256:5cfc40ae9f68311075d27ef68a4841bdc5cc7f6cf86671b49f00607d30188e2d"},
+    {file = "astroid-3.3.8-py3-none-any.whl", hash = "sha256:187ccc0c248bfbba564826c26f070494f7bc964fd286b6d9fff4420e55de828c"},
+    {file = "astroid-3.3.8.tar.gz", hash = "sha256:a88c7994f914a4ea8572fac479459f4955eeccc877be3f2d959a33273b0cf40b"},
 ]
 
 [package.dependencies]
@@ -629,13 +629,13 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-
 
 [[package]]
 name = "pontos"
-version = "24.12.4"
+version = "25.1.0"
 description = "Common utilities and tools maintained by Greenbone Networks"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "pontos-24.12.4-py3-none-any.whl", hash = "sha256:ff2b810697b64d80e9526b216db1d477e6d1110b2c8af4f88697668dfbe73190"},
-    {file = "pontos-24.12.4.tar.gz", hash = "sha256:87db5110a235d5bdb6cb400f8b45aaf29ee07de25a680d46122f38d5ed628b47"},
+    {file = "pontos-25.1.0-py3-none-any.whl", hash = "sha256:952764e1b6aa9c1b7436e7fba71e64e6726d04a0a84925d51940998d9c5af667"},
+    {file = "pontos-25.1.0.tar.gz", hash = "sha256:3a2a4267521e316fbac18aa21e7bb779358b1cb47e364ce7869ac4c630621594"},
 ]
 
 [package.dependencies]
@@ -696,17 +696,17 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pylint"
-version = "3.3.2"
+version = "3.3.3"
 description = "python code static checker"
 optional = false
 python-versions = ">=3.9.0"
 files = [
-    {file = "pylint-3.3.2-py3-none-any.whl", hash = "sha256:77f068c287d49b8683cd7c6e624243c74f92890f767f106ffa1ddf3c0a54cb7a"},
-    {file = "pylint-3.3.2.tar.gz", hash = "sha256:9ec054ec992cd05ad30a6df1676229739a73f8feeabf3912c995d17601052b01"},
+    {file = "pylint-3.3.3-py3-none-any.whl", hash = "sha256:26e271a2bc8bce0fc23833805a9076dd9b4d5194e2a02164942cb3cdc37b4183"},
+    {file = "pylint-3.3.3.tar.gz", hash = "sha256:07c607523b17e6d16e2ae0d7ef59602e332caa762af64203c24b41c27139f36a"},
 ]
 
 [package.dependencies]
-astroid = ">=3.3.5,<=3.4.0-dev0"
+astroid = ">=3.3.8,<=3.4.0-dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
     {version = ">=0.2", markers = "python_version < \"3.11\""},
@@ -740,13 +740,13 @@ six = ">=1.5"
 
 [[package]]
 name = "python-gnupg"
-version = "0.5.3"
+version = "0.5.4"
 description = "A wrapper for the Gnu Privacy Guard (GPG or GnuPG)"
 optional = false
 python-versions = "*"
 files = [
-    {file = "python-gnupg-0.5.3.tar.gz", hash = "sha256:290d8ddb9cd63df96cfe9284b9b265f19fd6e145e5582dc58fd7271f026d0a47"},
-    {file = "python_gnupg-0.5.3-py2.py3-none-any.whl", hash = "sha256:2f8a4c6f63766feca6cc1416408f8b84e1b914fe7b54514e570fc5cbe92e9248"},
+    {file = "python-gnupg-0.5.4.tar.gz", hash = "sha256:f2fdb5fb29615c77c2743e1cb3d9314353a6e87b10c37d238d91ae1c6feae086"},
+    {file = "python_gnupg-0.5.4-py2.py3-none-any.whl", hash = "sha256:40ce25cde9df29af91fe931ce9df3ce544e14a37f62b13ca878c897217b2de6c"},
 ]
 
 [[package]]
@@ -988,4 +988,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1d040a2dc241d09db7feb5011e1a94af34600b1621e4c1d453e0087375a84b97"
+content-hash = "78368f6ea7ef643b5b8a81a8829fb3b68cb7507f31eb02f59e1ccaf164291667"
