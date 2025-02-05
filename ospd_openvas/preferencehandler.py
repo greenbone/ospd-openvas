@@ -5,9 +5,9 @@
 
 # pylint: disable=too-many-lines
 
-""" Prepare the preferences to be used by OpenVAS. Get the data from the scan
+"""Prepare the preferences to be used by OpenVAS. Get the data from the scan
 collection and store the data in a redis KB in the right format to be used by
-OpenVAS. """
+OpenVAS."""
 
 import logging
 import binascii
@@ -324,7 +324,7 @@ class PreferenceHandler:
 
     @staticmethod
     def build_alive_test_opt_as_prefs(
-        target_options: Dict[str, str]
+        target_options: Dict[str, str],
     ) -> Dict[str, str]:
         """Parse the target options dictionary.
         Arguments:

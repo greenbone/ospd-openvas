@@ -5,7 +5,7 @@
 
 # pylint: disable=too-many-lines
 
-""" Setup for the OSP OpenVAS Server. """
+"""Setup for the OSP OpenVAS Server."""
 
 import logging
 import time

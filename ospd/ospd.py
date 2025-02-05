@@ -5,8 +5,7 @@
 
 # pylint: disable=too-many-lines
 
-""" OSP Daemon core class.
-"""
+"""OSP Daemon core class."""
 
 import logging
 import multiprocessing

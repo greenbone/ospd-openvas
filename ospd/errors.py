@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" OSP class for handling errors.
-"""
+"""OSP class for handling errors."""
 
 from ospd.xml import simple_response_str
 

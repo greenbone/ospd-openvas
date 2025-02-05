@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" OSP XML utils class.
-"""
+"""OSP XML utils class."""
 
 import re
 

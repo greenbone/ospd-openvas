@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Common Vulnerability Scoring System handling class. """
+"""Common Vulnerability Scoring System handling class."""
 
 import logging
 
