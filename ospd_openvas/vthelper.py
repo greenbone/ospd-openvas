@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Provide functions to handle VT Info. """
+"""Provide functions to handle VT Info."""
 
 from hashlib import sha256
 import logging

@@ -3,7 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Provide functions to handle NVT Info Cache. """
+"""Provide functions to handle NVT Info Cache."""
 
 import logging
 

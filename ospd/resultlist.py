@@ -5,8 +5,7 @@
 
 # pylint: disable=too-many-lines
 
-""" Class for handling list of resutls.
-"""
+"""Class for handling list of resutls."""
 
 from collections import OrderedDict
 from typing import Dict

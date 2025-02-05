@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Helper classes for parsing and creating OSP XML requests and responses
-"""
+"""Helper classes for parsing and creating OSP XML requests and responses"""
 
 from typing import Dict, Union, List, Any
 

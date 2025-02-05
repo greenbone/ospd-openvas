@@ -120,7 +120,7 @@ def gpg_sha256sums(
 
 
 def create_verify(
-    sha256sums: Callable[[], Dict[str, str]]
+    sha256sums: Callable[[], Dict[str, str]],
 ) -> Callable[[Path], bool]:
     """
     create_verify is returning a closure based on the sha256sums.

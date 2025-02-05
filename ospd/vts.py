@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Classes for storing VTs
-"""
+"""Classes for storing VTs"""
 import logging
 import multiprocessing
 from hashlib import sha256

@@ -32,7 +32,7 @@ def hashsum_verificator(
         return lambda _: True
 
     def on_hash_sum_verification_failure(
-        _: Optional[Dict[str, str]]
+        _: Optional[Dict[str, str]],
     ) -> Dict[str, str]:
         logger.warning(
             "GPG verification of notus sha256sums failed."

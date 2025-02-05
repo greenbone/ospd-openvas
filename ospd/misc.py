@@ -5,8 +5,7 @@
 
 # pylint: disable=too-many-lines
 
-""" Miscellaneous classes and functions related to OSPD.
-"""
+"""Miscellaneous classes and functions related to OSPD."""
 
 import logging
 import os

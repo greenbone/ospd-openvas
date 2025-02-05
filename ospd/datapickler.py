@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Pickle Handler class
-"""
+"""Pickle Handler class"""
 
 import logging
 import pickle

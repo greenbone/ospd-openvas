@@ -5,7 +5,7 @@
 
 # pylint: disable=too-many-lines
 
-""" Methods for dry run """
+"""Methods for dry run"""
 
 import logging
 import time

@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Helper module for network related functions
-"""
+"""Helper module for network related functions"""
 
 import binascii
 import collections
