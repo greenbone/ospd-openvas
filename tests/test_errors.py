@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Test module for OspdCommandError class
-"""
+"""Test module for OspdCommandError class"""
 
 import unittest
 

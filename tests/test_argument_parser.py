@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Test module for command line arguments.
-"""
+"""Test module for command line arguments."""
 
 import unittest
 

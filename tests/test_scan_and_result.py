@@ -5,8 +5,7 @@
 
 # pylint: disable=too-many-lines
 
-""" Test module for scan runs
-"""
+"""Test module for scan runs"""
 
 import time
 import unittest

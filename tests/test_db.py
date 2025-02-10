@@ -6,7 +6,7 @@
 
 # pylint: disable=unused-argument
 
-""" Unit Test for ospd-openvas """
+"""Unit Test for ospd-openvas"""
 
 import logging
 
