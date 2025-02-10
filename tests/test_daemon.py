@@ -6,7 +6,7 @@
 
 # pylint: disable=invalid-name,line-too-long,no-value-for-parameter
 
-""" Unit Test for ospd-openvas """
+"""Unit Test for ospd-openvas"""
 
 import io
 import logging

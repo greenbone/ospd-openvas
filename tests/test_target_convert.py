@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Test suites for Target manipulations.
-"""
+"""Test suites for Target manipulations."""
 
 import unittest
 from unittest.mock import patch

@@ -3,8 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-""" Test suites for Port manipulation.
-"""
+"""Test suites for Port manipulation."""
 
 import unittest
 

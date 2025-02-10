@@ -6,7 +6,7 @@
 
 # pylint: disable=unused-argument, protected-access, invalid-name
 
-""" Unit Test for ospd-openvas """
+"""Unit Test for ospd-openvas"""
 
 import logging
 
