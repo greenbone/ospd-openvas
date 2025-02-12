@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import time
 from datetime import datetime
 from uuid import UUID
 
@@ -92,6 +93,8 @@ class MQTTDaemonTestCase(TestCase):
         daemon = MQTTDaemon(client)
 
         daemon.run()
+
+        time.sleep(3)
 
         client.connect.assert_called_with()
 
