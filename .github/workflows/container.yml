@@ -11,7 +11,7 @@ on:
 jobs:
   production:
     name: Production Images
-    runs-on: ubuntu-latest
+    runs-on: self-hosted-generic
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

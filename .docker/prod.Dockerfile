@@ -24,7 +24,7 @@ RUN python3 -m pip install --upgrade --break-system-packages pip && \
 
 RUN rm -rf dist && poetry build -f wheel
 
-FROM greenbone/openvas-scanner:${VERSION}
+FROM registry.community.greenbone.net/community/openvas-scanner:${VERSION}
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
