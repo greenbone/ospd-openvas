@@ -193,7 +193,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
       </e>
     </example>
     <example>
-      <summary>KRB5 Credentials. The kdc value is only used when no matching realm was found.</summary>
+      <summary>Kerberos Credentials. The kdc value is only used when no matching realm was found.</summary>
       <e>
          <credential type="up" service="krb5">
            <username>krb5user</username>
