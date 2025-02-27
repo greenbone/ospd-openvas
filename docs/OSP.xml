@@ -93,6 +93,8 @@ SPDX-License-Identifier: GPL-2.0-or-later
       <e>auth_algorithm</e>
       <e>privacy_password</e>
       <e>privacy_algorithm</e>
+      <e>realm</e>
+      <e>kdc</e>
     </pattern>
     <ele>
       <name>username</name>
@@ -128,6 +130,14 @@ SPDX-License-Identifier: GPL-2.0-or-later
     </ele>
     <ele>
       <name>privacy_algorithm</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>realm</name>
+      <pattern>text</pattern>
+    </ele>
+    <ele>
+      <name>kdc</name>
       <pattern>text</pattern>
     </ele>
     <example>
@@ -180,6 +190,17 @@ SPDX-License-Identifier: GPL-2.0-or-later
           <privacy_password>privpass</privacy_password>
           <privacy_algorithm>aes</privacy_algorithm>
         </credential>
+      </e>
+    </example>
+    <example>
+      <summary>Kerberos Credentials. The kdc value is only used when no matching realm was found.</summary>
+      <e>
+         <credential type="up" service="krb5">
+           <username>krb5user</username>
+           <password>mypass</password>
+           <realm>myrealm</realm>
+           <kdc>mykdc</kdc>
+         </credential>
       </e>
     </example>
   </element>
