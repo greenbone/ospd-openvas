@@ -1,4 +1,4 @@
-FROM greenbone/vulnerability-tests AS nasl
+FROM registry.community.greenbone.net/community/vulnerability-tests AS nasl
 # use latest version
 RUN mv `ls -d /var/lib/openvas/* | sort -r | head -n 1`/vt-data/nasl /nasl
 
@@ -7,7 +7,7 @@ COPY --chmod=7777 smoketest /usr/local/src
 WORKDIR /usr/local/src
 RUN make build-cmds
 
-FROM greenbone/openvas-scanner:unstable
+FROM registry.community.greenbone.net/community/openvas-scanner:edge
 
 RUN apt-get update && apt-get install --no-install-recommends --no-install-suggests -y \
     mosquitto \
