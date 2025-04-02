@@ -3,6 +3,7 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
+import time
 from datetime import datetime
 from uuid import UUID
 
@@ -87,12 +88,15 @@ class MQTTDaemonTestCase(TestCase):
         daemon = MQTTDaemon(client)
 
     def test_run(self):
-        client = mock.MagicMock()
-
+        client = mock.MagicMock(side_effect=1)
         daemon = MQTTDaemon(client)
+        t_ini = time.time()
 
         daemon.run()
+        # In some systems the spawn of the thread can take longer than expected.
+        # Therefore, we wait until the thread is spawned or times out.
+        while len(client.mock_calls) == 0 and time.time() - t_ini < 10:
+            time.sleep(1)
 
         client.connect.assert_called_with()
-
         client.loop_start.assert_called_with()
