@@ -12,7 +12,7 @@ import time
 import copy
 
 from typing import Optional, Dict, List, Tuple, Iterator, Any
-from datetime import datetime
+from datetime import datetime, timezone
 
 from pathlib import Path
 from os import geteuid
@@ -398,7 +398,7 @@ class OpenVasVtsFilter(VtsFilter):
         e.g. 20190319122532. This always refers to UTC.
         """
 
-        return datetime.utcfromtimestamp(int(value)).strftime("%Y%m%d%H%M%S")
+        return datetime.fromtimestamp(int(value), timezone.utc).strftime("%Y%m%d%H%M%S")
 
     def get_filtered_vts_list(self, vts, vt_filter: str) -> Optional[List[str]]:
         """Gets a collection of vulnerability test from the redis cache,
