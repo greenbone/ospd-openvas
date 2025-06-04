@@ -91,9 +91,9 @@ This project is maintained by [Greenbone AG](https://www.greenbone.net/).
 ## Contributing
 
 Your contributions are highly appreciated. Please [create a pull
-request](https://github.com/greenbone/ospd-openvas/pulls) on GitHub. Bigger
-changes need to be discussed with the development team via the [issues section
-at GitHub](https://github.com/greenbone/ospd-openvas/issues) first.
+request](https://github.com/greenbone/ospd-openvas/pulls) on GitHub.
+Remember to commit the contribution agreement as explained in [RELICENSING](https://github.com/greenbone/openvas-scanner/tree/main/RELICENSE) folder with your first PR.
+Bigger changes need to be discussed with the development team via the [issues section at GitHub](https://github.com/greenbone/ospd-openvas/issues) first.
 
 For development you should use [poetry](https://python-poetry.org)
 to keep your python packages separated in different environments. First install
