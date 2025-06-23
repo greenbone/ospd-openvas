@@ -694,10 +694,21 @@ class PreferenceHandler:
                         "Missing realm for Kerberos authentication."
                     )
                     continue
+                elif ';' in realm or '|' in realm:
+                    self.errors.append(
+                        "Invalid separator in realm for Kerberos "
+                        "authentication."
+                    )
+                    continue
                 kdc = cred_params.get('kdc', '')
                 if not kdc:
                     self.errors.append(
                         "Missing KDC for Kerberos authentication."
+                    )
+                    continue
+                elif ';' in kdc or '|' in kdc:
+                    self.errors.append(
+                        "Invalid separator in KDC for Kerberos authentication."
                     )
                     continue
                 cred_prefs_list.append(
