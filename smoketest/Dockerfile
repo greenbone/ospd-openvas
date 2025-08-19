@@ -17,8 +17,8 @@ RUN apt-get update && apt-get install --no-install-recommends --no-install-sugge
     python3 \
     python3-pip \
     openssh-server &&\
-	apt-get remove --purge --auto-remove -y &&\
-	rm -rf /var/lib/apt/lists/*
+    apt-get remove --purge --auto-remove -y &&\
+    rm -rf /var/lib/apt/lists/*
 COPY --chmod=7777 . /usr/local/src/ospd-openvas
 COPY smoketest/redis.conf /etc/redis/redis.conf
 RUN rm -rf /var/lib/openvas/plugins/*
@@ -60,8 +60,8 @@ RUN cp -r /usr/local/src/ospd-openvas/smoketest/data/plugins/* /var/lib/openvas/
 RUN rm -rf /usr/local/src/ospd-openvas
 RUN apt-get remove --purge --auto-remove -y python3-pip
 RUN chown -R gvm:redis /var/lib/openvas/plugins/
-RUN mkdir /run/sshd
 # make gvm capable of running sshd
+RUN chown -R gvm:redis /run/sshd
 RUN chown -R gvm:redis /etc/ssh
 RUN echo 'gvm:test' | chpasswd
 RUN sed -i 's/#PidFile/Pidfile/' /etc/ssh/sshd_config
