@@ -585,7 +585,7 @@ class StartScan(BaseCommand):
 
             if xml.get('parallel'):
                 logger.warning(
-                    "parallel attribute of start_scan will be ignored, sice "
+                    "parallel attribute of start_scan will be ignored, since "
                     "parallel scan is not supported by OSPd."
                 )
 
