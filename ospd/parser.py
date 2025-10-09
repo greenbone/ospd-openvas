@@ -276,7 +276,7 @@ class CliParser:
 
         if not configpath.expanduser().resolve().exists():
             if configfile:
-                # user has passed an config file
+                # user has passed a config file
                 # print error and exit
                 self.parser.error(f'Config file {configpath} does not exist')
             else:
