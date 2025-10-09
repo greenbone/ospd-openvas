@@ -193,7 +193,7 @@ class CliParser:
             type=str,
             help=(
                 'Broker address to connect to for MQTT communication.'
-                ' Neccessary to get results from Notus-Scanner.Default'
+                ' Neccessary to get results from Notus-Scanner. Default'
                 ' %(default)s'
             ),
         )
