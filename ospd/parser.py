@@ -173,7 +173,7 @@ class CliParser:
             type=int,
             help=(
                 'Minimum free memory in MB required to run the scan. '
-                'If no enough free memory is available, the scan queued. '
+                'If no enough free memory is available, the scan is queued. '
                 'Default %(default)s, disabled'
             ),
         )
