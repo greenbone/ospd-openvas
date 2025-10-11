@@ -84,6 +84,7 @@ is_uuid_re = re.compile(
     '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
 )
 
+from xml.sax.saxutils import escape, quoteattr
 
 class OSPDaemon:
     """Daemon class for OSP traffic handling.
@@ -125,6 +126,7 @@ class OSPDaemon:
                         dp.unlink()
             return
 
+        self.vt_xml = dict()
         self.scan_collection = ScanCollection(file_storage_dir)
         self.scan_processes = dict()
         remove_previous_data_pickler_files()
@@ -899,6 +901,33 @@ class OSPDaemon:
         from the VTs dictionary."""
         return self.vts.items()
 
+    def get_vt_xml_str_fixed(self, vt_id: str) -> bytes:
+        """Gets a single vulnerability test as an XML string.
+
+        Returns:
+            String of single vulnerability test information as XML string.
+        """
+        if not vt_id:
+            return '<vt/>'.encode('utf-8')
+
+        return '<vt/>'.encode('utf-8')
+
+    def get_vt_xml_str_prepared(self, vt_id: str) -> bytes:
+        """Gets a single vulnerability test as an XML string.
+
+        Returns:
+            String of single vulnerability test information as XML string.
+        """
+        if not vt_id:
+            return '<vt/>'.encode('utf-8')
+
+        return self.vt_xml[vt_id]
+
+    def get_vt_xml_str_iterator(self) -> Iterator[bytes]:
+        """Return iterator object for getting elements
+        from vt_xml."""
+        return self.vt_xml.values()
+
     def get_vt_xml(self, single_vt: Tuple[str, Dict]) -> Element:
         """Gets a single vulnerability test information in XML format.
 
@@ -1002,6 +1031,110 @@ class OSPDaemon:
             vt_xml.append(secET.fromstring(custom_xml_str))
 
         return vt_xml
+
+    def get_vt_xml_str(self, single_vt: Tuple[str, Dict]) -> bytes:
+        """Gets a single vulnerability test as an XML string.
+
+        Returns:
+            String of single vulnerability test information as XML string.
+        """
+        if not single_vt or single_vt[1] is None:
+            return '<vt/>'.encode('utf-8')
+
+        vt_id, vt = single_vt
+
+        name = vt.get('name')
+        vt_str = '<vt id=' + quoteattr(vt_id) + '>'
+
+        for name, value in [('name', name)]:
+            vt_str += '  <' + name + '>' + escape(str(value)) + '</' + name + '>'
+
+        xml_helper = XmlStringVTHelper()
+
+        if vt.get('vt_params'):
+            params_xml_str = xml_helper.get_params_vt_as_xml_str(
+                vt_id, vt.get('vt_params')
+            )
+            vt_str += params_xml_str
+
+        if vt.get('vt_refs'):
+            refs_xml_str = xml_helper.get_refs_vt_as_xml_str(
+                vt_id, vt.get('vt_refs')
+            )
+            vt_str += refs_xml_str
+
+        if vt.get('vt_dependencies'):
+            dependencies = xml_helper.get_dependencies_vt_as_xml_str(
+                vt_id, vt.get('vt_dependencies')
+            )
+            vt_str += dependencies
+
+        if vt.get('creation_time'):
+            vt_ctime = xml_helper.get_creation_time_vt_as_xml_str(
+                vt_id, vt.get('creation_time')
+            )
+            vt_str += vt_ctime
+
+        if vt.get('modification_time'):
+            vt_mtime = xml_helper.get_modification_time_vt_as_xml_str(
+                vt_id, vt.get('modification_time')
+            )
+            vt_str += vt_mtime
+
+        if vt.get('summary'):
+            summary_xml_str = xml_helper.get_summary_vt_as_xml_str(
+                vt_id, vt.get('summary')
+            )
+            vt_str += summary_xml_str
+
+        if vt.get('impact'):
+            impact_xml_str = xml_helper.get_impact_vt_as_xml_str(
+                vt_id, vt.get('impact')
+            )
+            vt_str += impact_xml_str
+
+        if vt.get('affected'):
+            affected_xml_str = xml_helper.get_affected_vt_as_xml_str(
+                vt_id, vt.get('affected')
+            )
+            vt_str += affected_xml_str
+
+        if vt.get('insight'):
+            insight_xml_str = xml_helper.get_insight_vt_as_xml_str(
+                vt_id, vt.get('insight')
+            )
+            vt_str += insight_xml_str
+
+        if vt.get('solution'):
+            solution_xml_str = xml_helper.get_solution_vt_as_xml_str(
+                vt_id,
+                vt.get('solution'),
+                vt.get('solution_type'),
+                vt.get('solution_method'),
+            )
+            vt_str += solution_xml_str
+
+        if vt.get('detection') or vt.get('qod_type') or vt.get('qod'):
+            detection_xml_str = xml_helper.get_detection_vt_as_xml_str(
+                vt_id, vt.get('detection'), vt.get('qod_type'), vt.get('qod')
+            )
+            vt_str += detection_xml_str
+
+        if vt.get('severities'):
+            severities_xml_str = xml_helper.get_severities_vt_as_xml_str(
+                vt_id, vt.get('severities')
+            )
+            vt_str += severities_xml_str
+
+        if vt.get('custom'):
+            custom_xml_str = xml_helper.get_custom_vt_as_xml_str(
+                vt_id, vt.get('custom')
+            )
+            vt_str += custom_xml_str
+
+        vt_str += '</vt>'
+
+        return vt_str.encode('utf-8')
 
     def get_vts_selection_list(
         self, vt_id: str = None, filtered_vts: Dict = None
