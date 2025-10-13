@@ -159,8 +159,14 @@ For further options see the `man` page of `pydoc`.
 Creating a source archive
 -------------------------
 
-To create a .tar.gz file for the `ospd-scanner` module run this command:
+If you already have poetry-core installed you can run this command:
 
-   python3 setup.py sdist
+    python3 -m build --skip-dependency-check --no-isolation --sdist
 
-This will create the archive file in the subdirectory `dist`.
+If you don't have or want to install poetry-core you can run this
+command:
+
+    python3 -m build --sdist
+
+In both cases a source archive for the `ospd-scanner` module will be
+created in the subdirectory *dist*.

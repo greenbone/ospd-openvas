@@ -173,7 +173,7 @@ class CliParser:
             type=int,
             help=(
                 'Minimum free memory in MB required to run the scan. '
-                'If no enough free memory is available, the scan queued. '
+                'If no enough free memory is available, the scan is queued. '
                 'Default %(default)s, disabled'
             ),
         )
@@ -193,7 +193,7 @@ class CliParser:
             type=str,
             help=(
                 'Broker address to connect to for MQTT communication.'
-                ' Neccessary to get results from Notus-Scanner.Default'
+                ' Neccessary to get results from Notus-Scanner. Default'
                 ' %(default)s'
             ),
         )
@@ -203,7 +203,7 @@ class CliParser:
             type=self.network_port,
             help=(
                 'Broker port to connect to for MQTT communication.'
-                ' Neccessary to get results from Notus-Scanner.Default'
+                ' Neccessary to get results from Notus-Scanner.'
                 'Default %(default)s'
             ),
         )
@@ -276,7 +276,7 @@ class CliParser:
 
         if not configpath.expanduser().resolve().exists():
             if configfile:
-                # user has passed an config file
+                # user has passed a config file
                 # print error and exit
                 self.parser.error(f'Config file {configpath} does not exist')
             else:
