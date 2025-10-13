@@ -270,6 +270,29 @@ OSPD_PARAMS_OUT = {
             + 'packet was sent.'
         ),
     },
+    'icmp_retries': {
+        'type': 'integer',
+        'name': 'icmp_retries',
+        'default': 1,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'This is the default amount of icmp packets that will be '
+            + 'sent to the host target during an alive test.'
+        ),
+    },
+    'icmp_grace_period': {
+        'type': 'integer',
+        'name': 'icmp_grace_period',
+        'default': 0,
+        'mandatory': 0,
+        'visible_for_client': True,
+        'description': (
+            'Wait time between icmp packets during alive tests. '
+            + 'Useful for sensitive targets. It can slow '
+            + 'down the alive test.'
+        ),
+    },
     'hosts_allow': {
         'type': 'string',
         'name': 'hosts_allow',

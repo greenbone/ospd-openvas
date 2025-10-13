@@ -110,7 +110,9 @@ func NewServer(address string) (*Server, error) {
 	if err != nil {
 		return nil, err
 	}
-	cfg := mqtt.Configuration{}
+	cfg := mqtt.Configuration{
+		KeepAlive: 5,
+	}
 	client, err := mqtt.New(conn, cfg)
 	if err != nil {
 		return nil, err

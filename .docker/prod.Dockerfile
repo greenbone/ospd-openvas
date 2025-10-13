@@ -19,8 +19,7 @@ RUN apt-get update && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --upgrade --break-system-packages pip && \
-    python3 -m pip install --break-system-packages poetry
+RUN python3 -m pip install --break-system-packages poetry
 
 RUN rm -rf dist && poetry build -f wheel
 
@@ -45,6 +44,7 @@ RUN apt-get update && \
     python3 \
     python3-pip \
     tini \
+    adduser \
     python3-dev && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
