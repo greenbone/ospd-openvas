@@ -221,8 +221,8 @@ class CliParser:
             default=None,
             type=str,
             help=(
-                'PASSWORD to connect to MQTT broker for MQTT communication.'
-                'Default %(default)s'
+                'Password to connect to MQTT broker for MQTT communication.'
+                ' Default %(default)s'
             ),
         )
 
