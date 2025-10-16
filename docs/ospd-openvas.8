@@ -159,6 +159,15 @@ configuration file,
 .I ~/.config/ospd.conf
 contains these options under the section [OSPD - openvas]:
 
+.IP log_config
+Log configuration file path.
+
+.IP port
+TCP port to listen on.
+
+.IP address
+Address to listen on (this corresponds to --bind-address).
+
 .IP unix_socket
 This option specifies the socket path.
 
@@ -168,6 +177,18 @@ It must be set in octal format. E.g. socket_mode = 0o770
 
 .IP pid_file
 Location of the file for the process ID.
+
+.IP lock_file_dir
+Directory where the feed lock file is placed.
+
+.IP key_file
+Server key file.
+
+.IP cert_file
+Server cert file.
+
+.IP ca_file
+CA cert file.
 
 .IP log_level
 Desired level of logging.
@@ -199,6 +220,24 @@ Default 0, disabled.
 .IP min_free_mem_scan_queue
 Minimum free memory in MB required to run the scan. If insufficient free memory is
 available, the scan is queued. Default 0, disabled.
+
+.IP mqtt_broker_address
+Broker address to connect to for MQTT communication.
+
+.IP mqtt_broker_port
+Broker port to connect to for MQTT communication.
+
+.IP mqtt_broker_username
+Username to connect to MQTT broker for MQTT communication.
+
+.IP mqtt_broker_password
+Password to connect to MQTT broker for MQTT communication.
+
+.IP feed_updater
+Sets the method of updating the feed.
+
+.IP signature_check
+Set to true to enable feed signature check.
 
 .SH SEE ALSO
 \fBopenvas(8)\f1, \fBgsad(8)\f1, \fBgvmd(8)\f1, \fBgreenbone-nvt-sync(8)\f1,
