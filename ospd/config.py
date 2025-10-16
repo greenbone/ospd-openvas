@@ -16,6 +16,26 @@ from typing import Dict
 logger = logging.getLogger(__name__)
 
 
+def strtoboolean(value: str) -> bool:
+    """Convert string *value* to boolean.
+
+    "True", "yes", "on" and "1" are converted to True.
+
+    "False", "no", "off" and "0" are converted to False.
+
+    Comparison is done case insensitive.
+
+    Other values cause ValueError.
+    """
+    trues = set(element.casefold() for element in ["true", "yes", "on", "1"])
+    falses = set(element.casefold() for element in ["false", "no", "off", "0"])
+    if value.casefold() in trues:
+        return True
+    if value.casefold() in falses:
+        return False
+    raise ValueError(f"{value} could not be converted to boolean")
+
+
 class Config:
     def __init__(self, section: str = 'main') -> None:
         self._parser = configparser.ConfigParser(default_section=section)
