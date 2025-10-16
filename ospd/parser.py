@@ -204,7 +204,7 @@ class CliParser:
             help=(
                 'Broker port to connect to for MQTT communication.'
                 ' Neccessary to get results from Notus-Scanner.'
-                'Default %(default)s'
+                ' Default %(default)s'
             ),
         )
         parser.add_argument(
@@ -213,7 +213,7 @@ class CliParser:
             type=str,
             help=(
                 'Username to connect to MQTT broker for MQTT communication.'
-                'Default %(default)s'
+                ' Default %(default)s'
             ),
         )
         parser.add_argument(
