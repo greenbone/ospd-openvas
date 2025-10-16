@@ -241,7 +241,7 @@ class CliParser:
             '--signature-check',
             default=False,
             action='store_true',
-            help=('Enable feed signature check.' ' Default: %(default)s.'),
+            help=('Enable feed signature check. Default: %(default)s.'),
         )
 
         self.parser = parser
