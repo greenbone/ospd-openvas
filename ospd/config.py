@@ -15,6 +15,8 @@ from typing import Dict
 
 logger = logging.getLogger(__name__)
 
+booleankeys = ['foreground', 'signature_check']
+
 
 def strtoboolean(value: str) -> bool:
     """Convert string *value* to boolean.
@@ -49,7 +51,11 @@ class Config:
         with path.open() as f:
             parser.read_file(f)
 
-        self._defaults.update(parser.defaults())
+        for key, value in parser.defaults().items():
+            if key in booleankeys:
+                self._defaults[key] = strtoboolean(value)
+            else:
+                self._defaults[key] = value
 
         for key, value in parser.items(def_section):
             self._config.setdefault(def_section, dict())[key] = value
