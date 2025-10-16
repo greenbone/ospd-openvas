@@ -101,6 +101,7 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.mqtt_broker_address, DEFAULT_MQTT_BROKER_ADDRESS)
         self.assertEqual(args.mqtt_broker_port, DEFAULT_MQTT_BROKER_PORT)
         self.assertEqual(args.disable_notus_hashsum_verification, False)
+        self.assertEqual(args.signature_check, False)
 
 
 class ArgumentParserConfigTestCase(unittest.TestCase):
