@@ -114,13 +114,14 @@ class ArgumentParserConfigTestCase(unittest.TestCase):
         config_file = str(here / 'testing.conf')
         args = self.parse_args(['--config', config_file])
 
+        self.assertEqual(args.config, config_file)
+
         self.assertEqual(args.key_file, '/foo/key.pem')
         self.assertEqual(args.niceness, 666)
         self.assertEqual(args.log_level, 'DEBUG')
         self.assertEqual(args.address, '6.6.6.6')
         self.assertEqual(args.port, 6666)
         self.assertEqual(args.scaninfo_store_time, 123)
-        self.assertEqual(args.config, config_file)
         self.assertEqual(args.unix_socket, '/foo/ospd-openvas.sock')
         self.assertEqual(args.pid_file, '/foo/ospd-openvas.pid')
         self.assertEqual(args.lock_file_dir, '/foo/openvas')
