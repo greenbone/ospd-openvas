@@ -87,7 +87,7 @@ Desired level of logging. Default: WARNING
 
 .TP
 .BI "-f, --foreground"
-Run in foreground and logs all messages to console.
+Run in foreground and log all messages to console.
 
 .TP
 .BI "-l " LOG_FILE ", --log-file "LOG_FILE
@@ -160,7 +160,7 @@ configuration file,
 contains these options under the section [OSPD - openvas]:
 
 .IP log_level
-Wished level of logging.
+Desired level of logging.
 
 .IP socket_mode
 This option defines the permissions on a socket.
@@ -177,8 +177,7 @@ Path to the log file. If no log file is given, the system log
 facility is used by default.
 
 .IP foreground
-If this option is set to yes, the daemon logs to the standard output instead of logging
-to a file or syslog.
+Set to true to run in foreground and log all messages to console.
 
 .IP niceness
 Start the scan with the given niceness. Default 10
@@ -191,10 +190,10 @@ Time in hours a scan is stored before being considered forgotten and being delet
 the scan table. Default 0, disabled.
 
 .IP max_scans
-Max. amount of parallel task that can be started. Default 0, disabled.
+Maximum amount of parallel task that can be started. Default 0, disabled.
 
 .IP min_free_mem_scan_queue
-Minimum free memory in MB required to run the scan. If no enough free memory is
+Minimum free memory in MB required to run the scan. If insufficient free memory is
 available, the scan is queued. Default 0, disabled.
 
 .IP max_queued_scans

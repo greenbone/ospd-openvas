@@ -119,7 +119,7 @@ class CliParser:
             '--log-level',
             default='INFO',
             type=self.log_level,
-            help='Wished level of logging. Default: %(default)s',
+            help='Desired level of logging. Default: %(default)s',
         )
         parser.add_argument(
             '-f',
@@ -163,7 +163,7 @@ class CliParser:
             default=DEFAULT_MAX_SCAN,
             type=int,
             help=(
-                'Max. amount of parallel task that can be started. '
+                'Maximum amount of parallel task that can be started. '
                 'Default %(default)s, disabled'
             ),
         )
@@ -173,7 +173,7 @@ class CliParser:
             type=int,
             help=(
                 'Minimum free memory in MB required to run the scan. '
-                'If no enough free memory is available, the scan is queued. '
+                'If insufficient free memory is available, the scan is queued. '
                 'Default %(default)s, disabled'
             ),
         )
