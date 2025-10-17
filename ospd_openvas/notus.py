@@ -256,7 +256,7 @@ class NotusParser(CliParser):
             default=False,
             type=strtoboolean,
             help=(
-                'Disables hashsum verification for notus advisories.'
+                'Disable hashsum verification for notus advisories.'
                 ' %(default)s'
             ),
         )
