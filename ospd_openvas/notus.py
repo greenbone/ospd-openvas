@@ -114,12 +114,12 @@ class Notus:
         self,
         path: Path,
         cache: Cache,
-        disable_hashsum_verification: bool = False,
+        disable_notus_hashsum_verification: bool = False,
     ):
         self.path = path
         self.cache = cache
         self._verifier = None
-        self.disable_hashsum_verification = disable_hashsum_verification
+        self.disable_hashsum_verification = disable_notus_hashsum_verification
 
     def reload_cache(self):
         if self.loading:
