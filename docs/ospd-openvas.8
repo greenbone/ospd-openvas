@@ -57,7 +57,7 @@ Unix file socket to listen on. Default: /var/run/ospd/ospd.sock
 
 .TP
 .BI "-m " SOCKET_MODE ", --socket-mode "SOCKET_MODE
-Unix file socket mode. Default: 0o700
+Unix file socket mode. Default: 0o770
 
 .TP
 .BI "--pid-file "PID_FILE
@@ -87,7 +87,7 @@ Desired level of logging. Default: WARNING
 
 .TP
 .BI "-f, --foreground"
-Run in foreground and logs all messages to console.
+Run in foreground and log all messages to console.
 
 .TP
 .BI "-l " LOG_FILE ", --log-file "LOG_FILE
@@ -148,6 +148,14 @@ nasl-cli. Default: openvas
 Enable feed signature check.
 
 .TP
+.BI "--notus-feed-dir "DIRECTORY
+Directory where notus feed is placed. Default: /var/lib/notus/advisories
+
+.TP
+.BI "--disable-notus-hashsum-verification "BOOLEAN
+Disable hashsum verification for notus advisories. Default: false
+
+.TP
 .BI "--list-commands"
 Display all protocol commands.
 
@@ -159,47 +167,91 @@ configuration file,
 .I ~/.config/ospd.conf
 contains these options under the section [OSPD - openvas]:
 
-.IP log_level
-Wished level of logging.
+.IP log_config
+Log configuration file path.
+
+.IP port
+TCP port to listen on.
+
+.IP address
+Address to listen on (this corresponds to --bind-address).
+
+.IP unix_socket
+This option specifies the socket path.
 
 .IP socket_mode
 This option defines the permissions on a socket.
 It must be set in octal format. E.g. socket_mode = 0o770
 
-.IP unix_socket
-This option specifies the socket path.
-
 .IP pid_file
 Location of the file for the process ID.
+
+.IP lock_file_dir
+Directory where the feed lock file is placed.
+
+.IP key_file
+Server key file.
+
+.IP cert_file
+Server cert file.
+
+.IP ca_file
+CA cert file.
+
+.IP log_level
+Desired level of logging.
+
+.IP foreground
+Set to true to run in foreground and log all messages to console.
 
 .IP log_file
 Path to the log file. If no log file is given, the system log
 facility is used by default.
 
-.IP foreground
-If this option is set to yes, the daemon logs to the standard output instead of logging
-to a file or syslog.
+.IP stream_timeout
+Set a timeout on socket operations. Default 10 seconds
 
 .IP niceness
 Start the scan with the given niceness. Default 10
-
-.IP stream_timeout
-Set a timeout on socket operations. Default 10 seconds
 
 .IP scaninfo_store_time
 Time in hours a scan is stored before being considered forgotten and being delete from
 the scan table. Default 0, disabled.
 
 .IP max_scans
-Max. amount of parallel task that can be started. Default 0, disabled.
-
-.IP min_free_mem_scan_queue
-Minimum free memory in MB required to run the scan. If no enough free memory is
-available, the scan is queued. Default 0, disabled.
+Maximum amount of parallel task that can be started. Default 0, disabled.
 
 .IP max_queued_scans
 Maximum number allowed of queued scans before starting to reject new scans.
 Default 0, disabled.
+
+.IP min_free_mem_scan_queue
+Minimum free memory in MB required to run the scan. If insufficient free memory is
+available, the scan is queued. Default 0, disabled.
+
+.IP mqtt_broker_address
+Broker address to connect to for MQTT communication.
+
+.IP mqtt_broker_port
+Broker port to connect to for MQTT communication.
+
+.IP mqtt_broker_username
+Username to connect to MQTT broker for MQTT communication.
+
+.IP mqtt_broker_password
+Password to connect to MQTT broker for MQTT communication.
+
+.IP feed_updater
+Sets the method of updating the feed.
+
+.IP signature_check
+Set to true to enable feed signature check.
+
+.IP notus_feed_dir
+Directory where notus feed is placed.
+
+.IP disable_notus_hashsum_verification
+Set to true to disable hashsum verification for notus advisories.
 
 .SH SEE ALSO
 \fBopenvas(8)\f1, \fBgsad(8)\f1, \fBgvmd(8)\f1, \fBgreenbone-nvt-sync(8)\f1,

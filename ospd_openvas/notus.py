@@ -10,6 +10,7 @@ from threading import Timer
 import json
 import logging
 
+from ospd.config import strtoboolean
 from ospd.parser import CliParser
 from ospd_openvas.messages.result import ResultMessage
 from ospd_openvas.db import OpenvasDB, MainDB
@@ -113,12 +114,12 @@ class Notus:
         self,
         path: Path,
         cache: Cache,
-        disable_hashsum_verification: bool = False,
+        disable_notus_hashsum_verification: bool = False,
     ):
         self.path = path
         self.cache = cache
         self._verifier = None
-        self.disable_hashsum_verification = disable_hashsum_verification
+        self.disable_hashsum_verification = disable_notus_hashsum_verification
 
     def reload_cache(self):
         if self.loading:
@@ -253,9 +254,9 @@ class NotusParser(CliParser):
         self.parser.add_argument(
             '--disable-notus-hashsum-verification',
             default=False,
-            type=bool,
+            type=strtoboolean,
             help=(
-                'Disables hashsum verification for notus advisories.'
+                'Disable hashsum verification for notus advisories.'
                 ' %(default)s'
             ),
         )
