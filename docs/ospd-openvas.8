@@ -148,6 +148,14 @@ nasl-cli. Default: openvas
 Enable feed signature check.
 
 .TP
+.BI "--notus-feed-dir "DIRECTORY
+Directory where notus feed is placed. Default: /var/lib/notus/advisories
+
+.TP
+.BI "--disable-notus-hashsum-verification "BOOLEAN
+Disable hashsum verification for notus advisories. Default: false
+
+.TP
 .BI "--list-commands"
 Display all protocol commands.
 
@@ -238,6 +246,12 @@ Sets the method of updating the feed.
 
 .IP signature_check
 Set to true to enable feed signature check.
+
+.IP notus_feed_dir
+Directory where notus feed is placed.
+
+.IP disable_notus_hashsum_verification
+Set to true to disable hashsum verification for notus advisories.
 
 .SH SEE ALSO
 \fBopenvas(8)\f1, \fBgsad(8)\f1, \fBgvmd(8)\f1, \fBgreenbone-nvt-sync(8)\f1,
