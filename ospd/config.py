@@ -15,7 +15,11 @@ from typing import Dict
 
 logger = logging.getLogger(__name__)
 
-booleankeys = ['foreground', 'signature_check']
+booleankeys = [
+    'foreground',
+    'signature_check',
+    'disable_notus_hashsum_verification',
+]
 
 
 def strtoboolean(value: str) -> bool:

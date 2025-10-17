@@ -85,6 +85,12 @@ class ArgumentParserTestCase(unittest.TestCase):
         )
         self.assertEqual(args.disable_notus_hashsum_verification, True)
 
+    def test_explicitly_enable_notus_hashsum_verification(self):
+        args = self.parse_args(
+            '--disable-notus-hashsum-verification false'.split()
+        )
+        self.assertEqual(args.disable_notus_hashsum_verification, False)
+
     def test_defaults(self):
         args = self.parse_args([])
 
@@ -142,6 +148,7 @@ class ArgumentParserConfigTestCase(unittest.TestCase):
         self.assertEqual(args.max_queued_scans, 5)
         self.assertEqual(args.min_free_mem_scan_queue, 200)
         self.assertEqual(args.feed_updater, 'nasl-cli')
+        self.assertEqual(args.disable_notus_hashsum_verification, True)
         self.assertEqual(args.signature_check, True)
 
     @patch('sys.stderr', new_callable=StringIO)
