@@ -23,4 +23,5 @@ jobs:
         org.opencontainers.image.vendor=Greenbone
         org.opencontainers.image.base.name=greenbone/openvas-scanner
       ref-name: ${{ inputs.ref-name }}
+      service: openvas-ospd
     secrets: inherit
