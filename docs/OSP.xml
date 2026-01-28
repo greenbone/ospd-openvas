@@ -10,7 +10,7 @@ SPDX-License-Identifier: GPL-2.0-or-later
   <name>Open Scanner Protocol</name>
   <abbreviation>OSP</abbreviation>
   <summary>The Open Scanner Protocol</summary>
-  <version>24.10</version>
+  <version>25.0</version>
 
   <!-- Types. -->
 
