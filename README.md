@@ -17,7 +17,7 @@ you can create scan tasks to use both scanners.
 
 ### Requirements
 
-Python 3.7 and later is supported.
+Python 3.9 and later is supported.
 
 `ospd-openvas` has dependencies on the following Python packages:
 
