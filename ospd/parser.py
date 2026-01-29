@@ -119,7 +119,7 @@ class CliParser:
             '--log-level',
             default='INFO',
             type=self.log_level,
-            help='Wished level of logging. Default: %(default)s',
+            help='Desired level of logging. Default: %(default)s',
         )
         parser.add_argument(
             '-f',
@@ -163,7 +163,7 @@ class CliParser:
             default=DEFAULT_MAX_SCAN,
             type=int,
             help=(
-                'Max. amount of parallel task that can be started. '
+                'Maximum amount of parallel task that can be started. '
                 'Default %(default)s, disabled'
             ),
         )
@@ -173,7 +173,7 @@ class CliParser:
             type=int,
             help=(
                 'Minimum free memory in MB required to run the scan. '
-                'If no enough free memory is available, the scan is queued. '
+                'If insufficient free memory is available, the scan is queued. '
                 'Default %(default)s, disabled'
             ),
         )
@@ -204,7 +204,7 @@ class CliParser:
             help=(
                 'Broker port to connect to for MQTT communication.'
                 ' Neccessary to get results from Notus-Scanner.'
-                'Default %(default)s'
+                ' Default %(default)s'
             ),
         )
         parser.add_argument(
@@ -213,7 +213,7 @@ class CliParser:
             type=str,
             help=(
                 'Username to connect to MQTT broker for MQTT communication.'
-                'Default %(default)s'
+                ' Default %(default)s'
             ),
         )
         parser.add_argument(
@@ -221,8 +221,8 @@ class CliParser:
             default=None,
             type=str,
             help=(
-                'PASSWORD to connect to MQTT broker for MQTT communication.'
-                'Default %(default)s'
+                'Password to connect to MQTT broker for MQTT communication.'
+                ' Default %(default)s'
             ),
         )
 
@@ -241,7 +241,7 @@ class CliParser:
             '--signature-check',
             default=False,
             action='store_true',
-            help=('Enable feed signature check.' ' Default: %(default)s.'),
+            help=('Enable feed signature check. Default: %(default)s.'),
         )
 
         self.parser = parser

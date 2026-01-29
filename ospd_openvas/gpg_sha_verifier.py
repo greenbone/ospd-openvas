@@ -31,7 +31,7 @@ def __determine_default_gpg_home() -> Path:
 
 def __default_gpg_home() -> GPG:
     """
-    __defaultGpgHome tries to load the variable 'GNUPGHOME' or to guess it
+    __default_gpg_home tries to load the variable 'GNUPGHOME' or to guess it
     """
     manual = os.getenv("GNUPGHOME")
 

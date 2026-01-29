@@ -85,6 +85,12 @@ class ArgumentParserTestCase(unittest.TestCase):
         )
         self.assertEqual(args.disable_notus_hashsum_verification, True)
 
+    def test_explicitly_enable_notus_hashsum_verification(self):
+        args = self.parse_args(
+            '--disable-notus-hashsum-verification false'.split()
+        )
+        self.assertEqual(args.disable_notus_hashsum_verification, False)
+
     def test_defaults(self):
         args = self.parse_args([])
 
@@ -101,6 +107,7 @@ class ArgumentParserTestCase(unittest.TestCase):
         self.assertEqual(args.mqtt_broker_address, DEFAULT_MQTT_BROKER_ADDRESS)
         self.assertEqual(args.mqtt_broker_port, DEFAULT_MQTT_BROKER_PORT)
         self.assertEqual(args.disable_notus_hashsum_verification, False)
+        self.assertEqual(args.signature_check, False)
 
 
 class ArgumentParserConfigTestCase(unittest.TestCase):
@@ -114,19 +121,35 @@ class ArgumentParserConfigTestCase(unittest.TestCase):
         config_file = str(here / 'testing.conf')
         args = self.parse_args(['--config', config_file])
 
+        self.assertEqual(args.config, config_file)
+
         self.assertEqual(args.key_file, '/foo/key.pem')
+        self.assertEqual(args.cert_file, '/foo/cert.pem')
+        self.assertEqual(args.ca_file, '/foo/ca.pem')
         self.assertEqual(args.niceness, 666)
         self.assertEqual(args.log_level, 'DEBUG')
+        self.assertEqual(args.log_config, '/foo/ospd-logging.conf')
+        self.assertEqual(args.log_file, '/foo/ospd-openvas.log')
         self.assertEqual(args.address, '6.6.6.6')
         self.assertEqual(args.port, 6666)
         self.assertEqual(args.scaninfo_store_time, 123)
-        self.assertEqual(args.config, config_file)
         self.assertEqual(args.unix_socket, '/foo/ospd-openvas.sock')
         self.assertEqual(args.pid_file, '/foo/ospd-openvas.pid')
         self.assertEqual(args.lock_file_dir, '/foo/openvas')
         self.assertEqual(args.mqtt_broker_address, 'foo.bar.com')
         self.assertEqual(args.mqtt_broker_port, 1234)
+        self.assertEqual(args.mqtt_broker_username, 'ospd')
+        self.assertEqual(args.mqtt_broker_password, 'secret')
         self.assertEqual(args.notus_feed_dir, '/foo/advisories')
+        self.assertEqual(args.foreground, True)
+        self.assertEqual(args.socket_mode, '0o700')
+        self.assertEqual(args.stream_timeout, 20)
+        self.assertEqual(args.max_scans, 20)
+        self.assertEqual(args.max_queued_scans, 5)
+        self.assertEqual(args.min_free_mem_scan_queue, 200)
+        self.assertEqual(args.feed_updater, 'nasl-cli')
+        self.assertEqual(args.disable_notus_hashsum_verification, True)
+        self.assertEqual(args.signature_check, True)
 
     @patch('sys.stderr', new_callable=StringIO)
     def test_not_existing_config(self, _mock):
