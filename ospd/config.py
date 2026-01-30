@@ -15,6 +15,32 @@ from typing import Dict
 
 logger = logging.getLogger(__name__)
 
+booleankeys = [
+    'foreground',
+    'signature_check',
+    'disable_notus_hashsum_verification',
+]
+
+
+def strtoboolean(value: str) -> bool:
+    """Convert string *value* to boolean.
+
+    "True", "yes", "on" and "1" are converted to True.
+
+    "False", "no", "off" and "0" are converted to False.
+
+    Comparison is done case insensitive.
+
+    Other values cause ValueError.
+    """
+    trues = set(element.casefold() for element in ["true", "yes", "on", "1"])
+    falses = set(element.casefold() for element in ["false", "no", "off", "0"])
+    if value.casefold() in trues:
+        return True
+    if value.casefold() in falses:
+        return False
+    raise ValueError(f"{value} could not be converted to boolean")
+
 
 class Config:
     def __init__(self, section: str = 'main') -> None:
@@ -29,7 +55,11 @@ class Config:
         with path.open() as f:
             parser.read_file(f)
 
-        self._defaults.update(parser.defaults())
+        for key, value in parser.defaults().items():
+            if key in booleankeys:
+                self._defaults[key] = strtoboolean(value)
+            else:
+                self._defaults[key] = value
 
         for key, value in parser.items(def_section):
             self._config.setdefault(def_section, dict())[key] = value
