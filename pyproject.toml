@@ -19,7 +19,7 @@ classifiers=[
   "Intended Audience :: System Administrators",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",  
+  "Programming Language :: Python :: 3.11",
 ]
 keywords = [
   "openvas",
@@ -44,7 +44,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-redis = ">=4.5.0"
+redis = ">=4.5.0,<7.2.0"
 psutil = ">=5.5.1,<8.0.0"
 packaging = ">=20.4,<27.0"
 lxml = ">=4.5.2,<7.0.0"
