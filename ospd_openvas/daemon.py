@@ -700,6 +700,12 @@ class OSPDopenvas(OSPDaemon):
             loaded = Openvas.load_vts_into_redis()
 
         if loaded:
+            logger.debug('Filling vt_xml...')
+            for single_vt in self.get_vt_iterator(self.get_vts_selection_list(), True):
+                vt_id, vt = single_vt
+                #logger.info('Adding to vt_xml: %s', vt_id)
+                self.vt_xml[vt_id] = self.get_vt_xml_str(single_vt)
+
             new = self.nvti.get_feed_version()
             if new != old:
                 logger.info(
@@ -755,6 +761,12 @@ class OSPDopenvas(OSPDaemon):
     ) -> Iterator[Tuple[str, Dict]]:
         vthelper = VtHelper(self.nvti, self.notus)
         return vthelper.get_vt_iterator(vt_selection, details)
+
+    def get_vt_id_iterator(
+        self, vt_selection: List[str] = None
+    ) -> Iterator[str]:
+        vthelper = VtHelper(self.nvti, self.notus)
+        return vthelper.get_vt_id_iterator(vt_selection)
 
     @property
     def is_running_as_root(self) -> bool:
