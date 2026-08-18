@@ -69,15 +69,10 @@ COPY --from=builder /source/dist/* /ospd-openvas/
 RUN apt-get remove -y python3-impacket python3-cryptography || true
 RUN apt-get autoremove -y
 
-RUN dpkg -l |grep cryptography
-
 RUN python3 -m pip install --break-system-packages /ospd-openvas/*
 
 # install impacket via pip and not apt-get to get the latest version
 RUN python3 -m pip install --break-system-packages --ignore-installed impacket
-# openvas is expecting impacket-wmiexec to be in the path although it got renamed
-# until openvas is fixed we create a symlink
-RUN ln -s /usr/local/bin/wmiexec.py /usr/local/bin/impacket-wmiexec
 
 RUN apt-get purge -y gcc python3-dev && apt-get autoremove -y
 
