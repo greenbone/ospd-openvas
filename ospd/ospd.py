@@ -52,6 +52,8 @@ from ospd.xmlvt import XmlStringVTHelper
 
 logger = logging.getLogger(__name__)
 
+multiprocessing.set_start_method('fork', force=True)
+
 PROTOCOL_VERSION = __version__
 
 SCHEDULER_CHECK_PERIOD = 10  # in seconds
