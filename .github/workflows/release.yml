@@ -107,20 +107,14 @@ jobs:
       - name: "create working branch for previous major release (${{ env.LATEST_VERSION }})"
         if: ( env.RELEASE_KIND == 'major' )
         run: |
-          # save a branch so that we can easily create PR for that version when we want to fix something
           git checkout "v${{ env.LATEST_VERSION }}"
           export BRANCH_NAME=$(echo "${{ env.LATEST_VERSION }}" | sed 's/^\([0-9]*\).*/v\1/')
           git checkout -b "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
-      # create branch of version 
       - name: prepare project version ${{ env.RELEASE_REF }} ${{ env.LATEST_VERSION }} -> ${{ env.NEW_VERSION }}
         run: |
-          # jump back for the case that we switched to a tag
           git checkout "${{ env.RELEASE_REF }}"
-          # install pontos
           python3 -m pip install pontos
-          #poetry install
-          #poetry shell
           pontos-version update ${{ env.NEW_VERSION }}
           if git diff --exit-code --quiet; then
             echo "There are no modified files, skipping."
@@ -131,28 +125,31 @@ jobs:
             git push origin ${{ env.RELEASE_REF }}
           fi
 
-      - run: mkdir assets/
+      - run: mkdir -p assets/
+
+      # Install git-cliff using Greenbone's UV action
+      - name: Install git-cliff
+        uses: greenbone/actions/uv@v3
+        with:
+          install: git-cliff
+
+      # Generate changelog with git-cliff and cliff.toml configuration
+      - name: Generate changelog with git-cliff
+        run: |
+          # Generate changelog from previous version to HEAD
+          git-cliff -v --strip header -o /tmp/changelog.md --config cliff.toml --tag "${{ env.NEW_VERSION }}" "v${{ env.LATEST_VERSION }}..HEAD"
+          # Fallback if changelog is empty
+          if [ ! -s "/tmp/changelog.md" ]; then
+            echo "No release notes. See commit history for details." > /tmp/changelog.md
+          fi
+
       - name: release ${{ env.LATEST_VERSION }} -> ${{ env.NEW_VERSION }}
         run: |
           export PROJECT=$(echo "${{ github.repository }}" | sed 's/.*\///' )
-          pontos-changelog \
-            --current-version ${{ env.LATEST_VERSION }} \
-            --next-version ${{ env.NEW_VERSION }} \
-            --config changelog.toml \
-            --repository ${{ github.repository }} \
-            --versioning-scheme semver \
-            -o /tmp/changelog.md   || true
-          # we would rather have empty release notes than no release
-          if [ ! -f "/tmp/changelog.md" ]; then
-            touch /tmp/changelog.md
-          fi
-          echo "${{ secrets.GREENBONE_BOT_TOKEN }}" | gh auth login --with-token
-          # lets see how smart it is
           export nrn="v${{ env.NEW_VERSION }}"
           export filename="$PROJECT-$nrn"
+          echo "${{ secrets.GREENBONE_BOT_TOKEN }}" | gh auth login --with-token
           gh release create "$nrn" -F /tmp/changelog.md
-          mkdir -p assets
-          ls -las assets/
           curl -Lo assets/$filename.zip https://github.com/${{ github.repository }}/archive/refs/tags/$nrn.zip
           curl -Lo assets/$filename.tar.gz https://github.com/${{ github.repository }}/archive/refs/tags/$nrn.tar.gz
           echo -e "${{ secrets.GPG_KEY }}" > private.pgp
