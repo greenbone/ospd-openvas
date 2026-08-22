@@ -408,8 +408,23 @@ class GetVts(BaseCommand):
 
         yield begin_vts_tag
         if not version_only:
-            for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):
-                yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
+            if vt_details:
+                if vt_filter:
+                    logger.debug('Getting filtered with details.')
+                    for vt_id in self._daemon.get_vt_id_iterator(vts_selection):
+                        yield self._daemon.get_vt_xml_str_prepared(vt_id)
+                        ## 3s
+                        #yield self._daemon.get_vt_xml_str_fixed(vt_id)
+                else:
+                    logger.debug('Getting all with details.')
+                    for s in self._daemon.get_vt_xml_str_iterator():
+                        yield s
+            else:
+                logger.debug('Getting filtered or sparse.')
+                for vt in self._daemon.get_vt_iterator(vts_selection, vt_details):
+                    #1m30s
+                    yield xml_helper.add_element(self._daemon.get_vt_xml(vt))
+                    #yield self._daemon.get_vt_xml_str(vt)
 
         yield xml_helper.create_element('vts', end=True)
         yield xml_helper.create_response('get_vts', end=True)
