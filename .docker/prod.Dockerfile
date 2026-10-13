@@ -19,7 +19,7 @@ RUN apt-get update && \
     apt-get remove --purge --auto-remove -y && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --break-system-packages poetry
+RUN PIP_IGNORE_INSTALLED=1 python3 -m pip install --break-system-packages poetry
 
 RUN rm -rf dist && poetry build -f wheel
 
