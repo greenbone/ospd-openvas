@@ -45,7 +45,7 @@ Show a summary of the commands
 
 .TP
 .BI "-p " PORT ", --port "PORT
-TCP Port to listen on. Default: 0
+TCP Port to listen on or 0 to listen on unix socket. Default: 0
 
 .TP
 .BI "-b " ADDRESS ", --bind-address "ADDRESS
@@ -53,7 +53,8 @@ Address to listen on. Default: 0.0.0.0
 
 .TP
 .BI "-u " UNIX_SOCKET ", --unix-socket "UNIX_SOCKET
-Unix file socket to listen on. Default: /run/ospd/ospd-openvas.sock
+Unix file socket to listen on unless non zero port configured.
+Default: /run/ospd/ospd-openvas.sock
 
 .TP
 .BI "-m " SOCKET_MODE ", --socket-mode "SOCKET_MODE
