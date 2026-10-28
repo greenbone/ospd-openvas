@@ -53,7 +53,7 @@ Address to listen on. Default: 0.0.0.0
 
 .TP
 .BI "-u " UNIX_SOCKET ", --unix-socket "UNIX_SOCKET
-Unix file socket to listen on. Default: /var/run/ospd/ospd.sock
+Unix file socket to listen on. Default: /run/ospd/ospd-openvas.sock
 
 .TP
 .BI "-m " SOCKET_MODE ", --socket-mode "SOCKET_MODE
@@ -61,25 +61,23 @@ Unix file socket mode. Default: 0o770
 
 .TP
 .BI "--pid-file "PID_FILE
-Location of the file for the process ID. Default: /var/run/ospd.pid
+Location of the file for the process ID. Default: /run/ospd/ospd.pid
 
 .TP
 .BI "--lock-file-dir "LOCK_FILE_DIR
-Directory where the feed lock file is placed. Default: /var/run/ospd
+Directory where the feed lock file is placed. Default: /run/ospd
 
 .TP
 .BI "-k " KEY_FILE ", --key-file "KEY_FILE
-Server key file. Default:
-/usr/var/lib/gvm/private/CA/serverkey.pem
+Server key file. Default: /var/lib/gvm/private/CA/serverkey.pem
 
 .TP
 .BI "-c " CERT_FILE ", --cert-file "CERT_FILE
-Server cert file. Default:
-/usr/var/lib/gvm/CA/servercert.pem
+Server cert file. Default: /var/lib/gvm/CA/servercert.pem
 
 .TP
 .BI "--ca-file "CA_FILE
-CA cert file. Default: /usr/var/lib/gvm/CA/cacert.pem
+CA cert file. Default: /var/lib/gvm/CA/cacert.pem
 
 .TP
 .BI "-L " LOG_LEVEL ", --log-level "LOG_LEVEL
