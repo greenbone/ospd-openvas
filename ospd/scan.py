@@ -70,6 +70,8 @@ class ScanCollection:
 
     def init(self):
         self.data_manager = multiprocessing.Manager()
+        # Pylint misidentifies the proxy RLock signature on Python 3.15.
+        # pylint: disable-next=too-many-function-args
         self.scan_collection_lock = self.data_manager.RLock()
 
     def add_result(

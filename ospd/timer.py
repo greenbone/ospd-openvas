@@ -8,7 +8,6 @@ import logging
 
 from ospd.errors import OspdError
 
-
 logger = logging.getLogger(__name__)
 
 

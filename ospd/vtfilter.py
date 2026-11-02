@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 """Vulnerability Test Filter class."""
+
 import re
 import operator
 from typing import Dict, List, Optional

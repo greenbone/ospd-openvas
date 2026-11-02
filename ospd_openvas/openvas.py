@@ -9,7 +9,6 @@ import logging
 import subprocess
 import psutil
 
-
 logger = logging.getLogger(__name__)
 
 _BOOL_DICT = {'no': 0, 'yes': 1}

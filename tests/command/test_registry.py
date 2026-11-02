@@ -7,7 +7,6 @@ from unittest import TestCase
 
 from ospd.command.registry import get_commands, register_command, remove_command
 
-
 COMMAND_NAMES = [
     "help",
     "check_feed",
