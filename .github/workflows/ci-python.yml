@@ -24,7 +24,7 @@ jobs:
       - name: Check with black, pylint and pontos.version
         uses: greenbone/actions/lint-python@v3
         with:
-          version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
           packages: ospd_openvas ospd tests
           linter: pylint
 
@@ -45,7 +45,7 @@ jobs:
       - name: Install poetry and dependencies
         uses: greenbone/actions/poetry@v3
         with:
-          version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
       - name: Run unit tests
         run: poetry run python -m unittest
 

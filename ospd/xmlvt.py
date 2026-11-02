@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 """OSP XML utils class for VTs."""
+
 import logging
 
 from typing import List, Dict, Optional

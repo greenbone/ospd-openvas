@@ -21,7 +21,6 @@ from ospd.parser import create_parser, ParserType
 from ospd.server import TlsServer, UnixSocketServer, BaseServer
 from ospd.logger import init_logging
 
-
 COPYRIGHT = """Copyright (C) 2014-2021 Greenbone AG
 License GPLv2+: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
