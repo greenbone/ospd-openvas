@@ -13,9 +13,11 @@ jobs:
     strategy:
         matrix:
           python-version:
-            - "3.9"
-            - "3.10"
             - "3.11"
+            - "3.12"
+            - "3.13"
+            - "3.14"
+            - "3.15"
 
     steps:
       - uses: actions/checkout@v7
@@ -32,9 +34,11 @@ jobs:
     strategy:
         matrix:
           python-version:
-            - "3.9"
-            - "3.10"
             - "3.11"
+            - "3.12"
+            - "3.13"
+            - "3.14"
+            - "3.15"
 
     steps:
       - uses: actions/checkout@v7
@@ -44,3 +48,14 @@ jobs:
           version: ${{ matrix.python-version }}
       - name: Run unit tests
         run: poetry run python -m unittest
+
+  all-python-ci-jobs-passed:
+    name: All Python CI jobs passed
+    needs: [linting, test]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require all CI jobs to succeed
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<<"$NEEDS"
