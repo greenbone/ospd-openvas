@@ -973,6 +973,10 @@ class OSPDopenvas(OSPDaemon):
 
             elif res["result_type"] == 'ALARM':
                 rseverity = vthelper.get_severity_score(vt_aux)
+                if rseverity is None:
+                    rseverity = "0.0"
+                else:
+                    rseverity = str(rseverity)
                 res_list.add_scan_alarm_to_list(
                     host=current_host,
                     hostname=rhostname,
