@@ -1116,7 +1116,7 @@ class OSPDopenvas(OSPDaemon):
                 )
 
             # Clean redis db
-            for scan_db in kbdb.get_scan_databases():
+            for scan_db in kbdb.get_scan_databases(scan_id):
                 self.main_db.release_database(scan_db)
 
     def exec_scan(self, scan_id: str):
@@ -1280,7 +1280,7 @@ class OSPDopenvas(OSPDaemon):
 
                 kbdb.stop_scan(scan_id)
 
-                for scan_db in kbdb.get_scan_databases():
+                for scan_db in kbdb.get_scan_databases(scan_id):
                     self.main_db.release_database(scan_db)
                 self.main_db.release_database(kbdb)
                 return

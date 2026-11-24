@@ -524,10 +524,20 @@ class ScanDB(BaseKbDB):
         self.index = kbindex
         return self
 
+    def get_scan_id(self) -> Optional[str]:
+        """Return the id of the scan that owns this host kb"""
+        return self._get_single_item('internal/scan_id')
+
 
 class KbDB(BaseKbDB):
-    def get_scan_databases(self) -> Iterator[ScanDB]:
-        """Returns an iterator yielding corresponding ScanDBs
+    def get_scan_databases(self, scan_id: str) -> Iterator[ScanDB]:
+        """Returns an iterator yielding the host kbs that still belong to
+        the scan
+
+        openvas releases a host kb when the host is finished but does not
+        remove its index from internal/dbindex, so another scan may own
+        the database by now. Only databases whose internal/scan_id matches
+        scan_id are yielded.
 
         The returned Iterator can't be converted to an Iterable like a List.
         Each yielded ScanDB must be used independently in a for loop. If the
@@ -540,7 +550,16 @@ class KbDB(BaseKbDB):
             if kbindex == self.index:
                 continue
 
-            yield scan_db.select(kbindex)
+            scan_db.select(kbindex)
+            if scan_db.get_scan_id() != scan_id:
+                logger.debug(
+                    '%s: Skipping kb %s, it no longer belongs to the scan',
+                    scan_id,
+                    kbindex,
+                )
+                continue
+
+            yield scan_db
 
     def add_scan_id(self, scan_id: str):
         self._add_single_item(f'internal/{scan_id}', ['new'])

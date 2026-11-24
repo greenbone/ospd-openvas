@@ -608,7 +608,9 @@ class KbDBTestCase(TestCase):
             '11',
         ]
 
-        scan_dbs = self.db.get_scan_databases()
+        mock_openvas_db.get_single_item.return_value = 'scan-1'
+
+        scan_dbs = self.db.get_scan_databases('scan-1')
 
         scan_db = next(scan_dbs)
         self.assertEqual(scan_db.index, '4')
@@ -618,6 +620,25 @@ class KbDBTestCase(TestCase):
 
         scan_db = next(scan_dbs)
         self.assertEqual(scan_db.index, '11')
+
+        with self.assertRaises(StopIteration):
+            next(scan_dbs)
+
+    def test_get_scan_databases_skips_kbs_of_other_scans(
+        self, mock_openvas_db
+    ):
+        mock_openvas_db.get_list_item.return_value = ['4', '7', '11', '12']
+        mock_openvas_db.get_single_item.side_effect = [
+            'scan-1',
+            'scan-2',
+            None,
+            'scan-1',
+        ]
+
+        scan_dbs = self.db.get_scan_databases('scan-1')
+
+        self.assertEqual(next(scan_dbs).index, '4')
+        self.assertEqual(next(scan_dbs).index, '12')
 
         with self.assertRaises(StopIteration):
             next(scan_dbs)
