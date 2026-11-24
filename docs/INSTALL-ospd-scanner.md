@@ -168,5 +168,5 @@ command:
 
     python3 -m build --sdist
 
-In both cases a source archive for the `ospd-scanner` module will be
+In both cases a source archive for the `ospd-openvas` module will be
 created in the subdirectory *dist*.
