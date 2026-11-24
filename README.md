@@ -34,7 +34,7 @@ Python 3.11 and later is supported.
 
 The `ospd-openvas` startup parameter `--lock-file-dir` or the `lock_file_dir` config
 parameter of the `ospd.conf` config file needs to point to the same location / path of
-the `gvmd` daemon and the `openvas` command line tool (Default: `<install-prefix>/var/run`).
+the `gvmd` daemon and the `openvas` command line tool (Default: `/run/ospd`).
 Examples for both are shipped within the `config` sub-folder of this project.
 
 Also in order to be able to use Notus ospd-openvas must connect to a MQTT broker, such as [Mosquitto](https://mosquitto.org/) in order to communicate. With the parameter `--mqtt-broker-address` (Default: localhost) the correct address must be given as well as the corresponding port with `--mqtt-broker-port` (Default: 1883).

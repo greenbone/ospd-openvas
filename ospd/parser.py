@@ -64,7 +64,8 @@ class CliParser:
             '--port',
             default=DEFAULT_PORT,
             type=self.network_port,
-            help='TCP Port to listen on. Default: %(default)s',
+            help='TCP Port to listen on or 0 to listen on unix socket.'
+            ' Default: %(default)s',
         )
         parser.add_argument(
             '-b',
@@ -77,7 +78,8 @@ class CliParser:
             '-u',
             '--unix-socket',
             default=DEFAULT_UNIX_SOCKET_PATH,
-            help='Unix file socket to listen on. Default: %(default)s',
+            help='Unix file socket to listen on unless port set to'
+            ' non zero. Default: %(default)s',
         )
         parser.add_argument(
             '--pid-file',
